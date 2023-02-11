@@ -3,14 +3,14 @@ package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.PastOrPresent;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -36,8 +36,8 @@ public class RtcStudentValidationIssueEntity {
 
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
-  @ManyToOne(optional = false, targetEntity = SdcSchoolStudentEntity.class)
-  @JoinColumn(name = "SDC_SCHOOL_STUDENT_ID", referencedColumnName = "SDC_SCHOOL_STUDENT_ID", updatable = false)
+  @ManyToOne(optional = false, targetEntity = RtcSchoolStudentEntity.class)
+  @JoinColumn(name = "RTC_SCHOOL_STUDENT_ID", referencedColumnName = "RTC_SCHOOL_STUDENT_ID", updatable = false)
   private RtcSchoolStudentEntity rtcSchoolStudentEntity;
 
   @Column(name = "VALIDATION_ISSUE_SEVERITY_CODE", nullable = false)
