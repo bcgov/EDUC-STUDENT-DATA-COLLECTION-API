@@ -69,7 +69,7 @@ public class RestWebClient {
     val oauthFilter = new ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
     oauthFilter.setDefaultClientRegistrationId(this.props.getClientID());
     return builder
-      .defaultHeader("X-Client-Name", ApplicationProperties.API_NAME)
+      .defaultHeader("X-Client-Name", ApplicationProperties.STUDENT_DATA_COLLECTION_API)
       .codecs(configurer -> configurer
         .defaultCodecs()
         .maxInMemorySize(100 * 1024 * 1024))

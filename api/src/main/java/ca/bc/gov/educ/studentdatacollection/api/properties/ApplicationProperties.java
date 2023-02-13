@@ -22,7 +22,7 @@ public class ApplicationProperties {
   public static final Executor bgTask = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("bg-task-executor-%d").build())
     .setCorePoolSize(1).setMaximumPoolSize(1).setKeepAliveTime(Duration.ofSeconds(60)).build();
-  public static final String API_NAME = "PEN_REG_BATCH_API";
+  public static final String STUDENT_DATA_COLLECTION_API = "STUDENT_DATA_COLLECTION_API";
   public static final String CORRELATION_ID = "correlationID";
   /**
    * The Client id.

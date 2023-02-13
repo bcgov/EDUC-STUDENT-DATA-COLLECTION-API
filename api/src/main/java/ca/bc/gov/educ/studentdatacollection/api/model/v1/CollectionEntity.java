@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.util.UpperCase;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -40,13 +41,14 @@ public class CollectionEntity {
   private UUID collectionID;
 
   @Column(name = "COLLECTION_CODE", nullable = false, length = 10)
+  @UpperCase
   private String collectionCode;
 
   @Column(name = "OPEN_DATE")
-  private String openDate;
+  private LocalDateTime openDate;
 
   @Column(name = "CLOSE_DATE")
-  private String closeDate;
+  private LocalDateTime closeDate;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
