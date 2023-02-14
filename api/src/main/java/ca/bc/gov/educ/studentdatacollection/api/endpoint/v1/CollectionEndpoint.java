@@ -1,5 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
+import static org.springframework.http.HttpStatus.CREATED;
+
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @RequestMapping(URL.BASE_URL_COLLECTION)
 public interface CollectionEndpoint {
@@ -45,6 +48,7 @@ public interface CollectionEndpoint {
   @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
   @Tag(name = "Collection Entity", description = "Endpoints for collection entity.")
   @Schema(name = "Collection", implementation = Collection.class)
+  @ResponseStatus(CREATED)
   Collection createCollection(@Validated @RequestBody Collection collection) throws JsonProcessingException;
 
   @DeleteMapping("/{collectionID}")

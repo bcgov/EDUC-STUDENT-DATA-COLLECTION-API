@@ -37,7 +37,7 @@
     <faker.varion>0.15</faker.varion>
     <awaitility.version>4.0.3</awaitility.version>
     <awaitility-proxy.version>3.1.6</awaitility-proxy.version>
-    <redisson.version>3.19.3</redisson.version> <!-- DO NOT change-->
+    <redisson.version>3.19.3</redisson.version>
     <log4j.version>2.17.1</log4j.version>
   </properties>
 
@@ -218,17 +218,17 @@
       <version>1.1.1</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.junit.vintage</groupId>
-      <artifactId>junit-vintage-engine</artifactId>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.hamcrest</groupId>
-          <artifactId>hamcrest-core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.junit.vintage</groupId>-->
+<!--      <artifactId>junit-vintage-engine</artifactId>-->
+<!--      <scope>test</scope>-->
+<!--      <exclusions>-->
+<!--        <exclusion>-->
+<!--          <groupId>org.hamcrest</groupId>-->
+<!--          <artifactId>hamcrest-core</artifactId>-->
+<!--        </exclusion>-->
+<!--      </exclusions>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>io.nats</groupId>
       <artifactId>jnats</artifactId>
