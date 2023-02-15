@@ -23,6 +23,8 @@ public class BaseRTCSchool extends BaseRequest {
 
   private String uploadDate;
 
+  private String uploadFileName;
+
   private String collectionStatusTypeCode;
 
 }

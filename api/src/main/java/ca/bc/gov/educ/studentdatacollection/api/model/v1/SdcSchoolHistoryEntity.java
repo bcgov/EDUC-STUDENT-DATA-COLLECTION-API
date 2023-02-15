@@ -1,14 +1,14 @@
 package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.time.LocalDateTime;
-import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.PastOrPresent;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -43,6 +43,9 @@ public class SdcSchoolHistoryEntity {
 
   @Column(name = "UPLOAD_DATE")
   private LocalDateTime uploadDate;
+
+  @Column(name = "UPLOAD_FILE_NAME")
+  private String uploadFileName;
 
   @Column(name = "COLLECTION_STATUS_TYPE_CODE")
   private String collectionStatusTypeCode;

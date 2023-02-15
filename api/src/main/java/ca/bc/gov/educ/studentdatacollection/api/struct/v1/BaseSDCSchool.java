@@ -23,6 +23,8 @@ public class BaseSDCSchool extends BaseRequest {
 
   private String uploadDate;
 
+  private String uploadFileName;
+
   private String collectionStatusTypeCode;
 
 }
