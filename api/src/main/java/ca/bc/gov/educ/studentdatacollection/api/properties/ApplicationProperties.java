@@ -39,26 +39,6 @@ public class ApplicationProperties {
    */
   @Value("${url.token}")
   private String tokenURL;
-  /**
-   * The Student api url.
-   */
-  @Value("${url.api.student}")
-  private String studentApiURL;
-
-  /**
-   * Amount of time that can elapse before a duplicate request is not considered a repeat
-   */
-  @Value("${repeat.time.window.psi}")
-  private int repeatTimeWindowPSI;
-
-  /**
-   * Amount of time that can elapse before a duplicate request is not considered a repeat
-   */
-  @Value("${repeat.time.window.k12}")
-  private int repeatTimeWindowK12;
-
-  @Value("${url.api.pen.services}")
-  private String penServicesApiURL;
 
   @Value("${url.api.school}")
   private String schoolApiURL;
@@ -71,12 +51,6 @@ public class ApplicationProperties {
 
   @Value("${nats.connectionName}")
   private String connectionName;
-
-  @Value("${number.records.for.batch.hold}")
-  private int numRecordsForBatchHold;
-
-  @Value("${student.threshold.generate.pdf}")
-  private Integer blockPdfGenerationThreshold;
 
   @Value("${threads.min.subscriber}")
   private Integer minSubscriberThreads;
