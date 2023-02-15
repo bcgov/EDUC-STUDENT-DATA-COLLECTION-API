@@ -6,6 +6,7 @@ DB_JDBC_CONNECT_STRING=$5
 DB_PWD=$6
 DB_USER=$7
 SPLUNK_TOKEN=$8
+APP_NAME_UPPER=${APP_NAME^^}
 
 TZVALUE="America/Vancouver"
 SOAM_KC_REALM_ID="master"
@@ -13,8 +14,6 @@ SOAM_KC=soam-$envValue.apps.silver.devops.gov.bc.ca
 
 SOAM_KC_LOAD_USER_ADMIN=$(oc -n $COMMON_NAMESPACE-$envValue -o json get secret sso-admin-${envValue} | sed -n 's/.*"username": "\(.*\)"/\1/p' | base64 --decode)
 SOAM_KC_LOAD_USER_PASS=$(oc -n $COMMON_NAMESPACE-$envValue -o json get secret sso-admin-${envValue} | sed -n 's/.*"password": "\(.*\)",/\1/p' | base64 --decode)
-
-NATS_CLUSTER=educ_nats_cluster
 NATS_URL="nats://nats.${COMMON_NAMESPACE}-${envValue}.svc.cluster.local:4222"
 
 echo Fetching SOAM token
@@ -97,8 +96,6 @@ FLB_CONFIG="[SERVICE]
    Exclude_Path *.gz,*.zip
    Parser docker
    Mem_Buf_Limit 20MB
-   Buffer_Chunk_Size 5MB
-   Buffer_Max_Size 5MB
 [FILTER]
    Name record_modifier
    Match *
