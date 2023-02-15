@@ -15,6 +15,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.support.TestRedisConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -34,7 +35,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-@SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
+@SpringBootTest(classes = {TestRedisConfiguration.class, StudentDataCollectionApiApplication.class})
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 public class CollectionControllerTest {
