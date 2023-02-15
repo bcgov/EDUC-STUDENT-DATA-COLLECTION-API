@@ -55,6 +55,9 @@ public class SdcSchoolEntity {
   @Column(name = "UPLOAD_DATE")
   private LocalDateTime uploadDate;
 
+  @Column(name = "UPLOAD_FILE_NAME")
+  private String uploadFileName;
+
   @Column(name = "COLLECTION_STATUS_TYPE_CODE")
   private String collectionStatusTypeCode;
 
