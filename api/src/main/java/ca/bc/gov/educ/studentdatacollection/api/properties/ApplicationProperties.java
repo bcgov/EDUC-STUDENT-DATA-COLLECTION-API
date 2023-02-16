@@ -40,8 +40,8 @@ public class ApplicationProperties {
   @Value("${url.token}")
   private String tokenURL;
 
-  @Value("${url.api.school}")
-  private String schoolApiURL;
+//  @Value("${url.api.school}")
+//  private String schoolApiURL;
 
   @Value("${nats.server}")
   private String server;
