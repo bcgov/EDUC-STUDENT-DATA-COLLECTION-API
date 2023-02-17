@@ -2,12 +2,11 @@ envValue=$1
 APP_NAME=$2
 OPENSHIFT_NAMESPACE=$3
 COMMON_NAMESPACE=$4
+APP_NAME_UPPER=${APP_NAME^^}
 DB_JDBC_CONNECT_STRING=$5
 DB_PWD=$6
 DB_USER=$7
 SPLUNK_TOKEN=$8
-APP_NAME_UPPER=${APP_NAME^^}
-
 TZVALUE="America/Vancouver"
 SOAM_KC_REALM_ID="master"
 SOAM_KC=soam-$envValue.apps.silver.devops.gov.bc.ca
@@ -144,6 +143,3 @@ oc -n "$OPENSHIFT_NAMESPACE"-"$envValue" set env --from=configmap/$APP_NAME-conf
 
 echo Creating config map "$APP_NAME"-flb-sc-config-map
 oc create -n "$OPENSHIFT_NAMESPACE"-"$envValue" configmap "$APP_NAME"-flb-sc-config-map --from-literal=fluent-bit.conf="$FLB_CONFIG" --from-literal=parsers.conf="$PARSER_CONFIG" --dry-run -o yaml | oc apply -f -
-
-echo Removing un-needed config entries
-oc -n "$OPENSHIFT_NAMESPACE"-"$envValue" set env dc/"$APP_NAME"-$SOAM_KC_REALM_ID KEYCLOAK_PUBLIC_KEY-
