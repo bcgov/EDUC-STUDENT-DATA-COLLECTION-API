@@ -68,6 +68,8 @@ jobs:
           const secrets = {
             OPENSHIFT_SERVER: `${{ secrets.OPENSHIFT_SERVER }}`,
             OPENSHIFT_TOKEN: `${{ secrets.OPENSHIFT_TOKEN }}`,
+            DB_USER: `${{ secrets.DB_USER }}`,
+            SPLUNK_TOKEN: `${{ secrets.SPLUNK_TOKEN }}`
           };
 
           const GHCR = "ghcr.io";
