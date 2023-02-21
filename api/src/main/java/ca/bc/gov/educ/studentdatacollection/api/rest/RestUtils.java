@@ -1,15 +1,10 @@
 package ca.bc.gov.educ.studentdatacollection.api.rest;
 
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValidationIssueFieldTypeCode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValidationIssueTypeCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import jakarta.annotation.PostConstruct;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -39,10 +34,6 @@ public class RestUtils {
 
 
   private final WebClient webClient;
-
-  private final Map<String, ValidationIssueTypeCode> validationIssueTypeCodeMap = new ConcurrentHashMap<>();
-
-  private final Map<String, ValidationIssueFieldTypeCode> validationIssueFieldTypeCodeMap = new ConcurrentHashMap<>();
 
   /**
    * The School lock.
@@ -87,26 +78,6 @@ public class RestUtils {
     } finally {
       writeLock.unlock();
     }
-  }
-
-  /**
-   * Gets penRequestBatchStudentValidationIssueTypeCode by issue type code.
-   *
-   * @param issueTypeCode the issue type code
-   * @return the PenRequestBatchStudentValidationIssueTypeCode
-   */
-  public Optional<ValidationIssueTypeCode> getValidationIssueTypeCodeInfoByIssueTypeCode(final String issueTypeCode) {
-    return Optional.ofNullable(this.validationIssueTypeCodeMap.get(issueTypeCode));
-  }
-
-  /**
-   * Gets penRequestBatchStudentValidationIssueTypeCode by issue field code.
-   *
-   * @param issueFieldCode the issue field code
-   * @return the PenRequestBatchStudentValidationIssueFieldCode
-   */
-  public Optional<ValidationIssueFieldTypeCode> getValidationFieldCodeInfoByIssueFieldCode(final String issueFieldCode) {
-    return Optional.ofNullable(this.validationIssueFieldTypeCodeMap.get(issueFieldCode));
   }
 
 }
