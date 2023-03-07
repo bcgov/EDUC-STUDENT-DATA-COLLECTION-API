@@ -75,8 +75,8 @@ public class SdcSchoolStudentEntity {
   @Column(name = "DOB")
   private String dob;
 
-  @Column(name = "GENDER_CODE", length = 1)
-  private String genderCode;
+  @Column(name = "GENDER_TYPE_CODE", length = 1)
+  private String genderTypeCode;
 
   @Column(name = "SPECIAL_EDUCATION_CATEGORY_TYPE_CODE")
   private String specialEducationCategoryTypeCode;
