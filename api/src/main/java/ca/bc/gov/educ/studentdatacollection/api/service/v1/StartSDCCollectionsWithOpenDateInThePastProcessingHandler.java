@@ -24,11 +24,15 @@ public class StartSDCCollectionsWithOpenDateInThePastProcessingHandler {
   private final CollectionRepository collectionRepository;
   private final CollectionCodeRepository collectionCodeRepository;
 
+  private final SdcSchoolHistoryService sdcSchoolHistoryService;
+
   @Autowired
   public StartSDCCollectionsWithOpenDateInThePastProcessingHandler(
-      CollectionRepository collectionRepository, CollectionCodeRepository collectionCodeRepository) {
+      CollectionRepository collectionRepository, CollectionCodeRepository collectionCodeRepository, SdcSchoolHistoryService sdcSchoolHistoryService) {
     this.collectionRepository = collectionRepository;
     this.collectionCodeRepository = collectionCodeRepository;
+
+    this.sdcSchoolHistoryService = sdcSchoolHistoryService;
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -60,11 +64,18 @@ public class StartSDCCollectionsWithOpenDateInThePastProcessingHandler {
 
     savedCollection.setSdcSchoolEntities(sdcSchoolEntityList);
 
-    this.collectionRepository.save(savedCollection);
+    CollectionEntity savedCollectionWithSchoolEntities = this.collectionRepository.save(savedCollection);
     log.info("Collection saved with sdc school entities");
+
+    if(!savedCollectionWithSchoolEntities.getSDCSchoolEntities().isEmpty()) {
+      for (SdcSchoolEntity sdcSchoolEntity : savedCollectionWithSchoolEntities.getSDCSchoolEntities() ) {
+        this.sdcSchoolHistoryService.createSDCSchoolHistory(sdcSchoolEntity, ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      }
+    }
 
     collectionCode.setOpenDate(collectionCode.getOpenDate().plusYears(1));
     collectionCode.setCloseDate(collectionCode.getCloseDate().plusYears(1));
+    collectionCode.setUpdateDate(LocalDateTime.now());
     CollectionCodeEntity savedCollectionCode = this.collectionCodeRepository.save(collectionCode);
     log.info("Collection {} started, next open date is {}, next close date is {}", savedCollectionCode.getCollectionCode(), savedCollectionCode.getOpenDate(), savedCollectionCode.getCloseDate());
 

@@ -6,8 +6,10 @@ import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplicat
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolHistoryEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolHistoryRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolRepository;
 import ca.bc.gov.educ.studentdatacollection.api.support.TestRedisConfiguration;
 import java.time.LocalDateTime;
@@ -26,7 +28,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {TestRedisConfiguration.class, StudentDataCollectionApiApplication.class})
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class StartSDCCollectionsWithOpenDateInThePastProcessorTest {
+class StartSDCCollectionsWithOpenDateInThePastProcessorTest {
 
   @Autowired
   StartSDCCollectionsWithOpenDateInThePastProcessingHandler service;
@@ -37,6 +39,9 @@ public class StartSDCCollectionsWithOpenDateInThePastProcessorTest {
   CollectionCodeRepository collectionCodeRepository;
   @Autowired
   SdcSchoolRepository sdcSchoolRepository;
+
+  @Autowired
+  SdcSchoolHistoryRepository sdcSchoolHistoryRepository;
 
   @BeforeEach
   public void setUp() {
@@ -50,13 +55,14 @@ public class StartSDCCollectionsWithOpenDateInThePastProcessorTest {
 
   @AfterEach
   public void after() {
+    this.sdcSchoolHistoryRepository.deleteAll();
     this.sdcSchoolRepository.deleteAll();
     this.collectionRepository.deleteAll();
     this.collectionCodeRepository.deleteAll();
   }
 
   @Test
-  public void testStartSDCCollection_GivenPastOpenDate_ShouldCreateCollectionAndUpdateCollectionCodeOpenDateCloseDate() {
+  void testStartSDCCollection_GivenPastOpenDate_ShouldCreateCollectionAndUpdateCollectionCodeOpenDateCloseDateAndCreateSdcSchoolWithHistory() {
     List<String> listOfSchoolIDs = new ArrayList<>();
     UUID schoolID = UUID.randomUUID();
     listOfSchoolIDs.add(schoolID.toString());
@@ -68,14 +74,16 @@ public class StartSDCCollectionsWithOpenDateInThePastProcessorTest {
     List<CollectionEntity> collectionEntities = this.collectionRepository.findAll();
     List<SdcSchoolEntity> sdcSchoolEntities = this.sdcSchoolRepository.findAll();
     CollectionCodeEntity collectionCodeEntity = this.collectionCodeRepository.findById("TEST").get();
+    List<SdcSchoolHistoryEntity> sdcSchoolHistoryEntities = this.sdcSchoolHistoryRepository.findAll();
 
-    assertEquals(collectionEntities.size(), 1);
-    assertEquals(sdcSchoolEntities.size(), 1);
-    assertEquals(sdcSchoolEntities.get(0).getSchoolID(), schoolID);
-    assertEquals(collectionCodeEntity.getOpenDate().getYear(), LocalDateTime.now().plusYears(1).getYear());
-    assertEquals(collectionCodeEntity.getOpenDate().getMonth(), LocalDateTime.now().getMonth());
-    assertEquals(collectionCodeEntity.getCloseDate().getYear(), LocalDateTime.now().plusYears(1).getYear());
-    assertEquals(collectionCodeEntity.getCloseDate().getMonth(), LocalDateTime.now().getMonth());
+    assertEquals(1 ,collectionEntities.size());
+    assertEquals(1, sdcSchoolEntities.size());
+    assertEquals(schoolID, sdcSchoolEntities.get(0).getSchoolID());
+    assertEquals(LocalDateTime.now().plusYears(1).getYear(), collectionCodeEntity.getOpenDate().getYear());
+    assertEquals(LocalDateTime.now().getMonth(), collectionCodeEntity.getOpenDate().getMonth());
+    assertEquals(LocalDateTime.now().plusYears(1).getYear(), collectionCodeEntity.getCloseDate().getYear());
+    assertEquals(LocalDateTime.now().getMonth(), collectionCodeEntity.getCloseDate().getMonth());
+    assertEquals(sdcSchoolEntities.get(0).getSdcSchoolID(), sdcSchoolHistoryEntities.get(0).getSdcSchoolID());
   }
 
   private CollectionCodeEntity createCollectionCodeData() {

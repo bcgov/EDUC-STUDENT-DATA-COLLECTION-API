@@ -7,11 +7,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class School extends BaseRequest implements Serializable {
   /**
