@@ -36,7 +36,7 @@ public class StudentDataCollectionScheduler {
     this.restUtils = restUtils;
   }
 
-  @Scheduled(cron = "${cron.scheduled.process.events.start.collection}") //runs every hour
+  @Scheduled(cron = "${cron.scheduled.process.events.start.collection}") //runs at midnight
   @SchedulerLock(name = "startSDCCollectionsWithOpenDateInThePast",
       lockAtLeastFor = "${cron.scheduled.process.events.start.collection.lockAtLeastFor}", lockAtMostFor = "${cron.scheduled.process.events.start.collection.lockAtMostFor}")
   @Transactional(propagation = Propagation.REQUIRES_NEW)
