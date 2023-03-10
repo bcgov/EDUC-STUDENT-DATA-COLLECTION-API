@@ -8,37 +8,29 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplication;
+import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.controller.v1.CollectionController;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.support.TestRedisConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-@SpringBootTest(classes = {TestRedisConfiguration.class, StudentDataCollectionApiApplication.class})
-@ActiveProfiles("test")
-@AutoConfigureMockMvc
-public class CollectionControllerTest {
+public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
   @Autowired
   private MockMvc mockMvc;
@@ -58,13 +50,6 @@ public class CollectionControllerTest {
   public void before() {
     this.collectionCodeRepository.save(this.createCollectionCodeData());
     this.collectionRepository.save(this.createCollectionData());
-  }
-
-  @AfterEach
-  public void after() {
-    this.collectionRepository.deleteAll();
-    this.collectionCodeRepository.deleteAll();
-
   }
 
   @Test

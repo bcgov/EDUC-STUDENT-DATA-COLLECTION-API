@@ -99,5 +99,9 @@ public enum EventType {
   /**
    * Get student history
    */
-  GET_STUDENT_HISTORY
+  GET_STUDENT_HISTORY,
+  /**
+   * Get school list based on criteria from institute-api
+   */
+  GET_PAGINATED_SCHOOLS
 }

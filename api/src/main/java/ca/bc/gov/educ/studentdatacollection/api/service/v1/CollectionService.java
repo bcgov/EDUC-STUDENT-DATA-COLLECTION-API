@@ -6,7 +6,6 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,7 +35,7 @@ public class CollectionService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public CollectionEntity createCollection(Collection collection) throws JsonProcessingException {
+  public CollectionEntity createCollection(Collection collection) {
     CollectionEntity collectionEntity = CollectionMapper.mapper.toModel(collection);
     TransformUtil.uppercaseFields(collectionEntity);
     collectionRepository.save(collectionEntity);

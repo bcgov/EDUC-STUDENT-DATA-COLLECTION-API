@@ -54,7 +54,7 @@ public class StudentDataCollectionApiApplication {
   public LockProvider lockProvider(@Autowired final JdbcTemplate jdbcTemplate,
       @Autowired final PlatformTransactionManager transactionManager) {
     return new JdbcTemplateLockProvider(jdbcTemplate, transactionManager,
-        "PEN_REQUEST_BATCH_SHEDLOCK");
+        "STUDENT_DATA_COLLECTION_SHEDLOCK");
   }
 
   /**

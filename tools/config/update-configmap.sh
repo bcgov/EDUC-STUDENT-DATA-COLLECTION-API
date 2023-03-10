@@ -122,6 +122,9 @@ THREADS_MIN_SUBSCRIBER=4
 THREADS_MAX_SUBSCRIBER=8
 SAGAS_MAX_PENDING=100
 SAGAS_MAX_PARALLEL=100
+CRON_SCHEDULED_START_COLLECTION="@midnight"
+CRON_SCHEDULED_START_COLLECTION_LOCK_AT_MOST_FOR="PT4M"
+CRON_SCHEDULED_START_COLLECTION_LOCK_AT_LEAST_FOR="PT4M"
 
 #SOFT_DELETED_RETENTION_DAYS=365
 #SCHEDULED_JOBS_EXTRACT_UNPROCESSED_PENWEB_PEN_WEB_BLOBS_CRON="-"
@@ -135,7 +138,7 @@ SAGAS_MAX_PARALLEL=100
 
 echo
 echo Creating config map "$APP_NAME"-config-map
-oc create -n "$OPENSHIFT_NAMESPACE"-"$envValue" configmap "$APP_NAME"-config-map --from-literal=TZ=$TZVALUE --from-literal=JDBC_URL="$DB_JDBC_CONNECT_STRING" --from-literal=DB_USERNAME="$DB_USER" --from-literal=DB_PASSWORD="$DB_PWD" --from-literal=KEYCLOAK_PUBLIC_KEY="$soamFullPublicKey" --from-literal=SPRING_SECURITY_LOG_LEVEL=INFO --from-literal=SPRING_WEB_LOG_LEVEL=INFO --from-literal=APP_LOG_LEVEL=INFO --from-literal=SPRING_BOOT_AUTOCONFIG_LOG_LEVEL=INFO --from-literal=SPRING_SHOW_REQUEST_DETAILS=false --from-literal=SPRING_JPA_SHOW_SQL="false" --from-literal=TOKEN_ISSUER_URL="https://$SOAM_KC/auth/realms/$SOAM_KC_REALM_ID" --from-literal=NATS_MAX_RECONNECT=60 --from-literal=NATS_URL=$NATS_URL --from-literal=CLIENT_ID="student-data-collection-api-service" --from-literal=CLIENT_SECRET="$SDC_APIServiceClientID" --from-literal=THREADS_MIN_SUBSCRIBER="$THREADS_MIN_SUBSCRIBER" --from-literal=THREADS_MAX_SUBSCRIBER="$THREADS_MAX_SUBSCRIBER" --from-literal=SAGAS_MAX_PENDING="$SAGAS_MAX_PENDING" --from-literal=SAGAS_MAX_PARALLEL="$SAGAS_MAX_PARALLEL" --from-literal=TOKEN_URL="https://$SOAM_KC/auth/realms/$SOAM_KC_REALM_ID/protocol/openid-connect/token" --from-literal=URL_REDIS="redis.$OPENSHIFT_NAMESPACE-$envValue.svc.cluster.local:6379" --dry-run -o yaml | oc apply -f -
+oc create -n "$OPENSHIFT_NAMESPACE"-"$envValue" configmap "$APP_NAME"-config-map --from-literal=TZ=$TZVALUE --from-literal=JDBC_URL="$DB_JDBC_CONNECT_STRING" --from-literal=DB_USERNAME="$DB_USER" --from-literal=DB_PASSWORD="$DB_PWD" --from-literal=KEYCLOAK_PUBLIC_KEY="$soamFullPublicKey" --from-literal=SPRING_SECURITY_LOG_LEVEL=INFO --from-literal=SPRING_WEB_LOG_LEVEL=INFO --from-literal=APP_LOG_LEVEL=INFO --from-literal=SPRING_BOOT_AUTOCONFIG_LOG_LEVEL=INFO --from-literal=SPRING_SHOW_REQUEST_DETAILS=false --from-literal=SPRING_JPA_SHOW_SQL="false" --from-literal=TOKEN_ISSUER_URL="https://$SOAM_KC/auth/realms/$SOAM_KC_REALM_ID" --from-literal=NATS_MAX_RECONNECT=60 --from-literal=NATS_URL=$NATS_URL --from-literal=CLIENT_ID="student-data-collection-api-service" --from-literal=CLIENT_SECRET="$SDC_APIServiceClientID" --from-literal=THREADS_MIN_SUBSCRIBER="$THREADS_MIN_SUBSCRIBER" --from-literal=THREADS_MAX_SUBSCRIBER="$THREADS_MAX_SUBSCRIBER" --from-literal=SAGAS_MAX_PENDING="$SAGAS_MAX_PENDING" --from-literal=SAGAS_MAX_PARALLEL="$SAGAS_MAX_PARALLEL" --from-literal=TOKEN_URL="https://$SOAM_KC/auth/realms/$SOAM_KC_REALM_ID/protocol/openid-connect/token" --from-literal=URL_REDIS="redis.$OPENSHIFT_NAMESPACE-$envValue.svc.cluster.local:6379" --from-literal=CRON_SCHEDULED_START_COLLECTION="$CRON_SCHEDULED_START_COLLECTION" --from-literal=CRON_SCHEDULED_START_COLLECTION_LOCK_AT_LEAST_FOR="$CRON_SCHEDULED_START_COLLECTION_LOCK_AT_LEAST_FOR" --from-literal=CRON_SCHEDULED_START_COLLECTION_LOCK_AT_MOST_FOR="$CRON_SCHEDULED_START_COLLECTION_LOCK_AT_MOST_FOR" --dry-run -o yaml | oc apply -f -
 
 echo
 echo Setting environment variables for $APP_NAME-$SOAM_KC_REALM_ID application
