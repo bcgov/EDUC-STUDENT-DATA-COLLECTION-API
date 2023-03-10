@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.support;
 
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeCriteriaRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolHistoryRepository;
@@ -19,6 +20,8 @@ public class StudentDataCollectionTestUtils {
   @Autowired
   CollectionCodeRepository collectionCodeRepository;
   @Autowired
+  CollectionCodeCriteriaRepository collectionCodeCriteriaRepository;
+  @Autowired
   SdcSchoolRepository sdcSchoolRepository;
   @Autowired
   SdcSchoolHistoryRepository sdcSchoolHistoryRepository;
@@ -28,6 +31,7 @@ public class StudentDataCollectionTestUtils {
     this.sdcSchoolHistoryRepository.deleteAll();
     this.sdcSchoolRepository.deleteAll();
     this.collectionRepository.deleteAll();
+    this.collectionCodeCriteriaRepository.deleteAll();
     this.collectionCodeRepository.deleteAll();
 
   }

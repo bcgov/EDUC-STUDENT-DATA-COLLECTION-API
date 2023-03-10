@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -60,15 +59,6 @@ class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITes
         this.createCollectionCodeData());
     this.collectionCodeCriteriaRepository.save(
         this.createCollectionCodeCriteriaData(collectionCodeEntity));
-  }
-
-  @AfterEach
-  public void after() {
-    this.sdcSchoolHistoryRepository.deleteAll();
-    this.sdcSchoolRepository.deleteAll();
-    this.collectionRepository.deleteAll();
-    this.collectionCodeCriteriaRepository.deleteAll();
-    this.collectionCodeRepository.deleteAll();
   }
 
   @Test
