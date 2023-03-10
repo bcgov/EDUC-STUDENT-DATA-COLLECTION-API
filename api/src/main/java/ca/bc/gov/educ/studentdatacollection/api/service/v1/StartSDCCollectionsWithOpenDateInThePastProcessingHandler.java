@@ -75,7 +75,9 @@ public class StartSDCCollectionsWithOpenDateInThePastProcessingHandler {
 
     collectionCode.setOpenDate(collectionCode.getOpenDate().plusYears(1));
     collectionCode.setCloseDate(collectionCode.getCloseDate().plusYears(1));
+    collectionCode.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     collectionCode.setUpdateDate(LocalDateTime.now());
+
     CollectionCodeEntity savedCollectionCode = this.collectionCodeRepository.save(collectionCode);
     log.info("Collection {} started, next open date is {}, next close date is {}", savedCollectionCode.getCollectionCode(), savedCollectionCode.getOpenDate(), savedCollectionCode.getCloseDate());
 
