@@ -2,7 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import static org.junit.Assert.assertEquals;
 
-import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplication;
+import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolEntity;
@@ -11,7 +11,6 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeRepo
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolHistoryRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolRepository;
-import ca.bc.gov.educ.studentdatacollection.api.support.TestRedisConfiguration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,14 +20,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(classes = {TestRedisConfiguration.class, StudentDataCollectionApiApplication.class})
-@ActiveProfiles("test")
-@AutoConfigureMockMvc
-class StartSDCCollectionsWithOpenDateInThePastProcessorTest {
+class StartSDCCollectionsWithOpenDateInThePastProcessorTest extends
+    BaseStudentDataCollectionAPITest {
 
   @Autowired
   StartSDCCollectionsWithOpenDateInThePastProcessingHandler service;

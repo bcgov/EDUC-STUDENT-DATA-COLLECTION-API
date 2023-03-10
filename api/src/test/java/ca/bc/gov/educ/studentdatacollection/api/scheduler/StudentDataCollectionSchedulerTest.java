@@ -4,9 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplication;
+import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.controller.v1.CollectionController;
-import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeCriteriaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeCriteriaRepository;
@@ -17,7 +16,6 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolRepositor
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.schedulers.StudentDataCollectionScheduler;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import ca.bc.gov.educ.studentdatacollection.api.support.TestRedisConfiguration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,20 +25,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest(classes = {TestRedisConfiguration.class, StudentDataCollectionApiApplication.class})
-@ActiveProfiles("test")
-@AutoConfigureMockMvc
-class StudentDataCollectionSchedulerTest {
+class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITest {
 
-  @Autowired
-  private MockMvc mockMvc;
-  @Autowired
-  private MessagePublisher messagePublisher;
   @Autowired
   private RestUtils restUtils;
   @Autowired
@@ -85,7 +72,7 @@ class StudentDataCollectionSchedulerTest {
   }
 
   @Test
-  public void testStudentDataCollectionScheduler_WithCollectionToBeOpened_ShouldSaveCollectionWithTwoSchools() {
+  void testStudentDataCollectionScheduler_WithCollectionToBeOpened_ShouldSaveCollectionWithTwoSchools() {
     List<School> schoolList = new ArrayList<>();
     schoolList.add(School.builder().schoolId(UUID.randomUUID().toString()).build());
     schoolList.add(School.builder().schoolId(UUID.randomUUID().toString()).build());
