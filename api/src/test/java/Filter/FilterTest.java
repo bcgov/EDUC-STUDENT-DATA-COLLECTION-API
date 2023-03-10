@@ -6,7 +6,7 @@ import static org.junit.Assert.assertEquals;
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
 import org.junit.jupiter.api.Test;
 
-public class FilterTest {
+class FilterTest {
 
   @Test
   void filterOperationShouldReturnCorrectValues() {
