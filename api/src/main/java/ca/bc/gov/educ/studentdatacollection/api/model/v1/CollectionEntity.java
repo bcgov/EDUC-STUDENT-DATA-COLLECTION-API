@@ -78,16 +78,4 @@ public class CollectionEntity {
     return this.sdcSchoolEntities;
   }
 
-  @EqualsAndHashCode.Exclude
-  @ToString.Exclude
-  @OneToMany(mappedBy = "collectionEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = RtcSchoolEntity.class)
-  Set<RtcSchoolEntity> rtcSchoolEntities;
-
-  public Set<RtcSchoolEntity> getRTCSchoolEntities() {
-    if (this.rtcSchoolEntities == null) {
-      this.rtcSchoolEntities = new HashSet<>();
-    }
-    return this.rtcSchoolEntities;
-  }
-
 }
