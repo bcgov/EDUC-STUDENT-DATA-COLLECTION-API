@@ -57,4 +57,6 @@ public class ApplicationProperties {
   private Integer maxPendingSagas;
   @Value("${sagas.max.parallel}")
   private Integer maxParallelSagas;
+  @Value("${url.api.school}")
+  private String schoolApiURL;
 }

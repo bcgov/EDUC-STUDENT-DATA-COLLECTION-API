@@ -2,13 +2,13 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolBatchEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolHistoryEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolBatchRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolHistoryRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -28,11 +28,11 @@ class StartSDCCollectionsWithOpenDateInThePastProcessorTest extends
   StartSDCCollectionsWithOpenDateInThePastProcessingHandler service;
 
   @Autowired
-  CollectionRepository collectionRepository;
+  SdcRepository collectionRepository;
   @Autowired
   CollectionCodeRepository collectionCodeRepository;
   @Autowired
-  SdcSchoolRepository sdcSchoolRepository;
+  SdcSchoolBatchRepository sdcSchoolRepository;
 
   @Autowired
   SdcSchoolHistoryRepository sdcSchoolHistoryRepository;
@@ -57,7 +57,7 @@ class StartSDCCollectionsWithOpenDateInThePastProcessorTest extends
 
     this.service.startSDCCollection(collectionCode, listOfSchoolIDs);
 
-    List<CollectionEntity> collectionEntities = this.collectionRepository.findAll();
+    List<SdcEntity> collectionEntities = this.collectionRepository.findAll();
     List<SdcSchoolBatchEntity> sdcSchoolEntities = this.sdcSchoolRepository.findAll();
     CollectionCodeEntity collectionCodeEntity = this.collectionCodeRepository.findById("TEST").get();
     List<SdcSchoolHistoryEntity> sdcSchoolHistoryEntities = this.sdcSchoolHistoryRepository.findAll();
@@ -69,7 +69,7 @@ class StartSDCCollectionsWithOpenDateInThePastProcessorTest extends
     assertEquals(LocalDateTime.now().getMonth(), collectionCodeEntity.getOpenDate().getMonth());
     assertEquals(LocalDateTime.now().plusYears(1).getYear(), collectionCodeEntity.getCloseDate().getYear());
     assertEquals(LocalDateTime.now().getMonth(), collectionCodeEntity.getCloseDate().getMonth());
-    assertEquals(sdcSchoolEntities.get(0).getSdcSchoolID(), sdcSchoolHistoryEntities.get(0).getSdcSchoolID());
+    assertEquals(sdcSchoolEntities.get(0).getSdcSchoolBatchID(), sdcSchoolHistoryEntities.get(0).getSdcSchoolID());
   }
 
   private CollectionCodeEntity createCollectionCodeData() {

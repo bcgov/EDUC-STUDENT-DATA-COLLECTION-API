@@ -34,7 +34,7 @@ public class SdcSchoolStudentEntity {
   @EqualsAndHashCode.Exclude
   @ManyToOne(optional = false, targetEntity = SdcSchoolBatchEntity.class)
   @JoinColumn(name = "SDC_SCHOOL_ID", referencedColumnName = "SDC_SCHOOL_ID", updatable = false)
-  SdcSchoolBatchEntity sdcSchoolEntity;
+  SdcSchoolBatchEntity sdcSchoolBatchEntity;
 
   @Column(name = "LOCAL_ID")
   private String localID;
@@ -64,13 +64,13 @@ public class SdcSchoolStudentEntity {
   private String dob;
 
   @Column(name = "GENDER_TYPE_CODE", length = 1)
-  private String genderTypeCode;
+  private String genderCode;
 
   @Column(name = "SPECIAL_EDUCATION_CATEGORY_TYPE_CODE")
-  private String specialEducationCategoryTypeCode;
+  private String specialEducationCategoryCode;
 
   @Column(name = "SCHOOL_FUNDING_TYPE_CODE")
-  private String schoolFundingTypeCode;
+  private String schoolFundingCode;
 
   @Column(name = "NATIVE_INDIAN_ANCESTRY_IND")
   private Boolean nativeIndianAncestryInd;
@@ -85,16 +85,16 @@ public class SdcSchoolStudentEntity {
   private String supportBlocks;
 
   @Column(name = "ENROLLED_GRADE_TYPE_CODE")
-  private String enrolledGradeTypeCode;
+  private String enrolledGradeCode;
 
   @Column(name = "ENROLLED_PROGRAM_TYPE_CODE")
-  private String enrolledProgramTypeCode;
+  private String enrolledProgramCode;
 
   @Column(name = "CAREER_PROGRAM_TYPE_CODE")
-  private String careerProgramTypeCode;
+  private String careerProgramCode;
 
   @Column(name = "NUMBER_OF_COURSES")
-  private Integer numberOfCourses;
+  private String numberOfCourses;
 
   @Column(name = "BAND_TYPE_CODE")
   private String bandTypeCode;
@@ -103,8 +103,8 @@ public class SdcSchoolStudentEntity {
   @UpperCase
   private String postalCode;
 
-  @Column(name = "STATUS_TYPE_CODE")
-  private String statusTypeCode;
+  @Column(name = "STATUS_CODE")
+  private String statusCode;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;

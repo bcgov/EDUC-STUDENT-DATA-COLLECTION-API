@@ -1,10 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.support;
 
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeCriteriaRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolHistoryRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -16,13 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class StudentDataCollectionTestUtils {
 
   @Autowired
-  CollectionRepository collectionRepository;
+  SdcRepository collectionRepository;
   @Autowired
   CollectionCodeRepository collectionCodeRepository;
   @Autowired
   CollectionCodeCriteriaRepository collectionCodeCriteriaRepository;
   @Autowired
-  SdcSchoolRepository sdcSchoolRepository;
+  SdcSchoolBatchRepository sdcSchoolRepository;
   @Autowired
   SdcSchoolHistoryRepository sdcSchoolHistoryRepository;
 

@@ -29,13 +29,13 @@ public class SdcSchoolBatchEntity {
   @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator", parameters = {
       @Parameter(name = "uuid_gen_strategy_class", value = "org.hibernate.id.uuid.CustomVersionOneStrategy")})
   @Column(name = "SDC_SCHOOL_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
-  private UUID sdcSchoolID;
+  private UUID sdcSchoolBatchID;
 
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
-  @ManyToOne(optional = false, targetEntity = CollectionEntity.class)
+  @ManyToOne(optional = false, targetEntity = SdcEntity.class)
   @JoinColumn(name = "COLLECTION_ID", referencedColumnName = "COLLECTION_ID", updatable = false)
-  CollectionEntity collectionEntity;
+  SdcEntity sdcEntity;
 
   @Basic
   @Column(name = "SCHOOL_ID", columnDefinition = "BINARY(16)")
@@ -47,8 +47,8 @@ public class SdcSchoolBatchEntity {
   @Column(name = "UPLOAD_FILE_NAME")
   private String uploadFileName;
 
-  @Column(name = "COLLECTION_STATUS_TYPE_CODE")
-  private String collectionStatusTypeCode;
+  @Column(name = "STATUS_CODE")
+  private String statusCode;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
@@ -66,7 +66,7 @@ public class SdcSchoolBatchEntity {
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  @OneToMany(mappedBy = "sdcSchoolEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolStudentEntity.class)
+  @OneToMany(mappedBy = "sdcSchoolBatchEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolStudentEntity.class)
   Set<SdcSchoolStudentEntity> sdcSchoolStudentEntities;
 
   public Set<SdcSchoolStudentEntity> getSDCSchoolStudentEntities() {

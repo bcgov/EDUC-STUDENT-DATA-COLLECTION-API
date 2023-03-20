@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface SdcSchoolRepository extends JpaRepository<SdcSchoolBatchEntity, UUID> {
+public interface SdcSchoolBatchRepository extends JpaRepository<SdcSchoolBatchEntity, UUID> {
 
 }

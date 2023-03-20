@@ -1,22 +1,18 @@
 package ca.bc.gov.educ.studentdatacollection.api.batch.processor;
 
-import ca.bc.gov.educ.studentdatacollection.api.batch.service.SdcFileService;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaTopicsEnum.SDC_API_TOPIC;
-import static lombok.AccessLevel.PRIVATE;
 
 /**
  * The type Pen reg batch student records processor.
@@ -28,18 +24,11 @@ public class SdcBatchStudentRecordsProcessor {
    * The Message publisher.
    */
   private final MessagePublisher messagePublisher;
-  /**
-   * The pen request batch file service.
-   */
-  @Getter(PRIVATE)
-  private final SdcFileService sdcFileService;
+
 
   @Autowired
-  public SdcBatchStudentRecordsProcessor(final MessagePublisher messagePublisher,
-                                         final SdcFileService sdcFileService,
-                                         final RedisConnectionFactory redisConnectionFactory) {
+  public SdcBatchStudentRecordsProcessor(final MessagePublisher messagePublisher) {
     this.messagePublisher = messagePublisher;
-    this.sdcFileService = sdcFileService;
   }
 
   /**

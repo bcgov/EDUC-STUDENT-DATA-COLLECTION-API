@@ -22,7 +22,7 @@ import java.util.UUID;
 @Builder
 @Table(name = "COLLECTION")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CollectionEntity {
+public class SdcEntity {
 
   @Id
   @GeneratedValue(generator = "UUID")
@@ -57,7 +57,7 @@ public class CollectionEntity {
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  @OneToMany(mappedBy = "collectionEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolBatchEntity.class)
+  @OneToMany(mappedBy = "sdcEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolBatchEntity.class)
   Set<SdcSchoolBatchEntity> sdcSchoolEntities;
 
   public Set<SdcSchoolBatchEntity> getSDCSchoolEntities() {

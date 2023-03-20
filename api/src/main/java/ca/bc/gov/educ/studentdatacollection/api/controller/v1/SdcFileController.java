@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.batch.service.SdcFileService;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcFileEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcStudentCount;
@@ -14,10 +15,15 @@ import java.util.List;
 @Slf4j
 public class SdcFileController implements SdcFileEndpoint {
 
+  private final SdcFileService sdcFileService;
+
+  public SdcFileController(SdcFileService sdcFileService) {
+    this.sdcFileService = sdcFileService;
+  }
+
   @Override
   public ResponseEntity<Void> processSdcBatchFile(SdcFileUpload fileUpload, String correlationID) {
-    //Run validation for the file here
-    //Send file contents over for validation before response
+    sdcFileService.runFileLoad(fileUpload);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 

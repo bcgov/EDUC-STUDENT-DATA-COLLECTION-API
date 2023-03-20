@@ -25,7 +25,7 @@ public class SdcSchoolHistoryService {
   public void createSDCSchoolHistory(SdcSchoolBatchEntity curSDCSchoolEntity, String updateUser) {
     final SdcSchoolHistoryEntity sdcSchoolHistoryEntity = new SdcSchoolHistoryEntity();
     BeanUtils.copyProperties(curSDCSchoolEntity, sdcSchoolHistoryEntity);
-    sdcSchoolHistoryEntity.setCollectionID(curSDCSchoolEntity.getCollectionEntity().getCollectionID());
+    sdcSchoolHistoryEntity.setCollectionID(curSDCSchoolEntity.getSdcEntity().getCollectionID());
     sdcSchoolHistoryEntity.setCreateUser(updateUser);
     sdcSchoolHistoryEntity.setCreateDate(LocalDateTime.now());
     sdcSchoolHistoryEntity.setUpdateUser(updateUser);

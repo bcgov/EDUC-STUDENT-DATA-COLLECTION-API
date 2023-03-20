@@ -1,24 +1,16 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.CollectionEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CollectionMapper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.CollectionPayloadValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +18,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RestController
 @Slf4j
@@ -45,7 +46,7 @@ public class CollectionController implements CollectionEndpoint {
 
   @Override
   public Collection getCollection(UUID collectionID) {
-    Optional<CollectionEntity> collection = this.collectionService.getCollection(collectionID);
+    Optional<SdcEntity> collection = this.collectionService.getCollection(collectionID);
 
     if (collection.isPresent()) {
       return collectionMapper.toStructure(collection.get());
@@ -56,8 +57,7 @@ public class CollectionController implements CollectionEndpoint {
 
   @Override
   public List<Collection> getAllCollections() {
-    return this.collectionService.getAllCollectionsList().stream().map(collectionMapper::toStructure).collect(
-        Collectors.toList());
+    return this.collectionService.getAllCollectionsList().stream().map(collectionMapper::toStructure).toList();
   }
 
   @Override

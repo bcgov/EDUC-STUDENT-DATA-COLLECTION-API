@@ -13,6 +13,10 @@ public class SdcFileUpload {
   @NotNull
   String schoolID;
   @NotNull
+  String collectionID;
+  @NotNull
+  String fileName;
+  @NotNull
   String createUser;
   @NotNull
   String updateUser;
