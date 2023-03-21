@@ -1,29 +1,26 @@
 package ca.bc.gov.educ.studentdatacollection.api.scheduler;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.controller.v1.CollectionController;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeCriteriaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeCriteriaRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolHistoryRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.schedulers.StudentDataCollectionScheduler;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITest {
 
@@ -32,7 +29,7 @@ class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITes
   @Autowired
   CollectionController controller;
   @Autowired
-  CollectionRepository collectionRepository;
+  SdcRepository collectionRepository;
   @Autowired
   CollectionCodeRepository collectionCodeRepository;
 
@@ -40,7 +37,7 @@ class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITes
   CollectionCodeCriteriaRepository collectionCodeCriteriaRepository;
 
   @Autowired
-  SdcSchoolRepository sdcSchoolRepository;
+  SdcSchoolBatchRepository sdcSchoolRepository;
 
   @Autowired
   SdcSchoolHistoryRepository sdcSchoolHistoryRepository;

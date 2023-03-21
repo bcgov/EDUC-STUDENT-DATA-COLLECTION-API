@@ -2,29 +2,17 @@ package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.util.UpperCase;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.PastOrPresent;
+import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.PastOrPresent;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
 
 @Data
 @NoArgsConstructor
@@ -44,9 +32,9 @@ public class SdcSchoolStudentEntity {
 
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
-  @ManyToOne(optional = false, targetEntity = SdcSchoolEntity.class)
+  @ManyToOne(optional = false, targetEntity = SdcSchoolBatchEntity.class)
   @JoinColumn(name = "SDC_SCHOOL_ID", referencedColumnName = "SDC_SCHOOL_ID", updatable = false)
-  SdcSchoolEntity sdcSchoolEntity;
+  SdcSchoolBatchEntity sdcSchoolBatchEntity;
 
   @Column(name = "LOCAL_ID")
   private String localID;
@@ -76,13 +64,13 @@ public class SdcSchoolStudentEntity {
   private String dob;
 
   @Column(name = "GENDER_TYPE_CODE", length = 1)
-  private String genderTypeCode;
+  private String genderCode;
 
   @Column(name = "SPECIAL_EDUCATION_CATEGORY_TYPE_CODE")
-  private String specialEducationCategoryTypeCode;
+  private String specialEducationCategoryCode;
 
   @Column(name = "SCHOOL_FUNDING_TYPE_CODE")
-  private String schoolFundingTypeCode;
+  private String schoolFundingCode;
 
   @Column(name = "NATIVE_INDIAN_ANCESTRY_IND")
   private Boolean nativeIndianAncestryInd;
@@ -97,16 +85,16 @@ public class SdcSchoolStudentEntity {
   private String supportBlocks;
 
   @Column(name = "ENROLLED_GRADE_TYPE_CODE")
-  private String enrolledGradeTypeCode;
+  private String enrolledGradeCode;
 
   @Column(name = "ENROLLED_PROGRAM_TYPE_CODE")
-  private String enrolledProgramTypeCode;
+  private String enrolledProgramCode;
 
   @Column(name = "CAREER_PROGRAM_TYPE_CODE")
-  private String careerProgramTypeCode;
+  private String careerProgramCode;
 
   @Column(name = "NUMBER_OF_COURSES")
-  private Integer numberOfCourses;
+  private String numberOfCourses;
 
   @Column(name = "BAND_TYPE_CODE")
   private String bandTypeCode;
@@ -115,8 +103,8 @@ public class SdcSchoolStudentEntity {
   @UpperCase
   private String postalCode;
 
-  @Column(name = "STATUS_TYPE_CODE")
-  private String statusTypeCode;
+  @Column(name = "STATUS_CODE")
+  private String statusCode;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;

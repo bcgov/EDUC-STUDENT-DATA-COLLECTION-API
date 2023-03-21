@@ -36,7 +36,7 @@ public class SdcSchoolHistoryEntity {
   private UUID collectionID;
 
   @Column(name = "SDC_SCHOOL_ID", columnDefinition = "BINARY(16)")
-  private UUID sdcSchoolID;
+  private UUID sdcSchoolBatchID;
 
   @Column(name = "SCHOOL_ID", columnDefinition = "BINARY(16)")
   private UUID schoolID;

@@ -6,26 +6,32 @@
     <COLUMN name="mincode" length="8"/>
     <COLUMN name="schoolName" length="40" />
     <COLUMN name="requestDate" length="8" />
-    <COLUMN name="emailID" length="100" />
-    <COLUMN name="faxNumber" length="10" />
-    <COLUMN name="contactName" length="40" />
-    <COLUMN name="officeNumber" length="2" />
   </RECORD>
-    <COLUMN name="transactionCode" length="3" />
-    <COLUMN name="localStudentID" length="12" />
-    <COLUMN name="pen" length="10" />
-    <COLUMN name="legalSurname" length="25" />
-    <COLUMN name="legalGivenName" length="25" />
-    <COLUMN name="legalMiddleName" length="25" />
-    <COLUMN name="usualSurname" length="25" />
-    <COLUMN name="usualGivenName" length="25" />
-    <COLUMN name="usualMiddleName" length="25" />
-    <COLUMN name="birthDate" length="8" />
-    <COLUMN name="gender"/>
-    <COLUMN name="unused" length="16" />
-    <COLUMN name="enrolledGradeCode" length="2" />
-    <COLUMN name="unusedSecond" length="26" />
-    <COLUMN name="postalCode" length="6" />
+  <COLUMN name="transactionCode" length="3" />
+  <COLUMN name="localStudentID" length="12" />
+  <COLUMN name="pen" length="10" />
+  <COLUMN name="legalSurname" length="25" />
+  <COLUMN name="legalGivenName" length="25" />
+  <COLUMN name="legalMiddleName" length="25" />
+  <COLUMN name="usualSurname" length="25" />
+  <COLUMN name="usualGivenName" length="25" />
+  <COLUMN name="usualMiddleName" length="25" />
+  <COLUMN name="birthDate" length="8" />
+  <COLUMN name="gender"/>
+  <COLUMN name="specialEducationCategory"/>
+  <COLUMN name="unusedBlock1" length="3" />
+  <COLUMN name="schoolFundingCode" length="2" />
+  <COLUMN name="nativeAncestryIndicator" />
+  <COLUMN name="homeSpokenLanguageCode" length="3" />
+  <COLUMN name="unusedBlock2" length="4" />
+  <COLUMN name="otherCourses" />
+  <COLUMN name="supportBlocks" />
+  <COLUMN name="enrolledGradeCode" length="2" />
+  <COLUMN name="enrolledProgramCodes" length="16" />
+  <COLUMN name="careerProgramCode" length="2" />
+  <COLUMN name="numberOfCourses" length="4" />
+  <COLUMN name="bandCode" length="4" />
+  <COLUMN name="postalCode" length="6" />
   <RECORD id="trailer" indicator="BTR" endPosition="3">
     <COLUMN name="transactionCode" length="3" />
     <COLUMN name="studentCount" length="6" />

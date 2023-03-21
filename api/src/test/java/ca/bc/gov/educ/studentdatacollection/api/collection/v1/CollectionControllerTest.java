@@ -1,25 +1,15 @@
 package ca.bc.gov.educ.studentdatacollection.api.collection.v1;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.controller.v1.CollectionController;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.time.LocalDateTime;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -30,14 +20,23 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
   @Autowired
   private MockMvc mockMvc;
   @Autowired
   CollectionController controller;
   @Autowired
-  CollectionRepository collectionRepository;
+  SdcRepository collectionRepository;
   @Autowired
   CollectionCodeRepository collectionCodeRepository;
 
@@ -53,7 +52,7 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testGetAllCollections_WithWrongScope_ShouldReturnStatusForbidden() throws Exception {
+  void testGetAllCollections_WithWrongScope_ShouldReturnStatusForbidden() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "WRONG_SCOPE";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION).with(mockAuthority)).andDo(print())
@@ -61,7 +60,7 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testGetAllCollections_ShouldReturnStatusOk() throws Exception {
+  void testGetAllCollections_ShouldReturnStatusOk() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION).with(mockAuthority)).andDo(print())
@@ -70,7 +69,7 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testGetCollection_WithWrongID_ShouldReturnStatusNotFound() throws Exception {
+  void testGetCollection_WithWrongID_ShouldReturnStatusNotFound() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID()).with(mockAuthority))
@@ -78,11 +77,11 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testGetCollectionByID_ShouldReturnCollection() throws Exception {
+  void testGetCollectionByID_ShouldReturnCollection() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    final CollectionEntity newCollection = this.collectionRepository.save(
+    final SdcEntity newCollection = this.collectionRepository.save(
         this.createCollectionData());
 
     this.mockMvc.perform(
@@ -93,11 +92,11 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testCreateCollection_GivenValidPayload_ShouldReturnStatusCreated() throws Exception {
+  void testCreateCollection_GivenValidPayload_ShouldReturnStatusCreated() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    final CollectionEntity collection = this.createCollectionData();
+    final SdcEntity collection = this.createCollectionData();
     collection.setCreateDate(null);
     collection.setUpdateDate(null);
 
@@ -107,11 +106,11 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testCreateCollection_WithWrongScope_ShouldReturnStatusForbidden() throws Exception {
+  void testCreateCollection_WithWrongScope_ShouldReturnStatusForbidden() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "WRONG_SCOPE";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    final CollectionEntity collection = this.createCollectionData();
+    final SdcEntity collection = this.createCollectionData();
     collection.setCreateDate(null);
     collection.setUpdateDate(null);
 
@@ -121,11 +120,11 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testCreateCollection_WithInvalidData_ShouldReturnStatusBadRequest() throws Exception {
+  void testCreateCollection_WithInvalidData_ShouldReturnStatusBadRequest() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    final CollectionEntity collection = this.createCollectionData();
+    final SdcEntity collection = this.createCollectionData();
 
     this.mockMvc.perform(post(URL.BASE_URL_COLLECTION).contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON).content(asJsonString(collection)).with(mockAuthority))
@@ -133,11 +132,11 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testDeleteCollection_ShouldReturnStatusNoContent() throws Exception {
+  void testDeleteCollection_ShouldReturnStatusNoContent() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_DELETE_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    final CollectionEntity newCollection = this.collectionRepository.save(
+    final SdcEntity newCollection = this.collectionRepository.save(
         this.createCollectionData());
 
     this.mockMvc.perform(
@@ -146,7 +145,7 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testDeleteCollection_WithWrongID_ShouldReturnStatusNotFound() throws Exception {
+  void testDeleteCollection_WithWrongID_ShouldReturnStatusNotFound() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_DELETE_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
@@ -156,11 +155,11 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testDeleteCollection_WithWrongScope_ShouldReturnStatusForbidden() throws Exception {
+  void testDeleteCollection_WithWrongScope_ShouldReturnStatusForbidden() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "WRONG_SCOPE";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    final CollectionEntity collection = this.createCollectionData();
+    final SdcEntity collection = this.createCollectionData();
     collection.setCreateDate(null);
     collection.setUpdateDate(null);
 
@@ -176,13 +175,13 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
         .updateUser("TEST").updateDate(LocalDateTime.now()).build();
   }
 
-  private CollectionEntity createCollectionData() {
-    return CollectionEntity.builder().collectionCode("TEST")
+  private SdcEntity createCollectionData() {
+    return SdcEntity.builder().collectionCode("TEST")
         .openDate(LocalDateTime.now()).closeDate(LocalDateTime.MAX).createUser("TEST")
         .createDate(LocalDateTime.now()).updateUser("TEST").updateDate(LocalDateTime.now()).build();
   }
 
-  public static String asJsonString(final Object obj) {
+  static String asJsonString(final Object obj) {
     try {
       ObjectMapper om = new ObjectMapper();
       om.registerModule(new JavaTimeModule()).configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);

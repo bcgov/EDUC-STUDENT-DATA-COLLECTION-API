@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * The enum Pen request batch status codes.
  */
-public enum PenRequestBatchStatusCodes {
+public enum SdcBatchStatusCodes {
   /**
    * Load fail pen request batch status codes.
    */
@@ -65,7 +65,7 @@ public enum PenRequestBatchStatusCodes {
    *
    * @param code the code
    */
-  PenRequestBatchStatusCodes(final String code) {
+  SdcBatchStatusCodes(final String code) {
     this.code = code;
   }
 }
