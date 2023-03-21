@@ -39,8 +39,8 @@ public abstract class SdcBatchFileDecorator implements SdcBatchFileMapper {
 //    entity.setPenRequestBatchStatusReason(reason);
     if (persistStudentRecords && batchFile != null) { // for certain business exception, system needs to store the student details as well.
       for (final var student : batchFile.getStudentDetails()) { // set the object so that PK/FK relationship will be auto established by hibernate.
-        final var penRequestBatchStudentEntity = this.toSdcSchoolStudentEntity(student, entity);
-        entity.getSDCSchoolStudentEntities().add(penRequestBatchStudentEntity);
+        final var sdcSchoolStudentEntity = this.toSdcSchoolStudentEntity(student, entity);
+        entity.getSDCSchoolStudentEntities().add(sdcSchoolStudentEntity);
       }
     }
     return entity;

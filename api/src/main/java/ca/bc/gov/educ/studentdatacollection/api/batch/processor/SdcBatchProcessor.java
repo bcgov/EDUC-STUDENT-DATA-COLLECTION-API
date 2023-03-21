@@ -58,7 +58,7 @@ public class SdcBatchProcessor {
    */
   private static final SdcBatchFileMapper mapper = SdcBatchFileMapper.mapper;
   @Getter(PRIVATE)
-  private final SdcBatchStudentRecordsProcessor penRegBatchStudentRecordsProcessor;
+  private final SdcBatchStudentRecordsProcessor sdcBatchStudentRecordsProcessor;
   public static final String TRANSACTION_CODE_STUDENT_DETAILS_RECORD = "SRM";
 
   @Getter
@@ -77,8 +77,8 @@ public class SdcBatchProcessor {
   private final SdcRepository sdcRepository;
 
   @Autowired
-  public SdcBatchProcessor(final SdcBatchStudentRecordsProcessor penRegBatchStudentRecordsProcessor, final ApplicationProperties applicationProperties, final RestUtils restUtils, SdcFileValidator sdcFileValidator, SdcSchoolBatchRepository sdcSchoolBatchRepository, SdcRepository sdcRepository) {
-    this.penRegBatchStudentRecordsProcessor = penRegBatchStudentRecordsProcessor;
+  public SdcBatchProcessor(final SdcBatchStudentRecordsProcessor sdcBatchStudentRecordsProcessor, final ApplicationProperties applicationProperties, final RestUtils restUtils, SdcFileValidator sdcFileValidator, SdcSchoolBatchRepository sdcSchoolBatchRepository, SdcRepository sdcRepository) {
+    this.sdcBatchStudentRecordsProcessor = sdcBatchStudentRecordsProcessor;
     this.applicationProperties = applicationProperties;
     this.sdcFileValidator = sdcFileValidator;
     this.restUtils = restUtils;
