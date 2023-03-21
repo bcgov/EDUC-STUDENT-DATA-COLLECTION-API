@@ -19,8 +19,8 @@ public class BaseSDCSchoolStudent extends BaseRequest {
 
   private String sdcSchoolStudentID;
 
-  @NotNull(message = "sdcSchoolID cannot be null")
-  private String sdcSchoolID;
+  @NotNull(message = "sdcSchoolBatchID cannot be null")
+  private String sdcSchoolBatchID;
 
   @Size(max = 12)
   private String localID;

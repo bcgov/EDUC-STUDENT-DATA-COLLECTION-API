@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.processor;
 
 import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.studentdatacollection.api.batch.mappers.SdcBatchFileMapper;
+import ca.bc.gov.educ.studentdatacollection.api.batch.mappers.SdcSchoolBatchMapper;
 import ca.bc.gov.educ.studentdatacollection.api.batch.mappers.StringMapper;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFileHeader;
@@ -17,6 +18,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolBatchRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolBatch;
 import com.google.common.base.Stopwatch;
 import lombok.Getter;
 import lombok.NonNull;
@@ -57,6 +59,8 @@ public class SdcBatchProcessor {
    * The constant mapper.
    */
   private static final SdcBatchFileMapper mapper = SdcBatchFileMapper.mapper;
+
+  private static final SdcSchoolBatchMapper schoolBatchMapper = SdcSchoolBatchMapper.mapper;
   @Getter(PRIVATE)
   private final SdcBatchStudentRecordsProcessor sdcBatchStudentRecordsProcessor;
   public static final String TRANSACTION_CODE_STUDENT_DETAILS_RECORD = "SRM";
@@ -94,7 +98,7 @@ public class SdcBatchProcessor {
    */
   @Transactional
   @Async("sdcFileProcessor")
-  public void processSdcBatchFile(@NonNull final SdcFileUpload fileUpload) {
+  public SdcSchoolBatch processSdcBatchFile(@NonNull final SdcFileUpload fileUpload) {
     val stopwatch = Stopwatch.createStarted();
     final var guid = UUID.randomUUID().toString(); // this guid will be used throughout the logs for easy tracking.
     log.info("Started processing SDC file with school ID :: {} and guid :: {}", fileUpload.getSchoolID(), guid);
@@ -107,13 +111,17 @@ public class SdcBatchProcessor {
       this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
-      this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload);
+      var sdcSchoolBatch = this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload);
+      return schoolBatchMapper.toSdcSchoolBatch(sdcSchoolBatch);
     } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
 //      this.processFileUnProcessableException(guid, fileUnProcessableException, batchFile);
       //TODO Add unprocessed logic
       log.error("File could not be processed exception :: {}", fileUnProcessableException);
+      return null;
     } catch (final Exception e) { // need to check what to do in case of general exception.
       log.error("Exception while processing the file with guid :: {} :: Exception :: {}", guid, e);
+      //TODO Throw exception
+      return null;
     } finally {
       batchFileReaderOptional.ifPresent(this::closeBatchFileReader);
       stopwatch.stop();
@@ -145,7 +153,7 @@ public class SdcBatchProcessor {
    * @param guid             the guid
    * @param batchFile        the batch file
    */
-  private void processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final SdcBatchFile batchFile, @NonNull final SdcFileUpload fileUpload) {
+  private SdcSchoolBatchEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final SdcBatchFile batchFile, @NonNull final SdcFileUpload fileUpload) {
     log.info("Going to persist data for batch :: {}", guid);
     final SdcSchoolBatchEntity entity = mapper.toSdcBatchEntityLoaded(batchFile, fileUpload); // batch file can be processed further and persisted.
     for (final var student : batchFile.getStudentDetails()) { // set the object so that PK/FK relationship will be auto established by hibernate.
@@ -153,10 +161,11 @@ public class SdcBatchProcessor {
       entity.getSDCSchoolStudentEntities().add(sdcBatchStudentEntity);
     }
     markInitialLoadComplete(entity, fileUpload);
+    return entity;
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  @Retryable(value = {Exception.class}, maxAttempts = 10, backoff = @Backoff(multiplier = 2, delay = 2000))
+  @Retryable(maxAttempts = 10, backoff = @Backoff(multiplier = 2, delay = 2000))
   public void markInitialLoadComplete(@NonNull final SdcSchoolBatchEntity schoolBatchEntity, @NonNull final SdcFileUpload fileUpload) {
     var collection = sdcRepository.findById(UUID.fromString(fileUpload.getCollectionID()));
     if(collection.isPresent()) {
