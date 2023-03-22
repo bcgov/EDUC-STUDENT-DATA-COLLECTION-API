@@ -9,6 +9,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -17,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper=false)
 public class BaseSDCSchool extends BaseRequest {
 
-  private String sdcSchoolID;
+  private String sdcSchoolBatchID;
 
   @NotNull(message = "collectionID cannot be null")
   private String collectionID;
@@ -31,7 +33,9 @@ public class BaseSDCSchool extends BaseRequest {
   private String uploadFileName;
 
   @Size(max = 10)
-  @NotNull(message = "collectionStatusTypeCode cannot be null")
-  private String collectionStatusTypeCode;
+  @NotNull(message = "statusCode cannot be null")
+  private String statusCode;
+
+  private List<SdcSchoolStudent> students;
 
 }

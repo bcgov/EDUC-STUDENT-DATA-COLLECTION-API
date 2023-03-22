@@ -19,8 +19,6 @@ public class SdcFileUpload {
   @NotNull
   String createUser;
   @NotNull
-  String updateUser;
-  @NotNull
   @ToString.Exclude
   String fileContents;
 }
