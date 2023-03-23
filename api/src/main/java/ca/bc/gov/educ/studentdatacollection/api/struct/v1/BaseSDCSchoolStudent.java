@@ -53,8 +53,8 @@ public class BaseSDCSchoolStudent extends BaseRequest {
   private String dob;
 
   @Size(max = 1)
-  @NotNull(message = "genderTypeCode cannot be null")
-  private String genderTypeCode;
+  @NotNull(message = "gender cannot be null")
+  private String gender;
 
   @Size(max = 10)
   @NotNull(message = "specialEducationCategoryTypeCode cannot be null")

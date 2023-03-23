@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode(callSuper=false)
-public class BaseSDCSchool extends BaseRequest {
+public class BaseSdcSchool extends BaseRequest {
 
   private String sdcSchoolBatchID;
 

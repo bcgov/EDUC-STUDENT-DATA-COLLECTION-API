@@ -19,7 +19,7 @@ public class SdcBatchFile {
   /**
    * The Student details.
    */
-  private List<StudentDetails> studentDetails;
+  private List<SdcStudentDetails> studentDetails;
   /**
    * The Batch file trailer.
    */
@@ -31,7 +31,7 @@ public class SdcBatchFile {
    *
    * @return the student details
    */
-  public List<StudentDetails> getStudentDetails() {
+  public List<SdcStudentDetails> getStudentDetails() {
     if(this.studentDetails == null){
       this.studentDetails = new ArrayList<>();
     }

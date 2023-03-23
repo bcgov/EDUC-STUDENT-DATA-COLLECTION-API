@@ -1,12 +1,13 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+
+import java.io.Serializable;
 
 @Data
 @SuperBuilder
@@ -14,6 +15,6 @@ import lombok.experimental.SuperBuilder;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class SdcSchoolBatch extends BaseSDCSchool implements Serializable {
+public class SdcSchoolBatch extends BaseSdcSchool implements Serializable {
   private static final long serialVersionUID = 1L;
 }

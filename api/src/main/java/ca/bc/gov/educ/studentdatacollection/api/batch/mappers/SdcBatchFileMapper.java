@@ -2,7 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.mappers;
 
 
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
-import ca.bc.gov.educ.studentdatacollection.api.batch.struct.StudentDetails;
+import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcStudentDetails;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchStatusCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolBatchEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolStudentEntity;
@@ -44,7 +44,7 @@ public interface SdcBatchFileMapper {
   @Mapping(target = "updateDate", expression = "java(java.time.LocalDateTime.now() )")
   @Mapping(target = "createUser", constant = STUDENT_DATA_COLLECTION_API)
   @Mapping(target = "createDate",expression = "java(java.time.LocalDateTime.now() )")
-  SdcSchoolStudentEntity toSdcSchoolStudentEntity(StudentDetails studentDetails, SdcSchoolBatchEntity sdcSchoolBatchEntity);
+  SdcSchoolStudentEntity toSdcSchoolStudentEntity(SdcStudentDetails studentDetails, SdcSchoolBatchEntity sdcSchoolBatchEntity);
 
   @Mapping(target = "statusCode", ignore = true)
   @Mapping(target = "sdcSchoolBatchID", ignore = true)

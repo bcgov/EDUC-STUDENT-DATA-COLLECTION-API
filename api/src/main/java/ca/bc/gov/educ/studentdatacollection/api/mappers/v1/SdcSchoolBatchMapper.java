@@ -1,4 +1,4 @@
-package ca.bc.gov.educ.studentdatacollection.api.batch.mappers;
+package ca.bc.gov.educ.studentdatacollection.api.mappers.v1;
 
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolBatchEntity;

@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolBatchEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeRepository;
@@ -39,7 +39,7 @@ public class StartSDCCollectionsWithOpenDateInThePastProcessingHandler {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void startSDCCollection(CollectionCodeEntity collectionCode, List<String> listOfSchoolIDs) {
 
-    SdcEntity collectionEntity = SdcEntity.builder()
+    CollectionEntity collectionEntity = CollectionEntity.builder()
         .collectionCode(collectionCode.getCollectionCode())
         .openDate(collectionCode.getOpenDate())
         .closeDate(collectionCode.getCloseDate())
@@ -48,7 +48,7 @@ public class StartSDCCollectionsWithOpenDateInThePastProcessingHandler {
         .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
         .updateDate(LocalDateTime.now()).build();
 
-    SdcEntity savedCollection = this.collectionRepository.save(collectionEntity);
+    CollectionEntity savedCollection = this.collectionRepository.save(collectionEntity);
     log.info("Collection created and saved");
 
     Set<SdcSchoolBatchEntity> sdcSchoolEntityList = new HashSet<>();
@@ -65,7 +65,7 @@ public class StartSDCCollectionsWithOpenDateInThePastProcessingHandler {
 
     savedCollection.setSdcSchoolEntities(sdcSchoolEntityList);
 
-    SdcEntity savedCollectionWithSchoolEntities = this.collectionRepository.save(savedCollection);
+    CollectionEntity savedCollectionWithSchoolEntities = this.collectionRepository.save(savedCollection);
     log.info("Collection saved with sdc school entities");
 
     if(!savedCollectionWithSchoolEntities.getSDCSchoolEntities().isEmpty()) {

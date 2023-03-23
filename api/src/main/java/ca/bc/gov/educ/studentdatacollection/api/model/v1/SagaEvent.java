@@ -1,13 +1,13 @@
 package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 
-import lombok.*;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.GenericGenerator;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
+import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.GenericGenerator;
+
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -20,7 +20,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "PEN_REQUEST_BATCH_SAGA_EVENT_STATES")
+@Table(name = "STUDENT_DATA_COLLECTION_SAGA_EVENT_STATES")
 @DynamicUpdate
 public class SagaEvent {
 

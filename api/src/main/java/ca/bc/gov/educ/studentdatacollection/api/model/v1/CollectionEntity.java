@@ -22,7 +22,7 @@ import java.util.UUID;
 @Builder
 @Table(name = "COLLECTION")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SdcEntity {
+public class CollectionEntity {
 
   @Id
   @GeneratedValue(generator = "UUID")

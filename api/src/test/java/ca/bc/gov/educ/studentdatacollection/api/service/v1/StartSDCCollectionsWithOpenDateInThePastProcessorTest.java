@@ -2,7 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolBatchEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolHistoryEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeRepository;
@@ -57,7 +57,7 @@ class StartSDCCollectionsWithOpenDateInThePastProcessorTest extends
 
     this.service.startSDCCollection(collectionCode, listOfSchoolIDs);
 
-    List<SdcEntity> collectionEntities = this.collectionRepository.findAll();
+    List<CollectionEntity> collectionEntities = this.collectionRepository.findAll();
     List<SdcSchoolBatchEntity> sdcSchoolEntities = this.sdcSchoolRepository.findAll();
     CollectionCodeEntity collectionCodeEntity = this.collectionCodeRepository.findById("TEST").get();
     List<SdcSchoolHistoryEntity> sdcSchoolHistoryEntities = this.sdcSchoolHistoryRepository.findAll();

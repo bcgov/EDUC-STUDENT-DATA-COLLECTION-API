@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 class SdcBatchProcessorTest extends BaseStudentDataCollectionAPITest {
 
   @Autowired
-  private SdcBatchProcessor sdcBatchProcessor;
+  private SdcBatchFileProcessor sdcBatchProcessor;
   @Autowired
   private SdcRepository sdcRepository;
   @Autowired

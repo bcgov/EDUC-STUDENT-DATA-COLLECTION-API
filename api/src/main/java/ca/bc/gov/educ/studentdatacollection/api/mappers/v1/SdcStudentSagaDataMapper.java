@@ -1,5 +1,6 @@
-package ca.bc.gov.educ.studentdatacollection.api.batch.mappers;
+package ca.bc.gov.educ.studentdatacollection.api.mappers.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.mappers.UUIDMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import org.mapstruct.Mapper;
@@ -23,7 +24,5 @@ public interface SdcStudentSagaDataMapper {
    * @return the pen request batch student saga data
    */
   @Mapping(target = "penMatchResult", ignore = true)
-  @Mapping(target = "mincode", ignore = true)
-  @Mapping(target = "penRequestBatchID", ignore = true)
-  SdcStudentSagaData toPenReqBatchStudentSagaData(SdcSchoolStudentEntity entity);
+  SdcStudentSagaData toSdcStudentSagaData(SdcSchoolStudentEntity entity);
 }

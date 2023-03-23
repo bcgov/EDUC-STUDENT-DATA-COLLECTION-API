@@ -33,9 +33,9 @@ public class SdcSchoolBatchEntity {
 
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
-  @ManyToOne(optional = false, targetEntity = SdcEntity.class)
+  @ManyToOne(optional = false, targetEntity = CollectionEntity.class)
   @JoinColumn(name = "COLLECTION_ID", referencedColumnName = "COLLECTION_ID", updatable = false)
-  SdcEntity sdcEntity;
+  CollectionEntity sdcEntity;
 
   @Basic
   @Column(name = "SCHOOL_ID", columnDefinition = "BINARY(16)")

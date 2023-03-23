@@ -12,14 +12,15 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaTopicsEnum.SDC_API_TOPIC;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC;
+
 
 /**
  * The type Pen reg batch student records processor.
  */
 @Component
 @Slf4j
-public class SdcBatchStudentRecordsProcessor {
+public class SdcBatchFileStudentRecordsProcessor {
   /**
    * The Message publisher.
    */
@@ -27,7 +28,7 @@ public class SdcBatchStudentRecordsProcessor {
 
 
   @Autowired
-  public SdcBatchStudentRecordsProcessor(final MessagePublisher messagePublisher) {
+  public SdcBatchFileStudentRecordsProcessor(final MessagePublisher messagePublisher) {
     this.messagePublisher = messagePublisher;
   }
 
@@ -52,7 +53,7 @@ public class SdcBatchStudentRecordsProcessor {
       final Event event = Event.builder().eventType(EventType.READ_FROM_TOPIC).eventOutcome(EventOutcome.READ_FROM_TOPIC_SUCCESS).eventPayload(eventPayload.get()).build();
       final var eventString = JsonUtil.getJsonString(event);
       if (eventString.isPresent()) {
-        this.messagePublisher.dispatchMessage(SDC_API_TOPIC.toString(), eventString.get().getBytes());
+        this.messagePublisher.dispatchMessage(STUDENT_DATA_COLLECTION_API_TOPIC.toString(), eventString.get().getBytes());
       } else {
         log.error("Event Sting is empty, skipping the publish to topic :: {}", batchStudentSagaDataSet);
       }

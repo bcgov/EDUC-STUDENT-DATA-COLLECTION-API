@@ -3,15 +3,15 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.processor;
 
 import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.studentdatacollection.api.batch.mappers.SdcBatchFileMapper;
-import ca.bc.gov.educ.studentdatacollection.api.batch.mappers.SdcSchoolBatchMapper;
-import ca.bc.gov.educ.studentdatacollection.api.batch.mappers.StringMapper;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFileHeader;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFileTrailer;
-import ca.bc.gov.educ.studentdatacollection.api.batch.struct.StudentDetails;
+import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcStudentDetails;
 import ca.bc.gov.educ.studentdatacollection.api.batch.validator.SdcFileValidator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchStatusCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.StringMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolBatchMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolBatchEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcRepository;
@@ -53,7 +53,7 @@ import static lombok.AccessLevel.PRIVATE;
  */
 @Component
 @Slf4j
-public class SdcBatchProcessor {
+public class SdcBatchFileProcessor {
 
   /**
    * The constant mapper.
@@ -62,7 +62,7 @@ public class SdcBatchProcessor {
 
   private static final SdcSchoolBatchMapper schoolBatchMapper = SdcSchoolBatchMapper.mapper;
   @Getter(PRIVATE)
-  private final SdcBatchStudentRecordsProcessor sdcBatchStudentRecordsProcessor;
+  private final SdcBatchFileStudentRecordsProcessor sdcBatchStudentRecordsProcessor;
   public static final String TRANSACTION_CODE_STUDENT_DETAILS_RECORD = "SRM";
 
   @Getter
@@ -81,7 +81,7 @@ public class SdcBatchProcessor {
   private final SdcRepository sdcRepository;
 
   @Autowired
-  public SdcBatchProcessor(final SdcBatchStudentRecordsProcessor sdcBatchStudentRecordsProcessor, final ApplicationProperties applicationProperties, final RestUtils restUtils, SdcFileValidator sdcFileValidator, SdcSchoolBatchRepository sdcSchoolBatchRepository, SdcRepository sdcRepository) {
+  public SdcBatchFileProcessor(final SdcBatchFileStudentRecordsProcessor sdcBatchStudentRecordsProcessor, final ApplicationProperties applicationProperties, final RestUtils restUtils, SdcFileValidator sdcFileValidator, SdcSchoolBatchRepository sdcSchoolBatchRepository, SdcRepository sdcRepository) {
     this.sdcBatchStudentRecordsProcessor = sdcBatchStudentRecordsProcessor;
     this.applicationProperties = applicationProperties;
     this.sdcFileValidator = sdcFileValidator;
@@ -228,12 +228,12 @@ public class SdcBatchProcessor {
    * @return the student detail record from file
    * @throws FileUnProcessableException the file un processable exception
    */
-  private StudentDetails getStudentDetailRecordFromFile(final DataSet ds, final String guid, final long index) throws FileUnProcessableException {
+  private SdcStudentDetails getStudentDetailRecordFromFile(final DataSet ds, final String guid, final long index) throws FileUnProcessableException {
     final var transactionCode = ds.getString(TRANSACTION_CODE.getName());
     if (!TRANSACTION_CODE_STUDENT_DETAILS_RECORD.equals(transactionCode)) {
       throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS, guid, SdcBatchStatusCodes.LOAD_FAIL, String.valueOf(index), ds.getString(LOCAL_STUDENT_ID.getName()));
     }
-    return StudentDetails.builder()
+    return SdcStudentDetails.builder()
       .transactionCode(transactionCode)
       .localStudentID(StringMapper.trimUppercaseAndScrubDiacriticalMarks(ds.getString(LOCAL_STUDENT_ID.getName())))
       .pen(ds.getString(PEN.getName()))

@@ -1,8 +1,9 @@
 package ca.bc.gov.educ.studentdatacollection.api.batch.mappers;
 
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
-import ca.bc.gov.educ.studentdatacollection.api.batch.struct.StudentDetails;
+import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcStudentDetails;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchStatusCodes;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolBatchEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
@@ -47,7 +48,7 @@ public abstract class SdcBatchFileDecorator implements SdcBatchFileMapper {
   }
 
   @Override
-  public SdcSchoolStudentEntity toSdcSchoolStudentEntity(final StudentDetails studentDetails, final SdcSchoolBatchEntity sdcSchoolBatchEntity) {
+  public SdcSchoolStudentEntity toSdcSchoolStudentEntity(final SdcStudentDetails studentDetails, final SdcSchoolBatchEntity sdcSchoolBatchEntity) {
     final var entity = this.delegate.toSdcSchoolStudentEntity(studentDetails, sdcSchoolBatchEntity);
     entity.setSdcSchoolBatchEntity(sdcSchoolBatchEntity); // add thePK/FK relationship
     entity.setStatusCode(SdcBatchStatusCodes.LOADED.getCode());

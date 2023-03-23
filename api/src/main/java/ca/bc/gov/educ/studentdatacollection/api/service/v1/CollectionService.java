@@ -2,7 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CollectionMapper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
@@ -27,17 +27,17 @@ public class CollectionService {
     this.collectionRepository = collectionRepository;
   }
 
-  public List<SdcEntity> getAllCollectionsList() {
+  public List<CollectionEntity> getAllCollectionsList() {
     return collectionRepository.findAll();
   }
 
-  public Optional<SdcEntity> getCollection(UUID collectionID) {
+  public Optional<CollectionEntity> getCollection(UUID collectionID) {
     return collectionRepository.findById(collectionID);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public SdcEntity createCollection(Collection collection) {
-    SdcEntity collectionEntity = CollectionMapper.mapper.toModel(collection);
+  public CollectionEntity createCollection(Collection collection) {
+    CollectionEntity collectionEntity = CollectionMapper.mapper.toModel(collection);
     TransformUtil.uppercaseFields(collectionEntity);
     collectionRepository.save(collectionEntity);
 
@@ -46,8 +46,8 @@ public class CollectionService {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void deleteCollection(UUID collectionID) {
-    Optional<SdcEntity> entityOptional = collectionRepository.findById(collectionID);
-    SdcEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(SdcEntity.class, "collectionID", collectionID.toString()));
+    Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
+    CollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "collectionID", collectionID.toString()));
     collectionRepository.delete(entity);
   }
 

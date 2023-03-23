@@ -5,7 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CollectionMapper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -46,7 +45,7 @@ public class CollectionController implements CollectionEndpoint {
 
   @Override
   public Collection getCollection(UUID collectionID) {
-    Optional<SdcEntity> collection = this.collectionService.getCollection(collectionID);
+    Optional<CollectionEntity> collection = this.collectionService.getCollection(collectionID);
 
     if (collection.isPresent()) {
       return collectionMapper.toStructure(collection.get());

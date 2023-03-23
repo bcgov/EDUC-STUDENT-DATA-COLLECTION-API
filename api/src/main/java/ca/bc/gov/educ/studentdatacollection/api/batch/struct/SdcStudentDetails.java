@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StudentDetails {
+public class SdcStudentDetails {
 
   private String transactionCode; // TRANSACTION_CODE	3	0	Always "SRM"
 

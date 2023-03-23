@@ -4,7 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.controller.v1.CollectionController;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -81,7 +81,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    final SdcEntity newCollection = this.collectionRepository.save(
+    final CollectionEntity newCollection = this.collectionRepository.save(
         this.createCollectionData());
 
     this.mockMvc.perform(
@@ -96,7 +96,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    final SdcEntity collection = this.createCollectionData();
+    final CollectionEntity collection = this.createCollectionData();
     collection.setCreateDate(null);
     collection.setUpdateDate(null);
 
@@ -110,7 +110,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "WRONG_SCOPE";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    final SdcEntity collection = this.createCollectionData();
+    final CollectionEntity collection = this.createCollectionData();
     collection.setCreateDate(null);
     collection.setUpdateDate(null);
 
@@ -124,7 +124,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    final SdcEntity collection = this.createCollectionData();
+    final CollectionEntity collection = this.createCollectionData();
 
     this.mockMvc.perform(post(URL.BASE_URL_COLLECTION).contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON).content(asJsonString(collection)).with(mockAuthority))
@@ -136,7 +136,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_DELETE_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    final SdcEntity newCollection = this.collectionRepository.save(
+    final CollectionEntity newCollection = this.collectionRepository.save(
         this.createCollectionData());
 
     this.mockMvc.perform(
@@ -159,7 +159,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "WRONG_SCOPE";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    final SdcEntity collection = this.createCollectionData();
+    final CollectionEntity collection = this.createCollectionData();
     collection.setCreateDate(null);
     collection.setUpdateDate(null);
 
@@ -175,8 +175,8 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
         .updateUser("TEST").updateDate(LocalDateTime.now()).build();
   }
 
-  private SdcEntity createCollectionData() {
-    return SdcEntity.builder().collectionCode("TEST")
+  private CollectionEntity createCollectionData() {
+    return CollectionEntity.builder().collectionCode("TEST")
         .openDate(LocalDateTime.now()).closeDate(LocalDateTime.MAX).createUser("TEST")
         .createDate(LocalDateTime.now()).updateUser("TEST").updateDate(LocalDateTime.now()).build();
   }

@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.support.StudentDataCollectionTestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.support.TestRedisConfiguration;
@@ -26,8 +26,8 @@ public abstract class BaseStudentDataCollectionAPITest {
     this.studentDataCollectionTestUtils.cleanDB();
   }
 
-  public SdcEntity createCollectionEntity(){
-    SdcEntity sdcEntity = new SdcEntity();
+  public CollectionEntity createCollectionEntity(){
+    CollectionEntity sdcEntity = new CollectionEntity();
     sdcEntity.setCollectionCode("SEPTEMBER");
     sdcEntity.setOpenDate(LocalDateTime.now());
     sdcEntity.setCloseDate(null);
