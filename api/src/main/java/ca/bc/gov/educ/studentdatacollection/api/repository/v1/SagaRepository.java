@@ -25,5 +25,5 @@ public interface SagaRepository extends JpaRepository<Saga, UUID>, JpaSpecificat
 
   long countAllByStatusIn(List<String> statuses);
 
-  List<Saga> findAllByProcessingYearAndStatusIn(String processingYear, List<String> statuses);
+  List<Saga> findAllBySchoolIDAndStatusIn(String schoolID, List<String> statuses);
 }

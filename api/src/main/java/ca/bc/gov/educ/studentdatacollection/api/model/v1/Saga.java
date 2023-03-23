@@ -38,7 +38,7 @@ public class Saga {
   UUID sdcSchoolStudentID;
 
   @Column(name = "STUDENT_DATA_COLLECTION_SCHOOL_ID", columnDefinition = "BINARY(16)")
-  UUID sdcSchoolBatchID;
+  UUID sdcSchoolCollectionID;
 
   @NotNull(message = "saga name cannot be null")
   @Column(name = "SAGA_NAME")

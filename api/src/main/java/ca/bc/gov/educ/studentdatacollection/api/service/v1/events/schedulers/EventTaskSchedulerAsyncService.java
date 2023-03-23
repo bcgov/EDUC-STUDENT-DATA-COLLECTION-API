@@ -5,10 +5,10 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.LogHelper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.Saga;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.Orchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcService;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,7 +36,7 @@ public class EventTaskSchedulerAsyncService {
   private final SagaRepository sagaRepository;
 
   @Getter(PRIVATE)
-  private final SdcSchoolStudentRepository sdcSchoolStudentRepository;
+  private final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository;
 
   @Getter(PRIVATE)
   private final Map<String, Orchestrator> sagaOrchestrators = new HashMap<>();
@@ -46,7 +46,7 @@ public class EventTaskSchedulerAsyncService {
   @Setter
   private List<String> statusFilters;
 
-  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, final SdcSchoolStudentRepository sdcSchoolStudentRepository, final SdcService sdcService) {
+  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, final SdcService sdcService) {
     this.sagaRepository = sagaRepository;
     this.sdcSchoolStudentRepository = sdcSchoolStudentRepository;
     this.sdcService = sdcService;
@@ -85,12 +85,12 @@ public class EventTaskSchedulerAsyncService {
       log.debug("Saga count is greater than 20, so not processing student records");
       return;
     }
-    final List<SdcSchoolStudentEntity> studentEntities = new ArrayList<>();
+    final List<SdcSchoolCollectionStudentEntity> studentEntities = new ArrayList<>();
     final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTop100ByStatusOrderByCreateDate(SdcSchoolStudentStatus.LOADED.toString());
     log.debug("found :: {}  records in loaded status", sdcSchoolStudentEntities.size());
     if (!sdcSchoolStudentEntities.isEmpty()) {
       for (val entity : sdcSchoolStudentEntities) {
-        if (this.getSagaRepository().findBySdcStudentIDAndSagaName(entity.getSdcSchoolStudentID(), SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString()).isEmpty()) {
+        if (this.getSagaRepository().findBySdcStudentIDAndSagaName(entity.getSdcSchoolCollectionStudentID(), SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString()).isEmpty()) {
           studentEntities.add(entity);
         }
       }

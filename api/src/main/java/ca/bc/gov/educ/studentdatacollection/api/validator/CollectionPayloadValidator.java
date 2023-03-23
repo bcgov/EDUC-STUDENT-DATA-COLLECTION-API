@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.validator;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
@@ -17,7 +17,7 @@ import org.springframework.validation.FieldError;
 @Component
 public class CollectionPayloadValidator {
   
-  public static final String COLLECTION_CODE = "collectionCode";
+  public static final String COLLECTION_TYPE_CODE = "collectionTypeCode";
   
   @Getter(AccessLevel.PRIVATE)
   private final CollectionService collectionService;
@@ -46,16 +46,16 @@ public class CollectionPayloadValidator {
   }
 
   protected void validateCollectionCodePayload(Collection collection, List<FieldError> apiValidationErrors) {
-    if (collection.getCollectionCode() != null) {
-      Optional<CollectionCodeEntity> collectionCodeEntity = codeTableService.getCollectionCode(collection.getCollectionCode());
+    if (collection.getCollectionTypeCode() != null) {
+      Optional<CollectionTypeCodeEntity> collectionCodeEntity = codeTableService.getCollectionCode(collection.getCollectionTypeCode());
       if (collectionCodeEntity.isEmpty()) {
-        apiValidationErrors.add(createFieldError(COLLECTION_CODE, collection.getCollectionCode(), "Invalid collection code."));
+        apiValidationErrors.add(createFieldError(COLLECTION_TYPE_CODE, collection.getCollectionTypeCode(), "Invalid collection code."));
       } else if (collectionCodeEntity.get().getEffectiveDate() != null && collectionCodeEntity.get().getEffectiveDate().isAfter(
           LocalDateTime.now())) {
-        apiValidationErrors.add(createFieldError(COLLECTION_CODE, collection.getCollectionCode(), "Collection Code provided is not yet effective."));
+        apiValidationErrors.add(createFieldError(COLLECTION_TYPE_CODE, collection.getCollectionTypeCode(), "Collection Code provided is not yet effective."));
       } else if (collectionCodeEntity.get().getExpiryDate() != null && collectionCodeEntity.get().getExpiryDate().isBefore(LocalDateTime.now())) {
         apiValidationErrors.add(
-            createFieldError(COLLECTION_CODE, collection.getCollectionCode(),
+            createFieldError(COLLECTION_TYPE_CODE, collection.getCollectionTypeCode(),
                 "Collection Code provided has expired."));
       }
     }

@@ -48,12 +48,12 @@ public class EventHandlerService {
   public void handleReadFromTopicEvent(final Event event) throws JsonProcessingException {
     if (event.getEventOutcome() == EventOutcome.READ_FROM_TOPIC_SUCCESS) {
       final SdcStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(SdcStudentSagaData.class, event.getEventPayload());
-      final var sagaOptional = this.getSagaService().findByNominalRollStudentIDAndSagaName(UUID.fromString(sagaData.getSdcSchoolStudent().getSdcSchoolStudentID()), SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString());
+      final var sagaOptional = this.getSagaService().findByNominalRollStudentIDAndSagaName(UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString());
       if (sagaOptional.isPresent()) { // possible duplicate message.
         log.trace("Execution is not required for this message returning EVENT is :: {}", event);
         return;
       }
-      val saga = this.studentProcessingOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(sagaData.getSdcSchoolStudent().getSdcSchoolStudentID()), ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      val saga = this.studentProcessingOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), ApplicationProperties.STUDENT_DATA_COLLECTION_API);
       this.studentProcessingOrchestrator.startSaga(saga);
     }
   }

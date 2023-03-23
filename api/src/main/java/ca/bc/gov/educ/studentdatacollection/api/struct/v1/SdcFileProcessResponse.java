@@ -15,5 +15,5 @@ import java.util.List;
 @Builder
 public class SdcFileProcessResponse {
   List<String> headers;
-  List<SdcSchoolStudent> students;
+  List<SdcSchoolCollectionStudent> students;
 }

@@ -3,7 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.AccessLevel;
@@ -20,10 +20,10 @@ import java.util.UUID;
 public class CollectionService {
 
   @Getter(AccessLevel.PRIVATE)
-  private final SdcRepository collectionRepository;
+  private final CollectionRepository collectionRepository;
 
   @Autowired
-  public CollectionService(SdcRepository collectionRepository) {
+  public CollectionService(CollectionRepository collectionRepository) {
     this.collectionRepository = collectionRepository;
   }
 

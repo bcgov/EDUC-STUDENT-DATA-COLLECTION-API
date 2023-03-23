@@ -12,15 +12,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class StudentDataCollectionTestUtils {
 
   @Autowired
-  SdcRepository collectionRepository;
+  CollectionRepository collectionRepository;
   @Autowired
-  CollectionCodeRepository collectionCodeRepository;
+  CollectionTypeCodeRepository collectionCodeRepository;
   @Autowired
   CollectionCodeCriteriaRepository collectionCodeCriteriaRepository;
   @Autowired
-  SdcSchoolBatchRepository sdcSchoolRepository;
+  SdcSchoolCollectionRepository sdcSchoolRepository;
   @Autowired
-  SdcSchoolHistoryRepository sdcSchoolHistoryRepository;
+  SdcSchoolCollectionHistoryRepository sdcSchoolHistoryRepository;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void cleanDB() {

@@ -39,9 +39,9 @@ public class CollectionCodeCriteriaEntity {
 
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
-  @ManyToOne(optional = false, targetEntity = CollectionCodeEntity.class)
-  @JoinColumn(name = "COLLECTION_CODE", referencedColumnName = "COLLECTION_CODE", updatable = false)
-  CollectionCodeEntity collectionCodeEntity;
+  @ManyToOne(optional = false, targetEntity = CollectionTypeCodeEntity.class)
+  @JoinColumn(name = "COLLECTION_TYPE_CODE", referencedColumnName = "COLLECTION_TYPE_CODE", updatable = false)
+  CollectionTypeCodeEntity collectionTypeCodeEntity;
 
   @Column(name = "SCHOOL_CATEGORY_CODE")
   private String schoolCategoryCode;

@@ -5,7 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.PenMatchSagaMapper;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolStudentMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.Saga;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SagaEventStates;
@@ -25,7 +25,6 @@ import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
@@ -81,13 +80,13 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
         throw new StudentDataCollectionAPIRuntimeException("PenMatchRecord in priority queue is empty for matched status, this should not have happened.");
       }
     }
-    val sdcStudOptional = this.sdcService.findBySdcSchoolStudentID(sdcStudentSagaData.getSdcSchoolStudent().getSdcSchoolStudentID());
+    val sdcStudOptional = this.sdcService.findBySdcSchoolStudentID(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
     if (sdcStudOptional.isPresent()) {
       val sdcStud = sdcStudOptional.get();
       if (assignedPEN.isPresent()) {
-        sdcStud.setStatusCode(SdcSchoolStudentStatus.MATCHEDSYS.toString());
+        sdcStud.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.MATCHEDSYS.toString());
       } else {
-        sdcStud.setStatusCode(SdcSchoolStudentStatus.FIXABLE.toString());
+        sdcStud.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.FIXABLE.toString());
       }
       this.sdcService.saveSdcSchoolStudent(sdcStud);
     }
@@ -100,40 +99,20 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     final TypeReference<Map<String, String>> responseType = new TypeReference<>() {
     };
     val validationResults = JsonUtil.mapper.readValue(event.getEventPayload(), responseType);
-    this.sdcService.deleteSdcStudentValidationErrors(sdcStudentSagaData.getSdcSchoolStudent().getSdcSchoolStudentID());
-    this.sdcService.saveSdcSchoolStudentValidationErrors(sdcStudentSagaData.getSdcSchoolStudent().getSdcSchoolStudentID(), validationResults, null);
+    this.sdcService.deleteSdcStudentValidationErrors(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
+    this.sdcService.saveSdcSchoolStudentValidationErrors(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID(), validationResults, null);
   }
 
   protected void processPenMatch(final Event event, final Saga saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
     final SagaEventStates eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(PROCESS_PEN_MATCH.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-    val sdcSchoolStudent = sdcStudentSagaData.getSdcSchoolStudent();
-    val nomRollPostedStudents = this.sdcService.findAllBySurnameAndGivenNamesAndBirthDateAndGender(StringUtils.upperCase(sdcSchoolStudent.getSurname()), StringUtils.upperCase(sdcSchoolStudent.getGivenNames()), LocalDate.parse(sdcSchoolStudent.getBirthDate()), StringUtils.upperCase(sdcSchoolStudent.getGender()));
-    if (nomRollPostedStudents.size() != 1) { // proceed to actual pen match logic by calling api.
-      this.postToPenMatchAPI(saga, sdcStudentSagaData);
-    } else {
-      final String matchingPEN = nomRollPostedStudents.get(0).getAssignedPEN();
-      if (StringUtils.isNotEmpty(matchingPEN)) {
-        log.info("Found exact match from posterity table and pen is :: {}", matchingPEN);
-        val nomRollStudOptional = this.sdcService.findBySdcSchoolStudentID(sdcSchoolStudent.getSdcSchoolStudentID());
-        if (nomRollStudOptional.isPresent()) {
-          val sdcStud = nomRollStudOptional.get();
-          sdcStud.setStatusCode(SdcSchoolStudentStatus.MATCHEDSYS.toString());
-          this.sdcService.saveSdcSchoolStudent(sdcStud);
-          //fastest route to success, complete the saga.
-          this.markSagaComplete(event, saga, sdcStudentSagaData);
-        }
-      } else {
-        this.postToPenMatchAPI(saga, sdcStudentSagaData);
-      }
-    }
-
+    this.postToPenMatchAPI(saga, sdcStudentSagaData);
   }
 
   protected void postToPenMatchAPI(final Saga saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
-    val sdcSchoolStudent = sdcStudentSagaData.getSdcSchoolStudent();
-    final String mincode = this.restUtils.getFedProvSchoolCodes().get(sdcSchoolStudent.getSchoolNumber());
+    val sdcSchoolStudent = sdcStudentSagaData.getSdcSchoolCollectionStudent();
+    final String mincode = this.restUtils.getSchoolBySchoolID(sdcStudentSagaData.getSchoolID()).get().getMincode();
     val penMatchRequest = PenMatchSagaMapper.mapper.toPenMatchStudent(sdcSchoolStudent, mincode);
     penMatchRequest.setDob(StringUtils.replace(penMatchRequest.getDob(), "-", "")); // pen-match api expects yyyymmdd
     val penMatchRequestJson = JsonUtil.mapper.writeValueAsString(penMatchRequest);
@@ -151,7 +130,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     saga.setSagaState(VALIDATE_SDC_STUDENT.toString());
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-    val validationErrors = this.rulesProcessor.processRules(SdcSchoolStudentMapper.mapper.toSdcSchoolStudentEntity(sdcStudentSagaData.getSdcSchoolStudent()));
+    val validationErrors = this.rulesProcessor.processRules(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudentEntity(sdcStudentSagaData.getSdcSchoolCollectionStudent()));
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(VALIDATE_SDC_STUDENT);
     if (validationErrors.isEmpty()) {

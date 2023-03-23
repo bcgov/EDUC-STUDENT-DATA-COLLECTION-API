@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import lombok.val;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ public class RulesProcessor {
     this.rules = rules;
   }
 
-  public Map<String, String> processRules(final SdcSchoolStudentEntity sdcSchoolStudentEntity) {
+  public Map<String, String> processRules(final SdcSchoolCollectionStudentEntity sdcSchoolStudentEntity) {
     final Map<String, String> validationErrorsMap = new LinkedHashMap<>();
     this.rules.forEach(rule -> {
       val valErrors = rule.validate(sdcSchoolStudentEntity);

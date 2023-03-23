@@ -3,7 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.scheduler;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.controller.v1.CollectionController;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeCriteriaEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.schedulers.StudentDataCollectionScheduler;
@@ -29,18 +29,18 @@ class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITes
   @Autowired
   CollectionController controller;
   @Autowired
-  SdcRepository collectionRepository;
+  CollectionRepository collectionRepository;
   @Autowired
-  CollectionCodeRepository collectionCodeRepository;
+  CollectionTypeCodeRepository collectionCodeRepository;
 
   @Autowired
   CollectionCodeCriteriaRepository collectionCodeCriteriaRepository;
 
   @Autowired
-  SdcSchoolBatchRepository sdcSchoolRepository;
+  SdcSchoolCollectionRepository sdcSchoolRepository;
 
   @Autowired
-  SdcSchoolHistoryRepository sdcSchoolHistoryRepository;
+  SdcSchoolCollectionHistoryRepository sdcSchoolHistoryRepository;
 
   @Autowired
   StudentDataCollectionScheduler studentDataCollectionScheduler;
@@ -52,7 +52,7 @@ class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITes
 
   @BeforeEach
   public void before() {
-    CollectionCodeEntity collectionCodeEntity = this.collectionCodeRepository.save(
+    CollectionTypeCodeEntity collectionCodeEntity = this.collectionCodeRepository.save(
         this.createCollectionCodeData());
     this.collectionCodeCriteriaRepository.save(
         this.createCollectionCodeCriteriaData(collectionCodeEntity));
@@ -71,8 +71,8 @@ class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITes
     assertEquals(2 ,this.sdcSchoolRepository.findAll().size());
   }
 
-  private CollectionCodeEntity createCollectionCodeData() {
-    return CollectionCodeEntity.builder().collectionCode("TEST").label("Test")
+  private CollectionTypeCodeEntity createCollectionCodeData() {
+    return CollectionTypeCodeEntity.builder().collectionTypeCode("TEST").label("Test")
         .description("Test code").displayOrder(0).effectiveDate(
             LocalDateTime.now()).expiryDate(LocalDateTime.now().minusDays(1))
         .openDate(LocalDateTime.now())
@@ -80,8 +80,8 @@ class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITes
         .updateUser("TEST").updateDate(LocalDateTime.now()).build();
   }
   private CollectionCodeCriteriaEntity createCollectionCodeCriteriaData(
-      CollectionCodeEntity collectionCodeEntity) {
-    return CollectionCodeCriteriaEntity.builder().collectionCodeEntity(collectionCodeEntity)
+      CollectionTypeCodeEntity collectionCodeEntity) {
+    return CollectionCodeCriteriaEntity.builder().collectionTypeCodeEntity(collectionCodeEntity)
         .schoolCategoryCode("TEST_CC").facilityTypeCode("TEST_FTC").reportingRequirementCode("TEST_RRC")
         .createUser("TEST").createDate(LocalDateTime.now())
         .updateUser("TEST").updateDate(LocalDateTime.now()).build();

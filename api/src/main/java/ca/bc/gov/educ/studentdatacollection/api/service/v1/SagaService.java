@@ -136,18 +136,6 @@ public class SagaService {
     return this.getSagaRepository().findBySdcStudentIDAndSagaName(nominalRollStudentID, sagaName);
   }
 
-
-  /**
-   * Find all by processing year and status in list.
-   *
-   * @param processingYear the pen request batch i ds
-   * @param statuses       the statuses
-   * @return the list
-   */
-  public List<Saga> findAllByProcessingYearAndStatusIn(final String processingYear, final List<String> statuses) {
-    return this.getSagaRepository().findAllByProcessingYearAndStatusIn(processingYear, statuses);
-  }
-
   /**
    * Create saga record in db saga.
    *

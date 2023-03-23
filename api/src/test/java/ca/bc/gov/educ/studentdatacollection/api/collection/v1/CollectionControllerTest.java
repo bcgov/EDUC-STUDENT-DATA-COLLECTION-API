@@ -3,10 +3,10 @@ package ca.bc.gov.educ.studentdatacollection.api.collection.v1;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.controller.v1.CollectionController;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -36,9 +36,9 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   @Autowired
   CollectionController controller;
   @Autowired
-  SdcRepository collectionRepository;
+  CollectionRepository collectionRepository;
   @Autowired
-  CollectionCodeRepository collectionCodeRepository;
+  CollectionTypeCodeRepository collectionCodeRepository;
 
   @BeforeEach
   public void setUp() {
@@ -167,8 +167,8 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
         .andDo(print()).andExpect(status().isForbidden());
   }
 
-  private CollectionCodeEntity createCollectionCodeData() {
-    return CollectionCodeEntity.builder().collectionCode("TEST").label("Test")
+  private CollectionTypeCodeEntity createCollectionCodeData() {
+    return CollectionTypeCodeEntity.builder().collectionTypeCode("TEST").label("Test")
         .description("Test code").displayOrder(0).effectiveDate(
             LocalDateTime.now()).expiryDate(LocalDateTime.MAX).openDate(LocalDateTime.now())
         .closeDate(LocalDateTime.MAX).createUser("TEST").createDate(LocalDateTime.now())
@@ -176,7 +176,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   private CollectionEntity createCollectionData() {
-    return CollectionEntity.builder().collectionCode("TEST")
+    return CollectionEntity.builder().collectionTypeCode("TEST")
         .openDate(LocalDateTime.now()).closeDate(LocalDateTime.MAX).createUser("TEST")
         .createDate(LocalDateTime.now()).updateUser("TEST").updateDate(LocalDateTime.now()).build();
   }

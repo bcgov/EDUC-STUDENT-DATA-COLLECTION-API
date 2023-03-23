@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.mappers.v1;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolBatchEntity;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolBatch;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -16,10 +16,10 @@ public abstract class SdcSchoolBatchDecorator implements SdcSchoolBatchMapper {
   }
 
   @Override
-  public SdcSchoolBatch toSdcSchoolBatch(SdcSchoolBatchEntity sdcSchoolBatchEntity) {
-    final var batch = this.delegate.toSdcSchoolBatch(sdcSchoolBatchEntity);
-    SdcSchoolStudentMapper studentMapper = SdcSchoolStudentMapper.mapper;
-    sdcSchoolBatchEntity.getSDCSchoolStudentEntities().stream().forEach(student -> {
+  public SdcSchoolCollection toSdcSchoolBatch(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
+    final var batch = this.delegate.toSdcSchoolBatch(sdcSchoolCollectionEntity);
+    SdcSchoolCollectionStudentMapper studentMapper = SdcSchoolCollectionStudentMapper.mapper;
+    sdcSchoolCollectionEntity.getSDCSchoolStudentEntities().stream().forEach(student -> {
       batch.setStudents(new ArrayList<>());
       batch.getStudents().add(studentMapper.toSdcSchoolStudent(student));
     });

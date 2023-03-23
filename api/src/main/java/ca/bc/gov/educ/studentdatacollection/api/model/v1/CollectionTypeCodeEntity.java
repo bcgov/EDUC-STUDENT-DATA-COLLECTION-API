@@ -1,52 +1,78 @@
 package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
-
-//TODO: Confirm I think this was supposed to be in the codebase and not a separate code table.
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicUpdate
+@Builder
 @Entity
 @Table(name = "COLLECTION_TYPE_CODE")
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class CollectionTypeCodeEntity {
 
   @Id
   @Column(name = "COLLECTION_TYPE_CODE", unique = true, length = 10)
   private String collectionTypeCode;
 
+  /**
+   * Display label for collection
+   */
   @Column(name = "LABEL", length = 30)
   private String label;
 
-  @Column(name = "OPEN_DATE")
-  private String openDate;
-
-  @Column(name = "CLOSE_DATE")
-  private String closeDate;
-
+  /**
+   * Description for the collection code
+   */
   @Column(name = "DESCRIPTION")
   private String description;
 
+  /**
+   * Display order of the collection types
+   */
   @Column(name = "DISPLAY_ORDER")
   private Integer displayOrder;
 
+  /**
+   * When this collection code is effective
+   */
   @Column(name = "EFFECTIVE_DATE")
-  private String effectiveDate;
+  private LocalDateTime effectiveDate;
 
+  /**
+   * When this collection code expires
+   */
   @Column(name = "EXPIRY_DATE")
-  private String expiryDate;
+  private LocalDateTime expiryDate;
+
+  /**
+   * Date the collection will open
+   */
+  @Column(name = "OPEN_DATE")
+  private LocalDateTime openDate;
+
+  /**
+   * Date the collection will close
+   */
+  @Column(name = "CLOSE_DATE")
+  private LocalDateTime closeDate;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
@@ -61,4 +87,16 @@ public class CollectionTypeCodeEntity {
   @PastOrPresent
   @Column(name = "UPDATE_DATE")
   private LocalDateTime updateDate;
+
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  @OneToMany(mappedBy = "collectionTypeCodeEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = CollectionCodeCriteriaEntity.class)
+  Set<CollectionCodeCriteriaEntity> collectionCodeCriteriaEntities;
+
+  public Set<CollectionCodeCriteriaEntity> getCollectionCodeCriteriaEntities() {
+    if (this.collectionCodeCriteriaEntities == null) {
+      this.collectionCodeCriteriaEntities = new HashSet<>();
+    }
+    return this.collectionCodeCriteriaEntities;
+  }
 }

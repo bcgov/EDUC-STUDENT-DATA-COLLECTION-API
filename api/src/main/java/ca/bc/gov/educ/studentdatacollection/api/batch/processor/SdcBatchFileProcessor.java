@@ -12,13 +12,13 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchStatusCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolBatchMapper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolBatchEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolBatchRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolBatch;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import com.google.common.base.Stopwatch;
 import lombok.Getter;
 import lombok.NonNull;
@@ -75,13 +75,13 @@ public class SdcBatchFileProcessor {
   private final SdcFileValidator sdcFileValidator;
 
   @Getter(PRIVATE)
-  private final SdcSchoolBatchRepository sdcSchoolBatchRepository;
+  private final SdcSchoolCollectionRepository sdcSchoolBatchRepository;
 
   @Getter(PRIVATE)
-  private final SdcRepository sdcRepository;
+  private final CollectionRepository sdcRepository;
 
   @Autowired
-  public SdcBatchFileProcessor(final SdcBatchFileStudentRecordsProcessor sdcBatchStudentRecordsProcessor, final ApplicationProperties applicationProperties, final RestUtils restUtils, SdcFileValidator sdcFileValidator, SdcSchoolBatchRepository sdcSchoolBatchRepository, SdcRepository sdcRepository) {
+  public SdcBatchFileProcessor(final SdcBatchFileStudentRecordsProcessor sdcBatchStudentRecordsProcessor, final ApplicationProperties applicationProperties, final RestUtils restUtils, SdcFileValidator sdcFileValidator, SdcSchoolCollectionRepository sdcSchoolBatchRepository, CollectionRepository sdcRepository) {
     this.sdcBatchStudentRecordsProcessor = sdcBatchStudentRecordsProcessor;
     this.applicationProperties = applicationProperties;
     this.sdcFileValidator = sdcFileValidator;
@@ -98,7 +98,7 @@ public class SdcBatchFileProcessor {
    */
   @Transactional
   @Async("sdcFileProcessor")
-  public SdcSchoolBatch processSdcBatchFile(@NonNull final SdcFileUpload fileUpload) {
+  public SdcSchoolCollection processSdcBatchFile(@NonNull final SdcFileUpload fileUpload) {
     val stopwatch = Stopwatch.createStarted();
     final var guid = UUID.randomUUID().toString(); // this guid will be used throughout the logs for easy tracking.
     log.info("Started processing SDC file with school ID :: {} and guid :: {}", fileUpload.getSchoolID(), guid);
@@ -153,9 +153,9 @@ public class SdcBatchFileProcessor {
    * @param guid             the guid
    * @param batchFile        the batch file
    */
-  private SdcSchoolBatchEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final SdcBatchFile batchFile, @NonNull final SdcFileUpload fileUpload) {
+  private SdcSchoolCollectionEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final SdcBatchFile batchFile, @NonNull final SdcFileUpload fileUpload) {
     log.info("Going to persist data for batch :: {}", guid);
-    final SdcSchoolBatchEntity entity = mapper.toSdcBatchEntityLoaded(batchFile, fileUpload); // batch file can be processed further and persisted.
+    final SdcSchoolCollectionEntity entity = mapper.toSdcBatchEntityLoaded(batchFile, fileUpload); // batch file can be processed further and persisted.
     for (final var student : batchFile.getStudentDetails()) { // set the object so that PK/FK relationship will be auto established by hibernate.
       final var sdcBatchStudentEntity = mapper.toSdcSchoolStudentEntity(student, entity);
       entity.getSDCSchoolStudentEntities().add(sdcBatchStudentEntity);
@@ -166,11 +166,11 @@ public class SdcBatchFileProcessor {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @Retryable(maxAttempts = 10, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public void markInitialLoadComplete(@NonNull final SdcSchoolBatchEntity schoolBatchEntity, @NonNull final SdcFileUpload fileUpload) {
+  public void markInitialLoadComplete(@NonNull final SdcSchoolCollectionEntity schoolBatchEntity, @NonNull final SdcFileUpload fileUpload) {
     var collection = sdcRepository.findById(UUID.fromString(fileUpload.getCollectionID()));
     if(collection.isPresent()) {
-      schoolBatchEntity.setSdcEntity(collection.get());
-      schoolBatchEntity.setStatusCode(SdcBatchStatusCodes.LOADED.getCode());
+      schoolBatchEntity.setCollectionEntity(collection.get());
+      schoolBatchEntity.setSdcSchoolCollectionStatusCode(SdcBatchStatusCodes.LOADED.getCode());
       getSdcSchoolBatchRepository().save(schoolBatchEntity);
     }else{
       throw new StudentDataCollectionAPIRuntimeException("Collection ID provided :: " + fileUpload.getCollectionID() + " :: is not valid");

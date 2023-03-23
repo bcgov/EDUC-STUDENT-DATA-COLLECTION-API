@@ -7,13 +7,12 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentSta
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolStudentMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcStudentValidationIssueEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolStudentRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentValidationErrorRepository;
-import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentValidationIssueEntity;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
@@ -52,13 +51,13 @@ import java.util.stream.Collectors;
 public class SdcService {
   private static final String STUDENT_ID_ATTRIBUTE = "nominalRollStudentID";
   private final MessagePublisher messagePublisher;
-  private final SdcSchoolStudentRepository repository;
-  private final SdcStudentValidationErrorRepository sdcStudentValidationErrorRepository;
+  private final SdcSchoolCollectionStudentRepository repository;
+  private final SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository;
   private final Executor paginatedQueryExecutor = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
 
-  public SdcService(final MessagePublisher messagePublisher, SdcSchoolStudentRepository repository, SdcStudentValidationErrorRepository sdcStudentValidationErrorRepository) {
+  public SdcService(final MessagePublisher messagePublisher, SdcSchoolCollectionStudentRepository repository, SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository) {
     this.messagePublisher = messagePublisher;
     this.repository = repository;
     this.sdcStudentValidationErrorRepository = sdcStudentValidationErrorRepository;
@@ -75,12 +74,12 @@ public class SdcService {
     return count != null && count > 1;
   }
 
-  public SdcSchoolStudentEntity getSdcStudentByID(final UUID sdcSchoolStudentID) {
-    return this.repository.findById(sdcSchoolStudentID).orElseThrow(() -> new EntityNotFoundException(SdcSchoolStudentEntity.class, STUDENT_ID_ATTRIBUTE, sdcSchoolStudentID.toString()));
+  public SdcSchoolCollectionStudentEntity getSdcStudentByID(final UUID sdcSchoolStudentID) {
+    return this.repository.findById(sdcSchoolStudentID).orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, STUDENT_ID_ATTRIBUTE, sdcSchoolStudentID.toString()));
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void saveNominalRollStudents(final List<SdcSchoolStudentEntity> nomRollStudentEntities, final String correlationID) {
+  public void saveNominalRollStudents(final List<SdcSchoolCollectionStudentEntity> nomRollStudentEntities, final String correlationID) {
     log.debug("creating nominal roll entities in transient table for transaction ID :: {}", correlationID);
     this.repository.saveAll(nomRollStudentEntities);
   }
@@ -95,7 +94,7 @@ public class SdcService {
    * @return the completable future
    */
   @Transactional(propagation = Propagation.SUPPORTS)
-  public CompletableFuture<Page<SdcSchoolStudentEntity>> findAll(final Specification<SdcSchoolStudentEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
+  public CompletableFuture<Page<SdcSchoolCollectionStudentEntity>> findAll(final Specification<SdcSchoolCollectionStudentEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
     return CompletableFuture.supplyAsync(() -> {
       final Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sorts));
       try {
@@ -107,7 +106,7 @@ public class SdcService {
 
   }
 
-  public SdcSchoolStudentEntity updateNominalRollStudent(final SdcSchoolStudentEntity entity) {
+  public SdcSchoolCollectionStudentEntity updateNominalRollStudent(final SdcSchoolCollectionStudentEntity entity) {
     return this.repository.save(entity);
   }
 
@@ -116,14 +115,14 @@ public class SdcService {
   }
 
   @Async("publisherExecutor")
-  public void prepareAndSendSdcStudentsForFurtherProcessing(final List<SdcSchoolStudentEntity> sdcStudentEntities) {
+  public void prepareAndSendSdcStudentsForFurtherProcessing(final List<SdcSchoolCollectionStudentEntity> sdcStudentEntities) {
     final List<SdcStudentSagaData> sdcStudentSagaDatas = sdcStudentEntities.stream()
       .map(el -> {
         val sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setSdcSchoolStudent(SdcSchoolStudentMapper.mapper.toSdcSchoolStudent(el));
+        sdcStudentSagaData.setSchoolID(el.getSdcSchoolCollectionEntity().getSchoolID().toString());
+        sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(el));
         return sdcStudentSagaData;
-      })
-      .collect(Collectors.toList());
+      }).toList();
     this.publishUnprocessedStudentRecordsForProcessing(sdcStudentSagaDatas);
   }
 
@@ -133,7 +132,7 @@ public class SdcService {
   private void sendIndividualStudentAsMessageToTopic(final SdcStudentSagaData sdcStudentSagaData) {
     final var eventPayload = JsonUtil.getJsonString(sdcStudentSagaData);
     if (eventPayload.isPresent()) {
-      final Event event = Event.builder().eventType(EventType.READ_FROM_TOPIC).eventOutcome(EventOutcome.READ_FROM_TOPIC_SUCCESS).eventPayload(eventPayload.get()).sdcSchoolStudentID(sdcStudentSagaData.getSdcSchoolStudent().getSdcSchoolStudentID()).build();
+      final Event event = Event.builder().eventType(EventType.READ_FROM_TOPIC).eventOutcome(EventOutcome.READ_FROM_TOPIC_SUCCESS).eventPayload(eventPayload.get()).sdcSchoolStudentID(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()).build();
       final var eventString = JsonUtil.getJsonString(event);
       if (eventString.isPresent()) {
         this.messagePublisher.dispatchMessage(TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC.toString(), eventString.get().getBytes());
@@ -145,12 +144,12 @@ public class SdcService {
     }
   }
 
-  public Optional<SdcSchoolStudentEntity> findBySdcSchoolStudentID(final String sdcSchoolStudentID) {
+  public Optional<SdcSchoolCollectionStudentEntity> findBySdcSchoolStudentID(final String sdcSchoolStudentID) {
     return this.repository.findById(UUID.fromString(sdcSchoolStudentID));
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void saveSdcSchoolStudent(final SdcSchoolStudentEntity sdcSchoolStudentEntity) {
+  public void saveSdcSchoolStudent(final SdcSchoolCollectionStudentEntity sdcSchoolStudentEntity) {
     this.repository.save(sdcSchoolStudentEntity);
   }
 
@@ -160,7 +159,7 @@ public class SdcService {
   }
 
   //To save NominalRollStudent with ValidationErrors, query and save operation should be in the same transaction boundary.
-  public SdcSchoolStudentEntity saveSdcSchoolStudentValidationErrors(final String nominalRollStudentID, final Map<String, String> errors, SdcSchoolStudentEntity entity) {
+  public SdcSchoolCollectionStudentEntity saveSdcSchoolStudentValidationErrors(final String nominalRollStudentID, final Map<String, String> errors, SdcSchoolCollectionStudentEntity entity) {
     if(entity == null) {
       val nomRollStudOptional = this.findBySdcSchoolStudentID(nominalRollStudentID);
       if (nomRollStudOptional.isPresent()) {
@@ -170,28 +169,16 @@ public class SdcService {
       }
     }
     entity.getSDCStudentValidationIssueEntities().addAll(SdcHelper.populateValidationErrors(errors, entity));
-    entity.setStatusCode(SdcSchoolStudentStatus.ERROR.toString());
+    entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
     return this.repository.save(entity);
   }
 
-  public List<SdcSchoolStudentEntity> findAllBySdcSchoolBatchID(final String sdcSchoolBatchID) {
+  public List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolBatchID(final String sdcSchoolBatchID) {
     return this.repository.findAllBySdcSchoolBatchID(sdcSchoolBatchID);
   }
 
-  public List<SdcStudentValidationIssueEntity> getSchoolNumberValidationErrors(){
+  public List<SdcSchoolCollectionStudentValidationIssueEntity> getSchoolNumberValidationErrors(){
     return this.sdcStudentValidationErrorRepository.findAllByFieldName("School Number");
   }
 
-  private boolean futureClosedDate(String closedDate) {
-    try {
-      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-      LocalDate closed = LocalDate.parse(closedDate, formatter);
-      if (closed.isBefore(LocalDate.now())) {
-        return true;
-      }
-    } catch (DateTimeParseException e) {
-      //Do nothing here
-    }
-    return false;
-  }
 }

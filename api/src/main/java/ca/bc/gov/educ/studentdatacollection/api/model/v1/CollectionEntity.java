@@ -31,9 +31,9 @@ public class CollectionEntity {
   @Column(name = "COLLECTION_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   private UUID collectionID;
 
-  @Column(name = "COLLECTION_CODE", nullable = false, length = 10)
+  @Column(name = "COLLECTION_TYPE_CODE", nullable = false, length = 10)
   @UpperCase
-  private String collectionCode;
+  private String collectionTypeCode;
 
   @Column(name = "OPEN_DATE")
   private LocalDateTime openDate;
@@ -57,14 +57,14 @@ public class CollectionEntity {
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  @OneToMany(mappedBy = "sdcEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolBatchEntity.class)
-  Set<SdcSchoolBatchEntity> sdcSchoolEntities;
+  @OneToMany(mappedBy = "collectionEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolCollectionEntity.class)
+  Set<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities;
 
-  public Set<SdcSchoolBatchEntity> getSDCSchoolEntities() {
-    if (this.sdcSchoolEntities == null) {
-      this.sdcSchoolEntities = new HashSet<>();
+  public Set<SdcSchoolCollectionEntity> getSDCSchoolEntities() {
+    if (this.sdcSchoolCollectionEntities == null) {
+      this.sdcSchoolCollectionEntities = new HashSet<>();
     }
-    return this.sdcSchoolEntities;
+    return this.sdcSchoolCollectionEntities;
   }
 
 }

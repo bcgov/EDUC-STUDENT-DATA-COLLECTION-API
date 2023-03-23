@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 
 import java.util.Map;
 
@@ -12,5 +12,5 @@ public interface Rule {
    * @param sdcSchoolStudentEntity the object to be validated.
    * @return the List of Errors Map, the map
    */
-  Map<String, String> validate(SdcSchoolStudentEntity sdcSchoolStudentEntity);
+  Map<String, String> validate(SdcSchoolCollectionStudentEntity sdcSchoolStudentEntity);
 }

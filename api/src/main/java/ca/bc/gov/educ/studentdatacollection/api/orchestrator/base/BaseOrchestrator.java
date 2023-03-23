@@ -323,7 +323,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
       finalEvent.setEventOutcome(SAGA_COMPLETED);
       finalEvent.setSagaStatus(COMPLETED.toString());
       if(saga.getSdcSchoolStudentID() != null) {
-        finalEvent.setSdcSchoolStudentID(saga.getSdcSchoolBatchID().toString());
+        finalEvent.setSdcSchoolStudentID(saga.getSdcSchoolCollectionID().toString());
       }
       finalEvent.setSagaName(this.getSagaName());
       finalEvent.setEventPayload(payloadToSubscribers);

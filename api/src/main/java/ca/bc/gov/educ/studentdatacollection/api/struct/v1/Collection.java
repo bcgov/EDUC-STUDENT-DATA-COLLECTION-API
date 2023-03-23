@@ -23,8 +23,8 @@ public class Collection extends BaseRequest implements Serializable {
   private String collectionID;
 
   @Size(max = 10)
-  @NotNull(message = "collection code cannot be null")
-  private String collectionCode;
+  @NotNull(message = "collectionTypeCode cannot be null")
+  private String collectionTypeCode;
 
   @NotNull(message = "open date cannot be null")
   private String openDate;
