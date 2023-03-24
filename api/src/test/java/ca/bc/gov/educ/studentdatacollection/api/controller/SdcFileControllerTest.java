@@ -29,7 +29,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
@@ -82,7 +81,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     final var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo(SdcBatchStatusCodes.LOADED.getCode());
-    final var students = this.schoolStudentRepository.findAllBySdcSchoolBatchEntity(result.get(0));
+    final var students = this.schoolStudentRepository.findAllBySdcSchoolCollectionEntity(result.get(0));
     assertThat(students).isNotNull();
   }
 

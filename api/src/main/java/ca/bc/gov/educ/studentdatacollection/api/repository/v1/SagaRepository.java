@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.Saga;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSaga;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -15,15 +15,15 @@ import java.util.UUID;
  * The interface Saga repository.
  */
 @Repository
-public interface SagaRepository extends JpaRepository<Saga, UUID>, JpaSpecificationExecutor<Saga> {
+public interface SagaRepository extends JpaRepository<SdcSaga, UUID>, JpaSpecificationExecutor<SdcSaga> {
 
-  Optional<Saga> findBySdcStudentIDAndSagaName(UUID nominalRollStudentID, String sagaName);
+  Optional<SdcSaga> findBySdcSchoolCollectionStudentIDAndSagaName(UUID nominalRollStudentID, String sagaName);
 
-  List<Saga> findAllByCreateDateBefore(LocalDateTime createDateToCompare);
+  List<SdcSaga> findAllByCreateDateBefore(LocalDateTime createDateToCompare);
 
-  List<Saga> findTop100ByStatusInOrderByCreateDate(List<String> statuses);
+  List<SdcSaga> findTop100ByStatusInOrderByCreateDate(List<String> statuses);
 
   long countAllByStatusIn(List<String> statuses);
 
-  List<Saga> findAllBySchoolIDAndStatusIn(String schoolID, List<String> statuses);
+  List<SdcSaga> findAllBySdcSchoolCollectionStudentIDAndStatusIn(String schoolID, List<String> statuses);
 }

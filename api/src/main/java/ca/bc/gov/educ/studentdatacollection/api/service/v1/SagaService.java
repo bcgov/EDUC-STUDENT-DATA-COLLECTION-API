@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.Saga;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SagaEventStates;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSaga;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaEventRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
 import lombok.AccessLevel;
@@ -70,7 +70,7 @@ public class SagaService {
    * @return the saga
    */
   @Transactional(propagation = Propagation.MANDATORY)
-  public Saga createSagaRecord(final Saga saga) {
+  public SdcSaga createSagaRecord(final SdcSaga saga) {
     return this.getSagaRepository().save(saga);
   }
 
@@ -84,7 +84,7 @@ public class SagaService {
    */
   @Retryable(maxAttempts = 5, backoff = @Backoff(multiplier = 2, delay = 2000))
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void updateAttachedSagaWithEvents(final Saga saga, final SagaEventStates sagaEventStates) {
+  public void updateAttachedSagaWithEvents(final SdcSaga saga, final SagaEventStates sagaEventStates) {
     saga.setUpdateDate(LocalDateTime.now());
     this.getSagaRepository().save(saga);
     val result = this.getSagaEventRepository()
@@ -100,7 +100,7 @@ public class SagaService {
    * @param sagaId the saga id
    * @return the optional
    */
-  public Optional<Saga> findSagaById(final UUID sagaId) {
+  public Optional<SdcSaga> findSagaById(final UUID sagaId) {
     return this.getSagaRepository().findById(sagaId);
   }
 
@@ -110,7 +110,7 @@ public class SagaService {
    * @param saga the saga
    * @return the list
    */
-  public List<SagaEventStates> findAllSagaStates(final Saga saga) {
+  public List<SagaEventStates> findAllSagaStates(final SdcSaga saga) {
     return this.getSagaEventRepository().findBySaga(saga);
   }
 
@@ -121,7 +121,7 @@ public class SagaService {
    * @param saga the saga
    */
   @Transactional(propagation = Propagation.MANDATORY)
-  public void updateSagaRecord(final Saga saga) { // saga here MUST be an attached entity
+  public void updateSagaRecord(final SdcSaga saga) { // saga here MUST be an attached entity
     this.getSagaRepository().save(saga);
   }
 
@@ -132,8 +132,8 @@ public class SagaService {
    * @param sagaName             the saga name
    * @return the list
    */
-  public Optional<Saga> findByNominalRollStudentIDAndSagaName(final UUID nominalRollStudentID, final String sagaName) {
-    return this.getSagaRepository().findBySdcStudentIDAndSagaName(nominalRollStudentID, sagaName);
+  public Optional<SdcSaga> findByNominalRollStudentIDAndSagaName(final UUID nominalRollStudentID, final String sagaName) {
+    return this.getSagaRepository().findBySdcSchoolCollectionStudentIDAndSagaName(nominalRollStudentID, sagaName);
   }
 
   /**
@@ -146,11 +146,11 @@ public class SagaService {
    * @return the saga
    */
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public Saga createSagaRecordInDB(final String sagaName, final String userName, final String payload, final UUID sdcSchoolStudentID) {
-    final var saga = Saga
+  public SdcSaga createSagaRecordInDB(final String sagaName, final String userName, final String payload, final UUID sdcSchoolStudentID) {
+    final var saga = SdcSaga
       .builder()
       .payload(payload)
-      .sdcSchoolStudentID(sdcSchoolStudentID)
+      .sdcSchoolCollectionStudentID(sdcSchoolStudentID)
       .sagaName(sagaName)
       .status(STARTED.toString())
       .sagaState(INITIATED.toString())
@@ -171,12 +171,12 @@ public class SagaService {
    * @return the saga
    */
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public List<Saga> createMultipleBatchSagaRecordsInDB(final String sagaName, final String userName, final List<Pair<UUID, String>> payloads, final String processingYear) {
-    final List<Saga> sagas = new ArrayList<>();
+  public List<SdcSaga> createMultipleBatchSagaRecordsInDB(final String sagaName, final String userName, final List<Pair<UUID, String>> payloads, final String processingYear) {
+    final List<SdcSaga> sagas = new ArrayList<>();
     payloads.forEach(payloadPair -> sagas.add(
-      Saga.builder()
+      SdcSaga.builder()
         .payload(payloadPair.getSecond())
-        .sdcSchoolStudentID(payloadPair.getFirst())
+        .sdcSchoolCollectionStudentID(payloadPair.getFirst())
         .sagaName(sagaName)
         .status(STARTED.toString())
         .sagaState(INITIATED.toString())
@@ -199,7 +199,7 @@ public class SagaService {
    * @return the completable future
    */
   @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-  public CompletableFuture<Page<Saga>> findAll(final Specification<Saga> specs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
+  public CompletableFuture<Page<SdcSaga>> findAll(final Specification<SdcSaga> specs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
     return CompletableFuture.supplyAsync(() -> {
       final Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sorts));
       try {

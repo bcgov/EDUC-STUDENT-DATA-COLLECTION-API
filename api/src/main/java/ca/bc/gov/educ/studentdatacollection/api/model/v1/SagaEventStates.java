@@ -21,7 +21,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "STUDENT_DATA_COLLECTION_SAGA_EVENT_STATES")
+@Table(name = "SDC_SAGA_EVENT_STATES")
 @DynamicUpdate
 public class SagaEventStates {
 
@@ -43,7 +43,7 @@ public class SagaEventStates {
   @EqualsAndHashCode.Exclude
   @ManyToOne
   @JoinColumn(name = "SAGA_ID", updatable = false, columnDefinition = "BINARY(16)")
-  Saga saga;
+  SdcSaga saga;
 
   /**
    * The Saga event state.

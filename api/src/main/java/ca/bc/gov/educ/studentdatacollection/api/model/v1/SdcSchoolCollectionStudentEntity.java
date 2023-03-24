@@ -36,6 +36,10 @@ public class SdcSchoolCollectionStudentEntity {
   @JoinColumn(name = "SDC_SCHOOL_COLLECTION_ID", referencedColumnName = "SDC_SCHOOL_COLLECTION_ID", updatable = false)
   SdcSchoolCollectionEntity sdcSchoolCollectionEntity;
 
+  @Basic
+  @Column(name = "SDC_SCHOOL_COLLECTION_ID", insertable=false, columnDefinition = "BINARY(16)", updatable = false)
+  private UUID sdcSchoolCollectionID;
+
   @Column(name = "LOCAL_ID")
   private String localID;
 

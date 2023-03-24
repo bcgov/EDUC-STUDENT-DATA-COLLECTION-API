@@ -32,9 +32,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,7 +39,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 
 
 @Component
@@ -64,7 +60,7 @@ public class SdcService {
   }
 
   public boolean isAllRecordsProcessed() {
-    final long count = this.repository.countByStatus(SdcSchoolStudentStatus.LOADED.toString());
+    final long count = this.repository.countBySdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.toString());
     return count < 1;
   }
 
@@ -173,12 +169,12 @@ public class SdcService {
     return this.repository.save(entity);
   }
 
-  public List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolBatchID(final String sdcSchoolBatchID) {
-    return this.repository.findAllBySdcSchoolBatchID(sdcSchoolBatchID);
+  public List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolBatchID(final String sdcSchoolCollectionID) {
+    return this.repository.findAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
   }
 
   public List<SdcSchoolCollectionStudentValidationIssueEntity> getSchoolNumberValidationErrors(){
-    return this.sdcStudentValidationErrorRepository.findAllByFieldName("School Number");
+    return this.sdcStudentValidationErrorRepository.findAllByValidationIssueFieldCode("School Number");
   }
 
 }

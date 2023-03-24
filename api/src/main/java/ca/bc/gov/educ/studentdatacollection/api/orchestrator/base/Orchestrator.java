@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.orchestrator.base;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.Saga;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSaga;
 import org.springframework.data.util.Pair;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ public interface Orchestrator {
    *
    * @param saga  the saga data
    */
-  void startSaga(Saga saga);
+  void startSaga(SdcSaga saga);
 
   /**
    * create saga.
@@ -36,7 +36,7 @@ public interface Orchestrator {
    * @param userName  the user who created the saga
    * @return the saga
    */
-  Saga createSaga(String payload, UUID sdcSchoolStudentID, String userName);
+  SdcSaga createSaga(String payload, UUID sdcSchoolStudentID, String userName);
 
   /**
    * create multiple sagas.
@@ -46,7 +46,7 @@ public interface Orchestrator {
    * @param processingYear the processing year
    * @return the saga
    */
-  List<Saga> createMultipleSagas(List<Pair<UUID, String>> payloads, String userName, String processingYear);
+  List<SdcSaga> createMultipleSagas(List<Pair<UUID, String>> payloads, String userName, String processingYear);
 
   /**
    * Replay saga.
@@ -56,5 +56,5 @@ public interface Orchestrator {
    * @throws InterruptedException the interrupted exception
    * @throws TimeoutException     the timeout exception
    */
-  void replaySaga(Saga saga) throws IOException, InterruptedException, TimeoutException;
+  void replaySaga(SdcSaga saga) throws IOException, InterruptedException, TimeoutException;
 }

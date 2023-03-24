@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -23,9 +22,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "STUDENT_DATA_COLLECTION_SAGA")
+@Table(name = "SDC_SAGA")
 @DynamicUpdate
-public class Saga {
+public class SdcSaga {
 
   @Id
   @GeneratedValue(generator = "UUID")
@@ -34,10 +33,10 @@ public class Saga {
   @Column(name = "SAGA_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   UUID sagaId;
 
-  @Column(name = "STUDENT_DATA_COLLECTION_STUDENT_ID", columnDefinition = "BINARY(16)")
-  UUID sdcSchoolStudentID;
+  @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_ID", columnDefinition = "BINARY(16)")
+  UUID sdcSchoolCollectionStudentID;
 
-  @Column(name = "STUDENT_DATA_COLLECTION_SCHOOL_ID", columnDefinition = "BINARY(16)")
+  @Column(name = "SDC_SCHOOL_COLLECTION_ID", columnDefinition = "BINARY(16)")
   UUID sdcSchoolCollectionID;
 
   @NotNull(message = "saga name cannot be null")
@@ -49,9 +48,8 @@ public class Saga {
   String sagaState;
 
   @NotNull(message = "payload cannot be null")
-  @Lob
-  @Column(name = "PAYLOAD")
-  byte[] payloadBytes;
+  @Column(name = "PAYLOAD",  length = 10485760)
+  private String payload;
 
   @NotNull(message = "status cannot be null")
   @Column(name = "STATUS")
@@ -77,22 +75,5 @@ public class Saga {
 
   @Column(name = "RETRY_COUNT")
   private Integer retryCount;
-
-  public String getPayload() {
-    return new String(this.getPayloadBytes(), StandardCharsets.UTF_8);
-  }
-
-  public void setPayload(final String payload) {
-    this.setPayloadBytes(payload.getBytes(StandardCharsets.UTF_8));
-  }
-
-  public static class SagaBuilder {
-    byte[] payloadBytes;
-
-    public SagaBuilder payload(final String payload) {
-      this.payloadBytes = payload.getBytes(StandardCharsets.UTF_8);
-      return this;
-    }
-  }
 
 }

@@ -4,7 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.LogHelper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.Saga;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSaga;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.Orchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
@@ -62,7 +62,7 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
-  private void processUncompletedSagas(final List<Saga> sagas) {
+  private void processUncompletedSagas(final List<SdcSaga> sagas) {
     for (val saga : sagas) {
       if (saga.getUpdateDate().isBefore(LocalDateTime.now().minusMinutes(2))
         && this.getSagaOrchestrators().containsKey(saga.getSagaName())) {
@@ -86,11 +86,11 @@ public class EventTaskSchedulerAsyncService {
       return;
     }
     final List<SdcSchoolCollectionStudentEntity> studentEntities = new ArrayList<>();
-    final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTop100ByStatusOrderByCreateDate(SdcSchoolStudentStatus.LOADED.toString());
+    final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTop100BySdcSchoolCollectionStudentStatusCodeOrderByCreateDate(SdcSchoolStudentStatus.LOADED.toString());
     log.debug("found :: {}  records in loaded status", sdcSchoolStudentEntities.size());
     if (!sdcSchoolStudentEntities.isEmpty()) {
       for (val entity : sdcSchoolStudentEntities) {
-        if (this.getSagaRepository().findBySdcStudentIDAndSagaName(entity.getSdcSchoolCollectionStudentID(), SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString()).isEmpty()) {
+        if (this.getSagaRepository().findBySdcSchoolCollectionStudentIDAndSagaName(entity.getSdcSchoolCollectionStudentID(), SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString()).isEmpty()) {
           studentEntities.add(entity);
         }
       }
@@ -112,7 +112,7 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
-  private void setRetryCountAndLog(final Saga saga) {
+  private void setRetryCountAndLog(final SdcSaga saga) {
     Integer retryCount = saga.getRetryCount();
     if (retryCount == null || retryCount == 0) {
       retryCount = 1;

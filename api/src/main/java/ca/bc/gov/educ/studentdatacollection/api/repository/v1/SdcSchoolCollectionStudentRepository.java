@@ -12,11 +12,11 @@ import java.util.UUID;
 
 @Repository
 public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcSchoolCollectionStudentEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionStudentEntity> {
-  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolBatchEntity(SdcSchoolCollectionEntity sdcSchoolBatchEntity);
+  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollectionEntity(SdcSchoolCollectionEntity sdcSchoolBatchEntity);
 
-  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolBatchID(String sdcSchoolBatchID);
+  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollectionID(String sdcSchoolCollectionID);
 
-  long countByStatus(String status);
+  long countBySdcSchoolCollectionStudentStatusCode(String sdcSchoolCollectionStudentStatusCode);
 
   @Query(value = "SELECT " +
     "COUNT(SDC_SCHOOL_COLLECTION_STUDENT_ID) " +
@@ -30,5 +30,5 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     "COUNT(SDC_SCHOOL_COLLECTION_STUDENT_ID) > 1", nativeQuery = true)
   Long countForDuplicateStudentPENs(String sdcSchoolID);
 
-  List<SdcSchoolCollectionStudentEntity> findTop100ByStatusOrderByCreateDate(String status);
+  List<SdcSchoolCollectionStudentEntity> findTop100BySdcSchoolCollectionStudentStatusCodeOrderByCreateDate(String sdcSchoolCollectionStudentStatusCode);
 }

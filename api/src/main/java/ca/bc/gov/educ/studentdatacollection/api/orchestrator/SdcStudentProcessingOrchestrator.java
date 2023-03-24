@@ -7,16 +7,16 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionA
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.PenMatchSagaMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.Saga;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SagaEventStates;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSaga;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.BaseOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
-import ca.bc.gov.educ.studentdatacollection.api.struct.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -58,7 +58,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
       .end(PROCESS_PEN_MATCH_RESULTS, PEN_MATCH_RESULTS_PROCESSED);
   }
 
-  protected void processPenMatchResults(final Event event, final Saga saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
+  protected void processPenMatchResults(final Event event, final SdcSaga saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
     final SagaEventStates eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(PROCESS_PEN_MATCH_RESULTS.toString());
     final var penMatchResult = JsonUtil.getJsonObjectFromString(PenMatchResult.class, event.getEventPayload());
@@ -95,7 +95,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
       .eventPayload(penMatchResult.getPenStatus()).build());
   }
 
-  private void completeSdcStudentSagaWithError(final Event event, final Saga saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
+  private void completeSdcStudentSagaWithError(final Event event, final SdcSaga saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
     final TypeReference<Map<String, String>> responseType = new TypeReference<>() {
     };
     val validationResults = JsonUtil.mapper.readValue(event.getEventPayload(), responseType);
@@ -103,14 +103,14 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     this.sdcService.saveSdcSchoolStudentValidationErrors(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID(), validationResults, null);
   }
 
-  protected void processPenMatch(final Event event, final Saga saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
+  protected void processPenMatch(final Event event, final SdcSaga saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
     final SagaEventStates eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(PROCESS_PEN_MATCH.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
     this.postToPenMatchAPI(saga, sdcStudentSagaData);
   }
 
-  protected void postToPenMatchAPI(final Saga saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
+  protected void postToPenMatchAPI(final SdcSaga saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
     val sdcSchoolStudent = sdcStudentSagaData.getSdcSchoolCollectionStudent();
     final String mincode = this.restUtils.getSchoolBySchoolID(sdcStudentSagaData.getSchoolID()).get().getMincode();
     val penMatchRequest = PenMatchSagaMapper.mapper.toPenMatchStudent(sdcSchoolStudent, mincode);
@@ -125,7 +125,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     log.info("message sent to PEN_MATCH_API_TOPIC for PROCESS_PEN_MATCH Event. :: {}", saga.getSagaId());
   }
 
-  protected void validateStudent(final Event event, final Saga saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
+  protected void validateStudent(final Event event, final SdcSaga saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
     final SagaEventStates eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(VALIDATE_SDC_STUDENT.toString());
     saga.setStatus(IN_PROGRESS.toString());

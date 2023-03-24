@@ -52,7 +52,7 @@ class SdcBatchProcessorTest extends BaseStudentDataCollectionAPITest {
     final var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo(SdcBatchStatusCodes.LOADED.getCode());
-    final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolBatchEntity(result.get(0));
+    final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionEntity(result.get(0));
     assertThat(students).isNotNull();
   }
 

@@ -14,7 +14,7 @@ import java.util.UUID;
 @Repository
 public interface SdcSchoolCollectionStudentValidationIssueRepository extends JpaRepository<SdcSchoolCollectionStudentValidationIssueEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionStudentValidationIssueEntity> {
 
-  List<SdcSchoolCollectionStudentValidationIssueEntity> findAllByFieldName(String fieldName);
+  List<SdcSchoolCollectionStudentValidationIssueEntity> findAllByValidationIssueFieldCode(String validationIssueFieldCode);
 
   @Modifying
   @Query(value = "DELETE FROM SDC_SCHOOL_COLLECTION_STUDENT_VALIDATION_ISSUE where SDC_SCHOOL_COLLECTION_STUDENT_ID = :sdcStudentId", nativeQuery = true)

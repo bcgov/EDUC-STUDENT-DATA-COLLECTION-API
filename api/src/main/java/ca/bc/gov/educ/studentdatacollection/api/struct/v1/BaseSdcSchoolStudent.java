@@ -71,9 +71,9 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   @NotNull(message = "homeLanguageSpokenCode cannot be null")
   private String homeLanguageSpokenCode;
 
-  private Integer otherCourses;
+  private String otherCourses;
 
-  private Integer supportBlocks;
+  private String supportBlocks;
 
   @Size(max = 10)
   @NotNull(message = "enrolledGradeCode cannot be null")

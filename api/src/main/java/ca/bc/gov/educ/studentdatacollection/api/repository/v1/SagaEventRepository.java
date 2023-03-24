@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.Saga;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SagaEventStates;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSaga;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,7 +21,7 @@ public interface SagaEventRepository extends JpaRepository<SagaEventStates, UUID
    * @param saga the saga
    * @return the list
    */
-  List<SagaEventStates> findBySaga(Saga saga);
+  List<SagaEventStates> findBySaga(SdcSaga saga);
 
   /**
    * Find by saga and saga event outcome and saga event state and saga step number optional.
@@ -32,5 +32,5 @@ public interface SagaEventRepository extends JpaRepository<SagaEventStates, UUID
    * @param stepNumber   the step number
    * @return the optional
    */
-  Optional<SagaEventStates> findBySagaAndSagaEventOutcomeAndSagaEventStateAndSagaStepNumber(Saga saga, String eventOutcome, String eventState, int stepNumber);
+  Optional<SagaEventStates> findBySagaAndSagaEventOutcomeAndSagaEventStateAndSagaStepNumber(SdcSaga saga, String eventOutcome, String eventState, int stepNumber);
 }
