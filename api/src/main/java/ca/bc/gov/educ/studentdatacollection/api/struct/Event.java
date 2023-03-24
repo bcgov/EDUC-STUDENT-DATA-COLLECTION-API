@@ -39,4 +39,12 @@ public class Event {
    * The Event payload.
    */
   private String eventPayload; // json string
+  /**
+   * The school batch ID
+   */
+  private String sdcSchoolBatchID;
+  /**
+   * The student ID
+   */
+  private String sdcSchoolStudentID;
 }

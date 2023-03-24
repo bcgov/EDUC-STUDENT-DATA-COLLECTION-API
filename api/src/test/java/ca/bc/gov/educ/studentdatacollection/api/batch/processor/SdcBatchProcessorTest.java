@@ -2,9 +2,9 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.processor;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchStatusCodes;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolBatchRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import lombok.extern.slf4j.Slf4j;
@@ -26,20 +26,20 @@ import static org.mockito.Mockito.when;
 class SdcBatchProcessorTest extends BaseStudentDataCollectionAPITest {
 
   @Autowired
-  private SdcBatchProcessor sdcBatchProcessor;
+  private SdcBatchFileProcessor sdcBatchProcessor;
   @Autowired
-  private SdcRepository sdcRepository;
+  private CollectionRepository sdcRepository;
   @Autowired
-  private SdcSchoolBatchRepository sdcSchoolBatchRepository;
+  private SdcSchoolCollectionRepository sdcSchoolBatchRepository;
   @Autowired
-  private SdcSchoolStudentRepository sdcSchoolStudentRepository;
+  private SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository;
   @Autowired
   RestUtils restUtils;
 
   @Test
   @Transactional
   void testProcessSdcBatchFileFromTSW_Given1RowValidFile_ShouldCreateRecordsInDB() throws IOException {
-    var collection = sdcRepository.save(createCollectionEntity());
+    var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
@@ -50,9 +50,9 @@ class SdcBatchProcessorTest extends BaseStudentDataCollectionAPITest {
     final var result = this.sdcSchoolBatchRepository.findAll();
     assertThat(result).hasSize(1);
     final var entity = result.get(0);
-    assertThat(entity.getSdcSchoolBatchID()).isNotNull();
-    assertThat(entity.getStatusCode()).isEqualTo(SdcBatchStatusCodes.LOADED.getCode());
-    final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolBatchEntity(result.get(0));
+    assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo(SdcBatchStatusCodes.LOADED.getCode());
+    final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionEntity(result.get(0));
     assertThat(students).isNotNull();
   }
 

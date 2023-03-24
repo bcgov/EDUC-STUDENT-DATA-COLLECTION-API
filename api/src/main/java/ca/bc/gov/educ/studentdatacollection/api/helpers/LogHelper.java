@@ -1,8 +1,10 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.Saga;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSaga;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -10,8 +12,6 @@ import org.slf4j.MDC;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -83,7 +83,7 @@ public final class LogHelper {
     }
   }
 
-  public static void logSagaRetry(final Saga saga) {
+  public static void logSagaRetry(final SdcSaga saga) {
     final Map<String, Object> retrySagaMap = new HashMap<>();
     try {
       retrySagaMap.put("sagaName", saga.getSagaName());

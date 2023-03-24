@@ -7,15 +7,25 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class StringMapper {
 
+  private StringMapper() {
+  }
+
   /**
    * Map string.
    *
    * @param value the value
    * @return the string
    */
-  public String map(String value) {
-    if (StringUtils.isNotEmpty(value)) {
+  public static String map(final String value) {
+    if (StringUtils.isNotBlank(value)) {
       return value.trim();
+    }
+    return value;
+  }
+
+  public static String trimUppercaseAndScrubDiacriticalMarks(String value){
+    if (StringUtils.isNotBlank(value)) {
+      return StringUtils.stripAccents(StringUtils.trim(value)).replaceAll("[^\\p{ASCII}]", "¿").toUpperCase();
     }
     return value;
   }

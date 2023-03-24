@@ -1,9 +1,9 @@
 package ca.bc.gov.educ.studentdatacollection.api.schedulers;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeCriteriaEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeCriteriaRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.StartSDCCollectionsWithOpenDateInThePastProcessingHandler;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @Slf4j
 public class StudentDataCollectionScheduler {
-  private final CollectionCodeRepository collectionCodeRepository;
+  private final CollectionTypeCodeRepository collectionCodeRepository;
 
   private final CollectionCodeCriteriaRepository collectionCodeCriteriaRepository;
 
@@ -29,7 +29,7 @@ public class StudentDataCollectionScheduler {
 
   private final RestUtils restUtils;
 
-  public StudentDataCollectionScheduler(final CollectionCodeRepository collectionCodeRespository, final CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, final StartSDCCollectionsWithOpenDateInThePastProcessingHandler startSDCCollectionsWithOpenDateInThePastProcessingHandler, final RestUtils restUtils) {
+  public StudentDataCollectionScheduler(final CollectionTypeCodeRepository collectionCodeRespository, final CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, final StartSDCCollectionsWithOpenDateInThePastProcessingHandler startSDCCollectionsWithOpenDateInThePastProcessingHandler, final RestUtils restUtils) {
     this.collectionCodeRepository = collectionCodeRespository;
     this.collectionCodeCriteriaRepository = collectionCodeCriteriaRepository;
     this.startSDCCollectionsWithOpenDateInThePastProcessingHandler = startSDCCollectionsWithOpenDateInThePastProcessingHandler;
@@ -43,16 +43,16 @@ public class StudentDataCollectionScheduler {
   public void startSDCCollectionsWithOpenDateInThePast() {
     log.info("startSDCCollectionsWithOpenDateInThePast :: running scheduler for open collections");
     LocalDateTime today = LocalDateTime.now();
-    List<CollectionCodeEntity> collectionsToOpen = this.collectionCodeRepository.findAllByOpenDateBefore(today);
+    List<CollectionTypeCodeEntity> collectionsToOpen = this.collectionCodeRepository.findAllByOpenDateBefore(today);
 
     if(!collectionsToOpen.isEmpty()) {
       for (var collection : collectionsToOpen) {
-        log.info("collectionCode {} needs to be open, obtaining collectionCodeCriteria", collection.getCollectionCode());
-        List<CollectionCodeCriteriaEntity> collectionCodeCriteria = this.collectionCodeCriteriaRepository.findAllByCollectionCodeEntityEquals(collection);
+        log.info("collectionCode {} needs to be open, obtaining collectionCodeCriteria", collection.getCollectionTypeCode());
+        List<CollectionCodeCriteriaEntity> collectionCodeCriteria = this.collectionCodeCriteriaRepository.findAllByCollectionTypeCodeEntityEquals(collection);
         final List<String> listOfSchoolIDs = this.getListOfSchoolIDsFromCriteria(collectionCodeCriteria);
 
         if (!listOfSchoolIDs.isEmpty()) {
-          log.info("processing {} schools to add to collection {}", listOfSchoolIDs.size(), collection.getCollectionCode());
+          log.info("processing {} schools to add to collection {}", listOfSchoolIDs.size(), collection.getCollectionTypeCode());
           this.startSDCCollectionsWithOpenDateInThePastProcessingHandler.startSDCCollection(collection, listOfSchoolIDs);
         }
       }

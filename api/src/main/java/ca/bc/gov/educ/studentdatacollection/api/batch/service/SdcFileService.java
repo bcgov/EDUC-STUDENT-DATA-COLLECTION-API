@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.batch.service;
 
-import ca.bc.gov.educ.studentdatacollection.api.batch.processor.SdcBatchProcessor;
+import ca.bc.gov.educ.studentdatacollection.api.batch.processor.SdcBatchFileProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -19,10 +19,10 @@ import static lombok.AccessLevel.PRIVATE;
 public class SdcFileService {
 
   @Getter(PRIVATE)
-  private final SdcBatchProcessor sdcBatchProcessor;
+  private final SdcBatchFileProcessor sdcBatchProcessor;
 
   @Autowired
-  public SdcFileService(SdcBatchProcessor sdcBatchProcessor) {
+  public SdcFileService(SdcBatchFileProcessor sdcBatchProcessor) {
     this.sdcBatchProcessor = sdcBatchProcessor;
   }
 

@@ -24,7 +24,7 @@ public class CollectionCodeCriteria extends BaseRequest implements Serializable 
 
   @Size(max = 10)
   @NotNull(message = "collectionCode cannot be null")
-  private String collectionCode;
+  private String collectionTypeCode;
 
   @Size(max = 10)
   private String schoolCategoryCode;

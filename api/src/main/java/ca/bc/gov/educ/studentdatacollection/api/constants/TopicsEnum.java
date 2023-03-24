@@ -1,0 +1,9 @@
+package ca.bc.gov.educ.studentdatacollection.api.constants;
+
+
+public enum TopicsEnum {
+  STUDENT_DATA_COLLECTION_API_TOPIC,
+  STUDENT_DATA_COLLECTION_POST_SAGA_TOPIC,
+  STUDENT_DATA_COLLECTION_PROCESS_STUDENT_SAGA_TOPIC,
+  PEN_MATCH_API_TOPIC,
+}
