@@ -41,11 +41,6 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   CollectionTypeCodeRepository collectionCodeRepository;
 
   @BeforeEach
-  public void setUp() {
-    MockitoAnnotations.openMocks(this);
-  }
-
-  @BeforeEach
   public void before() {
     this.collectionCodeRepository.save(this.createCollectionCodeData());
     this.collectionRepository.save(this.createCollectionData());
@@ -65,7 +60,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION).with(mockAuthority)).andDo(print())
         .andExpect(status().isOk()).andExpect(
-            MockMvcResultMatchers.jsonPath("$.[0].collectionCode").value("TEST"));
+            MockMvcResultMatchers.jsonPath("$.[0].collectionTypeCode").value("TEST"));
   }
 
   @Test
