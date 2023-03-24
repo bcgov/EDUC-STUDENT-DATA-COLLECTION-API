@@ -16,7 +16,11 @@ public class TestRedisConfiguration {
 
   @PostConstruct
   public void postConstruct() {
-    this.redisServer.start();
+    try {
+      this.redisServer.start();
+    }catch(Exception e){
+      //Do nothing
+    }
   }
 
   @PreDestroy
