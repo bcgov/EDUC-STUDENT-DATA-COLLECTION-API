@@ -27,7 +27,7 @@ public class SdcFileService {
   }
 
   public void runFileLoad(SdcFileUpload sdcFileUpload){
-    log.debug("Uploaded file contents for school ID {} :: {}", sdcFileUpload.getSchoolID(),sdcFileUpload.getFileContents());
+    log.debug("Uploaded file contents for school collection ID: {}", sdcFileUpload.getSdcSchoolCollectionID());
     this.getSdcBatchProcessor().processSdcBatchFile(sdcFileUpload);
   }
 }

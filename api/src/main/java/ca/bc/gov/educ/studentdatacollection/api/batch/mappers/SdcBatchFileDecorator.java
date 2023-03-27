@@ -28,7 +28,7 @@ public abstract class SdcBatchFileDecorator implements SdcBatchFileMapper {
   public SdcSchoolCollectionEntity toSdcBatchEntityLoaded(final SdcBatchFile file, final SdcFileUpload upload) {
     final var entity = this.delegate.toSdcBatchEntityLoaded(file, upload);
     entity.setSdcSchoolCollectionStatusCode(SdcBatchStatusCodes.LOADED.getCode());
-    entity.setSchoolID(UUID.fromString(upload.getSchoolID()));
+    entity.setSdcSchoolCollectionID(UUID.fromString(upload.getSdcSchoolCollectionID()));
     entity.setUploadFileName(upload.getFileName());
     return entity;
   }

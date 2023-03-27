@@ -51,7 +51,7 @@ SDC_APIServiceClientID=$(curl -sX GET "https://$SOAM_KC/auth/admin/realms/$SOAM_
 
 echo
 echo Retrieving client secret for student-data-collection-api-service
-SDC_APIServiceClientSecret=$(curl -sX GET "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/clients/$PRB_APIServiceClientID/client-secret" \
+SDC_APIServiceClientSecret=$(curl -sX GET "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/clients/$SDC_APIServiceClientID/client-secret" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TKN" |
   jq -r '.value')

@@ -73,7 +73,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   @Test
   void testHandleEvent_givenEventTypeInitiated_shouldExecuteValidateStudentWithEventOutComeVALIDATION_SUCCESS_NO_ERROR() {
     var collection = collectionRepository.save(createMockCollectionEntity());
-    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection));
+    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,null));
     val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
     entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
     entity.setUpdateDate(LocalDateTime.now());
@@ -104,7 +104,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   @Test
   void testHandleEvent_givenEventTypeInitiated_shouldExecuteValidateStudentWithEventOutComeVALIDATION_SUCCESS_WITH_ERROR() {
     var collection = collectionRepository.save(createMockCollectionEntity());
-    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection));
+    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
     val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
     entity.setGender("F");
     entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
@@ -164,7 +164,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
 
   private void runBasedOnPenStatus(final String penStatus, final String status, final String pen) throws InterruptedException, IOException, TimeoutException {
     var collection = collectionRepository.save(createMockCollectionEntity());
-    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection));
+    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
     SdcSchoolCollectionStudentEntity entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
     SdcSchoolCollectionStudent sdcStudent = SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity);
     entity.setCreateDate(LocalDateTime.now().minusMinutes(14));

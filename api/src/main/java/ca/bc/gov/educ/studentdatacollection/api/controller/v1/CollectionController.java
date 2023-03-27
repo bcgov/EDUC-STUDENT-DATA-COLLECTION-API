@@ -2,30 +2,23 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.CollectionEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
-import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
-import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.CollectionPayloadValidator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Supplier;
-
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RestController
 @Slf4j
@@ -39,7 +32,6 @@ public class CollectionController implements CollectionEndpoint {
   @Autowired
   public CollectionController(final CollectionService collectionService, final CollectionPayloadValidator collectionPayloadValidator) {
     this.collectionService = collectionService;
-
     this.collectionPayloadValidator = collectionPayloadValidator;
   }
 
@@ -61,7 +53,7 @@ public class CollectionController implements CollectionEndpoint {
 
   @Override
   public Collection createCollection(Collection collection) throws JsonProcessingException {
-    validatePayload(() -> this.collectionPayloadValidator.validateCreatePayload(collection));
+    ValidationUtil.validatePayload(() -> this.collectionPayloadValidator.validateCreatePayload(collection));
     RequestUtil.setAuditColumnsForCreate(collection);
 
     return collectionMapper.toStructure(collectionService.createCollection(collection));
@@ -72,15 +64,6 @@ public class CollectionController implements CollectionEndpoint {
   public ResponseEntity<Void> deleteCollection(UUID collectionID) {
     this.collectionService.deleteCollection(collectionID);
     return ResponseEntity.noContent().build();
-  }
-
-  private void validatePayload(Supplier<List<FieldError>> validator) {
-    val validationResult = validator.get();
-    if (!validationResult.isEmpty()) {
-      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid data.").status(BAD_REQUEST).build();
-      error.addValidationErrors(validationResult);
-      throw new InvalidPayloadException(error);
-    }
   }
 
 }

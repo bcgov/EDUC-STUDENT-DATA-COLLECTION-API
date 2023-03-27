@@ -49,10 +49,10 @@ public abstract class BaseStudentDataCollectionAPITest {
     return sdcEntity;
   }
 
-  public SdcSchoolCollectionEntity createMockSdcSchoolCollectionEntity(CollectionEntity entity){
+  public SdcSchoolCollectionEntity createMockSdcSchoolCollectionEntity(CollectionEntity entity, UUID schoolID){
     SdcSchoolCollectionEntity sdcEntity = new SdcSchoolCollectionEntity();
     sdcEntity.setCollectionEntity(entity);
-    sdcEntity.setSchoolID(UUID.randomUUID());
+    sdcEntity.setSchoolID(schoolID == null ? UUID.randomUUID() : schoolID);
     sdcEntity.setUploadDate(LocalDateTime.now());
     sdcEntity.setUploadFileName("abc.txt");
     sdcEntity.setSdcSchoolCollectionStatusCode("NEW");

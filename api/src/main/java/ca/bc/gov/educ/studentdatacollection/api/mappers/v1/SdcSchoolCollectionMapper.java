@@ -10,9 +10,9 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(uses = SdcSchoolCollectionStudentMapper.class)
 @DecoratedWith(SdcSchoolBatchDecorator.class)
-public interface SdcSchoolBatchMapper {
+public interface SdcSchoolCollectionMapper {
 
-  SdcSchoolBatchMapper mapper = Mappers.getMapper(SdcSchoolBatchMapper.class);
+  SdcSchoolCollectionMapper mapper = Mappers.getMapper(SdcSchoolCollectionMapper.class);
 
   @Mapping(target = "collectionID", source = "sdcSchoolCollectionEntity.collectionEntity.collectionID")
   @Mapping(target = "students", ignore = true)

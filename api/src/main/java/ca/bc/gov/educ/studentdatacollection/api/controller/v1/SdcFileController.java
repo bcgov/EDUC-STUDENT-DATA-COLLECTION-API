@@ -4,6 +4,8 @@ import ca.bc.gov.educ.studentdatacollection.api.batch.service.SdcFileService;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcFileEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcStudentCount;
+import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
+import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionFileValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +19,16 @@ public class SdcFileController implements SdcFileEndpoint {
 
   private final SdcFileService sdcFileService;
 
-  public SdcFileController(SdcFileService sdcFileService) {
+  private final SdcSchoolCollectionFileValidator sdcSchoolCollectionFileValidator;
+
+  public SdcFileController(SdcFileService sdcFileService, SdcSchoolCollectionFileValidator sdcSchoolCollectionFileValidator) {
     this.sdcFileService = sdcFileService;
+    this.sdcSchoolCollectionFileValidator = sdcSchoolCollectionFileValidator;
   }
 
   @Override
   public ResponseEntity<Void> processSdcBatchFile(SdcFileUpload fileUpload, String correlationID) {
+    ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionFileValidator.validatePayload(fileUpload));
     sdcFileService.runFileLoad(fileUpload);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }

@@ -7,11 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 
 @Slf4j
-public abstract class SdcSchoolBatchDecorator implements SdcSchoolBatchMapper {
+public abstract class SdcSchoolBatchDecorator implements SdcSchoolCollectionMapper {
 
-  private final SdcSchoolBatchMapper delegate;
+  private final SdcSchoolCollectionMapper delegate;
 
-  protected SdcSchoolBatchDecorator(SdcSchoolBatchMapper delegate) {
+  protected SdcSchoolBatchDecorator(SdcSchoolCollectionMapper delegate) {
     this.delegate = delegate;
   }
 

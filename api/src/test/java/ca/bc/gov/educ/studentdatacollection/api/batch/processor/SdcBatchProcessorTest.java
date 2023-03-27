@@ -17,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -30,7 +31,7 @@ class SdcBatchProcessorTest extends BaseStudentDataCollectionAPITest {
   @Autowired
   private CollectionRepository sdcRepository;
   @Autowired
-  private SdcSchoolCollectionRepository sdcSchoolBatchRepository;
+  private SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   @Autowired
   private SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository;
   @Autowired
@@ -42,12 +43,13 @@ class SdcBatchProcessorTest extends BaseStudentDataCollectionAPITest {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
-    var fileUpload = SdcFileUpload.builder().schoolID(school.getSchoolId()).fileContents(fileContents).collectionID(collection.getCollectionID().toString()).fileName("SampleUpload.txt").build();
+    var fileUpload = SdcFileUpload.builder().sdcSchoolCollectionID(sdcSchoolCollection.getSdcSchoolCollectionID().toString()).fileContents(fileContents).fileName("SampleUpload.txt").build();
     var response = this.sdcBatchProcessor.processSdcBatchFile(fileUpload);
     assertThat(response).isNotNull();
-    final var result = this.sdcSchoolBatchRepository.findAll();
+    final var result = this.sdcSchoolCollectionRepository.findAll();
     assertThat(result).hasSize(1);
     final var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();

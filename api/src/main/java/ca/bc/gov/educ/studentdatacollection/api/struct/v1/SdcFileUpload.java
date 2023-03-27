@@ -11,9 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 public class SdcFileUpload {
   @NotNull
-  String schoolID;
-  @NotNull
-  String collectionID;
+  String sdcSchoolCollectionID;
   @NotNull
   String fileName;
   @NotNull
