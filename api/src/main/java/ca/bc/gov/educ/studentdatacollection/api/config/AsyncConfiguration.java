@@ -40,16 +40,4 @@ public class AsyncConfiguration {
       .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-executor-%d").get())
       .setCorePoolSize(4).setMaximumPoolSize(4).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
-
-  /**
-   * Controller task executor executor.
-   *
-   * @return the executor
-   */
-  @Bean(name = "penWebBlobExtractor")
-  public Executor penWebBlobExtractorExecutor() {
-    return new EnhancedQueueExecutor.Builder()
-        .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("pen-web-blob-processor-%d").get())
-        .setCorePoolSize(1).setMaximumPoolSize(1).build();
-  }
 }

@@ -97,7 +97,6 @@ public class SdcBatchFileProcessor {
    *
    */
   @Transactional
-  @Async("sdcFileProcessor")
   public SdcSchoolCollection processSdcBatchFile(@NonNull final SdcFileUpload fileUpload) {
     val stopwatch = Stopwatch.createStarted();
     final var guid = UUID.randomUUID().toString(); // this guid will be used throughout the logs for easy tracking.
