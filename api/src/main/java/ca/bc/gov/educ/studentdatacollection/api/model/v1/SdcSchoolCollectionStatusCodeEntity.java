@@ -16,11 +16,11 @@ import org.hibernate.annotations.DynamicUpdate;
 @AllArgsConstructor
 @DynamicUpdate
 @Entity
-@Table(name = "SDC_COLLECTION_SCHOOL_STATUS_CODE")
+@Table(name = "SDC_SCHOOL_COLLECTION_STATUS_CODE")
 public class SdcSchoolCollectionStatusCodeEntity {
 
   @Id
-  @Column(name = "SDC_COLLECTION_SCHOOL_STATUS_CODE", unique = true, length = 10)
+  @Column(name = "SDC_SCHOOL_COLLECTION_STATUS_CODE", unique = true, length = 10)
   private String sdcSchoolCollectionStatusCode;
 
   @Column(name = "LABEL", length = 30)

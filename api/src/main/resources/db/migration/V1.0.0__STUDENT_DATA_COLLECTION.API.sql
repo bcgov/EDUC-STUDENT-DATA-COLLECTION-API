@@ -50,7 +50,6 @@ CREATE TABLE SDC_SCHOOL_COLLECTION
     SDC_SCHOOL_COLLECTION_STATUS_CODE VARCHAR(10)                   NOT NULL,
     UPLOAD_DATE                 TIMESTAMP,
     UPLOAD_FILE_NAME            VARCHAR(255),
-    STATUS_CODE                 VARCHAR(10)                         NOT NULL,
     CREATE_USER                 VARCHAR(32)                         NOT NULL,
     CREATE_DATE                 TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     UPDATE_USER                 VARCHAR(32)                         NOT NULL,
