@@ -9,7 +9,9 @@ import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFileTrailer
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcStudentDetails;
 import ca.bc.gov.educ.studentdatacollection.api.batch.validator.SdcFileValidator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchStatusCodes;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -19,6 +21,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
+import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import com.google.common.base.Stopwatch;
 import lombok.Getter;
 import lombok.NonNull;
@@ -30,21 +33,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.FieldError;
 
 import java.io.*;
-import java.util.Base64;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileError.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchFileConstants.*;
 import static lombok.AccessLevel.PRIVATE;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 /**
  * The Pen reg batch processor.
@@ -113,14 +115,21 @@ public class SdcBatchFileProcessor {
       var sdcSchoolBatch = this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload);
       return schoolBatchMapper.toSdcSchoolBatch(sdcSchoolBatch);
     } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
-//      this.processFileUnProcessableException(guid, fileUnProcessableException, batchFile);
-      //TODO Add unprocessed logic
       log.error("File could not be processed exception :: {}", fileUnProcessableException);
-      return null;
+      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid data.").status(BAD_REQUEST).build();
+      var validationError = ValidationUtil.createFieldError("sdcFileUpload", fileUpload.getSdcSchoolCollectionID(), fileUnProcessableException.getFileError() + " :: " + fileUnProcessableException.getReason());
+      List<FieldError> fieldErrorList = new ArrayList<>();
+      fieldErrorList.add(validationError);
+      error.addValidationErrors(fieldErrorList);
+      throw new InvalidPayloadException(error);
     } catch (final Exception e) { // need to check what to do in case of general exception.
       log.error("Exception while processing the file with guid :: {} :: Exception :: {}", guid, e);
-      //TODO Throw exception
-      return null;
+      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid data.").status(BAD_REQUEST).build();
+      var validationError = ValidationUtil.createFieldError("sdcFileUpload", fileUpload.getSdcSchoolCollectionID(), e.getMessage());
+      List<FieldError> fieldErrorList = new ArrayList<>();
+      fieldErrorList.add(validationError);
+      error.addValidationErrors(fieldErrorList);
+      throw new InvalidPayloadException(error);
     } finally {
       batchFileReaderOptional.ifPresent(this::closeBatchFileReader);
       stopwatch.stop();

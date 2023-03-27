@@ -1,16 +1,15 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.io.Serializable;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -24,7 +23,7 @@ public class School extends BaseRequest implements Serializable {
   private static final long serialVersionUID = 1L;
 
   private String schoolId;
-  @NotNull(message = "districtId can not be null.")
+
   private String districtId;
 
   private String mincode;
@@ -32,6 +31,7 @@ public class School extends BaseRequest implements Serializable {
   private String independentAuthorityId;
 
   @Size(max = 5)
+  @NotNull(message = "schoolNumber can not be null.")
   private String schoolNumber;
 
   @Size(max = 10)
@@ -66,20 +66,5 @@ public class School extends BaseRequest implements Serializable {
   private String openedDate;
 
   private String closedDate;
-
-  @Valid
-  private List<SchoolContact> contacts;
-
-  @Valid
-  private List<SchoolAddress> addresses;
-
-  @Valid
-  private List<Note> notes;
-
-  @Valid
-  private List<SchoolGrade> grades;
-
-  @Valid
-  private List<NeighborhoodLearning> neighborhoodLearning;
 
 }

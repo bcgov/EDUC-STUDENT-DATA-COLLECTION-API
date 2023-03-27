@@ -17,6 +17,10 @@ public class ValidationUtil {
 
   }
 
+  public static FieldError createFieldError(String fieldName, Object rejectedValue, String message) {
+    return new FieldError("sdcSchoolCollection", fieldName, rejectedValue, false, null, null, message);
+  }
+
   public static void validatePayload(Supplier<List<FieldError>> validator) {
     val validationResult = validator.get();
     if (!validationResult.isEmpty()) {

@@ -108,9 +108,9 @@ public class RestUtils {
   }
 
   public List<School> getSchools() {
-    log.info("Calling school api to load schools to memory");
+    log.info("Calling Institute api to load schools to memory");
     return this.webClient.get()
-      .uri(this.props.getSchoolApiURL())
+      .uri(this.props.getInstituteApiURL() + "/school")
       .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
       .retrieve()
       .bodyToFlux(School.class)

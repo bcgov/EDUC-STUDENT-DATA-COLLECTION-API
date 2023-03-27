@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.validator;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
+import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,15 +39,13 @@ public class SdcSchoolCollectionFileValidator {
     try {
       Optional<SdcSchoolCollectionEntity> schoolCollectionEntity = this.sdcSchoolCollectionRepository.findById(UUID.fromString(fileUpload.getSdcSchoolCollectionID()));
       if (schoolCollectionEntity.isEmpty()) {
-        apiValidationErrors.add(createFieldError(SCHOOL_COLLECTION_ID, fileUpload.getSdcSchoolCollectionID(), "Invalid Sdc school collection ID."));
+        apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, fileUpload.getSdcSchoolCollectionID(), "Invalid Sdc school collection ID."));
       }
     }catch(Exception e){
-      apiValidationErrors.add(createFieldError(SCHOOL_COLLECTION_ID, fileUpload.getSdcSchoolCollectionID(), "Invalid Sdc school collection ID."));
+      apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, fileUpload.getSdcSchoolCollectionID(), "Invalid Sdc school collection ID."));
     }
   }
 
-  private FieldError createFieldError(String fieldName, Object rejectedValue, String message) {
-    return new FieldError("sdcSchoolCollection", fieldName, rejectedValue, false, null, null, message);
-  }
+
 
 }
