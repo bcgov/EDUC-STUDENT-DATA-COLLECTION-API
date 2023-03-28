@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcStudentCount;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,7 +26,7 @@ public interface SdcFileEndpoint {
   @Transactional
   @Tag(name = "Endpoint to Upload an SDC file and convert to json structure.", description = "Endpoint to Upload an SDC file and convert to json structure")
   @Schema(name = "FileUpload", implementation = SdcFileUpload.class)
-  ResponseEntity<Void> processSdcBatchFile(@Validated @RequestBody SdcFileUpload fileUpload, @RequestHeader(name = "correlationID") String correlationID);
+  ResponseEntity<SdcSchoolCollection> processSdcBatchFile(@Validated @RequestBody SdcFileUpload fileUpload, @RequestHeader(name = "correlationID") String correlationID);
 
   @GetMapping
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")

@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @Slf4j
-class SdcBatchProcessorTest extends BaseStudentDataCollectionAPITest {
+class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
 
   @Autowired
   private SdcBatchFileProcessor sdcBatchProcessor;

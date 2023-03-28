@@ -68,11 +68,11 @@ public abstract class SdcBatchFileDecorator implements SdcBatchFileMapper {
     entity.setSchoolFundingCode(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getSchoolFundingCode()));
     entity.setNativeAncestryInd(getBooleanFromYNField(studentDetails.getNativeAncestryIndicator()));
     entity.setHomeLanguageSpokenCode(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getHomeSpokenLanguageCode()));
-    entity.setOtherCourses(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getOtherCourses()));
-    entity.setSupportBlocks(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getSupportBlocks()));
-    entity.setEnrolledProgramCode(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getEnrolledProgramCodes()));
+    entity.setOtherCourses(StringMapper.getLongValueFromString(studentDetails.getOtherCourses()));
+    entity.setSupportBlocks(StringMapper.getLongValueFromString(studentDetails.getSupportBlocks()));
+    entity.setEnrolledProgramCodes(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getEnrolledProgramCodes()));
     entity.setCareerProgramCode(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getCareerProgramCode()));
-    entity.setNumberOfCourses(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getNumberOfCourses()));
+    entity.setNumberOfCourses(StringMapper.getLongValueFromString(studentDetails.getNumberOfCourses()));
     entity.setBandCode(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getBandCode()));
 
     if(StringUtils.isNotBlank(studentDetails.getPen()) && studentDetails.getPen().length() == 9) {

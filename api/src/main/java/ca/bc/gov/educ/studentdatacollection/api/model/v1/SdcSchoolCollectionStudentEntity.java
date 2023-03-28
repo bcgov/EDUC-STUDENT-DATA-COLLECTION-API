@@ -83,22 +83,22 @@ public class SdcSchoolCollectionStudentEntity {
   private String homeLanguageSpokenCode;
 
   @Column(name = "OTHER_COURSES")
-  private String otherCourses;
+  private Long otherCourses;
 
   @Column(name = "SUPPORT_BLOCKS")
-  private String supportBlocks;
+  private Long supportBlocks;
 
   @Column(name = "ENROLLED_GRADE_CODE")
   private String enrolledGradeCode;
 
-  @Column(name = "ENROLLED_PROGRAM_CODE")
-  private String enrolledProgramCode;
+  @Column(name = "ENROLLED_PROGRAM_CODES")
+  private String enrolledProgramCodes;
 
   @Column(name = "CAREER_PROGRAM_CODE")
   private String careerProgramCode;
 
   @Column(name = "NUMBER_OF_COURSES")
-  private String numberOfCourses;
+  private Long numberOfCourses;
 
   @Column(name = "BAND_CODE")
   private String bandCode;

@@ -19,10 +19,8 @@ public abstract class SdcSchoolBatchDecorator implements SdcSchoolCollectionMapp
   public SdcSchoolCollection toSdcSchoolBatch(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
     final var batch = this.delegate.toSdcSchoolBatch(sdcSchoolCollectionEntity);
     SdcSchoolCollectionStudentMapper studentMapper = SdcSchoolCollectionStudentMapper.mapper;
-    sdcSchoolCollectionEntity.getSDCSchoolStudentEntities().stream().forEach(student -> {
-      batch.setStudents(new ArrayList<>());
-      batch.getStudents().add(studentMapper.toSdcSchoolStudent(student));
-    });
+    batch.setStudents(new ArrayList<>());
+    sdcSchoolCollectionEntity.getSDCSchoolStudentEntities().stream().forEach(student -> batch.getStudents().add(studentMapper.toSdcSchoolStudent(student)));
     return batch;
   }
 

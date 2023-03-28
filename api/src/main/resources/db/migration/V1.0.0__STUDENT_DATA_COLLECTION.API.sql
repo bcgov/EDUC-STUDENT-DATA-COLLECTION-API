@@ -93,25 +93,25 @@ CREATE TABLE SDC_SCHOOL_COLLECTION_STUDENT
     SDC_SCHOOL_COLLECTION_STUDENT_ID     UUID                                NOT NULL,
     SDC_SCHOOL_COLLECTION_ID             UUID                                NOT NULL,
     LOCAL_ID                             VARCHAR(12),
-    STUDENT_PEN                          VARCHAR(10)                         NOT NULL,
+    STUDENT_PEN                          VARCHAR(10),
     LEGAL_FIRST_NAME                     VARCHAR(255),
     LEGAL_MIDDLE_NAMES                   VARCHAR(255),
-    LEGAL_LAST_NAME                      VARCHAR(255)                        NOT NULL,
+    LEGAL_LAST_NAME                      VARCHAR(255),
     USUAL_FIRST_NAME                     VARCHAR(255),
     USUAL_MIDDLE_NAMES                   VARCHAR(255),
     USUAL_LAST_NAME                      VARCHAR(255),
-    DOB                                  VARCHAR(8)                          NOT NULL,
-    GENDER_CODE                     VARCHAR(1)                          NOT NULL,
-    GRADE_CODE                      VARCHAR(10)                         NOT NULL,
-    SPECIAL_EDUCATION_CATEGORY_CODE VARCHAR(10)                         NOT NULL,
-    SCHOOL_FUNDING_CODE             VARCHAR(10)                         NOT NULL,
-    NATIVE_ANCESTRY_IND           BOOLEAN                             NOT NULL,
-    HOME_LANGUAGE_SPOKEN_CODE       VARCHAR(10)                         NOT NULL,
+    DOB                                  VARCHAR(8),
+    GENDER_CODE                     VARCHAR(1),
+    GRADE_CODE                      VARCHAR(10),
+    SPECIAL_EDUCATION_CATEGORY_CODE VARCHAR(10),
+    SCHOOL_FUNDING_CODE             VARCHAR(10),
+    NATIVE_ANCESTRY_IND           BOOLEAN,
+    HOME_LANGUAGE_SPOKEN_CODE       VARCHAR(10),
     OTHER_COURSES                        NUMERIC,
     SUPPORT_BLOCKS                       NUMERIC,
-    ENROLLED_GRADE_CODE             VARCHAR(10)                         NOT NULL,
-    ENROLLED_PROGRAM_CODE           VARCHAR(10)                         NOT NULL,
-    CAREER_PROGRAM_CODE             VARCHAR(10)                         NOT NULL,
+    ENROLLED_GRADE_CODE             VARCHAR(10),
+    ENROLLED_PROGRAM_CODES           VARCHAR(16),
+    CAREER_PROGRAM_CODE             VARCHAR(10),
     NUMBER_OF_COURSES                    NUMERIC,
     BAND_CODE                       VARCHAR(4),
     POSTAL_CODE                          VARCHAR(6),
@@ -129,25 +129,25 @@ CREATE TABLE SDC_SCHOOL_COLLECTION_STUDENT_HISTORY
     SDC_SCHOOL_COLLECTION_STUDENT_ID                UUID                                NOT NULL,
     SDC_SCHOOL_COLLECTION_ID                        UUID                                NOT NULL,
     LOCAL_ID                             VARCHAR(12),
-    STUDENT_PEN                          VARCHAR(10)                         NOT NULL,
+    STUDENT_PEN                          VARCHAR(10),
     LEGAL_FIRST_NAME                     VARCHAR(255),
     LEGAL_MIDDLE_NAMES                   VARCHAR(255),
-    LEGAL_LAST_NAME                      VARCHAR(255)                        NOT NULL,
+    LEGAL_LAST_NAME                      VARCHAR(255),
     USUAL_FIRST_NAME                     VARCHAR(255),
     USUAL_MIDDLE_NAMES                   VARCHAR(255),
     USUAL_LAST_NAME                      VARCHAR(255),
-    DOB                                  VARCHAR(8)                          NOT NULL,
-    GENDER_CODE                     VARCHAR(1)                          NOT NULL,
-    GRADE_CODE                      VARCHAR(10)                         NOT NULL,
-    SPECIAL_EDUCATION_CATEGORY_CODE VARCHAR(10)                         NOT NULL,
-    SCHOOL_FUNDING_CODE             VARCHAR(10)                         NOT NULL,
-    NATIVE_ANCESTRY_IND           BOOLEAN                             NOT NULL,
-    HOME_LANGUAGE_SPOKEN_CODE       VARCHAR(10)                         NOT NULL,
+    DOB                                  VARCHAR(8),
+    GENDER_CODE                     VARCHAR(1),
+    GRADE_CODE                      VARCHAR(10),
+    SPECIAL_EDUCATION_CATEGORY_CODE VARCHAR(10),
+    SCHOOL_FUNDING_CODE             VARCHAR(10),
+    NATIVE_ANCESTRY_IND           BOOLEAN,
+    HOME_LANGUAGE_SPOKEN_CODE       VARCHAR(10),
     OTHER_COURSES                        NUMERIC,
     SUPPORT_BLOCKS                       NUMERIC,
-    ENROLLED_GRADE_CODE             VARCHAR(10)                         NOT NULL,
-    ENROLLED_PROGRAM_CODE           VARCHAR(10)                         NOT NULL,
-    CAREER_PROGRAM_CODE             VARCHAR(10)                         NOT NULL,
+    ENROLLED_GRADE_CODE             VARCHAR(10),
+    ENROLLED_PROGRAM_CODES           VARCHAR(16),
+    CAREER_PROGRAM_CODE             VARCHAR(10),
     NUMBER_OF_COURSES                    NUMERIC,
     BAND_CODE                       VARCHAR(4),
     POSTAL_CODE                          VARCHAR(6),
@@ -246,21 +246,6 @@ CREATE TABLE ENROLLED_GRADE_CODE
     UPDATE_USER              VARCHAR(32)                         NOT NULL,
     UPDATE_DATE              TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT ENROLLED_GRADE_CODE_PK PRIMARY KEY (ENROLLED_GRADE_CODE)
-);
-
-CREATE TABLE ENROLLED_PROGRAM_CODE
-(
-    ENROLLED_PROGRAM_CODE VARCHAR(10)                         NOT NULL,
-    LABEL                      VARCHAR(30)                         NOT NULL,
-    DESCRIPTION                VARCHAR(255)                        NOT NULL,
-    DISPLAY_ORDER              NUMERIC   DEFAULT 1                 NOT NULL,
-    EFFECTIVE_DATE             TIMESTAMP                           NOT NULL,
-    EXPIRY_DATE                TIMESTAMP                           NOT NULL,
-    CREATE_USER                VARCHAR(32)                         NOT NULL,
-    CREATE_DATE                TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UPDATE_USER                VARCHAR(32)                         NOT NULL,
-    UPDATE_DATE                TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT ENROLLED_PROGRAM_CODE_PK PRIMARY KEY (ENROLLED_PROGRAM_CODE)
 );
 
 CREATE TABLE CAREER_PROGRAM_CODE
@@ -366,10 +351,6 @@ ALTER TABLE SDC_SCHOOL_COLLECTION_STUDENT
         REFERENCES ENROLLED_GRADE_CODE (ENROLLED_GRADE_CODE);
 
 ALTER TABLE SDC_SCHOOL_COLLECTION_STUDENT
-    ADD CONSTRAINT FK_SDC_SCHOOL_STUDENT_ENROLLED_PROGRAM_CODE FOREIGN KEY (ENROLLED_PROGRAM_CODE)
-        REFERENCES ENROLLED_PROGRAM_CODE (ENROLLED_PROGRAM_CODE);
-
-ALTER TABLE SDC_SCHOOL_COLLECTION_STUDENT
     ADD CONSTRAINT FK_SDC_SCHOOL_STUDENT_CAREER_PROGRAM_CODE FOREIGN KEY (CAREER_PROGRAM_CODE)
         REFERENCES CAREER_PROGRAM_CODE (CAREER_PROGRAM_CODE);
 
@@ -404,10 +385,6 @@ ALTER TABLE SDC_SCHOOL_COLLECTION_STUDENT_HISTORY
 ALTER TABLE SDC_SCHOOL_COLLECTION_STUDENT_HISTORY
     ADD CONSTRAINT FK_SDC_SCHOOL_STUDENT_HISTORY_ENROLLED_GRADE_CODE FOREIGN KEY (ENROLLED_GRADE_CODE)
         REFERENCES ENROLLED_GRADE_CODE (ENROLLED_GRADE_CODE);
-
-ALTER TABLE SDC_SCHOOL_COLLECTION_STUDENT_HISTORY
-    ADD CONSTRAINT FK_SDC_SCHOOL_STUDENT_HISTORY_ENROLLED_PROGRAM_CODE FOREIGN KEY (ENROLLED_PROGRAM_CODE)
-        REFERENCES ENROLLED_PROGRAM_CODE (ENROLLED_PROGRAM_CODE);
 
 ALTER TABLE SDC_SCHOOL_COLLECTION_STUDENT_HISTORY
     ADD CONSTRAINT FK_SDC_SCHOOL_STUDENT_HISTORY_CAREER_PROGRAM_CODE FOREIGN KEY (CAREER_PROGRAM_CODE)

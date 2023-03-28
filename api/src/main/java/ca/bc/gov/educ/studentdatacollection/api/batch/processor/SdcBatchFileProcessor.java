@@ -168,17 +168,19 @@ public class SdcBatchFileProcessor {
       final var sdcBatchStudentEntity = mapper.toSdcSchoolStudentEntity(student, entity);
       entity.getSDCSchoolStudentEntities().add(sdcBatchStudentEntity);
     }
-    markInitialLoadComplete(entity, fileUpload);
-    return entity;
+    return markInitialLoadComplete(entity, fileUpload);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   @Retryable(maxAttempts = 10, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public void markInitialLoadComplete(@NonNull final SdcSchoolCollectionEntity sdcSchoolCollectionEntity, @NonNull final SdcFileUpload fileUpload) {
+  public SdcSchoolCollectionEntity markInitialLoadComplete(@NonNull final SdcSchoolCollectionEntity sdcSchoolCollectionEntity, @NonNull final SdcFileUpload fileUpload) {
     var schoolCollection = sdcSchoolCollectionRepository.findById(UUID.fromString(fileUpload.getSdcSchoolCollectionID()));
     if(schoolCollection.isPresent()) {
+      var coll = schoolCollection.get();
       sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcBatchStatusCodes.LOADED.getCode());
-      getSdcSchoolCollectionRepository().save(sdcSchoolCollectionEntity);
+      sdcSchoolCollectionEntity.setSchoolID(coll.getSchoolID());
+      sdcSchoolCollectionEntity.setCollectionEntity(coll.getCollectionEntity());
+      return getSdcSchoolCollectionRepository().save(sdcSchoolCollectionEntity);
     }else{
       throw new StudentDataCollectionAPIRuntimeException("SDC School Collection ID provided :: " + fileUpload.getSdcSchoolCollectionID() + " :: is not valid");
     }
@@ -295,3 +297,4 @@ public class SdcBatchFileProcessor {
 
 
 }
+

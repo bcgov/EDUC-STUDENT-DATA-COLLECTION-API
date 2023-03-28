@@ -1,14 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.util.UpperCase;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.time.LocalDateTime;
-import java.util.UUID;
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +10,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -36,10 +33,6 @@ public class SdcSchoolCollectionStudentHistoryEntity {
   @Basic
   @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_ID", columnDefinition = "BINARY(16)")
   private UUID sdcSchoolCollectionStudentID;
-
-  @Basic
-  @Column(name = "SDC_SCHOOL_ID", columnDefinition = "BINARY(16)")
-  private UUID sdcSchoolID;
 
   @Column(name = "LOCAL_ID")
   private String localID;
@@ -68,38 +61,48 @@ public class SdcSchoolCollectionStudentHistoryEntity {
   @Column(name = "DOB")
   private String dob;
 
-  @Column(name = "GENDER_TYPE_CODE", length = 1)
-  private String genderTypeCode;
+  @Column(name = "GENDER_CODE", length = 1)
+  private String gender;
 
-  @Column(name = "SPECIAL_EDUCATION_CATEGORY_TYPE_CODE")
-  private String specialEducationCategoryTypeCode;
+  @Column(name = "SPECIAL_EDUCATION_CATEGORY_CODE")
+  private String specialEducationCategoryCode;
 
-  @Column(name = "SCHOOL_FUNDING_TYPE_CODE")
-  private String schoolFundingTypeCode;
+  @Column(name = "SCHOOL_FUNDING_CODE")
+  private String schoolFundingCode;
 
-  @Column(name = "NATIVE_INDIAN_ANCESTRY_IND")
+  @Column(name = "NATIVE_ANCESTRY_IND")
   private Boolean nativeAncestryInd;
 
-  @Column(name = "HOME_LANGUAGE_SPOKEN_TYPE_CODE")
-  private String homeLanguageSpokenTypeCode;
+  @Column(name = "HOME_LANGUAGE_SPOKEN_CODE")
+  private String homeLanguageSpokenCode;
 
-  @Column(name = "ENROLLED_PROGRAM_TYPE_CODE")
-  private String enrolledProgramTypeCode;
+  @Column(name = "OTHER_COURSES")
+  private Long otherCourses;
 
-  @Column(name = "CAREER_PROGRAM_TYPE_CODE")
-  private String careerProgramTypeCode;
+  @Column(name = "SUPPORT_BLOCKS")
+  private Long supportBlocks;
+
+  @Column(name = "ENROLLED_GRADE_CODE")
+  private String enrolledGradeCode;
+
+  @Column(name = "ENROLLED_PROGRAM_CODES")
+  private String enrolledProgramCodes;
+
+  @Column(name = "CAREER_PROGRAM_CODE")
+  private String careerProgramCode;
 
   @Column(name = "NUMBER_OF_COURSES")
-  private Integer numberOfCourses;
+  private Long numberOfCourses;
 
-  @Column(name = "BAND_TYPE_CODE")
-  private String bandTypeCode;
+  @Column(name = "BAND_CODE")
+  private String bandCode;
 
   @Column(name = "POSTAL_CODE")
+  @UpperCase
   private String postalCode;
 
-  @Column(name = "STATUS_TYPE_CODE")
-  private String statusTypeCode;
+  @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE")
+  private String sdcSchoolCollectionStudentStatusCode;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;

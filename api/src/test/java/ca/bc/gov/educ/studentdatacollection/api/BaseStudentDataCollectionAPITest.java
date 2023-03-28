@@ -81,12 +81,12 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setSchoolFundingCode("05");
     sdcEntity.setNativeAncestryInd(false);
     sdcEntity.setHomeLanguageSpokenCode("001");
-    sdcEntity.setOtherCourses("");
-    sdcEntity.setSupportBlocks("");
+    sdcEntity.setOtherCourses(null);
+    sdcEntity.setSupportBlocks(null);
     sdcEntity.setEnrolledGradeCode("01");
-    sdcEntity.setEnrolledProgramCode("14");
+    sdcEntity.setEnrolledProgramCodes("14");
     sdcEntity.setCareerProgramCode("AA");
-    sdcEntity.setNumberOfCourses("1");
+    sdcEntity.setNumberOfCourses(null);
     sdcEntity.setBandCode("0542");
     sdcEntity.setPostalCode("V0V0V0");
     sdcEntity.setSdcSchoolCollectionStudentStatusCode("LOADED");
