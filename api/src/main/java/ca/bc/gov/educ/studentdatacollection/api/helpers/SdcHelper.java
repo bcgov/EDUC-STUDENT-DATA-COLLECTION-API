@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.helpers;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentValidationIssueEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import lombok.Getter;
@@ -73,12 +74,13 @@ public final class SdcHelper {
     }
   }
 
-  public static Set<SdcSchoolCollectionStudentValidationIssueEntity> populateValidationErrors(final Map<String, String> errors, final SdcSchoolCollectionStudentEntity sdcSchoolStudentEntity) {
+  public static Set<SdcSchoolCollectionStudentValidationIssueEntity> populateValidationErrors(final List<SdcSchoolCollectionStudentValidationIssue> issues, final SdcSchoolCollectionStudentEntity sdcSchoolStudentEntity) {
     final Set<SdcSchoolCollectionStudentValidationIssueEntity> validationErrors = new HashSet<>();
-    errors.forEach((k, v) -> {
+    issues.forEach(issue -> {
       final SdcSchoolCollectionStudentValidationIssueEntity error = new SdcSchoolCollectionStudentValidationIssueEntity();
-      error.setValidationIssueFieldCode(k);
-      error.setValidationIssueSeverityCode(v);
+      error.setValidationIssueFieldCode(issue.getValidationIssueFieldCode());
+      error.setValidationIssueSeverityCode(issue.getValidationIssueSeverityCode());
+      error.setValidationIssueCode(issue.getValidationIssueCode());
       error.setSdcSchoolCollectionStudentEntity(sdcSchoolStudentEntity);
       error.setCreateDate(LocalDateTime.now());
       error.setUpdateDate(LocalDateTime.now());

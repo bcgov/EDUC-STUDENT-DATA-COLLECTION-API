@@ -1,19 +1,22 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.impl;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcStudentFieldCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationFieldCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GenderRule extends BaseRule {
   @Override
-  public Map<String, String> validate(final SdcSchoolCollectionStudentEntity sdcSchoolStudentEntity) {
-    final Map<String, String> errorsMap = new LinkedHashMap<>();
+  public List<SdcSchoolCollectionStudentValidationIssue> validate(final SdcSchoolCollectionStudentEntity sdcSchoolStudentEntity) {
+    final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
     if(!sdcSchoolStudentEntity.getGender().equals("M")){
-      errorsMap.put(SdcStudentFieldCode.GENDER_CODE.getCode(), String.format("Gender code %s is not recognized.", sdcSchoolStudentEntity.getGender()));
+      errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.GENDER_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.GENDER_ERR));
     }
-    return errorsMap;
+    return errors;
   }
 }

@@ -1,12 +1,12 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import lombok.val;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class RulesProcessor {
@@ -16,12 +16,12 @@ public class RulesProcessor {
     this.rules = rules;
   }
 
-  public Map<String, String> processRules(final SdcSchoolCollectionStudentEntity sdcSchoolStudentEntity) {
-    final Map<String, String> validationErrorsMap = new LinkedHashMap<>();
+  public List<SdcSchoolCollectionStudentValidationIssue> processRules(final SdcSchoolCollectionStudentEntity sdcSchoolStudentEntity) {
+    final List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap = new ArrayList<>();
     this.rules.forEach(rule -> {
       val valErrors = rule.validate(sdcSchoolStudentEntity);
       if (!valErrors.isEmpty()) {
-        validationErrorsMap.putAll(valErrors);
+        validationErrorsMap.addAll(valErrors);
       }
     });
     return validationErrorsMap;

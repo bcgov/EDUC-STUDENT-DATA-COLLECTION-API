@@ -2,7 +2,10 @@ package ca.bc.gov.educ.studentdatacollection.api.constants;
 
 import lombok.Getter;
 
-public enum SdcStudentFieldCode {
+/**
+ * The enum Pen request batch student validation field code.
+ */
+public enum SdcSchoolCollectionStudentValidationFieldCode {
   LOCAL_ID("LOCALID"),
   STUDENT_PEN("STUDENT_PEN"),
   LEGAL_FIRST_NAME("LEGAL_FIRST_NAME"),
@@ -25,14 +28,20 @@ public enum SdcStudentFieldCode {
   CAREER_PROGRAM_CODE("CAREER_PROGRAM_CODE"),
   NUMBER_OF_COURSES("NUMBER_OF_COURSES"),
   BAND_CODE("BAND_CODE"),
-  POSTAL_CODE("POSTAL_CODE"),
-  SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE("");
+  POSTAL_CODE("POSTAL_CODE");
 
+  /**
+   * The Code.
+   */
   @Getter
   private final String code;
 
-  SdcStudentFieldCode(final String code) {
+  /**
+   * Instantiates a new Pen request batch student validation field code.
+   *
+   * @param code the code
+   */
+  SdcSchoolCollectionStudentValidationFieldCode(String code) {
     this.code = code;
   }
-
 }

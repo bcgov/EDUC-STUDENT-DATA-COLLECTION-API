@@ -19,6 +19,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -132,16 +133,17 @@ public class SdcService {
   }
 
   //To save NominalRollStudent with ValidationErrors, query and save operation should be in the same transaction boundary.
-  public SdcSchoolCollectionStudentEntity saveSdcSchoolStudentValidationErrors(final String nominalRollStudentID, final Map<String, String> errors, SdcSchoolCollectionStudentEntity entity) {
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public SdcSchoolCollectionStudentEntity saveSdcSchoolStudentValidationErrors(final String sdcSchoolCollectionStudentID, final List<SdcSchoolCollectionStudentValidationIssue> issues, SdcSchoolCollectionStudentEntity entity) {
     if(entity == null) {
-      val nomRollStudOptional = this.findBySdcSchoolStudentID(nominalRollStudentID);
-      if (nomRollStudOptional.isPresent()) {
-        entity = nomRollStudOptional.get();
+      val sdcSchoolCollectionStudent = this.findBySdcSchoolStudentID(sdcSchoolCollectionStudentID);
+      if (sdcSchoolCollectionStudent.isPresent()) {
+        entity = sdcSchoolCollectionStudent.get();
       }else{
         throw new StudentDataCollectionAPIRuntimeException("Error while saving SDC school student with ValidationErrors - entity was null");
       }
     }
-    entity.getSDCStudentValidationIssueEntities().addAll(SdcHelper.populateValidationErrors(errors, entity));
+    entity.getSDCStudentValidationIssueEntities().addAll(SdcHelper.populateValidationErrors(issues, entity));
     entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
     return this.repository.save(entity);
   }
