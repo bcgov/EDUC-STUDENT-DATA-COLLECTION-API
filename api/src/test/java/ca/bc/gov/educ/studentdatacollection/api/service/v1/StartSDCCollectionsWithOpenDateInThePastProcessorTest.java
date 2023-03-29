@@ -25,17 +25,15 @@ class StartSDCCollectionsWithOpenDateInThePastProcessorTest extends
     BaseStudentDataCollectionAPITest {
 
   @Autowired
-  StartSDCCollectionsWithOpenDateInThePastProcessingHandler service;
-
-  @Autowired
   CollectionRepository collectionRepository;
   @Autowired
   CollectionTypeCodeRepository collectionTypeCodeRepository;
   @Autowired
   SdcSchoolCollectionRepository sdcSchoolRepository;
-
   @Autowired
   SdcSchoolCollectionHistoryRepository sdcSchoolHistoryRepository;
+  @Autowired
+  SdcService sdcService;
 
   @BeforeEach
   public void setUp() {
@@ -49,7 +47,7 @@ class StartSDCCollectionsWithOpenDateInThePastProcessorTest extends
     listOfSchoolIDs.add(schoolID.toString());
     CollectionTypeCodeEntity collectionTypeCode = this.collectionTypeCodeRepository.save(this.createCollectionCodeData());
 
-    this.service.startSDCCollection(collectionTypeCode, listOfSchoolIDs);
+    this.sdcService.startSDCCollection(collectionTypeCode, listOfSchoolIDs);
 
     List<CollectionEntity> collectionEntities = this.collectionRepository.findAll();
     List<SdcSchoolCollectionEntity> sdcSchoolEntities = this.sdcSchoolRepository.findAll();

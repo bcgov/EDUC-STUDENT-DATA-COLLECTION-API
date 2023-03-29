@@ -77,16 +77,16 @@ public class SdcSchoolCollectionStudentEntity {
   private String schoolFundingCode;
 
   @Column(name = "NATIVE_ANCESTRY_IND")
-  private Boolean nativeAncestryInd;
+  private String nativeAncestryInd;
 
   @Column(name = "HOME_LANGUAGE_SPOKEN_CODE")
   private String homeLanguageSpokenCode;
 
   @Column(name = "OTHER_COURSES")
-  private Long otherCourses;
+  private String otherCourses;
 
   @Column(name = "SUPPORT_BLOCKS")
-  private Long supportBlocks;
+  private String supportBlocks;
 
   @Column(name = "ENROLLED_GRADE_CODE")
   private String enrolledGradeCode;
@@ -98,7 +98,7 @@ public class SdcSchoolCollectionStudentEntity {
   private String careerProgramCode;
 
   @Column(name = "NUMBER_OF_COURSES")
-  private Long numberOfCourses;
+  private String numberOfCourses;
 
   @Column(name = "BAND_CODE")
   private String bandCode;

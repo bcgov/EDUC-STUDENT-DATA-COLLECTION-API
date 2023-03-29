@@ -17,7 +17,6 @@ import java.util.UUID;
  */
 @Slf4j
 public abstract class SdcBatchFileDecorator implements SdcBatchFileMapper {
-  private static final String BOOLEAN_YES = "Y";
   private final SdcBatchFileMapper delegate;
 
   protected SdcBatchFileDecorator(final SdcBatchFileMapper mapper) {
@@ -66,13 +65,13 @@ public abstract class SdcBatchFileDecorator implements SdcBatchFileMapper {
     entity.setLocalID(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getLocalStudentID()));
     entity.setSpecialEducationCategoryCode(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getSpecialEducationCategory()));
     entity.setSchoolFundingCode(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getSchoolFundingCode()));
-    entity.setNativeAncestryInd(getBooleanFromYNField(studentDetails.getNativeAncestryIndicator()));
+    entity.setNativeAncestryInd(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getNativeAncestryIndicator()));
     entity.setHomeLanguageSpokenCode(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getHomeSpokenLanguageCode()));
-    entity.setOtherCourses(StringMapper.getLongValueFromString(studentDetails.getOtherCourses()));
-    entity.setSupportBlocks(StringMapper.getLongValueFromString(studentDetails.getSupportBlocks()));
+    entity.setOtherCourses(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getOtherCourses()));
+    entity.setSupportBlocks(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getSupportBlocks()));
     entity.setEnrolledProgramCodes(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getEnrolledProgramCodes()));
     entity.setCareerProgramCode(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getCareerProgramCode()));
-    entity.setNumberOfCourses(StringMapper.getLongValueFromString(studentDetails.getNumberOfCourses()));
+    entity.setNumberOfCourses(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getNumberOfCourses()));
     entity.setBandCode(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getBandCode()));
 
     if(StringUtils.isNotBlank(studentDetails.getPen()) && studentDetails.getPen().length() == 9) {
@@ -80,10 +79,6 @@ public abstract class SdcBatchFileDecorator implements SdcBatchFileMapper {
     }
 
     return entity;
-  }
-
-  private boolean getBooleanFromYNField(String value){
-    return !StringUtils.isEmpty(value) && value.equals(BOOLEAN_YES);
   }
 
 }

@@ -135,25 +135,25 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   @SneakyThrows
   @Test
   void testHandleEvent_givenEventTypePROCESS_PEN_MATCHAndEventOutComePEN_MATCH_PROCESSEDAA_shouldExecutePROCESS_PEN_MATCH_RESULTS() {
-    this.runBasedOnPenStatus("AA", SdcSchoolStudentStatus.MATCHEDSYS.toString(), "123456789");
+    this.runBasedOnPenStatus("AA", SdcSchoolStudentStatus.VERIFIED.toString(), "123456789");
   }
 
   @SneakyThrows
   @Test
   void testHandleEvent_givenEventTypePROCESS_PEN_MATCHAndEventOutComePEN_MATCH_PROCESSEDB1_shouldExecutePROCESS_PEN_MATCH_RESULTS() {
-    this.runBasedOnPenStatus("B1", SdcSchoolStudentStatus.MATCHEDSYS.toString(), "123456789");
+    this.runBasedOnPenStatus("B1", SdcSchoolStudentStatus.VERIFIED.toString(), "123456789");
   }
 
   @SneakyThrows
   @Test
   void testHandleEvent_givenEventTypePROCESS_PEN_MATCHAndEventOutComePEN_MATCH_PROCESSEDC1_shouldExecutePROCESS_PEN_MATCH_RESULTS() {
-    this.runBasedOnPenStatus("C1", SdcSchoolStudentStatus.MATCHEDSYS.toString(), "123456789");
+    this.runBasedOnPenStatus("C1", SdcSchoolStudentStatus.VERIFIED.toString(), "123456789");
   }
 
   @SneakyThrows
   @Test
   void testHandleEvent_givenEventTypePROCESS_PEN_MATCHAndEventOutComePEN_MATCH_PROCESSEDD1_shouldExecutePROCESS_PEN_MATCH_RESULTS() {
-    this.runBasedOnPenStatus("D1", SdcSchoolStudentStatus.MATCHEDSYS.toString(), "123456789");
+    this.runBasedOnPenStatus("D1", SdcSchoolStudentStatus.VERIFIED.toString(), "123456789");
   }
 
   @SneakyThrows

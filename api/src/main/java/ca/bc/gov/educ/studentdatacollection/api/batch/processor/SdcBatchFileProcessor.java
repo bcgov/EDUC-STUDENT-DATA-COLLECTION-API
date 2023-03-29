@@ -13,14 +13,13 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.StringMapper;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import com.google.common.base.Stopwatch;
 import lombok.Getter;
@@ -61,8 +60,6 @@ public class SdcBatchFileProcessor {
    * The constant mapper.
    */
   private static final SdcBatchFileMapper mapper = SdcBatchFileMapper.mapper;
-
-  private static final SdcSchoolCollectionMapper schoolBatchMapper = SdcSchoolCollectionMapper.mapper;
   @Getter(PRIVATE)
   private final SdcBatchFileStudentRecordsProcessor sdcBatchStudentRecordsProcessor;
   public static final String TRANSACTION_CODE_STUDENT_DETAILS_RECORD = "SRM";
@@ -77,17 +74,22 @@ public class SdcBatchFileProcessor {
   private final SdcFileValidator sdcFileValidator;
 
   @Getter(PRIVATE)
+  private final SdcSchoolCollectionService sdcSchoolCollectionService;
+
+
+  @Getter(PRIVATE)
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
   @Getter(PRIVATE)
   private final CollectionRepository sdcRepository;
 
   @Autowired
-  public SdcBatchFileProcessor(final SdcBatchFileStudentRecordsProcessor sdcBatchStudentRecordsProcessor, final ApplicationProperties applicationProperties, final RestUtils restUtils, SdcFileValidator sdcFileValidator, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository sdcRepository) {
+  public SdcBatchFileProcessor(final SdcBatchFileStudentRecordsProcessor sdcBatchStudentRecordsProcessor, final ApplicationProperties applicationProperties, final RestUtils restUtils, SdcFileValidator sdcFileValidator, SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository sdcRepository) {
     this.sdcBatchStudentRecordsProcessor = sdcBatchStudentRecordsProcessor;
     this.applicationProperties = applicationProperties;
     this.sdcFileValidator = sdcFileValidator;
     this.restUtils = restUtils;
+    this.sdcSchoolCollectionService = sdcSchoolCollectionService;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcRepository = sdcRepository;
   }
@@ -98,8 +100,8 @@ public class SdcBatchFileProcessor {
    * 2. <p>If The data is successfully retrieved from TSW table and file header cant be parsed, system will create only the header record and persist it.
    *
    */
-  @Transactional
-  public SdcSchoolCollection processSdcBatchFile(@NonNull final SdcFileUpload fileUpload) {
+  @Transactional(propagation = Propagation.MANDATORY)
+  public SdcSchoolCollectionEntity processSdcBatchFile(@NonNull final SdcFileUpload fileUpload) {
     val stopwatch = Stopwatch.createStarted();
     final var guid = UUID.randomUUID().toString(); // this guid will be used throughout the logs for easy tracking.
     log.info("Started processing SDC file with school collection ID :: {} and correlation guid :: {}", fileUpload.getSdcSchoolCollectionID(), guid);
@@ -112,8 +114,7 @@ public class SdcBatchFileProcessor {
       this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
-      var sdcSchoolBatch = this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload);
-      return schoolBatchMapper.toSdcSchoolBatch(sdcSchoolBatch);
+      return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload);
     } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
       log.error("File could not be processed exception :: {}", fileUnProcessableException);
       ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid data.").status(BAD_REQUEST).build();
@@ -171,7 +172,7 @@ public class SdcBatchFileProcessor {
     return markInitialLoadComplete(entity, fileUpload);
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional(propagation = Propagation.MANDATORY)
   @Retryable(maxAttempts = 10, backoff = @Backoff(multiplier = 2, delay = 2000))
   public SdcSchoolCollectionEntity markInitialLoadComplete(@NonNull final SdcSchoolCollectionEntity sdcSchoolCollectionEntity, @NonNull final SdcFileUpload fileUpload) {
     var schoolCollection = sdcSchoolCollectionRepository.findById(UUID.fromString(fileUpload.getSdcSchoolCollectionID()));
@@ -180,7 +181,7 @@ public class SdcBatchFileProcessor {
       sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcBatchStatusCodes.LOADED.getCode());
       sdcSchoolCollectionEntity.setSchoolID(coll.getSchoolID());
       sdcSchoolCollectionEntity.setCollectionEntity(coll.getCollectionEntity());
-      return getSdcSchoolCollectionRepository().save(sdcSchoolCollectionEntity);
+      return sdcSchoolCollectionService.saveSdcSchoolCollection(sdcSchoolCollectionEntity);
     }else{
       throw new StudentDataCollectionAPIRuntimeException("SDC School Collection ID provided :: " + fileUpload.getSdcSchoolCollectionID() + " :: is not valid");
     }

@@ -4,13 +4,17 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
-import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentValidationIssueEntity;
+import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
@@ -32,10 +36,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
@@ -45,39 +47,23 @@ import java.util.concurrent.Executor;
 @Service
 @Slf4j
 public class SdcService {
-  private static final String STUDENT_ID_ATTRIBUTE = "nominalRollStudentID";
   private final MessagePublisher messagePublisher;
   private final SdcSchoolCollectionStudentRepository repository;
+  private final CollectionRepository collectionRepository;
   private final SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository;
+  private final CollectionTypeCodeRepository collectionCodeRepository;
+  private final SdcSchoolCollectionHistoryService sdcSchoolHistoryService;
   private final Executor paginatedQueryExecutor = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
 
-  public SdcService(final MessagePublisher messagePublisher, SdcSchoolCollectionStudentRepository repository, SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository) {
+  public SdcService(final MessagePublisher messagePublisher, SdcSchoolCollectionStudentRepository repository, CollectionRepository collectionRepository, SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository, CollectionTypeCodeRepository collectionCodeRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService) {
     this.messagePublisher = messagePublisher;
     this.repository = repository;
+    this.collectionRepository = collectionRepository;
     this.sdcStudentValidationErrorRepository = sdcStudentValidationErrorRepository;
-  }
-
-  public boolean isAllRecordsProcessed() {
-    final long count = this.repository.countBySdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.toString());
-    return count < 1;
-  }
-
-
-  public boolean hasDuplicateRecords(final String sdcSchoolBatchID) {
-    final Long count = this.repository.countForDuplicateStudentPENs(sdcSchoolBatchID);
-    return count != null && count > 1;
-  }
-
-  public SdcSchoolCollectionStudentEntity getSdcStudentByID(final UUID sdcSchoolStudentID) {
-    return this.repository.findById(sdcSchoolStudentID).orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, STUDENT_ID_ATTRIBUTE, sdcSchoolStudentID.toString()));
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void saveNominalRollStudents(final List<SdcSchoolCollectionStudentEntity> nomRollStudentEntities, final String correlationID) {
-    log.debug("creating nominal roll entities in transient table for transaction ID :: {}", correlationID);
-    this.repository.saveAll(nomRollStudentEntities);
+    this.collectionCodeRepository = collectionCodeRepository;
+    this.sdcSchoolHistoryService = sdcSchoolHistoryService;
   }
 
   /**
@@ -100,10 +86,6 @@ public class SdcService {
       }
     }, this.paginatedQueryExecutor);
 
-  }
-
-  public SdcSchoolCollectionStudentEntity updateNominalRollStudent(final SdcSchoolCollectionStudentEntity entity) {
-    return this.repository.save(entity);
   }
 
   public void publishUnprocessedStudentRecordsForProcessing(final List<SdcStudentSagaData> sdcStudentSagaDatas) {
@@ -145,11 +127,6 @@ public class SdcService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void saveSdcSchoolStudent(final SdcSchoolCollectionStudentEntity sdcSchoolStudentEntity) {
-    this.repository.save(sdcSchoolStudentEntity);
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void deleteSdcStudentValidationErrors(final String sdcSchoolStudentID) {
     this.sdcStudentValidationErrorRepository.deleteSdcStudentValidationErrors(UUID.fromString(sdcSchoolStudentID));
   }
@@ -169,12 +146,51 @@ public class SdcService {
     return this.repository.save(entity);
   }
 
-  public List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolBatchID(final String sdcSchoolCollectionID) {
-    return this.repository.findAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void startSDCCollection(CollectionTypeCodeEntity collectionCode, List<String> listOfSchoolIDs) {
+    CollectionEntity collectionEntity = CollectionEntity.builder()
+      .collectionTypeCode(collectionCode.getCollectionTypeCode())
+      .openDate(collectionCode.getOpenDate())
+      .closeDate(collectionCode.getCloseDate())
+      .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+      .createDate(LocalDateTime.now())
+      .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+      .updateDate(LocalDateTime.now()).build();
+
+    CollectionEntity savedCollection = this.collectionRepository.save(collectionEntity);
+    log.info("Collection created and saved");
+
+    Set<SdcSchoolCollectionEntity> sdcSchoolEntityList = new HashSet<>();
+    for(String schoolID : listOfSchoolIDs) {
+      SdcSchoolCollectionEntity sdcSchoolEntity = SdcSchoolCollectionEntity.builder().collectionEntity(savedCollection)
+        .schoolID(UUID.fromString(schoolID))
+        .sdcSchoolCollectionStatusCode("NEW")
+        .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+        .createDate(LocalDateTime.now())
+        .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+        .updateDate(LocalDateTime.now()).build();
+      sdcSchoolEntityList.add(sdcSchoolEntity);
+    }
+
+    savedCollection.setSdcSchoolCollectionEntities(sdcSchoolEntityList);
+
+    CollectionEntity savedCollectionWithSchoolEntities = this.collectionRepository.save(savedCollection);
+    log.info("Collection saved with sdc school entities");
+
+    if(!savedCollectionWithSchoolEntities.getSDCSchoolEntities().isEmpty()) {
+      for (SdcSchoolCollectionEntity sdcSchoolEntity : savedCollectionWithSchoolEntities.getSDCSchoolEntities() ) {
+        this.sdcSchoolHistoryService.createSDCSchoolHistory(sdcSchoolEntity, ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      }
+    }
+
+    collectionCode.setOpenDate(collectionCode.getOpenDate().plusYears(1));
+    collectionCode.setCloseDate(collectionCode.getCloseDate().plusYears(1));
+    collectionCode.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+    collectionCode.setUpdateDate(LocalDateTime.now());
+
+    CollectionTypeCodeEntity savedCollectionCode = this.collectionCodeRepository.save(collectionCode);
+    log.info("Collection {} started, next open date is {}, next close date is {}", savedCollectionCode.getCollectionTypeCode(), savedCollectionCode.getOpenDate(), savedCollectionCode.getCloseDate());
   }
 
-  public List<SdcSchoolCollectionStudentValidationIssueEntity> getSchoolNumberValidationErrors(){
-    return this.sdcStudentValidationErrorRepository.findAllByValidationIssueFieldCode("School Number");
-  }
 
 }

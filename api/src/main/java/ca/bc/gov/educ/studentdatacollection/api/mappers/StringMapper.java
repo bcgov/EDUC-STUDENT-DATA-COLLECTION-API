@@ -23,13 +23,6 @@ public class StringMapper {
     return value;
   }
 
-  public static Long getLongValueFromString(String s){
-    if(StringUtils.isEmpty(s) && StringUtils.isNumeric(s)){
-      return Long.getLong(s);
-    }
-    return null;
-  }
-
   public static String trimUppercaseAndScrubDiacriticalMarks(String value){
     if (StringUtils.isNotBlank(value)) {
       return StringUtils.stripAccents(StringUtils.trim(value)).replaceAll("[^\\p{ASCII}]", "¿").toUpperCase();

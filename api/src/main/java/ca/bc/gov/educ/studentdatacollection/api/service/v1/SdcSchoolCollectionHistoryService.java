@@ -12,12 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
-public class SdcSchoolHistoryService {
+public class SdcSchoolCollectionHistoryService {
 
   private final SdcSchoolCollectionHistoryRepository sdcSchoolHistoryRepository;
 
   @Autowired
-  public SdcSchoolHistoryService(SdcSchoolCollectionHistoryRepository sdcSchoolHistoryRepository) {
+  public SdcSchoolCollectionHistoryService(SdcSchoolCollectionHistoryRepository sdcSchoolHistoryRepository) {
     this.sdcSchoolHistoryRepository = sdcSchoolHistoryRepository;
   }
 

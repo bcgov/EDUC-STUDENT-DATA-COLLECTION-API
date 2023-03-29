@@ -11,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -62,12 +63,22 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     MockitoAnnotations.openMocks(this);
   }
 
+  @AfterEach
+  public void afterEach() {
+    this.schoolStudentRepository.deleteAll();
+    this.sdcSchoolCollectionRepository.deleteAll();
+    this.sdcRepository.deleteAll();
+  }
+
   @Test
   void testProcessSdcFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+    var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    sdcMockSchool.setUpdateDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     assertThat(fileContents).isNotEmpty();
@@ -76,7 +87,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
-      .contentType(APPLICATION_JSON)).andExpect(status().isCreated());
+      .contentType(APPLICATION_JSON)).andExpect(status().isOk());
     final var result = this.sdcSchoolCollectionRepository.findAll();
     assertThat(result).hasSize(1);
     final var entity = result.get(0);

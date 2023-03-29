@@ -5,12 +5,8 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntit
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeCriteriaRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.StartSDCCollectionsWithOpenDateInThePastProcessingHandler;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,21 +14,23 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 @Component
 @Slf4j
 public class StudentDataCollectionScheduler {
   private final CollectionTypeCodeRepository collectionCodeRepository;
-
   private final CollectionCodeCriteriaRepository collectionCodeCriteriaRepository;
-
-  private final StartSDCCollectionsWithOpenDateInThePastProcessingHandler startSDCCollectionsWithOpenDateInThePastProcessingHandler;
-
+  private final SdcService sdcService;
   private final RestUtils restUtils;
 
-  public StudentDataCollectionScheduler(final CollectionTypeCodeRepository collectionCodeRespository, final CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, final StartSDCCollectionsWithOpenDateInThePastProcessingHandler startSDCCollectionsWithOpenDateInThePastProcessingHandler, final RestUtils restUtils) {
+  public StudentDataCollectionScheduler(final CollectionTypeCodeRepository collectionCodeRespository, final CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcService sdcService, final RestUtils restUtils) {
     this.collectionCodeRepository = collectionCodeRespository;
     this.collectionCodeCriteriaRepository = collectionCodeCriteriaRepository;
-    this.startSDCCollectionsWithOpenDateInThePastProcessingHandler = startSDCCollectionsWithOpenDateInThePastProcessingHandler;
+    this.sdcService = sdcService;
     this.restUtils = restUtils;
   }
 
@@ -53,7 +51,7 @@ public class StudentDataCollectionScheduler {
 
         if (!listOfSchoolIDs.isEmpty()) {
           log.info("processing {} schools to add to collection {}", listOfSchoolIDs.size(), collection.getCollectionTypeCode());
-          this.startSDCCollectionsWithOpenDateInThePastProcessingHandler.startSDCCollection(collection, listOfSchoolIDs);
+          this.sdcService.startSDCCollection(collection, listOfSchoolIDs);
         }
       }
     }

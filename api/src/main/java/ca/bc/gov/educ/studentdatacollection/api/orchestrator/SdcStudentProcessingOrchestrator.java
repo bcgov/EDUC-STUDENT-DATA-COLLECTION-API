@@ -13,6 +13,7 @@ import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.BaseOrchestrat
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
@@ -39,12 +40,14 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
   private final RulesProcessor rulesProcessor;
   private final SdcService sdcService;
   private final RestUtils restUtils;
+  private final SdcSchoolCollectionService sdcSchoolCollectionService;
 
-  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final SdcService sdcService, final RestUtils restUtils) {
+  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final SdcService sdcService, final RestUtils restUtils, SdcSchoolCollectionService sdcSchoolCollectionService) {
     super(sagaService, messagePublisher, SdcStudentSagaData.class, SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString(), TopicsEnum.STUDENT_DATA_COLLECTION_PROCESS_STUDENT_SAGA_TOPIC.toString());
     this.rulesProcessor = rulesProcessor;
     this.sdcService = sdcService;
     this.restUtils = restUtils;
+    this.sdcSchoolCollectionService = sdcSchoolCollectionService;
   }
 
   @Override
@@ -84,11 +87,11 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     if (sdcStudOptional.isPresent()) {
       val sdcStud = sdcStudOptional.get();
       if (assignedPEN.isPresent()) {
-        sdcStud.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.MATCHEDSYS.toString());
+        sdcStud.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.VERIFIED.toString());
       } else {
         sdcStud.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.FIXABLE.toString());
       }
-      this.sdcService.saveSdcSchoolStudent(sdcStud);
+      this.sdcSchoolCollectionService.saveSdcSchoolCollectionStudent(sdcStud);
     }
     this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
       .eventType(PROCESS_PEN_MATCH_RESULTS).eventOutcome(PEN_MATCH_RESULTS_PROCESSED)

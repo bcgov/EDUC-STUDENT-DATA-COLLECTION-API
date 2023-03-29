@@ -1,12 +1,14 @@
 package ca.bc.gov.educ.studentdatacollection.api.batch.service;
 
 import ca.bc.gov.educ.studentdatacollection.api.batch.processor.SdcBatchFileProcessor;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -27,7 +29,8 @@ public class SdcFileService {
     this.sdcBatchProcessor = sdcBatchProcessor;
   }
 
-  public SdcSchoolCollection runFileLoad(SdcFileUpload sdcFileUpload){
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload){
     log.debug("Uploaded file contents for school collection ID: {}", sdcFileUpload.getSdcSchoolCollectionID());
     return this.getSdcBatchProcessor().processSdcBatchFile(sdcFileUpload);
   }

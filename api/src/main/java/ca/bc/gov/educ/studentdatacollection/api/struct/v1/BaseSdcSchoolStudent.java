@@ -65,7 +65,7 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   private String schoolFundingCode;
 
   @NotNull(message = "nativeAncestryInd cannot be null")
-  private Boolean nativeAncestryInd;
+  private String nativeAncestryInd;
 
   @Size(max = 10)
   @NotNull(message = "homeLanguageSpokenCode cannot be null")
@@ -87,7 +87,7 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   @NotNull(message = "careerProgramCode cannot be null")
   private String careerProgramCode;
 
-  private Integer numberOfCourses;
+  private String numberOfCourses;
 
   @Size(max = 4)
   private String bandCode;

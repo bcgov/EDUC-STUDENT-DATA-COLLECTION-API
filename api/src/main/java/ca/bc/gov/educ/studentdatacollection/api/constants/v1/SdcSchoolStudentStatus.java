@@ -9,10 +9,10 @@ import java.util.Map;
 public enum SdcSchoolStudentStatus {
   LOADED("LOADED"),
   ERROR("ERROR"),
-  MATCHEDSYS("MATCHEDSYS"),
-  FIXABLE("FIXABLE"),
-  MATCHEDUSR("MATCHEDUSR"),
-  IGNORED("IGNORED");
+  WARNING("WARNING"),
+  VERIFIED("VERIFIED"),
+  FIXABLE("FIXABLE");
+
 
   private static final Map<String, SdcSchoolStudentStatus> codeMap = new HashMap<>();
 

@@ -39,10 +39,15 @@ public class SdcSchoolCollectionFileValidator {
     try {
       Optional<SdcSchoolCollectionEntity> schoolCollectionEntity = this.sdcSchoolCollectionRepository.findById(UUID.fromString(fileUpload.getSdcSchoolCollectionID()));
       if (schoolCollectionEntity.isEmpty()) {
-        apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, fileUpload.getSdcSchoolCollectionID(), "Invalid Sdc school collection ID."));
+        apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, fileUpload.getSdcSchoolCollectionID(), "Invalid SDC school collection ID."));
+      }else{
+        var sdcSchoolCollectionEntity = schoolCollectionEntity.get();
+        if(sdcSchoolCollectionEntity.getUploadDate() != null){
+          apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, fileUpload.getSdcSchoolCollectionID(), "Invalid SDC school collection ID, file already uploaded for school's collection."));
+        }
       }
     }catch(Exception e){
-      apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, fileUpload.getSdcSchoolCollectionID(), "Invalid Sdc school collection ID."));
+      apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, fileUpload.getSdcSchoolCollectionID(), "Invalid SDC school collection ID."));
     }
   }
 

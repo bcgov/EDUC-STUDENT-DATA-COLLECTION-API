@@ -19,7 +19,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "STUDENT_DATA_COLLECTION_SCHOOL_STUDENT_HISTORY")
+@Table(name = "SDC_SCHOOL_COLLECTION_STUDENT_HISTORY")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SdcSchoolCollectionStudentHistoryEntity {
 
@@ -27,12 +27,16 @@ public class SdcSchoolCollectionStudentHistoryEntity {
   @GeneratedValue(generator = "UUID")
   @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator", parameters = {
       @Parameter(name = "uuid_gen_strategy_class", value = "org.hibernate.id.uuid.CustomVersionOneStrategy")})
-  @Column(name = "SDC_SCHOOL_STUDENT_HISTORY_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
+  @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_HISTORY_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   UUID sdcSchoolCollectionStudentHistoryID;
 
   @Basic
   @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_ID", columnDefinition = "BINARY(16)")
   private UUID sdcSchoolCollectionStudentID;
+
+  @Basic
+  @Column(name = "SDC_SCHOOL_COLLECTION_ID", columnDefinition = "BINARY(16)")
+  private UUID sdcSchoolCollectionID;
 
   @Column(name = "LOCAL_ID")
   private String localID;
@@ -71,16 +75,16 @@ public class SdcSchoolCollectionStudentHistoryEntity {
   private String schoolFundingCode;
 
   @Column(name = "NATIVE_ANCESTRY_IND")
-  private Boolean nativeAncestryInd;
+  private String nativeAncestryInd;
 
   @Column(name = "HOME_LANGUAGE_SPOKEN_CODE")
   private String homeLanguageSpokenCode;
 
   @Column(name = "OTHER_COURSES")
-  private Long otherCourses;
+  private String otherCourses;
 
   @Column(name = "SUPPORT_BLOCKS")
-  private Long supportBlocks;
+  private String supportBlocks;
 
   @Column(name = "ENROLLED_GRADE_CODE")
   private String enrolledGradeCode;
@@ -92,7 +96,7 @@ public class SdcSchoolCollectionStudentHistoryEntity {
   private String careerProgramCode;
 
   @Column(name = "NUMBER_OF_COURSES")
-  private Long numberOfCourses;
+  private String numberOfCourses;
 
   @Column(name = "BAND_CODE")
   private String bandCode;

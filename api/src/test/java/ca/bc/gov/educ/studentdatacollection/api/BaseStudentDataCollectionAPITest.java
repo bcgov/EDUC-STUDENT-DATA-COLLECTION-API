@@ -79,7 +79,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setGender("M");
     sdcEntity.setSpecialEducationCategoryCode("B");
     sdcEntity.setSchoolFundingCode("05");
-    sdcEntity.setNativeAncestryInd(false);
+    sdcEntity.setNativeAncestryInd("N");
     sdcEntity.setHomeLanguageSpokenCode("001");
     sdcEntity.setOtherCourses(null);
     sdcEntity.setSupportBlocks(null);
