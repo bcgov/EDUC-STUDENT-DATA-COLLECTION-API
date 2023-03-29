@@ -76,7 +76,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     var school = this.createMockSchool();
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
-    sdcMockSchool.setUpdateDate(null);
+    sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");

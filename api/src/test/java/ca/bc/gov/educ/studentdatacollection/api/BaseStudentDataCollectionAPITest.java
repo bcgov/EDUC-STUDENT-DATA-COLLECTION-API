@@ -12,7 +12,6 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.support.StudentDataCollectionTestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.support.TestRedisConfiguration;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
@@ -24,7 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@SpringBootTest(classes = {TestRedisConfiguration.class, StudentDataCollectionApiApplication.class})
+@SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 public abstract class BaseStudentDataCollectionAPITest {

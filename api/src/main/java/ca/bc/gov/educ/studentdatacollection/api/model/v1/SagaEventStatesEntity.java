@@ -68,7 +68,7 @@ public class SagaEventStatesEntity {
   /**
    * The Saga event response.
    */
-  @Column(name = "SAGA_EVENT_RESPONSE")
+  @Column(name = "SAGA_EVENT_RESPONSE",  length = 10485760)
   String sagaEventResponse;
 
   /**
