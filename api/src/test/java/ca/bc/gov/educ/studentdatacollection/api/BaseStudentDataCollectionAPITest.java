@@ -4,7 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSaga;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -98,8 +98,8 @@ public abstract class BaseStudentDataCollectionAPITest {
   }
 
   @SneakyThrows
-  protected SdcSaga creatMockSaga(final SdcSchoolCollectionStudent student) {
-    return SdcSaga.builder()
+  protected SdcSagaEntity creatMockSaga(final SdcSchoolCollectionStudent student) {
+    return SdcSagaEntity.builder()
       .sagaId(UUID.randomUUID())
       .updateDate(LocalDateTime.now().minusMinutes(15))
       .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)

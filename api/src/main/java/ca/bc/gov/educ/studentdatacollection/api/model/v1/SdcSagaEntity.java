@@ -24,7 +24,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "SDC_SAGA")
 @DynamicUpdate
-public class SdcSaga {
+public class SdcSagaEntity {
 
   @Id
   @GeneratedValue(generator = "UUID")

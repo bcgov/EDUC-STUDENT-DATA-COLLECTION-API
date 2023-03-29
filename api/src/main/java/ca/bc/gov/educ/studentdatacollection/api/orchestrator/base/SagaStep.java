@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.orchestrator.base;
 
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSaga;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 
 import java.io.IOException;
@@ -24,5 +24,5 @@ public interface SagaStep<T> {
    * @throws TimeoutException     the timeout exception
    * @throws IOException          the io exception
    */
-  void apply(Event event, SdcSaga saga, T sagaData) throws InterruptedException, TimeoutException, IOException;
+  void apply(Event event, SdcSagaEntity saga, T sagaData) throws InterruptedException, TimeoutException, IOException;
 }

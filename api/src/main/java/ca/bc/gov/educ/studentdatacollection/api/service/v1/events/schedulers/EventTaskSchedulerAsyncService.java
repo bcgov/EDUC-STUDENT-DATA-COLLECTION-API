@@ -4,7 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.LogHelper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSaga;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.Orchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
@@ -62,7 +62,7 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
-  private void processUncompletedSagas(final List<SdcSaga> sagas) {
+  private void processUncompletedSagas(final List<SdcSagaEntity> sagas) {
     for (val saga : sagas) {
       if (saga.getUpdateDate().isBefore(LocalDateTime.now().minusMinutes(2))
         && this.getSagaOrchestrators().containsKey(saga.getSagaName())) {
@@ -113,7 +113,7 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
-  private void setRetryCountAndLog(final SdcSaga saga) {
+  private void setRetryCountAndLog(final SdcSagaEntity saga) {
     Integer retryCount = saga.getRetryCount();
     if (retryCount == null || retryCount == 0) {
       retryCount = 1;

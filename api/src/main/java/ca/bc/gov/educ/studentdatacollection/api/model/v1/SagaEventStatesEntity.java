@@ -8,7 +8,6 @@ import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -23,7 +22,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "SDC_SAGA_EVENT_STATES")
 @DynamicUpdate
-public class SagaEventStates {
+public class SagaEventStatesEntity {
 
   /**
    * The Saga event id.
@@ -43,7 +42,7 @@ public class SagaEventStates {
   @EqualsAndHashCode.Exclude
   @ManyToOne
   @JoinColumn(name = "SAGA_ID", updatable = false, columnDefinition = "BINARY(16)")
-  SdcSaga saga;
+  SdcSagaEntity saga;
 
   /**
    * The Saga event state.
@@ -69,9 +68,8 @@ public class SagaEventStates {
   /**
    * The Saga event response.
    */
-  @Lob
-  @Column(name = "SAGA_EVENT_RESPONSE", nullable = false)
-  byte[] sagaEventResponseBytes;
+  @Column(name = "SAGA_EVENT_RESPONSE")
+  String sagaEventResponse;
 
   /**
    * The Create user.
@@ -103,42 +101,4 @@ public class SagaEventStates {
   @Column(name = "UPDATE_DATE")
   LocalDateTime updateDate;
 
-  /**
-   * Gets saga event response.
-   *
-   * @return the saga event response
-   */
-  public String getSagaEventResponse() {
-    return new String(this.getSagaEventResponseBytes(), StandardCharsets.UTF_8);
-  }
-
-  /**
-   * Sets saga event response.
-   *
-   * @param sagaEventResponse the saga event response
-   */
-  public void setSagaEventResponse(final String sagaEventResponse) {
-    this.setSagaEventResponseBytes(sagaEventResponse.getBytes(StandardCharsets.UTF_8));
-  }
-
-  /**
-   * The type Saga event states builder.
-   */
-  public static class SagaEventStatesBuilder {
-    /**
-     * The Saga event response bytes.
-     */
-    byte[] sagaEventResponseBytes;
-
-    /**
-     * Saga event response saga event states builder.
-     *
-     * @param sagaEventResponse the saga event response
-     * @return the saga event states builder
-     */
-    public SagaEventStatesBuilder sagaEventResponse(final String sagaEventResponse) {
-      this.sagaEventResponseBytes = sagaEventResponse.getBytes(StandardCharsets.UTF_8);
-      return this;
-    }
-  }
 }
