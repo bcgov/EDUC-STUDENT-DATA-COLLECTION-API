@@ -2,7 +2,6 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1.events.schedulers;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.LogHelper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
@@ -86,18 +85,10 @@ public class EventTaskSchedulerAsyncService {
       log.debug("Saga count is greater than 20, so not processing student records");
       return;
     }
-    final List<SdcSchoolCollectionStudentEntity> studentEntities = new ArrayList<>();
-    final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTop100BySdcSchoolCollectionStudentStatusCodeOrderByCreateDate(SdcSchoolStudentStatus.LOADED.toString());
-    log.debug("found :: {}  records in loaded status", sdcSchoolStudentEntities.size());
+    final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTop100LoadedStudentForProcessing();
+    log.debug("Found :: {}  records in loaded status", sdcSchoolStudentEntities.size());
     if (!sdcSchoolStudentEntities.isEmpty()) {
-      for (val entity : sdcSchoolStudentEntities) {
-        if (this.getSagaRepository().findBySdcSchoolCollectionStudentIDAndSagaName(entity.getSdcSchoolCollectionStudentID(), SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString()).isEmpty()) {
-          studentEntities.add(entity);
-        }
-      }
-    }
-    if (!studentEntities.isEmpty()) {
-      this.getSdcService().prepareAndSendSdcStudentsForFurtherProcessing(studentEntities);
+      this.getSdcService().prepareAndSendSdcStudentsForFurtherProcessing(sdcSchoolStudentEntities);
     }
   }
 
