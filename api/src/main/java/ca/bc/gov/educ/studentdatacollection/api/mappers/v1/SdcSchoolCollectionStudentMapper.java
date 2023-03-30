@@ -13,7 +13,7 @@ public interface SdcSchoolCollectionStudentMapper {
 
   SdcSchoolCollectionStudentMapper mapper = Mappers.getMapper(SdcSchoolCollectionStudentMapper.class);
 
-  @Mapping(target = "sdcSchoolCollectionID", source = "sdcSchoolCollectionEntity.sdcSchoolCollectionID")
+  @Mapping(target = "sdcSchoolCollectionID", source = "sdcSchoolCollectionID")
   SdcSchoolCollectionStudent toSdcSchoolStudent(SdcSchoolCollectionStudentEntity sdcSchoolStudentEntity);
 
   SdcSchoolCollectionStudentEntity toSdcSchoolStudentEntity(SdcSchoolCollectionStudent sdcSchoolStudent);

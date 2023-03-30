@@ -98,7 +98,7 @@ public class SdcService {
     final List<SdcStudentSagaData> sdcStudentSagaDatas = sdcStudentEntities.stream()
       .map(el -> {
         val sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setSchoolID(el.getSdcSchoolCollectionEntity().getSchoolID().toString());
+        sdcStudentSagaData.setSchoolID(el.getSdcSchoolCollectionID().toString());
         sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(el));
         return sdcStudentSagaData;
       }).toList();
