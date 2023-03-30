@@ -36,7 +36,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     "    (SELECT SDC_SCHOOL_COLLECTION_STUDENT_ID \n" +
     "     FROM SDC_SAGA saga)\n" +
     "AND\n" +
-    "stud.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE = 'ERROR'\n" +
+    "stud.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE = 'LOADED'\n" +
     "order by CREATE_DATE asc\n" +
     "LIMIT 100;\n",
     nativeQuery = true)
