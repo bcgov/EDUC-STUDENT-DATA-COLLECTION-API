@@ -40,7 +40,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     CollectionEntity sdcEntity = new CollectionEntity();
     sdcEntity.setCollectionTypeCode("SEPTEMBER");
     sdcEntity.setOpenDate(LocalDateTime.now());
-    sdcEntity.setCloseDate(null);
+    sdcEntity.setCloseDate(LocalDateTime.now().plusDays(5));
     sdcEntity.setCreateUser("ABC");
     sdcEntity.setCreateDate(LocalDateTime.now());
     sdcEntity.setUpdateUser("ABC");

@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.FileInputStream;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
@@ -98,7 +99,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  void testProcessSdcFile_givenInvalidPayload_ShouldReturnStatusOk() throws Exception {
+  void testProcessSdcFile_givenInvalidPayload_ShouldReturnStatusBadRequest() throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
@@ -107,6 +108,28 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     assertThat(fileContents).isNotEmpty();
     val body = SdcFileUpload.builder().sdcSchoolCollectionID(sdcSchoolCollection.getSdcSchoolCollectionID().toString()).fileContents(fileContents).fileName("SampleUpload.txt").build();
+    this.mockMvc.perform(post(BASE_URL_SDC_FILE)
+      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .header("correlationID", UUID.randomUUID().toString())
+      .content(JsonUtil.getJsonStringFromObject(body))
+      .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testProcessSdcFile_givenInvalidPayloadForDates_ShouldReturnStatusBadRequest() throws Exception {
+    var mockColl = createMockCollectionEntity();
+    mockColl.setOpenDate(LocalDateTime.now().plusDays(5));
+    var collection = sdcRepository.save(mockColl);
+    var school = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    sdcMockSchool.setUploadDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    assertThat(fileContents).isNotEmpty();
+    val body = SdcFileUpload.builder().sdcSchoolCollectionID(sdcSchoolCollection.getSdcSchoolCollectionID().toString()).createUser("ABC").fileContents(fileContents).fileName("SampleUpload.txt").build();
     this.mockMvc.perform(post(BASE_URL_SDC_FILE)
       .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())

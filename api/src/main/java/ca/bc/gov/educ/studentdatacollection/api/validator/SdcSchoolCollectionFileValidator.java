@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.FieldError;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,8 +43,11 @@ public class SdcSchoolCollectionFileValidator {
         apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, fileUpload.getSdcSchoolCollectionID(), "Invalid SDC school collection ID."));
       }else{
         var sdcSchoolCollectionEntity = schoolCollectionEntity.get();
+        var currentDate = LocalDateTime.now();
         if(sdcSchoolCollectionEntity.getUploadDate() != null){
           apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, fileUpload.getSdcSchoolCollectionID(), "Invalid SDC school collection ID, file already uploaded for school's collection."));
+        }else if(!(sdcSchoolCollectionEntity.getCollectionEntity().getOpenDate().isBefore(currentDate) && sdcSchoolCollectionEntity.getCollectionEntity().getCloseDate().isAfter(currentDate))){
+          apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, fileUpload.getSdcSchoolCollectionID(), "Invalid SDC school collection ID, collection period is closed."));
         }
       }
     }catch(Exception e){
