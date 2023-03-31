@@ -38,7 +38,7 @@ public class AsyncConfiguration {
   public Executor controllerTaskExecutor() {
     return new EnhancedQueueExecutor.Builder()
       .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-executor-%d").get())
-      .setCorePoolSize(16).setMaximumPoolSize(16).setKeepAliveTime(Duration.ofSeconds(60)).build();
+      .setCorePoolSize(4).setMaximumPoolSize(8).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
 
   @Bean(name = "publisherExecutor")
