@@ -38,8 +38,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     "AND\n" +
     "stud.sdcSchoolCollectionStudentStatusCode = 'LOADED'\n" +
     "order by stud.createDate asc\n" +
-    "LIMIT 20")
-  List<SdcSchoolCollectionStudentEntity> findTop20LoadedStudentForProcessing();
+    "LIMIT 100")
+  List<SdcSchoolCollectionStudentEntity> findTop100LoadedStudentForProcessing();
 
   List<SdcSchoolCollectionStudentEntity> findTop100BySdcSchoolCollectionStudentStatusCodeOrderByCreateDate(String sdcSchoolCollectionStudentStatusCode);
 }
