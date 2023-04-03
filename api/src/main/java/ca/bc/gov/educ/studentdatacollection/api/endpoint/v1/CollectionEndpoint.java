@@ -35,13 +35,13 @@ public interface CollectionEndpoint {
   @Schema(name = "Collection", implementation = Collection.class)
   List<Collection> getAllCollections();
 
-  @GetMapping("/{collectionID}")
+  @GetMapping("/{schoolID}")
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional(readOnly = true)
   @Tag(name = "Collection Entity", description = "Endpoints for collection entity.")
   @Schema(name = "Collection", implementation = Collection.class)
-  Collection getCollection(@PathVariable("collectionID") UUID collectionID);
+  Collection getCollectionBySchoolId(@PathVariable("schoolID") UUID schoolID);
 
   @PostMapping()
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")
