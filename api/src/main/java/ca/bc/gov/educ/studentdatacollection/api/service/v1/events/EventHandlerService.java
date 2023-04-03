@@ -48,7 +48,7 @@ public class EventHandlerService {
   public void handleReadFromTopicEvent(final Event event) throws JsonProcessingException {
     if (event.getEventOutcome() == EventOutcome.READ_FROM_TOPIC_SUCCESS) {
       final SdcStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(SdcStudentSagaData.class, event.getEventPayload());
-      final var sagaOptional = this.getSagaService().findByNominalRollStudentIDAndSagaName(UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString());
+      final var sagaOptional = this.getSagaService().findBySdcSchoolCollectionStudentIDAndSagaName(UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString());
       if (sagaOptional.isPresent()) { // possible duplicate message.
         log.trace("Execution is not required for this message returning EVENT is :: {}", event);
         return;
