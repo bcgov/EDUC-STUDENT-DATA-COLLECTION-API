@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.collection.v1;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.controller.v1.CollectionController;
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
@@ -98,7 +99,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  void testGetCollectionBySchoolID_ShouldThrowExceptionForPastCollection() throws Exception {
+  void testGetCollectionBySchoolID_ShouldReturnStatusNotFound() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
@@ -115,7 +116,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_COLLECTION + "/" + school.getSchoolId()).with(mockAuthority))
-            .andDo(print()).andExpect(status().is(404));
+            .andDo(print()).andExpect(status().isNotFound());
   }
 
   @Test
