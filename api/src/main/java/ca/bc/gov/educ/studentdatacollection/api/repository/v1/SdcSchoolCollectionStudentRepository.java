@@ -30,16 +30,13 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     "COUNT(SDC_SCHOOL_COLLECTION_STUDENT_ID) > 1", nativeQuery = true)
   Long countForDuplicateStudentPENs(String sdcSchoolID);
 
-  @Query(value = "SELECT stud\n" +
-    "FROM SdcSchoolCollectionStudentEntity stud\n" +
-    "WHERE stud.sdcSchoolCollectionStudentID NOT IN\n" +
-    "    (SELECT saga.sdcSchoolCollectionStudentID \n" +
-    "     FROM SdcSagaEntity saga)\n" +
-    "AND\n" +
-    "stud.sdcSchoolCollectionStudentStatusCode = 'LOADED'\n" +
-    "order by stud.createDate asc\n" +
-    "LIMIT 30")
-  List<SdcSchoolCollectionStudentEntity> findTop30LoadedStudentForProcessing();
+  @Query(value="""
+    SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE stud.sdcSchoolCollectionStudentID 
+    NOT IN (SELECT saga.sdcSchoolCollectionStudentID FROM SdcSagaEntity saga) 
+    AND stud.sdcSchoolCollectionStudentStatusCode = 'LOADED' 
+    order by stud.createDate 
+    LIMIT :numberOfStudentsToProcess""")
+  List<SdcSchoolCollectionStudentEntity> findTopLoadedStudentForProcessing(String numberOfStudentsToProcess);
 
   List<SdcSchoolCollectionStudentEntity> findTop100BySdcSchoolCollectionStudentStatusCodeOrderByCreateDate(String sdcSchoolCollectionStudentStatusCode);
 }

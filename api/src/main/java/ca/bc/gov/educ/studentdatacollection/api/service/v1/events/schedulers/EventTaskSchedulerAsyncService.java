@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -44,6 +45,9 @@ public class EventTaskSchedulerAsyncService {
   private final SdcService sdcService;
   @Setter
   private List<String> statusFilters;
+
+  @Value("${number.students.process.saga}")
+  private String numberOfStudentsToProcess;
 
   public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, final SdcService sdcService) {
     this.sagaRepository = sagaRepository;
@@ -85,7 +89,7 @@ public class EventTaskSchedulerAsyncService {
       log.debug("Saga count is greater than 20, so not processing student records");
       return;
     }
-    final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTop30LoadedStudentForProcessing();
+    final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTopLoadedStudentForProcessing(numberOfStudentsToProcess);
     log.debug("Found :: {}  records in loaded status", sdcSchoolStudentEntities.size());
     if (!sdcSchoolStudentEntities.isEmpty()) {
       this.getSdcService().prepareAndSendSdcStudentsForFurtherProcessing(sdcSchoolStudentEntities);
