@@ -65,7 +65,7 @@ public abstract class BaseStudentDataCollectionAPITest {
 
   public SdcSchoolCollectionStudentEntity createMockSchoolStudentEntity(SdcSchoolCollectionEntity sdcSchoolCollectionEntity){
     SdcSchoolCollectionStudentEntity sdcEntity = new SdcSchoolCollectionStudentEntity();
-    sdcEntity.setSdcSchoolCollectionEntity(sdcSchoolCollectionEntity);
+    sdcEntity.setSdcSchoolCollectionID(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
     sdcEntity.setLocalID("A11111111");
     sdcEntity.setStudentPen("123456789");
     sdcEntity.setLegalFirstName("JIM");
