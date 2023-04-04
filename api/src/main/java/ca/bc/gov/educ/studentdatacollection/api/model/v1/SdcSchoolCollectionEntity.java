@@ -66,7 +66,7 @@ public class SdcSchoolCollectionEntity {
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  @OneToMany(mappedBy = "sdcSchoolCollectionEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolCollectionStudentEntity.class)
+  @OneToMany(mappedBy = "sdcSchoolCollectionID", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolCollectionStudentEntity.class)
   Set<SdcSchoolCollectionStudentEntity> sdcSchoolStudentEntities;
 
   public Set<SdcSchoolCollectionStudentEntity> getSDCSchoolStudentEntities() {

@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -12,9 +11,7 @@ import java.util.UUID;
 
 @Repository
 public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcSchoolCollectionStudentEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionStudentEntity> {
-  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollectionEntity(SdcSchoolCollectionEntity sdcSchoolBatchEntity);
-
-  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollectionID(String sdcSchoolCollectionID);
+  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
   long countBySdcSchoolCollectionStudentStatusCode(String sdcSchoolCollectionStudentStatusCode);
 
