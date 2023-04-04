@@ -49,7 +49,7 @@ public abstract class SdcBatchFileDecorator implements SdcBatchFileMapper {
   @Override
   public SdcSchoolCollectionStudentEntity toSdcSchoolStudentEntity(final SdcStudentDetails studentDetails, final SdcSchoolCollectionEntity sdcSchoolBatchEntity) {
     final var entity = this.delegate.toSdcSchoolStudentEntity(studentDetails, sdcSchoolBatchEntity);
-    entity.setSdcSchoolCollectionEntity(sdcSchoolBatchEntity); // add thePK/FK relationship
+    entity.setSdcSchoolCollectionID(sdcSchoolBatchEntity.getSdcSchoolCollectionID()); // add thePK/FK relationship
     entity.setSdcSchoolCollectionStudentStatusCode(SdcBatchStatusCodes.LOADED.getCode());
 
     entity.setPostalCode(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getPostalCode()));

@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.BaseOrchestrator;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
@@ -43,12 +45,15 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
   private final RestUtils restUtils;
   private final SdcSchoolCollectionService sdcSchoolCollectionService;
 
-  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final SdcService sdcService, final RestUtils restUtils, SdcSchoolCollectionService sdcSchoolCollectionService) {
+  private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+
+  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final SdcService sdcService, final RestUtils restUtils, SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository) {
     super(sagaService, messagePublisher, SdcStudentSagaData.class, SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString(), TopicsEnum.STUDENT_DATA_COLLECTION_PROCESS_STUDENT_SAGA_TOPIC.toString());
     this.rulesProcessor = rulesProcessor;
     this.sdcService = sdcService;
     this.restUtils = restUtils;
     this.sdcSchoolCollectionService = sdcSchoolCollectionService;
+    this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
   }
 
   @Override
@@ -116,7 +121,8 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
 
   protected void postToPenMatchAPI(final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
     val sdcSchoolStudent = sdcStudentSagaData.getSdcSchoolCollectionStudent();
-    var school = this.restUtils.getSchoolBySchoolID(sdcStudentSagaData.getSchoolID());
+    var sdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolStudent.getSdcSchoolCollectionID()));
+    var school = this.restUtils.getSchoolBySchoolID(sdcSchoolCollection.get().getSchoolID().toString());
     if(school.isPresent()) {
       final String mincode = school.get().getMincode();
       val penMatchRequest = PenMatchSagaMapper.mapper.toPenMatchStudent(sdcSchoolStudent, mincode);
@@ -130,7 +136,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
       this.postMessageToTopic(PEN_MATCH_API_TOPIC.toString(), nextEvent);
       log.info("message sent to PEN_MATCH_API_TOPIC for PROCESS_PEN_MATCH Event. :: {}", saga.getSagaId());
     }else{
-      throw new StudentDataCollectionAPIRuntimeException("School was not found for schoolID " + sdcStudentSagaData.getSchoolID() + " :: this should not have happened");
+      throw new StudentDataCollectionAPIRuntimeException("School was not found for schoolID " + sdcSchoolCollection.get().getSchoolID() + " :: this should not have happened");
     }
   }
 
