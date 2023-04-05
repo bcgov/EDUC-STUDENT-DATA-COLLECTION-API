@@ -44,6 +44,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class RestUtils {
   public static final String SEARCH_CRITERIA_LIST = "searchCriteriaList";
   public static final String SCHOOL_CATEGORY_CODE = "schoolCategoryCode";
+  public static final String SCHOOL_REPORTING_REQUIREMENT_CODE = "schoolReportingRequirementCode";
   public static final String FACILITY_TYPE_CODE = "facilityTypeCode";
   public static final String OPEN_DATE = "openedDate";
   public static final String CLOSE_DATE = "closedDate";
@@ -139,16 +140,19 @@ public class RestUtils {
 
         final SearchCriteria facilityTypeCodeCriteria = this.getCriteria(FACILITY_TYPE_CODE, FilterOperation.EQUAL, criteria.getFacilityTypeCode(), ValueType.STRING, Condition.AND);
         final SearchCriteria schoolCategoryCodeCriteria = this.getCriteria(SCHOOL_CATEGORY_CODE, FilterOperation.EQUAL, criteria.getSchoolCategoryCode(), ValueType.STRING, Condition.AND);
+        final SearchCriteria schoolReportingRequirementCodeCriteria = this.getCriteria(SCHOOL_REPORTING_REQUIREMENT_CODE, FilterOperation.EQUAL, criteria.getSchoolCategoryCode(), ValueType.STRING, Condition.AND);
 
         final List<SearchCriteria> openSchoolCriteriaList = new LinkedList<>(Collections.singletonList(openSchoolOpenDateCriteria));
         openSchoolCriteriaList.add(openSchoolCloseDateCriteria);
         openSchoolCriteriaList.add(facilityTypeCodeCriteria);
         openSchoolCriteriaList.add(schoolCategoryCodeCriteria);
+        openSchoolCriteriaList.add(schoolReportingRequirementCodeCriteria);
 
         final List<SearchCriteria> closingSchoolCriteriaList = new LinkedList<>(Collections.singletonList(closingSchoolOpenDateCriteria));
         closingSchoolCriteriaList.add(closingSchoolCloseDateCriteria);
         closingSchoolCriteriaList.add(facilityTypeCodeCriteria);
         closingSchoolCriteriaList.add(schoolCategoryCodeCriteria);
+        closingSchoolCriteriaList.add(schoolReportingRequirementCodeCriteria);
 
         searches.add(Search.builder().searchCriteriaList(openSchoolCriteriaList).build());
         searches.add(Search.builder().searchCriteriaList(closingSchoolCriteriaList).build());
