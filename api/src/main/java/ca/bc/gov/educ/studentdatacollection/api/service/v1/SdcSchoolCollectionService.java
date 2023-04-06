@@ -48,12 +48,12 @@ public class SdcSchoolCollectionService {
     return entity;
   }
 
-  public SdcSchoolCollectionEntity getCollectionBySchoolId(UUID schoolID) {
+  public SdcSchoolCollectionEntity getSdcSchoolCollectionBySchoolID(UUID schoolID) {
     Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity =  sdcSchoolCollectionRepository.findCollectionBySchoolId(schoolID);
     if(sdcSchoolCollectionEntity.isPresent()) {
       return sdcSchoolCollectionEntity.get();
     } else {
-      throw new EntityNotFoundException(CollectionEntity.class, "Collection for school Id", schoolID.toString());
+      throw new EntityNotFoundException(SdcSchoolCollectionEntity.class, "Collection for school Id", schoolID.toString());
     }
   }
 
@@ -62,7 +62,7 @@ public class SdcSchoolCollectionService {
     if(sdcSchoolCollectionEntity.isPresent()) {
       return sdcSchoolCollectionEntity.get();
     } else {
-      throw new EntityNotFoundException(CollectionEntity.class, "SdcSchoolCollection for sdcSchoolCollectionID", sdcSchoolCollectionID.toString());
+      throw new EntityNotFoundException(SdcSchoolCollectionEntity.class, "SdcSchoolCollection for sdcSchoolCollectionID", sdcSchoolCollectionID.toString());
     }
   }
 }

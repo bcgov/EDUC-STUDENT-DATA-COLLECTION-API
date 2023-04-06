@@ -28,6 +28,6 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
 
     @Override
     public SdcSchoolCollection getSchoolCollectionBySchoolId(UUID schoolID) {
-        return mapper.toSdcSchoolBatch(sdcSchoolCollectionService.getCollectionBySchoolId(schoolID));
+        return mapper.toSdcSchoolBatch(sdcSchoolCollectionService.getSdcSchoolCollectionBySchoolID(schoolID));
     }
 }
