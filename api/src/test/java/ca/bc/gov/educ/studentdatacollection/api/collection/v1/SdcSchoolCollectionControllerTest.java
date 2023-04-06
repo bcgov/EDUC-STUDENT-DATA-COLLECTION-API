@@ -2,12 +2,10 @@ package ca.bc.gov.educ.studentdatacollection.api.collection.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
-import ca.bc.gov.educ.studentdatacollection.api.controller.v1.CollectionController;
 import ca.bc.gov.educ.studentdatacollection.api.controller.v1.SdcSchoolCollectionController;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,8 +41,8 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     }
 
     @Test
-    void testGetCollectionBySchoolIDAndCollectionID_ShouldReturnSchoolCollection() throws Exception {
-        final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_SCHOOL_COLLECTION";
+    void testGetCollectionBySchoolID_ShouldReturnCollection() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
         CollectionEntity collection = createMockCollectionEntity();
@@ -58,15 +56,36 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         sdcSchoolCollectionRepository.save(sdcMockSchool);
 
         this.mockMvc.perform(
-                        get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + collection.getCollectionID() + "/school/" + school.getSchoolId()).with(mockAuthority))
+                        get(URL.BASE_URL_SCHOOL_COLLECTION + "/search/" + school.getSchoolId()).with(mockAuthority))
                 .andDo(print()).andExpect(status().isOk()).andExpect(
                         MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionID",
                                 equalTo(sdcMockSchool.getSdcSchoolCollectionID().toString())));
     }
 
     @Test
-    void testGetCollectionBySchoolIDAndCollectionID_ShouldReturnSchoolCollectionStatus() throws Exception {
-        final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_SCHOOL_COLLECTION";
+    void testGetCollectionBySchoolID_ShouldReturnStatusNotFound() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setOpenDate(LocalDateTime.now().minusDays(5));
+        collection.setCloseDate(LocalDateTime.now().minusDays(2));
+        collectionRepository.save(collection);
+
+        School school = createMockSchool();
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        this.mockMvc.perform(
+                        get(URL.BASE_URL_SCHOOL_COLLECTION + "/search/" + school.getSchoolId()).with(mockAuthority))
+                .andDo(print()).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testGetCollectionBySchoolID_ShouldReturnSchoolCollectionStatus() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
         CollectionEntity collection = createMockCollectionEntity();
@@ -80,15 +99,15 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         sdcSchoolCollectionRepository.save(sdcMockSchool);
 
         this.mockMvc.perform(
-                        get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + collection.getCollectionID() + "/school/" + school.getSchoolId()).with(mockAuthority))
+                        get(URL.BASE_URL_SCHOOL_COLLECTION + "/search/" + school.getSchoolId()).with(mockAuthority))
                 .andDo(print()).andExpect(status().isOk()).andExpect(
                         MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionStatusCode",
                                 equalTo("NEW")));
     }
 
     @Test
-    void testGetCollectionBySchoolIDAndCollectionID_ShouldReturnStatusNotFound() throws Exception {
-        final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_SCHOOL_COLLECTION";
+    void testGetCollectionBySchoolID_ShouldReturnCollectionTypeCode() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
         CollectionEntity collection = createMockCollectionEntity();
@@ -96,13 +115,36 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         collectionRepository.save(collection);
 
         School school = createMockSchool();
-        SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, null);
+        SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
         sdcMockSchool.setUploadDate(null);
         sdcMockSchool.setUploadFileName(null);
         sdcSchoolCollectionRepository.save(sdcMockSchool);
 
         this.mockMvc.perform(
-                        get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + collection.getCollectionID() + "/school/" + school.getSchoolId()).with(mockAuthority))
-                .andDo(print()).andExpect(status().isNotFound());
+                        get(URL.BASE_URL_SCHOOL_COLLECTION + "/search/" + school.getSchoolId()).with(mockAuthority))
+                .andDo(print()).andExpect(status().isOk()).andExpect(
+                        MockMvcResultMatchers.jsonPath("$.collectionTypeCode",
+                                equalTo("SEPTEMBER")));
     }
+
+    @Test
+    void testGetCollectionBySchoolID_WithWrongScope_ShouldReturnStatusForbidden() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_SDC_COLLECTION";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCloseDate(LocalDateTime.now().plusDays(2));
+        collectionRepository.save(collection);
+
+        School school = createMockSchool();
+        SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        this.mockMvc.perform(
+                        get(URL.BASE_URL_SCHOOL_COLLECTION + "/search/" + school.getSchoolId()).with(mockAuthority))
+                .andDo(print()).andExpect(status().isForbidden());
+    }
+
 }

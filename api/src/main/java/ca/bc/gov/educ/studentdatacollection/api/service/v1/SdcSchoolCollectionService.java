@@ -48,12 +48,21 @@ public class SdcSchoolCollectionService {
     return entity;
   }
 
-  public SdcSchoolCollectionEntity getSdcSchoolCollection(UUID collectionID, UUID schoolID) {
-    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity =  sdcSchoolCollectionRepository.findBySchoolIDAndCollectionEntityCollectionID(schoolID, collectionID);
+  public SdcSchoolCollectionEntity getCollectionBySchoolId(UUID schoolID) {
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity =  sdcSchoolCollectionRepository.findCollectionBySchoolId(schoolID);
     if(sdcSchoolCollectionEntity.isPresent()) {
       return sdcSchoolCollectionEntity.get();
     } else {
-      throw new EntityNotFoundException(CollectionEntity.class, "SdcSchoolCollection for school Id", schoolID.toString());
+      throw new EntityNotFoundException(CollectionEntity.class, "Collection for school Id", schoolID.toString());
     }
   }
+
+//  public SdcSchoolCollectionEntity getSdcSchoolCollection(UUID collectionID, UUID schoolID) {
+//    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity =  sdcSchoolCollectionRepository.findBySchoolIDAndCollectionEntityCollectionID(schoolID, collectionID);
+//    if(sdcSchoolCollectionEntity.isPresent()) {
+//      return sdcSchoolCollectionEntity.get();
+//    } else {
+//      throw new EntityNotFoundException(CollectionEntity.class, "SdcSchoolCollection for school Id", schoolID.toString());
+//    }
+//  }
 }

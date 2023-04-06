@@ -36,6 +36,13 @@ public class BaseSdcSchoolCollection extends BaseRequest {
   @NotNull(message = "sdcSchoolCollectionStatusCode cannot be null")
   private String sdcSchoolCollectionStatusCode;
 
+  @Size(max = 10)
+  private String collectionTypeCode;
+
+  private String collectionOpenDate;
+
+  private String collectionCloseDate;
+
   private List<SdcSchoolCollectionStudent> students;
 
 }
