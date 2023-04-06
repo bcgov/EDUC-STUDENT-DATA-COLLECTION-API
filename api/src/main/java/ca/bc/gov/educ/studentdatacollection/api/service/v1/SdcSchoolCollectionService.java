@@ -1,5 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -8,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class SdcSchoolCollectionService {
@@ -41,5 +46,14 @@ public class SdcSchoolCollectionService {
     var entity = this.sdcSchoolCollectionStudentRepository.save(curSdcSchoolCollectionStudentEntity);
     this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, curSdcSchoolCollectionStudentEntity.getUpdateUser());
     return entity;
+  }
+
+  public SdcSchoolCollectionEntity getSdcSchoolCollection(UUID collectionID, UUID schoolID) {
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity =  sdcSchoolCollectionRepository.findBySchoolIDAndCollectionEntityCollectionID(schoolID, collectionID);
+    if(sdcSchoolCollectionEntity.isPresent()) {
+      return sdcSchoolCollectionEntity.get();
+    } else {
+      throw new EntityNotFoundException(CollectionEntity.class, "SdcSchoolCollection for school Id", schoolID.toString());
+    }
   }
 }

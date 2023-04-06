@@ -16,4 +16,6 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             AND SSC.createDate >= C.openDate AND SSC.createDate <= C.closeDate""")
     Optional<SdcSchoolCollectionEntity> findCollectionBySchoolId(UUID schoolID);
 
+    Optional<SdcSchoolCollectionEntity> findBySchoolIDAndCollectionEntityCollectionID(UUID schoolID, UUID collectionID);
+
 }
