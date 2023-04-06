@@ -85,4 +85,24 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
                         MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionStatusCode",
                                 equalTo("NEW")));
     }
+
+    @Test
+    void testGetCollectionBySchoolIDAndCollectionID_ShouldReturnStatusNotFound() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_SCHOOL_COLLECTION";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCloseDate(LocalDateTime.now().plusDays(2));
+        collectionRepository.save(collection);
+
+        School school = createMockSchool();
+        SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, null);
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        this.mockMvc.perform(
+                        get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + collection.getCollectionID() + "/school/" + school.getSchoolId()).with(mockAuthority))
+                .andDo(print()).andExpect(status().isNotFound());
+    }
 }
