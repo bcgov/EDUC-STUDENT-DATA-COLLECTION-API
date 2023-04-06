@@ -15,6 +15,9 @@ public interface SdcSchoolCollectionMapper {
   SdcSchoolCollectionMapper mapper = Mappers.getMapper(SdcSchoolCollectionMapper.class);
 
   @Mapping(target = "collectionID", source = "sdcSchoolCollectionEntity.collectionEntity.collectionID")
+  @Mapping(target = "collectionTypeCode", source = "sdcSchoolCollectionEntity.collectionEntity.collectionTypeCode")
+  @Mapping(target = "collectionOpenDate", source = "sdcSchoolCollectionEntity.collectionEntity.openDate")
+  @Mapping(target = "collectionCloseDate", source = "sdcSchoolCollectionEntity.collectionEntity.closeDate")
   @Mapping(target = "students", ignore = true)
   SdcSchoolCollection toSdcSchoolBatch(SdcSchoolCollectionEntity sdcSchoolCollectionEntity);
 

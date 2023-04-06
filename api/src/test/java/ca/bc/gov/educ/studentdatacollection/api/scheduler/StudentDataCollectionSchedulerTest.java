@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.scheduler;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.controller.v1.CollectionController;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeCriteriaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
@@ -26,8 +25,6 @@ class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITes
 
   @Autowired
   private RestUtils restUtils;
-  @Autowired
-  CollectionController controller;
   @Autowired
   CollectionRepository collectionRepository;
   @Autowired
