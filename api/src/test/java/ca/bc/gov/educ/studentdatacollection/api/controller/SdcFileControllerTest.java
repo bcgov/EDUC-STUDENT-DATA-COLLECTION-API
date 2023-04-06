@@ -24,7 +24,7 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL.BASE_URL_SDC_FILE;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL.BASE_URL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -83,8 +83,8 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     assertThat(fileContents).isNotEmpty();
-    val body = SdcFileUpload.builder().sdcSchoolCollectionID(sdcSchoolCollection.getSdcSchoolCollectionID().toString()).fileContents(fileContents).createUser("ABC").fileName("SampleUpload.txt").build();
-    this.mockMvc.perform(post(BASE_URL_SDC_FILE)
+    val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.txt").build();
+    this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString())
       .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
@@ -107,8 +107,8 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     assertThat(fileContents).isNotEmpty();
-    val body = SdcFileUpload.builder().sdcSchoolCollectionID(sdcSchoolCollection.getSdcSchoolCollectionID().toString()).fileContents(fileContents).fileName("SampleUpload.txt").build();
-    this.mockMvc.perform(post(BASE_URL_SDC_FILE)
+    val body = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.txt").build();
+    this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString())
       .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
@@ -129,8 +129,8 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     assertThat(fileContents).isNotEmpty();
-    val body = SdcFileUpload.builder().sdcSchoolCollectionID(sdcSchoolCollection.getSdcSchoolCollectionID().toString()).createUser("ABC").fileContents(fileContents).fileName("SampleUpload.txt").build();
-    this.mockMvc.perform(post(BASE_URL_SDC_FILE)
+    val body = SdcFileUpload.builder().createUser("ABC").fileContents(fileContents).fileName("SampleUpload.txt").build();
+    this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString())
       .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
