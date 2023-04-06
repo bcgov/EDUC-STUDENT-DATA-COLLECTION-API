@@ -28,9 +28,9 @@ public class SdcFileController implements SdcFileEndpoint {
   }
 
   @Override
-  public ResponseEntity<SdcSchoolCollection> processSdcBatchFile(SdcFileUpload fileUpload, String correlationID) {
-    ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionFileValidator.validatePayload(fileUpload));
-    var sdcSchoolCollectionEntity = sdcFileService.runFileLoad(fileUpload);
+  public ResponseEntity<SdcSchoolCollection> processSdcBatchFile(SdcFileUpload fileUpload, String sdcSchoolCollectionID, String correlationID) {
+    ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionFileValidator.validatePayload(sdcSchoolCollectionID));
+    var sdcSchoolCollectionEntity = sdcFileService.runFileLoad(fileUpload, sdcSchoolCollectionID);
     return ResponseEntity.ok(SdcSchoolCollectionMapper.mapper.toSdcSchoolBatch(sdcSchoolCollectionEntity));
   }
 
@@ -39,8 +39,5 @@ public class SdcFileController implements SdcFileEndpoint {
     return null;
   }
 
-  @Override
-  public ResponseEntity<Void> deleteAll(String schoolID) {
-    return null;
-  }
+
 }

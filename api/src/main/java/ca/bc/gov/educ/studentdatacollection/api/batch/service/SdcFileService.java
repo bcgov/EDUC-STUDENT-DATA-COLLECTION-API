@@ -30,8 +30,8 @@ public class SdcFileService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload){
-    log.debug("Uploaded file contents for school collection ID: {}", sdcFileUpload.getSdcSchoolCollectionID());
-    return this.getSdcBatchProcessor().processSdcBatchFile(sdcFileUpload);
+  public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload, String sdcSchoolCollectionID){
+    log.debug("Uploaded file contents for school collection ID: {}", sdcSchoolCollectionID);
+    return this.getSdcBatchProcessor().processSdcBatchFile(sdcFileUpload, sdcSchoolCollectionID);
   }
 }

@@ -101,10 +101,10 @@ public class SdcBatchFileProcessor {
    *
    */
   @Transactional(propagation = Propagation.MANDATORY)
-  public SdcSchoolCollectionEntity processSdcBatchFile(@NonNull final SdcFileUpload fileUpload) {
+  public SdcSchoolCollectionEntity processSdcBatchFile(@NonNull final SdcFileUpload fileUpload, String sdcSchoolCollectionID) {
     val stopwatch = Stopwatch.createStarted();
     final var guid = UUID.randomUUID().toString(); // this guid will be used throughout the logs for easy tracking.
-    log.info("Started processing SDC file with school collection ID :: {} and correlation guid :: {}", fileUpload.getSdcSchoolCollectionID(), guid);
+    log.info("Started processing SDC file with school collection ID :: {} and correlation guid :: {}", sdcSchoolCollectionID, guid);
     val batchFile = new SdcBatchFile();
     Optional<Reader> batchFileReaderOptional = Optional.empty();
     try (final Reader mapperReader = new FileReader(Objects.requireNonNull(this.getClass().getClassLoader().getResource("mapper.xml")).getFile())) {
@@ -114,11 +114,11 @@ public class SdcBatchFileProcessor {
       this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
-      return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload);
+      return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, sdcSchoolCollectionID);
     } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
       log.error("File could not be processed exception :: {}", fileUnProcessableException);
       ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid data.").status(BAD_REQUEST).build();
-      var validationError = ValidationUtil.createFieldError("sdcFileUpload", fileUpload.getSdcSchoolCollectionID(), fileUnProcessableException.getFileError() + " :: " + fileUnProcessableException.getReason());
+      var validationError = ValidationUtil.createFieldError("sdcFileUpload", sdcSchoolCollectionID, fileUnProcessableException.getFileError() + " :: " + fileUnProcessableException.getReason());
       List<FieldError> fieldErrorList = new ArrayList<>();
       fieldErrorList.add(validationError);
       error.addValidationErrors(fieldErrorList);
@@ -126,7 +126,7 @@ public class SdcBatchFileProcessor {
     } catch (final Exception e) { // need to check what to do in case of general exception.
       log.error("Exception while processing the file with guid :: {} :: Exception :: {}", guid, e);
       ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid data.").status(BAD_REQUEST).build();
-      var validationError = ValidationUtil.createFieldError("sdcFileUpload", fileUpload.getSdcSchoolCollectionID(), e.getMessage());
+      var validationError = ValidationUtil.createFieldError("sdcFileUpload", sdcSchoolCollectionID, e.getMessage());
       List<FieldError> fieldErrorList = new ArrayList<>();
       fieldErrorList.add(validationError);
       error.addValidationErrors(fieldErrorList);
@@ -162,20 +162,20 @@ public class SdcBatchFileProcessor {
    * @param guid             the guid
    * @param batchFile        the batch file
    */
-  private SdcSchoolCollectionEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final SdcBatchFile batchFile, @NonNull final SdcFileUpload fileUpload) {
+  private SdcSchoolCollectionEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final SdcBatchFile batchFile, @NonNull final SdcFileUpload fileUpload, @NonNull final String sdcSchoolCollectionID) {
     log.info("Going to persist data for batch :: {}", guid);
-    final SdcSchoolCollectionEntity entity = mapper.toSdcBatchEntityLoaded(batchFile, fileUpload); // batch file can be processed further and persisted.
+    final SdcSchoolCollectionEntity entity = mapper.toSdcBatchEntityLoaded(batchFile, fileUpload, sdcSchoolCollectionID); // batch file can be processed further and persisted.
     for (final var student : batchFile.getStudentDetails()) { // set the object so that PK/FK relationship will be auto established by hibernate.
       final var sdcBatchStudentEntity = mapper.toSdcSchoolStudentEntity(student, entity);
       entity.getSDCSchoolStudentEntities().add(sdcBatchStudentEntity);
     }
-    return markInitialLoadComplete(entity, fileUpload);
+    return markInitialLoadComplete(entity, sdcSchoolCollectionID);
   }
 
   @Transactional(propagation = Propagation.MANDATORY)
   @Retryable(maxAttempts = 10, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public SdcSchoolCollectionEntity markInitialLoadComplete(@NonNull final SdcSchoolCollectionEntity sdcSchoolCollectionEntity, @NonNull final SdcFileUpload fileUpload) {
-    var schoolCollection = sdcSchoolCollectionRepository.findById(UUID.fromString(fileUpload.getSdcSchoolCollectionID()));
+  public SdcSchoolCollectionEntity markInitialLoadComplete(@NonNull final SdcSchoolCollectionEntity sdcSchoolCollectionEntity, @NonNull final String sdcSchoolCollectionID) {
+    var schoolCollection = sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
     if(schoolCollection.isPresent()) {
       var coll = schoolCollection.get();
       sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcBatchStatusCodes.LOADED.getCode());
@@ -183,7 +183,7 @@ public class SdcBatchFileProcessor {
       sdcSchoolCollectionEntity.setCollectionEntity(coll.getCollectionEntity());
       return sdcSchoolCollectionService.saveSdcSchoolCollection(sdcSchoolCollectionEntity);
     }else{
-      throw new StudentDataCollectionAPIRuntimeException("SDC School Collection ID provided :: " + fileUpload.getSdcSchoolCollectionID() + " :: is not valid");
+      throw new StudentDataCollectionAPIRuntimeException("SDC School Collection ID provided :: " + sdcSchoolCollectionID + " :: is not valid");
     }
   }
 
