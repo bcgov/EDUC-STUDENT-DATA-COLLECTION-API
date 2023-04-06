@@ -41,6 +41,46 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     }
 
     @Test
+    void testGetCollectionByID_ShouldReturnCollection() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCloseDate(LocalDateTime.now().plusDays(2));
+        collectionRepository.save(collection);
+
+        School school = createMockSchool();
+        SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        this.mockMvc.perform(
+                        get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcMockSchool.getSdcSchoolCollectionID()).with(mockAuthority))
+                .andDo(print()).andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetCollectionByID_WithWrongID_ShouldReturnStatusNotFound() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCloseDate(LocalDateTime.now().plusDays(2));
+        collectionRepository.save(collection);
+
+        School school = createMockSchool();
+        SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        this.mockMvc.perform(
+                        get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + UUID.randomUUID()).with(mockAuthority))
+                .andDo(print()).andExpect(status().isNotFound());
+    }
+
+    @Test
     void testGetCollectionBySchoolID_ShouldReturnCollection() throws Exception {
         final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);

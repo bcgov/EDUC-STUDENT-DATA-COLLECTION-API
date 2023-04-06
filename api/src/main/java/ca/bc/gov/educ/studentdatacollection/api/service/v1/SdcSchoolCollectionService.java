@@ -57,12 +57,12 @@ public class SdcSchoolCollectionService {
     }
   }
 
-//  public SdcSchoolCollectionEntity getSdcSchoolCollection(UUID collectionID, UUID schoolID) {
-//    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity =  sdcSchoolCollectionRepository.findBySchoolIDAndCollectionEntityCollectionID(schoolID, collectionID);
-//    if(sdcSchoolCollectionEntity.isPresent()) {
-//      return sdcSchoolCollectionEntity.get();
-//    } else {
-//      throw new EntityNotFoundException(CollectionEntity.class, "SdcSchoolCollection for school Id", schoolID.toString());
-//    }
-//  }
+  public SdcSchoolCollectionEntity getSdcSchoolCollection(UUID sdcSchoolCollectionID) {
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity =  sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID);
+    if(sdcSchoolCollectionEntity.isPresent()) {
+      return sdcSchoolCollectionEntity.get();
+    } else {
+      throw new EntityNotFoundException(CollectionEntity.class, "SdcSchoolCollection for sdcSchoolCollectionID", sdcSchoolCollectionID.toString());
+    }
+  }
 }
