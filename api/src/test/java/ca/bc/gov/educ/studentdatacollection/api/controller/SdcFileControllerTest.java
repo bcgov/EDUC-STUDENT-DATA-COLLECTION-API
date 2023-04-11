@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.controller;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchStatusCodes;
+import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
@@ -11,6 +12,8 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -53,7 +56,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   @Autowired
   private MockMvc mockMvc;
 
-  protected final static ObjectMapper objectMapper = new ObjectMapper();
+  protected final static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
 
   public static String asJsonString(final Object obj) {
@@ -155,6 +158,30 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
       .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testProcessSdcFile_givenInvalidPayloadFile_ShouldReturnStatusBadRequest() throws Exception {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    sdcMockSchool.setUploadDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student-bad.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    assertThat(fileContents).isNotEmpty();
+    val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.txt").build();
+    var resultActions = this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
+      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .header("correlationID", UUID.randomUUID().toString())
+      .content(JsonUtil.getJsonStringFromObject(body))
+      .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
+
+    val error = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), new TypeReference<>() {
+    });
+    assertThat(error).isNotNull();
   }
 
   @Test
