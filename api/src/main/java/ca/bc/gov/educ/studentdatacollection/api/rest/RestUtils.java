@@ -140,7 +140,7 @@ public class RestUtils {
 
         final SearchCriteria facilityTypeCodeCriteria = this.getCriteria(FACILITY_TYPE_CODE, FilterOperation.EQUAL, criteria.getFacilityTypeCode(), ValueType.STRING, Condition.AND);
         final SearchCriteria schoolCategoryCodeCriteria = this.getCriteria(SCHOOL_CATEGORY_CODE, FilterOperation.EQUAL, criteria.getSchoolCategoryCode(), ValueType.STRING, Condition.AND);
-        final SearchCriteria schoolReportingRequirementCodeCriteria = this.getCriteria(SCHOOL_REPORTING_REQUIREMENT_CODE, FilterOperation.EQUAL, criteria.getSchoolCategoryCode(), ValueType.STRING, Condition.AND);
+        final SearchCriteria schoolReportingRequirementCodeCriteria = this.getCriteria(SCHOOL_REPORTING_REQUIREMENT_CODE, FilterOperation.EQUAL, criteria.getReportingRequirementCode(), ValueType.STRING, Condition.AND);
 
         final List<SearchCriteria> openSchoolCriteriaList = new LinkedList<>(Collections.singletonList(openSchoolOpenDateCriteria));
         openSchoolCriteriaList.add(openSchoolCloseDateCriteria);
