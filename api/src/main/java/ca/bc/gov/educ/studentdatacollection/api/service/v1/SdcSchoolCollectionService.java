@@ -1,10 +1,13 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -63,5 +66,20 @@ public class SdcSchoolCollectionService {
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionEntity.class, "SdcSchoolCollection for sdcSchoolCollectionID", sdcSchoolCollectionID.toString());
     }
+  }
+
+  public SdcFileSummary isSdcSchoolCollectionBeingProcessed(UUID sdcSchoolCollectionID) {
+    var sdcSchoolCollectionEntity =  getSdcSchoolCollection(sdcSchoolCollectionID);
+    SdcFileSummary summary = new SdcFileSummary();
+    if(StringUtils.isNotBlank(sdcSchoolCollectionEntity.getUploadFileName())) {
+      summary.setUploadDate(String.valueOf(sdcSchoolCollectionEntity.getUploadDate()));
+      summary.setFileName(sdcSchoolCollectionEntity.getUploadFileName());
+      var totalCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollectionID(sdcSchoolCollectionID);
+      var loadedCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.getCode());
+      var totalProcessed = totalCount - loadedCount;
+      summary.setTotalProcessed(Long.toString(totalProcessed));
+      summary.setTotalStudents(Long.toString(totalCount));
+    }
+    return summary;
   }
 }

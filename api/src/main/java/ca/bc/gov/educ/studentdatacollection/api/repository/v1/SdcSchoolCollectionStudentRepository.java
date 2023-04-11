@@ -15,6 +15,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   long countBySdcSchoolCollectionStudentStatusCode(String sdcSchoolCollectionStudentStatusCode);
 
+  long countBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
+
   @Query(value = "SELECT " +
     "COUNT(SDC_SCHOOL_COLLECTION_STUDENT_ID) " +
     "FROM " +

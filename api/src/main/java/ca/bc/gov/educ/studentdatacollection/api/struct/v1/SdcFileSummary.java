@@ -5,14 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * The type Nominal roll student count.
- */
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class SdcStudentCount {
-  String status;
-  long count;
+public class SdcFileSummary {
+  private SdcFileSummaryCounts counts;
+  private String fileName;
+  private String uploadDate;
+  private String totalStudents;
+  private String totalProcessed;
 }
