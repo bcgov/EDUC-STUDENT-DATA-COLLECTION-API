@@ -4,6 +4,9 @@ import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcSchoolCollectionE
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
+import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
+import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,8 +20,11 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
 
     private final SdcSchoolCollectionService sdcSchoolCollectionService;
 
-    public SdcSchoolCollectionController(SdcSchoolCollectionService sdcSchoolCollectionService) {
+    private final SdcSchoolCollectionValidator sdcSchoolCollectionValidator;
+
+    public SdcSchoolCollectionController(SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionValidator sdcSchoolCollectionValidator) {
         this.sdcSchoolCollectionService = sdcSchoolCollectionService;
+      this.sdcSchoolCollectionValidator = sdcSchoolCollectionValidator;
     }
 
     @Override
@@ -26,7 +32,14 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
         return mapper.toSdcSchoolBatch(sdcSchoolCollectionService.getSdcSchoolCollection(sdcSchoolCollectionID));
     }
 
-    @Override
+  @Override
+  public SdcSchoolCollection updateSchoolCollection(SdcSchoolCollection sdcSchoolCollection, UUID sdcSchoolCollectionID) {
+    ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionValidator.validatePayload(sdcSchoolCollection));
+    RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollection);
+    return mapper.toSdcSchoolBatch(sdcSchoolCollectionService.updateSdcSchoolCollection(mapper.toSdcSchoolBatchEntity(sdcSchoolCollection)));
+  }
+
+  @Override
     public SdcSchoolCollection getSchoolCollectionBySchoolId(UUID schoolID) {
         return mapper.toSdcSchoolBatch(sdcSchoolCollectionService.getSdcSchoolCollectionBySchoolID(schoolID));
     }

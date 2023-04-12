@@ -3,7 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.mappers;
 
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcStudentDetails;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchStatusCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
@@ -51,6 +51,6 @@ public interface SdcBatchFileMapper {
   @Mapping(target = "updateDate", expression = "java(java.time.LocalDateTime.now() )")
   @Mapping(target = "createUser", constant = STUDENT_DATA_COLLECTION_API)
   @Mapping(target = "createDate", expression = "java(java.time.LocalDateTime.now() )")
-  SdcSchoolCollectionEntity toSdcSchoolBatchEntityForBusinessException(String reason, SdcBatchStatusCodes penRequestBatchStatusCode, SdcBatchFile batchFile, boolean persistStudentRecords);
+  SdcSchoolCollectionEntity toSdcSchoolBatchEntityForBusinessException(String reason, SdcSchoolCollectionStatus penRequestBatchStatusCode, SdcBatchFile batchFile, boolean persistStudentRecords);
 
 }
