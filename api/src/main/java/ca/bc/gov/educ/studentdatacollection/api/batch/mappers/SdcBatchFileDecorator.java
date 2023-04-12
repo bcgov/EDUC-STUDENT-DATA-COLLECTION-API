@@ -2,7 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.mappers;
 
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcStudentDetails;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchStatusCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
@@ -26,17 +26,16 @@ public abstract class SdcBatchFileDecorator implements SdcBatchFileMapper {
   @Override
   public SdcSchoolCollectionEntity toSdcBatchEntityLoaded(final SdcBatchFile file, final SdcFileUpload upload, final String sdcSchoolCollectionID) {
     final var entity = this.delegate.toSdcBatchEntityLoaded(file, upload, sdcSchoolCollectionID);
-    entity.setSdcSchoolCollectionStatusCode(SdcBatchStatusCodes.LOADED.getCode());
+    entity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.LOADED.getCode());
     entity.setSdcSchoolCollectionID(UUID.fromString(sdcSchoolCollectionID));
     entity.setUploadFileName(upload.getFileName());
     return entity;
   }
 
   @Override
-  public SdcSchoolCollectionEntity toSdcSchoolBatchEntityForBusinessException(final String reason, final SdcBatchStatusCodes sdcBatchStatusCodes, final SdcBatchFile batchFile, final boolean persistStudentRecords) {
+  public SdcSchoolCollectionEntity toSdcSchoolBatchEntityForBusinessException(final String reason, final SdcSchoolCollectionStatus sdcBatchStatusCodes, final SdcBatchFile batchFile, final boolean persistStudentRecords) {
     final var entity = this.delegate.toSdcSchoolBatchEntityForBusinessException(reason, sdcBatchStatusCodes, batchFile, persistStudentRecords);
     entity.setSdcSchoolCollectionStatusCode(sdcBatchStatusCodes.getCode());
-//    entity.setPenRequestBatchStatusReason(reason);
     if (persistStudentRecords && batchFile != null) { // for certain business exception, system needs to store the student details as well.
       for (final var student : batchFile.getStudentDetails()) { // set the object so that PK/FK relationship will be auto established by hibernate.
         final var sdcSchoolStudentEntity = this.toSdcSchoolStudentEntity(student, entity);
@@ -50,7 +49,7 @@ public abstract class SdcBatchFileDecorator implements SdcBatchFileMapper {
   public SdcSchoolCollectionStudentEntity toSdcSchoolStudentEntity(final SdcStudentDetails studentDetails, final SdcSchoolCollectionEntity sdcSchoolBatchEntity) {
     final var entity = this.delegate.toSdcSchoolStudentEntity(studentDetails, sdcSchoolBatchEntity);
     entity.setSdcSchoolCollectionID(sdcSchoolBatchEntity.getSdcSchoolCollectionID()); // add thePK/FK relationship
-    entity.setSdcSchoolCollectionStudentStatusCode(SdcBatchStatusCodes.LOADED.getCode());
+    entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolCollectionStatus.LOADED.getCode());
 
     entity.setPostalCode(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getPostalCode()));
     entity.setGender(StringMapper.trimUppercaseAndScrubDiacriticalMarks(studentDetails.getGender()));

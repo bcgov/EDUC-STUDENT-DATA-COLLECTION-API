@@ -3,7 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.validator;
 import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileError;
 import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchStatusCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.flatpack.DataError;
 import net.sf.flatpack.DataSet;
@@ -39,12 +39,12 @@ public class SdcFileValidator {
     final Optional<DataError> isErrorOnLastLineOptional = ds.getErrors().stream().filter(el -> el.getLineNo() == totalRecords).findFirst();
     if (isErrorOnLastLineOptional.isPresent()) {
       if (!StringUtils.startsWith(isErrorOnLastLineOptional.get().getRawData(), TRAILER_STARTS_WITH)) {
-        throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_TRAILER, guid, SdcBatchStatusCodes.LOAD_FAIL);
+        throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_TRAILER, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
       }
     } else {
       ds.goBottom();
       if (!StringUtils.startsWith(ds.getRawData(), TRAILER_STARTS_WITH)) {
-        throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_TRAILER, guid, SdcBatchStatusCodes.LOAD_FAIL);
+        throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_TRAILER, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
       }
       ds.goTop(); // reset and move the cursor to top as everything is fine.
     }
@@ -54,13 +54,13 @@ public class SdcFileValidator {
     final Optional<DataError> isErrorOnFirstLineOptional = ds.getErrors().stream().filter(el -> el.getLineNo() == 1).findFirst();
     if (isErrorOnFirstLineOptional.isPresent()) {
       if (!StringUtils.startsWith(isErrorOnFirstLineOptional.get().getRawData(), HEADER_STARTS_WITH)) {
-        throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_HEADER, guid, SdcBatchStatusCodes.LOAD_FAIL);
+        throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_HEADER, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
       }
     } else {
       ds.goTop();
       ds.next();
       if (!StringUtils.startsWith(ds.getRawData(), HEADER_STARTS_WITH)) {
-        throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_HEADER, guid, SdcBatchStatusCodes.LOAD_FAIL);
+        throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_HEADER, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
       }
     }
   }
@@ -69,11 +69,11 @@ public class SdcFileValidator {
     ds.goTop();
     ds.next();
     if (!StringUtils.startsWith(ds.getRawData(), HEADER_STARTS_WITH)) {
-      throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_HEADER, guid, SdcBatchStatusCodes.LOAD_FAIL);
+      throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_HEADER, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
     }
     ds.goBottom();
     if (!StringUtils.startsWith(ds.getRawData(), TRAILER_STARTS_WITH)) {
-      throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_TRAILER, guid, SdcBatchStatusCodes.LOAD_FAIL);
+      throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_TRAILER, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
     }
     ds.goTop(); // reset and move the cursor to top as everything is fine.
   }
@@ -101,7 +101,7 @@ public class SdcFileValidator {
         }
       }
       if(firstErrorFound) {
-        throw new FileUnProcessableException(FileError.INVALID_ROW_LENGTH, guid, SdcBatchStatusCodes.LOAD_FAIL, message);
+        throw new FileUnProcessableException(FileError.INVALID_ROW_LENGTH, guid, SdcSchoolCollectionStatus.LOAD_FAIL, message);
       }
     }
   }
@@ -136,7 +136,7 @@ public class SdcFileValidator {
   public void validateStudentCountForMismatchAndSize(final String guid, final SdcBatchFile batchFile) throws FileUnProcessableException {
     final var studentCount = batchFile.getBatchFileTrailer().getStudentCount();
     if (!StringUtils.isNumeric(studentCount) || Integer.parseInt(studentCount) != batchFile.getStudentDetails().size()) {
-      throw new FileUnProcessableException(FileError.STUDENT_COUNT_MISMATCH, guid, SdcBatchStatusCodes.LOAD_FAIL, studentCount, String.valueOf(batchFile.getStudentDetails().size()));
+      throw new FileUnProcessableException(FileError.STUDENT_COUNT_MISMATCH, guid, SdcSchoolCollectionStatus.LOAD_FAIL, studentCount, String.valueOf(batchFile.getStudentDetails().size()));
     }
   }
 }

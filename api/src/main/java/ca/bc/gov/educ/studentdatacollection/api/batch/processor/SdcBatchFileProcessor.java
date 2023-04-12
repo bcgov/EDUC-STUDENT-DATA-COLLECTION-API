@@ -8,7 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFileHeader;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFileTrailer;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcStudentDetails;
 import ca.bc.gov.educ.studentdatacollection.api.batch.validator.SdcFileValidator;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchStatusCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
@@ -178,7 +178,7 @@ public class SdcBatchFileProcessor {
     var schoolCollection = sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
     if(schoolCollection.isPresent()) {
       var coll = schoolCollection.get();
-      sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcBatchStatusCodes.LOADED.getCode());
+      sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.LOADED.getCode());
       sdcSchoolCollectionEntity.setSchoolID(coll.getSchoolID());
       sdcSchoolCollectionEntity.setCollectionEntity(coll.getCollectionEntity());
       return sdcSchoolCollectionService.saveSdcSchoolCollection(sdcSchoolCollectionEntity);
@@ -217,11 +217,11 @@ public class SdcBatchFileProcessor {
     String rawTrailer = ds.getErrors().get(ds.getErrors().size()-1).getRawData();
 
     if(rawTrailer == null || rawTrailer.length() < 9){
-      throw new FileUnProcessableException(INVALID_TRAILER, guid, SdcBatchStatusCodes.LOAD_FAIL);
+      throw new FileUnProcessableException(INVALID_TRAILER, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
     }
     String studentCount = rawTrailer.substring(3,9).trim();
     if(!StringUtils.isNumeric(studentCount)){
-      throw new FileUnProcessableException(INVALID_TRAILER_STUDENT_COUNT, guid, SdcBatchStatusCodes.LOAD_FAIL);
+      throw new FileUnProcessableException(INVALID_TRAILER_STUDENT_COUNT, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
     }
 
     var trailer = new SdcBatchFileTrailer();
@@ -241,7 +241,7 @@ public class SdcBatchFileProcessor {
   private SdcStudentDetails getStudentDetailRecordFromFile(final DataSet ds, final String guid, final long index) throws FileUnProcessableException {
     final var transactionCode = ds.getString(TRANSACTION_CODE.getName());
     if (!TRANSACTION_CODE_STUDENT_DETAILS_RECORD.equals(transactionCode)) {
-      throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS, guid, SdcBatchStatusCodes.LOAD_FAIL, String.valueOf(index), ds.getString(LOCAL_STUDENT_ID.getName()));
+      throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS, guid, SdcSchoolCollectionStatus.LOAD_FAIL, String.valueOf(index), ds.getString(LOCAL_STUDENT_ID.getName()));
     }
     return SdcStudentDetails.builder()
       .transactionCode(transactionCode)

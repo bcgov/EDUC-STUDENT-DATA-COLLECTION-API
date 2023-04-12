@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.batch.exception;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchStatusCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +24,7 @@ public class FileUnProcessableException extends Exception {
    * The Pen request batch status code.
    */
   @Getter
-  private final SdcBatchStatusCodes studentCollectionBatchStatusCodes;
+  private final SdcSchoolCollectionStatus studentCollectionBatchStatusCodes;
   /**
    * The Reason.
    */
@@ -39,7 +39,7 @@ public class FileUnProcessableException extends Exception {
    * @param studentCollectionBatchStatusCodes the pen request batch status code
    * @param messageArgs               the message args
    */
-  public FileUnProcessableException(final FileError fileError, final String guid, final SdcBatchStatusCodes studentCollectionBatchStatusCodes, final String... messageArgs) {
+  public FileUnProcessableException(final FileError fileError, final String guid, final SdcSchoolCollectionStatus studentCollectionBatchStatusCodes, final String... messageArgs) {
     super(fileError.getMessage() + GUID_IS + guid);
     this.fileError = fileError;
     this.studentCollectionBatchStatusCodes = studentCollectionBatchStatusCodes;
