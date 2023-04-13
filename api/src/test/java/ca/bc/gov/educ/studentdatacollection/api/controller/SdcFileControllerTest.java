@@ -100,7 +100,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(result).hasSize(1);
     final var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
-    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo(SdcSchoolCollectionStatus.LOADED.getCode());
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isNull();
     final var students = this.schoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
   }
@@ -127,7 +127,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(result).hasSize(1);
     final var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
-    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo(SdcSchoolCollectionStatus.LOADED.getCode());
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isNull();
     final var students = this.schoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
 
