@@ -183,7 +183,7 @@ public class SdcBatchFileProcessor {
       coll.setUploadFileName(sdcSchoolCollectionEntity.getUploadFileName());
       coll.setUpdateUser(sdcSchoolCollectionEntity.getUpdateUser());
       coll.setUpdateDate(LocalDateTime.now());
-      return sdcSchoolCollectionService.saveSdcSchoolCollection(sdcSchoolCollectionEntity);
+      return sdcSchoolCollectionService.saveSdcSchoolCollection(coll);
     }else{
       throw new StudentDataCollectionAPIRuntimeException("SDC School Collection ID provided :: " + sdcSchoolCollectionID + " :: is not valid");
     }
