@@ -178,8 +178,11 @@ public class SdcBatchFileProcessor {
     var schoolCollection = sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
     if(schoolCollection.isPresent()) {
       var coll = schoolCollection.get();
-      sdcSchoolCollectionEntity.setSchoolID(coll.getSchoolID());
-      sdcSchoolCollectionEntity.setCollectionEntity(coll.getCollectionEntity());
+      coll.setSdcSchoolStudentEntities(sdcSchoolCollectionEntity.getSDCSchoolStudentEntities());
+      coll.setUploadDate(sdcSchoolCollectionEntity.getUploadDate());
+      coll.setUploadFileName(sdcSchoolCollectionEntity.getUploadFileName());
+      coll.setUpdateUser(sdcSchoolCollectionEntity.getUpdateUser());
+      coll.setUpdateDate(LocalDateTime.now());
       return sdcSchoolCollectionService.saveSdcSchoolCollection(sdcSchoolCollectionEntity);
     }else{
       throw new StudentDataCollectionAPIRuntimeException("SDC School Collection ID provided :: " + sdcSchoolCollectionID + " :: is not valid");
