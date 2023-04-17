@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
-import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -10,20 +10,16 @@ import java.util.List;
 
 @Component
 public class RulesProcessor {
-  private final List<Rule> rules;
+  private final List<StudentValidationRule> rules;
 
-  public RulesProcessor(final List<Rule> rules) {
+  @Autowired
+  public RulesProcessor(final List<StudentValidationRule> rules) {
     this.rules = rules;
   }
 
-  public List<SdcSchoolCollectionStudentValidationIssue> processRules(final SdcSchoolCollectionStudentEntity sdcSchoolStudentEntity) {
+  public List<SdcSchoolCollectionStudentValidationIssue> processRules(SdcStudentSagaData sdcStudentSagaData) {
     final List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap = new ArrayList<>();
-    this.rules.forEach(rule -> {
-      val valErrors = rule.validate(sdcSchoolStudentEntity);
-      if (!valErrors.isEmpty()) {
-        validationErrorsMap.addAll(valErrors);
-      }
-    });
+    rules.stream().filter(rule-> rule.shouldExecute(sdcStudentSagaData)).forEach(rule -> validationErrorsMap.addAll(rule.executeValidation(sdcStudentSagaData)));
     return validationErrorsMap;
   }
 }

@@ -106,16 +106,18 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     var collection = collectionRepository.save(createMockCollectionEntity());
     var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
     val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-    entity.setGender("F");
+    entity.setGender("G");
     entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
     entity.setUpdateDate(LocalDateTime.now());
     entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     this.sdcSchoolCollectionStudentRepository.save(entity);
+
     val saga = this.creatMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
     saga.setSagaId(null);
     this.sagaRepository.save(saga);
-    final SdcStudentSagaData sagaData = SdcStudentSagaData.builder().sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)).build();
+
+    final SdcStudentSagaData sagaData = createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
     val event = Event.builder()
       .sagaId(saga.getSagaId())
       .eventType(EventType.INITIATED)

@@ -107,7 +107,7 @@ public abstract class BaseStudentDataCollectionAPITest {
       .sagaName(SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString())
       .status(SagaStatusEnum.IN_PROGRESS.toString())
       .sagaState(EventType.INITIATED.toString())
-      .payload(JsonUtil.getJsonStringFromObject(SdcStudentSagaData.builder().sdcSchoolCollectionStudent(student).build()))
+      .payload(JsonUtil.getJsonStringFromObject(createMockStudentSagaData(student)))
       .build();
   }
 
@@ -118,5 +118,13 @@ public abstract class BaseStudentDataCollectionAPITest {
     school.setMincode("66510518");
     school.setOpenedDate("1964-09-01T00:00:00");
     return school;
+  }
+
+  public SdcStudentSagaData createMockStudentSagaData(final SdcSchoolCollectionStudent student) {
+    final SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
+    sdcStudentSagaData.setSchoolCategoryCode("PUBLIC");
+    sdcStudentSagaData.setCollectionTypeCode("SEPTEMBER");
+    sdcStudentSagaData.setSdcSchoolCollectionStudent(student);
+    return sdcStudentSagaData;
   }
 }
