@@ -6,12 +6,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.UUID;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(URL.BASE_URL_SCHOOL_COLLECTION)
 public interface SdcSchoolCollectionEndpoint {
 
@@ -36,4 +40,10 @@ public interface SdcSchoolCollectionEndpoint {
   @Transactional(readOnly = true)
   @Tag(name = "Sdc School Collection", description = "Endpoints to get school collection entity.")
   SdcSchoolCollection getSchoolCollectionBySchoolId(@PathVariable("schoolID") UUID schoolID);
+
+  @PostMapping("/{collectionID}")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_SCHOOL_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Tag(name = "Sdc School Collection", description = "Endpoints to get school collection entity.")
+  SdcSchoolCollection createSdcSchoolCollectionByCollectionID(@Validated @RequestBody SdcSchoolCollection sdcSchoolCollection, @PathVariable("collectionID") UUID collectionID);
 }

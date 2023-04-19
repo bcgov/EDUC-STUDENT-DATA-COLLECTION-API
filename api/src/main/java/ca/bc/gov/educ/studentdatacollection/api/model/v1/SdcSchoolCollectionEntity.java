@@ -64,6 +64,10 @@ public class SdcSchoolCollectionEntity {
   @Column(name = "UPDATE_DATE")
   private LocalDateTime updateDate;
 
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  @OneToMany(mappedBy = "sdcSchoolCollectionID", fetch = FetchType.EAGER, cascade = CascadeType.ALL, targetEntity = SdcSchoolCollectionHistoryEntity.class)
+  private Set<SdcSchoolCollectionHistoryEntity> sdcSchoolCollectionHistoryEntities;
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   @OneToMany(mappedBy = "sdcSchoolCollectionID", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolCollectionStudentEntity.class)
