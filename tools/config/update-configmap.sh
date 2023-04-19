@@ -50,6 +50,27 @@ curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scope
   -d "{\"description\": \"Write Student Data Collection Collection Data\",\"id\": \"WRITE_SDC_COLLECTION\",\"name\": \"WRITE_SDC_COLLECTION\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
 
 echo
+echo Writing scope DELETE_SDC_COLLECTION
+curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TKN" \
+  -d "{\"description\": \"Delete Student Data Collection Collection Data\",\"id\": \"DELETE_SDC_COLLECTION\",\"name\": \"DELETE_SDC_COLLECTION\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
+
+echo
+echo Writing scope WRITE_SDC_SCHOOL_COLLECTION
+curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TKN" \
+  -d "{\"description\": \"Write Student Data Collection School Collection Data\",\"id\": \"WRITE_SDC_SCHOOL_COLLECTION\",\"name\": \"WRITE_SDC_SCHOOL_COLLECTION\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
+
+echo
+echo Writing scope READ_COLLECTION_CODES
+curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TKN" \
+  -d "{\"description\": \"Read Student Data Collection Collection Codes\",\"id\": \"READ_COLLECTION_CODES\",\"name\": \"READ_COLLECTION_CODES\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
+
+echo
 echo Creating client student-data-collection-api-service
 curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/clients" \
   -H "Content-Type: application/json" \
