@@ -105,7 +105,7 @@ public class SdcService {
         if(sdcSchoolCollection.isPresent()) {
           var school = this.restUtils.getSchoolBySchoolID(sdcSchoolCollection.get().getSchoolID().toString());
           sdcStudentSagaData.setCollectionTypeCode(sdcSchoolCollection.get().getCollectionEntity().getCollectionTypeCode());
-          sdcStudentSagaData.setSchoolCategoryCode(school.get().getSchoolCategoryCode());
+          sdcStudentSagaData.setSchool(school.get());
         }
         sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(el));
         return sdcStudentSagaData;

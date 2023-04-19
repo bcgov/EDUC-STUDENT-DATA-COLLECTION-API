@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct;
 
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,6 @@ public class SdcStudentSagaData {
   private SdcSchoolCollectionStudent sdcSchoolCollectionStudent;
   private PenMatchResult penMatchResult;
   private String collectionTypeCode;
-  private String schoolCategoryCode;
+  private School school;
 
 }
