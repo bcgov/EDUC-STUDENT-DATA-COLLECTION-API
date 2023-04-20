@@ -6,8 +6,8 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStu
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 
-public abstract class BaseRule implements Rule<SdcStudentSagaData, SdcSchoolCollectionStudentValidationIssue>{
-  public SdcSchoolCollectionStudentValidationIssue createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode severityCode, SdcSchoolCollectionStudentValidationFieldCode fieldCode, SdcSchoolCollectionStudentValidationIssueTypeCode typeCode){
+public interface BaseRule extends Rule<SdcStudentSagaData, SdcSchoolCollectionStudentValidationIssue> {
+  default SdcSchoolCollectionStudentValidationIssue createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode severityCode, SdcSchoolCollectionStudentValidationFieldCode fieldCode, SdcSchoolCollectionStudentValidationIssueTypeCode typeCode){
     SdcSchoolCollectionStudentValidationIssue sdcSchoolCollectionStudentValidationIssue = new SdcSchoolCollectionStudentValidationIssue();
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueSeverityCode(severityCode.toString());
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueCode(typeCode.getCode());

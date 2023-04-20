@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class GenderRule extends BaseRule {
+public class GenderRule implements BaseRule {
   @Override
   public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
     return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent();
