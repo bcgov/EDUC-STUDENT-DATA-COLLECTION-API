@@ -33,7 +33,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
+class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
   @Autowired
   private MockMvc mockMvc;
@@ -55,7 +55,7 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testGetCollection_WithWrongScope_ShouldReturnForbidden() throws Exception {
+  void testGetCollection_WithWrongScope_ShouldReturnForbidden() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "WRONG_SCOPE";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID()).with(mockAuthority))
@@ -64,7 +64,7 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testGetCollection_WithWrongID_ShouldReturnStatusNotFound() throws Exception {
+  void testGetCollection_WithWrongID_ShouldReturnStatusNotFound() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID()).with(mockAuthority))
@@ -72,7 +72,7 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testGetCollectionByID_ShouldReturnCollection() throws Exception {
+  void testGetCollectionByID_ShouldReturnCollection() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
@@ -87,7 +87,7 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testCreateCollection_GivenValidPayload_ShouldReturnStatusCreated() throws Exception {
+  void testCreateCollection_GivenValidPayload_ShouldReturnStatusCreated() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
@@ -101,7 +101,22 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  public void testDeleteCollection_GivenValidPayload_ShouldReturnNoContent() throws Exception {
+  void testCreateCollection_GivenInvalidPayload_ShouldReturnBadRequest() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    final CollectionEntity collection = this.createMockCollectionEntity();
+    collection.setCollectionID(UUID.randomUUID());
+    collection.setCreateDate(null);
+    collection.setUpdateDate(null);
+
+    this.mockMvc.perform(post(URL.BASE_URL_COLLECTION).contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON).content(asJsonString(collection)).with(mockAuthority))
+        .andDo(print()).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testDeleteCollection_GivenValidPayload_ShouldReturnNoContent() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_DELETE_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
@@ -115,7 +130,7 @@ public class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
         .andDo(print()).andExpect(status().isNoContent());
 
     List<CollectionEntity> collectionEntityList =  this.collectionRepository.findAll();
-    assertThat(collectionEntityList).hasSize(0);
+    assertThat(collectionEntityList).isEmpty();
   }
 
 }
