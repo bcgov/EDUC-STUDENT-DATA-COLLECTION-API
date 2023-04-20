@@ -18,7 +18,7 @@ import java.time.format.DateTimeFormatter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-public class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
+class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
     @Autowired
     private RulesProcessor rulesProcessor;
@@ -36,7 +36,7 @@ public class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setGender("M");
         val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)));
-        assertThat(validationError.size()).isEqualTo(0);
+        assertThat(validationError.size()).isZero();
 
         entity.setGender("U");
         val validationErrorIncorrectVal = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)));
@@ -69,6 +69,20 @@ public class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setDob("20180420");
         val validationErrorCorrectDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)));
         assertThat(validationErrorCorrectDate.size()).isZero();
+    }
 
+    @Test
+    void testLocalIDRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)));
+        assertThat(validationError.size()).isZero();
+
+        entity.setLocalID(null);
+        val validationErrorBlank = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)));
+        assertThat(validationErrorBlank.size()).isNotZero();
+        assertThat(validationErrorBlank.get(0).getValidationIssueFieldCode()).isEqualTo("LOCALID");
     }
 }
