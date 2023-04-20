@@ -13,12 +13,11 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntit
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -54,17 +53,21 @@ public class SdcService {
   private final SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository;
   private final CollectionTypeCodeRepository collectionCodeRepository;
   private final SdcSchoolCollectionHistoryService sdcSchoolHistoryService;
+  private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+  private final RestUtils restUtils;
   private final Executor paginatedQueryExecutor = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
 
-  public SdcService(final MessagePublisher messagePublisher, SdcSchoolCollectionStudentRepository repository, CollectionRepository collectionRepository, SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository, CollectionTypeCodeRepository collectionCodeRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService) {
+  public SdcService(final MessagePublisher messagePublisher, SdcSchoolCollectionStudentRepository repository, CollectionRepository collectionRepository, SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository, CollectionTypeCodeRepository collectionCodeRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, RestUtils restUtils) {
     this.messagePublisher = messagePublisher;
     this.repository = repository;
     this.collectionRepository = collectionRepository;
     this.sdcStudentValidationErrorRepository = sdcStudentValidationErrorRepository;
     this.collectionCodeRepository = collectionCodeRepository;
     this.sdcSchoolHistoryService = sdcSchoolHistoryService;
+    this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
+    this.restUtils = restUtils;
   }
 
   /**
@@ -98,6 +101,12 @@ public class SdcService {
     final List<SdcStudentSagaData> sdcStudentSagaDatas = sdcStudentEntities.stream()
       .map(el -> {
         val sdcStudentSagaData = new SdcStudentSagaData();
+        Optional<SdcSchoolCollectionEntity> sdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(el.getSdcSchoolCollectionID());
+        if(sdcSchoolCollection.isPresent()) {
+          var school = this.restUtils.getSchoolBySchoolID(sdcSchoolCollection.get().getSchoolID().toString());
+          sdcStudentSagaData.setCollectionTypeCode(sdcSchoolCollection.get().getCollectionEntity().getCollectionTypeCode());
+          sdcStudentSagaData.setSchool(school.get());
+        }
         sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(el));
         return sdcStudentSagaData;
       }).toList();

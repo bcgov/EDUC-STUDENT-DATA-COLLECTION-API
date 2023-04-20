@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct;
 
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
@@ -17,4 +18,7 @@ public class SdcStudentSagaData {
   private static final long serialVersionUID = -2329245910142215178L;
   private SdcSchoolCollectionStudent sdcSchoolCollectionStudent;
   private PenMatchResult penMatchResult;
+  private String collectionTypeCode;
+  private School school;
+
 }

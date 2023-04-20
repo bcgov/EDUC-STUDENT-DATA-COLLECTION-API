@@ -145,7 +145,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     saga.setSagaState(VALIDATE_SDC_STUDENT.toString());
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-    val validationErrors = this.rulesProcessor.processRules(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudentEntity(sdcStudentSagaData.getSdcSchoolCollectionStudent()));
+    val validationErrors = this.rulesProcessor.processRules(sdcStudentSagaData);
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(VALIDATE_SDC_STUDENT);
     if (validationErrors.isEmpty()) {
