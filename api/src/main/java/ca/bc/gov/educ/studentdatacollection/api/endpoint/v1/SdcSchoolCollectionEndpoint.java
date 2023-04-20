@@ -1,5 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
+import static org.springframework.http.HttpStatus.CREATED;
+
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
 @RequestMapping(URL.BASE_URL_SCHOOL_COLLECTION)
 public interface SdcSchoolCollectionEndpoint {
 
@@ -43,7 +47,8 @@ public interface SdcSchoolCollectionEndpoint {
 
   @PostMapping("/{collectionID}")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_SCHOOL_COLLECTION')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Tag(name = "Sdc School Collection", description = "Endpoints to get school collection entity.")
+  @ResponseStatus(CREATED)
   SdcSchoolCollection createSdcSchoolCollectionByCollectionID(@Validated @RequestBody SdcSchoolCollection sdcSchoolCollection, @PathVariable("collectionID") UUID collectionID);
 }

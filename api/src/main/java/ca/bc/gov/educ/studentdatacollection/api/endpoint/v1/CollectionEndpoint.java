@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
@@ -43,8 +44,9 @@ public interface CollectionEndpoint {
 
   @DeleteMapping("/{collectionID}")
   @PreAuthorize("hasAuthority('SCOPE_DELETE_SDC_COLLECTION')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "NO CONTENT"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Tag(name = "Collection Entity", description = "Endpoints for collection entity.")
   @Schema(name = "Collection", implementation = Collection.class)
+  @ResponseStatus(NO_CONTENT)
   ResponseEntity<Void> deleteCollection(@PathVariable UUID collectionID);
 }
