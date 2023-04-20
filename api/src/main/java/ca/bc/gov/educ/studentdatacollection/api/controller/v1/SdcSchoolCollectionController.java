@@ -34,13 +34,21 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
 
   @Override
   public SdcSchoolCollection updateSchoolCollection(SdcSchoolCollection sdcSchoolCollection, UUID sdcSchoolCollectionID) {
-    ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionValidator.validatePayload(sdcSchoolCollection));
+    ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionValidator.validatePayload(sdcSchoolCollection, false));
     RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollection);
     return mapper.toSdcSchoolBatch(sdcSchoolCollectionService.updateSdcSchoolCollection(mapper.toSdcSchoolBatchEntity(sdcSchoolCollection)));
   }
 
   @Override
-    public SdcSchoolCollection getSchoolCollectionBySchoolId(UUID schoolID) {
-        return mapper.toSdcSchoolBatch(sdcSchoolCollectionService.getSdcSchoolCollectionBySchoolID(schoolID));
-    }
+  public SdcSchoolCollection getSchoolCollectionBySchoolId(UUID schoolID) {
+    return mapper.toSdcSchoolBatch(
+        sdcSchoolCollectionService.getSdcSchoolCollectionBySchoolID(schoolID));
+  }
+
+  @Override
+  public SdcSchoolCollection createSdcSchoolCollectionByCollectionID(SdcSchoolCollection sdcSchoolCollection, UUID collectionID) {
+    ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionValidator.validatePayload(sdcSchoolCollection, true));
+    RequestUtil.setAuditColumnsForCreate(sdcSchoolCollection);
+    return mapper.toStructure(sdcSchoolCollectionService.createSdcSchoolCollectionByCollectionID(mapper.toModel(sdcSchoolCollection), collectionID));
+  }
 }

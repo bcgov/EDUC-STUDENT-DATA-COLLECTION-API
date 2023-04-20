@@ -1,5 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
+import static org.junit.Assert.assertEquals;
+
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntity;
@@ -9,17 +11,13 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionReposito
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionHistoryRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
 
 class StartSDCCollectionsWithOpenDateInThePastProcessorTest extends
     BaseStudentDataCollectionAPITest {
@@ -45,13 +43,13 @@ class StartSDCCollectionsWithOpenDateInThePastProcessorTest extends
     List<String> listOfSchoolIDs = new ArrayList<>();
     UUID schoolID = UUID.randomUUID();
     listOfSchoolIDs.add(schoolID.toString());
-    CollectionTypeCodeEntity collectionTypeCode = this.collectionTypeCodeRepository.save(this.createCollectionCodeData());
+    CollectionTypeCodeEntity collectionTypeCode = this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntity());
 
     this.sdcService.startSDCCollection(collectionTypeCode, listOfSchoolIDs);
 
     List<CollectionEntity> collectionEntities = this.collectionRepository.findAll();
     List<SdcSchoolCollectionEntity> sdcSchoolEntities = this.sdcSchoolRepository.findAll();
-    CollectionTypeCodeEntity nextCollectionCodeEntity = this.collectionTypeCodeRepository.findById("TEST").get();
+    CollectionTypeCodeEntity nextCollectionCodeEntity = this.collectionTypeCodeRepository.findById("SEPTEMBER").get();
     List<SdcSchoolCollectionHistoryEntity> sdcSchoolHistoryEntities = this.sdcSchoolHistoryRepository.findAll();
 
     assertEquals(1 ,collectionEntities.size());
@@ -66,14 +64,6 @@ class StartSDCCollectionsWithOpenDateInThePastProcessorTest extends
     assertEquals(collect.getCloseDate().getMonth(), nextCollectionCodeEntity.getCloseDate().getMonth());
 
     assertEquals(sdcSchoolEntities.get(0).getSdcSchoolCollectionID(), sdcSchoolHistoryEntities.get(0).getSdcSchoolCollectionID());
-  }
-
-  private CollectionTypeCodeEntity createCollectionCodeData() {
-    return CollectionTypeCodeEntity.builder().collectionTypeCode("TEST").label("Test")
-        .description("Test code").displayOrder(0).effectiveDate(
-            LocalDateTime.now()).expiryDate(LocalDateTime.MAX).openDate(LocalDateTime.now().minusDays(1))
-        .closeDate(LocalDateTime.now().plusDays(7)).createUser("TEST").createDate(LocalDateTime.now())
-        .updateUser("TEST").updateDate(LocalDateTime.now()).build();
   }
 
 }

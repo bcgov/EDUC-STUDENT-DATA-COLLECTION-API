@@ -23,4 +23,9 @@ public interface SdcSchoolCollectionMapper {
 
   SdcSchoolCollectionEntity toSdcSchoolBatchEntity(SdcSchoolCollection sdcSchoolBatch);
 
+  SdcSchoolCollectionEntity toModel(SdcSchoolCollection sdcSchoolCollection);
+
+  @Mapping(target = "collectionID", source = "sdcSchoolCollectionEntity.collectionEntity.collectionID")
+  SdcSchoolCollection toStructure(SdcSchoolCollectionEntity sdcSchoolCollectionEntity);
+
 }
