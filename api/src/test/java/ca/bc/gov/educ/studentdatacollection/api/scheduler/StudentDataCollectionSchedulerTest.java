@@ -1,25 +1,26 @@
 package ca.bc.gov.educ.studentdatacollection.api.scheduler;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeCriteriaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeCriteriaRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionHistoryRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.schedulers.StudentDataCollectionScheduler;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITest {
 
@@ -50,9 +51,9 @@ class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITes
   @BeforeEach
   public void before() {
     CollectionTypeCodeEntity collectionCodeEntity = this.collectionCodeRepository.save(
-        this.createCollectionCodeData());
+        createMockCollectionCodeEntity());
     this.collectionCodeCriteriaRepository.save(
-        this.createCollectionCodeCriteriaData(collectionCodeEntity));
+        this.createMockCollectionCodeCriteriaEntity(collectionCodeEntity));
   }
 
   @Test
@@ -67,22 +68,5 @@ class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITes
 
     assertEquals(2 ,this.sdcSchoolRepository.findAll().size());
   }
-
-  private CollectionTypeCodeEntity createCollectionCodeData() {
-    return CollectionTypeCodeEntity.builder().collectionTypeCode("TEST").label("Test")
-        .description("Test code").displayOrder(0).effectiveDate(
-            LocalDateTime.now()).expiryDate(LocalDateTime.now().minusDays(1))
-        .openDate(LocalDateTime.now())
-        .closeDate(LocalDateTime.MAX).createUser("TEST").createDate(LocalDateTime.now())
-        .updateUser("TEST").updateDate(LocalDateTime.now()).build();
-  }
-  private CollectionCodeCriteriaEntity createCollectionCodeCriteriaData(
-      CollectionTypeCodeEntity collectionCodeEntity) {
-    return CollectionCodeCriteriaEntity.builder().collectionTypeCodeEntity(collectionCodeEntity)
-        .schoolCategoryCode("TEST_CC").facilityTypeCode("TEST_FTC").reportingRequirementCode("TEST_RRC")
-        .createUser("TEST").createDate(LocalDateTime.now())
-        .updateUser("TEST").updateDate(LocalDateTime.now()).build();
-  }
-
 
 }

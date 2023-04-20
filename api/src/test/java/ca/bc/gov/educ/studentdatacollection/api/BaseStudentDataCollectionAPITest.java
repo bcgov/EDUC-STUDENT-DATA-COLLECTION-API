@@ -3,7 +3,9 @@ package ca.bc.gov.educ.studentdatacollection.api;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeCriteriaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
@@ -13,6 +15,9 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.support.StudentDataCollectionTestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,4 +133,30 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcStudentSagaData.setSdcSchoolCollectionStudent(student);
     return sdcStudentSagaData;
   }
+  public CollectionTypeCodeEntity createMockCollectionCodeEntity() {
+    return CollectionTypeCodeEntity.builder().collectionTypeCode("SEPTEMBER").label("Test")
+        .description("Test code").displayOrder(0).effectiveDate(
+            LocalDateTime.now()).expiryDate(LocalDateTime.now().plusDays(7))
+        .openDate(LocalDateTime.now())
+        .closeDate(LocalDateTime.now().plusDays(7)).createUser("TEST").createDate(LocalDateTime.now())
+        .updateUser("TEST").updateDate(LocalDateTime.now()).build();
+  }
+  public CollectionCodeCriteriaEntity createMockCollectionCodeCriteriaEntity(
+      CollectionTypeCodeEntity collectionCodeEntity) {
+    return CollectionCodeCriteriaEntity.builder().collectionTypeCodeEntity(collectionCodeEntity)
+        .schoolCategoryCode("TEST_CC").facilityTypeCode("TEST_FTC").reportingRequirementCode("TEST_RRC")
+        .createUser("TEST").createDate(LocalDateTime.now())
+        .updateUser("TEST").updateDate(LocalDateTime.now()).build();
+  }
+
+  public static String asJsonString(final Object obj) {
+    try {
+      ObjectMapper om = new ObjectMapper();
+      om.registerModule(new JavaTimeModule()).configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+      return om.writeValueAsString(obj);
+    } catch (final Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
 }
