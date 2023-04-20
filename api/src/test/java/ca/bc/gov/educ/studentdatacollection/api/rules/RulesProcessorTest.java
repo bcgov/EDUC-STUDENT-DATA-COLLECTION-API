@@ -35,11 +35,15 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
         entity.setGender("M");
-        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)));
-        assertThat(validationError.size()).isZero();
+        val validationErrorM = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorM.size()).isZero();
+
+        entity.setGender("F");
+        val validationErrorF = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorF.size()).isZero();
 
         entity.setGender("U");
-        val validationErrorIncorrectVal = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)));
+        val validationErrorIncorrectVal = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorIncorrectVal.size()).isNotZero();
         assertThat(validationErrorIncorrectVal.get(0).getValidationIssueFieldCode()).isEqualTo("GENDER_CODE");
     }
@@ -51,23 +55,23 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
         entity.setDob("19993001");
-        val validationErrorInvalidDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)));
+        val validationErrorInvalidDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorInvalidDate.size()).isNotZero();
         assertThat(validationErrorInvalidDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd");
         entity.setDob(format.format(LocalDate.now().plusDays(2)));
-        val validationErrorFutureDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)));
+        val validationErrorFutureDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorFutureDate.size()).isNotZero();
         assertThat(validationErrorFutureDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
         entity.setDob("18990101");
-        val validationErrorOldDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)));
+        val validationErrorOldDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorOldDate.size()).isNotZero();
         assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
         entity.setDob("20180420");
-        val validationErrorCorrectDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)));
+        val validationErrorCorrectDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorCorrectDate.size()).isZero();
     }
 
@@ -77,12 +81,31 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
-        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)));
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationError.size()).isZero();
 
         entity.setLocalID(null);
-        val validationErrorBlank = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)));
+        val validationErrorBlank = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorBlank.size()).isNotZero();
         assertThat(validationErrorBlank.get(0).getValidationIssueFieldCode()).isEqualTo("LOCALID");
+    }
+
+    @Test
+    void testSchoolRule() {
+        var collection = createMockCollectionEntity();
+        var sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val school = createMockSchool();
+        school.setFacilityTypeCode("SUMMER");
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
+        assertThat(validationError.size()).isZero();
+
+
+        entity.setStudentPen(null);
+        val sagaData = createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school);
+        sagaData.setCollectionTypeCode("JULY");
+        val validationErrorBlank = rulesProcessor.processRules(sagaData);
+        assertThat(validationErrorBlank.size()).isNotZero();
+        assertThat(validationErrorBlank.get(0).getValidationIssueFieldCode()).isEqualTo("STUDENT_PEN");
     }
 }

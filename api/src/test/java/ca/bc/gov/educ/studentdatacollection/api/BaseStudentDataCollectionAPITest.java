@@ -112,7 +112,7 @@ public abstract class BaseStudentDataCollectionAPITest {
       .sagaName(SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString())
       .status(SagaStatusEnum.IN_PROGRESS.toString())
       .sagaState(EventType.INITIATED.toString())
-      .payload(JsonUtil.getJsonStringFromObject(createMockStudentSagaData(student)))
+      .payload(JsonUtil.getJsonStringFromObject(createMockStudentSagaData(student, createMockSchool())))
       .build();
   }
 
@@ -126,9 +126,9 @@ public abstract class BaseStudentDataCollectionAPITest {
     return school;
   }
 
-  public SdcStudentSagaData createMockStudentSagaData(final SdcSchoolCollectionStudent student) {
+  public SdcStudentSagaData createMockStudentSagaData(final SdcSchoolCollectionStudent student, final School school) {
     final SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-    sdcStudentSagaData.setSchool(createMockSchool());
+    sdcStudentSagaData.setSchool(school);
     sdcStudentSagaData.setCollectionTypeCode("SEPTEMBER");
     sdcStudentSagaData.setSdcSchoolCollectionStudent(student);
     return sdcStudentSagaData;

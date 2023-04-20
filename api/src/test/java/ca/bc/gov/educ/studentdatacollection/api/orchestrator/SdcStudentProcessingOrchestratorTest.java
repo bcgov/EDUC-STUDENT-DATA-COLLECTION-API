@@ -117,7 +117,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     saga.setSagaId(null);
     this.sagaRepository.save(saga);
 
-    final SdcStudentSagaData sagaData = createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    final SdcStudentSagaData sagaData = createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool());
     val event = Event.builder()
       .sagaId(saga.getSagaId())
       .eventType(EventType.INITIATED)

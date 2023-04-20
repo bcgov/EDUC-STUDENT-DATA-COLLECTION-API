@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum CollectionTypeCodes {
-    ENTRY1("SEPTEMBER", new String[]{"PUBLIC", "INDEPEND", "OFFSHORE"}),
-    ENTRY2("FEBRUARY", new String[]{"PUBLIC", "INDEPEND", "OFFSHORE"}),
-    ENTRY3("MAY", new String[]{"PUBLIC", "INDEPEND", "OFFSHORE"}),
+    ENTRY1("SEPTEMBER", new String[]{Constants.PUBLIC, Constants.INDEPEND, Constants.OFFSHORE}),
+    ENTRY2("FEBRUARY", new String[]{Constants.PUBLIC, Constants.INDEPEND, Constants.OFFSHORE}),
+    ENTRY3("MAY", new String[]{Constants.PUBLIC, Constants.INDEPEND, Constants.OFFSHORE}),
     ENTRY4("JULY", new String[]{"PUBLIC"})
 ;
     private final String typeCode;
