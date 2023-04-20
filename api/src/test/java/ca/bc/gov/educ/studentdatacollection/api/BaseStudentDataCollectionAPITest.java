@@ -117,12 +117,13 @@ public abstract class BaseStudentDataCollectionAPITest {
     school.setDisplayName("Marco's school");
     school.setMincode("66510518");
     school.setOpenedDate("1964-09-01T00:00:00");
+    school.setSchoolCategoryCode("PUBLIC");
     return school;
   }
 
   public SdcStudentSagaData createMockStudentSagaData(final SdcSchoolCollectionStudent student) {
     final SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-    sdcStudentSagaData.setSchoolCategoryCode("PUBLIC");
+    sdcStudentSagaData.setSchool(createMockSchool());
     sdcStudentSagaData.setCollectionTypeCode("SEPTEMBER");
     sdcStudentSagaData.setSdcSchoolCollectionStudent(student);
     return sdcStudentSagaData;

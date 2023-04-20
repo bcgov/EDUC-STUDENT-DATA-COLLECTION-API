@@ -3,19 +3,27 @@ package ca.bc.gov.educ.studentdatacollection.api.rules.impl;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
+import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class GenderRule extends BaseRule {
   @Override
-  public List<SdcSchoolCollectionStudentValidationIssue> validate(final SdcSchoolCollectionStudentEntity sdcSchoolStudentEntity) {
+  public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
+    return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent();
+  }
+
+  @Override
+  public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
     final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-    if(!sdcSchoolStudentEntity.getGender().equals("M")){
-      errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.GENDER_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.GENDER_ERR));
+    if(!sdcStudentSagaData.getSdcSchoolCollectionStudent().getGender().equals("M") && !sdcStudentSagaData.getSdcSchoolCollectionStudent().getGender().equals("F")) {
+      errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.GENDER_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.GENDER_INVALID));
     }
     return errors;
   }

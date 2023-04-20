@@ -5,17 +5,19 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum CollectionTypeCodes {
-    SEPTEMBER("SEPTEMBER"),
-    MAY("MAY"),
-    JULY("JULY"),
-    FEBRUARY("FEBRUARY");
-
-    private final String code;
-    CollectionTypeCodes(String code) {
-        this.code = code;
+    ENTRY1("SEPTEMBER", new String[]{"PUBLIC", "INDEPEND", "OFFSHORE"}),
+    ENTRY2("FEBRUARY", new String[]{"PUBLIC", "INDEPEND", "OFFSHORE"}),
+    ENTRY3("MAY", new String[]{"PUBLIC", "INDEPEND", "OFFSHORE"}),
+    ENTRY4("JULY", new String[]{"PUBLIC"})
+;
+    private final String typeCode;
+    private final String[] schoolCode;
+    CollectionTypeCodes(String typeCode, String[] schoolCode) {
+        this.typeCode = typeCode;
+        this.schoolCode = schoolCode;
     }
 
-    public static Optional<CollectionTypeCodes> findByValue(String collectionTypeCode) {
-        return Arrays.stream(values()).filter(typeCode -> typeCode.code.equals(collectionTypeCode)).findFirst();
+    public static Optional<CollectionTypeCodes> findByValue(String collectionTypeCode, String schoolTypeCode) {
+        return Arrays.stream(values()).filter(code -> code.typeCode.equals(collectionTypeCode) && Arrays.asList(code.schoolCode).contains(schoolTypeCode)).findFirst();
     }
 }
