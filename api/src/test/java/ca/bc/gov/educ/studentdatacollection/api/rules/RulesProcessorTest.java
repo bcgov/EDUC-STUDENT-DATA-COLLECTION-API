@@ -108,4 +108,129 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorBlank.size()).isNotZero();
         assertThat(validationErrorBlank.get(0).getValidationIssueFieldCode()).isEqualTo("STUDENT_PEN");
     }
+
+    @Test
+    void testStudentLegalLastNameRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationError.size()).isZero();
+
+        entity.setLegalLastName(null);
+        val nullLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(nullLastNameErr.size()).isNotZero();
+        assertThat(nullLastNameErr.get(0).getValidationIssueCode()).isEqualTo("LEGALLASTNAMEBLANK");
+
+        entity.setLegalLastName("Böb");
+        val charsLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(charsLastNameErr.size()).isNotZero();
+        assertThat(charsLastNameErr.get(0).getValidationIssueCode()).isEqualTo("LEGALLASTNAMECHARFIX");
+
+        entity.setLegalLastName("FAKE");
+        val badLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(badLastNameErr.size()).isNotZero();
+        assertThat(badLastNameErr.get(0).getValidationIssueCode()).isEqualTo("LEGALLASTNAMEBADVALUE");
+    }
+
+    @Test
+    void testStudentUsualLastNameRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationError.size()).isZero();
+
+        entity.setUsualLastName("Bob$");
+        val charsLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(charsLastNameErr.size()).isNotZero();
+        assertThat(charsLastNameErr.get(0).getValidationIssueCode()).isEqualTo("USUALLASTNAMECHARFIX");
+
+        entity.setUsualLastName("FAKE");
+        val badLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(badLastNameErr.size()).isNotZero();
+        assertThat(badLastNameErr.get(0).getValidationIssueCode()).isEqualTo("USUALLASTNAMEBADVALUE");
+    }
+
+    @Test
+    void testStudentLegalFirstNameRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationError.size()).isZero();
+
+        entity.setLegalFirstName("Böb");
+        val charsLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(charsLastNameErr.size()).isNotZero();
+        assertThat(charsLastNameErr.get(0).getValidationIssueCode()).isEqualTo("LEGALFIRSTNAMECHARFIX");
+
+        entity.setLegalFirstName("DELETE");
+        val badLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(badLastNameErr.size()).isNotZero();
+        assertThat(badLastNameErr.get(0).getValidationIssueCode()).isEqualTo("LEGALFIRSTNAMEBADVALUE");
+    }
+
+    @Test
+    void testStudentUsualFirstNameRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationError.size()).isZero();
+
+        entity.setUsualFirstName("Böb");
+        val charsLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(charsLastNameErr.size()).isNotZero();
+        assertThat(charsLastNameErr.get(0).getValidationIssueCode()).isEqualTo("USUALFIRSTNAMECHARFIX");
+
+        entity.setUsualFirstName("NOTAPPLICABLE");
+        val badLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(badLastNameErr.size()).isNotZero();
+        assertThat(badLastNameErr.get(0).getValidationIssueCode()).isEqualTo("USUALFIRSTNAMEBADVALUE");
+    }
+
+    @Test
+    void testStudentLegalMiddleNameRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationError.size()).isZero();
+
+        entity.setLegalMiddleNames("Böb");
+        val charsLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(charsLastNameErr.size()).isNotZero();
+        assertThat(charsLastNameErr.get(0).getValidationIssueCode()).isEqualTo("LEGALMIDDLENAMECHARFIX");
+
+        entity.setLegalMiddleNames("TeSTStuD");
+        val badLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(badLastNameErr.size()).isNotZero();
+        assertThat(badLastNameErr.get(0).getValidationIssueCode()).isEqualTo("LEGALMIDDLENAMEBADVALUE");
+    }
+
+    @Test
+    void testStudentUsualMiddleNameRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationError.size()).isZero();
+
+        entity.setUsualMiddleNames("Böb");
+        val charsLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(charsLastNameErr.size()).isNotZero();
+        assertThat(charsLastNameErr.get(0).getValidationIssueCode()).isEqualTo("USUALMIDDLENAMECHARFIX");
+
+        entity.setUsualMiddleNames("na");
+        val badLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(badLastNameErr.size()).isNotZero();
+        assertThat(badLastNameErr.get(0).getValidationIssueCode()).isEqualTo("USUALMIDDLENAMEBADVALUE");
+    }
 }
