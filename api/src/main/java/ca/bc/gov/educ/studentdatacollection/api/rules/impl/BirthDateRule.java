@@ -28,7 +28,7 @@ public class BirthDateRule implements BaseRule {
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd").withResolverStyle(ResolverStyle.STRICT);
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT);
         try {
             LocalDate dob = LocalDate.parse(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob(), format);
             LocalDate date = LocalDate.of(1900, Month.JANUARY, 01);
