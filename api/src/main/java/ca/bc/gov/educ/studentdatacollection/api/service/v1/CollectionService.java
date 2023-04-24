@@ -6,14 +6,16 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CollectionService {
@@ -28,6 +30,10 @@ public class CollectionService {
 
   public Optional<CollectionEntity> getCollection(UUID collectionID) {
     return collectionRepository.findById(collectionID);
+  }
+
+  public List<CollectionEntity> getCollections(String createUser) {
+    return collectionRepository.findAllByCreateUser(createUser);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)

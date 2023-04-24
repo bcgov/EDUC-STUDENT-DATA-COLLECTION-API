@@ -21,7 +21,7 @@
       src/main/java/ca/bc/gov/educ/studentdatacollection/api/model/**,
       src/main/java/ca/bc/gov/educ/studentdatacollection/api/struct/**
     </sonar.exclusions>
-    <java.version>18</java.version>
+    <java.version>17</java.version>
 
     <maven.compiler.version>3.10.1</maven.compiler.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>

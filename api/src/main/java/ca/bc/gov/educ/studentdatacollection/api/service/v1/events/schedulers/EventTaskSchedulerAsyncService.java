@@ -1,10 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.events.schedulers;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.LogHelper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.Orchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
@@ -67,7 +65,7 @@ public class EventTaskSchedulerAsyncService {
 
   private void processUncompletedSagas(final List<SdcSagaEntity> sagas) {
     for (val saga : sagas) {
-      if (saga.getUpdateDate().isBefore(LocalDateTime.now().minusMinutes(2))
+      if (saga  .getUpdateDate().isBefore(LocalDateTime.now().minusMinutes(2))
         && this.getSagaOrchestrators().containsKey(saga.getSagaName())) {
         try {
           this.setRetryCountAndLog(saga);
