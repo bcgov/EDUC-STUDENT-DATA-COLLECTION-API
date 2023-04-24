@@ -332,7 +332,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
                 .andDo(print()).andExpect(status().isNoContent());
 
         var sdcSchoolCollectionDelete = sdcSchoolCollectionRepository.findById(sdcSchoolCollection.get().getSdcSchoolCollectionID());
-        assertThat(sdcSchoolCollectionDelete.isEmpty()).isTrue();
+        assertThat(sdcSchoolCollectionDelete).isEmpty();
     }
 
 }
