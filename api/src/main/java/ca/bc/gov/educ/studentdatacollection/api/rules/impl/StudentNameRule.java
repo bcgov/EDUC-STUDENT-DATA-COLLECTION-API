@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
@@ -33,7 +32,7 @@ public class StudentNameRule implements BaseRule {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_LAST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_LAST_NAME_BLANK));
         }
 
-        if (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalLastName()) && BadNameValues.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalLastName()).isPresent()) {
+        if (containsBadValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalLastName())) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_LAST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_LAST_NAME_BAD_VALUE));
         }
 
@@ -45,7 +44,7 @@ public class StudentNameRule implements BaseRule {
         if (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalFirstName()) && pattern.matcher(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalFirstName()).find()) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_FIRST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_FIRST_NAME_CHAR_FIX));
         }
-        if (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalFirstName()) && BadNameValues.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalFirstName()).isPresent()) {
+        if (containsBadValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalFirstName())) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_FIRST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_FIRST_NAME_BAD_VALUE));
         }
 
@@ -53,7 +52,7 @@ public class StudentNameRule implements BaseRule {
         if (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalMiddleNames()) && pattern.matcher(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalMiddleNames()).find()) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_MIDDLE_NAMES, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_MIDDLE_NAME_CHAR_FIX));
         }
-        if (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalMiddleNames()) && BadNameValues.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalMiddleNames()).isPresent()) {
+        if (containsBadValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalMiddleNames())) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_MIDDLE_NAMES, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_MIDDLE_NAME_BAD_VALUE));
         }
 
@@ -61,7 +60,7 @@ public class StudentNameRule implements BaseRule {
         if (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualFirstName()) && pattern.matcher(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualFirstName()).find()) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.USUAL_FIRST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.USUAL_FIRST_NAME_CHAR_FIX));
         }
-        if (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualFirstName()) && BadNameValues.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualFirstName()).isPresent()) {
+        if (containsBadValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualFirstName())) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.USUAL_FIRST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.USUAL_FIRST_NAME_BAD_VALUE));
         }
 
@@ -69,7 +68,7 @@ public class StudentNameRule implements BaseRule {
         if (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualMiddleNames()) && pattern.matcher(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualMiddleNames()).find()) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.USUAL_MIDDLE_NAMES, SdcSchoolCollectionStudentValidationIssueTypeCode.USUAL_MIDDLE_NAME_CHAR_FIX));
         }
-        if (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualMiddleNames()) && BadNameValues.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualMiddleNames()).isPresent()) {
+        if (containsBadValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualMiddleNames())) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.USUAL_MIDDLE_NAMES, SdcSchoolCollectionStudentValidationIssueTypeCode.USUAL_MIDDLE_NAME_BAD_VALUE));
         }
 
@@ -77,11 +76,15 @@ public class StudentNameRule implements BaseRule {
         if (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualLastName()) && pattern.matcher(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualLastName()).find()) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.USUAL_LAST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.USUAL_LAST_NAME_CHAR_FIX));
         }
-        if (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualLastName()) && BadNameValues.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualLastName()).isPresent()) {
+        if (containsBadValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualLastName())) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.USUAL_LAST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.USUAL_LAST_NAME_BAD_VALUE));
         }
 
         return errors;
+    }
+
+    private boolean containsBadValue(String name) {
+        return StringUtils.isNotEmpty(name) && BadNameValues.findByValue(name).isPresent();
     }
 }
 
