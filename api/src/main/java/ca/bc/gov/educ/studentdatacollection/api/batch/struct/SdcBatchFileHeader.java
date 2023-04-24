@@ -19,4 +19,5 @@ public class SdcBatchFileHeader {
    * The Transaction code.
    */
   private String transactionCode; //TRANSACTION_CODE	3	0	Always "FFI"
+
 }
