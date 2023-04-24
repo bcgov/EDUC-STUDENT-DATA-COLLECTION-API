@@ -31,13 +31,12 @@ public class StudentNameRule implements BaseRule {
         //LEGAL LAST NAME
         if (StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalLastName())) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_LAST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_LAST_NAME_BLANK));
+        } else if(BadNameValues.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalLastName()).isPresent()) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_LAST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_LAST_NAME_BAD_VALUE));
         } else {
             Matcher lastNameMatcher = pattern.matcher(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalLastName());
             if (lastNameMatcher.find()) {
                 errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_LAST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_LAST_NAME_CHAR_FIX));
-            }
-            if(BadNameValues.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalLastName()).isPresent()) {
-                errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_LAST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_LAST_NAME_BAD_VALUE));
             }
         }
 
