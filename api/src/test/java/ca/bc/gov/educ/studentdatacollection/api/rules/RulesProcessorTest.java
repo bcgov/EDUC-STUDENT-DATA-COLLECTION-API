@@ -46,6 +46,17 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationErrorIncorrectVal = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorIncorrectVal.size()).isNotZero();
         assertThat(validationErrorIncorrectVal.get(0).getValidationIssueFieldCode()).isEqualTo("GENDER_CODE");
+
+        entity.setGender(null);
+        val validationErrorNull = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorNull.size()).isNotZero();
+        assertThat(validationErrorNull.get(0).getValidationIssueFieldCode()).isEqualTo("GENDER_CODE");
+
+        entity.setGender("");
+        val validationErrorEmpty = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorEmpty.size()).isNotZero();
+        assertThat(validationErrorEmpty.get(0).getValidationIssueFieldCode()).isEqualTo("GENDER_CODE");
+
     }
 
     @Test
@@ -59,6 +70,11 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorInvalidDate.size()).isNotZero();
         assertThat(validationErrorInvalidDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
+        entity.setDob("0210424F");
+        val validationErrorInvalidCharDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorInvalidCharDate.size()).isNotZero();
+        assertThat(validationErrorInvalidCharDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
+
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd");
         entity.setDob(format.format(LocalDate.now().plusDays(2)));
         val validationErrorFutureDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
@@ -69,6 +85,16 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorOldDate.size()).isNotZero();
         assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
+
+        entity.setDob(null);
+        val validationErrorNullDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorNullDate.size()).isNotZero();
+        assertThat(validationErrorNullDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
+
+        entity.setDob("");
+        val validationErrorEmptyDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorEmptyDate.size()).isNotZero();
+        assertThat(validationErrorEmptyDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
         entity.setDob("20180420");
         val validationErrorCorrectDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
@@ -152,6 +178,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val badLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(badLastNameErr.size()).isNotZero();
         assertThat(badLastNameErr.get(0).getValidationIssueCode()).isEqualTo("USUALLASTNAMEBADVALUE");
+
+        entity.setUsualLastName(null);
+        val nullLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(nullLastNameErr.size()).isZero();
     }
 
     @Test
