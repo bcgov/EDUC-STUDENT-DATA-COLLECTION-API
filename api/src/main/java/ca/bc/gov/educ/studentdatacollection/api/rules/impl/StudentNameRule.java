@@ -40,16 +40,14 @@ public class StudentNameRule implements BaseRule {
             }
         }
 
-    //LEGAL FIRST NAME
-        if(StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalFirstName())) {
-            Matcher firstNameMatcher = pattern.matcher(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalFirstName());
-            if (firstNameMatcher.find()) {
-                errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_FIRST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_FIRST_NAME_CHAR_FIX));
-            }
-            if(BadNameValues.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalFirstName()).isPresent()) {
-                errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_FIRST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_FIRST_NAME_BAD_VALUE));
-            }
+        //LEGAL FIRST NAME
+        if (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalFirstName()) && pattern.matcher(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalFirstName()).find()) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_FIRST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_FIRST_NAME_CHAR_FIX));
         }
+        if (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalFirstName()) && BadNameValues.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalFirstName()).isPresent()) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_FIRST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_FIRST_NAME_BAD_VALUE));
+        }
+
 
         //LEGAL MIDDLE NAME
         if(StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalMiddleNames())) {
