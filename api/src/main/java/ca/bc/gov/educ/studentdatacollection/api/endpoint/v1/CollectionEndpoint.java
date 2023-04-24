@@ -38,7 +38,6 @@ public interface CollectionEndpoint {
   @Schema(name = "Collection", implementation = Collection.class)
   List<Collection> getCollections(@PathVariable("createUser") String createUser);
 
-
   @PostMapping()
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})

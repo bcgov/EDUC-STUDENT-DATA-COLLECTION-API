@@ -8,6 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionValidator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -40,9 +41,9 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   }
 
   @Override
-  public SdcSchoolCollection getSchoolCollectionBySchoolId(UUID schoolID) {
+  public SdcSchoolCollection getActiveSchoolCollectionBySchoolId(UUID schoolID) {
     return mapper.toSdcSchoolBatch(
-        sdcSchoolCollectionService.getSdcSchoolCollectionBySchoolID(schoolID));
+        sdcSchoolCollectionService.getActiveSdcSchoolCollectionBySchoolID(schoolID));
   }
 
   @Override
@@ -50,5 +51,11 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
     ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionValidator.validatePayload(sdcSchoolCollection, true));
     RequestUtil.setAuditColumnsForCreate(sdcSchoolCollection);
     return mapper.toStructure(sdcSchoolCollectionService.createSdcSchoolCollectionByCollectionID(mapper.toModel(sdcSchoolCollection), collectionID));
+  }
+
+  @Override
+  public ResponseEntity<Void> deleteSdcSchoolCollection(UUID sdcSchoolCollectionID) {
+      this.sdcSchoolCollectionService.deleteSdcCollection(sdcSchoolCollectionID);
+      return ResponseEntity.noContent().build();
   }
 }
