@@ -263,4 +263,32 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(badLastNameErr.size()).isNotZero();
         assertThat(badLastNameErr.get(0).getValidationIssueCode()).isEqualTo("USUALMIDDLENAMEBADVALUE");
     }
+
+    @Test
+    void testCSFProgramRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val school = createMockSchool();
+
+        entity.setEnrolledProgramCodes("14");
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
+        assertThat(validationError.size()).isNotZero();
+        assertThat(validationError.get(0).getValidationIssueCode()).isEqualTo("ENROLLEDCODEPARSEERR");
+
+        entity.setEnrolledProgramCodes("0000000000000000");
+        val validationCodeError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
+        assertThat(validationCodeError.size()).isNotZero();
+        assertThat(validationCodeError.get(0).getValidationIssueCode()).isEqualTo("ENROLLEDNOFRANCOPHONE");
+
+        entity.setEnrolledProgramCodes("0000000000000005");
+        school.setSchoolReportingRequirementCode("RT");
+        val validationCodeReportError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
+        assertThat(validationCodeReportError.size()).isNotZero();
+        assertThat(validationCodeReportError.get(0).getValidationIssueCode()).isEqualTo("ENROLLEDWRONGREPORTING");
+
+        entity.setEnrolledProgramCodes("0000000000000005");
+        val noValidationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(noValidationError.size()).isZero();
+    }
 }
