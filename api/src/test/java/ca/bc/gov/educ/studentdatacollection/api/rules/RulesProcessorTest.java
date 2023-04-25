@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -30,6 +31,13 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     @Autowired
     SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+
+    @AfterEach
+    public void afterEach() {
+        this.collectionRepository.deleteAll();
+        this.sdcSchoolCollectionRepository.deleteAll();
+        this.sdcSchoolCollectionStudentRepository.deleteAll();
+    }
 
     @Test
     void testGenderRule() {
