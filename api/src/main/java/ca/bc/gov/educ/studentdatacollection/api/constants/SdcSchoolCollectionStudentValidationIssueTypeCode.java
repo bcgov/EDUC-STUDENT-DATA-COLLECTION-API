@@ -18,6 +18,7 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   LOCALID_BLANK("LOCALIDBLANK", "Local identifier number is blank."),
   DOB_INVALID_FORMAT("DOBINVALIDFORMAT", "Student's birthdate must be a valid calendar date that is not in the future."),
   STUDENT_PEN_BLANK("STUDENTPENBLANK", "Students in Summer School must be reported with a PEN."),
+  STUDENT_PEN_DUPLICATE("STUDENTPENDUPLICATE", "PEN reported more than once. Correct the PEN or remove the appropriate student from the submission."),
   LEGAL_LAST_NAME_BLANK("LEGALLASTNAMEBLANK", "Legal surname cannot be blank. If student only has one name, it must be placed in the surname field and the given name field can be left blank."),
   LEGAL_FIRST_NAME_CHAR_FIX("LEGALFIRSTNAMECHARFIX", "Legal given name contains characters that are not yet supported by legacy systems. Please remove or replace any special characters in this field."),
   LEGAL_MIDDLE_NAME_CHAR_FIX("LEGALMIDDLENAMECHARFIX", "Legal middle name contains characters that are not yet supported by legacy systems. Please remove or replace any special characters in this field."),

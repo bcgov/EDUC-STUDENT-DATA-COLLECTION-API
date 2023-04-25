@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionSt
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -27,6 +28,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     CollectionRepository collectionRepository;
     @Autowired
     SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+    @Autowired
+    SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
     @Test
     void testGenderRule() {
@@ -290,5 +293,43 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setEnrolledProgramCodes("0000000000000005");
         val noValidationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(noValidationError.size()).isZero();
+    }
+
+    @Test
+    void testPenRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        entity.setUpdateDate(LocalDateTime.now());
+        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        sdcSchoolCollectionStudentRepository.save(entity);
+
+        val savedEntityOne = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
+        assertThat(savedEntityOne).isPresent();
+
+        val entity2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        entity.setUpdateDate(LocalDateTime.now());
+        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        sdcSchoolCollectionStudentRepository.save(entity2);
+
+        val savedEntityTwo = sdcSchoolCollectionStudentRepository.findById(entity2.getSdcSchoolCollectionStudentID());
+        assertThat(savedEntityTwo).isPresent();
+
+        val dupePenCount = sdcSchoolCollectionStudentRepository.countForDuplicateStudentPENs(entity.getSdcSchoolCollectionID(), entity.getStudentPen());
+        assertThat(dupePenCount).isEqualTo(2);
+
+        entity.setStudentPen("123456789");
+        val validationErrorDupe = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorDupe.size()).isNotZero();
+        assertThat(validationErrorDupe.get(0).getValidationIssueCode()).isEqualTo("STUDENTPENDUPLICATE");
+
+        entity.setStudentPen(null);
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationError.size()).isNotZero();
+        assertThat(validationError.get(0).getValidationIssueCode()).isEqualTo("STUDENTPENDUPLICATE");
     }
 }
