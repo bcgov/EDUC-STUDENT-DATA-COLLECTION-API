@@ -309,6 +309,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setStudentPen("523456789");
         entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
         entity.setUpdateDate(LocalDateTime.now());
         entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
@@ -319,10 +320,11 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(savedEntityOne).isPresent();
 
         val entity2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-        entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
-        entity.setUpdateDate(LocalDateTime.now());
-        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity2.setStudentPen("523456789");
+        entity2.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        entity2.setUpdateDate(LocalDateTime.now());
+        entity2.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity2.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         sdcSchoolCollectionStudentRepository.save(entity2);
 
         val savedEntityTwo = sdcSchoolCollectionStudentRepository.findById(entity2.getSdcSchoolCollectionStudentID());
@@ -331,7 +333,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val dupePenCount = sdcSchoolCollectionStudentRepository.countForDuplicateStudentPENs(entity.getSdcSchoolCollectionID(), entity.getStudentPen());
         assertThat(dupePenCount).isEqualTo(2);
 
-        entity.setStudentPen("123456789");
+        entity.setStudentPen("523456789");
         val validationErrorDupe = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorDupe.size()).isNotZero();
         assertThat(validationErrorDupe.get(0).getValidationIssueCode()).isEqualTo("STUDENTPENDUPLICATE");
