@@ -32,7 +32,7 @@ public class PenRule implements BaseRule {
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         Long penCount = validationRulesService.getDuplicatePenCount(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionID(), sdcStudentSagaData.getSdcSchoolCollectionStudent().getStudentPen());
-        if(StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getStudentPen()) || penCount > 0) {
+        if(StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getStudentPen()) || penCount > 1) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.STUDENT_PEN, SdcSchoolCollectionStudentValidationIssueTypeCode.STUDENT_PEN_DUPLICATE));
         }
         return errors;
