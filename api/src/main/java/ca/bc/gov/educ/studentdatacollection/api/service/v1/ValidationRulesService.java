@@ -1,0 +1,32 @@
+package ca.bc.gov.educ.studentdatacollection.api.service.v1;
+
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CodeTableMapper;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import lombok.Getter;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+import static lombok.AccessLevel.PRIVATE;
+
+@Service
+public class ValidationRulesService {
+    private final CodeTableService codeTableService;
+    @Getter(PRIVATE)
+    private final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository;
+    private static final CodeTableMapper mapper = CodeTableMapper.mapper;
+    public ValidationRulesService(CodeTableService codeTableService, SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository) {
+        this.codeTableService = codeTableService;
+        this.sdcSchoolStudentRepository = sdcSchoolStudentRepository;
+    }
+    public Long getDuplicatePenCount(String sdcSchoolID, String studentPen) {
+        return sdcSchoolStudentRepository.countForDuplicateStudentPENs(UUID.fromString(sdcSchoolID), studentPen);
+    }
+
+    public List<CareerProgramCode> getActiveCareerProgramCodes() {
+        return codeTableService.getAllCareerProgramCodes().stream().filter(code -> code.getExpiryDate().isAfter(LocalDateTime.now())).map(mapper::toStructure).toList();
+    }
+}

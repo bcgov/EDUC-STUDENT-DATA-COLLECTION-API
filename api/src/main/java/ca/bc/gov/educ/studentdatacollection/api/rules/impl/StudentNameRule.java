@@ -25,7 +25,7 @@ public class StudentNameRule implements BaseRule {
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        Pattern pattern = Pattern.compile("[^a-z]", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("[^a-z0-9]+", Pattern.CASE_INSENSITIVE);
 
         //LEGAL LAST NAME
         if (StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalLastName())) {

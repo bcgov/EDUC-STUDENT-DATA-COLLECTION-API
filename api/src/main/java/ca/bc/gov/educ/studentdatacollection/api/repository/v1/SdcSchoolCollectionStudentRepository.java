@@ -17,17 +17,11 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   long countBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
-  @Query(value = "SELECT " +
-    "COUNT(SDC_SCHOOL_COLLECTION_STUDENT_ID) " +
-    "FROM " +
-    "SDC_SCHOOL_COLLECTION_STUDENT " +
-    "WHERE " +
-    "sdc_school_collection_id = ?1 " +
-    "GROUP BY " +
-    "student_pen " +
-    "HAVING " +
-    "COUNT(SDC_SCHOOL_COLLECTION_STUDENT_ID) > 1", nativeQuery = true)
-  Long countForDuplicateStudentPENs(String sdcSchoolID);
+  @Query(value = """
+    SELECT COUNT(*) FROM SDC_SCHOOL_COLLECTION_STUDENT SSCS 
+    WHERE SSCS.sdc_school_collection_id = :sdcSchoolID 
+    AND SSCS.STUDENT_PEN=:studentPen""", nativeQuery = true)
+  Long countForDuplicateStudentPENs(UUID sdcSchoolID, String studentPen);
 
   @Query(value="""
     SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE stud.sdcSchoolCollectionStudentID 
