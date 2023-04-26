@@ -166,6 +166,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationError.size()).isZero();
 
+        entity.setLegalLastName("5Bob90");
+        val validationErrorNum = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorNum.size()).isZero();
+
         entity.setLegalLastName(null);
         val nullLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(nullLastNameErr.size()).isNotZero();
