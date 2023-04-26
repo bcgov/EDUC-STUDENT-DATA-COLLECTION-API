@@ -9,6 +9,11 @@ import lombok.Getter;
  */
 public enum FileError {
   /**
+   * The Invalid mincode header.
+   */
+  MISSING_HEADER("The file header appeards to be missing"),
+
+  /**
    * The Invalid transaction code header.
    */
   INVALID_TRANSACTION_CODE_HEADER("Invalid transaction code on Header record. It must be FFI"),

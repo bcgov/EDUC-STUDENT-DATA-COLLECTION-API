@@ -11,6 +11,8 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.flatpack.DataError;
 import net.sf.flatpack.DataSet;
+import net.sf.flatpack.Record;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -76,9 +78,17 @@ public class SdcFileValidator {
       ds.goTop();
       ds.next();
 
-      String fileMincode = ds.getRecord().get().getString("mincode");
-      String mincode = school.get().getMincode();
+      Optional<Record> dsHeader = ds.getRecord();
+      if (dsHeader.isEmpty()) {
+        throw new FileUnProcessableException(
+          FileError.MISSING_HEADER,
+          guid,
+          SdcSchoolCollectionStatus.LOAD_FAIL
+        );
+      }
 
+      String fileMincode = dsHeader.get().getString("mincode");
+      String mincode = school.get().getMincode();
       if (!fileMincode.equals(mincode)) {
         throw new FileUnProcessableException(
           FileError.MINCODE_MISMATCH,
