@@ -55,11 +55,14 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
       schoolCollectionOptional
     );
     assertThat(response).isNotNull();
+
     final var result = this.sdcSchoolCollectionRepository.findAll();
     assertThat(result).hasSize(1);
+
     final var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+
     final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
   }
