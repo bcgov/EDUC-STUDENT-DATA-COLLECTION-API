@@ -115,9 +115,14 @@ public class SdcBatchFileProcessor {
       var byteArrayOutputStream = new ByteArrayInputStream(Base64.getDecoder().decode(fileUpload.getFileContents()));
       batchFileReaderOptional = Optional.of(new InputStreamReader(byteArrayOutputStream));
       final DataSet ds = DefaultParserFactory.getInstance().newFixedLengthParser(mapperReader, batchFileReaderOptional.get()).setStoreRawDataToDataError(true).setStoreRawDataToDataSet(true).setNullEmptyStrings(true).parse();
+
+      this.sdcFileValidator.validateFileHasCorrectExtension(sdcSchoolCollectionID, ds, fileUpload);
+      this.sdcFileValidator
+        .validateFileHasCorrectMincode(guid, ds, sdcSchoolCollection, this.restUtils);
       this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
+
       return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, sdcSchoolCollectionID);
     } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
       log.error("File could not be processed exception :: {}", fileUnProcessableException);
