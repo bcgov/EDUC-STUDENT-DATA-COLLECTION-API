@@ -101,7 +101,11 @@ public class SdcBatchFileProcessor {
    *
    */
   @Transactional(propagation = Propagation.MANDATORY)
-  public SdcSchoolCollectionEntity processSdcBatchFile(@NonNull final SdcFileUpload fileUpload, String sdcSchoolCollectionID) {
+  public SdcSchoolCollectionEntity processSdcBatchFile(
+    @NonNull final SdcFileUpload fileUpload,
+    String sdcSchoolCollectionID,
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollection
+  ) {
     val stopwatch = Stopwatch.createStarted();
     final var guid = UUID.randomUUID().toString(); // this guid will be used throughout the logs for easy tracking.
     log.info("Started processing SDC file with school collection ID :: {} and correlation guid :: {}", sdcSchoolCollectionID, guid);

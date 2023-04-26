@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -30,8 +31,16 @@ public class SdcFileService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload, String sdcSchoolCollectionID){
+  public SdcSchoolCollectionEntity runFileLoad(
+    SdcFileUpload sdcFileUpload,
+    String sdcSchoolCollectionID,
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity
+  ) {
     log.debug("Uploaded file contents for school collection ID: {}", sdcSchoolCollectionID);
-    return this.getSdcBatchProcessor().processSdcBatchFile(sdcFileUpload, sdcSchoolCollectionID);
+    return this.getSdcBatchProcessor().processSdcBatchFile(
+      sdcFileUpload,
+      sdcSchoolCollectionID,
+      sdcSchoolCollectionEntity
+    );
   }
 }
