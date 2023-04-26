@@ -43,9 +43,7 @@ public class SdcSchoolCollectionFileValidator {
       }else{
         var sdcSchoolCollectionEntity = schoolCollectionEntity.get();
         var currentDate = LocalDateTime.now();
-        if(sdcSchoolCollectionEntity.getUploadDate() != null){
-          apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, sdcSchoolCollectionID, "Invalid SDC school collection ID, file already uploaded for school's collection."));
-        }else if(!(sdcSchoolCollectionEntity.getCollectionEntity().getOpenDate().isBefore(currentDate) && sdcSchoolCollectionEntity.getCollectionEntity().getCloseDate().isAfter(currentDate))){
+        if(!(sdcSchoolCollectionEntity.getCollectionEntity().getOpenDate().isBefore(currentDate) && sdcSchoolCollectionEntity.getCollectionEntity().getCloseDate().isAfter(currentDate))){
           apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, sdcSchoolCollectionID, "Invalid SDC school collection ID, collection period is closed."));
         }
       }

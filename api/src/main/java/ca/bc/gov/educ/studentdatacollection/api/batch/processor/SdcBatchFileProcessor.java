@@ -178,7 +178,8 @@ public class SdcBatchFileProcessor {
     var schoolCollection = sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
     if(schoolCollection.isPresent()) {
       var coll = schoolCollection.get();
-      coll.setSdcSchoolStudentEntities(sdcSchoolCollectionEntity.getSDCSchoolStudentEntities());
+      coll.getSDCSchoolStudentEntities().clear();
+      coll.getSDCSchoolStudentEntities().addAll(sdcSchoolCollectionEntity.getSDCSchoolStudentEntities());
       coll.setUploadDate(sdcSchoolCollectionEntity.getUploadDate());
       coll.setUploadFileName(sdcSchoolCollectionEntity.getUploadFileName());
       coll.setUpdateUser(sdcSchoolCollectionEntity.getUpdateUser());

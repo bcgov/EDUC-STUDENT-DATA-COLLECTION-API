@@ -117,16 +117,29 @@ public class SdcSchoolCollectionStudentEntity {
   @PastOrPresent
   @Column(name = "UPDATE_DATE")
   private LocalDateTime updateDate;
+
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  @OneToMany(mappedBy = "sdcSchoolCollectionStudentEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolCollectionStudentValidationIssueEntity.class)
+  @OneToMany(mappedBy = "sdcSchoolCollectionStudentEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentValidationIssueEntity.class)
   Set<SdcSchoolCollectionStudentValidationIssueEntity> sdcStudentValidationIssueEntities;
+
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  @OneToMany(mappedBy = "sdcSchoolCollectionStudentID", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentHistoryEntity.class)
+  Set<SdcSchoolCollectionStudentHistoryEntity> sdcStudentHistoryEntities;
 
   public Set<SdcSchoolCollectionStudentValidationIssueEntity> getSDCStudentValidationIssueEntities() {
     if (this.sdcStudentValidationIssueEntities == null) {
       this.sdcStudentValidationIssueEntities = new HashSet<>();
     }
     return this.sdcStudentValidationIssueEntities;
+  }
+
+  public Set<SdcSchoolCollectionStudentHistoryEntity> getSDCStudentHistoryEntities() {
+    if (this.sdcStudentHistoryEntities == null) {
+      this.sdcStudentHistoryEntities = new HashSet<>();
+    }
+    return this.sdcStudentHistoryEntities;
   }
 
 }
