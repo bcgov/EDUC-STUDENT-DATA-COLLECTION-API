@@ -47,7 +47,7 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     Optional<SdcSchoolCollectionEntity> schoolCollectionOptional = Optional.of(sdcSchoolCollection);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
-    var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.txt").build();
+    var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.std").build();
 
     var response = this.sdcBatchProcessor.processSdcBatchFile(
       fileUpload,

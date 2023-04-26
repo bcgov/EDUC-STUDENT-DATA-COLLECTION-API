@@ -120,7 +120,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     final School school = new School();
     school.setSchoolId(UUID.randomUUID().toString());
     school.setDisplayName("Marco's school");
-    school.setMincode("66510518");
+    school.setMincode("03636018");
     school.setOpenedDate("1964-09-01T00:00:00");
     school.setSchoolCategoryCode("PUBLIC");
     return school;
