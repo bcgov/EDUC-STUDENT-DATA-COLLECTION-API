@@ -40,20 +40,17 @@ public class SdcSchoolCollectionFileValidator {
       Optional<SdcSchoolCollectionEntity> schoolCollectionEntity = this.sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
       if (schoolCollectionEntity.isEmpty()) {
         apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, sdcSchoolCollectionID, "Invalid SDC school collection ID."));
-      }else{
+      } else {
         var sdcSchoolCollectionEntity = schoolCollectionEntity.get();
         var currentDate = LocalDateTime.now();
-        if(sdcSchoolCollectionEntity.getUploadDate() != null){
+        if (sdcSchoolCollectionEntity.getUploadDate() != null) {
           apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, sdcSchoolCollectionID, "Invalid SDC school collection ID, file already uploaded for school's collection."));
-        }else if(!(sdcSchoolCollectionEntity.getCollectionEntity().getOpenDate().isBefore(currentDate) && sdcSchoolCollectionEntity.getCollectionEntity().getCloseDate().isAfter(currentDate))){
+        } else if (!(sdcSchoolCollectionEntity.getCollectionEntity().getOpenDate().isBefore(currentDate) && sdcSchoolCollectionEntity.getCollectionEntity().getCloseDate().isAfter(currentDate))){
           apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, sdcSchoolCollectionID, "Invalid SDC school collection ID, collection period is closed."));
         }
       }
-    }catch(Exception e){
+    } catch(Exception e) {
       apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, sdcSchoolCollectionID, "Invalid SDC school collection ID."));
     }
   }
-
-
-
 }
