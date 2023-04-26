@@ -44,6 +44,21 @@ public enum FileError {
   INVALID_TRANSACTION_CODE_STUDENT_DETAILS("Invalid transaction code on Detail record $? for student with Local ID $?"),
 
   /**
+   * The filetype ended in the wrong extension and may be the wrong filetype.
+   */
+  INVALID_FILETYPE("File type invalid. Files must be of type \".ver\" or \".std\"."),
+
+  /**
+   * No record for the provided school ID was found.
+   */
+  INVALID_SCHOOL("Unable to find a school record for ID $?"),
+
+  /**
+   * The mincode on the uploaded document does not match the collection record.
+   */
+  MINCODE_MISMATCH("The uploaded file is for another school. Please upload a file for $?"),
+
+  /**
    * Invalid row length file error.
    * This will be thrown when any row in the given file is longer or shorter than expected.
    */
