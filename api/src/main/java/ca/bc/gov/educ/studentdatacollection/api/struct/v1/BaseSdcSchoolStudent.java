@@ -99,4 +99,8 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   @NotNull(message = "sdcSchoolCollectionStatusCode cannot be null")
   private String sdcSchoolCollectionStatusCode;
 
+  private Boolean isAdult;
+
+  private Boolean isSchoolAged;
+
 }
