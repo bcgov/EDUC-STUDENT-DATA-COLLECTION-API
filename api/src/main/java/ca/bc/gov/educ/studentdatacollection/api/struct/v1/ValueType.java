@@ -29,5 +29,9 @@ public enum ValueType {
   /**
    * Uuid value type.
    */
-  UUID
+  UUID,
+  /**
+   * Boolean value type.
+   */
+  BOOLEAN
 }
