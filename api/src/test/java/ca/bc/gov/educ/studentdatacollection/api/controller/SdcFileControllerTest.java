@@ -110,6 +110,33 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
+  void testProcessSdcFNCharsFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    sdcMockSchool.setUploadDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-2-student-fnchars.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    assertThat(fileContents).isNotEmpty();
+    val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.txt").build();
+    this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(body))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+    final var result = this.sdcSchoolCollectionRepository.findAll();
+    assertThat(result).hasSize(1);
+    final var entity = result.get(0);
+    assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+    final var students = this.schoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    assertThat(students).isNotNull();
+  }
+
+  @Test
   void testProcessSdcFileReUpload_givenValidPayload_ShouldReturnStatusOk() throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
