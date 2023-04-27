@@ -50,6 +50,7 @@ public abstract class SdcBatchFileDecorator implements SdcBatchFileMapper {
     entity.setSdcSchoolCollectionID(sdcSchoolBatchEntity.getSdcSchoolCollectionID()); // add thePK/FK relationship
     entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolCollectionStatus.LOADED.getCode());
 
+    entity.setStudentPen(StringMapper.trimAndUppercase(studentDetails.getPen()));
     entity.setPostalCode(StringMapper.trimAndUppercase(studentDetails.getPostalCode()));
     entity.setGender(StringMapper.trimAndUppercase(studentDetails.getGender()));
     entity.setDob(StringMapper.trimAndUppercase(studentDetails.getBirthDate()));
