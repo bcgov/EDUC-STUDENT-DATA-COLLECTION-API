@@ -41,7 +41,6 @@ public class SdcFileValidator {
 
   public void validateFileHasCorrectExtension(
     @NonNull final String guid,
-    @NonNull final DataSet ds,
     final SdcFileUpload fileUpload
   ) throws FileUnProcessableException {
     String fileName = fileUpload.getFileName();
