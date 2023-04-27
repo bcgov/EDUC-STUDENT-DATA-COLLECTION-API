@@ -282,7 +282,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setEnrolledProgramCodes("0000000000000000");
         val validationCodeError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
         assertThat(validationCodeError.size()).isNotZero();
-        assertThat(validationCodeError.get(0).getValidationIssueCode()).isEqualTo("ENROLLEDNOFRANCOPHONE");
+        val error = validationCodeError.stream().anyMatch(val -> val.getValidationIssueCode().equals("ENROLLEDNOFRANCOPHONE"));
+        assertThat(error).isTrue();
 
         entity.setEnrolledProgramCodes("0000000000000005");
         school.setSchoolReportingRequirementCode("RT");
@@ -466,6 +467,29 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationErrorCodeNull = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorCodeNull.size()).isNotZero();
         assertThat(validationErrorCodeNull.get(0).getValidationIssueCode()).isEqualTo("INVALIDGRADECODE");
+
+    }
+
+    @Test
+    void testNonHSGradeRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationError.size()).isZero();
+
+        entity.setEnrolledProgramCodes("0000000000000000");
+        val validationCodeError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationCodeError.size()).isNotZero();
+        val error = validationCodeError.stream().anyMatch(val -> val.getValidationIssueCode().equals("ENROLLEDCODEINVALID"));
+        assertThat(error).isTrue();
+
+        entity.setEnrolledProgramCodes("0800000000000005");
+        val validationCodeErrorCount = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationCodeError.size()).isNotZero();
+        val errorCount = validationCodeErrorCount.stream().anyMatch(val -> val.getValidationIssueCode().equals("ENROLLEDCODECOUNTERR"));
+        assertThat(errorCount).isTrue();
 
     }
 

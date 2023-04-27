@@ -55,6 +55,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     fundingCodeRepository.save(this.fundingCodeData());
     fundingCodeRepository.save(this.fundingCode20Data());
     enrolledGradeCodeRepository.save(this.enrolledGradeCodeData());
+    enrolledGradeCodeRepository.save(this.enrolledGradeCodeHSData());
   }
 
   @AfterEach
@@ -110,7 +111,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setSupportBlocks(null);
     sdcEntity.setEnrolledGradeCode("01");
     sdcEntity.setEnrolledProgramCodes("0000000000000005");
-    sdcEntity.setCareerProgramCode("AA");
+    sdcEntity.setCareerProgramCode("XA");
     sdcEntity.setNumberOfCourses(null);
     sdcEntity.setBandCode("0500");
     sdcEntity.setPostalCode("V0V0V0");
@@ -216,6 +217,12 @@ public abstract class BaseStudentDataCollectionAPITest {
   public EnrolledGradeCodeEntity enrolledGradeCodeData() {
     return EnrolledGradeCodeEntity.builder().enrolledGradeCode("01").description("Grade 1")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Grade 1").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public EnrolledGradeCodeEntity enrolledGradeCodeHSData() {
+    return EnrolledGradeCodeEntity.builder().enrolledGradeCode("HS").description("Home School")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Home School").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 

@@ -59,6 +59,7 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   INVALID_POSTAL_CODE("INVALIDPOSTALCODE", "Missing postal code."),
   OTHER_COURSE_INVALID("OTHERCOURSEINVALID", "Number of Other Courses must be blank or a number from 0 to 9."),
   ENROLLED_CODE_PARSE_ERR("ENROLLEDCODEPARSEERR", "List of enrolled program codes could not be parsed. Select the correct program codes for the student."),
+  INVALID_GRADE_CODE("INVALIDGRADECODE", "Invalid grade code."),
 
 
 
