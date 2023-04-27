@@ -12,5 +12,6 @@ public final class Constants {
     public static final String PROGRAMME_FRANCOPHONE_CODE="05";
     public static final String CSF="CSF";
     public static final String HS="HS";
+    public static final String IND_FUNDING_CODE="20";
 
 }

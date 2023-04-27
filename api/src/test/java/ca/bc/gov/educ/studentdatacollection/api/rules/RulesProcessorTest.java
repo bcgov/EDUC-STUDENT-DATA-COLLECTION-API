@@ -31,10 +31,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     @Autowired
     SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
-    @Autowired
-    CareerProgramCodeRepository careerProgramCodeRepository;
-    @Autowired
-    FundingCodeRepository fundingCodeRepository;
 
     @Test
     void testGenderRule() {
@@ -409,6 +405,47 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationError5 = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationError5.size()).isNotZero();
         assertThat(validationError5.get(0).getValidationIssueCode()).isEqualTo("FUNDINGCODEINVALID");
+    }
+
+    @Test
+    void testIndigenousCodeRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        entity.setSchoolFundingCode("20");
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationError.size()).isZero();
+
+        entity.setSchoolFundingCode("14");
+        val validationErrorCode = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorCode.size()).isNotZero();
+        assertThat(validationErrorCode.get(0).getValidationIssueCode()).isEqualTo("BANDCODEBLANK");
+
+        entity.setSchoolFundingCode("20");
+        entity.setBandCode(null);
+        val validationErrorNull = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorNull.size()).isNotZero();
+        assertThat(validationErrorNull.get(0).getValidationIssueCode()).isEqualTo("BANDCODEBLANK");
+
+        entity.setSchoolFundingCode(null);
+        entity.setBandCode("0500");
+        val validationErrorFNull = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorFNull.size()).isNotZero();
+
+        entity.setSchoolFundingCode("20");
+        entity.setBandCode("0500");
+        entity.setNativeAncestryInd("K");
+        val validationErrorInd = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorInd.size()).isNotZero();
+        assertThat(validationErrorInd.get(0).getValidationIssueCode()).isEqualTo("NATIVEINDINVALID");
+
+        entity.setSchoolFundingCode("20");
+        entity.setBandCode("0000");
+        entity.setNativeAncestryInd("Y");
+        val validationErrorInvalid = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorInvalid.size()).isNotZero();
+        assertThat(validationErrorInvalid.get(0).getValidationIssueCode()).isEqualTo("BANDCODEINVALID");
     }
 
 }

@@ -53,6 +53,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     homeLanguageSpokenCodeRepository.save(this.homeLanguageSpokenCodeData());
     bandCodeRepository.save(this.bandCodeData());
     fundingCodeRepository.save(this.fundingCodeData());
+    fundingCodeRepository.save(this.fundingCode20Data());
     enrolledGradeCodeRepository.save(this.enrolledGradeCodeData());
   }
 
@@ -102,7 +103,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setDob("19990101");
     sdcEntity.setGender("M");
     sdcEntity.setSpecialEducationCategoryCode("B");
-    sdcEntity.setSchoolFundingCode("14");
+    sdcEntity.setSchoolFundingCode("20");
     sdcEntity.setNativeAncestryInd("N");
     sdcEntity.setHomeLanguageSpokenCode("001");
     sdcEntity.setOtherCourses(null);
@@ -111,7 +112,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setEnrolledProgramCodes("0000000000000005");
     sdcEntity.setCareerProgramCode("AA");
     sdcEntity.setNumberOfCourses(null);
-    sdcEntity.setBandCode("0542");
+    sdcEntity.setBandCode("0500");
     sdcEntity.setPostalCode("V0V0V0");
     sdcEntity.setSdcSchoolCollectionStudentStatusCode("LOADED");
     sdcEntity.setCreateUser("ABC");
@@ -205,6 +206,13 @@ public abstract class BaseStudentDataCollectionAPITest {
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("OUT-OF-PROVINCE/INTERNATIONAL").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
+
+  public SchoolFundingCodeEntity fundingCode20Data() {
+    return SchoolFundingCodeEntity.builder().schoolFundingCode("20").description("STATUS INDIAN ON RESERVE")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("STATUS INDIAN ON RESERVE").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
   public EnrolledGradeCodeEntity enrolledGradeCodeData() {
     return EnrolledGradeCodeEntity.builder().enrolledGradeCode("01").description("Grade 1")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Grade 1").createDate(LocalDateTime.now())
