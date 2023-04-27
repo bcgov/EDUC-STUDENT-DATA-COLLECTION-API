@@ -104,6 +104,12 @@ public class SdcSchoolCollectionStudentEntity {
   @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE")
   private String sdcSchoolCollectionStudentStatusCode;
 
+  @Column(name = "IS_ADULT")
+  private Boolean isAdult;
+
+  @Column(name = "IS_SCHOOL_AGED")
+  private Boolean isSchoolAged;
+
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
 
