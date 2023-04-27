@@ -1,15 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplication;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -20,7 +16,6 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.time.LocalDateTime;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -31,18 +26,6 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
 
   @Autowired
   private MockMvc mockMvc;
-  @Autowired
-  EnrolledProgramCodeRepository enrolledProgramCodeRepository;
-  @Autowired
-  CareerProgramCodeRepository careerProgramCodeRepository;
-  @Autowired
-  HomeLanguageSpokenCodeRepository homeLanguageSpokenCodeRepository;
-  @Autowired
-  BandCodeRepository bandCodeRepository;
-  @Autowired
-  FundingCodeRepository fundingCodeRepository;
-  @Autowired
-  EnrolledGradeCodeRepository enrolledGradeCodeRepository;
 
   @BeforeEach
   public void setUp() {
@@ -50,25 +33,6 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   protected final static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
-
-  @BeforeEach
-  public void before() {
-    enrolledProgramCodeRepository.save(this.createEnrolledProgramCodeData());
-    careerProgramCodeRepository.save(this.createCareerProgramCodeData());
-    homeLanguageSpokenCodeRepository.save(this.homeLanguageSpokenCodeData());
-    bandCodeRepository.save(this.bandCodeData());
-    fundingCodeRepository.save(this.fundingCodeData());
-    enrolledGradeCodeRepository.save(this.enrolledGradeCodeData());
-  }
-  @AfterEach
-  public void after() {
-    enrolledProgramCodeRepository.deleteAll();
-    careerProgramCodeRepository.deleteAll();
-    homeLanguageSpokenCodeRepository.deleteAll();
-    bandCodeRepository.deleteAll();
-    fundingCodeRepository.deleteAll();
-    enrolledGradeCodeRepository.deleteAll();
-  }
 
   @Test
   void testGetAllEnrolledPrograms_ShouldReturnCodes() throws Exception {

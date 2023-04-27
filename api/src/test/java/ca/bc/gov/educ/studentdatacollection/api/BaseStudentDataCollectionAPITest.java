@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +32,29 @@ public abstract class BaseStudentDataCollectionAPITest {
 
   @Autowired
   protected StudentDataCollectionTestUtils studentDataCollectionTestUtils;
+
+  @Autowired
+  EnrolledProgramCodeRepository enrolledProgramCodeRepository;
+  @Autowired
+  CareerProgramCodeRepository careerProgramCodeRepository;
+  @Autowired
+  HomeLanguageSpokenCodeRepository homeLanguageSpokenCodeRepository;
+  @Autowired
+  BandCodeRepository bandCodeRepository;
+  @Autowired
+  FundingCodeRepository fundingCodeRepository;
+  @Autowired
+  EnrolledGradeCodeRepository enrolledGradeCodeRepository;
+
+  @BeforeEach
+  public void before() {
+    enrolledProgramCodeRepository.save(this.createEnrolledProgramCodeData());
+    careerProgramCodeRepository.save(this.createCareerProgramCodeData());
+    homeLanguageSpokenCodeRepository.save(this.homeLanguageSpokenCodeData());
+    bandCodeRepository.save(this.bandCodeData());
+    fundingCodeRepository.save(this.fundingCodeData());
+    enrolledGradeCodeRepository.save(this.enrolledGradeCodeData());
+  }
 
   @AfterEach
   public void resetState() {

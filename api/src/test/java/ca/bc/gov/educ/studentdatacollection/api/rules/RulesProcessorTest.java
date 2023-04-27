@@ -36,20 +36,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Autowired
     FundingCodeRepository fundingCodeRepository;
 
-    @BeforeEach
-    public void beforeEach() {
-        careerProgramCodeRepository.save(createCareerProgramCodeData());
-        fundingCodeRepository.save(fundingCodeData());
-    }
-
-    @AfterEach
-    public void afterEach() {
-        collectionRepository.deleteAll();
-        sdcSchoolCollectionRepository.deleteAll();
-        sdcSchoolCollectionStudentRepository.deleteAll();
-        careerProgramCodeRepository.deleteAll();
-    }
-
     @Test
     void testGenderRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
