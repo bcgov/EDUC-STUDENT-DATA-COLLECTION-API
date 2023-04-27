@@ -448,4 +448,25 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorInvalid.get(0).getValidationIssueCode()).isEqualTo("BANDCODEINVALID");
     }
 
+    @Test
+    void testGradeCodeRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationError.size()).isZero();
+
+        entity.setEnrolledGradeCode("X");
+        val validationErrorCode = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorCode.size()).isNotZero();
+        assertThat(validationErrorCode.get(0).getValidationIssueCode()).isEqualTo("INVALIDGRADECODE");
+
+        entity.setEnrolledGradeCode(null);
+        val validationErrorCodeNull = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorCodeNull.size()).isNotZero();
+        assertThat(validationErrorCodeNull.get(0).getValidationIssueCode()).isEqualTo("INVALIDGRADECODE");
+
+    }
+
 }
