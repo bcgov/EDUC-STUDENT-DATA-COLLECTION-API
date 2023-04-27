@@ -4,10 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CareerProgramCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CareerProgramCodeRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -36,10 +33,13 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     @Autowired
     CareerProgramCodeRepository careerProgramCodeRepository;
+    @Autowired
+    FundingCodeRepository fundingCodeRepository;
 
     @BeforeEach
     public void beforeEach() {
-        careerProgramCodeRepository.save(this.createCareerProgramCodeData());
+        careerProgramCodeRepository.save(createCareerProgramCodeData());
+        fundingCodeRepository.save(fundingCodeData());
     }
 
     @AfterEach
@@ -405,9 +405,24 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorCarrCodes.get(0).getValidationIssueSeverityCode()).isEqualTo("WARNING");
     }
 
-    private CareerProgramCodeEntity createCareerProgramCodeData() {
-        return CareerProgramCodeEntity.builder().careerProgramCode("XA").description("Business")
-                .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Business").createDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+    @Test
+    void testFundingCodeRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationError.size()).isZero();
+
+        entity.setSchoolFundingCode(null);
+        val validationErrorNull = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorNull.size()).isNotZero();
+        assertThat(validationErrorNull.get(0).getValidationIssueCode()).isEqualTo("FUNDINGCODEINVALID");
+
+        entity.setSchoolFundingCode("05");
+        val validationError5 = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationError5.size()).isNotZero();
+        assertThat(validationError5.get(0).getValidationIssueCode()).isEqualTo("FUNDINGCODEINVALID");
     }
+
 }

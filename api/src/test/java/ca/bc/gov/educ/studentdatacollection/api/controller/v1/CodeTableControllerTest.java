@@ -70,38 +70,6 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     enrolledGradeCodeRepository.deleteAll();
   }
 
-  private EnrolledProgramCodeEntity createEnrolledProgramCodeData() {
-    return EnrolledProgramCodeEntity.builder().enrolledProgramCode("05").description("Programme Francophone")
-            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Francophone").createDate(LocalDateTime.now())
-            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
-  }
-  private CareerProgramCodeEntity createCareerProgramCodeData() {
-    return CareerProgramCodeEntity.builder().careerProgramCode("XA").description("Business")
-            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Business").createDate(LocalDateTime.now())
-            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
-  }
-  private HomeLanguageSpokenCodeEntity homeLanguageSpokenCodeData() {
-    return HomeLanguageSpokenCodeEntity.builder().homeLanguageSpokenCode("001").description("Portuguese")
-            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Portuguese").createDate(LocalDateTime.now())
-            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
-  }
-  private BandCodeEntity bandCodeData() {
-    return BandCodeEntity.builder().bandCode("0500").description("KWANLIN DUN")
-            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("KWANLIN DUN").createDate(LocalDateTime.now())
-            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
-  }
-  private SchoolFundingCodeEntity fundingCodeData() {
-    return SchoolFundingCodeEntity.builder().schoolFundingCode("14").description("OUT-OF-PROVINCE/INTERNATIONAL")
-            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("OUT-OF-PROVINCE/INTERNATIONAL").createDate(LocalDateTime.now())
-            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
-  }
-  private EnrolledGradeCodeEntity enrolledGradeCodeData() {
-    return EnrolledGradeCodeEntity.builder().enrolledGradeCode("01").description("Grade 1")
-            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Grade 1").createDate(LocalDateTime.now())
-            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
-  }
-
-
   @Test
   void testGetAllEnrolledPrograms_ShouldReturnCodes() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
