@@ -4,13 +4,18 @@ import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileError;
 import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.flatpack.DataError;
 import net.sf.flatpack.DataSet;
+import net.sf.flatpack.Record;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
-
 import java.util.Optional;
 
 /**
@@ -32,6 +37,68 @@ public class SdcFileValidator {
       this.validateHeaderTrailerWhenFileHasNoLengthErrors(guid, ds);
     }
     this.processDataSetForRowLengthErrors(guid, ds);
+  }
+
+  public void validateFileHasCorrectExtension(
+    @NonNull final String guid,
+    final SdcFileUpload fileUpload
+  ) throws FileUnProcessableException {
+    String fileName = fileUpload.getFileName();
+    String extension = fileName.substring(fileName.lastIndexOf('.') + 1);
+
+    if (!"ver".equals(extension) && !"std".equals(extension)) {
+      throw new FileUnProcessableException(
+        FileError.INVALID_FILETYPE,
+        guid,
+        SdcSchoolCollectionStatus.LOAD_FAIL
+      );
+    }
+  }
+
+  public void validateFileHasCorrectMincode(
+    @NonNull final String guid,
+    @NonNull final DataSet ds,
+    final Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity,
+    final RestUtils restUtils
+  ) throws FileUnProcessableException {
+    if (!sdcSchoolCollectionEntity.isEmpty()) {
+      String schoolID = sdcSchoolCollectionEntity.get().getSchoolID().toString();
+      Optional<School> school = restUtils.getSchoolBySchoolID(schoolID);
+
+      if (school.isEmpty()) {
+        throw new FileUnProcessableException(
+          FileError.INVALID_SCHOOL,
+          guid,
+          SdcSchoolCollectionStatus.LOAD_FAIL,
+          schoolID
+        );
+      }
+
+      ds.goTop();
+      ds.next();
+
+      Optional<Record> dsHeader = ds.getRecord();
+      if (dsHeader.isEmpty()) {
+        throw new FileUnProcessableException(
+          FileError.MISSING_HEADER,
+          guid,
+          SdcSchoolCollectionStatus.LOAD_FAIL
+        );
+      }
+
+      String fileMincode = dsHeader.get().getString("mincode");
+      String mincode = school.get().getMincode();
+      if (!fileMincode.equals(mincode)) {
+        throw new FileUnProcessableException(
+          FileError.MINCODE_MISMATCH,
+          guid,
+          SdcSchoolCollectionStatus.LOAD_FAIL,
+          mincode
+        );
+      }
+
+      ds.goTop();
+    }
   }
 
   private void validateTrailerWhenFileHasLengthErrors(final String guid, final DataSet ds) throws FileUnProcessableException {
