@@ -46,6 +46,7 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   ADULT_ZERO_COURSES("ADULTZEROCOURSES", "Adult students must have 0 or more courses."),
   AGE_LESS_THAN_FIVE("AGELESSTHANFIVE", "Student is too young for school and is not eligible for funding."),
   CONT_ED_ERR("CONTEDERR", "Student is too young for Continuing Education. Student must be removed from submission or their birthdate adjusted."),
+  PROGRAM_CODE_IND("PROGRAMCODEIND", "Student's reported with Indigenous Education Programs and Services must be reported with Indigenous Ancestry to get funding for the programs."),
   ENROLLED_CODE_FRANCOPHONE_ERR("ENROLLEDCODEFRANCOPHONEERR", "Student grade must be 6 or 7 for Late French Immersion."),
   BAND_CODE_BLANK("BANDCODEBLANK", "Student must be reported with both a Band of Residence and as Ordinarily Living on Reserve (funding code 20)."),
   BAND_CODE_INVALID("BANDCODEINVALID", "Invalid Band Code (Band of Residence) reported."),
