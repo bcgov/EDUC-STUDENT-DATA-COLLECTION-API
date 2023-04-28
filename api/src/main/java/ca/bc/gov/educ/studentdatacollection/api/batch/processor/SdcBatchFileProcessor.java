@@ -101,7 +101,11 @@ public class SdcBatchFileProcessor {
    *
    */
   @Transactional(propagation = Propagation.MANDATORY)
-  public SdcSchoolCollectionEntity processSdcBatchFile(@NonNull final SdcFileUpload fileUpload, String sdcSchoolCollectionID) {
+  public SdcSchoolCollectionEntity processSdcBatchFile(
+    @NonNull final SdcFileUpload fileUpload,
+    String sdcSchoolCollectionID,
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollection
+  ) {
     val stopwatch = Stopwatch.createStarted();
     final var guid = UUID.randomUUID().toString(); // this guid will be used throughout the logs for easy tracking.
     log.info("Started processing SDC file with school collection ID :: {} and correlation guid :: {}", sdcSchoolCollectionID, guid);
@@ -111,9 +115,14 @@ public class SdcBatchFileProcessor {
       var byteArrayOutputStream = new ByteArrayInputStream(Base64.getDecoder().decode(fileUpload.getFileContents()));
       batchFileReaderOptional = Optional.of(new InputStreamReader(byteArrayOutputStream));
       final DataSet ds = DefaultParserFactory.getInstance().newFixedLengthParser(mapperReader, batchFileReaderOptional.get()).setStoreRawDataToDataError(true).setStoreRawDataToDataSet(true).setNullEmptyStrings(true).parse();
+
+      this.sdcFileValidator.validateFileHasCorrectExtension(sdcSchoolCollectionID, fileUpload);
+      this.sdcFileValidator
+        .validateFileHasCorrectMincode(guid, ds, sdcSchoolCollection, this.restUtils);
       this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
+
       return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, sdcSchoolCollectionID);
     } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
       log.error("File could not be processed exception :: {}", fileUnProcessableException);

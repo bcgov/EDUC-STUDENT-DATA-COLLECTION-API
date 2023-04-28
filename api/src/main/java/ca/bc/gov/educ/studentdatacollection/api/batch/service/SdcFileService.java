@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.service;
 import ca.bc.gov.educ.studentdatacollection.api.batch.processor.SdcBatchFileProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import lombok.Getter;
@@ -13,8 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
+import java.util.Optional;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -30,20 +28,27 @@ public class SdcFileService {
 
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
-  private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload, String sdcSchoolCollectionID){
+  @Transactional(propagation = Propagation.MANDATORY)
+  public SdcSchoolCollectionEntity runFileLoad(
+    SdcFileUpload sdcFileUpload,
+    String sdcSchoolCollectionID,
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional
+  ) {
     log.debug("Uploaded file contents for school collection ID: {}", sdcSchoolCollectionID);
-    var sdcSchoolCollectionOptional = sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
-    if(sdcSchoolCollectionOptional.isPresent() && StringUtils.isNotEmpty(sdcSchoolCollectionOptional.get().getUploadFileName())){
-      var sdcSchoolCollection = sdcSchoolCollectionOptional.get();
+
+    if (sdcSchoolCollectionOptional.isPresent() &&
+        StringUtils.isNotEmpty(sdcSchoolCollectionOptional.get().getUploadFileName())) {
+      SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionOptional.get();
       sdcSchoolCollection.setUploadFileName(null);
       sdcSchoolCollection.setUploadDate(null);
       sdcSchoolCollection.getSDCSchoolStudentEntities().clear();
       sdcSchoolCollectionService.saveSdcSchoolCollection(sdcSchoolCollection);
     }
 
-    return this.getSdcBatchProcessor().processSdcBatchFile(sdcFileUpload, sdcSchoolCollectionID);
+    return this.getSdcBatchProcessor().processSdcBatchFile(
+      sdcFileUpload,
+      sdcSchoolCollectionID,
+      sdcSchoolCollectionOptional
+    );
   }
 }
