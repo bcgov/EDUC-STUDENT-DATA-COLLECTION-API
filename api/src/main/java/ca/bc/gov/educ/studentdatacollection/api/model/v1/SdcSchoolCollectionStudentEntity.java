@@ -104,6 +104,12 @@ public class SdcSchoolCollectionStudentEntity {
   @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE")
   private String sdcSchoolCollectionStudentStatusCode;
 
+  @Column(name = "IS_ADULT")
+  private Boolean isAdult;
+
+  @Column(name = "IS_SCHOOL_AGED")
+  private Boolean isSchoolAged;
+
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
 
@@ -117,16 +123,29 @@ public class SdcSchoolCollectionStudentEntity {
   @PastOrPresent
   @Column(name = "UPDATE_DATE")
   private LocalDateTime updateDate;
+
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  @OneToMany(mappedBy = "sdcSchoolCollectionStudentEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolCollectionStudentValidationIssueEntity.class)
+  @OneToMany(mappedBy = "sdcSchoolCollectionStudentEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentValidationIssueEntity.class)
   Set<SdcSchoolCollectionStudentValidationIssueEntity> sdcStudentValidationIssueEntities;
+
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  @OneToMany(mappedBy = "sdcSchoolCollectionStudentID", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentHistoryEntity.class)
+  Set<SdcSchoolCollectionStudentHistoryEntity> sdcStudentHistoryEntities;
 
   public Set<SdcSchoolCollectionStudentValidationIssueEntity> getSDCStudentValidationIssueEntities() {
     if (this.sdcStudentValidationIssueEntities == null) {
       this.sdcStudentValidationIssueEntities = new HashSet<>();
     }
     return this.sdcStudentValidationIssueEntities;
+  }
+
+  public Set<SdcSchoolCollectionStudentHistoryEntity> getSDCStudentHistoryEntities() {
+    if (this.sdcStudentHistoryEntities == null) {
+      this.sdcStudentHistoryEntities = new HashSet<>();
+    }
+    return this.sdcStudentHistoryEntities;
   }
 
 }

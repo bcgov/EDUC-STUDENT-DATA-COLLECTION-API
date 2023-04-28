@@ -2,20 +2,11 @@ package ca.bc.gov.educ.studentdatacollection.api.mappers;
 
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * The type String mapper.
- */
 public class StringMapper {
 
   private StringMapper() {
   }
 
-  /**
-   * Map string.
-   *
-   * @param value the value
-   * @return the string
-   */
   public static String map(final String value) {
     if (StringUtils.isNotBlank(value)) {
       return value.trim();
@@ -23,9 +14,9 @@ public class StringMapper {
     return value;
   }
 
-  public static String trimUppercaseAndScrubDiacriticalMarks(String value){
+  public static String trimAndUppercase(String value){
     if (StringUtils.isNotBlank(value)) {
-      return StringUtils.stripAccents(StringUtils.trim(value)).replaceAll("[^\\p{ASCII}]", "¿").toUpperCase();
+      return StringUtils.trim(value).toUpperCase();
     }
     return value;
   }

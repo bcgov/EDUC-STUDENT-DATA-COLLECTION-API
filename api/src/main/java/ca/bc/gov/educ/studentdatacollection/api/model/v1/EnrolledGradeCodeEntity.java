@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
@@ -15,6 +16,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @DynamicUpdate
 @Entity
 @Table(name = "ENROLLED_GRADE_CODE")
@@ -34,10 +36,10 @@ public class EnrolledGradeCodeEntity {
   private Integer displayOrder;
 
   @Column(name = "EFFECTIVE_DATE")
-  private String effectiveDate;
+  private LocalDateTime effectiveDate;
 
   @Column(name = "EXPIRY_DATE")
-  private String expiryDate;
+  private LocalDateTime expiryDate;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;

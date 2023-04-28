@@ -88,7 +88,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setOtherCourses(null);
     sdcEntity.setSupportBlocks(null);
     sdcEntity.setEnrolledGradeCode("01");
-    sdcEntity.setEnrolledProgramCodes("14");
+    sdcEntity.setEnrolledProgramCodes("0000000000000005");
     sdcEntity.setCareerProgramCode("AA");
     sdcEntity.setNumberOfCourses(null);
     sdcEntity.setBandCode("0542");
@@ -123,6 +123,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     school.setMincode("03636018");
     school.setOpenedDate("1964-09-01T00:00:00");
     school.setSchoolCategoryCode("PUBLIC");
+    school.setSchoolReportingRequirementCode("CSF");
     return school;
   }
 

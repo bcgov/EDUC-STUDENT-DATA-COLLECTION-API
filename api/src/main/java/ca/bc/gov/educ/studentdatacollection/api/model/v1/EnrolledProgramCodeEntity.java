@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -13,18 +12,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @DynamicUpdate
 @Entity
-@Table(name = "BAND_CODE")
+@Table(name = "ENROLLED_PROGRAM_CODE")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BandCodeEntity {
+public class EnrolledProgramCodeEntity {
   @Id
-  @Column(name = "BAND_CODE", unique = true, length = 10)
-  private String bandCode;
+  @Column(name = "ENROLLED_PROGRAM_CODE", unique = true, length = 10)
+  private String enrolledProgramCode;
 
   @Column(name = "LABEL", length = 30)
   private String label;
