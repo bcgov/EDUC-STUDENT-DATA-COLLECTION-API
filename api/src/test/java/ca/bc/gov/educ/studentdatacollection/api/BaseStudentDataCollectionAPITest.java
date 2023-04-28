@@ -101,7 +101,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setUsualFirstName("JIMMY");
     sdcEntity.setUsualMiddleNames("BOBBY");
     sdcEntity.setUsualLastName("DANDY");
-    sdcEntity.setDob("19990101");
+    sdcEntity.setDob("20160101");
     sdcEntity.setGender("M");
     sdcEntity.setSpecialEducationCategoryCode("B");
     sdcEntity.setSchoolFundingCode("20");
