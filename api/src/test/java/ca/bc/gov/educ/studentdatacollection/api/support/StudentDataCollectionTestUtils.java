@@ -22,13 +22,34 @@ public class StudentDataCollectionTestUtils {
   @Autowired
   SdcSchoolCollectionHistoryRepository sdcSchoolHistoryRepository;
 
+  @Autowired
+  EnrolledProgramCodeRepository enrolledProgramCodeRepository;
+  @Autowired
+  CareerProgramCodeRepository careerProgramCodeRepository;
+  @Autowired
+  HomeLanguageSpokenCodeRepository homeLanguageSpokenCodeRepository;
+  @Autowired
+  BandCodeRepository bandCodeRepository;
+  @Autowired
+  FundingCodeRepository fundingCodeRepository;
+  @Autowired
+  EnrolledGradeCodeRepository enrolledGradeCodeRepository;
+
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void cleanDB() {
-    this.sdcSchoolHistoryRepository.deleteAll();
-    this.sdcSchoolRepository.deleteAll();
-    this.collectionRepository.deleteAll();
-    this.collectionCodeCriteriaRepository.deleteAll();
-    this.collectionCodeRepository.deleteAll();
+    sdcSchoolHistoryRepository.deleteAll();
+    sdcSchoolRepository.deleteAll();
+    collectionRepository.deleteAll();
+    collectionCodeCriteriaRepository.deleteAll();
+    collectionCodeRepository.deleteAll();
+
+    enrolledProgramCodeRepository.deleteAll();
+    careerProgramCodeRepository.deleteAll();
+    homeLanguageSpokenCodeRepository.deleteAll();
+    bandCodeRepository.deleteAll();
+    fundingCodeRepository.deleteAll();
+    enrolledGradeCodeRepository.deleteAll();
 
   }
+
 }

@@ -3,13 +3,9 @@ package ca.bc.gov.educ.studentdatacollection.api;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeCriteriaEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
@@ -20,6 +16,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,6 +32,31 @@ public abstract class BaseStudentDataCollectionAPITest {
 
   @Autowired
   protected StudentDataCollectionTestUtils studentDataCollectionTestUtils;
+
+  @Autowired
+  EnrolledProgramCodeRepository enrolledProgramCodeRepository;
+  @Autowired
+  CareerProgramCodeRepository careerProgramCodeRepository;
+  @Autowired
+  HomeLanguageSpokenCodeRepository homeLanguageSpokenCodeRepository;
+  @Autowired
+  BandCodeRepository bandCodeRepository;
+  @Autowired
+  FundingCodeRepository fundingCodeRepository;
+  @Autowired
+  EnrolledGradeCodeRepository enrolledGradeCodeRepository;
+
+  @BeforeEach
+  public void before() {
+    enrolledProgramCodeRepository.save(this.createEnrolledProgramCodeData());
+    careerProgramCodeRepository.save(this.createCareerProgramCodeData());
+    homeLanguageSpokenCodeRepository.save(this.homeLanguageSpokenCodeData());
+    bandCodeRepository.save(this.bandCodeData());
+    fundingCodeRepository.save(this.fundingCodeData());
+    fundingCodeRepository.save(this.fundingCode20Data());
+    enrolledGradeCodeRepository.save(this.enrolledGradeCodeData());
+    enrolledGradeCodeRepository.save(this.enrolledGradeCodeHSData());
+  }
 
   @AfterEach
   public void resetState() {
@@ -82,16 +104,16 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setDob("19990101");
     sdcEntity.setGender("M");
     sdcEntity.setSpecialEducationCategoryCode("B");
-    sdcEntity.setSchoolFundingCode("05");
+    sdcEntity.setSchoolFundingCode("20");
     sdcEntity.setNativeAncestryInd("N");
     sdcEntity.setHomeLanguageSpokenCode("001");
     sdcEntity.setOtherCourses(null);
     sdcEntity.setSupportBlocks(null);
     sdcEntity.setEnrolledGradeCode("01");
     sdcEntity.setEnrolledProgramCodes("0000000000000005");
-    sdcEntity.setCareerProgramCode("AA");
+    sdcEntity.setCareerProgramCode("XA");
     sdcEntity.setNumberOfCourses(null);
-    sdcEntity.setBandCode("0542");
+    sdcEntity.setBandCode("0500");
     sdcEntity.setPostalCode("V0V0V0");
     sdcEntity.setSdcSchoolCollectionStudentStatusCode("LOADED");
     sdcEntity.setCreateUser("ABC");
@@ -124,6 +146,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     school.setOpenedDate("1964-09-01T00:00:00");
     school.setSchoolCategoryCode("PUBLIC");
     school.setSchoolReportingRequirementCode("CSF");
+    school.setFacilityTypeCode("Standard");
     return school;
   }
 
@@ -158,6 +181,50 @@ public abstract class BaseStudentDataCollectionAPITest {
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public EnrolledProgramCodeEntity createEnrolledProgramCodeData() {
+    return EnrolledProgramCodeEntity.builder().enrolledProgramCode("05").description("Programme Francophone")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Francophone").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+  public CareerProgramCodeEntity createCareerProgramCodeData() {
+    return CareerProgramCodeEntity.builder().careerProgramCode("XA").description("Business")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Business").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+  public HomeLanguageSpokenCodeEntity homeLanguageSpokenCodeData() {
+    return HomeLanguageSpokenCodeEntity.builder().homeLanguageSpokenCode("001").description("Portuguese")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Portuguese").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+  public BandCodeEntity bandCodeData() {
+    return BandCodeEntity.builder().bandCode("0500").description("KWANLIN DUN")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("KWANLIN DUN").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+  public SchoolFundingCodeEntity fundingCodeData() {
+    return SchoolFundingCodeEntity.builder().schoolFundingCode("14").description("OUT-OF-PROVINCE/INTERNATIONAL")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("OUT-OF-PROVINCE/INTERNATIONAL").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public SchoolFundingCodeEntity fundingCode20Data() {
+    return SchoolFundingCodeEntity.builder().schoolFundingCode("20").description("STATUS INDIAN ON RESERVE")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("STATUS INDIAN ON RESERVE").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public EnrolledGradeCodeEntity enrolledGradeCodeData() {
+    return EnrolledGradeCodeEntity.builder().enrolledGradeCode("01").description("Grade 1")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Grade 1").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public EnrolledGradeCodeEntity enrolledGradeCodeHSData() {
+    return EnrolledGradeCodeEntity.builder().enrolledGradeCode("HS").description("Home School")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Home School").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 
 }

@@ -12,5 +12,13 @@ public final class Constants {
     public static final String PROGRAMME_FRANCOPHONE_CODE="05";
     public static final String CSF="CSF";
     public static final String HS="HS";
+    public static final String IND_FUNDING_CODE="20";
+
+    public static final String PROV_ONLINE="DIST_LEARN";
+    public static final String DISTRICT_ONLINE="DISTONLINE";
+    public static final String CONT_ED="CONT_ED";
+    public static final String GRADE_06="06";
+    public static final String GRADE_07="07";
+    public static final String LATE_FRENCH_IMMERSION_CODE="14";
 
 }

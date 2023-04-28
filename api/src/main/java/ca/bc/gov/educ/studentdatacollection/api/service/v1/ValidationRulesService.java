@@ -25,8 +25,25 @@ public class ValidationRulesService {
     public Long getDuplicatePenCount(String sdcSchoolID, String studentPen) {
         return sdcSchoolStudentRepository.countForDuplicateStudentPENs(UUID.fromString(sdcSchoolID), studentPen);
     }
+    public List<EnrolledProgramCode> getActiveEnrolledProgramCodes() {
+        return codeTableService.getAllEnrolledProgramCodes().stream().filter(code -> code.getExpiryDate().isAfter(LocalDateTime.now())).map(mapper::toStructure).toList();
+    }
 
     public List<CareerProgramCode> getActiveCareerProgramCodes() {
         return codeTableService.getAllCareerProgramCodes().stream().filter(code -> code.getExpiryDate().isAfter(LocalDateTime.now())).map(mapper::toStructure).toList();
+    }
+    public List<HomeLanguageSpokenCode> getActiveHomeLanguageSpokenCodes() {
+        return codeTableService.getAllHomeLanguageSpokenCodes().stream().filter(code -> code.getExpiryDate().isAfter(LocalDateTime.now())).map(mapper::toStructure).toList();
+    }
+    public  List<BandCode> getActiveBandCodes() {
+        return codeTableService.getAllBandCodes().stream().filter(code -> code.getExpiryDate().isAfter(LocalDateTime.now())).map(mapper::toStructure).toList();
+    }
+
+    public  List<SchoolFundingCode> getActiveFundingCodes() {
+        return codeTableService.getAllFundingCodes().stream().filter(code -> code.getExpiryDate().isAfter(LocalDateTime.now())).map(mapper::toStructure).toList();
+    }
+
+    public List<EnrolledGradeCode> getActiveGradeCodes() {
+        return codeTableService.getAllGradeCodes().stream().filter(code -> code.getExpiryDate().isAfter(LocalDateTime.now())).map(mapper::toStructure).toList();
     }
 }

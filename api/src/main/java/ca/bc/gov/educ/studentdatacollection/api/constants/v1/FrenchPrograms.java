@@ -28,4 +28,8 @@ public enum FrenchPrograms {
     public static List<String> getCodes() {
         return Arrays.stream(FrenchPrograms.values()).map(FrenchPrograms::getCode).collect(Collectors.toList());
     }
+
+    public static List<String> getFrenchProgramCodes() {
+        return Arrays.stream(FrenchPrograms.values()).filter(val -> !val.code.equals("17")).map(FrenchPrograms::getCode).collect(Collectors.toList());
+    }
 }
