@@ -82,7 +82,7 @@ echo Writing scope READ_SDC_SCHOOL_COLLECTION_STUDENT
 curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TKN" \
-  -d "{\"description\": \"Read Student Data Collection Collection Students\",\"id\": \"READ_SDC_SCHOOL_COLLECTION_STUDENT\",\"name\": \"READ_SDC_SCHOOL_COLLECTION_STUDENT\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
+  -d "{\"description\": \"Read Student Data Collection School Collection Students\",\"id\": \"READ_SDC_SCHOOL_COLLECTION_STUDENT\",\"name\": \"READ_SDC_SCHOOL_COLLECTION_STUDENT\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
 
 echo
 echo Creating client student-data-collection-api-service
