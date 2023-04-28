@@ -65,7 +65,7 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   ENROLLED_CODE_PARSE_ERR("ENROLLEDCODEPARSEERR", "List of enrolled program codes could not be parsed. Select the correct program codes for the student."),
   INVALID_GRADE_CODE("INVALIDGRADECODE", "Invalid grade code."),
   SPOKEN_LANG_ERR("SPOKENLANGERR", "Primary language spoken in home is invalid."),
-
+  HS_NOT_SCHOOL_AGE("HSNOTSCHOOLAGE", "Students registered in home school must be school-aged. Student must be removed from the submission or have their birthdate adjusted."),
 
 
 

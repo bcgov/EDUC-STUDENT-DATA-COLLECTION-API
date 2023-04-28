@@ -587,7 +587,25 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorMax.size()).isNotZero();
         val errorContEd = validationErrorMax.stream().anyMatch(val -> val.getValidationIssueCode().equals("NOOFCOURSEMAX"));
         assertThat(errorContEd).isTrue();
+    }
 
+    @Test
+    void testHSSchoolAgeRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setEnrolledGradeCode("HS");
+
+        entity.setDob("20190101");
+        val validationErrorAdult = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorAdult.size()).isNotZero();
+        val errorContEd = validationErrorAdult.stream().anyMatch(val -> val.getValidationIssueCode().equals("HSNOTSCHOOLAGE"));
+        assertThat(errorContEd).isTrue();
+
+        entity.setDob("20160101");
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("HSNOTSCHOOLAGE"));
+        assertThat(error).isFalse();
     }
 
 }
