@@ -24,8 +24,4 @@ public enum AllowedAdultGradeCodes {
     public static Optional<AllowedAdultGradeCodes> findByValue(String value) {
         return Arrays.stream(values()).filter(e -> Arrays.asList(e.code).contains(value)).findFirst();
     }
-
-    public static List<String> getCodes() {
-        return Arrays.stream(AllowedAdultGradeCodes.values()).map(AllowedAdultGradeCodes::getCode).collect(Collectors.toList());
-    }
 }
