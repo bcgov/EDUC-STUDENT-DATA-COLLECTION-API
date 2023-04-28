@@ -17,22 +17,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Profile("testWebclient")
 @Configuration
 public class MockConfigurationWebClient {
-  /**
-   * Message publisher message publisher.
-   *
-   * @return the message publisher
-   */
+
   @Bean
   @Primary
   public MessagePublisher messagePublisher() {
     return Mockito.mock(MessagePublisher.class);
   }
 
-  /**
-   * Message subscriber message subscriber.
-   *
-   * @return the message subscriber
-   */
   @Bean
   @Primary
   public MessageSubscriber messageSubscriber() {
