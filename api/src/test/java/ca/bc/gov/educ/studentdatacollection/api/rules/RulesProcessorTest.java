@@ -569,4 +569,25 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(errorContEd).isTrue();
     }
 
+    @Test
+    void testNoOfCoursesRules() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        entity.setNumberOfCourses("5");
+        entity.setEnrolledGradeCode("01");
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationError.size()).isZero();
+
+
+        entity.setNumberOfCourses("16");
+        entity.setEnrolledGradeCode("08");
+        val validationErrorMax = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorMax.size()).isNotZero();
+        val errorContEd = validationErrorMax.stream().anyMatch(val -> val.getValidationIssueCode().equals("NOOFCOURSEMAX"));
+        assertThat(errorContEd).isTrue();
+
+    }
+
 }
