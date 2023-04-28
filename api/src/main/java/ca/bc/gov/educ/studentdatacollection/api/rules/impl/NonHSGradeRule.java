@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Component
 public class NonHSGradeRule implements BaseRule {

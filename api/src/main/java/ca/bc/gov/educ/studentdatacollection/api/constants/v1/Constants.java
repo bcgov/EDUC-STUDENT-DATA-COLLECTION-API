@@ -14,4 +14,8 @@ public final class Constants {
     public static final String HS="HS";
     public static final String IND_FUNDING_CODE="20";
 
+    public static final String PROV_ONLINE="DIST_LEARN";
+    public static final String DISTRICT_ONLINE="DISTONLINE";
+    public static final String CONT_ED="CONT_ED";
+
 }

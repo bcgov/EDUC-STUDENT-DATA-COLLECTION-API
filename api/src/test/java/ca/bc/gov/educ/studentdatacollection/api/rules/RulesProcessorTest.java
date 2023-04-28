@@ -490,7 +490,42 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationCodeError.size()).isNotZero();
         val errorCount = validationCodeErrorCount.stream().anyMatch(val -> val.getValidationIssueCode().equals("ENROLLEDCODECOUNTERR"));
         assertThat(errorCount).isTrue();
+    }
 
+    @Test
+    void testAdultStudentRules() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val school = createMockSchool();
+        school.setFacilityTypeCode("DISTRICT_ONLINE");
+
+        entity.setDob("0210424F");
+        val validationErrorInvalidDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
+        assertThat(validationErrorInvalidDate.size()).isNotZero();
+        assertThat(validationErrorInvalidDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
+
+        entity.setDob("19890101");
+        entity.setNumberOfCourses("0");
+        val validationErrorOldDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
+        assertThat(validationErrorOldDate.size()).isNotZero();
+        assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("ADULTZEROCOURSES");
+    }
+
+    @Test
+    void testHomeLanguageRules() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        entity.setHomeLanguageSpokenCode(null);
+        val validationErrorInvalidDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorInvalidDate.size()).isZero();
+
+        entity.setHomeLanguageSpokenCode("00U");
+        val validationErrorLang = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationErrorLang.size()).isNotZero();
+        assertThat(validationErrorLang.get(0).getValidationIssueCode()).isEqualTo("SPOKENLANGERR");
     }
 
 }
