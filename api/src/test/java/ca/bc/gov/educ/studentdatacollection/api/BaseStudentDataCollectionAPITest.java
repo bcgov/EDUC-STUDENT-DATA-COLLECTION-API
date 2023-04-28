@@ -146,6 +146,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     school.setOpenedDate("1964-09-01T00:00:00");
     school.setSchoolCategoryCode("PUBLIC");
     school.setSchoolReportingRequirementCode("CSF");
+    school.setFacilityTypeCode("Standard");
     return school;
   }
 
