@@ -575,6 +575,14 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorContEd.size()).isNotZero();
         val errorContEd = validationErrorContEd.stream().anyMatch(val -> val.getValidationIssueCode().equals("CONTEDERR"));
         assertThat(errorContEd).isTrue();
+
+        entity.setDob("20150101");
+        entity.setNumberOfCourses("0");
+        entity.setEnrolledGradeCode("08");
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
+        assertThat(validationError.size()).isNotZero();
+        val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("SCHOOLAGEZEROCOURSES"));
+        assertThat(error).isTrue();
     }
 
     @Test
