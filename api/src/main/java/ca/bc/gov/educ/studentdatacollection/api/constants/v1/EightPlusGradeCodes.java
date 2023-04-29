@@ -3,7 +3,9 @@ package ca.bc.gov.educ.studentdatacollection.api.constants.v1;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public enum EightPlusGradeCodes {
     GRADE08("08"),
@@ -23,5 +25,8 @@ public enum EightPlusGradeCodes {
 
     public static Optional<EightPlusGradeCodes> findByValue(String value) {
         return Arrays.stream(values()).filter(e -> Arrays.asList(e.code).contains(value)).findFirst();
+    }
+    public static List<String> getNonGraduateGrades() {
+        return Arrays.stream(EightPlusGradeCodes.values()).filter(val -> !val.code.equals("GA")).map(EightPlusGradeCodes::getCode).collect(Collectors.toList());
     }
 }

@@ -69,8 +69,11 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   SPOKEN_LANG_ERR("SPOKENLANGERR", "Primary language spoken in home is invalid."),
   HS_NOT_SCHOOL_AGE("HSNOTSCHOOLAGE", "Students registered in home school must be school-aged. Student must be removed from the submission or have their birthdate adjusted."),
   ADULT_INCORRECT_GRADE("ADULTINCORRECTGRADE", "Adult students cannot be reported in an elementary grade."),
-
-
+  SPED_OFFSHORE_ERR("SPEDOFFSHOREERR", "Student will not be funded for any reported special education designations."),
+  CAREER_OFFSHORE_ERR("CAREEROFFSHOREERR", "Student will not be funded for any reported enrolled career programs or career program types."),
+  CAREER_CODE_PROG_ERR("CAREERCODEPROGERR", "Student must be reported with both a Enrolled Career Program and Career Code."),
+  CAREER_CODE_COUNT_ERR("CAREERCODECOUNTERR", "Students can only be reported with one Career Program."),
+  CAREER_CODE_GRADE_ERR("CAREERCODEGRADEERR", "Student must be enrolled grade 8-12 or SU to be reported in a Career Program."),
 
   ;
 
