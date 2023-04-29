@@ -18,6 +18,6 @@ public enum CollectionTypeCodes {
     }
 
     public static Optional<CollectionTypeCodes> findByValue(String collectionTypeCode, String schoolTypeCode) {
-        return Arrays.stream(values()).filter(code -> code.typeCode.equals(collectionTypeCode) && Arrays.asList(code.schoolCode).contains(schoolTypeCode)).findFirst();
+        return Arrays.stream(values()).filter(code -> code.typeCode.equalsIgnoreCase(collectionTypeCode) && Arrays.asList(code.schoolCode).contains(schoolTypeCode)).findFirst();
     }
 }

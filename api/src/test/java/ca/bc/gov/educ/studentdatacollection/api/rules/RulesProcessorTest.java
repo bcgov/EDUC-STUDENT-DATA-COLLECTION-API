@@ -598,7 +598,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationError.size()).isZero();
 
-
         entity.setNumberOfCourses("16");
         entity.setEnrolledGradeCode("08");
         val validationErrorMax = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
@@ -657,6 +656,34 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorCarr.size()).isNotZero();
         val error3 = validationErrorCarr.stream().anyMatch(val -> val.getValidationIssueCode().equals("ENROLLEDCODECAREERERR"));
         assertThat(error3).isTrue();
+    }
+
+    @Test
+    void testSummerSchoolRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val school = createMockSchool();
+        school.setFacilityTypeCode("SUMMER");
+
+        entity.setDob("19890101");
+        val saga = createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school);
+        saga.setCollectionTypeCode("July");
+
+        val validationErrorDOB = rulesProcessor.processRules(saga);
+        assertThat(validationErrorDOB.size()).isNotZero();
+        val error = validationErrorDOB.stream().anyMatch(val -> val.getValidationIssueCode().equals("STUDENTADULTERR"));
+        assertThat(error).isTrue();
+
+        entity.setDob("20150101");
+        entity.setSupportBlocks("1");
+        val saga2 = createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school);
+        saga2.setCollectionTypeCode("July");
+
+        val validationErrorSupportBlock = rulesProcessor.processRules(saga2);
+        assertThat(validationErrorSupportBlock.size()).isNotZero();
+        val error1 = validationErrorSupportBlock.stream().anyMatch(val -> val.getValidationIssueCode().equals("SUMMERSUPPORTBLOCKSNA"));
+        assertThat(error1).isTrue();
     }
 
 }

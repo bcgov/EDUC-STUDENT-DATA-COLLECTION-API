@@ -56,6 +56,7 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   ENROLLED_CODE_IND_ERR("ENROLLEDCODEINDERR", "Out-of-Province/International students will not be funded any reported Indigenous support programs."),
   ENROLLED_CODE_CAREER_ERR("ENROLLEDCODECAREERERR", "Out-of-Province/International students will not be funded any reported career programs."),
   SUMMER_GRADE_CODE("SUMMERGRADECODE", "Students in summer school must enrolled in grade 1-12."),
+  STUDENT_ADULT_ERR("STUDENTADULTERR", "Student cannot be an adult."),
   KH_GRADE_CODE_INVALID("KHGRADECODEINVALID", "Student can only be registered in Kindergarten Halftime if they are in an Independent School."),
   SUPPORT_BLOCKS_NA("SUMMERSUPPORTBLOCKSNA", "Student can only be registered in Kindergarten Halftime if they are in an Independent School."),
   SUPPORT_BLOCKS_INVALID("SUMMERSUPPORTBLOCKSINVALID", "Number of Support Blocks must be a value from 0 to 8."),
