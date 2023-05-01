@@ -96,8 +96,8 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   private String postalCode;
 
   @Size(max = 10)
-  @NotNull(message = "sdcSchoolCollectionStatusCode cannot be null")
-  private String sdcSchoolCollectionStatusCode;
+  @NotNull(message = "sdcSchoolCollectionStudentStatusCode cannot be null")
+  private String sdcSchoolCollectionStudentStatusCode;
 
   private Boolean isAdult;
 
