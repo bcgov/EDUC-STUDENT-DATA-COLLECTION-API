@@ -153,7 +153,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationError.size()).isZero();
 
-        entity.setLegalLastName("5Bob90");
+        entity.setLegalLastName("Billie-Jean");
         val validationErrorNum = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorNum.size()).isZero();
 
@@ -166,6 +166,11 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val charsLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(charsLastNameErr.size()).isNotZero();
         assertThat(charsLastNameErr.get(0).getValidationIssueCode()).isEqualTo("LEGALLASTNAMECHARFIX");
+
+        entity.setLegalLastName("'-.");
+        val charsLastNameCharErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(charsLastNameCharErr.size()).isNotZero();
+        assertThat(charsLastNameCharErr.get(0).getValidationIssueCode()).isEqualTo("LEGALLASTNAMECHARFIX");
 
         entity.setLegalLastName("FAKE");
         val badLastNameErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));

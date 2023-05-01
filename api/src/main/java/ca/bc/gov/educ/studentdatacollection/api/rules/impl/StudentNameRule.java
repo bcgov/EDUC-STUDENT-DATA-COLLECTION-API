@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 
 @Component
 public class StudentNameRule implements BaseRule {
+
+    private static final String INVALID_CHARS = "'-.";
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent();
@@ -25,7 +27,7 @@ public class StudentNameRule implements BaseRule {
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        Pattern pattern = Pattern.compile("[^a-z0-9]+", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("^[a-z\\-.'\\s]+$", Pattern.CASE_INSENSITIVE);
 
         //LEGAL LAST NAME
         if (StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalLastName())) {
@@ -88,7 +90,7 @@ public class StudentNameRule implements BaseRule {
     }
 
     private boolean containsInvalidChars(String name, Pattern pattern) {
-        return StringUtils.isNotEmpty(name) && pattern.matcher(name).find();
+        return StringUtils.isNotEmpty(name) && (!pattern.matcher(name).matches() || name.replaceAll("[" + INVALID_CHARS + "]","").isEmpty());
     }
 }
 
