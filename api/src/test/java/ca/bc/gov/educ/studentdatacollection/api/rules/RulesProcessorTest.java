@@ -720,6 +720,17 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorSupportBlock.size()).isNotZero();
         val error1 = validationErrorSupportBlock.stream().anyMatch(val -> val.getValidationIssueCode().equals("SUMMERSUPPORTBLOCKSNA"));
         assertThat(error1).isTrue();
+
+        entity.setDob("20150101");
+        entity.setSupportBlocks("0");
+        entity.setEnrolledGradeCode("HS");
+        val saga3 = createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school);
+        saga3.setCollectionTypeCode("July");
+
+        val validationErrorGradeErr = rulesProcessor.processRules(saga3);
+        assertThat(validationErrorGradeErr.size()).isNotZero();
+        val errorGrade = validationErrorGradeErr.stream().anyMatch(val -> val.getValidationIssueCode().equals("SUMMERGRADECODE"));
+        assertThat(errorGrade).isTrue();
     }
 
     @Test
