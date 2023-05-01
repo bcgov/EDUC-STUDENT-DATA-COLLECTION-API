@@ -153,7 +153,7 @@ public class SdcSchoolCollectionStudentSearchService {
         log.trace("Paginated query returned with results: {}", results);
         return results;
       } catch (final Throwable ex) {
-        log.error("Failure querying for paginated schools: {}", ex.getMessage());
+        log.error("Failure querying for paginated SDC school students: {}", ex.getMessage());
         throw new CompletionException(ex);
       }
     }, paginatedQueryExecutor);
