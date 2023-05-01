@@ -3,7 +3,9 @@ package ca.bc.gov.educ.studentdatacollection.api.constants.v1;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public enum AllowedAdultGradeCodes {
     GRADE10("10"),
@@ -21,5 +23,9 @@ public enum AllowedAdultGradeCodes {
 
     public static Optional<AllowedAdultGradeCodes> findByValue(String value) {
         return Arrays.stream(values()).filter(e -> Arrays.asList(e.code).contains(value)).findFirst();
+    }
+
+    public static List<String> getNonGraduateGrades() {
+        return Arrays.stream(AllowedAdultGradeCodes.values()).filter(val -> !val.code.equals("GA")).map(AllowedAdultGradeCodes::getCode).collect(Collectors.toList());
     }
 }

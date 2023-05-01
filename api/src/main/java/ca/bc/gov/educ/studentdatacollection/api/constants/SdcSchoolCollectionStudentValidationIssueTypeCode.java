@@ -75,7 +75,8 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   CAREER_CODE_COUNT_ERR("CAREERCODECOUNTERR", "Students can only be reported with one Career Program."),
   CAREER_CODE_GRADE_ERR("CAREERCODEGRADEERR", "Student must be enrolled grade 8-12 or SU to be reported in a Career Program."),
   SUPPORT_BLOCKS_NOT_COUNT("SUPPORTBLOCKSNOTCOUNT", "Support blocks will only be counted toward funding if the student is taking less than 8 courses."),
-  GA_ERROR("GAERROR", "School-aged students cannot be reported in grade GA.")
+  GA_ERROR("GAERROR", "School-aged students cannot be reported in grade GA."),
+  ADULT_SUPPORT_ERR("ADULTSUPPORTERR", "Adult students will not receive funding for support blocks."),
 
   ;
 
