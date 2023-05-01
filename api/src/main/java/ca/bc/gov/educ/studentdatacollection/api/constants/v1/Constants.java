@@ -13,6 +13,7 @@ public final class Constants {
     public static final String CSF="CSF";
     public static final String HS="HS";
     public static final String IND_FUNDING_CODE="20";
+    public static final String FUNDING_CODE_14="14";
 
     public static final String PROV_ONLINE="DIST_LEARN";
     public static final String DISTRICT_ONLINE="DISTONLINE";

@@ -56,6 +56,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     fundingCodeRepository.save(this.fundingCode20Data());
     enrolledGradeCodeRepository.save(this.enrolledGradeCodeData());
     enrolledGradeCodeRepository.save(this.enrolledGradeCodeHSData());
+    enrolledGradeCodeRepository.save(this.enrolledGradeCodeEightData());
   }
 
   @AfterEach
@@ -101,7 +102,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setUsualFirstName("JIMMY");
     sdcEntity.setUsualMiddleNames("BOBBY");
     sdcEntity.setUsualLastName("DANDY");
-    sdcEntity.setDob("19990101");
+    sdcEntity.setDob("20160101");
     sdcEntity.setGender("M");
     sdcEntity.setSpecialEducationCategoryCode("B");
     sdcEntity.setSchoolFundingCode("20");
@@ -109,8 +110,8 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setHomeLanguageSpokenCode("001");
     sdcEntity.setOtherCourses(null);
     sdcEntity.setSupportBlocks(null);
-    sdcEntity.setEnrolledGradeCode("01");
-    sdcEntity.setEnrolledProgramCodes("0000000000000005");
+    sdcEntity.setEnrolledGradeCode("08");
+    sdcEntity.setEnrolledProgramCodes("4000000000000005");
     sdcEntity.setCareerProgramCode("XA");
     sdcEntity.setNumberOfCourses(null);
     sdcEntity.setBandCode("0500");
@@ -224,6 +225,12 @@ public abstract class BaseStudentDataCollectionAPITest {
   public EnrolledGradeCodeEntity enrolledGradeCodeHSData() {
     return EnrolledGradeCodeEntity.builder().enrolledGradeCode("HS").description("Home School")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Home School").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public EnrolledGradeCodeEntity enrolledGradeCodeEightData() {
+    return EnrolledGradeCodeEntity.builder().enrolledGradeCode("08").description("Grade 8")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Grade 8").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 

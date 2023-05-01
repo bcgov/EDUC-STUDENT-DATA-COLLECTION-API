@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public enum AllowedAdultGradeCodes {
+public enum EightPlusGradeCodes {
+    GRADE08("08"),
+    GRADE09("09"),
     GRADE10("10"),
     GRADE11("11"),
     GRADE12("12"),
@@ -17,15 +19,14 @@ public enum AllowedAdultGradeCodes {
 ;
     @Getter
     private final String code;
-    AllowedAdultGradeCodes(String code) {
+    EightPlusGradeCodes(String code) {
         this.code = code;
     }
 
-    public static Optional<AllowedAdultGradeCodes> findByValue(String value) {
+    public static Optional<EightPlusGradeCodes> findByValue(String value) {
         return Arrays.stream(values()).filter(e -> Arrays.asList(e.code).contains(value)).findFirst();
     }
-
     public static List<String> getNonGraduateGrades() {
-        return Arrays.stream(AllowedAdultGradeCodes.values()).filter(val -> !val.code.equals("GA")).map(AllowedAdultGradeCodes::getCode).collect(Collectors.toList());
+        return Arrays.stream(EightPlusGradeCodes.values()).filter(val -> !val.code.equals("GA")).map(EightPlusGradeCodes::getCode).collect(Collectors.toList());
     }
 }

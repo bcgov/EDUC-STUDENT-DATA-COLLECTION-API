@@ -3,10 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.rules.impl;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FrenchPrograms;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.IndigenousPrograms;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
@@ -48,8 +45,12 @@ public class NonHSGradeRule implements BaseRule {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_CODE_COUNT_ERR));
         }
 
+        if (sdcStudentSagaData.getSchool().getSchoolCategoryCode().equals(Constants.PUBLIC) && CareerPrograms.getCodes().stream().filter(enrolledProgramCodes::contains).count() > 1) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.CAREER_CODE_COUNT_ERR));
+        }
+
         List<CareerProgramCode> activeCareerPrograms = validationRulesService.getActiveCareerProgramCodes();
-        if(sdcStudentSagaData.getSchool().getSchoolCategoryCode().equals("PUBLIC") && activeCareerPrograms.stream().noneMatch(program -> program.getCareerProgramCode().equals(sdcStudentSagaData.getSdcSchoolCollectionStudent().getCareerProgramCode()))) {
+        if(sdcStudentSagaData.getSchool().getSchoolCategoryCode().equals(Constants.PUBLIC) && activeCareerPrograms.stream().noneMatch(program -> program.getCareerProgramCode().equals(sdcStudentSagaData.getSdcSchoolCollectionStudent().getCareerProgramCode()))) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.CAREER_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.CAREER_CODE_INVALID));
         }
 
@@ -59,6 +60,16 @@ public class NonHSGradeRule implements BaseRule {
 
         if (IndigenousPrograms.getCodes().stream().anyMatch(enrolledProgramCodes::contains) && !sdcStudentSagaData.getSdcSchoolCollectionStudent().getNativeAncestryInd().equals("Y")) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.PROGRAM_CODE_IND));
+        }
+
+        if(sdcStudentSagaData.getSchool().getSchoolCategoryCode().equals(Constants.PUBLIC)
+                && (activeCareerPrograms.stream().noneMatch(program -> program.getCareerProgramCode().equals(sdcStudentSagaData.getSdcSchoolCollectionStudent().getCareerProgramCode()))
+                || CareerPrograms.getCodes().stream().noneMatch(enrolledProgramCodes::contains))) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.CAREER_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.CAREER_CODE_PROG_ERR));
+        }
+
+        if(sdcStudentSagaData.getSchool().getSchoolCategoryCode().equals(Constants.PUBLIC) && CareerPrograms.getCodes().stream().anyMatch(enrolledProgramCodes::contains) && !EightPlusGradeCodes.getNonGraduateGrades().contains(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode())) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_GRADE_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.CAREER_CODE_GRADE_ERR));
         }
 
         return errors;

@@ -44,6 +44,7 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   ENROLLED_CODE_COUNT_ERR("ENROLLEDCODECOUNTERR", "Students can have at most one French language code."),
   CAREER_CODE_INVALID("CAREERCODEINVALID", "Invalid career code."),
   ADULT_ZERO_COURSES("ADULTZEROCOURSES", "Adult students must have 0 or more courses."),
+  SCHOOLAGE_ZERO_COURSES("SCHOOLAGEZEROCOURSES", "Secondary students must be reported with at least one course. If the student is not enrolled in any courses they should be removed from the submission."),
   AGE_LESS_THAN_FIVE("AGELESSTHANFIVE", "Student is too young for school and is not eligible for funding."),
   CONT_ED_ERR("CONTEDERR", "Student is too young for Continuing Education. Student must be removed from submission or their birthdate adjusted."),
   PROGRAM_CODE_IND("PROGRAMCODEIND", "Student's reported with Indigenous Education Programs and Services must be reported with Indigenous Ancestry to get funding for the programs."),
@@ -55,6 +56,7 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   ENROLLED_CODE_IND_ERR("ENROLLEDCODEINDERR", "Out-of-Province/International students will not be funded any reported Indigenous support programs."),
   ENROLLED_CODE_CAREER_ERR("ENROLLEDCODECAREERERR", "Out-of-Province/International students will not be funded any reported career programs."),
   SUMMER_GRADE_CODE("SUMMERGRADECODE", "Students in summer school must enrolled in grade 1-12."),
+  STUDENT_ADULT_ERR("STUDENTADULTERR", "Student cannot be an adult."),
   KH_GRADE_CODE_INVALID("KHGRADECODEINVALID", "Student can only be registered in Kindergarten Halftime if they are in an Independent School."),
   SUPPORT_BLOCKS_NA("SUMMERSUPPORTBLOCKSNA", "Student can only be registered in Kindergarten Halftime if they are in an Independent School."),
   SUPPORT_BLOCKS_INVALID("SUMMERSUPPORTBLOCKSINVALID", "Number of Support Blocks must be a value from 0 to 8."),
@@ -65,9 +67,16 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   ENROLLED_CODE_PARSE_ERR("ENROLLEDCODEPARSEERR", "List of enrolled program codes could not be parsed. Select the correct program codes for the student."),
   INVALID_GRADE_CODE("INVALIDGRADECODE", "Invalid grade code."),
   SPOKEN_LANG_ERR("SPOKENLANGERR", "Primary language spoken in home is invalid."),
-
-
-
+  HS_NOT_SCHOOL_AGE("HSNOTSCHOOLAGE", "Students registered in home school must be school-aged. Student must be removed from the submission or have their birthdate adjusted."),
+  ADULT_INCORRECT_GRADE("ADULTINCORRECTGRADE", "Adult students cannot be reported in an elementary grade."),
+  SPED_OFFSHORE_ERR("SPEDOFFSHOREERR", "Student will not be funded for any reported special education designations."),
+  CAREER_OFFSHORE_ERR("CAREEROFFSHOREERR", "Student will not be funded for any reported enrolled career programs or career program types."),
+  CAREER_CODE_PROG_ERR("CAREERCODEPROGERR", "Student must be reported with both a Enrolled Career Program and Career Code."),
+  CAREER_CODE_COUNT_ERR("CAREERCODECOUNTERR", "Students can only be reported with one Career Program."),
+  CAREER_CODE_GRADE_ERR("CAREERCODEGRADEERR", "Student must be enrolled grade 8-12 or SU to be reported in a Career Program."),
+  SUPPORT_BLOCKS_NOT_COUNT("SUPPORTBLOCKSNOTCOUNT", "Support blocks will only be counted toward funding if the student is taking less than 8 courses."),
+  GA_ERROR("GAERROR", "School-aged students cannot be reported in grade GA."),
+  ADULT_SUPPORT_ERR("ADULTSUPPORTERR", "Adult students will not receive funding for support blocks."),
 
   ;
 
