@@ -762,4 +762,31 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(error1).isTrue();
     }
 
+    @Test
+    void testPostalCodeRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        entity.setPostalCode(null);
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationError.size()).isNotZero();
+        val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("MISSINGPOSTALCODE"));
+        assertThat(error).isTrue();
+
+        val school = createMockSchool();
+        school.setSchoolCategoryCode("OFFSHORE");
+        entity.setPostalCode(null);
+        val validationErrorInd = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
+        assertThat(validationErrorInd.size()).isNotZero();
+        val error1 = validationErrorInd.stream().anyMatch(val -> val.getValidationIssueCode().equals("MISSINGPOSTALCODE"));
+        assertThat(error1).isFalse();
+
+        entity.setPostalCode("11111");
+        val validationPattern = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationPattern.size()).isNotZero();
+        val errorPatt = validationPattern.stream().anyMatch(val -> val.getValidationIssueCode().equals("INVALIDPOSTALCODE"));
+        assertThat(errorPatt).isTrue();
+    }
+
 }
