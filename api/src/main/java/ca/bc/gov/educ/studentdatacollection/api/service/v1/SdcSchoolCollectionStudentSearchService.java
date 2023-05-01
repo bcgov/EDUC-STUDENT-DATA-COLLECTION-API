@@ -36,9 +36,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 
-/**
- * The type School search service.
- */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -51,14 +48,6 @@ public class SdcSchoolCollectionStudentSearchService {
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
 
-  /**
-   * Gets specifications.
-   *
-   * @param schoolSpecs the pen reg batch specs
-   * @param i            the
-   * @param search       the search
-   * @return the specifications
-   */
   public Specification<SdcSchoolCollectionStudentEntity> getSpecifications(Specification<SdcSchoolCollectionStudentEntity> schoolSpecs, int i, Search search) {
     if (i == 0) {
       schoolSpecs = getSchoolCollectionStudentEntitySpecification(search.getSearchCriteriaList());
@@ -93,15 +82,6 @@ public class SdcSchoolCollectionStudentSearchService {
     return studentSpecs;
   }
 
-  /**
-   * Gets specification per group.
-   *
-   * @param schoolEntitySpecification the pen request batch entity specification
-   * @param i                          the
-   * @param criteria                   the criteria
-   * @param typeSpecification          the type specification
-   * @return the specification per group
-   */
   private Specification<SdcSchoolCollectionStudentEntity> getSpecificationPerGroup(Specification<SdcSchoolCollectionStudentEntity> schoolEntitySpecification, int i, SearchCriteria criteria, Specification<SdcSchoolCollectionStudentEntity> typeSpecification) {
     if (i == 0) {
       schoolEntitySpecification = Specification.where(typeSpecification);
@@ -160,15 +140,6 @@ public class SdcSchoolCollectionStudentSearchService {
 
   }
 
-  /**
-   * Sets specification and sort criteria.
-   *
-   * @param sortCriteriaJson       the sort criteria json
-   * @param searchCriteriaListJson the search criteria list json
-   * @param objectMapper           the object mapper
-   * @param sorts                  the sorts
-   * @return the specification and sort criteria
-   */
   public Specification<SdcSchoolCollectionStudentEntity> setSpecificationAndSortCriteria(String sortCriteriaJson, String searchCriteriaListJson, ObjectMapper objectMapper, List<Sort.Order> sorts) {
     Specification<SdcSchoolCollectionStudentEntity> schoolSpecs = null;
     try {
