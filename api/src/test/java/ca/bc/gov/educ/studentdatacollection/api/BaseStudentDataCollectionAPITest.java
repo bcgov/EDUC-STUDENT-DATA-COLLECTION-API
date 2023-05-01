@@ -110,7 +110,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setHomeLanguageSpokenCode("001");
     sdcEntity.setOtherCourses(null);
     sdcEntity.setSupportBlocks(null);
-    sdcEntity.setEnrolledGradeCode("01");
+    sdcEntity.setEnrolledGradeCode("08");
     sdcEntity.setEnrolledProgramCodes("4000000000000005");
     sdcEntity.setCareerProgramCode("XA");
     sdcEntity.setNumberOfCourses(null);

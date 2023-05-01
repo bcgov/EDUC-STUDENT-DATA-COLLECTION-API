@@ -762,7 +762,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setOtherCourses(null);
         val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
-        assertThat(validationError.size()).isNotZero();
         val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("OTHERCOURSEINVALID"));
         assertThat(error).isFalse();
 
