@@ -47,11 +47,6 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchFileCon
 import static lombok.AccessLevel.PRIVATE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
-/**
- * The Pen reg batch processor.
- *
- * @author OM
- */
 @Component
 @Slf4j
 public class SdcBatchFileProcessor {
@@ -94,12 +89,6 @@ public class SdcBatchFileProcessor {
     this.sdcRepository = sdcRepository;
   }
 
-  /**
-   * Process pen reg batch file from tsw.
-   * 1. <p>The data comes from TSW table so if the the data from the TSW table cant be read error is logged and email is sent.</p>
-   * 2. <p>If The data is successfully retrieved from TSW table and file header cant be parsed, system will create only the header record and persist it.
-   *
-   */
   @Transactional(propagation = Propagation.MANDATORY)
   public SdcSchoolCollectionEntity processSdcBatchFile(
     @NonNull final SdcFileUpload fileUpload,

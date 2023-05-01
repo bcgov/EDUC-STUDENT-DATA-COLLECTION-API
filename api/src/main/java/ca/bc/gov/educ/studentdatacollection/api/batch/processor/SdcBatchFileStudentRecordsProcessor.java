@@ -15,9 +15,6 @@ import java.util.Set;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC;
 
 
-/**
- * The type Pen reg batch student records processor.
- */
 @Component
 @Slf4j
 public class SdcBatchFileStudentRecordsProcessor {
