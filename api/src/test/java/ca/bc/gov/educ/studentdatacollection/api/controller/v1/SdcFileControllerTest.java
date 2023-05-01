@@ -163,7 +163,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     SdcFileUpload stdFile = SdcFileUpload.builder()
       .fileContents(fileContents)
       .createUser("ABC")
-      .fileName("SampleUpload.std")
+      .fileName("SampleUpload.file.std")
       .build();
 
     String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
