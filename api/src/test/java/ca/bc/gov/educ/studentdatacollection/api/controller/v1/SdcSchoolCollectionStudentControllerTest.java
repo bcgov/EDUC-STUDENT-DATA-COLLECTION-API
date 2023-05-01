@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionReposito
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SearchCriteria;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValueType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,13 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
+import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.AND;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -94,15 +92,18 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var stud2 = createMockSchoolStudentEntity(sdcSchoolCollection);
         sdcSchoolCollectionStudentRepository.save(stud1);
         sdcSchoolCollectionStudentRepository.save(stud2);
-        final SearchCriteria criteria = SearchCriteria.builder().key("legalFirstName").operation(FilterOperation.EQUAL).value("JAM").valueType(ValueType.STRING).build();
-        final SearchCriteria criteria2 = SearchCriteria.builder().key("gender").operation(FilterOperation.EQUAL).value("M").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("legalFirstName").operation(FilterOperation.EQUAL).value("JAM").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria2 = SearchCriteria.builder().condition(AND).key("gender").operation(FilterOperation.EQUAL).value("M").valueType(ValueType.STRING).build();
 
         final List<SearchCriteria> criteriaList = new ArrayList<>();
         criteriaList.add(criteria);
         criteriaList.add(criteria2);
 
+        final List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+
         final var objectMapper = new ObjectMapper();
-        final String criteriaJSON = objectMapper.writeValueAsString(criteriaList);
+        final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
                         .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
@@ -129,17 +130,20 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         sdcSchoolCollectionStudentRepository.save(stud2);
         var yesterday = LocalDateTime.now().plusDays(-1);
         var tomorrow = LocalDateTime.now().plusDays(1);
-        final SearchCriteria criteriaDate = SearchCriteria.builder().key("createDate").operation(FilterOperation.BETWEEN).value(yesterday + "," + tomorrow).valueType(ValueType.DATE_TIME).build();
-        final SearchCriteria criteria = SearchCriteria.builder().key("legalFirstName").operation(FilterOperation.EQUAL).value("JAM").valueType(ValueType.STRING).build();
-        final SearchCriteria criteria2 = SearchCriteria.builder().key("gender").operation(FilterOperation.EQUAL).value("M").valueType(ValueType.STRING).build();
+        final SearchCriteria criteriaDate = SearchCriteria.builder().condition(AND).key("createDate").operation(FilterOperation.BETWEEN).value(yesterday + "," + tomorrow).valueType(ValueType.DATE_TIME).build();
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("legalFirstName").operation(FilterOperation.EQUAL).value("JAM").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria2 = SearchCriteria.builder().condition(AND).key("gender").operation(FilterOperation.EQUAL).value("M").valueType(ValueType.STRING).build();
 
         final List<SearchCriteria> criteriaList = new ArrayList<>();
         criteriaList.add(criteriaDate);
         criteriaList.add(criteria);
         criteriaList.add(criteria2);
 
+        final List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+
         final var objectMapper = new ObjectMapper();
-        final String criteriaJSON = objectMapper.writeValueAsString(criteriaList);
+        final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
                         .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
