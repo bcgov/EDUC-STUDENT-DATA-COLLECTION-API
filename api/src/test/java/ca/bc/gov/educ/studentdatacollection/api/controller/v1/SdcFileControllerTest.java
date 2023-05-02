@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.FileInputStream;
 import java.time.LocalDateTime;
@@ -66,7 +67,6 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   private MockMvc mockMvc;
 
   protected final static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
-
 
   public static String asJsonString(final Object obj) {
     try {
@@ -395,6 +395,235 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
       .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testProcessSdcFile_givenHeaderTooShort_ShouldReturnStatusBadRequest() throws Exception {
+    CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
+    School school = this.createMockSchool();
+
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository
+      .save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+
+    final FileInputStream fis = new FileInputStream(
+      "src/test/resources/sample-malformed-short-header.txt"
+    );
+
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    assertThat(fileContents).isNotEmpty();
+
+    SdcFileUpload body = SdcFileUpload
+      .builder()
+      .fileContents(fileContents)
+      .createUser("ABC")
+      .fileName("SampleUpload.std")
+      .build();
+
+    String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
+    MvcResult apiResponse = this.mockMvc.perform(post(BASE_URL + "/" + cid + "/file")
+      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .header("correlationID", UUID.randomUUID().toString())
+      .content(JsonUtil.getJsonStringFromObject(body))
+      .contentType(APPLICATION_JSON)
+    ).andExpect(status().isBadRequest()).andReturn();
+
+    assertThat(apiResponse
+      .getResponse()
+      .getContentAsString()
+      .contains("Header record is missing characters.")
+    ).isTrue();
+  }
+
+  @Test
+  void testProcessSdcFile_givenHeaderTooLong_ShouldReturnStatusBadRequest() throws Exception {
+    CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
+    School school = this.createMockSchool();
+
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository
+      .save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+
+    final FileInputStream fis = new FileInputStream(
+        "src/test/resources/sample-malformed-long-header.txt");
+
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    assertThat(fileContents).isNotEmpty();
+
+    SdcFileUpload body = SdcFileUpload
+      .builder()
+      .createUser("ABC")
+      .fileContents(fileContents)
+      .fileName("SampleUpload.std")
+      .build();
+
+    String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
+    MvcResult apiResponse = this.mockMvc.perform(post(BASE_URL + "/" + cid + "/file")
+      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .header("correlationID", UUID.randomUUID().toString())
+      .content(JsonUtil.getJsonStringFromObject(body))
+      .contentType(APPLICATION_JSON)
+    ).andExpect(status().isBadRequest()).andReturn();
+
+    assertThat(apiResponse
+      .getResponse()
+      .getContentAsString()
+      .contains("Header record has extraneous characters.")
+    ).isTrue();
+  }
+
+  @Test
+  void testProcessSdcFile_givenDetailTooShort_ShouldReturnStatusBadRequest() throws Exception {
+    CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
+    School school = this.createMockSchool();
+
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository
+      .save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+
+    final FileInputStream fis = new FileInputStream(
+        "src/test/resources/sample-malformed-short-content.txt");
+
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    assertThat(fileContents).isNotEmpty();
+
+    SdcFileUpload body = SdcFileUpload
+      .builder()
+      .createUser("ABC")
+      .fileContents(fileContents)
+      .fileName("SampleUpload.std")
+      .build();
+
+    String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
+    MvcResult apiResponse = this.mockMvc.perform(post(BASE_URL + "/" + cid + "/file")
+      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .header("correlationID", UUID.randomUUID().toString())
+      .content(JsonUtil.getJsonStringFromObject(body))
+      .contentType(APPLICATION_JSON)
+    ).andExpect(status().isBadRequest()).andReturn();
+
+    assertThat(apiResponse
+      .getResponse()
+      .getContentAsString()
+      .matches(".*Detail record \\d+ is missing characters.*")
+    ).isTrue();
+  }
+
+  @Test
+  void testProcessSdcFile_givenDetailTooLong_ShouldReturnStatusBadRequest() throws Exception {
+    CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
+    School school = this.createMockSchool();
+
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository
+      .save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+
+    final FileInputStream fis = new FileInputStream(
+        "src/test/resources/sample-malformed-long-content.txt");
+
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    assertThat(fileContents).isNotEmpty();
+
+    SdcFileUpload body = SdcFileUpload
+      .builder()
+      .createUser("ABC")
+      .fileContents(fileContents)
+      .fileName("SampleUpload.std")
+      .build();
+
+    String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
+    MvcResult apiResponse = this.mockMvc.perform(post(BASE_URL + "/" + cid + "/file")
+      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .header("correlationID", UUID.randomUUID().toString())
+      .content(JsonUtil.getJsonStringFromObject(body))
+      .contentType(APPLICATION_JSON)
+    ).andExpect(status().isBadRequest()).andReturn();
+
+    assertThat(apiResponse
+      .getResponse()
+      .getContentAsString()
+      .matches(".*Detail record \\d+ has extraneous characters.*")
+    ).isTrue();
+  }
+
+  @Test
+  void testProcessSdcFile_givenTrailerTooShort_ShouldReturnStatusBadRequest() throws Exception {
+    CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
+    School school = this.createMockSchool();
+
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository
+      .save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+
+    final FileInputStream fis = new FileInputStream(
+        "src/test/resources/sample-malformed-short-trailer.txt");
+
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    assertThat(fileContents).isNotEmpty();
+
+    SdcFileUpload body = SdcFileUpload
+      .builder()
+      .createUser("ABC")
+      .fileContents(fileContents)
+      .fileName("SampleUpload.std")
+      .build();
+
+    String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
+    MvcResult apiResponse = this.mockMvc.perform(post(BASE_URL + "/" + cid + "/file")
+      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .header("correlationID", UUID.randomUUID().toString())
+      .content(JsonUtil.getJsonStringFromObject(body))
+      .contentType(APPLICATION_JSON)
+    ).andExpect(status().isBadRequest()).andReturn();
+
+    assertThat(apiResponse
+      .getResponse()
+      .getContentAsString()
+      .contains("Trailer record is missing characters.")
+    ).isTrue();
+  }
+
+  @Test
+  void testProcessSdcFile_givenTrailerTooLong_ShouldReturnStatusBadRequest() throws Exception {
+    CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
+    School school = this.createMockSchool();
+
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository
+      .save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+
+    final FileInputStream fis = new FileInputStream(
+        "src/test/resources/sample-malformed-long-trailer.txt");
+
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    assertThat(fileContents).isNotEmpty();
+
+    SdcFileUpload body = SdcFileUpload
+      .builder()
+      .createUser("ABC")
+      .fileContents(fileContents)
+      .fileName("SampleUpload.std")
+      .build();
+
+    String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
+    MvcResult apiResponse = this.mockMvc.perform(post(BASE_URL + "/" + cid + "/file")
+      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .header("correlationID", UUID.randomUUID().toString())
+      .content(JsonUtil.getJsonStringFromObject(body))
+      .contentType(APPLICATION_JSON)
+    ).andExpect(status().isBadRequest()).andReturn();
+
+    assertThat(apiResponse
+      .getResponse()
+      .getContentAsString()
+      .contains("Trailer record has extraneous characters.")
+    ).isTrue();
   }
 
   @Test
