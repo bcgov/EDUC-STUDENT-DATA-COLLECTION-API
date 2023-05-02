@@ -34,6 +34,8 @@ public class StudentDataCollectionTestUtils {
   FundingCodeRepository fundingCodeRepository;
   @Autowired
   EnrolledGradeCodeRepository enrolledGradeCodeRepository;
+  @Autowired
+  SpecialEducationCategoryCodeRepository specialEducationCategoryCodeRepository;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void cleanDB() {
@@ -49,7 +51,7 @@ public class StudentDataCollectionTestUtils {
     bandCodeRepository.deleteAll();
     fundingCodeRepository.deleteAll();
     enrolledGradeCodeRepository.deleteAll();
-
+    specialEducationCategoryCodeRepository.deleteAll();
   }
 
 }

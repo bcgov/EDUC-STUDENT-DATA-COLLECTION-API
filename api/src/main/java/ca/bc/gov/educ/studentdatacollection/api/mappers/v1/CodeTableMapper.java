@@ -17,4 +17,5 @@ public interface CodeTableMapper {
     BandCode toStructure(BandCodeEntity entity);
     SchoolFundingCode toStructure(SchoolFundingCodeEntity entity);
     EnrolledGradeCode toStructure(EnrolledGradeCodeEntity entity);
+    SpecialEducationCategoryCode toStructure(SpecialEducationCategoryCodeEntity entity);
 }

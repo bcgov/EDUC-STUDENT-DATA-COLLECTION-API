@@ -34,10 +34,10 @@ public class SpecialEducationCategoryCodeEntity {
   private Integer displayOrder;
 
   @Column(name = "EFFECTIVE_DATE")
-  private String effectiveDate;
+  private LocalDateTime effectiveDate;
 
   @Column(name = "EXPIRY_DATE")
-  private String expiryDate;
+  private LocalDateTime expiryDate;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;

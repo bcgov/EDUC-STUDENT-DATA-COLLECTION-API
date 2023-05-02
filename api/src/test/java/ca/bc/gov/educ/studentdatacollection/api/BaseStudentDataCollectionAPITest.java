@@ -45,6 +45,8 @@ public abstract class BaseStudentDataCollectionAPITest {
   FundingCodeRepository fundingCodeRepository;
   @Autowired
   EnrolledGradeCodeRepository enrolledGradeCodeRepository;
+  @Autowired
+  SpecialEducationCategoryCodeRepository specialEducationCategoryCodeRepository;
 
   @BeforeEach
   public void before() {
@@ -57,6 +59,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     enrolledGradeCodeRepository.save(this.enrolledGradeCodeData());
     enrolledGradeCodeRepository.save(this.enrolledGradeCodeHSData());
     enrolledGradeCodeRepository.save(this.enrolledGradeCodeEightData());
+    specialEducationCategoryCodeRepository.save(this.specialEducationCategoryCodeData());
   }
 
   @AfterEach
@@ -246,6 +249,22 @@ public abstract class BaseStudentDataCollectionAPITest {
     return EnrolledGradeCodeEntity.builder().enrolledGradeCode("08").description("Grade 8")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Grade 8").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public SpecialEducationCategoryCodeEntity specialEducationCategoryCodeData() {
+    SpecialEducationCategoryCodeEntity specialEducationCategoryCodeEntity = new SpecialEducationCategoryCodeEntity();
+    specialEducationCategoryCodeEntity.setSpecialEducationCategoryCode("A");
+    specialEducationCategoryCodeEntity.setLabel("PHYS DEPEND");
+    specialEducationCategoryCodeEntity.setDescription("PHYSICALLY DEPENDENT");
+    specialEducationCategoryCodeEntity.setDisplayOrder(10);
+    specialEducationCategoryCodeEntity.setEffectiveDate(LocalDateTime.now());
+    specialEducationCategoryCodeEntity.setEffectiveDate(LocalDateTime.MAX);
+    specialEducationCategoryCodeEntity.setCreateDate(LocalDateTime.now());
+    specialEducationCategoryCodeEntity.setUpdateDate(LocalDateTime.now());
+    specialEducationCategoryCodeEntity.setCreateUser("TEST");
+    specialEducationCategoryCodeEntity.setUpdateUser("TEST");
+
+    return specialEducationCategoryCodeEntity;
   }
 
 }

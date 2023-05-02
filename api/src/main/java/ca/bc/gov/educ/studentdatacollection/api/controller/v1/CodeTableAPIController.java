@@ -47,4 +47,8 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
     public List<EnrolledGradeCode> getEnrolledGradeCodes() {
         return codeTableService.getAllGradeCodes().stream().map(mapper::toStructure).toList();
     }
+    @Override
+    public List<SpecialEducationCategoryCode> getSpecialEducationCategoryCodes() {
+        return codeTableService.getAllSpecialEducationCategoryCodes().stream().map(mapper::toStructure).toList();
+    }
 }
