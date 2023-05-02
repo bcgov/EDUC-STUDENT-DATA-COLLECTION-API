@@ -150,7 +150,7 @@ public class SdcFileValidator {
     ds.goTop(); // reset and move the cursor to top as everything is fine.
   }
 
-  private static boolean isMalformedRowErrorDescription(DataError error) {
+  private static boolean isMalformedRowError(DataError error) {
     String description = error.getErrorDesc();
 
     if (description.contains(HEADER_LENGTH_ERROR)
@@ -187,7 +187,7 @@ public class SdcFileValidator {
     Optional<DataError> maybeError = ds
     .getErrors()
     .stream()
-    .filter((e) -> isMalformedRowErrorDescription(e))
+    .filter((e) -> isMalformedRowError(e))
     .findFirst();
 
     if (maybeError.isPresent()) {
