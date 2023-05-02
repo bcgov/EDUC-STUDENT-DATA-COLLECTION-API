@@ -152,20 +152,29 @@ public class SdcFileValidator {
    * @param ds   the ds
    * @throws FileUnProcessableException the file un processable exception
    */
-  private void processDataSetForRowLengthErrors(@NonNull final String guid, @NonNull final DataSet ds) throws FileUnProcessableException {
+  private void processDataSetForRowLengthErrors(
+    @NonNull final String guid,
+    @NonNull final DataSet ds
+  ) throws FileUnProcessableException {
     if (ds.getErrors() != null && !ds.getErrors().isEmpty()) {
       var message = "";
-      var firstErrorFound = false;
+      boolean firstErrorFound = false;
       for (final DataError error : ds.getErrors()) {
-        // ignore the header error to allow all flavours of header
-        if (error.getErrorDesc() != null && error.getErrorDesc().contains("SHOULD BE 234")) { // Details Record should be 234 characters long.
+        if (error.getErrorDesc() == null) { break; }
+        String description = error.getErrorDesc();
+
+        if (description.contains("SHOULD BE 59")) {
+          message = this.getHeaderRowLengthIncorrectMessage(message, error);
+          firstErrorFound = true;
+        } else if (description.contains("SHOULD BE 234")) {
           message = this.getDetailRowLengthIncorrectMessage(message, error);
           firstErrorFound = true;
+        } else if (description.contains("SHOULD BE 224")) {
+          message = this.getTrailerRowLengthIncorrectMessage(message, error);
+          firstErrorFound = true;
         }
-        // ignore the footer error to allow all flavours of footer
-        if (firstErrorFound) {
-          break; // if system found one error , system breaks the loop.
-        }
+
+        if (firstErrorFound) { break; }
       }
       if(firstErrorFound) {
         throw new FileUnProcessableException(FileError.INVALID_ROW_LENGTH, guid, SdcSchoolCollectionStatus.LOAD_FAIL, message);
@@ -173,6 +182,37 @@ public class SdcFileValidator {
     }
   }
 
+  /**
+   * Gets header row length incorrect message.
+   *
+   * @param message the message
+   * @param error   the error
+   * @return the header row length incorrect message
+   */
+  private String getHeaderRowLengthIncorrectMessage(String message, final DataError error) {
+    if (error.getErrorDesc().contains(TOO_LONG)) {
+      message = message.concat("Header record has extraneous characters.");
+    } else {
+      message = message.concat("Header record is missing characters.");
+    }
+    return message;
+  }
+
+  /**
+   * Gets trailer row length incorrect message.
+   *
+   * @param message the message
+   * @param error   the error
+   * @return the trailer row length incorrect message
+   */
+  private String getTrailerRowLengthIncorrectMessage(String message, final DataError error) {
+    if (error.getErrorDesc().contains(TOO_LONG)) {
+      message = message.concat("Trailer record has extraneous characters.");
+    } else {
+      message = message.concat("Trailer record is missing characters.");
+    }
+    return message;
+  }
 
   /**
    * Gets detail row length incorrect message.
