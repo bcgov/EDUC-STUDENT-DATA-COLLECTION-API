@@ -547,6 +547,13 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationCodeCrrErr.size()).isNotZero();
         val errorCarrErr = validationCodeCrrErr.stream().anyMatch(val -> val.getValidationIssueCode().equals("CAREERCODEPROGERR"));
         assertThat(errorCarrErr).isTrue();
+
+        entity.setEnrolledGradeCode("08");
+        entity.setSpecialEducationCategoryCode("0");
+        val validationCodeSpedErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationCodeSpedErr.size()).isNotZero();
+        val errorSpedErr = validationCodeSpedErr.stream().anyMatch(val -> val.getValidationIssueCode().equals("SPEDERR"));
+        assertThat(errorSpedErr).isTrue();
     }
 
     @Test
@@ -575,6 +582,14 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorGrade.size()).isNotZero();
         val errorInd = validationErrorGrade.stream().anyMatch(val -> val.getValidationIssueCode().equals("ADULTINCORRECTGRADE"));
         assertThat(errorInd).isTrue();
+
+        entity.setDob("19890101");
+        entity.setNumberOfCourses("1");
+        entity.setEnrolledGradeCode("01");
+        val validationErrorOnlineGrade = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
+        assertThat(validationErrorOnlineGrade.size()).isNotZero();
+        val errorOnlineInd = validationErrorOnlineGrade.stream().anyMatch(val -> val.getValidationIssueCode().equals("ADULTGRADEERR"));
+        assertThat(errorOnlineInd).isTrue();
     }
 
     @Test

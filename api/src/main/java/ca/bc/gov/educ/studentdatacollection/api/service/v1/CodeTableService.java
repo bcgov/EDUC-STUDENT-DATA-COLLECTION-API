@@ -19,6 +19,7 @@ public class CodeTableService {
   private final BandCodeRepository bandCodeRepository;
   private final FundingCodeRepository fundingCodeRepository;
   private final EnrolledGradeCodeRepository enrolledGradeCodeRepository;
+  private final SpecialEducationCategoryRepository specialEducationCategoryRepository;
 
   /**
    * Instantiates a new Code table service.
@@ -30,9 +31,10 @@ public class CodeTableService {
    * @param bandCodeRepository
    * @param fundingCodeRepository
    * @param enrolledGradeCodeRepository
+   * @param specialEducationCategoryRepository
    */
   @Autowired
-  public CodeTableService(CollectionTypeCodeRepository collectionCodeRepository, EnrolledProgramCodeRepository enrolledProgramCodeRepository, CareerProgramCodeRepository careerProgramCodeRepository, HomeLanguageSpokenCodeRepository homeLanguageSpokenCodeRepository, BandCodeRepository bandCodeRepository, FundingCodeRepository fundingCodeRepository, EnrolledGradeCodeRepository enrolledGradeCodeRepository) {
+  public CodeTableService(CollectionTypeCodeRepository collectionCodeRepository, EnrolledProgramCodeRepository enrolledProgramCodeRepository, CareerProgramCodeRepository careerProgramCodeRepository, HomeLanguageSpokenCodeRepository homeLanguageSpokenCodeRepository, BandCodeRepository bandCodeRepository, FundingCodeRepository fundingCodeRepository, EnrolledGradeCodeRepository enrolledGradeCodeRepository, SpecialEducationCategoryRepository specialEducationCategoryRepository) {
     this.collectionCodeRepository = collectionCodeRepository;
     this.enrolledProgramCodeRepository = enrolledProgramCodeRepository;
     this.careerProgramCodeRepository = careerProgramCodeRepository;
@@ -40,6 +42,7 @@ public class CodeTableService {
     this.bandCodeRepository = bandCodeRepository;
     this.fundingCodeRepository = fundingCodeRepository;
     this.enrolledGradeCodeRepository = enrolledGradeCodeRepository;
+    this.specialEducationCategoryRepository = specialEducationCategoryRepository;
   }
 
   @Cacheable("enrolledProgramCodes")
@@ -70,6 +73,10 @@ public class CodeTableService {
   @Cacheable("enrolledGradeCodes")
   public List<EnrolledGradeCodeEntity> getAllGradeCodes() {
     return enrolledGradeCodeRepository.findAll();
+  }
+  @Cacheable("specialEducationCategoryCodes")
+  public List<SpecialEducationCategoryCodeEntity> getAllSpecialEducationCategoryCodes() {
+    return specialEducationCategoryRepository.findAll();
   }
 
   @Cacheable("collectionCodes")

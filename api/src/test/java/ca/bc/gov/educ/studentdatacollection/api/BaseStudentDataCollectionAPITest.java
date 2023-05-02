@@ -45,18 +45,21 @@ public abstract class BaseStudentDataCollectionAPITest {
   FundingCodeRepository fundingCodeRepository;
   @Autowired
   EnrolledGradeCodeRepository enrolledGradeCodeRepository;
+  @Autowired
+  SpecialEducationCategoryRepository specialEducationCategoryRepository;
 
   @BeforeEach
   public void before() {
-    enrolledProgramCodeRepository.save(this.createEnrolledProgramCodeData());
-    careerProgramCodeRepository.save(this.createCareerProgramCodeData());
-    homeLanguageSpokenCodeRepository.save(this.homeLanguageSpokenCodeData());
-    bandCodeRepository.save(this.bandCodeData());
-    fundingCodeRepository.save(this.fundingCodeData());
-    fundingCodeRepository.save(this.fundingCode20Data());
-    enrolledGradeCodeRepository.save(this.enrolledGradeCodeData());
-    enrolledGradeCodeRepository.save(this.enrolledGradeCodeHSData());
-    enrolledGradeCodeRepository.save(this.enrolledGradeCodeEightData());
+    enrolledProgramCodeRepository.save(createEnrolledProgramCodeData());
+    careerProgramCodeRepository.save(createCareerProgramCodeData());
+    homeLanguageSpokenCodeRepository.save(homeLanguageSpokenCodeData());
+    bandCodeRepository.save(bandCodeData());
+    fundingCodeRepository.save(fundingCodeData());
+    fundingCodeRepository.save(fundingCode20Data());
+    enrolledGradeCodeRepository.save(enrolledGradeCodeData());
+    enrolledGradeCodeRepository.save(enrolledGradeCodeHSData());
+    enrolledGradeCodeRepository.save(enrolledGradeCodeEightData());
+    specialEducationCategoryRepository.save(specialEducationCategoryCodeData());
   }
 
   @AfterEach
@@ -104,7 +107,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setUsualLastName("DANDY");
     sdcEntity.setDob("20160101");
     sdcEntity.setGender("M");
-    sdcEntity.setSpecialEducationCategoryCode("B");
+    sdcEntity.setSpecialEducationCategoryCode("A");
     sdcEntity.setSchoolFundingCode("20");
     sdcEntity.setNativeAncestryInd("N");
     sdcEntity.setHomeLanguageSpokenCode("001");
@@ -245,6 +248,12 @@ public abstract class BaseStudentDataCollectionAPITest {
   public EnrolledGradeCodeEntity enrolledGradeCodeEightData() {
     return EnrolledGradeCodeEntity.builder().enrolledGradeCode("08").description("Grade 8")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Grade 8").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public SpecialEducationCategoryCodeEntity specialEducationCategoryCodeData() {
+    return SpecialEducationCategoryCodeEntity.builder().specialEducationCategoryCode("A").description("PHYS DEPEND")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("PHYS DEPEND").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 

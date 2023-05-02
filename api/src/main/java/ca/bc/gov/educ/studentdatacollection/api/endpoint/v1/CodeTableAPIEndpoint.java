@@ -64,4 +64,12 @@ public interface CodeTableAPIEndpoint {
     @Tag(name = "Collection Codes", description = "Endpoints to get collection codes.")
     @Schema(name = "EnrolledGradeCode", implementation = EnrolledGradeCode.class)
     List<EnrolledGradeCode> getEnrolledGradeCodes();
+
+    @PreAuthorize("hasAuthority('SCOPE_READ_COLLECTION_CODES')")
+    @GetMapping(URL.SPED_CODES)
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
+    @Transactional(readOnly = true)
+    @Tag(name = "Collection Codes", description = "Endpoints to get collection codes.")
+    @Schema(name = "SpecialEducationCategoryCode", implementation = SpecialEducationCategoryCode.class)
+    List<SpecialEducationCategoryCode> getSpecialEducationCategoryCodes();
 }
