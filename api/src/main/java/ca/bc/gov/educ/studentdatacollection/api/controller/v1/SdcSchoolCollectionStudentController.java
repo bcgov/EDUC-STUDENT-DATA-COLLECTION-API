@@ -37,7 +37,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     @Override
     public SdcSchoolCollectionStudent getSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID) {
         return mapper.toSdcSchoolCollectionStudentWithValidationIssues(this.sdcSchoolCollectionStudentService.getSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID));
-    };
+    }
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)

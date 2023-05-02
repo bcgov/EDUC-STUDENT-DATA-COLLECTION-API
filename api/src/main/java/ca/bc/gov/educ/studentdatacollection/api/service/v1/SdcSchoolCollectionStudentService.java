@@ -30,11 +30,10 @@ public class SdcSchoolCollectionStudentService {
       UUID sdcSchoolCollectionStudentID) {
 
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
-    SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() -> new EntityNotFoundException(
-        SdcSchoolCollectionStudent.class, "sdcSchoolCollectionStudentId", sdcSchoolCollectionStudentID.toString()));
 
-    return sdcSchoolCollectionStudentEntity;
-  };
+    return sdcSchoolCollectionStudentEntityOptional.orElseThrow(() -> new EntityNotFoundException(
+        SdcSchoolCollectionStudent.class, "sdcSchoolCollectionStudentId", sdcSchoolCollectionStudentID.toString()));
+  }
 
   @Transactional(propagation = Propagation.SUPPORTS)
   public CompletableFuture<Page<SdcSchoolCollectionStudentEntity>> findAll(final Specification<SdcSchoolCollectionStudentEntity> secureExchangeSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {

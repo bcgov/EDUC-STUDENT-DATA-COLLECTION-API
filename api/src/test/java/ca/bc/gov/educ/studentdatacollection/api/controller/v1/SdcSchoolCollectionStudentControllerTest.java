@@ -57,6 +57,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
     @AfterEach
     void cleanup(){
+        sdcSchoolCollectionStudentValidationIssueRepository.deleteAll();
         sdcSchoolCollectionStudentRepository.deleteAll();
         sdcSchoolCollectionRepository.deleteAll();
         collectionRepository.deleteAll();
