@@ -124,6 +124,20 @@ public abstract class BaseStudentDataCollectionAPITest {
     return sdcEntity;
   }
 
+  public SdcSchoolCollectionStudentValidationIssueEntity createMockSdcSchoolCollectionStudentValidationIssueEntity(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity){
+    SdcSchoolCollectionStudentValidationIssueEntity sdcSchoolCollectionStudentValidationIssueEntity = new SdcSchoolCollectionStudentValidationIssueEntity();
+    sdcSchoolCollectionStudentValidationIssueEntity.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentEntity);
+
+    sdcSchoolCollectionStudentValidationIssueEntity.setValidationIssueSeverityCode("ERROR");
+    sdcSchoolCollectionStudentValidationIssueEntity.setValidationIssueCode("LEGALFIRSTNAMECHARFIX");
+    sdcSchoolCollectionStudentValidationIssueEntity.setValidationIssueFieldCode("LEGAL_FIRST_NAME");
+    sdcSchoolCollectionStudentValidationIssueEntity.setCreateUser("ABC");
+    sdcSchoolCollectionStudentValidationIssueEntity.setCreateDate(LocalDateTime.now());
+    sdcSchoolCollectionStudentValidationIssueEntity.setUpdateUser("ABC");
+    sdcSchoolCollectionStudentValidationIssueEntity.setUpdateDate(LocalDateTime.now());
+    return sdcSchoolCollectionStudentValidationIssueEntity;
+  }
+
   @SneakyThrows
   protected SdcSagaEntity creatMockSaga(final SdcSchoolCollectionStudent student) {
     return SdcSagaEntity.builder()
