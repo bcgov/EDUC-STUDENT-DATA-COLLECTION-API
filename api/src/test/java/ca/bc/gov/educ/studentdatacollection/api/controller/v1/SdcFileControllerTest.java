@@ -432,8 +432,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(apiResponse
       .getResponse()
       .getContentAsString()
-      .contains("Header record is missing characters.")
-    ).isTrue();
+    ).contains("Header record is missing characters.");
   }
 
   @Test
@@ -470,8 +469,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(apiResponse
       .getResponse()
       .getContentAsString()
-      .contains("Header record has extraneous characters.")
-    ).isTrue();
+    ).contains("Header record has extraneous characters.");
   }
 
   @Test
@@ -508,8 +506,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(apiResponse
       .getResponse()
       .getContentAsString()
-      .matches(".*Detail record \\d+ is missing characters.*")
-    ).isTrue();
+    ).matches(".*Detail record \\d+ is missing characters.*");
   }
 
   @Test
@@ -546,8 +543,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(apiResponse
       .getResponse()
       .getContentAsString()
-      .matches(".*Detail record \\d+ has extraneous characters.*")
-    ).isTrue();
+    ).matches(".*Detail record \\d+ has extraneous characters.*");
   }
 
   @Test
@@ -584,8 +580,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(apiResponse
       .getResponse()
       .getContentAsString()
-      .contains("Trailer record is missing characters.")
-    ).isTrue();
+    ).contains("Trailer record is missing characters.");
   }
 
   @Test
@@ -622,8 +617,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(apiResponse
       .getResponse()
       .getContentAsString()
-      .contains("Trailer record has extraneous characters.")
-    ).isTrue();
+    ).contains("Trailer record has extraneous characters.");
   }
 
   @Test
