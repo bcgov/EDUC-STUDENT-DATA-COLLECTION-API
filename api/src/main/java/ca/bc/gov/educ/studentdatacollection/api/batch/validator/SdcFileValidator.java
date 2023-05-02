@@ -165,11 +165,16 @@ public class SdcFileValidator {
   private String getMalformedRowMessage(String errorDescription, DataError error) {
     if (errorDescription.contains(HEADER_LENGTH_ERROR)) {
       return this.getHeaderRowLengthIncorrectMessage(errorDescription);
-    } else if (errorDescription.contains(DETAIL_LENGTH_ERROR)) {
+    }
+
+    if (errorDescription.contains(DETAIL_LENGTH_ERROR)) {
       return this.getDetailRowLengthIncorrectMessage(error, errorDescription);
-    } else if (errorDescription.contains(TRAILER_LENGTH_ERROR)) {
+    }
+
+    if (errorDescription.contains(TRAILER_LENGTH_ERROR)) {
       return this.getTrailerRowLengthIncorrectMessage(errorDescription);
     }
+
     return "The uploaded file contains a malformed error that could not be identified.";
   }
 
@@ -187,7 +192,7 @@ public class SdcFileValidator {
     Optional<DataError> maybeError = ds
     .getErrors()
     .stream()
-    .filter((e) -> isMalformedRowError(e))
+    .filter(e -> isMalformedRowError(e))
     .findFirst();
 
     if (maybeError.isPresent()) {
