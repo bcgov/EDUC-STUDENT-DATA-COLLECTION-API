@@ -16,5 +16,6 @@ public final class URL {
   public static final String FUNDING_CODES="/funding-codes";
   public static final String GRADE_CODES="/grade-codes";
   public static final String PAGINATED = "/paginated";
+  public static final String SPED_CODES="/specialEducation-codes";
 
 }

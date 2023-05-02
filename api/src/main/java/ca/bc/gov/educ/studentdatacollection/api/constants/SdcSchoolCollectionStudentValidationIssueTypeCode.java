@@ -77,6 +77,8 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   SUPPORT_BLOCKS_NOT_COUNT("SUPPORTBLOCKSNOTCOUNT", "Support blocks will only be counted toward funding if the student is taking less than 8 courses."),
   GA_ERROR("GAERROR", "School-aged students cannot be reported in grade GA."),
   ADULT_SUPPORT_ERR("ADULTSUPPORTERR", "Adult students will not receive funding for support blocks."),
+  ADULT_GRADE_ERR("ADULTGRADEERR", "Adult in Online Learning must be in grade 10, 11, 12, SU, or GA."),
+  SPED_ERR("SPEDERR", "Reported Special Education Category is not valid."),
 
   ;
 
