@@ -190,10 +190,10 @@ public class SdcFileValidator {
     @NonNull final DataSet ds
   ) throws FileUnProcessableException {
     Optional<DataError> maybeError = ds
-    .getErrors()
-    .stream()
-    .filter(e -> isMalformedRowError(e))
-    .findFirst();
+      .getErrors()
+      .stream()
+      .filter(e -> isMalformedRowError(e))
+      .findFirst();
 
     if (maybeError.isPresent()) {
       DataError error = maybeError.get();
