@@ -153,13 +153,9 @@ public class SdcFileValidator {
   private static boolean isMalformedRowError(DataError error) {
     String description = error.getErrorDesc();
 
-    if (description.contains(HEADER_LENGTH_ERROR)
+    return (description.contains(HEADER_LENGTH_ERROR)
     || description.contains(DETAIL_LENGTH_ERROR)
-    || description.contains(TRAILER_LENGTH_ERROR)) {
-      return true;
-    }
-
-    return false;
+    || description.contains(TRAILER_LENGTH_ERROR));
   }
 
   private String getMalformedRowMessage(String errorDescription, DataError error) {
