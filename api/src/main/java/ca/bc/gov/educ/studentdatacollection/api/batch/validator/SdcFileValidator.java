@@ -171,7 +171,7 @@ public class SdcFileValidator {
       return this.getTrailerRowLengthIncorrectMessage(errorDescription);
     }
 
-    return "The uploaded file contains a malformed error that could not be identified.";
+    return "The uploaded file contains a malformed row that could not be identified.";
   }
 
   /**
