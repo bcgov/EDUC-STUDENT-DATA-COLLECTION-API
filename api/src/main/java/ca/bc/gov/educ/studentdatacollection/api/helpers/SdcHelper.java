@@ -4,9 +4,6 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStud
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentValidationIssueEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -17,7 +14,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.SignStyle;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static java.time.temporal.ChronoField.*;
 import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
@@ -34,12 +34,6 @@ public final class SdcHelper {
     .appendValue(YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
     .appendValue(MONTH_OF_YEAR, 2)
     .appendValue(DAY_OF_MONTH, 2).toFormatter();
-  @Getter
-  private static final Map<String, String> gradeCodeMap = new HashMap<>();
-  @Getter
-  private static final ListMultimap<String, String> agreementTypeMap = ArrayListMultimap.create();
-  @Getter
-  private static final Map<String, String> sldSchTypeMap = new HashMap<>();
 
   private SdcHelper() {
 
