@@ -409,7 +409,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     "src/test/resources/sample-malformed-short-trailer.txt,Trailer record is missing characters.",
     "src/test/resources/sample-malformed-long-trailer.txt,Trailer record has extraneous characters."
   })
-  void testProcessSdcFile_givenMalformedRow_ShouldReturnStatusBadRequest(
+  void testProcessSdcFile_givenMalformedHeaderOrTrailer_ShouldReturnStatusBadRequest(
     final String sample,
     final String errorMessage
   ) throws Exception {
@@ -454,7 +454,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     "src/test/resources/sample-malformed-long-content.txt,"
     + ".*Detail record \\d+ has extraneous characters.*"
   })
-  void testProcessSdcFile_givenDetailTooShort_ShouldReturnStatusBadRequest(
+  void testProcessSdcFile_givenMalformedDetailRow_ShouldReturnStatusBadRequest(
     final String sample,
     final String errorExpression
   ) throws Exception {
