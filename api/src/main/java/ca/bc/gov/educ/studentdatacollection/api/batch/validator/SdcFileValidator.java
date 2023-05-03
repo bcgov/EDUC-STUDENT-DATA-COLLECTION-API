@@ -16,6 +16,7 @@ import net.sf.flatpack.Record;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
+
 import java.util.Optional;
 
 /**
@@ -24,6 +25,10 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class SdcFileValidator {
+
+  private static final String HEADER_LENGTH_ERROR = "SHOULD BE 59";
+  private static final String DETAIL_LENGTH_ERROR = "SHOULD BE 234";
+  private static final String TRAILER_LENGTH_ERROR = "SHOULD BE 224";
 
   public static final String HEADER_STARTS_WITH = "FFI";
   public static final String TRAILER_STARTS_WITH = "BTR";
@@ -145,6 +150,30 @@ public class SdcFileValidator {
     ds.goTop(); // reset and move the cursor to top as everything is fine.
   }
 
+  private static boolean isMalformedRowError(DataError error) {
+    String description = error.getErrorDesc();
+
+    return (description.contains(HEADER_LENGTH_ERROR)
+    || description.contains(DETAIL_LENGTH_ERROR)
+    || description.contains(TRAILER_LENGTH_ERROR));
+  }
+
+  private String getMalformedRowMessage(String errorDescription, DataError error) {
+    if (errorDescription.contains(HEADER_LENGTH_ERROR)) {
+      return this.getHeaderRowLengthIncorrectMessage(errorDescription);
+    }
+
+    if (errorDescription.contains(DETAIL_LENGTH_ERROR)) {
+      return this.getDetailRowLengthIncorrectMessage(error, errorDescription);
+    }
+
+    if (errorDescription.contains(TRAILER_LENGTH_ERROR)) {
+      return this.getTrailerRowLengthIncorrectMessage(errorDescription);
+    }
+
+    return "The uploaded file contains a malformed row that could not be identified.";
+  }
+
   /**
    * Process data set for row length errors.
    *
@@ -152,27 +181,53 @@ public class SdcFileValidator {
    * @param ds   the ds
    * @throws FileUnProcessableException the file un processable exception
    */
-  private void processDataSetForRowLengthErrors(@NonNull final String guid, @NonNull final DataSet ds) throws FileUnProcessableException {
-    if (ds.getErrors() != null && !ds.getErrors().isEmpty()) {
-      var message = "";
-      var firstErrorFound = false;
-      for (final DataError error : ds.getErrors()) {
-        // ignore the header error to allow all flavours of header
-        if (error.getErrorDesc() != null && error.getErrorDesc().contains("SHOULD BE 234")) { // Details Record should be 234 characters long.
-          message = this.getDetailRowLengthIncorrectMessage(message, error);
-          firstErrorFound = true;
-        }
-        // ignore the footer error to allow all flavours of footer
-        if (firstErrorFound) {
-          break; // if system found one error , system breaks the loop.
-        }
-      }
-      if(firstErrorFound) {
-        throw new FileUnProcessableException(FileError.INVALID_ROW_LENGTH, guid, SdcSchoolCollectionStatus.LOAD_FAIL, message);
-      }
+  private void processDataSetForRowLengthErrors(
+    @NonNull final String guid,
+    @NonNull final DataSet ds
+  ) throws FileUnProcessableException {
+    Optional<DataError> maybeError = ds
+      .getErrors()
+      .stream()
+      .filter(e -> isMalformedRowError(e))
+      .findFirst();
+
+    if (maybeError.isPresent()) {
+      DataError error = maybeError.get();
+      String message = this.getMalformedRowMessage(error.getErrorDesc(), error);
+      throw new FileUnProcessableException(
+        FileError.INVALID_ROW_LENGTH,
+        guid,
+        SdcSchoolCollectionStatus.LOAD_FAIL,
+        message
+      );
     }
   }
 
+  /**
+   * Gets header row length incorrect message.
+   *
+   * @param description the DataError description
+   * @return the right error description
+   */
+  private String getHeaderRowLengthIncorrectMessage(String description) {
+    if (description.contains(TOO_LONG)) {
+      return "Header record has extraneous characters.";
+    }
+    return "Header record is missing characters.";
+  }
+
+  /**
+   * Gets trailer row length incorrect message.
+   *
+   * @param errorDescription the {@link DataError} description
+   * @return the trailer row length incorrect message
+   */
+  private String getTrailerRowLengthIncorrectMessage(String errorDescription) {
+    if (errorDescription.contains(TOO_LONG)) {
+      return "Trailer record has extraneous characters.";
+    }
+    return "Trailer record is missing characters.";
+  }
 
   /**
    * Gets detail row length incorrect message.
@@ -180,17 +235,18 @@ public class SdcFileValidator {
    * needs to
    * be  discarded
    *
-   * @param message the message
-   * @param error   the error
+   * @param errorDescription the {@link DataError} description
+   * @param error the error
    * @return the detail row length incorrect message
    */
-  private String getDetailRowLengthIncorrectMessage(String message, final DataError error) {
-    if (error.getErrorDesc().contains(TOO_LONG)) {
-      message = message.concat("Detail record " + (error.getLineNo() - 1) + " has extraneous characters.");
-    } else {
-      message = message.concat("Detail record " + (error.getLineNo() - 1) + " is missing characters.");
+  private String getDetailRowLengthIncorrectMessage(
+    final DataError error,
+    String errorDescription
+  ) {
+    if (errorDescription.contains(TOO_LONG)) {
+      return "Detail record " + (error.getLineNo() - 1) + " has extraneous characters.";
     }
-    return message;
+    return "Detail record " + (error.getLineNo() - 1) + " is missing characters.";
   }
 
   /**

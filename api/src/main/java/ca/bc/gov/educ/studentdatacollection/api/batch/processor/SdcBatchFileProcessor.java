@@ -106,9 +106,9 @@ public class SdcBatchFileProcessor {
       final DataSet ds = DefaultParserFactory.getInstance().newFixedLengthParser(mapperReader, batchFileReaderOptional.get()).setStoreRawDataToDataError(true).setStoreRawDataToDataSet(true).setNullEmptyStrings(true).parse();
 
       this.sdcFileValidator.validateFileHasCorrectExtension(sdcSchoolCollectionID, fileUpload);
+      this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
       this.sdcFileValidator
         .validateFileHasCorrectMincode(guid, ds, sdcSchoolCollection, this.restUtils);
-      this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
 
