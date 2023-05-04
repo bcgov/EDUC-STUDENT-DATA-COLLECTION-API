@@ -105,7 +105,6 @@ public class SdcSchoolCollectionStudentService {
     this.sdcStudentValidationErrorRepository.deleteSdcStudentValidationErrors(UUID.fromString(sdcSchoolStudentID));
   }
 
-  //To save NominalRollStudent with ValidationErrors, query and save operation should be in the same transaction boundary.
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public SdcSchoolCollectionStudentEntity saveSdcSchoolStudentValidationErrors(final String sdcSchoolCollectionStudentID, final List<SdcSchoolCollectionStudentValidationIssue> issues, SdcSchoolCollectionStudentEntity entity) {
     if(entity == null) {
