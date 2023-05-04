@@ -10,12 +10,10 @@ import org.mapstruct.factory.Mappers;
 @SuppressWarnings("squid:S1214")
 public interface SdcSchoolCollectionStudentValidationIssueMapper {
 
-  SdcSchoolCollectionStudentValidationIssueMapper mapper = Mappers.getMapper(
-      SdcSchoolCollectionStudentValidationIssueMapper.class);
+    SdcSchoolCollectionStudentValidationIssueMapper mapper = Mappers.getMapper(SdcSchoolCollectionStudentValidationIssueMapper.class);
 
-  SdcSchoolCollectionStudentValidationIssueEntity toModel(
-      SdcSchoolCollectionStudentValidationIssue structure);
+    SdcSchoolCollectionStudentValidationIssueEntity toModel(SdcSchoolCollectionStudentValidationIssue structure);
 
-  SdcSchoolCollectionStudentValidationIssue toStructure(SdcSchoolCollectionStudentValidationIssueEntity entity);
+    SdcSchoolCollectionStudentValidationIssue toStructure(SdcSchoolCollectionStudentValidationIssueEntity entity);
 
 }

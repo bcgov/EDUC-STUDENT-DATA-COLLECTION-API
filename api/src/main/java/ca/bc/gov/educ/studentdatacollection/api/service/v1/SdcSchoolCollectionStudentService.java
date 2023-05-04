@@ -1,24 +1,21 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentEnrolledProgramMapper;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,24 +23,35 @@ public class SdcSchoolCollectionStudentService {
 
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
-  public SdcSchoolCollectionStudentEntity getSdcSchoolCollectionStudent(
-      UUID sdcSchoolCollectionStudentID) {
+  private static final SdcSchoolCollectionStudentEnrolledProgramMapper sdcSchoolCollectionStudentEnrolledProgramMapper = SdcSchoolCollectionStudentEnrolledProgramMapper.mapper;
 
+  public SdcSchoolCollectionStudentEntity getSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID) {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
-    return sdcSchoolCollectionStudentEntityOptional.orElseThrow(() -> new EntityNotFoundException(
-        SdcSchoolCollectionStudent.class, "sdcSchoolCollectionStudentId", sdcSchoolCollectionStudentID.toString()));
+    return sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
+            new EntityNotFoundException(SdcSchoolCollectionStudent.class, "sdcSchoolCollectionStudentId", sdcSchoolCollectionStudentID.toString()));
   }
 
-  @Transactional(propagation = Propagation.SUPPORTS)
-  public CompletableFuture<Page<SdcSchoolCollectionStudentEntity>> findAll(final Specification<SdcSchoolCollectionStudentEntity> secureExchangeSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
-    final Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sorts));
-    try {
-      val result = this.sdcSchoolCollectionStudentRepository.findAll(secureExchangeSpecs, paging);
-      return CompletableFuture.completedFuture(result);
-    } catch (final Exception ex) {
-      throw new CompletionException(ex);
-    }
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void writeEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID, List<String> enrolledProgramCodes) {
+    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
+
+    var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
+            new EntityNotFoundException(SdcSchoolCollectionStudent.class, "sdcSchoolCollectionStudentId", sdcSchoolCollectionStudentID.toString()));
+
+    enrolledProgramCodes.forEach(enrolledProgramCode -> {
+      var enrolledProgramEntity = new SdcSchoolCollectionStudentEnrolledProgramEntity();
+      enrolledProgramEntity.setSdcSchoolCollectionStudentEntity(student);
+      enrolledProgramEntity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      enrolledProgramEntity.setUpdateDate(LocalDateTime.now());
+      enrolledProgramEntity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      enrolledProgramEntity.setCreateDate(LocalDateTime.now());
+      enrolledProgramEntity.setEnrolledProgramCode(enrolledProgramCode);
+
+      student.getSdcStudentEnrolledProgramEntities().add(enrolledProgramEntity);
+    });
+
+    sdcSchoolCollectionStudentRepository.save(student);
   }
 
 }
