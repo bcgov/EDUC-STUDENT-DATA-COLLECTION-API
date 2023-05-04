@@ -1,5 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,16 +16,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
 class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
@@ -85,6 +85,17 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(get(URL.BASE_URL + URL.GRADE_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].enrolledGradeCode").value("01"));
+  }
+
+  @Test
+  void testGetAllValidationIssueCodes_ShouldReturnCodes() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(get(URL.BASE_URL + URL.VALIDATION_ISSUE_TYPE_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].validationIssueTypeCode").value("GENDERINVALID"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
+        .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(65)));
   }
 
 }

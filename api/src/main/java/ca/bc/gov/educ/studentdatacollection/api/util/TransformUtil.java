@@ -1,7 +1,5 @@
 package ca.bc.gov.educ.studentdatacollection.api.util;
 
-import static org.springframework.util.StringUtils.capitalize;
-
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import java.beans.Expression;
 import java.beans.Statement;
@@ -9,6 +7,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import static org.springframework.util.StringUtils.capitalize;
 
 /**
  * The type Transform util.
@@ -74,6 +73,11 @@ public class TransformUtil {
         throw new StudentDataCollectionAPIRuntimeException(ex.getMessage());
       }
     }
+  }
 
+  public static List<String> splitIntoChunks(String text, int numberOfCharacters) {
+    String[] results = text.split("(?<=\\G.{" + numberOfCharacters + "})");
+
+    return Arrays.asList(results);
   }
 }
