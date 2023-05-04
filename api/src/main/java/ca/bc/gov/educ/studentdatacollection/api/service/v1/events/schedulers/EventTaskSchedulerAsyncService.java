@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.Orchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcService;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,16 +42,21 @@ public class EventTaskSchedulerAsyncService {
 
   @Getter(PRIVATE)
   private final SdcService sdcService;
+
+  @Getter(PRIVATE)
+  private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+
   @Setter
   private List<String> statusFilters;
 
   @Value("${number.students.process.saga}")
   private String numberOfStudentsToProcess;
 
-  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, final SdcService sdcService) {
+  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, final SdcService sdcService, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
     this.sagaRepository = sagaRepository;
     this.sdcSchoolStudentRepository = sdcSchoolStudentRepository;
     this.sdcService = sdcService;
+    this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
     orchestrators.forEach(orchestrator -> this.sagaOrchestrators.put(orchestrator.getSagaName(), orchestrator));
   }
 
@@ -90,7 +96,7 @@ public class EventTaskSchedulerAsyncService {
     final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTopLoadedStudentForProcessing(numberOfStudentsToProcess);
     log.debug("Found :: {}  records in loaded status", sdcSchoolStudentEntities.size());
     if (!sdcSchoolStudentEntities.isEmpty()) {
-      this.getSdcService().prepareAndSendSdcStudentsForFurtherProcessing(sdcSchoolStudentEntities);
+      this.getSdcSchoolCollectionStudentService().prepareAndSendSdcStudentsForFurtherProcessing(sdcSchoolStudentEntities);
     }
   }
 

@@ -5,7 +5,6 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.PenMatchSagaMapper;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
@@ -15,12 +14,14 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
@@ -41,19 +42,18 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.PEN_
 @Slf4j
 public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStudentSagaData> {
   private final RulesProcessor rulesProcessor;
-  private final SdcService sdcService;
   private final RestUtils restUtils;
   private final SdcSchoolCollectionService sdcSchoolCollectionService;
-
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+  private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
 
-  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final SdcService sdcService, final RestUtils restUtils, SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository) {
+  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final RestUtils restUtils, SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
     super(sagaService, messagePublisher, SdcStudentSagaData.class, SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString(), TopicsEnum.STUDENT_DATA_COLLECTION_PROCESS_STUDENT_SAGA_TOPIC.toString());
     this.rulesProcessor = rulesProcessor;
-    this.sdcService = sdcService;
     this.restUtils = restUtils;
     this.sdcSchoolCollectionService = sdcSchoolCollectionService;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
+    this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
   }
 
   @Override
@@ -64,7 +64,22 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
       .end(VALIDATE_SDC_STUDENT, VALIDATION_SUCCESS_WITH_ERROR, this::completeSdcStudentSagaWithError)
       .or()
       .step(PROCESS_PEN_MATCH, PEN_MATCH_PROCESSED, PROCESS_PEN_MATCH_RESULTS, this::processPenMatchResults)
-      .end(PROCESS_PEN_MATCH_RESULTS, PEN_MATCH_RESULTS_PROCESSED);
+      .step(PROCESS_PEN_MATCH_RESULTS, PEN_MATCH_RESULTS_PROCESSED, WRITE_ENROLLED_PROGRAMS, this::writeEnrolledPrograms)
+      .end(WRITE_ENROLLED_PROGRAMS, ENROLLED_PROGRAMS_WRITTEN);
+  }
+
+  private void writeEnrolledPrograms(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
+    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
+    saga.setSagaState(WRITE_ENROLLED_PROGRAMS.toString());
+    saga.setStatus(IN_PROGRESS.toString());
+    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+    List<String> enrolledProgramList = TransformUtil.splitIntoChunks(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes(), 2);
+
+    this.sdcSchoolCollectionStudentService.deleteExistingAndWriteEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), enrolledProgramList);
+
+    this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
+            .eventType(WRITE_ENROLLED_PROGRAMS).eventOutcome(ENROLLED_PROGRAMS_WRITTEN)
+            .build());
   }
 
   protected void processPenMatchResults(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
@@ -89,7 +104,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
         throw new StudentDataCollectionAPIRuntimeException("PenMatchRecord in priority queue is empty for matched status, this should not have happened.");
       }
     }
-    val sdcStudOptional = this.sdcService.findBySdcSchoolStudentID(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
+    val sdcStudOptional = this.sdcSchoolCollectionStudentService.findBySdcSchoolStudentID(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
     if (sdcStudOptional.isPresent()) {
       val sdcStud = sdcStudOptional.get();
       if (assignedPEN.isPresent()) {
@@ -108,8 +123,8 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     final TypeReference<List<SdcSchoolCollectionStudentValidationIssue>> responseType = new TypeReference<>() {
     };
     val validationResults = JsonUtil.mapper.readValue(event.getEventPayload(), responseType);
-    this.sdcService.deleteSdcStudentValidationErrors(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
-    this.sdcService.saveSdcSchoolStudentValidationErrors(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID(), validationResults, null);
+    this.sdcSchoolCollectionStudentService.deleteSdcStudentValidationErrors(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
+    this.sdcSchoolCollectionStudentService.saveSdcSchoolStudentValidationErrors(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID(), validationResults, null);
   }
 
   protected void processPenMatch(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
@@ -159,4 +174,6 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
     log.info("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
+
+
 }
