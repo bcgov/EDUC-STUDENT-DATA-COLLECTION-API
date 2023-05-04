@@ -7,15 +7,12 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes
 import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.EnrolledProgramCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
 
 @Component
 public class EnrolledProgramValidityRule implements BaseRule {
