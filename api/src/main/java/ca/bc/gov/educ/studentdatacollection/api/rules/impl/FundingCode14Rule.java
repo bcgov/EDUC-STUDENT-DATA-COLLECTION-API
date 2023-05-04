@@ -30,6 +30,8 @@ public class FundingCode14Rule implements BaseRule {
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent() &&
                 StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode()) &&
+                StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes()) &&
+                sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes().length() % 2 == 0 &&
                 StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode()) &&
                 !sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode().equals(Constants.HS) && sdcStudentSagaData.getSchool().getSchoolCategoryCode().equals(Constants.PUBLIC)
                 && sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode().equals(Constants.FUNDING_CODE_14);
@@ -38,7 +40,7 @@ public class FundingCode14Rule implements BaseRule {
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        final List<String> enrolledProgramCodes = splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
+        final List<String> enrolledProgramCodes = validationRulesService.splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
         List<CareerProgramCode> activeCareerPrograms = validationRulesService.getActiveCareerProgramCodes();
 
         if (FrenchPrograms.getCodes().stream().anyMatch(enrolledProgramCodes::contains)) {
@@ -60,7 +62,4 @@ public class FundingCode14Rule implements BaseRule {
         return errors;
     }
 
-    private List<String> splitString(String enrolledProgramCode) {
-        return Pattern.compile(".{1,2}").matcher(enrolledProgramCode).results().map(MatchResult::group).toList();
-    }
 }

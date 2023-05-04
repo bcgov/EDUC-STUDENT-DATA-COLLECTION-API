@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStu
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
 import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
@@ -19,17 +20,24 @@ import java.util.regex.Pattern;
 @Component
 public class CSFProgramRule implements BaseRule {
 
+    private final ValidationRulesService validationRulesService;
+
+    public CSFProgramRule(ValidationRulesService validationRulesService) {
+        this.validationRulesService = validationRulesService;
+    }
+
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent()
-                 && StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes()) &&
-                 sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes().length() % 2 == 0;
+                 && StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes())
+                 && sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes().length() % 2 == 0
+                 && !validationRulesService.isEnrolledProgramCodeInvalid(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        final List<String> enrolledProgramCodes = splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
+        final List<String> enrolledProgramCodes = validationRulesService.splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
 
         if (enrolledProgramCodes.contains(Constants.PROGRAMME_FRANCOPHONE_CODE) && !sdcStudentSagaData.getSchool().getSchoolReportingRequirementCode().equals(Constants.CSF)) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_WRONG_REPORTING));
@@ -39,9 +47,5 @@ public class CSFProgramRule implements BaseRule {
         }
 
         return errors;
-    }
-
-    private List<String> splitString(String enrolledProgramCode) {
-        return Pattern.compile(".{1,2}").matcher(enrolledProgramCode).results().map(MatchResult::group).toList();
     }
 }

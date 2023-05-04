@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CareerPrograms;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
 import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
@@ -14,17 +15,21 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
 
 @Component
 public class OffshoreSchoolRules implements BaseRule {
+    private final ValidationRulesService validationRulesService;
+
+    public OffshoreSchoolRules(ValidationRulesService validationRulesService) {
+        this.validationRulesService = validationRulesService;
+    }
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent()
                 && StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes())
                 && sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes().length() % 2 == 0
+                && !validationRulesService.isEnrolledProgramCodeInvalid(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes())
                 && (sdcStudentSagaData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(Constants.OFFSHORE)
                 || sdcStudentSagaData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(Constants.INDEPEND));
     }
@@ -32,7 +37,7 @@ public class OffshoreSchoolRules implements BaseRule {
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        final List<String> enrolledProgramCodes = splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
+        final List<String> enrolledProgramCodes = validationRulesService.splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
 
         if(StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSpecialEducationCategoryCode())) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.SPECIAL_EDUCATION_CATEGORY_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.SPED_OFFSHORE_ERR));
@@ -43,9 +48,5 @@ public class OffshoreSchoolRules implements BaseRule {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.CAREER_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.CAREER_OFFSHORE_ERR));
         }
         return errors;
-    }
-
-    private List<String> splitString(String enrolledProgramCode) {
-        return Pattern.compile(".{1,2}").matcher(enrolledProgramCode).results().map(MatchResult::group).toList();
     }
 }

@@ -60,6 +60,10 @@ public abstract class BaseStudentDataCollectionAPITest {
     enrolledGradeCodeRepository.save(enrolledGradeCodeHSData());
     enrolledGradeCodeRepository.save(enrolledGradeCodeEightData());
     specialEducationCategoryRepository.save(specialEducationCategoryCodeData());
+    enrolledProgramCodeRepository.save(createEnrolledProgramCode14Data());
+    enrolledProgramCodeRepository.save(createEnrolledProgramCode33Data());
+    enrolledProgramCodeRepository.save(createEnrolledProgramCode41Data());
+    enrolledProgramCodeRepository.save(createEnrolledProgramCode40Data());
   }
 
   @AfterEach
@@ -204,6 +208,30 @@ public abstract class BaseStudentDataCollectionAPITest {
   public EnrolledProgramCodeEntity createEnrolledProgramCodeData() {
     return EnrolledProgramCodeEntity.builder().enrolledProgramCode("05").description("Programme Francophone")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Francophone").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public EnrolledProgramCodeEntity createEnrolledProgramCode14Data() {
+    return EnrolledProgramCodeEntity.builder().enrolledProgramCode("14").description("14")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("14").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public EnrolledProgramCodeEntity createEnrolledProgramCode40Data() {
+    return EnrolledProgramCodeEntity.builder().enrolledProgramCode("40").description("40")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("40").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public EnrolledProgramCodeEntity createEnrolledProgramCode33Data() {
+    return EnrolledProgramCodeEntity.builder().enrolledProgramCode("33").description("33")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("33").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public EnrolledProgramCodeEntity createEnrolledProgramCode41Data() {
+    return EnrolledProgramCodeEntity.builder().enrolledProgramCode("41").description("41")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("41").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
   public CareerProgramCodeEntity createCareerProgramCodeData() {
