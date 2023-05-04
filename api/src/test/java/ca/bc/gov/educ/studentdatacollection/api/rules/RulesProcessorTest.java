@@ -844,6 +844,12 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationDOB.size()).isNotZero();
         val errorDOB = validationDOB.stream().anyMatch(val -> val.getValidationIssueCode().equals("GAERROR"));
         assertThat(errorDOB).isTrue();
+
+        entity.setNumberOfCourses(null);
+        val validationCourses = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationCourses.size()).isNotZero();
+        val errorCourses = validationCourses.stream().anyMatch(val -> val.getValidationIssueCode().equals("SUPPORTBLOCKSNOTCOUNT"));
+        assertThat(errorCourses).isFalse();
     }
 
     @Test
