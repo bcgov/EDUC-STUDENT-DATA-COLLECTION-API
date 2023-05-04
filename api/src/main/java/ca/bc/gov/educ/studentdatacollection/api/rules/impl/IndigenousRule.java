@@ -37,6 +37,7 @@ public class IndigenousRule implements BaseRule {
 
         if(StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getBandCode()) && (StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode()) || !sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode().equals(Constants.IND_FUNDING_CODE))) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.BAND_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.BAND_CODE_BLANK));
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.SCHOOL_FUNDING_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.BAND_CODE_BLANK));
         }
 
         if(activeBandCodes.stream().noneMatch(code -> code.getBandCode().equals(sdcStudentSagaData.getSdcSchoolCollectionStudent().getBandCode()))) {
