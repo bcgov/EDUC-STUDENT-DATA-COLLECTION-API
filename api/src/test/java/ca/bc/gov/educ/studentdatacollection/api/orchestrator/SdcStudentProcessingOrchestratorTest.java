@@ -6,12 +6,10 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
@@ -56,6 +54,8 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   @Autowired
   SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  @Autowired
+  SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository;
   @Autowired
   SagaRepository sagaRepository;
   @Autowired
@@ -129,6 +129,50 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
     assertThat(newEvent.getEventType()).isEqualTo(EventType.WRITE_ENROLLED_PROGRAMS);
     assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.ENROLLED_PROGRAMS_WRITTEN);
+  }
+
+  @SneakyThrows
+  @Test
+  void testHandleEvent_givenEventTypeInitiated_shouldExecuteWriteEnrolledProgramsOverwriteWithEventOutComeENROLLED_PROGRAMS_WRITTEN() {
+    var collection = collectionRepository.save(createMockCollectionEntity());
+    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,null));
+    val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+    entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+    entity.setUpdateDate(LocalDateTime.now());
+    entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+    entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+    entity.setEnrolledProgramCodes("1011121314151617");
+    this.sdcSchoolCollectionStudentRepository.save(entity);
+
+    var enrolledProgram = new SdcSchoolCollectionStudentEnrolledProgramEntity();
+    enrolledProgram.setSdcSchoolCollectionStudentEntity(entity);
+    enrolledProgram.setUpdateUser("ABC");
+    enrolledProgram.setCreateDate(LocalDateTime.now());
+    enrolledProgram.setUpdateDate(LocalDateTime.now());
+    enrolledProgram.setCreateUser("ABC");
+    enrolledProgram.setEnrolledProgramCode("AA");
+    this.sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProgram);
+
+    val saga = this.creatMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    saga.setSagaId(null);
+    this.sagaRepository.save(saga);
+    final SdcStudentSagaData sagaData = SdcStudentSagaData.builder().sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)).build();
+    val event = Event.builder()
+            .sagaId(saga.getSagaId())
+            .eventType(EventType.PROCESS_PEN_MATCH_RESULTS)
+            .eventOutcome(EventOutcome.PEN_MATCH_RESULTS_PROCESSED)
+            .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+    this.sdcStudentProcessingOrchestrator.handleEvent(event);
+    val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+    assertThat(savedSagaInDB).isPresent();
+    assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
+    assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(EventType.WRITE_ENROLLED_PROGRAMS.toString());
+    verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.sdcStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
+    final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
+    assertThat(newEvent.getEventType()).isEqualTo(EventType.WRITE_ENROLLED_PROGRAMS);
+    assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.ENROLLED_PROGRAMS_WRITTEN);
+
+    assertThat(this.sdcSchoolCollectionStudentEnrolledProgramRepository.findAll()).hasSize(8);
   }
 
   @SneakyThrows
