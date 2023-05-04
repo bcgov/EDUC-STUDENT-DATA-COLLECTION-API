@@ -360,6 +360,11 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationError.size()).isNotZero();
         assertThat(validationError.get(0).getValidationIssueCode()).isEqualTo("STUDENTPENDUPLICATE");
+
+        entity.setStudentPen("2345");
+        val validationDigitError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationDigitError.size()).isNotZero();
+        assertThat(validationDigitError.get(0).getValidationIssueCode()).isEqualTo("PENCHECKDIGITERR");
     }
 
     @Test

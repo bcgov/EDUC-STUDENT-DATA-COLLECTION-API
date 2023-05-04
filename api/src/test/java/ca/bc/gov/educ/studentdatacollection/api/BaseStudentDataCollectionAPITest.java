@@ -102,7 +102,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     SdcSchoolCollectionStudentEntity sdcEntity = new SdcSchoolCollectionStudentEntity();
     sdcEntity.setSdcSchoolCollectionID(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
     sdcEntity.setLocalID("A11111111");
-    sdcEntity.setStudentPen("123456789");
+    sdcEntity.setStudentPen("120164447");
     sdcEntity.setLegalFirstName("JIM");
     sdcEntity.setLegalMiddleNames("BOB");
     sdcEntity.setLegalLastName("DANDY");
