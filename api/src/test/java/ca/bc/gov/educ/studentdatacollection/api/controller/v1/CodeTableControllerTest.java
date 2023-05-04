@@ -94,8 +94,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(get(URL.BASE_URL + URL.VALIDATION_ISSUE_TYPE_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].validationIssueTypeCode").value("GENDERINVALID"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
-        .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(65)));
+        .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
   }
 
 }

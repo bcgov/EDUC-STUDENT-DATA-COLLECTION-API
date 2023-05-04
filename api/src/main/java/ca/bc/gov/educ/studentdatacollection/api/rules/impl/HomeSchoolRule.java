@@ -15,8 +15,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
 
 @Component
 public class HomeSchoolRule implements BaseRule {
@@ -32,14 +30,16 @@ public class HomeSchoolRule implements BaseRule {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent() &&
                 StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode()) &&
                 sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode().equals(Constants.HS) &&
-                sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes().length() % 2 == 0;
+                StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes()) &&
+                sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes().length() % 2 == 0 &&
+                !validationRulesService.isEnrolledProgramCodeInvalid(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         List<CareerProgramCode> activeCareerPrograms = validationRulesService.getActiveCareerProgramCodes();
-        final List<String> enrolledProgramCodes = splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
+        final List<String> enrolledProgramCodes = validationRulesService.splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
 
         if (FrenchPrograms.getCodes().stream().anyMatch(enrolledProgramCodes::contains)) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.PROGRAM_CODE_HS_LANG));
@@ -68,9 +68,5 @@ public class HomeSchoolRule implements BaseRule {
         }
 
         return errors;
-    }
-
-    private List<String> splitString(String enrolledProgramCode) {
-        return Pattern.compile(".{1,2}").matcher(enrolledProgramCode).results().map(MatchResult::group).toList();
     }
 }

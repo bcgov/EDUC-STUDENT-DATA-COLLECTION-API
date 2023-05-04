@@ -79,6 +79,7 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   ADULT_SUPPORT_ERR("ADULTSUPPORTERR", "Adult students will not receive funding for support blocks."),
   ADULT_GRADE_ERR("ADULTGRADEERR", "Adult in Online Learning must be in grade 10, 11, 12, SU, or GA."),
   SPED_ERR("SPEDERR", "Reported Special Education Category is not valid."),
+  PEN_CHECK_DIGIT_ERR("PENCHECKDIGITERR", "Student's PEN is not valid. Adjust or remove the PEN."),
 
   ;
 

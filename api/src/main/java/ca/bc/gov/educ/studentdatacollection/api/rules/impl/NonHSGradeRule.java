@@ -8,15 +8,12 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.CareerProgramCode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.EnrolledProgramCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
 
 @Component
 public class NonHSGradeRule implements BaseRule {
@@ -27,19 +24,16 @@ public class NonHSGradeRule implements BaseRule {
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent() &&
-                StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode()) &&
+                StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode())
+                && StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes()) &&
                 !sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode().equals("HS") &&
-                sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes().length() % 2 == 0;
+                sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes().length() % 2 == 0 &&
+                !validationRulesService.isEnrolledProgramCodeInvalid(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
     }
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        final List<String> enrolledProgramCodes = splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
-
-        List<EnrolledProgramCode> activeEnrolledPrograms = validationRulesService.getActiveEnrolledProgramCodes();
-        if(activeEnrolledPrograms.stream().noneMatch(programs -> enrolledProgramCodes.contains(programs.getEnrolledProgramCode()))) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_CODE_INVALID));
-        }
+        final List<String> enrolledProgramCodes = validationRulesService.splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
 
         if (FrenchPrograms.getFrenchProgramCodes().stream().filter(enrolledProgramCodes::contains).count() > 1) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_CODE_COUNT_ERR));
@@ -76,9 +70,5 @@ public class NonHSGradeRule implements BaseRule {
         }
 
         return errors;
-    }
-
-    private List<String> splitString(String enrolledProgramCode) {
-        return Pattern.compile(".{1,2}").matcher(enrolledProgramCode).results().map(MatchResult::group).toList();
     }
 }

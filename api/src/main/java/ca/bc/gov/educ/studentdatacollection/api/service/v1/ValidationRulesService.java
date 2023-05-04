@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -49,5 +51,14 @@ public class ValidationRulesService {
 
     public List<SpecialEducationCategoryCode> getActiveSpecialEducationCategoryCodes() {
         return codeTableService.getAllSpecialEducationCategoryCodes().stream().filter(code -> code.getExpiryDate().isAfter(LocalDateTime.now())).map(mapper::toStructure).toList();
+    }
+
+    public boolean isEnrolledProgramCodeInvalid(String enrolledProgramCode) {
+        final List<String> enrolledProgramCodes = splitString(enrolledProgramCode);
+        return getActiveEnrolledProgramCodes().stream().noneMatch(programs -> enrolledProgramCodes.contains(programs.getEnrolledProgramCode()));
+    }
+
+    public List<String> splitString(String enrolledProgramCode) {
+        return Pattern.compile(".{1,2}").matcher(enrolledProgramCode).results().map(MatchResult::group).toList();
     }
 }
