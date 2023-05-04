@@ -48,28 +48,6 @@ public class SdcService {
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
 
-  /**
-   * Find all completable future.
-   *
-   * @param studentSpecs the student specs
-   * @param pageNumber   the page number
-   * @param pageSize     the page size
-   * @param sorts        the sorts
-   * @return the completable future
-   */
-  @Transactional(propagation = Propagation.SUPPORTS)
-  public CompletableFuture<Page<SdcSchoolCollectionStudentEntity>> findAll(final Specification<SdcSchoolCollectionStudentEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
-    return CompletableFuture.supplyAsync(() -> {
-      final Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sorts));
-      try {
-        return this.sdcSchoolCollectionStudentRepository.findAll(studentSpecs, paging);
-      } catch (final Exception ex) {
-        throw new CompletionException(ex);
-      }
-    }, this.paginatedQueryExecutor);
-
-  }
-
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void startSDCCollection(CollectionTypeCodeEntity collectionCode, List<String> listOfSchoolIDs) {
     CollectionEntity collectionEntity = CollectionEntity.builder()
