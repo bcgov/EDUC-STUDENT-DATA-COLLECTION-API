@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import ca.bc.gov.educ.studentdatacollection.api.util.SchoolYear;
 
-public class SchoolYearTest {
+class SchoolYearTest {
   private void testAbstractSchoolYearRange(LocalDate now) throws AssertionError {
     final Integer currentMonth = now.getMonthValue();
     final Integer currentYear = now.getYear();
@@ -23,7 +23,7 @@ public class SchoolYearTest {
   }
 
   @Test
-  public void testGetFirstAndLastDatesOfSchoolYear() throws AssertionError {
+  void testGetFirstAndLastDatesOfSchoolYear() throws AssertionError {
     SchoolYear schoolYear = new SchoolYear(2023);
     assertEquals("2023-07-01", schoolYear.getStartDate().toString());
     assertEquals("2024-06-30", schoolYear.getEndDate().toString());
