@@ -3,8 +3,8 @@ package ca.bc.gov.educ.studentdatacollection.api.util;
 import java.time.LocalDate;
 
 public class SchoolYear {
-  public LocalDate startDate;
-  public LocalDate endDate;
+  private LocalDate startDate;
+  private LocalDate endDate;
 
   public SchoolYear() {
     final LocalDate dateNow = LocalDate.now();
