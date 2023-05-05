@@ -9,7 +9,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
@@ -20,8 +19,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static java.time.temporal.ChronoField.*;
-import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
-import static java.time.temporal.TemporalAdjusters.lastDayOfYear;
 
 public final class SdcHelper {
   public static final DateTimeFormatter YYYY_MM_DD_SLASH_FORMATTER = new DateTimeFormatterBuilder()
@@ -93,10 +90,22 @@ public final class SdcHelper {
     }
   }
 
-  public static Pair<LocalDateTime, LocalDateTime> getFirstAndLastDateTimesOfYear(final String processingYear) {
-    final LocalDate processingDate = LocalDate.of(Integer.parseInt(processingYear), 1, 1);
-    final LocalDateTime firstDay = processingDate.with(firstDayOfYear()).atStartOfDay();
-    final LocalDateTime lastDay = processingDate.with(lastDayOfYear()).atTime(LocalTime.MAX);
+  public static Pair<LocalDate, LocalDate> getFirstAndLastDatesOfSchoolYear(
+    final Integer processingYear
+  ) {
+    final LocalDate firstDay = LocalDate.of(processingYear, 7, 1);
+    final LocalDate lastDay = LocalDate.of(processingYear + 1, 6, 30);
     return Pair.of(firstDay, lastDay);
+  }
+  public static Pair<LocalDate, LocalDate> getFirstAndLastDatesOfSchoolYear(
+    final String processingYear
+  ) {
+    return getFirstAndLastDatesOfSchoolYear(Integer.parseInt(processingYear));
+  }
+  public static Pair<LocalDate, LocalDate> getFirstAndLastDatesOfSchoolYear() {
+    final LocalDate dateNow = LocalDate.now();
+    final Integer currentMonth = dateNow.getMonthValue();
+    final Integer schoolYear = (currentMonth < 7) ? dateNow.getYear() - 1 : dateNow.getYear();
+    return getFirstAndLastDatesOfSchoolYear(schoolYear);
   }
 }
