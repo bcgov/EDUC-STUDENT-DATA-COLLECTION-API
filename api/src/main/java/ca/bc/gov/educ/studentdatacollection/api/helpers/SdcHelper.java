@@ -92,23 +92,4 @@ public final class SdcHelper {
       return federalBandCode.replaceFirst("^0+(?!$)", "");
     }
   }
-
-  public static Pair<LocalDate, LocalDate> getFirstAndLastDatesOfSchoolYear(
-    final Integer processingYear
-  ) {
-    final LocalDate firstDay = LocalDate.of(processingYear, 7, 1);
-    final LocalDate lastDay = LocalDate.of(processingYear + 1, 6, 30);
-    return Pair.of(firstDay, lastDay);
-  }
-  public static Pair<LocalDate, LocalDate> getFirstAndLastDatesOfSchoolYear(
-    final String processingYear
-  ) {
-    return getFirstAndLastDatesOfSchoolYear(Integer.parseInt(processingYear));
-  }
-  public static Pair<LocalDate, LocalDate> getFirstAndLastDatesOfSchoolYear() {
-    final LocalDate dateNow = LocalDate.now();
-    final Integer currentMonth = dateNow.getMonthValue();
-    final Integer schoolYear = (currentMonth < 7) ? dateNow.getYear() - 1 : dateNow.getYear();
-    return getFirstAndLastDatesOfSchoolYear(schoolYear);
-  }
 }
