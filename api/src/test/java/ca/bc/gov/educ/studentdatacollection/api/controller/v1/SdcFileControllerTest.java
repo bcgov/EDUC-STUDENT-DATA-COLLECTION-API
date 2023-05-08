@@ -48,7 +48,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import lombok.val;
 
-public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
+class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
   @Autowired
   CollectionRepository sdcRepository;
@@ -72,14 +72,6 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   private MockMvc mockMvc;
 
   protected final static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
-
-  public static String asJsonString(final Object obj) {
-    try {
-      return new ObjectMapper().writeValueAsString(obj);
-    } catch (final Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
 
   @BeforeEach
   public void setUp() {
@@ -150,8 +142,13 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       .contentType(APPLICATION_JSON)).andExpect(status().isOk());
   }
 
-  @Test
-  void testProcessSdcFile_givenStdFiletype_ShouldReturnStatusOk() throws Exception {
+  @ParameterizedTest
+  @CsvSource({
+          "SampleUpload.file.std",
+          "SampleUpload.STD",
+          "SampleUpload.std"
+  })
+  void testProcessSdcFile_givenStdFiletype_ShouldReturnStatusOk(String fileName) throws Exception {
     CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
     School school = this.createMockSchool();
     SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(
@@ -168,7 +165,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     SdcFileUpload stdFile = SdcFileUpload.builder()
       .fileContents(fileContents)
       .createUser("ABC")
-      .fileName("SampleUpload.file.std")
+      .fileName(fileName)
       .build();
 
     String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
@@ -179,8 +176,13 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       .contentType(APPLICATION_JSON)).andExpect(status().isOk());
   }
 
-  @Test
-  void testProcessSdcFile_givenInvalidFiletype_ShouldReturnStatusBadRequest() throws Exception {
+  @ParameterizedTest
+  @CsvSource({
+          "SampleUpload.nope",
+          "SampleUpload.ABC",
+          "SampleUpload."
+  })
+  void testProcessSdcFile_givenInvalidFiletype_ShouldReturnStatusBadRequest(String filename) throws Exception {
     CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
     School school = this.createMockSchool();
     SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(
@@ -197,7 +199,7 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     SdcFileUpload stdFile = SdcFileUpload.builder()
       .fileContents(fileContents)
       .createUser("ABC")
-      .fileName("SampleUpload.nope")
+      .fileName(filename)
       .build();
 
     String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
@@ -206,35 +208,6 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(stdFile))
       .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
-  }
-
-  @Test
-  void testProcessSdcFile_givenMatchingMincode_ShouldReturnStatusOk() throws Exception {
-    CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
-    School school = this.createMockSchool();
-    SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(
-      collection,
-      UUID.fromString(school.getSchoolId())
-    );
-    sdcMockSchool.setUploadDate(null);
-    sdcMockSchool.setUploadFileName(null);
-    SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository
-      .save(sdcMockSchool);
-
-    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
-    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
-    SdcFileUpload stdFile = SdcFileUpload.builder()
-      .fileContents(fileContents)
-      .createUser("ABC")
-      .fileName("SampleUpload.std")
-      .build();
-
-    String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
-    this.mockMvc.perform(post( BASE_URL + "/" + cid + "/file")
-      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
-      .header("correlationID", UUID.randomUUID().toString())
-      .content(JsonUtil.getJsonStringFromObject(stdFile))
-      .contentType(APPLICATION_JSON)).andExpect(status().isOk());
   }
 
   @Test
@@ -266,9 +239,11 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
   }
 
+  @Test
   void testProcessSdcFNCharsFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
+    school.setMincode("00603007");
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
@@ -454,17 +429,13 @@ public class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     "src/test/resources/sample-malformed-long-content.txt,"
     + ".*Detail record \\d+ has extraneous characters.*"
   })
-  void testProcessSdcFile_givenMalformedDetailRow_ShouldReturnStatusBadRequest(
-    final String sample,
-    final String errorExpression
-  ) throws Exception {
+  void testProcessSdcFile_givenMalformedDetailRow_ShouldReturnStatusBadRequest(final String sample, final String errorExpression) throws Exception {
     CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
     School school = this.createMockSchool();
 
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
-    SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository
-      .save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+    SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
 
     final FileInputStream fis = new FileInputStream(sample);
 
