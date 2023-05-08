@@ -51,7 +51,9 @@ public enum FileError {
   /**
    * The filetype ended in the wrong extension and may be the wrong filetype.
    */
-  INVALID_FILETYPE("File type invalid. Files must be of type \".ver\" or \".std\"."),
+  INVALID_FILE_EXTENSION("File extension invalid. Files must be of type \".ver\" or \".std\"."),
+
+  NO_FILE_EXTENSION("No file extension provided. Files must be of type \".ver\" or \".std\"."),
 
   /**
    * No record for the provided school ID was found.

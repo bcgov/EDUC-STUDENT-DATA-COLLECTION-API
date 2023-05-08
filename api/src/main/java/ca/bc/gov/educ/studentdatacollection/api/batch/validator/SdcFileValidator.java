@@ -44,39 +44,28 @@ public class SdcFileValidator {
     this.processDataSetForRowLengthErrors(guid, ds);
   }
 
-  public void validateFileHasCorrectExtension(
-    @NonNull final String guid,
-    final SdcFileUpload fileUpload
-  ) throws FileUnProcessableException {
+  public void validateFileHasCorrectExtension(@NonNull final String guid, final SdcFileUpload fileUpload) throws FileUnProcessableException {
     String fileName = fileUpload.getFileName();
-    String extension = fileName.substring(fileName.lastIndexOf('.') + 1);
+    int lastIndex = fileName.lastIndexOf('.');
 
-    if (!"ver".equals(extension) && !"std".equals(extension)) {
-      throw new FileUnProcessableException(
-        FileError.INVALID_FILETYPE,
-        guid,
-        SdcSchoolCollectionStatus.LOAD_FAIL
-      );
+    if(lastIndex == -1){
+        throw new FileUnProcessableException(FileError.NO_FILE_EXTENSION, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
+    }
+
+    String extension = fileName.substring(lastIndex);
+
+    if (!extension.equalsIgnoreCase(".ver") && !extension.equalsIgnoreCase(".std")) {
+      throw new FileUnProcessableException(FileError.INVALID_FILE_EXTENSION, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
     }
   }
 
-  public void validateFileHasCorrectMincode(
-    @NonNull final String guid,
-    @NonNull final DataSet ds,
-    final Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity,
-    final RestUtils restUtils
-  ) throws FileUnProcessableException {
-    if (!sdcSchoolCollectionEntity.isEmpty()) {
+  public void validateFileHasCorrectMincode(@NonNull final String guid, @NonNull final DataSet ds, final Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity, final RestUtils restUtils) throws FileUnProcessableException {
+    if (sdcSchoolCollectionEntity.isPresent()) {
       String schoolID = sdcSchoolCollectionEntity.get().getSchoolID().toString();
       Optional<School> school = restUtils.getSchoolBySchoolID(schoolID);
 
       if (school.isEmpty()) {
-        throw new FileUnProcessableException(
-          FileError.INVALID_SCHOOL,
-          guid,
-          SdcSchoolCollectionStatus.LOAD_FAIL,
-          schoolID
-        );
+        throw new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, SdcSchoolCollectionStatus.LOAD_FAIL, schoolID);
       }
 
       ds.goTop();
@@ -84,11 +73,7 @@ public class SdcFileValidator {
 
       Optional<Record> dsHeader = ds.getRecord();
       if (dsHeader.isEmpty()) {
-        throw new FileUnProcessableException(
-          FileError.MISSING_HEADER,
-          guid,
-          SdcSchoolCollectionStatus.LOAD_FAIL
-        );
+        throw new FileUnProcessableException(FileError.MISSING_HEADER, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
       }
 
       String fileMincode = dsHeader.get().getString("mincode");
@@ -181,10 +166,7 @@ public class SdcFileValidator {
    * @param ds   the ds
    * @throws FileUnProcessableException the file un processable exception
    */
-  private void processDataSetForRowLengthErrors(
-    @NonNull final String guid,
-    @NonNull final DataSet ds
-  ) throws FileUnProcessableException {
+  private void processDataSetForRowLengthErrors(@NonNull final String guid, @NonNull final DataSet ds) throws FileUnProcessableException {
     Optional<DataError> maybeError = ds
       .getErrors()
       .stream()
@@ -239,10 +221,7 @@ public class SdcFileValidator {
    * @param error the error
    * @return the detail row length incorrect message
    */
-  private String getDetailRowLengthIncorrectMessage(
-    final DataError error,
-    String errorDescription
-  ) {
+  private String getDetailRowLengthIncorrectMessage(final DataError error, String errorDescription) {
     if (errorDescription.contains(TOO_LONG)) {
       return "Detail record " + (error.getLineNo() - 1) + " has extraneous characters.";
     }
