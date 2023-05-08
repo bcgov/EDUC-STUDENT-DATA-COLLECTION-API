@@ -34,8 +34,13 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
             return criteriaBuilder.equal(root.get(filterCriteria.getFieldName()), filterCriteria.getConvertedSingleValue());
         });
 
-        map.put(FilterOperation.NOT_EQUAL, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder
-                .notEqual(root.get(filterCriteria.getFieldName()), filterCriteria.getConvertedSingleValue()));
+        map.put(FilterOperation.NOT_EQUAL, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
+            if (filterCriteria.getFieldName().contains(".")) {
+                String[] splits = filterCriteria.getFieldName().split("\\.");
+                return criteriaBuilder.notEqual(root.join(splits[0]).get(splits[1]), filterCriteria.getConvertedSingleValue());
+            }
+            return criteriaBuilder.notEqual(root.get(filterCriteria.getFieldName()), filterCriteria.getConvertedSingleValue());
+        });
 
         map.put(FilterOperation.GREATER_THAN,
                 filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.greaterThan(
@@ -52,11 +57,21 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
                 filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.lessThanOrEqualTo(
                         root.get(filterCriteria.getFieldName()), filterCriteria.getConvertedSingleValue()));
 
-        map.put(FilterOperation.IN, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> root
-                .get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues()));
+        map.put(FilterOperation.IN, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
+            if (filterCriteria.getFieldName().contains(".")) {
+                String[] splits = filterCriteria.getFieldName().split("\\.");
+                return root.join(splits[0]).get(splits[1]).in(filterCriteria.getConvertedValues());
+            }
+            return root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues());
+        });
 
-        map.put(FilterOperation.NOT_IN, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder
-                .not(root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedSingleValue())));
+        map.put(FilterOperation.NOT_IN, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
+            if (filterCriteria.getFieldName().contains(".")) {
+                String[] splits = filterCriteria.getFieldName().split("\\.");
+                return criteriaBuilder.not(root.join(splits[0]).get(splits[1]).in(filterCriteria.getConvertedValues()));
+            }
+            return criteriaBuilder.not(root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues()));
+        });
 
         map.put(FilterOperation.BETWEEN,
                 filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.between(
