@@ -1,15 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentValidationIssueEntity;
-import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
+import static java.time.temporal.ChronoField.DAY_OF_MONTH;
+import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
+import static java.time.temporal.ChronoField.YEAR;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
@@ -19,9 +15,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.time.temporal.ChronoField.*;
-import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
-import static java.time.temporal.TemporalAdjusters.lastDayOfYear;
+import org.apache.commons.lang3.StringUtils;
+
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentValidationIssueEntity;
+import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 
 public final class SdcHelper {
   public static final DateTimeFormatter YYYY_MM_DD_SLASH_FORMATTER = new DateTimeFormatterBuilder()
@@ -91,12 +90,5 @@ public final class SdcHelper {
     } else {
       return federalBandCode.replaceFirst("^0+(?!$)", "");
     }
-  }
-
-  public static Pair<LocalDateTime, LocalDateTime> getFirstAndLastDateTimesOfYear(final String processingYear) {
-    final LocalDate processingDate = LocalDate.of(Integer.parseInt(processingYear), 1, 1);
-    final LocalDateTime firstDay = processingDate.with(firstDayOfYear()).atStartOfDay();
-    final LocalDateTime lastDay = processingDate.with(lastDayOfYear()).atTime(LocalTime.MAX);
-    return Pair.of(firstDay, lastDay);
   }
 }
