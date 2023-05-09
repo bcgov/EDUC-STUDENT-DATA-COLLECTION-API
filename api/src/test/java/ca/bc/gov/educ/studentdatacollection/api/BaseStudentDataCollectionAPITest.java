@@ -47,6 +47,8 @@ public abstract class BaseStudentDataCollectionAPITest {
   EnrolledGradeCodeRepository enrolledGradeCodeRepository;
   @Autowired
   SpecialEducationCategoryRepository specialEducationCategoryRepository;
+  @Autowired
+  GenderCodeRepository genderCodeRepository;
 
   @BeforeEach
   public void before() {
@@ -64,6 +66,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     enrolledProgramCodeRepository.save(createEnrolledProgramCode33Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode41Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode40Data());
+    genderCodeRepository.save(createGenderCodeData());
   }
 
   @AfterEach
@@ -238,6 +241,11 @@ public abstract class BaseStudentDataCollectionAPITest {
     return CareerProgramCodeEntity.builder().careerProgramCode("XA").description("Business")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Business").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+  public GenderCodeEntity createGenderCodeData() {
+    return GenderCodeEntity.builder().genderCode("M").description("Male")
+        .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Male").createDate(LocalDateTime.now())
+        .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
   public HomeLanguageSpokenCodeEntity homeLanguageSpokenCodeData() {
     return HomeLanguageSpokenCodeEntity.builder().homeLanguageSpokenCode("001").description("Portuguese")

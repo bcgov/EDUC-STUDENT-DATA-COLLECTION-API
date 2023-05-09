@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -85,6 +84,15 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(get(URL.BASE_URL + URL.GRADE_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].enrolledGradeCode").value("01"));
+  }
+
+  @Test
+  void testGetAllGenderCodes_ShouldReturnCodes() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(get(URL.BASE_URL + URL.GENDER_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].genderCode").value("M"));
   }
 
   @Test

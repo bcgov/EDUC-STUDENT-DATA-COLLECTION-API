@@ -1,13 +1,14 @@
 package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.PastOrPresent;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
@@ -16,6 +17,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicUpdate
+@Builder
 @Entity
 @Table(name = "GENDER_CODE")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -34,10 +36,10 @@ public class GenderCodeEntity {
   private Integer displayOrder;
 
   @Column(name = "EFFECTIVE_DATE")
-  private String effectiveDate;
+  private LocalDateTime effectiveDate;
 
   @Column(name = "EXPIRY_DATE")
-  private String expiryDate;
+  private LocalDateTime expiryDate;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
