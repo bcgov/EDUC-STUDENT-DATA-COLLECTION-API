@@ -44,6 +44,8 @@ public class SdcSchoolCollectionStudentService {
 
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
+  private final SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService;
+
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
   private final SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository;
@@ -98,6 +100,13 @@ public class SdcSchoolCollectionStudentService {
 
   public Optional<SdcSchoolCollectionStudentEntity> findBySdcSchoolStudentID(final String sdcSchoolStudentID) {
     return this.sdcSchoolCollectionStudentRepository.findById(UUID.fromString(sdcSchoolStudentID));
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public SdcSchoolCollectionStudentEntity saveSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity curSdcSchoolCollectionStudentEntity) {
+    var entity = this.sdcSchoolCollectionStudentRepository.save(curSdcSchoolCollectionStudentEntity);
+    this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, curSdcSchoolCollectionStudentEntity.getUpdateUser());
+    return entity;
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)

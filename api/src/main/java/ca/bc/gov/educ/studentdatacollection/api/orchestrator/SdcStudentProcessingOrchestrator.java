@@ -112,7 +112,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
       } else {
         sdcStud.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.FIXABLE.toString());
       }
-      this.sdcSchoolCollectionService.saveSdcSchoolCollectionStudent(sdcStud);
+      this.sdcSchoolCollectionStudentService.saveSdcSchoolCollectionStudent(sdcStud);
     }
     this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
       .eventType(PROCESS_PEN_MATCH_RESULTS).eventOutcome(PEN_MATCH_RESULTS_PROCESSED)
