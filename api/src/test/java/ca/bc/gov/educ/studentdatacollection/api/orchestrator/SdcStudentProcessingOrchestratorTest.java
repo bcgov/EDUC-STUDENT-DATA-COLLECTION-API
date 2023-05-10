@@ -6,6 +6,9 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -31,6 +34,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
@@ -129,6 +133,56 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
     assertThat(newEvent.getEventType()).isEqualTo(EventType.WRITE_ENROLLED_PROGRAMS);
     assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.ENROLLED_PROGRAMS_WRITTEN);
+  }
+
+  @SneakyThrows
+  @Test
+  void testHandleEvent_givenEventTypeInitiated_shouldExecuteCalculateAdditionalStudentAttributesADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionRepository
+      .save(createMockSdcSchoolCollectionEntity(collection,null));
+    SdcSchoolCollectionStudentEntity entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+    entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+    entity.setUpdateDate(LocalDateTime.now());
+    entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+    entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+
+    this.sdcSchoolCollectionStudentRepository.save(entity);
+    SdcSagaEntity saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    saga.setSagaId(null);
+    this.sagaRepository.save(saga);
+
+    final SdcStudentSagaData sagaData = SdcStudentSagaData.builder()
+      .sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity))
+      .build();
+
+    Event event = Event.builder()
+      .sagaId(saga.getSagaId())
+      .eventType(EventType.WRITE_ENROLLED_PROGRAMS)
+      .eventOutcome(EventOutcome.ENROLLED_PROGRAMS_WRITTEN)
+      .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+    this.sdcStudentProcessingOrchestrator.handleEvent(event);
+
+    Optional<SdcSagaEntity> savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+    assertThat(savedSagaInDB).isPresent();
+    assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
+    assertThat(savedSagaInDB.get().getSagaState())
+      .isEqualTo(EventType.CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES.toString());
+    verify(this.messagePublisher, atMost(3))
+      .dispatchMessage(eq(this.sdcStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
+    final Event newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
+    assertThat(newEvent.getEventType()).isEqualTo(EventType.CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES);
+    assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED);
+
+    List<SdcSchoolCollectionStudentEntity> students = this.sdcSchoolCollectionStudentRepository
+      .findAllBySdcSchoolCollectionID(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+    assertThat(students).hasAtLeastOneElementOfType(SdcSchoolCollectionStudentEntity.class);
+
+    SdcSchoolCollectionStudentEntity student = students.get(0);
+    assertThat(student.getIsAdult()).isFalse();
+    assertThat(student.getIsSchoolAged()).isTrue();
+
   }
 
   @SneakyThrows
@@ -262,8 +316,8 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     record.setStudentID(UUID.randomUUID().toString());
     matchRecords.add(record);
     final var eventPayload = new PenMatchResult();
-    eventPayload.setPenStatus(penStatus);
-    eventPayload.setMatchingRecords(matchRecords);
+  eventPayload.setPenStatus(penStatus);
+  eventPayload.setMatchingRecords(matchRecords);
     val event = Event.builder()
       .sagaId(saga.getSagaId())
       .eventType(PROCESS_PEN_MATCH)
