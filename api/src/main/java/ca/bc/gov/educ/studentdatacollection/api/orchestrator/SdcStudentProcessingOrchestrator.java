@@ -22,6 +22,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenM
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +66,27 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
       .or()
       .step(PROCESS_PEN_MATCH, PEN_MATCH_PROCESSED, PROCESS_PEN_MATCH_RESULTS, this::processPenMatchResults)
       .step(PROCESS_PEN_MATCH_RESULTS, PEN_MATCH_RESULTS_PROCESSED, WRITE_ENROLLED_PROGRAMS, this::writeEnrolledPrograms)
-      .end(WRITE_ENROLLED_PROGRAMS, ENROLLED_PROGRAMS_WRITTEN);
+      .step(WRITE_ENROLLED_PROGRAMS, ENROLLED_PROGRAMS_WRITTEN, CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES, this::calculateAdditionalStudentAttributes)
+      .end(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES, ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED);
+  }
+
+  private void calculateAdditionalStudentAttributes(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
+    final SagaEventStatesEntity eventStates =
+      this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
+    saga.setSagaState(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES.toString());
+    saga.setStatus(IN_PROGRESS.toString());
+    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+
+    UUID studentUUID = UUID
+      .fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
+    String studentDOB = sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob();
+
+    this.sdcSchoolCollectionStudentService
+      .updateStudentAgeColumns(studentUUID, DOBUtil.isAdult(studentDOB), DOBUtil.isSchoolAged(studentDOB));
+
+    this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
+      .eventType(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES).eventOutcome(ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED)
+      .build());
   }
 
   private void writeEnrolledPrograms(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
