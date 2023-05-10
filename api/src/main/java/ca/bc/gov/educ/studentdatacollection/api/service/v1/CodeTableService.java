@@ -20,6 +20,7 @@ public class CodeTableService {
   private final FundingCodeRepository fundingCodeRepository;
   private final EnrolledGradeCodeRepository enrolledGradeCodeRepository;
   private final SpecialEducationCategoryRepository specialEducationCategoryRepository;
+  private final GenderCodeRepository genderCodeRepository;
 
   /**
    * Instantiates a new Code table service.
@@ -32,9 +33,11 @@ public class CodeTableService {
    * @param fundingCodeRepository
    * @param enrolledGradeCodeRepository
    * @param specialEducationCategoryRepository
+   * @param genderCodeRepository
    */
   @Autowired
-  public CodeTableService(CollectionTypeCodeRepository collectionCodeRepository, EnrolledProgramCodeRepository enrolledProgramCodeRepository, CareerProgramCodeRepository careerProgramCodeRepository, HomeLanguageSpokenCodeRepository homeLanguageSpokenCodeRepository, BandCodeRepository bandCodeRepository, FundingCodeRepository fundingCodeRepository, EnrolledGradeCodeRepository enrolledGradeCodeRepository, SpecialEducationCategoryRepository specialEducationCategoryRepository) {
+  public CodeTableService(CollectionTypeCodeRepository collectionCodeRepository, EnrolledProgramCodeRepository enrolledProgramCodeRepository, CareerProgramCodeRepository careerProgramCodeRepository, HomeLanguageSpokenCodeRepository homeLanguageSpokenCodeRepository, BandCodeRepository bandCodeRepository, FundingCodeRepository fundingCodeRepository, EnrolledGradeCodeRepository enrolledGradeCodeRepository, SpecialEducationCategoryRepository specialEducationCategoryRepository,
+      GenderCodeRepository genderCodeRepository) {
     this.collectionCodeRepository = collectionCodeRepository;
     this.enrolledProgramCodeRepository = enrolledProgramCodeRepository;
     this.careerProgramCodeRepository = careerProgramCodeRepository;
@@ -43,6 +46,7 @@ public class CodeTableService {
     this.fundingCodeRepository = fundingCodeRepository;
     this.enrolledGradeCodeRepository = enrolledGradeCodeRepository;
     this.specialEducationCategoryRepository = specialEducationCategoryRepository;
+    this.genderCodeRepository = genderCodeRepository;
   }
 
   @Cacheable("enrolledProgramCodes")
@@ -79,6 +83,11 @@ public class CodeTableService {
     return specialEducationCategoryRepository.findAll();
   }
 
+  @Cacheable("genderCodes")
+  public List<GenderCodeEntity> getAllGenderCodes() {
+    return genderCodeRepository.findAll();
+  }
+
   @Cacheable("collectionCodes")
   public List<CollectionTypeCodeEntity> getCollectionCodeList() {
     return collectionCodeRepository.findAll();
@@ -87,6 +96,5 @@ public class CodeTableService {
   public Optional<CollectionTypeCodeEntity> getCollectionCode(String collectionCode) {
     return collectionCodeRepository.findById(collectionCode);
   }
-
 
 }

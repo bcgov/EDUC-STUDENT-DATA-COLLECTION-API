@@ -72,6 +72,14 @@ public interface CodeTableAPIEndpoint {
     List<SpecialEducationCategoryCode> getSpecialEducationCategoryCodes();
 
     @PreAuthorize("hasAuthority('SCOPE_READ_COLLECTION_CODES')")
+    @GetMapping(URL.GENDER_CODES)
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
+    @Transactional(readOnly = true)
+    @Tag(name = "Collection Codes", description = "Endpoints to get collection codes.")
+    @Schema(name = "GenderCode", implementation = GenderCode.class)
+    List<GenderCode> getGenderCodes();
+
+    @PreAuthorize("hasAuthority('SCOPE_READ_COLLECTION_CODES')")
     @GetMapping(URL.VALIDATION_ISSUE_TYPE_CODES)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
     @Transactional(readOnly = true)

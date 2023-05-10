@@ -56,6 +56,11 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
     }
 
     @Override
+    public List<GenderCode> getGenderCodes() {
+        return codeTableService.getAllGenderCodes().stream().map(mapper::toStructure).toList();
+    }
+
+    @Override
     public List<ValidationIssueTypeCode> getValidationIssueTypeCodes() {
         List<ValidationIssueTypeCode> validationIssues = new ArrayList<>();
 
