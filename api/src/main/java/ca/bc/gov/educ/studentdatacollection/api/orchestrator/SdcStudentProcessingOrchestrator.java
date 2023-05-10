@@ -15,7 +15,6 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
@@ -44,7 +43,6 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.PEN_
 public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStudentSagaData> {
   private final RulesProcessor rulesProcessor;
   private final RestUtils restUtils;
-  private final SdcSchoolCollectionService sdcSchoolCollectionService;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
 
@@ -52,7 +50,6 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     super(sagaService, messagePublisher, SdcStudentSagaData.class, SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString(), TopicsEnum.STUDENT_DATA_COLLECTION_PROCESS_STUDENT_SAGA_TOPIC.toString());
     this.rulesProcessor = rulesProcessor;
     this.restUtils = restUtils;
-    this.sdcSchoolCollectionService = sdcSchoolCollectionService;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
   }
