@@ -319,6 +319,13 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
         assertThat(validationError.size()).isNotZero();
         assertThat(validationError.get(0).getValidationIssueCode()).isEqualTo("ENROLLEDCODEPARSEERR");
+
+        entity.setEnrolledProgramCodes("0 4017293633");
+        val validationErrorSpace = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
+        assertThat(validationErrorSpace.size()).isNotZero();
+        val error1 = validationErrorSpace.stream().anyMatch(val -> val.getValidationIssueCode().equals("ENROLLEDCODEPARSEERR"));
+        assertThat(error1).isTrue();
+
     }
 
     @Test
@@ -417,9 +424,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationError.size()).isZero();
 
         entity.setSchoolFundingCode(null);
+        entity.setBandCode(null);
         val validationErrorNull = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
-        assertThat(validationErrorNull.size()).isNotZero();
-        assertThat(validationErrorNull.get(0).getValidationIssueCode()).isEqualTo("FUNDINGCODEINVALID");
+        assertThat(validationErrorNull.size()).isZero();
 
         entity.setSchoolFundingCode("05");
         val validationError5 = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));

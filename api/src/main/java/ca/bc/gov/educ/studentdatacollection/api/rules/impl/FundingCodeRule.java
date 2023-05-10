@@ -32,7 +32,7 @@ public class FundingCodeRule implements BaseRule {
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         List<SchoolFundingCode> activeFundingCodes = validationRulesService.getActiveFundingCodes();
-        if(StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode()) || activeFundingCodes.stream().noneMatch(code -> code.getSchoolFundingCode().equals(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode()))) {
+        if(StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode()) && activeFundingCodes.stream().noneMatch(code -> code.getSchoolFundingCode().equals(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode()))) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.SCHOOL_FUNDING_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.FUNDING_CODE_INVALID));
         }
         return errors;
