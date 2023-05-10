@@ -146,7 +146,7 @@ public abstract class BaseStudentDataCollectionAPITest {
   }
 
   @SneakyThrows
-  protected SdcSagaEntity creatMockSaga(final SdcSchoolCollectionStudent student) {
+  protected SdcSagaEntity createMockSaga(final SdcSchoolCollectionStudent student) {
     return SdcSagaEntity.builder()
       .sagaId(UUID.randomUUID())
       .updateDate(LocalDateTime.now().minusMinutes(15))

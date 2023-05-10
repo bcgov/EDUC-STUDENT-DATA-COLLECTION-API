@@ -80,7 +80,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     this.sdcSchoolCollectionStudentRepository.save(entity);
-    val saga = this.creatMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    val saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
     saga.setSagaId(null);
     this.sagaRepository.save(saga);
     final SdcStudentSagaData sagaData = SdcStudentSagaData.builder().sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)).build();
@@ -111,7 +111,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     this.sdcSchoolCollectionStudentRepository.save(entity);
-    val saga = this.creatMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    val saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
     saga.setSagaId(null);
     this.sagaRepository.save(saga);
     final SdcStudentSagaData sagaData = SdcStudentSagaData.builder().sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)).build();
@@ -153,7 +153,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     enrolledProgram.setEnrolledProgramCode("AA");
     this.sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProgram);
 
-    val saga = this.creatMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    val saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
     saga.setSagaId(null);
     this.sagaRepository.save(saga);
     final SdcStudentSagaData sagaData = SdcStudentSagaData.builder().sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)).build();
@@ -188,7 +188,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     this.sdcSchoolCollectionStudentRepository.save(entity);
 
-    val saga = this.creatMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    val saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
     saga.setSagaId(null);
     this.sagaRepository.save(saga);
 
@@ -251,7 +251,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     entity = this.sdcSchoolCollectionStudentRepository.save(entity);
     sdcStudent.setSdcSchoolCollectionStudentID(entity.getSdcSchoolCollectionStudentID().toString());
 
-    val saga = this.creatMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    val saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
     saga.setSagaId(null);
     saga.setStatus(IN_PROGRESS.toString());
     saga.setSdcSchoolCollectionStudentID(UUID.fromString(sdcStudent.getSdcSchoolCollectionStudentID()));
