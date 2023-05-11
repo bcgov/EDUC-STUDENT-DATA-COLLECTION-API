@@ -55,6 +55,16 @@ public class TransformUtil {
     return false;
   }
 
+  /**
+   * @param string - the four didgit float string, eg: "0800"
+   * @return a Double, eg: 8.00
+   */
+  public static Double hundredthDecimalAsIntegerStringToDouble(String string) {
+    if (string == null) { return 0D; }
+    final Double stringAsDouble = Double.parseDouble(string) / 100;
+    return stringAsDouble;
+  }
+
   private static <T> void transformFieldToUppercase(Field field, T claz) {
     if (!field.getType().equals(String.class)) {
       return;

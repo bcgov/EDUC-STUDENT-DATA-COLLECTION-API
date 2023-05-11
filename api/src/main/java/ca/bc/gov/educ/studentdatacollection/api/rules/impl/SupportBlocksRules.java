@@ -10,16 +10,16 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class SupportBlocksRules implements BaseRule {
-    private static final DecimalFormat df = new DecimalFormat("00.00");
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
@@ -36,7 +36,7 @@ public class SupportBlocksRules implements BaseRule {
                 && SupportBlockGradeCodes.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode()).isPresent()
                 && StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSupportBlocks())
                 && StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getNumberOfCourses())
-                && Double.parseDouble(df.format(Double.valueOf(sdcStudentSagaData.getSdcSchoolCollectionStudent().getNumberOfCourses()))) >= 8) {
+                && TransformUtil.hundredthDecimalAsIntegerStringToDouble(sdcStudentSagaData.getSdcSchoolCollectionStudent().getNumberOfCourses()) >= 8) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.SUPPORT_BLOCKS, SdcSchoolCollectionStudentValidationIssueTypeCode.SUPPORT_BLOCKS_NOT_COUNT));
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.NUMBER_OF_COURSES, SdcSchoolCollectionStudentValidationIssueTypeCode.SUPPORT_BLOCKS_NOT_COUNT));
         }
