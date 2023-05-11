@@ -25,7 +25,7 @@ TKN=$(curl -s \
 
 echo
 echo Retrieving client ID for student-data-collection-api-service
-SDC_CLIENT_ID=$(curl -sX GET "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/clients" \
+SDC_APIServiceClientID=$(curl -sX GET "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/clients" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TKN" |
   jq '.[] | select(.clientId=="student-data-collection-api-service")' | jq -r '.id')
@@ -39,7 +39,7 @@ SDC_APIServiceClientSecret=$(curl -sX GET "https://$SOAM_KC/auth/admin/realms/$S
 
 echo
 echo Removing STUDENT DATA COLLECTION API client if exists
-curl -sX DELETE "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/clients/$SDC_CLIENT_ID" \
+curl -sX DELETE "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/clients/$SDC_APIServiceClientID" \
   -H "Authorization: Bearer $TKN"
 
 echo
