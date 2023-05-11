@@ -29,18 +29,22 @@ public class IndigenousRule implements BaseRule {
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
+        var student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
         List<BandCode> activeBandCodes = validationRulesService.getActiveBandCodes();
 
-        if(!sdcStudentSagaData.getSdcSchoolCollectionStudent().getNativeAncestryInd().equals("Y") && !sdcStudentSagaData.getSdcSchoolCollectionStudent().getNativeAncestryInd().equals("N")) {
+        if(!student.getNativeAncestryInd().equals("Y") && !student.getNativeAncestryInd().equals("N")) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.NATIVE_ANCESTRY_IND, SdcSchoolCollectionStudentValidationIssueTypeCode.NATIVE_IND_INVALID));
         }
 
-        if(StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getBandCode()) && (StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode()) || !sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode().equals(Constants.IND_FUNDING_CODE))) {
+        if((StringUtils.isEmpty(student.getBandCode()) && (StringUtils.isNotEmpty(student.getSchoolFundingCode())
+                && student.getSchoolFundingCode().equals(Constants.IND_FUNDING_CODE))) ||
+                (StringUtils.isNotEmpty(student.getBandCode()) && (StringUtils.isEmpty(student.getSchoolFundingCode())
+                || !student.getSchoolFundingCode().equals(Constants.IND_FUNDING_CODE)))) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.BAND_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.BAND_CODE_BLANK));
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.SCHOOL_FUNDING_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.BAND_CODE_BLANK));
         }
 
-        if(StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getBandCode()) && activeBandCodes.stream().noneMatch(code -> code.getBandCode().equals(sdcStudentSagaData.getSdcSchoolCollectionStudent().getBandCode()))) {
+        if(StringUtils.isNotEmpty(student.getBandCode()) && activeBandCodes.stream().noneMatch(code -> code.getBandCode().equals(student.getBandCode()))) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.BAND_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.BAND_CODE_INVALID));
         }
         return errors;
