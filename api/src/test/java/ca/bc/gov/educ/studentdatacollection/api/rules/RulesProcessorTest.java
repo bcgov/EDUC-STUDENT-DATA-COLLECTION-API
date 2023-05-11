@@ -576,13 +576,13 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorInvalidDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
         entity.setDob("19890101");
-        entity.setNumberOfCourses("0");
+        entity.setNumberOfCourses("0000");
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
         assertThat(validationErrorOldDate.size()).isNotZero();
         assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("ADULTZEROCOURSES");
 
         entity.setDob("19890101");
-        entity.setNumberOfCourses("1");
+        entity.setNumberOfCourses("0100");
         entity.setEnrolledGradeCode("01");
         val validationErrorGrade = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
         assertThat(validationErrorGrade.size()).isNotZero();
@@ -590,7 +590,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(errorInd).isTrue();
 
         entity.setDob("19890101");
-        entity.setNumberOfCourses("1");
+        entity.setNumberOfCourses("0100");
         entity.setEnrolledGradeCode("01");
         val validationErrorOnlineGrade = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
         assertThat(validationErrorOnlineGrade.size()).isNotZero();
@@ -642,7 +642,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(errorContEd).isTrue();
 
         entity.setDob("20150101");
-        entity.setNumberOfCourses("0");
+        entity.setNumberOfCourses("0000");
         val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
         assertThat(validationError.size()).isNotZero();
         val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("SCHOOLAGEZEROCOURSES"));
@@ -655,12 +655,12 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
-        entity.setNumberOfCourses("5");
+        entity.setNumberOfCourses("0500");
         entity.setEnrolledGradeCode("08");
         val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationError.size()).isZero();
 
-        entity.setNumberOfCourses("16");
+        entity.setNumberOfCourses("1600");
         entity.setEnrolledGradeCode("08");
         val validationErrorMax = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorMax.size()).isNotZero();
