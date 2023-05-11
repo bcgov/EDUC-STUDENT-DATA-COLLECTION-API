@@ -15,13 +15,13 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +43,6 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.PEN_
 public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStudentSagaData> {
   private final RulesProcessor rulesProcessor;
   private final RestUtils restUtils;
-  private final SdcSchoolCollectionService sdcSchoolCollectionService;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
 
@@ -51,7 +50,6 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     super(sagaService, messagePublisher, SdcStudentSagaData.class, SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString(), TopicsEnum.STUDENT_DATA_COLLECTION_PROCESS_STUDENT_SAGA_TOPIC.toString());
     this.rulesProcessor = rulesProcessor;
     this.restUtils = restUtils;
-    this.sdcSchoolCollectionService = sdcSchoolCollectionService;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
   }
@@ -65,7 +63,27 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
       .or()
       .step(PROCESS_PEN_MATCH, PEN_MATCH_PROCESSED, PROCESS_PEN_MATCH_RESULTS, this::processPenMatchResults)
       .step(PROCESS_PEN_MATCH_RESULTS, PEN_MATCH_RESULTS_PROCESSED, WRITE_ENROLLED_PROGRAMS, this::writeEnrolledPrograms)
-      .end(WRITE_ENROLLED_PROGRAMS, ENROLLED_PROGRAMS_WRITTEN);
+      .step(WRITE_ENROLLED_PROGRAMS, ENROLLED_PROGRAMS_WRITTEN, CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES, this::calculateAdditionalStudentAttributes)
+      .end(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES, ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED);
+  }
+
+  private void calculateAdditionalStudentAttributes(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
+    final SagaEventStatesEntity eventStates =
+      this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
+    saga.setSagaState(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES.toString());
+    saga.setStatus(IN_PROGRESS.toString());
+    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+
+    UUID studentUUID = UUID
+      .fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
+    String studentDOB = sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob();
+
+    this.sdcSchoolCollectionStudentService
+      .updateStudentAgeColumns(studentUUID, DOBUtil.isAdult(studentDOB), DOBUtil.isSchoolAged(studentDOB));
+
+    this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
+      .eventType(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES).eventOutcome(ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED)
+      .build());
   }
 
   private void writeEnrolledPrograms(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
@@ -112,7 +130,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
       } else {
         sdcStud.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.FIXABLE.toString());
       }
-      this.sdcSchoolCollectionService.saveSdcSchoolCollectionStudent(sdcStud);
+      this.sdcSchoolCollectionStudentService.saveSdcSchoolCollectionStudent(sdcStud);
     }
     this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
       .eventType(PROCESS_PEN_MATCH_RESULTS).eventOutcome(PEN_MATCH_RESULTS_PROCESSED)

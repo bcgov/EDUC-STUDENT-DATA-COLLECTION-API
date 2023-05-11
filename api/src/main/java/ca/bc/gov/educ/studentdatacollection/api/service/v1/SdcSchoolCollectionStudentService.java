@@ -44,6 +44,8 @@ public class SdcSchoolCollectionStudentService {
 
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
+  private final SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService;
+
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
   private final SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository;
@@ -101,6 +103,13 @@ public class SdcSchoolCollectionStudentService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public SdcSchoolCollectionStudentEntity saveSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity curSdcSchoolCollectionStudentEntity) {
+    var entity = this.sdcSchoolCollectionStudentRepository.save(curSdcSchoolCollectionStudentEntity);
+    this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, curSdcSchoolCollectionStudentEntity.getUpdateUser());
+    return entity;
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void deleteSdcStudentValidationErrors(final String sdcSchoolStudentID) {
     this.sdcStudentValidationErrorRepository.deleteSdcStudentValidationErrors(UUID.fromString(sdcSchoolStudentID));
   }
@@ -120,6 +129,19 @@ public class SdcSchoolCollectionStudentService {
     return this.sdcSchoolCollectionStudentRepository.save(entity);
   }
 
+  public void updateStudentAgeColumns(UUID sdcSchoolCollectionStudentID, boolean isAdult, boolean isSchoolAged) throws EntityNotFoundException {
+    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional =
+      sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
+
+    if (sdcSchoolCollectionStudentEntityOptional.isEmpty()) {
+      throw new EntityNotFoundException(SdcSchoolCollectionStudent.class, "sdcSchoolCollectionStudentId", sdcSchoolCollectionStudentID.toString());
+    }
+
+    SdcSchoolCollectionStudentEntity student = sdcSchoolCollectionStudentEntityOptional.get();
+    student.setIsAdult(isAdult);
+    student.setIsSchoolAged(isSchoolAged);
+    this.saveSdcSchoolCollectionStudent(student);
+  }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void deleteExistingAndWriteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID, List<String> enrolledProgramCodes) {
