@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum OtherCoursesCodes {
+    ZERO("0"),
     ONE("1"),
     TWO("2"),
     THREE("3"),
