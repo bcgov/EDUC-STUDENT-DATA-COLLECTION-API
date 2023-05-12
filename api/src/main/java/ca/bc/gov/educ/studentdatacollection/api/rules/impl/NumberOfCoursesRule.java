@@ -32,7 +32,8 @@ public class NumberOfCoursesRule implements BaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         final SdcSchoolCollectionStudent student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
         final String courseCountStr = student.getNumberOfCourses();
-        final Double courseCount = TransformUtil.parseNumberOfCourses(courseCountStr);
+        final Double courseCount = TransformUtil
+            .parseNumberOfCourses(courseCountStr, student.getSdcSchoolCollectionID());
         final boolean hasEightPlusGradeCodes = EightPlusGradeCodes
             .findByValue(student.getEnrolledGradeCode()).isPresent();
 

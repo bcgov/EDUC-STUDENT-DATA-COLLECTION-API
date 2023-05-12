@@ -12,10 +12,13 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The type Transform util.
  */
+
+@Slf4j
 public class TransformUtil {
   private TransformUtil() {
   }
@@ -66,11 +69,12 @@ public class TransformUtil {
    * @param string - the four didgit float string, eg: "0800"
    * @return a Double, eg: 8.00
    */
-  public static Double parseNumberOfCourses(String string) {
+  public static Double parseNumberOfCourses(String string, String studentId) {
     if (StringUtils.isEmpty(string)) { return 0D; }
     try {
       return Double.parseDouble(string) / 100;
     } catch (NumberFormatException e) {
+      log.warn("Could not parse NUMBER_OF_COURSES for collection student ID {}, database value: {}", studentId, string);
       return 0D;
     }
   }
