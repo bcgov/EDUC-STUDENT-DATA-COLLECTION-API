@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.util;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
@@ -15,8 +14,11 @@ public class DOBUtil {
     private DOBUtil() {
     }
 
-    public static int getStudentAge(String dob) {
-        return Period.between(LocalDate.parse(dob, format), LocalDate.now()).getYears();
+    public static boolean is16YearsOldByJul1ThisSchoolYear(String dob) {
+        SchoolYear schoolYear = new SchoolYear();
+        LocalDate currentSchoolYearJul1st = LocalDate.parse(schoolYear.getStartDate().getYear() + "-07-01");
+        LocalDate dateStudentTurned16 = LocalDate.parse(dob, format).plusYears(16);
+        return dateStudentTurned16.isBefore(currentSchoolYearJul1st);
     }
 
     public static boolean isAdult(String dob) {

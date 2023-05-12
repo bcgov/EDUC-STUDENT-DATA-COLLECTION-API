@@ -35,7 +35,7 @@ public class SchoolAgedStudentRule implements BaseRule {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.DOB, SdcSchoolCollectionStudentValidationIssueTypeCode.AGE_LESS_THAN_FIVE));
         }
 
-        if (sdcStudentSagaData.getSchool().getFacilityTypeCode().equals(Constants.CONT_ED) && DOBUtil.getStudentAge(student.getDob()) < 16) {
+        if (sdcStudentSagaData.getSchool().getFacilityTypeCode().equals(Constants.CONT_ED) && !DOBUtil.is16YearsOldByJul1ThisSchoolYear(student.getDob())) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.DOB, SdcSchoolCollectionStudentValidationIssueTypeCode.CONT_ED_ERR));
         }
 
