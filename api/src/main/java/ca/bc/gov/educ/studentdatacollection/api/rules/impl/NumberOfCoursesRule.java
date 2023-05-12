@@ -21,17 +21,26 @@ public class NumberOfCoursesRule implements BaseRule {
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
-        return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent();
+        return CollectionTypeCodes
+            .findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode())
+            .isPresent();
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-            if(StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getNumberOfCourses())
-                    && EightPlusGradeCodes.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode()).isPresent()
-                    && TransformUtil.hundredthDecimalAsIntegerStringToDouble(sdcStudentSagaData.getSdcSchoolCollectionStudent().getNumberOfCourses()) > 15) {
-                errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.NUMBER_OF_COURSES, SdcSchoolCollectionStudentValidationIssueTypeCode.NO_OF_COURSE_MAX));
-            }
+        final String courseCountStr = sdcStudentSagaData.getSdcSchoolCollectionStudent().getNumberOfCourses();
+        final Double courseCount = TransformUtil.hundredthDecimalAsIntegerStringToDouble(courseCountStr);
+        final boolean hasEightPlusGradeCodes = EightPlusGradeCodes
+            .findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode()).isPresent();
+
+        if (StringUtils.isNotEmpty(courseCountStr) && hasEightPlusGradeCodes && courseCount > 15) {
+            errors.add(createValidationIssue(
+                SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING,
+                SdcSchoolCollectionStudentValidationFieldCode.NUMBER_OF_COURSES,
+                SdcSchoolCollectionStudentValidationIssueTypeCode.NO_OF_COURSE_MAX
+            ));
+        }
 
         return errors;
     }
