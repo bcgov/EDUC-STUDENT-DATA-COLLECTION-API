@@ -61,8 +61,7 @@ public class TransformUtil {
    */
   public static Double hundredthDecimalAsIntegerStringToDouble(String string) {
     if (string == null) { return 0D; }
-    final Double stringAsDouble = Double.parseDouble(string) / 100;
-    return stringAsDouble;
+    return Double.parseDouble(string) / 100;
   }
 
   private static <T> void transformFieldToUppercase(Field field, T claz) {
