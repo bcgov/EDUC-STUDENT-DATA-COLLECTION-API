@@ -1,17 +1,24 @@
 package ca.bc.gov.educ.studentdatacollection.api.util;
 
-import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import static org.springframework.util.StringUtils.capitalize;
+
 import java.beans.Expression;
 import java.beans.Statement;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import static org.springframework.util.StringUtils.capitalize;
+
+import org.apache.commons.lang3.StringUtils;
+
+import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The type Transform util.
  */
+
+@Slf4j
 public class TransformUtil {
   private TransformUtil() {
   }
@@ -53,6 +60,23 @@ public class TransformUtil {
       }
     }
     return false;
+  }
+
+  /**
+   * Parses the `NUMBER_OF_COURSES` field, which comes from the database as string that contains an integer that is
+   * actually a Double to the hundredth place.
+   *
+   * @param string - the four didgit float string, eg: "0800"
+   * @return a Double, eg: 8.00
+   */
+  public static Double parseNumberOfCourses(String string, String studentId) {
+    if (StringUtils.isEmpty(string)) { return 0D; }
+    try {
+      return Double.parseDouble(string) / 100;
+    } catch (NumberFormatException e) {
+      log.warn("Could not parse NUMBER_OF_COURSES for collection student ID {}, database value: {}", studentId, string);
+      return 0D;
+    }
   }
 
   private static <T> void transformFieldToUppercase(Field field, T claz) {
