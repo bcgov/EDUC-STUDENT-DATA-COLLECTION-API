@@ -634,6 +634,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorInvalidDate.size()).isNotZero();
         assertThat(validationErrorInvalidDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
+        entity.setDob("20180101");
+        val validationErrorOldDobDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
+        assertThat(validationErrorOldDobDate.size()).isZero();
+
         entity.setDob("20190101");
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
         assertThat(validationErrorOldDate.size()).isNotZero();
