@@ -8,6 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SupportBlockGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
@@ -33,10 +34,11 @@ public class SupportBlocksRules implements BaseRule {
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        final String supportBlocks = sdcStudentSagaData.getSdcSchoolCollectionStudent().getSupportBlocks();
-        final String courseCountStr = sdcStudentSagaData.getSdcSchoolCollectionStudent().getNumberOfCourses();
+        final SdcSchoolCollectionStudent student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
+        final String supportBlocks = student.getSupportBlocks();
+        final String courseCountStr = student.getNumberOfCourses();
         final Double courseCount = TransformUtil.parseNumberOfCourses(courseCountStr);
-        final String enrolledGradeCode = sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode();
+        final String enrolledGradeCode = student.getEnrolledGradeCode();
         Optional<SupportBlockGradeCodes> supportBlockGradeCodeOptional = SupportBlockGradeCodes
             .findByValue(enrolledGradeCode);
 
@@ -76,7 +78,7 @@ public class SupportBlocksRules implements BaseRule {
             ));
         }
 
-        final String studentDOB = sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob();
+        final String studentDOB = student.getDob();
         if (DOBUtil.isValidDate(studentDOB)
         && DOBUtil.isSchoolAged(studentDOB)
         && StringUtils.isNotEmpty(enrolledGradeCode)
