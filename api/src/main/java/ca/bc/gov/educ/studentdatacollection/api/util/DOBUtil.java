@@ -14,8 +14,11 @@ public class DOBUtil {
     private DOBUtil() {
     }
 
-    public static int getStudentAge(String dob) {
-        return LocalDate.now().getYear() - LocalDate.parse(dob, format).getYear();
+    public static boolean is16YearsOldByJul1ThisSchoolYear(String dob) {
+        SchoolYear schoolYear = new SchoolYear();
+        LocalDate currentSchoolYearJul1st = LocalDate.parse(schoolYear.getStartDate().getYear() + "-07-01");
+        LocalDate dateStudentTurned16 = LocalDate.parse(dob, format).plusYears(16);
+        return dateStudentTurned16.isBefore(currentSchoolYearJul1st);
     }
 
     public static boolean isAdult(String dob) {
@@ -24,11 +27,15 @@ public class DOBUtil {
         return dateStudentIsAdult.isBefore(schoolYear.getStartDate());
     }
 
-    public static boolean isSchoolAged(String dob) {
+    public static boolean is5YearsOldByDec31ThisSchoolYear(String dob) {
         SchoolYear schoolYear = new SchoolYear();
-        LocalDate decemberCutoff = schoolYear.getStartDate().plusMonths(6).plusDays(30);
+        LocalDate decemberCutoff = LocalDate.parse(schoolYear.getStartDate().getYear() + "-12-31");
         LocalDate dateStudentTurnedFive = LocalDate.parse(dob, format).plusYears(5);
-        return dateStudentTurnedFive.isBefore(decemberCutoff) && !isAdult(dob);
+        return dateStudentTurnedFive.isBefore(decemberCutoff);
+    }
+
+    public static boolean isSchoolAged(String dob) {
+       return is5YearsOldByDec31ThisSchoolYear(dob) && !isAdult(dob);
     }
 
     public static boolean isValidDate(String dob) {

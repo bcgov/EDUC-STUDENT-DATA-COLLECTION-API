@@ -30,15 +30,16 @@ public class SchoolAgedStudentRule implements BaseRule {
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        if (DOBUtil.getStudentAge(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob()) < 5) {
+        var student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
+        if (!DOBUtil.is5YearsOldByDec31ThisSchoolYear(student.getDob())) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.DOB, SdcSchoolCollectionStudentValidationIssueTypeCode.AGE_LESS_THAN_FIVE));
         }
 
-        if (sdcStudentSagaData.getSchool().getFacilityTypeCode().equals(Constants.CONT_ED) && DOBUtil.getStudentAge(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob()) < 16) {
+        if (sdcStudentSagaData.getSchool().getFacilityTypeCode().equals(Constants.CONT_ED) && !DOBUtil.is16YearsOldByJul1ThisSchoolYear(student.getDob())) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.DOB, SdcSchoolCollectionStudentValidationIssueTypeCode.CONT_ED_ERR));
         }
 
-        if (conditionPassed(sdcStudentSagaData) && StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getNumberOfCourses()) && Double.parseDouble(df.format(Double.valueOf(sdcStudentSagaData.getSdcSchoolCollectionStudent().getNumberOfCourses()))) == 0) {
+        if (conditionPassed(sdcStudentSagaData) && StringUtils.isNotEmpty(student.getNumberOfCourses()) && Double.parseDouble(df.format(Double.valueOf(student.getNumberOfCourses()))) == 0) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.NUMBER_OF_COURSES, SdcSchoolCollectionStudentValidationIssueTypeCode.SCHOOLAGE_ZERO_COURSES));
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_GRADE_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.SCHOOLAGE_ZERO_COURSES));
         }
@@ -46,7 +47,8 @@ public class SchoolAgedStudentRule implements BaseRule {
     }
 
     private boolean conditionPassed(SdcStudentSagaData sdcStudentSagaData) {
-        return DOBUtil.isSchoolAged(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob()) && EightPlusGradeCodes.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode()).isPresent() &&
+        var student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
+        return DOBUtil.isSchoolAged(student.getDob()) && EightPlusGradeCodes.findByValue(student.getEnrolledGradeCode()).isPresent() &&
                 (!sdcStudentSagaData.getSchool().getFacilityTypeCode().equalsIgnoreCase(Constants.DISTRICT_ONLINE) || !sdcStudentSagaData.getSchool().getFacilityTypeCode().equalsIgnoreCase(Constants.PROV_ONLINE));
     }
 

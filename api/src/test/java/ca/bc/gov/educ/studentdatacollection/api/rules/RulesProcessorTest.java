@@ -100,7 +100,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorEmptyDate.size()).isNotZero();
         assertThat(validationErrorEmptyDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
-        entity.setDob("20180420");
+        entity.setDob("20170420");
         val validationErrorCorrectDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorCorrectDate.size()).isZero();
     }
@@ -634,7 +634,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorInvalidDate.size()).isNotZero();
         assertThat(validationErrorInvalidDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
-        entity.setDob("20190101");
+        entity.setDob("20180101");
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
         assertThat(validationErrorOldDate.size()).isNotZero();
         assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("AGELESSTHANFIVE");
