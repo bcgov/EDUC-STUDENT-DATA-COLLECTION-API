@@ -35,7 +35,7 @@ public class SupportBlocksRules implements BaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         final String supportBlocks = sdcStudentSagaData.getSdcSchoolCollectionStudent().getSupportBlocks();
         final String courseCountStr = sdcStudentSagaData.getSdcSchoolCollectionStudent().getNumberOfCourses();
-        final Double courseCount = TransformUtil.hundredthDecimalAsIntegerStringToDouble(courseCountStr);
+        final Double courseCount = TransformUtil.parseNumberOfCourses(courseCountStr);
         final String enrolledGradeCode = sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode();
         Optional<SupportBlockGradeCodes> supportBlockGradeCodeOptional = SupportBlockGradeCodes
             .findByValue(enrolledGradeCode);
