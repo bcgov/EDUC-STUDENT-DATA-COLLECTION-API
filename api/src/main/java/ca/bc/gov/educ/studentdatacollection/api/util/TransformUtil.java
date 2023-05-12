@@ -70,7 +70,7 @@ public class TransformUtil {
     if (StringUtils.isEmpty(string)) { return 0D; }
     try {
       return Double.parseDouble(string) / 100;
-    } catch (NumberFormatException _e) {
+    } catch (NumberFormatException e) {
       return 0D;
     }
   }
