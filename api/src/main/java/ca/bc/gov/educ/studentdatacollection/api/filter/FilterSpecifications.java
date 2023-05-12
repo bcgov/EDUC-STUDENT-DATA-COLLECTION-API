@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.filter;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -68,7 +69,7 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
         map.put(FilterOperation.NOT_IN, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
             if (filterCriteria.getFieldName().contains(".")) {
                 String[] splits = filterCriteria.getFieldName().split("\\.");
-                return criteriaBuilder.not(root.join(splits[0]).get(splits[1]).in(filterCriteria.getConvertedValues()));
+                return criteriaBuilder.or(criteriaBuilder.not(root.join(splits[0], JoinType.LEFT).get(splits[1]).in(filterCriteria.getConvertedValues())), criteriaBuilder.isEmpty(root.get(splits[0])));
             }
             return criteriaBuilder.not(root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues()));
         });

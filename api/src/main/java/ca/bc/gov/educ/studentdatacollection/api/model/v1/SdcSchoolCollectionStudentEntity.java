@@ -131,7 +131,7 @@ public class SdcSchoolCollectionStudentEntity {
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  @OneToMany(mappedBy = "sdcSchoolCollectionStudentEntity", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentEnrolledProgramEntity.class)
+  @OneToMany(mappedBy = "sdcSchoolCollectionStudentEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentEnrolledProgramEntity.class)
   Set<SdcSchoolCollectionStudentEnrolledProgramEntity> sdcStudentEnrolledProgramEntities;
 
   @EqualsAndHashCode.Exclude

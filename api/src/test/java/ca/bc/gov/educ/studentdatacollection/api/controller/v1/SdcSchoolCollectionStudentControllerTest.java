@@ -419,6 +419,64 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
+    void testReadSdcSchoolCollectionStudentNotInEnrolledProgramsReturnParentsPaginatedCrit_ministryOwnershipTeamID_ShouldReturnStatusOk() throws Exception {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        var stud1 = createMockSchoolStudentEntity(sdcSchoolCollection);
+        stud1.setLegalFirstName("JAM");
+        var stud2 = createMockSchoolStudentEntity(sdcSchoolCollection);
+        var stud3 = createMockSchoolStudentEntity(sdcSchoolCollection);
+        sdcSchoolCollectionStudentRepository.save(stud1);
+        sdcSchoolCollectionStudentRepository.save(stud2);
+        sdcSchoolCollectionStudentRepository.save(stud3);
+
+        var enrolledProg = new SdcSchoolCollectionStudentEnrolledProgramEntity();
+        enrolledProg.setSdcSchoolCollectionStudentEntity(stud1);
+        enrolledProg.setEnrolledProgramCode("BC");
+        enrolledProg.setCreateUser("ABC");
+        enrolledProg.setUpdateUser("ABC");
+        enrolledProg.setCreateDate(LocalDateTime.now());
+        enrolledProg.setUpdateDate(LocalDateTime.now());
+        sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProg);
+
+        var enrolledProg2 = new SdcSchoolCollectionStudentEnrolledProgramEntity();
+        enrolledProg2.setSdcSchoolCollectionStudentEntity(stud2);
+        enrolledProg2.setEnrolledProgramCode("AB");
+        enrolledProg2.setCreateUser("ABC");
+        enrolledProg2.setUpdateUser("ABC");
+        enrolledProg2.setCreateDate(LocalDateTime.now());
+        enrolledProg2.setUpdateDate(LocalDateTime.now());
+        sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProg2);
+        sdcSchoolCollectionStudentValidationIssueRepository.save(createMockSdcSchoolCollectionStudentValidationIssueEntity(stud2));
+
+        final SearchCriteria criteriaColl = SearchCriteria.builder().condition(AND).key("sdcSchoolCollectionID").operation(FilterOperation.EQUAL).value(sdcMockSchool.getSdcSchoolCollectionID().toString()).valueType(ValueType.UUID).build();
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("sdcStudentEnrolledProgramEntities.enrolledProgramCode").operation(FilterOperation.NOT_IN).value("CD,EF").valueType(ValueType.STRING).build();
+
+        final List<SearchCriteria> criteriaList = new ArrayList<>();
+        criteriaList.add(criteriaColl);
+        criteriaList.add(criteria);
+
+        final List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+
+        final var objectMapper = new ObjectMapper();
+        final String criteriaJSON = objectMapper.writeValueAsString(searches);
+        final MvcResult result = this.mockMvc
+                .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("searchCriteriaList", criteriaJSON)
+                        .contentType(APPLICATION_JSON))
+                .andReturn();
+        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(3)));
+    }
+
+    @Test
     void testReadSdcSchoolCollectionStudentByID_WithInvalidID_ShouldReturnStatusNotFound() throws Exception {
         this.mockMvc
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + UUID.randomUUID())
