@@ -15,7 +15,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   long countBySdcSchoolCollectionStudentStatusCode(String sdcSchoolCollectionStudentStatusCode);
 
-  @Query(value = """
+  @Query(value="""
   SELECT
   	COUNT(i.validationIssueSeverityCode) AS validationIssueSeverityCodeCount, i.validationIssueSeverityCode AS validationIssueSeverityCode
   FROM SdcSchoolCollectionStudentEntity s, SdcSchoolCollectionStudentValidationIssueEntity i
@@ -23,8 +23,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   	s.sdcSchoolCollectionStudentID = i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID
   	AND s.sdcSchoolCollectionID = :sdcSchoolCollectionID
   	AND i.validationIssueSeverityCode IN ('ERROR', 'WARNING')
-  GROUP BY i.validationIssueSeverityCode
-""")
+  GROUP BY i.validationIssueSeverityCode""")
   List<IValidationIssueSeverityCodeCount> errorAndWarningCountBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
   long countBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
