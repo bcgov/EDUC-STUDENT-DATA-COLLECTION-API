@@ -20,8 +20,13 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -29,11 +34,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -167,4 +167,20 @@ public class SdcSchoolCollectionStudentService {
     sdcSchoolCollectionStudentRepository.save(student);
   }
 
+  public SdcSchoolCollectionStudentValidationIssueErrorWarningCount errorAndWarningCountBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
+    var sdcSchoolCollectionStudentIssueErrorWarningCountList = sdcSchoolCollectionStudentRepository.errorAndWarningCountBySdcSchoolCollectionID(
+        sdcSchoolCollectionID);
+
+    SdcSchoolCollectionStudentValidationIssueErrorWarningCount sdcSchoolCollectionStudentValidationIssueErrorWarningCount = new SdcSchoolCollectionStudentValidationIssueErrorWarningCount();
+
+    sdcSchoolCollectionStudentIssueErrorWarningCountList.forEach(issue -> {
+      if (issue.getValidationIssueSeverityCode().equals("ERROR")) {
+        sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setError(issue.getValidationIssueSeverityCodeCount());
+      } else if (issue.getValidationIssueSeverityCode().equals("WARNING")) {
+        sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setWarning(issue.getValidationIssueSeverityCodeCount());
+      }
+    });
+
+    return sdcSchoolCollectionStudentValidationIssueErrorWarningCount;
+  }
 }

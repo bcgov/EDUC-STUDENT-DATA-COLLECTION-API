@@ -19,5 +19,6 @@ public final class URL {
   public static final String SPED_CODES="/specialEducation-codes";
   public static final String GENDER_CODES="/gender-codes";
   public static final String VALIDATION_ISSUE_TYPE_CODES = "/validation-issue-type-codes";
+  public static final String ERROR_WARNING_COUNT = "/stats/error-warning-count";
 
 }
