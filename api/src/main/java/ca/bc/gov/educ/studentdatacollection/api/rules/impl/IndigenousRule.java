@@ -32,7 +32,7 @@ public class IndigenousRule implements BaseRule {
         var student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
         List<BandCode> activeBandCodes = validationRulesService.getActiveBandCodes();
 
-        if(!student.getNativeAncestryInd().equals("Y") && !student.getNativeAncestryInd().equals("N")) {
+        if(StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getNativeAncestryInd()) || (!student.getNativeAncestryInd().equals("Y") && !student.getNativeAncestryInd().equals("N"))) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.NATIVE_ANCESTRY_IND, SdcSchoolCollectionStudentValidationIssueTypeCode.NATIVE_IND_INVALID));
         }
 
