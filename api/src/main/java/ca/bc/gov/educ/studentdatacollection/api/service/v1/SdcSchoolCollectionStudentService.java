@@ -174,13 +174,10 @@ public class SdcSchoolCollectionStudentService {
     SdcSchoolCollectionStudentValidationIssueErrorWarningCount sdcSchoolCollectionStudentValidationIssueErrorWarningCount = new SdcSchoolCollectionStudentValidationIssueErrorWarningCount();
 
     sdcSchoolCollectionStudentIssueErrorWarningCountList.forEach(issue -> {
-      switch(issue.getValidationIssueSeverityCode()) {
-        case "ERROR":
-          sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setError(issue.getValidationIssueSeverityCodeCount());
-          break;
-        case "WARNING":
-          sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setWarning(issue.getValidationIssueSeverityCodeCount());
-          break;
+      if (issue.getValidationIssueSeverityCode().equals("ERROR")) {
+        sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setError(issue.getValidationIssueSeverityCodeCount());
+      } else if (issue.getValidationIssueSeverityCode().equals("WARNING")) {
+        sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setWarning(issue.getValidationIssueSeverityCodeCount());
       }
     });
 
