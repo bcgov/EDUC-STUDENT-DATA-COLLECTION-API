@@ -168,18 +168,12 @@ public class SdcSchoolCollectionStudentService {
   }
 
   public SdcSchoolCollectionStudentValidationIssueErrorWarningCount errorAndWarningCountBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
-    var sdcSchoolCollectionStudentIssueErrorWarningCountList = sdcSchoolCollectionStudentRepository.errorAndWarningCountBySdcSchoolCollectionID(
-        sdcSchoolCollectionID);
 
     SdcSchoolCollectionStudentValidationIssueErrorWarningCount sdcSchoolCollectionStudentValidationIssueErrorWarningCount = new SdcSchoolCollectionStudentValidationIssueErrorWarningCount();
-
-    sdcSchoolCollectionStudentIssueErrorWarningCountList.forEach(issue -> {
-      if (issue.getValidationIssueSeverityCode().equals("ERROR")) {
-        sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setError(issue.getValidationIssueSeverityCodeCount());
-      } else if (issue.getValidationIssueSeverityCode().equals("WARNING")) {
-        sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setWarning(issue.getValidationIssueSeverityCodeCount());
-      }
-    });
+    sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setError(
+        sdcSchoolCollectionStudentRepository.getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID("ERROR", sdcSchoolCollectionID));
+    sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setWarning(
+        sdcSchoolCollectionStudentRepository.getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID("WARNING", sdcSchoolCollectionID));
 
     return sdcSchoolCollectionStudentValidationIssueErrorWarningCount;
   }

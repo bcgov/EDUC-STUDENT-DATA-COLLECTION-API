@@ -515,7 +515,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
             .andDo(print())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.error").value(2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.error").value(1)) //should only show 1 error since it is for the same validationIssueCode
             .andExpect(MockMvcResultMatchers.jsonPath("$.warning").value(1));
     }
 }

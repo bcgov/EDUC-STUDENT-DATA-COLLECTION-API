@@ -19,8 +19,8 @@ public class SdcSchoolCollectionStudentValidationIssueErrorWarningCount implemen
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private Integer error = 0;
+  private long error = 0;
 
-  private Integer warning = 0;
+  private long warning = 0;
 
 }

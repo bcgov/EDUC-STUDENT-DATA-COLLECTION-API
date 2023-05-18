@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.IValidationIssueSeverityCodeCount;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import java.util.List;
 import java.util.UUID;
@@ -15,15 +14,15 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   long countBySdcSchoolCollectionStudentStatusCode(String sdcSchoolCollectionStudentStatusCode);
 
-  @Query(value="""
-    SELECT
-    COUNT(i.validationIssueSeverityCode) AS validationIssueSeverityCodeCount, i.validationIssueSeverityCode AS validationIssueSeverityCode
-    FROM SdcSchoolCollectionStudentEntity s, SdcSchoolCollectionStudentValidationIssueEntity i
-    WHERE s.sdcSchoolCollectionStudentID = i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID
-    AND s.sdcSchoolCollectionID = :sdcSchoolCollectionID
-    AND i.validationIssueSeverityCode IN ('ERROR','WARNING')
-    GROUP BY i.validationIssueSeverityCode""")
-  List<IValidationIssueSeverityCodeCount> errorAndWarningCountBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
+@Query(value = """
+    SELECT COUNT(*) FROM (SELECT I.SDC_SCHOOL_COLLECTION_STUDENT_ID, COUNT(I.VALIDATION_ISSUE_SEVERITY_CODE), I.VALIDATION_ISSUE_CODE
+    FROM SDC_SCHOOL_COLLECTION_STUDENT S, SDC_SCHOOL_COLLECTION_STUDENT_VALIDATION_ISSUE I
+    WHERE S.SDC_SCHOOL_COLLECTION_STUDENT_ID = I.SDC_SCHOOL_COLLECTION_STUDENT_ID
+    AND S.SDC_SCHOOL_COLLECTION_ID = :sdcSchoolCollectionID
+    AND I.VALIDATION_ISSUE_SEVERITY_CODE = :validationIssueSeverityCode
+    GROUP BY I.SDC_SCHOOL_COLLECTION_STUDENT_ID, I.VALIDATION_ISSUE_CODE) as SUBQUERY
+    """, nativeQuery= true)
+  long getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID(String validationIssueSeverityCode, UUID sdcSchoolCollectionID);
 
   long countBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
