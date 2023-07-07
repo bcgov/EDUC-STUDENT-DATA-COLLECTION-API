@@ -636,7 +636,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("20180101");
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
-        assertThat(validationErrorOldDate.size()).isNotZero();
+        assertThat(validationErrorOldDate.size()).isZero();
         assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("AGELESSTHANFIVE");
 
         entity.setDob("20190101");
