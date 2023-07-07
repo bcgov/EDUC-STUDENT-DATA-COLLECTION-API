@@ -171,6 +171,38 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     }
 
     @Test
+    void testGetCollectionBySchoolID_withSameSchoolInPastCollection_ShouldReturnCollection() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+        CollectionEntity pastCollection = createMockCollectionEntity();
+        pastCollection.setOpenDate(LocalDateTime.now().minusDays(5));
+        pastCollection.setCloseDate(LocalDateTime.now().minusDays(2));
+        collectionRepository.save(pastCollection);
+
+        School school = createMockSchool();
+        SdcSchoolCollectionEntity sdcPastMockSchool = createMockSdcSchoolCollectionEntity(pastCollection, UUID.fromString(school.getSchoolId()));
+        sdcPastMockSchool.setUploadDate(null);
+        sdcPastMockSchool.setUploadFileName(null);
+        sdcSchoolCollectionRepository.save(sdcPastMockSchool);
+
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCloseDate(LocalDateTime.now().plusDays(2));
+        collectionRepository.save(collection);
+
+        SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        this.mockMvc.perform(
+                        get(URL.BASE_URL_SCHOOL_COLLECTION + "/search/" + school.getSchoolId()).with(mockAuthority))
+                .andDo(print()).andExpect(status().isOk()).andExpect(
+                        MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionID",
+                                equalTo(sdcMockSchool.getSdcSchoolCollectionID().toString())));
+    }
+
+    @Test
     void testGetCollectionBySchoolID_ShouldReturnStatusNotFound() throws Exception {
         final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
