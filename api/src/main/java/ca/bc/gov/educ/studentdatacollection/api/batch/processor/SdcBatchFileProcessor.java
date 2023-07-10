@@ -20,6 +20,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
+import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import com.google.common.base.Stopwatch;
 import lombok.Getter;
@@ -41,6 +42,7 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileError.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchFileConstants.*;
@@ -244,6 +246,7 @@ public class SdcBatchFileProcessor {
     if (!TRANSACTION_CODE_STUDENT_DETAILS_RECORD.equals(transactionCode)) {
       throw new FileUnProcessableException(INVALID_TRANSACTION_CODE_STUDENT_DETAILS, guid, SdcSchoolCollectionStatus.LOAD_FAIL, String.valueOf(index), ds.getString(LOCAL_STUDENT_ID.getName()));
     }
+
     return SdcStudentDetails.builder()
       .transactionCode(transactionCode)
       .localStudentID(StringMapper.trimAndUppercase(ds.getString(LOCAL_STUDENT_ID.getName())))
@@ -265,7 +268,7 @@ public class SdcBatchFileProcessor {
       .otherCourses(StringMapper.trimAndUppercase(ds.getString(OTHER_COURSES.getName())))
       .supportBlocks(StringMapper.trimAndUppercase(ds.getString(SUPPORT_BLOCKS.getName())))
       .enrolledGradeCode(StringMapper.trimAndUppercase(ds.getString(ENROLLED_GRADE_CODE.getName())))
-      .enrolledProgramCodes(StringMapper.trimAndUppercase(ds.getString(ENROLLED_PROGRAM_CODES.getName())))
+      .enrolledProgramCodes(StringMapper.trimAndUppercase(sanitizeEnrolledProgramString(ds.getString(ENROLLED_PROGRAM_CODES.getName()))))
       .careerProgramCode(StringMapper.trimAndUppercase(ds.getString(CAREER_PROGRAM_CODE.getName())))
       .numberOfCourses(StringMapper.trimAndUppercase(ds.getString(NUMBER_OF_COURSES.getName())))
       .bandCode(StringMapper.trimAndUppercase(ds.getString(BAND_CODE.getName())))
@@ -297,6 +300,8 @@ public class SdcBatchFileProcessor {
     }
   }
 
-
+  private String sanitizeEnrolledProgramString(String enrolledProgramCode) {
+    return TransformUtil.splitIntoChunks(enrolledProgramCode, 2).stream().filter(codes -> !codes.equals("00") && !codes.isBlank()).map(item -> StringUtils.leftPad(item.trim(), 2, "0")).collect(Collectors.joining());
+  }
 }
 
