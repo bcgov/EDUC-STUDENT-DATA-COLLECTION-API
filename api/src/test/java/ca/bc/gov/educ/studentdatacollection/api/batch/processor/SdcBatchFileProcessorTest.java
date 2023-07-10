@@ -130,7 +130,7 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     assertThat(students).hasSize(1);
 
     final var studentEntity = students.get(0);
-    assertThat(studentEntity.getEnrolledProgramCodes()).isEqualTo("2005313540BD");
+    assertThat(studentEntity.getEnrolledProgramCodes()).isEqualTo("205313540BD");
   }
 
   @Test
