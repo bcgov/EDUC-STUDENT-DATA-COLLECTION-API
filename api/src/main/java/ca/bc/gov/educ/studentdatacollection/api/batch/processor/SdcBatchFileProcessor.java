@@ -301,7 +301,7 @@ public class SdcBatchFileProcessor {
   }
 
   private String sanitizeEnrolledProgramString(String enrolledProgramCode) {
-    return TransformUtil.splitIntoChunks(enrolledProgramCode, 2).stream().filter(codes -> !codes.equals("00") && !codes.isBlank()).map(item -> StringUtils.leftPad(item.trim(), 2, "0")).collect(Collectors.joining());
+    return TransformUtil.splitIntoChunks(enrolledProgramCode.trim(), 2).stream().filter(codes -> !codes.equals("00") && !codes.isBlank()).map(String::trim).collect(Collectors.joining());
   }
 }
 
