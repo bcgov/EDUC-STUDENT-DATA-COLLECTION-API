@@ -42,6 +42,7 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileError.*;
@@ -301,7 +302,15 @@ public class SdcBatchFileProcessor {
   }
 
   private String sanitizeEnrolledProgramString(String enrolledProgramCode) {
-    return TransformUtil.splitIntoChunks(enrolledProgramCode.trim(), 2).stream().filter(codes -> !codes.equals("00") && !codes.isBlank()).map(String::trim).collect(Collectors.joining());
+    boolean isCodeInValid = Pattern.compile("^[0\\s]*$").matcher(enrolledProgramCode).matches();
+    if(isCodeInValid) {
+      return null;
+    }
+    if(!StringUtils.isNumeric(enrolledProgramCode.stripTrailing()) || enrolledProgramCode.stripTrailing().length() % 2 != 0 || enrolledProgramCode.stripTrailing().contains(" ")) {
+      return enrolledProgramCode.stripTrailing();
+    } else {
+      return TransformUtil.splitIntoChunks(enrolledProgramCode.stripTrailing(), 2).stream().filter(codes -> !codes.equals("00")).collect(Collectors.joining());
+    }
   }
 }
 
