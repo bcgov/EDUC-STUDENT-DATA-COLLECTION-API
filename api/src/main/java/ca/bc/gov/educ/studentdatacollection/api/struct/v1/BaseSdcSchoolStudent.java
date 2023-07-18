@@ -1,13 +1,13 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import java.math.BigDecimal;
 
 @Data
 @SuperBuilder
@@ -102,5 +102,28 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   private Boolean isAdult;
 
   private Boolean isSchoolAged;
+
+  @DecimalMin(value = "0")
+  @DecimalMax(value = "1")
+  @Digits(integer = 1, fraction = 4)
+  private BigDecimal fte;
+
+  @Size(max = 10)
+  private String fteZeroReasonCode;
+
+  @Size(max = 10)
+  private String frenchProgramNonEligReasonCode;
+
+  @Size(max = 10)
+  private String ellNonEligReasonCode;
+
+  @Size(max = 10)
+  private String indigenousSupportProgramNonEligReasonCode;
+
+  @Size(max = 10)
+  private String careerProgramNonEligReasonCode;
+
+  @Size(max = 10)
+  private String specialEducationNonEligReasonCode;
 
 }

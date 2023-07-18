@@ -9,6 +9,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -109,6 +110,27 @@ public class SdcSchoolCollectionStudentEntity {
 
   @Column(name = "IS_SCHOOL_AGED")
   private Boolean isSchoolAged;
+
+  @Column(name = "FTE")
+  private BigDecimal fte;
+
+  @Column(name = "FTE_ZERO_REASON_CODE", length = 10)
+  private String fteZeroReasonCode;
+
+  @Column(name = "FRENCH_PROGRAM_NON_ELIG_REASON_CODE", length = 10)
+  private String frenchProgramNonEligReasonCode;
+
+  @Column(name = "ELL_NON_ELIG_REASON_CODE", length = 10)
+  private String ellNonEligReasonCode;
+
+  @Column(name = "INDIGENOUS_SUPPORT_PROGRAM_NON_ELIG_REASON_CODE", length = 10)
+  private String indigenousSupportProgramNonEligReasonCode;
+
+  @Column(name = "CAREER_PROGRAM_NON_ELIG_REASON_CODE", length = 10)
+  private String careerProgramNonEligReasonCode;
+
+  @Column(name = "SPECIAL_EDUCATION_NON_ELIG_REASON_CODE", length = 10)
+  private String specialEducationNonEligReasonCode;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
