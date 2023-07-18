@@ -42,8 +42,6 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileError.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchFileConstants.*;
@@ -269,7 +267,7 @@ public class SdcBatchFileProcessor {
       .otherCourses(StringMapper.trimAndUppercase(ds.getString(OTHER_COURSES.getName())))
       .supportBlocks(StringMapper.trimAndUppercase(ds.getString(SUPPORT_BLOCKS.getName())))
       .enrolledGradeCode(StringMapper.trimAndUppercase(ds.getString(ENROLLED_GRADE_CODE.getName())))
-      .enrolledProgramCodes(StringMapper.trimAndUppercase(sanitizeEnrolledProgramString(ds.getString(ENROLLED_PROGRAM_CODES.getName()))))
+      .enrolledProgramCodes(StringMapper.trimAndUppercase(TransformUtil.sanitizeEnrolledProgramString(ds.getString(ENROLLED_PROGRAM_CODES.getName()))))
       .careerProgramCode(StringMapper.trimAndUppercase(ds.getString(CAREER_PROGRAM_CODE.getName())))
       .numberOfCourses(StringMapper.trimAndUppercase(ds.getString(NUMBER_OF_COURSES.getName())))
       .bandCode(StringMapper.trimAndUppercase(ds.getString(BAND_CODE.getName())))
@@ -298,18 +296,6 @@ public class SdcBatchFileProcessor {
         .studentCount(ds.getString(STUDENT_COUNT.getName()))
         .vendorName(ds.getString(VENDOR_NAME.getName()))
         .build());
-    }
-  }
-
-  private String sanitizeEnrolledProgramString(String enrolledProgramCode) {
-    boolean isCodeInValid = Pattern.compile("^[0\\s]*$").matcher(enrolledProgramCode).matches();
-    if(isCodeInValid) {
-      return null;
-    }
-    if(!StringUtils.isNumeric(enrolledProgramCode.stripTrailing()) || enrolledProgramCode.stripTrailing().length() % 2 != 0 || enrolledProgramCode.stripTrailing().contains(" ")) {
-      return enrolledProgramCode.stripTrailing();
-    } else {
-      return TransformUtil.splitIntoChunks(enrolledProgramCode.stripTrailing(), 2).stream().filter(codes -> !codes.equals("00")).collect(Collectors.joining());
     }
   }
 }

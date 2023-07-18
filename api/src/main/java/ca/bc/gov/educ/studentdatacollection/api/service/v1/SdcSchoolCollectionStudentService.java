@@ -199,6 +199,7 @@ public class SdcSchoolCollectionStudentService {
 
     //update student record --? Should we sanitize enrolled programcode?
     SdcSchoolCollectionStudentEntity getCurStudentEntity = curStudentEntity.get();
+    getCurStudentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(getCurStudentEntity.getEnrolledProgramCodes()));
     BeanUtils.copyProperties(studentEntity, getCurStudentEntity, "sdcSchoolCollectionStudentID, sdcSchoolCollectionID, sdcSchoolCollectionStudentStatusCode, createUser, createDate", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
     TransformUtil.uppercaseFields(getCurStudentEntity);
 
@@ -230,7 +231,7 @@ public class SdcSchoolCollectionStudentService {
     if(sdcSchoolCollection.isPresent()) {
       var school = this.restUtils.getSchoolBySchoolID(sdcSchoolCollection.get().getSchoolID().toString());
       sdcStudentSagaData.setCollectionTypeCode(sdcSchoolCollection.get().getCollectionEntity().getCollectionTypeCode());
-      sdcStudentSagaData.setSchool(school.get());
+      school.ifPresent(sdcStudentSagaData::setSchool);
       sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(studentEntity));
       return sdcStudentSagaData;
     } else {

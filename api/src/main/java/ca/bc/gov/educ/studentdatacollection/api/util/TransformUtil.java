@@ -8,6 +8,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -103,5 +105,17 @@ public class TransformUtil {
     String[] results = text.split("(?<=\\G.{" + numberOfCharacters + "})");
 
     return Arrays.asList(results);
+  }
+
+  public static String sanitizeEnrolledProgramString(String enrolledProgramCode) {
+    boolean isCodeInValid = Pattern.compile("^[0\\s]*$").matcher(enrolledProgramCode).matches();
+    if(isCodeInValid) {
+      return null;
+    }
+    if(!StringUtils.isNumeric(enrolledProgramCode.stripTrailing()) || enrolledProgramCode.stripTrailing().length() % 2 != 0 || enrolledProgramCode.stripTrailing().contains(" ")) {
+      return enrolledProgramCode.stripTrailing();
+    } else {
+      return splitIntoChunks(enrolledProgramCode.stripTrailing(), 2).stream().filter(codes -> !codes.equals("00")).collect(Collectors.joining());
+    }
   }
 }
