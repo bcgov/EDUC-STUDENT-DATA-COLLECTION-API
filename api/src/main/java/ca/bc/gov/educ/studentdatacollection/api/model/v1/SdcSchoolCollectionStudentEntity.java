@@ -153,4 +153,11 @@ public class SdcSchoolCollectionStudentEntity {
     return this.sdcStudentHistoryEntities;
   }
 
+  public Set<SdcSchoolCollectionStudentEnrolledProgramEntity> getSdcStudentEnrolledProgramEntities() {
+    if (this.sdcStudentEnrolledProgramEntities == null) {
+      this.sdcStudentEnrolledProgramEntities = new HashSet<>();
+    }
+    return this.sdcStudentEnrolledProgramEntities;
+  }
+
 }
