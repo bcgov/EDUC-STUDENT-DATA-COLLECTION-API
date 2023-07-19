@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.batch.processor;
 
 
+import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileError;
 import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.studentdatacollection.api.batch.mappers.SdcBatchFileMapper;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
@@ -127,7 +128,7 @@ public class SdcBatchFileProcessor {
     } catch (final Exception e) { // need to check what to do in case of general exception.
       log.error("Exception while processing the file with guid :: {} :: Exception :: {}", guid, e);
       ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid data.").status(BAD_REQUEST).build();
-      var validationError = ValidationUtil.createFieldError("sdcFileUpload", sdcSchoolCollectionID, e.getMessage());
+      var validationError = ValidationUtil.createFieldError("sdcFileUpload", sdcSchoolCollectionID, FileError.GENERIC_ERROR_MESSAGE.getMessage());
       List<FieldError> fieldErrorList = new ArrayList<>();
       fieldErrorList.add(validationError);
       error.addValidationErrors(fieldErrorList);
@@ -302,8 +303,10 @@ public class SdcBatchFileProcessor {
   }
 
   private String sanitizeEnrolledProgramString(String enrolledProgramCode) {
-    boolean isCodeInValid = Pattern.compile("^[0\\s]*$").matcher(enrolledProgramCode).matches();
-    if(isCodeInValid) {
+    if(StringUtils.isEmpty(enrolledProgramCode)) {
+      return null;
+    }
+    if(Pattern.compile("^[0\\s]*$").matcher(enrolledProgramCode).matches()) {
       return null;
     }
     if(!StringUtils.isNumeric(enrolledProgramCode.stripTrailing()) || enrolledProgramCode.stripTrailing().length() % 2 != 0 || enrolledProgramCode.stripTrailing().contains(" ")) {

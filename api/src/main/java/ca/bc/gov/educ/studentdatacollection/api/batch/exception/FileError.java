@@ -89,7 +89,9 @@ public enum FileError {
   /**
    * The held back for sfas code
    */
-  HELD_BACK_FOR_SFAS("Held back for SFAS.");
+  HELD_BACK_FOR_SFAS("Held back for SFAS."),
+
+  GENERIC_ERROR_MESSAGE("Unexpected failure during file processing.");
 
   /**
    * The Message.
