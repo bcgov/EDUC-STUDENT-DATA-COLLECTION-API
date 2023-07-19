@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -113,6 +114,30 @@ public class SdcSchoolCollectionStudentHistoryEntity {
 
   @Column(name = "IS_SCHOOL_AGED")
   private Boolean isSchoolAged;
+
+  @Column(name = "FTE")
+  private BigDecimal fte;
+
+  @Column(name = "FTE_ZERO_REASON_CODE", length = 10)
+  private String fteZeroReasonCode;
+
+  @Column(name = "FRENCH_PROGRAM_NON_ELIG_REASON_CODE", length = 10)
+  private String frenchProgramNonEligReasonCode;
+
+  @Column(name = "ELL_NON_ELIG_REASON_CODE", length = 10)
+  private String ellNonEligReasonCode;
+
+  @Column(name = "INDIGENOUS_SUPPORT_PROGRAM_NON_ELIG_REASON_CODE", length = 10)
+  private String indigenousSupportProgramNonEligReasonCode;
+
+  @Column(name = "CAREER_PROGRAM_NON_ELIG_REASON_CODE", length = 10)
+  private String careerProgramNonEligReasonCode;
+
+  @Column(name = "SPECIAL_EDUCATION_NON_ELIG_REASON_CODE", length = 10)
+  private String specialEducationNonEligReasonCode;
+
+  @Column(name = "IS_GRADUATED")
+  private Boolean isGraduated;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
