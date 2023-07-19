@@ -136,6 +136,9 @@ public class SdcSchoolCollectionStudentHistoryEntity {
   @Column(name = "SPECIAL_EDUCATION_NON_ELIG_REASON_CODE", length = 10)
   private String specialEducationNonEligReasonCode;
 
+  @Column(name = "IS_GRADUATED")
+  private Boolean isGraduated;
+
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
 

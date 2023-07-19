@@ -161,6 +161,9 @@ public class SdcSchoolCollectionStudentEntity {
   @OneToMany(mappedBy = "sdcSchoolCollectionStudentID", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentHistoryEntity.class)
   Set<SdcSchoolCollectionStudentHistoryEntity> sdcStudentHistoryEntities;
 
+  @Column(name = "IS_GRADUATED")
+  private Boolean isGraduated;
+
   public Set<SdcSchoolCollectionStudentValidationIssueEntity> getSDCStudentValidationIssueEntities() {
     if (this.sdcStudentValidationIssueEntities == null) {
       this.sdcStudentValidationIssueEntities = new HashSet<>();

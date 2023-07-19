@@ -126,4 +126,6 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   @Size(max = 10)
   private String specialEducationNonEligReasonCode;
 
+  private Boolean isGraduated;
+
 }
