@@ -93,6 +93,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setUploadReportDate(null);
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
@@ -107,6 +108,8 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(result).hasSize(1);
     final var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
     final var students = this.schoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
@@ -122,6 +125,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     );
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setUploadReportDate(null);
     SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository
       .save(sdcMockSchool);
 
@@ -157,6 +161,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     );
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setUploadReportDate(null);
     SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository
       .save(sdcMockSchool);
 
@@ -191,6 +196,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     );
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setUploadReportDate(null);
     SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository
       .save(sdcMockSchool);
 
@@ -220,6 +226,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     );
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setUploadReportDate(null);
     SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository
       .save(sdcMockSchool);
 
@@ -248,6 +255,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setUploadReportDate(null);
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-2-student-fnchars.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
@@ -262,6 +270,8 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(result).hasSize(1);
     final var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
     final var students = this.schoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
@@ -275,6 +285,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setUploadReportDate(null);
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
@@ -289,6 +300,8 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(result).hasSize(1);
     var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
     var students = this.schoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
@@ -312,6 +325,8 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(result).hasSize(1);
     entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
     students = this.schoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
@@ -331,6 +346,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setUploadReportDate(null);
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
@@ -345,6 +361,8 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(result).hasSize(1);
     final var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
     final var students = this.schoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
@@ -358,6 +376,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     val summary = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SdcFileSummary>() {
     });
     assertThat(summary.getFileName()).isEqualTo(body.getFileName());
+    assertThat(summary.getUploadReportDate()).isNotNull();
   }
 
   @Test

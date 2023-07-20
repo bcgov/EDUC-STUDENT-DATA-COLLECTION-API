@@ -32,6 +32,9 @@ public class BaseSdcSchoolCollection extends BaseRequest {
   @Size(max = 255)
   private String uploadFileName;
 
+  @Size(max = 8)
+  private String uploadReportDate;
+
   @Size(max = 10)
   @NotNull(message = "sdcSchoolCollectionStatusCode cannot be null")
   private String sdcSchoolCollectionStatusCode;
