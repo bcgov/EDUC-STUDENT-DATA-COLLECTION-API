@@ -529,6 +529,114 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
+    void testUpdateAndValidateSdcSchoolCollectionStudent_StudentWithInvalidPENInvalidDOB_ShouldReturnStatusBAD_REQUEST() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+                grantedAuthority);
+
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
+
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        entity.setUpdateDate(LocalDateTime.now());
+        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
+        entity.setUpdateDate(null);
+        entity.setCreateDate(null);
+        entity.setEnrolledProgramCodes("1011121314151617");
+        entity.setStudentPen("12345678");
+        entity.setDob("01022027");
+        this.sdcSchoolCollectionStudentRepository.save(entity);
+
+        MvcResult apiResponse = this.mockMvc.perform(
+                        put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + entity.getSdcSchoolCollectionStudentID().toString())
+                                .contentType(APPLICATION_JSON)
+                                .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
+                                .with(mockAuthority))
+                .andDo(print()).andExpect(status().isBadRequest()).andReturn();
+
+        assertThat(apiResponse
+                .getResponse()
+                .getContentAsString()
+        ).contains("subErrors");
+        assertThat(apiResponse
+                .getResponse()
+                .getContentAsString()
+        ).contains("Invalid Student Pen.");
+        assertThat(apiResponse
+                .getResponse()
+                .getContentAsString()
+        ).contains("Invalid DOB.");
+    }
+
+    @Test
+    void testUpdateAndValidateSdcSchoolCollectionStudent_StudentWithInvalidCodes_ShouldReturnStatusBAD_REQUEST() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+                grantedAuthority);
+
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
+
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        entity.setUpdateDate(LocalDateTime.now());
+        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
+        entity.setUpdateDate(null);
+        entity.setCreateDate(null);
+        entity.setEnrolledProgramCodes("1011121314151617");
+        entity.setSpecialEducationCategoryCode("A");
+        entity.setSchoolFundingCode("12");
+        entity.setHomeLanguageSpokenCode("11");
+        entity.setEnrolledGradeCode("00");
+        entity.setCareerProgramCode("80");
+        entity.setBandCode("X");
+        this.sdcSchoolCollectionStudentRepository.save(entity);
+
+        MvcResult apiResponse = this.mockMvc.perform(
+                        put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + entity.getSdcSchoolCollectionStudentID().toString())
+                                .contentType(APPLICATION_JSON)
+                                .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
+                                .with(mockAuthority))
+                .andDo(print()).andExpect(status().isBadRequest()).andReturn();
+
+        assertThat(apiResponse
+                .getResponse()
+                .getContentAsString()
+        ).contains("subErrors");
+        assertThat(apiResponse
+                .getResponse()
+                .getContentAsString()
+        ).contains("Invalid School Funding Code.");
+        assertThat(apiResponse
+                .getResponse()
+                .getContentAsString()
+        ).contains("Invalid Home Language Spoken Code.");
+        assertThat(apiResponse
+                .getResponse()
+                .getContentAsString()
+        ).contains("Invalid Enrolled Grade Code.");
+        assertThat(apiResponse
+                .getResponse()
+                .getContentAsString()
+        ).contains("Invalid Career Program Code.");
+        assertThat(apiResponse
+                .getResponse()
+                .getContentAsString()
+        ).contains("Invalid Band Code.");
+    }
+
+    @Test
     void testUpdateAndValidateSdcSchoolCollectionStudent_StudentWithValidationErr_ShouldUpdateStatusToERRORAndReturnStatusOk() throws Exception {
         final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
