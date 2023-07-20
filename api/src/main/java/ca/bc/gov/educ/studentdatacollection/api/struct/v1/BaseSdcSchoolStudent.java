@@ -26,7 +26,6 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   private String localID;
 
   @Size(max = 10)
-  @NotNull(message = "studentPen cannot be null")
   private String studentPen;
 
   @Size(max = 255)
@@ -57,22 +56,22 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   private String gender;
 
   @Size(max = 10)
-  @NotNull(message = "specialEducationCategoryCode cannot be null")
   private String specialEducationCategoryCode;
 
   @Size(max = 10)
-  @NotNull(message = "schoolFundingCode cannot be null")
   private String schoolFundingCode;
 
+  @Size(max = 1)
   @NotNull(message = "nativeAncestryInd cannot be null")
   private String nativeAncestryInd;
 
   @Size(max = 10)
-  @NotNull(message = "homeLanguageSpokenCode cannot be null")
   private String homeLanguageSpokenCode;
 
+  @Size(max = 1)
   private String otherCourses;
 
+  @Size(max = 1)
   private String supportBlocks;
 
   @Size(max = 10)
@@ -80,13 +79,12 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   private String enrolledGradeCode;
 
   @Size(max = 16)
-  @NotNull(message = "enrolledProgramCodes cannot be null")
   private String enrolledProgramCodes;
 
   @Size(max = 10)
-  @NotNull(message = "careerProgramCode cannot be null")
   private String careerProgramCode;
 
+  @Size(max = 4)
   private String numberOfCourses;
 
   @Size(max = 4)

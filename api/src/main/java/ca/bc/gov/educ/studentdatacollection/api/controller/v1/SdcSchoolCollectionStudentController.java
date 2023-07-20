@@ -14,6 +14,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
+import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionStudentValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,6 +35,8 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
 
     private final SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService;
+
+    private final SdcSchoolCollectionStudentValidator schoolCollectionStudentValidator;
 
     private static final SdcSchoolCollectionStudentMapper mapper = SdcSchoolCollectionStudentMapper.mapper;
 
@@ -64,6 +68,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
 
     @Override
     public ResponseEntity<Void> updateAndValidateSdcSchoolCollectionStudent(UUID collectionStudentID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+        ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
         RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
         sdcSchoolCollectionStudentService.updateAndValidateSdcSchoolCollectionStudent(mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent));
         return new ResponseEntity<>(HttpStatus.OK);
