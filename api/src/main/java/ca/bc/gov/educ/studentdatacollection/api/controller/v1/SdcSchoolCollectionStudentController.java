@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcSchoolCollectionStudentEndpoint;
-import ca.bc.gov.educ.studentdatacollection.api.filter.SdcSchoolCollectionStudentFilterSpecs;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
@@ -13,11 +12,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+
+import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
+import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionStudentValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,11 +32,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SdcSchoolCollectionStudentController implements SdcSchoolCollectionStudentEndpoint {
 
-    private final SdcSchoolCollectionStudentFilterSpecs sdcSchoolCollectionStudentFilterSpecs;
-
     private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
 
     private final SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService;
+
+    private final SdcSchoolCollectionStudentValidator schoolCollectionStudentValidator;
 
     private static final SdcSchoolCollectionStudentMapper mapper = SdcSchoolCollectionStudentMapper.mapper;
 
@@ -59,6 +64,14 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
         return this.sdcSchoolCollectionStudentSearchService
                 .findAll(studentSpecs, pageNumber, pageSize, sorts)
                 .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.map(mapper::toSdcSchoolStudent));
+    }
+
+    @Override
+    public ResponseEntity<Void> updateAndValidateSdcSchoolCollectionStudent(UUID collectionStudentID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+        ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
+        RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
+        sdcSchoolCollectionStudentService.updateAndValidateSdcSchoolCollectionStudent(mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

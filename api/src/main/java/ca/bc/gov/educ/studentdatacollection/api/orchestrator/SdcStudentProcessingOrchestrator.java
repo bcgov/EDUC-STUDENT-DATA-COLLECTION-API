@@ -91,11 +91,12 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     saga.setSagaState(WRITE_ENROLLED_PROGRAMS.toString());
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-    List<String> enrolledProgramList = TransformUtil.splitIntoChunks(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes(), 2);
+    if(!sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes().isBlank()) {
+      List<String> enrolledProgramList = TransformUtil.splitIntoChunks(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes(), 2);
 
-    this.sdcSchoolCollectionStudentService.deleteExistingAndWriteEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), enrolledProgramList);
-
-    this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
+      this.sdcSchoolCollectionStudentService.deleteExistingAndWriteEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), enrolledProgramList);
+    }
+        this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
             .eventType(WRITE_ENROLLED_PROGRAMS).eventOutcome(ENROLLED_PROGRAMS_WRITTEN)
             .build());
   }
