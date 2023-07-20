@@ -41,6 +41,7 @@ public class SdcFileService {
       SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionOptional.get();
       sdcSchoolCollection.setUploadFileName(null);
       sdcSchoolCollection.setUploadDate(null);
+      sdcSchoolCollection.setUploadReportDate(null);
       sdcSchoolCollection.getSDCSchoolStudentEntities().clear();
       sdcSchoolCollectionService.saveSdcSchoolCollection(sdcSchoolCollection);
     }

@@ -5,7 +5,7 @@
     <COLUMN name="transactionCode" length="3" />
     <COLUMN name="mincode" length="8"/>
     <COLUMN name="schoolName" length="40" />
-    <COLUMN name="requestDate" length="8" />
+    <COLUMN name="reportDate" length="8" />
   </RECORD>
   <COLUMN name="transactionCode" length="3" />
   <COLUMN name="localStudentID" length="12" />

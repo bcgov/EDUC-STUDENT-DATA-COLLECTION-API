@@ -47,6 +47,9 @@ public class SdcSchoolCollectionEntity {
   @Column(name = "UPLOAD_FILE_NAME")
   private String uploadFileName;
 
+  @Column(name = "UPLOAD_REPORT_DATE")
+  private String uploadReportDate;
+
   @Column(name = "SDC_SCHOOL_COLLECTION_STATUS_CODE")
   private String sdcSchoolCollectionStatusCode;
 

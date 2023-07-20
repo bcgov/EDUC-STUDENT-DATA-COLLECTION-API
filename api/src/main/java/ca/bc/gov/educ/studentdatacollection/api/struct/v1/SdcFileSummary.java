@@ -13,6 +13,7 @@ public class SdcFileSummary {
   private SdcFileSummaryCounts counts;
   private String fileName;
   private String uploadDate;
+  private String uploadReportDate;
   private String totalStudents;
   private String totalProcessed;
 }

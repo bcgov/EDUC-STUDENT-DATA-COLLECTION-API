@@ -61,6 +61,8 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
 
     final var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
 
     final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
@@ -91,6 +93,8 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
 
     final var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUploadEnrolled.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
 
     final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
@@ -124,6 +128,8 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
 
     final var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUploadEnrolled.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
 
     final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
@@ -157,6 +163,8 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
 
     final var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUploadEnrolled.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
 
     final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
@@ -190,6 +198,8 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
 
     final var entity = result.get(0);
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUploadEnrolled.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
 
     final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());

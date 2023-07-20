@@ -182,6 +182,7 @@ public class SdcBatchFileProcessor {
       coll.getSDCSchoolStudentEntities().addAll(sdcSchoolCollectionEntity.getSDCSchoolStudentEntities());
       coll.setUploadDate(sdcSchoolCollectionEntity.getUploadDate());
       coll.setUploadFileName(sdcSchoolCollectionEntity.getUploadFileName());
+      coll.setUploadReportDate(sdcSchoolCollectionEntity.getUploadReportDate());
       coll.setUpdateUser(sdcSchoolCollectionEntity.getUpdateUser());
       coll.setUpdateDate(LocalDateTime.now());
       return sdcSchoolCollectionService.saveSdcSchoolCollection(coll);
@@ -287,6 +288,7 @@ public class SdcBatchFileProcessor {
       //Just set transactionCode because of different flavours of header
       batchFile.setBatchFileHeader(SdcBatchFileHeader.builder()
         .transactionCode(ds.getString(TRANSACTION_CODE.getName()))
+        .reportDate((ds.getString(REPORT_DATE.getName())))
         .build());
     } else if (ds.isRecordID(TRAILER.getName())) {
       final var transactionCode = ds.getString(TRANSACTION_CODE.getName());

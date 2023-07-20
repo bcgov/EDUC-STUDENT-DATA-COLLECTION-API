@@ -89,7 +89,7 @@ public enum SdcBatchFileConstants {
   /**
    * Request date batch file constants.
    */
-  REQUEST_DATE("requestDate"),
+  REPORT_DATE("reportDate"),
   /**
    * Email batch file constants.
    */

@@ -92,6 +92,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setSchoolID(schoolID == null ? UUID.randomUUID() : schoolID);
     sdcEntity.setUploadDate(LocalDateTime.now());
     sdcEntity.setUploadFileName("abc.txt");
+    sdcEntity.setUploadReportDate(null);
     sdcEntity.setSdcSchoolCollectionStatusCode("NEW");
     sdcEntity.setCreateUser("ABC");
     sdcEntity.setCreateDate(LocalDateTime.now());
