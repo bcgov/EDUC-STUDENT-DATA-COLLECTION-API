@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class EnrolledProgramValidityRule implements BaseRule {
+public class InvalidEnrolledProgramRule implements BaseRule {
     private final ValidationRulesService validationRulesService;
 
-    public EnrolledProgramValidityRule(ValidationRulesService validationRulesService) {
+    public InvalidEnrolledProgramRule(ValidationRulesService validationRulesService) {
         this.validationRulesService = validationRulesService;
     }
 
