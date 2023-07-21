@@ -5,36 +5,34 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStu
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.EightPlusGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.BandCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class IndigenousRule implements BaseRule {
-    private final ValidationRulesService validationRulesService;
-    public IndigenousRule(ValidationRulesService validationRulesService) {
-        this.validationRulesService = validationRulesService;
-    }
+public class StudentLessThanFiveYearsRule implements BaseRule {
+
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
-        return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent();
+        return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent()
+                && DOBUtil.isValidDate(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob());
     }
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
-        List<BandCode> activeBandCodes = validationRulesService.getActiveBandCodes();
-
-        if(StringUtils.isNotEmpty(student.getBandCode()) && activeBandCodes.stream().noneMatch(code -> code.getBandCode().equals(student.getBandCode()))) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.BAND_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.BAND_CODE_INVALID));
+        if (!DOBUtil.is5YearsOldByDec31ThisSchoolYear(student.getDob())) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.DOB, SdcSchoolCollectionStudentValidationIssueTypeCode.AGE_LESS_THAN_FIVE));
         }
         return errors;
     }
+
 }

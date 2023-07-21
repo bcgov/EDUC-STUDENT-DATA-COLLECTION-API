@@ -34,12 +34,6 @@ public class AdultStudentRule implements BaseRule {
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        if (noOnlineConditionPassed(sdcStudentSagaData) && StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getNumberOfCourses()) && Double.parseDouble(df.format(Double.valueOf(sdcStudentSagaData.getSdcSchoolCollectionStudent().getNumberOfCourses()))) == 0) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.NUMBER_OF_COURSES, SdcSchoolCollectionStudentValidationIssueTypeCode.ADULT_ZERO_COURSES));
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.DOB, SdcSchoolCollectionStudentValidationIssueTypeCode.ADULT_ZERO_COURSES));
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_GRADE_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ADULT_ZERO_COURSES));
-        }
-
         if(AllowedAdultGradeCodes.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode()).isEmpty()) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.DOB, SdcSchoolCollectionStudentValidationIssueTypeCode.ADULT_INCORRECT_GRADE));
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_GRADE_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ADULT_INCORRECT_GRADE));
@@ -57,11 +51,6 @@ public class AdultStudentRule implements BaseRule {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.DOB, SdcSchoolCollectionStudentValidationIssueTypeCode.ADULT_GRADE_ERR));
         }
         return errors;
-    }
-
-    private boolean noOnlineConditionPassed(SdcStudentSagaData sdcStudentSagaData) {
-        return AllowedAdultGradeCodes.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode()).isEmpty() &&
-                (!sdcStudentSagaData.getSchool().getFacilityTypeCode().equalsIgnoreCase(Constants.DISTRICT_ONLINE) || !sdcStudentSagaData.getSchool().getFacilityTypeCode().equalsIgnoreCase(Constants.PROV_ONLINE));
     }
 
     private boolean onlineConditionPassed(SdcStudentSagaData sdcStudentSagaData) {

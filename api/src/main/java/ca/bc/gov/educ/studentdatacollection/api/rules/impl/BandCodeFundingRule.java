@@ -17,9 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class IndigenousRule implements BaseRule {
+public class BandCodeFundingRule implements BaseRule {
     private final ValidationRulesService validationRulesService;
-    public IndigenousRule(ValidationRulesService validationRulesService) {
+    public BandCodeFundingRule(ValidationRulesService validationRulesService) {
         this.validationRulesService = validationRulesService;
     }
     @Override
@@ -30,10 +30,13 @@ public class IndigenousRule implements BaseRule {
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
-        List<BandCode> activeBandCodes = validationRulesService.getActiveBandCodes();
 
-        if(StringUtils.isNotEmpty(student.getBandCode()) && activeBandCodes.stream().noneMatch(code -> code.getBandCode().equals(student.getBandCode()))) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.BAND_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.BAND_CODE_INVALID));
+        if((StringUtils.isEmpty(student.getBandCode()) && (StringUtils.isNotEmpty(student.getSchoolFundingCode())
+                && student.getSchoolFundingCode().equals(Constants.IND_FUNDING_CODE))) ||
+                (StringUtils.isNotEmpty(student.getBandCode()) && (StringUtils.isEmpty(student.getSchoolFundingCode())
+                || !student.getSchoolFundingCode().equals(Constants.IND_FUNDING_CODE)))) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.BAND_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.BAND_CODE_BLANK));
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.SCHOOL_FUNDING_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.BAND_CODE_BLANK));
         }
         return errors;
     }

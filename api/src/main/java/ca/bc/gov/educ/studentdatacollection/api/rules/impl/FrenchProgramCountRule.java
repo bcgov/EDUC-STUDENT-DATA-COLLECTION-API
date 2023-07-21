@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class NonHSGradeRule implements BaseRule {
+public class FrenchProgramCountRule implements BaseRule {
     private final ValidationRulesService validationRulesService;
-    public NonHSGradeRule(ValidationRulesService validationRulesService) {
+    public FrenchProgramCountRule(ValidationRulesService validationRulesService) {
         this.validationRulesService = validationRulesService;
     }
     @Override
@@ -35,22 +35,8 @@ public class NonHSGradeRule implements BaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         final List<String> enrolledProgramCodes = validationRulesService.splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
 
-        if (sdcStudentSagaData.getSchool().getSchoolCategoryCode().equals(Constants.PUBLIC) && CareerPrograms.getCodes().stream().filter(enrolledProgramCodes::contains).count() > 1) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.CAREER_CODE_COUNT_ERR));
-        }
-
-        List<CareerProgramCode> activeCareerPrograms = validationRulesService.getActiveCareerProgramCodes();
-
-        if(sdcStudentSagaData.getSchool().getSchoolCategoryCode().equals(Constants.PUBLIC)
-                && (activeCareerPrograms.stream().noneMatch(program -> program.getCareerProgramCode().equals(sdcStudentSagaData.getSdcSchoolCollectionStudent().getCareerProgramCode()))
-                || CareerPrograms.getCodes().stream().noneMatch(enrolledProgramCodes::contains))) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.CAREER_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.CAREER_CODE_PROG_ERR));
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.CAREER_CODE_PROG_ERR));
-        }
-
-        if(sdcStudentSagaData.getSchool().getSchoolCategoryCode().equals(Constants.PUBLIC) && CareerPrograms.getCodes().stream().anyMatch(enrolledProgramCodes::contains) && !EightPlusGradeCodes.getNonGraduateGrades().contains(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode())) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_GRADE_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.CAREER_CODE_GRADE_ERR));
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.CAREER_CODE_GRADE_ERR));
+        if (FrenchPrograms.getFrenchProgramCodes().stream().filter(enrolledProgramCodes::contains).count() > 1) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_CODE_COUNT_ERR));
         }
 
         return errors;
