@@ -13,14 +13,12 @@ import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class AdultStudentRule implements BaseRule {
 
-    private static final DecimalFormat df = new DecimalFormat("00.00");
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
