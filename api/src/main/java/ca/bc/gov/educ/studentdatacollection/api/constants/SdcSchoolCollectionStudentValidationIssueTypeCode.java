@@ -16,6 +16,8 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
    * Blank local id student validation issue type code.
    */
   LOCALID_BLANK("LOCALIDBLANK", "Local identifier number is blank."),
+
+  DOB_BLANK("DOBBLANK", "Birthdate cannot be blank."),
   DOB_INVALID_FORMAT("DOBINVALIDFORMAT", "Student's birthdate must be a valid calendar date that is not in the future."),
   STUDENT_PEN_BLANK("STUDENTPENBLANK", "Students in Summer School must be reported with a PEN."),
   STUDENT_PEN_DUPLICATE("STUDENTPENDUPLICATE", "PEN reported more than once. Correct the PEN or remove the appropriate student from the submission."),

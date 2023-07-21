@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class BirthDateRule implements BaseRule {
+public class BirthDateEmptyRule implements BaseRule {
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
@@ -29,20 +29,9 @@ public class BirthDateRule implements BaseRule {
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT);
-        try {
-            LocalDate dob = LocalDate.parse(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob(), format);
-            LocalDate date = LocalDate.of(1900, Month.JANUARY, 01);
-            if (dob.isAfter(LocalDate.now()) || dob.isBefore(date)) {
-                errors.add(setValidationError());
-            }
-        } catch (DateTimeParseException ex) {
-            errors.add(setValidationError());
+        if (StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob())) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.DOB, SdcSchoolCollectionStudentValidationIssueTypeCode.DOB_BLANK));
         }
         return errors;
-    }
-
-    private SdcSchoolCollectionStudentValidationIssue setValidationError() {
-       return createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.DOB, SdcSchoolCollectionStudentValidationIssueTypeCode.DOB_INVALID_FORMAT);
     }
 }
