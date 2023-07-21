@@ -68,17 +68,6 @@ public class SupportBlocksRules implements BaseRule {
             ));
         }
 
-        final String facultyTypeCode = sdcStudentSagaData.getSchool().getFacilityTypeCode();
-        if ((facultyTypeCode.equals(Constants.PROV_ONLINE) || facultyTypeCode.equals(Constants.DISTRICT_ONLINE))
-        && (StringUtils.isNotEmpty(supportBlocks)
-        && !supportBlocks.equals("0"))) {
-            errors.add(createValidationIssue(
-                SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR,
-                SdcSchoolCollectionStudentValidationFieldCode.SUPPORT_BLOCKS,
-                SdcSchoolCollectionStudentValidationIssueTypeCode.SUPPORT_FACILITY_NA
-            ));
-        }
-
         final String studentDOB = student.getDob();
         if (DOBUtil.isValidDate(studentDOB)
         && DOBUtil.isSchoolAged(studentDOB)
