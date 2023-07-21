@@ -492,7 +492,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setEnrolledGradeCode("X");
         val validationErrorCode = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorCode.size()).isNotZero();
-        System.out.println(validationErrorCode);
         val error = validationErrorCode.stream().anyMatch(val -> val.getValidationIssueCode().equals("INVALIDGRADECODE"));
         assertThat(error).isTrue();
 
