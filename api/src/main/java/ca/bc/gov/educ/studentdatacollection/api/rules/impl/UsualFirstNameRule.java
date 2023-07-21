@@ -5,23 +5,18 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStu
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolFundingCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class FundingCodeRule implements BaseRule {
-    private final ValidationRulesService validationRulesService;
+import static ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil.containsBadValue;
+import static ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil.containsInvalidChars;
 
-    public FundingCodeRule(ValidationRulesService validationRulesService) {
-        this.validationRulesService = validationRulesService;
-    }
+@Component
+public class UsualFirstNameRule implements BaseRule {
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
@@ -31,10 +26,16 @@ public class FundingCodeRule implements BaseRule {
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        List<SchoolFundingCode> activeFundingCodes = validationRulesService.getActiveFundingCodes();
-        if(StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode()) && activeFundingCodes.stream().noneMatch(code -> code.getSchoolFundingCode().equals(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode()))) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.SCHOOL_FUNDING_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.FUNDING_CODE_INVALID));
+
+        if (containsInvalidChars(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualFirstName())) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.USUAL_FIRST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.USUAL_FIRST_NAME_CHAR_FIX));
         }
+        if (containsBadValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualFirstName())) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.USUAL_FIRST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.USUAL_FIRST_NAME_BAD_VALUE));
+        }
+
         return errors;
     }
+
 }
+
