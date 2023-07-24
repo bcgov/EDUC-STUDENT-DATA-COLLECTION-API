@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil.containsBadValue;
-import static ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil.containsInvalidChars;
 
 @Component
 public class LegalMiddleNameRule implements BaseRule {
@@ -27,9 +26,6 @@ public class LegalMiddleNameRule implements BaseRule {
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        if (containsInvalidChars(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalMiddleNames())) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_MIDDLE_NAMES, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_MIDDLE_NAME_CHAR_FIX));
-        }
         if (containsBadValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalMiddleNames())) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_MIDDLE_NAMES, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_MIDDLE_NAME_BAD_VALUE));
         }

@@ -10,12 +10,14 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.EnrolledGradeCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@Order(10)
 public class InvalidGradeCodeRule implements BaseRule {
     private final ValidationRulesService validationRulesService;
     public InvalidGradeCodeRule(ValidationRulesService validationRulesService) {

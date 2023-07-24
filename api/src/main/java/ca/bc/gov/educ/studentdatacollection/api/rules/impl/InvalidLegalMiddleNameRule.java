@@ -7,21 +7,17 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes
 import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil.containsInvalidChars;
+
 @Component
-@Order(40)
-public class BirthDateRule implements BaseRule {
+@Order(60)
+public class InvalidLegalMiddleNameRule implements BaseRule {
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
@@ -31,24 +27,13 @@ public class BirthDateRule implements BaseRule {
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT);
-        if (StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob())) {
-            errors.add(setValidationError());
-        } else {
-            try {
-                LocalDate dob = LocalDate.parse(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob(), format);
-                LocalDate date = LocalDate.of(1900, Month.JANUARY, 01);
-                if (dob.isAfter(LocalDate.now()) || dob.isBefore(date)) {
-                    errors.add(setValidationError());
-                }
-            } catch (DateTimeParseException ex) {
-                errors.add(setValidationError());
-            }
+
+        if (containsInvalidChars(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalMiddleNames())) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_MIDDLE_NAMES, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_MIDDLE_NAME_CHAR_FIX));
         }
+
         return errors;
     }
 
-    private SdcSchoolCollectionStudentValidationIssue setValidationError() {
-       return createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.DOB, SdcSchoolCollectionStudentValidationIssueTypeCode.DOB_INVALID_FORMAT);
-    }
 }
+
