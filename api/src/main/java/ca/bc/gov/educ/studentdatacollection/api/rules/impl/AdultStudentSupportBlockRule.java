@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class AdultStudentRule implements BaseRule {
+public class AdultStudentSupportBlockRule implements BaseRule {
 
 
     @Override
