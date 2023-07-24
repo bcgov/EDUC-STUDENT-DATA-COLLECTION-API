@@ -61,7 +61,7 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   STUDENT_ADULT_ERR("STUDENTADULTERR", "Student cannot be an adult."),
   KH_GRADE_CODE_INVALID("KHGRADECODEINVALID", "Student can only be registered in Kindergarten Halftime if they are in an Independent School."),
   SUPPORT_BLOCKS_NA("SUMMERSUPPORTBLOCKSNA", "Student can only be registered in Kindergarten Halftime if they are in an Independent School."),
-  SUPPORT_BLOCKS_INVALID("SUMMERSUPPORTBLOCKSINVALID", "Number of Support Blocks must be a value from 0 to 8."),
+  SUPPORT_BLOCKS_INVALID("SUPPORTBLOCKSINVALID", "Number of Support Blocks must be a value from 0 to 8."),
   SUPPORT_FACILITY_NA("SUPPORTFACILITYNA", "Support blocks are not valid for students in Online Learning schools."),
   MISSING_POSTAL_CODE("MISSINGPOSTALCODE", "Missing postal code."),
   INVALID_POSTAL_CODE("INVALIDPOSTALCODE", "Missing postal code."),

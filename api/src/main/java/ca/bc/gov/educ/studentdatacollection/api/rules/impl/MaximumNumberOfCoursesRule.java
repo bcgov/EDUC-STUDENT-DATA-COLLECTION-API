@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class NumberOfCoursesRule implements BaseRule {
+public class MaximumNumberOfCoursesRule implements BaseRule {
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {

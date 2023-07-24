@@ -7,7 +7,6 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.CareerProgramCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -16,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class FundingCode14Rule implements BaseRule {
+public class FundingCode14LanguageProgramRule implements BaseRule {
 
     private final ValidationRulesService validationRulesService;
 
-    public FundingCode14Rule(ValidationRulesService validationRulesService) {
+    public FundingCode14LanguageProgramRule(ValidationRulesService validationRulesService) {
         this.validationRulesService = validationRulesService;
     }
 
@@ -39,22 +38,10 @@ public class FundingCode14Rule implements BaseRule {
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         final List<String> enrolledProgramCodes = validationRulesService.splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
-        List<CareerProgramCode> activeCareerPrograms = validationRulesService.getActiveCareerProgramCodes();
 
         if (FrenchPrograms.getCodes().stream().anyMatch(enrolledProgramCodes::contains)) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_CODE_FUNDING_ERR));
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.SCHOOL_FUNDING_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_CODE_FUNDING_ERR));
-        }
-
-        if (IndigenousPrograms.getCodes().stream().anyMatch(enrolledProgramCodes::contains)) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_CODE_IND_ERR));
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.SCHOOL_FUNDING_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_CODE_IND_ERR));
-        }
-
-        if (CareerPrograms.getCodes().stream().anyMatch(enrolledProgramCodes::contains) || activeCareerPrograms.stream().anyMatch(programs -> enrolledProgramCodes.contains(programs.getCareerProgramCode()))) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_CODE_CAREER_ERR));
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.SCHOOL_FUNDING_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_CODE_CAREER_ERR));
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.CAREER_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_CODE_CAREER_ERR));
         }
 
         return errors;

@@ -10,7 +10,6 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
-import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class SupportBlocksRules implements BaseRule {
+public class SupportBlocksRule implements BaseRule {
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
@@ -57,42 +56,6 @@ public class SupportBlocksRules implements BaseRule {
                 SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING,
                 SdcSchoolCollectionStudentValidationFieldCode.NUMBER_OF_COURSES,
                 SdcSchoolCollectionStudentValidationIssueTypeCode.SUPPORT_BLOCKS_NOT_COUNT
-            ));
-        }
-
-        if (StringUtils.isNotEmpty(supportBlocks) && Integer.parseInt(supportBlocks) > 8) {
-            errors.add(createValidationIssue(
-                SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR,
-                SdcSchoolCollectionStudentValidationFieldCode.SUPPORT_BLOCKS,
-                SdcSchoolCollectionStudentValidationIssueTypeCode.SUPPORT_BLOCKS_INVALID
-            ));
-        }
-
-        final String facultyTypeCode = sdcStudentSagaData.getSchool().getFacilityTypeCode();
-        if ((facultyTypeCode.equals(Constants.PROV_ONLINE) || facultyTypeCode.equals(Constants.DISTRICT_ONLINE))
-        && (StringUtils.isNotEmpty(supportBlocks)
-        && !supportBlocks.equals("0"))) {
-            errors.add(createValidationIssue(
-                SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR,
-                SdcSchoolCollectionStudentValidationFieldCode.SUPPORT_BLOCKS,
-                SdcSchoolCollectionStudentValidationIssueTypeCode.SUPPORT_FACILITY_NA
-            ));
-        }
-
-        final String studentDOB = student.getDob();
-        if (DOBUtil.isValidDate(studentDOB)
-        && DOBUtil.isSchoolAged(studentDOB)
-        && StringUtils.isNotEmpty(enrolledGradeCode)
-        && enrolledGradeCode.equals("GA")) {
-            errors.add(createValidationIssue(
-                SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR,
-                SdcSchoolCollectionStudentValidationFieldCode.DOB,
-                SdcSchoolCollectionStudentValidationIssueTypeCode.GA_ERROR
-            ));
-            errors.add(createValidationIssue(
-                SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR,
-                SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_GRADE_CODE,
-                SdcSchoolCollectionStudentValidationIssueTypeCode.GA_ERROR
             ));
         }
         return errors;

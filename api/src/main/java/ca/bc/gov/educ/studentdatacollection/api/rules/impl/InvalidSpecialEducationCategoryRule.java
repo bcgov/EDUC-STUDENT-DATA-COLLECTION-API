@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class GradeCodeRule implements BaseRule {
+public class InvalidSpecialEducationCategoryRule implements BaseRule {
     private final ValidationRulesService validationRulesService;
-    public GradeCodeRule(ValidationRulesService validationRulesService) {
+    public InvalidSpecialEducationCategoryRule(ValidationRulesService validationRulesService) {
         this.validationRulesService = validationRulesService;
     }
     @Override

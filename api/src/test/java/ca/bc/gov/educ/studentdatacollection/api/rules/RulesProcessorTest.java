@@ -585,7 +585,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setNumberOfCourses("0000");
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
         assertThat(validationErrorOldDate.size()).isNotZero();
-        assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("ADULTZEROCOURSES");
+        val zeroCoursesInd = validationErrorOldDate.stream().anyMatch(val -> val.getValidationIssueCode().equals("ADULTZEROCOURSES"));
+        assertThat(zeroCoursesInd).isTrue();
+//        assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("ADULTZEROCOURSES");
 
         entity.setDob("19890101");
         entity.setNumberOfCourses("0100");
@@ -840,7 +842,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setSupportBlocks("9");
         val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationError.size()).isNotZero();
-        val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("SUMMERSUPPORTBLOCKSINVALID"));
+        val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("SUPPORTBLOCKSINVALID"));
         assertThat(error).isTrue();
 
         val school = createMockSchool();

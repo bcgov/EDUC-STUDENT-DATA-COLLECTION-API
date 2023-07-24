@@ -4,9 +4,10 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStu
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.OtherCoursesCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.BandCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -15,18 +16,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class OtherCoursesRules implements BaseRule {
-
+public class InvalidBandCodeRule implements BaseRule {
+    private final ValidationRulesService validationRulesService;
+    public InvalidBandCodeRule(ValidationRulesService validationRulesService) {
+        this.validationRulesService = validationRulesService;
+    }
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent();
     }
-
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        if(StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getOtherCourses()) && OtherCoursesCodes.findByValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getOtherCourses()).isEmpty()) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.OTHER_COURSES, SdcSchoolCollectionStudentValidationIssueTypeCode.OTHER_COURSE_INVALID));
+        var student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
+        List<BandCode> activeBandCodes = validationRulesService.getActiveBandCodes();
+
+        if(StringUtils.isNotEmpty(student.getBandCode()) && activeBandCodes.stream().noneMatch(code -> code.getBandCode().equals(student.getBandCode()))) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.BAND_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.BAND_CODE_INVALID));
         }
         return errors;
     }

@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class SchoolAgedStudentRule implements BaseRule {
+public class SchoolAgedNoOfCoursesRule implements BaseRule {
     private static final DecimalFormat df = new DecimalFormat("00.00");
 
     @Override
