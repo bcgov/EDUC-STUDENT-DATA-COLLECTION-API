@@ -19,7 +19,12 @@ public class RulesProcessor {
 
   public List<SdcSchoolCollectionStudentValidationIssue> processRules(SdcStudentSagaData sdcStudentSagaData) {
     final List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap = new ArrayList<>();
-    rules.stream().filter(rule-> rule.shouldExecute(sdcStudentSagaData)).forEach(rule -> validationErrorsMap.addAll(rule.executeValidation(sdcStudentSagaData)));
+    rules.forEach(rule -> {
+      if(rule.shouldExecute(sdcStudentSagaData, validationErrorsMap)) {
+        validationErrorsMap.addAll(rule.executeValidation(sdcStudentSagaData));
+      }
+    });
+//    rules.stream().filter(rule-> rule.shouldExecute(sdcStudentSagaData)).forEach(rule -> validationErrorsMap.addAll(rule.executeValidation(sdcStudentSagaData)));
     return validationErrorsMap;
   }
 }

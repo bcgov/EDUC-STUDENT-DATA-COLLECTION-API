@@ -20,7 +20,7 @@ public class AdultOLGradeRule implements BaseRule {
 
 
     @Override
-    public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
+    public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent() &&
                 !sdcStudentSagaData.getCollectionTypeCode().equalsIgnoreCase(Constants.JULY)
                 && DOBUtil.isValidDate(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob())

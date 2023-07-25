@@ -13,13 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil.containsBadValue;
-import static ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil.containsInvalidChars;
 
 @Component
 public class UsualLastNameRule implements BaseRule {
 
     @Override
-    public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
+    public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent();
     }
 

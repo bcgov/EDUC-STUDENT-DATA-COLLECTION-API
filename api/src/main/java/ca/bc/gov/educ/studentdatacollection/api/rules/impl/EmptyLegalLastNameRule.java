@@ -14,15 +14,17 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil.containsBadValue;
-import static ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil.containsInvalidChars;
-
+/**
+ *  | ID  | Severity | Rule                                | Dependent On |
+ *  |-----|----------|-------------------------------------|--------------|
+ *  | V06 | ERROR    | Legal surname cannot be blank.      | NONE         |
+ */
 @Component
 @Order(30)
 public class EmptyLegalLastNameRule implements BaseRule {
 
     @Override
-    public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
+    public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent();
     }
 
