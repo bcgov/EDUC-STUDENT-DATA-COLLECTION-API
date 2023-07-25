@@ -3,7 +3,9 @@ package ca.bc.gov.educ.studentdatacollection.api.constants.v1;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public enum OtherCoursesCodes {
     ZERO("0"),
@@ -26,5 +28,10 @@ public enum OtherCoursesCodes {
 
     public static Optional<OtherCoursesCodes> findByValue(String value) {
         return Arrays.stream(values()).filter(e -> Arrays.asList(e.code).contains(value)).findFirst();
+    }
+
+    public static Optional<OtherCoursesCodes> matchSupportBlockValue(String value) {
+        List<OtherCoursesCodes> supportBlockSublist = Arrays.stream(values()).filter(e -> !e.code.equals("9")).toList();
+        return supportBlockSublist.stream().filter(e -> Arrays.asList(e.code).contains(value)).findFirst();
     }
 }
