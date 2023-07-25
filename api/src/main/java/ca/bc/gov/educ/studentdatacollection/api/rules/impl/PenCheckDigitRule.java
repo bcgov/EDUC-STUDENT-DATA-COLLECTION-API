@@ -9,12 +9,19 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.util.PenUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V02 | ERROR    | If the student's PEN is not blank, it must pass the PEN check-digit.  | NONE         |
+ */
 @Component
+@Order(210)
 public class PenCheckDigitRule implements BaseRule {
 
     @Override

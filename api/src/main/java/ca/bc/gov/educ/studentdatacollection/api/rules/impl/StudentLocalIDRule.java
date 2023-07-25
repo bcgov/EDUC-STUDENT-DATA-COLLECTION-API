@@ -8,12 +8,19 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                     | Dependent On |
+ *  |-----|----------|------------------------------------------|--------------|
+ *  | V01 | WARNING  | Student's Local ID should not be blank.  | NONE         |
+ */
 @Component
+@Order(200)
 public class StudentLocalIDRule implements BaseRule {
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {

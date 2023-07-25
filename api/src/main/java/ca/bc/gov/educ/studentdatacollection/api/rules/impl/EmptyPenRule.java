@@ -9,12 +9,19 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V03 | ERROR    | Student in Summer School must not have a blank PEN.                   | NONE         |
+ */
 @Component
+@Order(220)
 public class EmptyPenRule implements BaseRule {
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData) {
