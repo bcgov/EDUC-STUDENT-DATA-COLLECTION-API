@@ -139,6 +139,12 @@ public class SdcSchoolCollectionStudentHistoryEntity {
   @Column(name = "IS_GRADUATED")
   private Boolean isGraduated;
 
+  @Column(name = "ASSIGNED_STUDENT_ID", columnDefinition = "BINARY(16)")
+  private UUID assignedStudentId;
+
+  @Column(name = "ASSIGNED_PEN")
+  private String assignedPen;
+
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
 
