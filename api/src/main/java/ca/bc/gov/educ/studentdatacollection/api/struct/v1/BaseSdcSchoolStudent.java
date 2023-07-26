@@ -126,4 +126,9 @@ public class BaseSdcSchoolStudent extends BaseRequest {
 
   private Boolean isGraduated;
 
+  private String assignedStudentId;
+
+  @Size(max = 10)
+  private String assignedPen;
+
 }
