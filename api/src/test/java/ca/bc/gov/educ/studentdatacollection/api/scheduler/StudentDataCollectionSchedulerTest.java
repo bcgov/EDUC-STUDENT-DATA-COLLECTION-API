@@ -1,26 +1,23 @@
 package ca.bc.gov.educ.studentdatacollection.api.scheduler;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionCodeCriteriaRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionHistoryRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.schedulers.StudentDataCollectionScheduler;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITest {
 
@@ -59,8 +56,8 @@ class StudentDataCollectionSchedulerTest extends BaseStudentDataCollectionAPITes
   @Test
   void testStudentDataCollectionScheduler_WithCollectionToBeOpened_ShouldSaveCollectionWithTwoSchools() {
     List<School> schoolList = new ArrayList<>();
-    schoolList.add(School.builder().schoolId(UUID.randomUUID().toString()).build());
-    schoolList.add(School.builder().schoolId(UUID.randomUUID().toString()).build());
+    schoolList.add(School.builder().schoolId(UUID.randomUUID().toString()).districtId(UUID.randomUUID().toString()).build());
+    schoolList.add(School.builder().schoolId(UUID.randomUUID().toString()).districtId(UUID.randomUUID().toString()).build());
 
     when(this.restUtils.getSchoolListGivenCriteria(any(), any())).thenReturn(schoolList);
 

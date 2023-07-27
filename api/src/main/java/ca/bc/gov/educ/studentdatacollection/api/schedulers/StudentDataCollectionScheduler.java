@@ -47,7 +47,7 @@ public class StudentDataCollectionScheduler {
       for (var collection : collectionsToOpen) {
         log.info("collectionCode {} needs to be open, obtaining collectionCodeCriteria", collection.getCollectionTypeCode());
         List<CollectionCodeCriteriaEntity> collectionCodeCriteria = this.collectionCodeCriteriaRepository.findAllByCollectionTypeCodeEntityEquals(collection);
-        final List<String> listOfSchoolIDs = this.getListOfSchoolIDsFromCriteria(collectionCodeCriteria);
+        final List<School> listOfSchoolIDs = this.getListOfSchoolIDsFromCriteria(collectionCodeCriteria);
 
         if (!listOfSchoolIDs.isEmpty()) {
           log.info("processing {} schools to add to collection {}", listOfSchoolIDs.size(), collection.getCollectionTypeCode());
@@ -57,16 +57,14 @@ public class StudentDataCollectionScheduler {
     }
   }
 
-  private List<String> getListOfSchoolIDsFromCriteria(List<CollectionCodeCriteriaEntity> collectionCodeCriteria) {
-    List<String> listOfSchoolIDs = new ArrayList<>();
+  private List<School> getListOfSchoolIDsFromCriteria(List<CollectionCodeCriteriaEntity> collectionCodeCriteria) {
+    List<School> listOfSchoolIDs = new ArrayList<>();
 
     if(!collectionCodeCriteria.isEmpty()) {
       log.debug("found {} collectionCodeCriteria", collectionCodeCriteria.size());
       log.trace("CollectionCodeCriteria are {}", collectionCodeCriteria);
-      final var results = this.restUtils.getSchoolListGivenCriteria(collectionCodeCriteria, UUID.randomUUID());
-      log.info("found {} schools associated to collection", results.size());
-
-      listOfSchoolIDs = results.stream().map(School::getSchoolId).toList();
+      listOfSchoolIDs = this.restUtils.getSchoolListGivenCriteria(collectionCodeCriteria, UUID.randomUUID());
+      log.info("found {} schools associated to collection", listOfSchoolIDs.size());
     }
 
     return listOfSchoolIDs;

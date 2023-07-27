@@ -33,7 +33,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testGenderRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
 
@@ -65,7 +65,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testDOBRules() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
 
@@ -108,7 +108,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testLocalIDRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
 
@@ -124,7 +124,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testSchoolRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
         val school = createMockSchool();
@@ -144,7 +144,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testStudentLegalLastNameRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
 
@@ -179,7 +179,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testStudentUsualLastNameRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
 
@@ -204,7 +204,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testStudentLegalFirstNameRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
 
@@ -225,7 +225,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testStudentUsualFirstNameRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
 
@@ -246,7 +246,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testStudentLegalMiddleNameRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
 
@@ -267,7 +267,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testStudentUsualMiddleNameRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
 
@@ -288,7 +288,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testCSFProgramRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
         val school = createMockSchool();
@@ -308,7 +308,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testEnrolledProgramParseRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
         val school = createMockSchool();
@@ -329,7 +329,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testPenRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
         entity.setStudentPen("523456789");
@@ -375,7 +375,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testHomeSchoolRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("HS");
 
@@ -421,7 +421,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testFundingCodeRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
 
@@ -442,7 +442,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testIndigenousCodeRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
 
@@ -486,7 +486,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testGradeCodeRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
         entity.setEnrolledGradeCode("X");
@@ -505,7 +505,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testNonHSGradeRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
 
@@ -571,7 +571,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testAdultStudentRules() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         val school = createMockSchool();
         school.setFacilityTypeCode("DISTONLINE");
@@ -609,7 +609,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testHomeLanguageRules() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
         entity.setEnrolledGradeCode("08");
@@ -626,7 +626,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testSchoolAgedStudentRules() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
         val school = createMockSchool();
@@ -660,7 +660,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testNoOfCoursesRules() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
         entity.setNumberOfCourses("0500");
@@ -679,7 +679,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testHSSchoolAgeRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("HS");
 
@@ -698,7 +698,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testFundingCode14Rule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("01");
         entity.setSchoolFundingCode("14");
@@ -731,7 +731,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testSummerSchoolRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         val school = createMockSchool();
         school.setFacilityTypeCode("SUMMER");
@@ -770,7 +770,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testOffshoreSchoolRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         val school = createMockSchool();
         school.setSchoolCategoryCode("OFFSHORE");
@@ -791,7 +791,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testOtherCoursesRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
         entity.setOtherCourses(null);
@@ -809,7 +809,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testPostalCodeRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
         entity.setPostalCode(null);
@@ -836,7 +836,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testSupportBlockRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
         entity.setSupportBlocks("9");
@@ -870,7 +870,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testKHRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
         entity.setEnrolledGradeCode("KH");
