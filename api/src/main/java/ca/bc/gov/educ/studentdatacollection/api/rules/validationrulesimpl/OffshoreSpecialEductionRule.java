@@ -17,7 +17,7 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V55 | WARNING  | Students reported by an Offshore School, should not be reported       | V04,V28,V29  |
+ *  | V55 | WARNING  | Students reported by an Offshore School, should not be reported       | V60  |
  *                     with a Special Education Category.
  */
 @Component
