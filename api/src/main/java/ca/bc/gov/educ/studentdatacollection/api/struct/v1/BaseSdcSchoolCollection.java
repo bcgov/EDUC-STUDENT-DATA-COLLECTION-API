@@ -27,6 +27,9 @@ public class BaseSdcSchoolCollection extends BaseRequest {
   @NotNull(message = "schoolID cannot be null")
   private String schoolID;
 
+  @NotNull(message = "districtID cannot be null")
+  private String districtID;
+
   private String uploadDate;
 
   @Size(max = 255)

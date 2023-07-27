@@ -86,10 +86,11 @@ public abstract class BaseStudentDataCollectionAPITest {
     return sdcEntity;
   }
 
-  public SdcSchoolCollectionEntity createMockSdcSchoolCollectionEntity(CollectionEntity entity, UUID schoolID){
+  public SdcSchoolCollectionEntity createMockSdcSchoolCollectionEntity(CollectionEntity entity, UUID schoolID, UUID districtID){
     SdcSchoolCollectionEntity sdcEntity = new SdcSchoolCollectionEntity();
     sdcEntity.setCollectionEntity(entity);
     sdcEntity.setSchoolID(schoolID == null ? UUID.randomUUID() : schoolID);
+    sdcEntity.setDistrictID(districtID == null ? UUID.randomUUID() : districtID);
     sdcEntity.setUploadDate(LocalDateTime.now());
     sdcEntity.setUploadFileName("abc.txt");
     sdcEntity.setUploadReportDate(null);
@@ -167,6 +168,7 @@ public abstract class BaseStudentDataCollectionAPITest {
   public School createMockSchool() {
     final School school = new School();
     school.setSchoolId(UUID.randomUUID().toString());
+    school.setDistrictId(UUID.randomUUID().toString());
     school.setDisplayName("Marco's school");
     school.setMincode("03636018");
     school.setOpenedDate("1964-09-01T00:00:00");
