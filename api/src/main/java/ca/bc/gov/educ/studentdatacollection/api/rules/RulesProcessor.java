@@ -10,10 +10,10 @@ import java.util.List;
 
 @Component
 public class RulesProcessor {
-  private final List<BaseRule> rules;
+  private final List<ValidationBaseRule> rules;
 
   @Autowired
-  public RulesProcessor(final List<BaseRule> rules) {
+  public RulesProcessor(final List<ValidationBaseRule> rules) {
     this.rules = rules;
   }
 
