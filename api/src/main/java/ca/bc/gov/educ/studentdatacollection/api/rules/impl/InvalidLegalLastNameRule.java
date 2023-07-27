@@ -27,7 +27,7 @@ public class InvalidLegalLastNameRule implements BaseRule {
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent() &&
-                isValidationDependencyResolved(SdcSchoolCollectionStudentValidationFieldCode.LEGAL_LAST_NAME.getCode(), validationErrorsMap);
+                isValidationDependencyResolved("V09", validationErrorsMap);
     }
 
     @Override

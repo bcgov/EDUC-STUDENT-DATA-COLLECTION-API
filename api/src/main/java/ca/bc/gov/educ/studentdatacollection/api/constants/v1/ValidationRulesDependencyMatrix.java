@@ -55,6 +55,7 @@ public enum ValidationRulesDependencyMatrix {
     ENTRY47("V23", new String[]{"ENROLLEDCODEPARSEERR", "ENROLLEDCODEINVALID", "INVALIDGRADECODE"}),
     ENTRY48("V38", new String[]{"ENROLLEDCODEPARSEERR", "ENROLLEDCODEINVALID", "INVALIDGRADECODE"}),
     ENTRY49("V25", new String[]{"INVALIDGRADECODE", "SPEDERR"}),
+    ENTRY50("V09", new String[]{"LEGALLASTNAMECHARFIX"}),
 ;
     @Getter
     private final String ruleID;
