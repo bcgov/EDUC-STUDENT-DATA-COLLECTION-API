@@ -9,6 +9,7 @@ public final class Constants {
     public static final String SUMMER="SUMMER";
     public static final String INDEPEND="INDEPEND";
     public static final String OFFSHORE="OFFSHORE";
+    public static final String INDP_FNS="INDP_FNS";
     public static final String PROGRAMME_FRANCOPHONE_CODE="05";
     public static final String CSF="CSF";
     public static final String HS="HS";
@@ -22,4 +23,12 @@ public final class Constants {
     public static final String GRADE_07="07";
     public static final String LATE_FRENCH_IMMERSION_CODE="14";
 
+    public static final String FUNDING_CODE_INVALID="FUNDINGCODEINVALID";
+    public static final String ENROLLED_CODE_INVALID="ENROLLEDCODEINVALID";
+    public static final String ENROLLED_CODE_PARSEERR="ENROLLEDCODEPARSEERR";
+    public static final String CAREER_CODE_INVALID="CAREERCODEINVALID";
+    public static final String INVALID_GRADE_CODE="INVALIDGRADECODE";
+    public static final String DOB_INVALID_FORMAT="DOBINVALIDFORMAT";
+    public static final String NO_OF_COURSES_INVALID="NOOFCOURSESINVALID";
+    public static final String SUPPORT_BLOCKS_INVALID="SUPPORTBLOCKSINVALID";
 }
