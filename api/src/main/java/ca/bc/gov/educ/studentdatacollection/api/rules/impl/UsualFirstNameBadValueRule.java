@@ -7,33 +7,37 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes
 import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil.containsBadValue;
-import static ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil.containsInvalidChars;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V16 | WARNING  | Student's Usual given name should not be on the list of "bad" names. | V10          |
+ */
 @Component
-public class LegalLastNameRule implements BaseRule {
+@Order(280)
+public class UsualFirstNameBadValueRule implements BaseRule {
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent();
+        return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent() &&
+                isValidationDependencyResolved("V16", validationErrorsMap);
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        if (containsBadValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalLastName())) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_LAST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_LAST_NAME_BAD_VALUE));
+        if (containsBadValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualFirstName())) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.USUAL_FIRST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.USUAL_FIRST_NAME_BAD_VALUE));
         }
 
-        if (containsInvalidChars(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalLastName())) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_LAST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_LAST_NAME_CHAR_FIX));
-        }
         return errors;
     }
 

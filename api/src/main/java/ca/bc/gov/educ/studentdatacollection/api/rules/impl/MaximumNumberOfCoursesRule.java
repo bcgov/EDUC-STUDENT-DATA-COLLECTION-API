@@ -12,19 +12,27 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStu
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V42 | ERROR    | For students reported in grade 8, 9, 10, 11, 12, SU, or GA , their    | V29          |
+ *                     Number of Courses should be less than 15.
+ */
 @Component
+@Order(480)
 public class MaximumNumberOfCoursesRule implements BaseRule {
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes
             .findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode())
-            .isPresent();
+            .isPresent() && isValidationDependencyResolved("V42", validationErrorsMap);
     }
 
     @Override

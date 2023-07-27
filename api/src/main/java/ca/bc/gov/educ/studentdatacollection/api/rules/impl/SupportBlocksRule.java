@@ -13,21 +13,29 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStu
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V65 | WARNING  | For students in grade 10, 11, 12, or SU, reported with Support        | V67,V28,V29  |
+ *                     Blocks and 8 courses (number of courses) or more, support blocks
+ *                     will not be counted toward funding.
+ */
 @Component
+@Order(530)
 public class SupportBlocksRule implements BaseRule {
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes
             .findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode())
-            .isPresent()
-            && !sdcStudentSagaData.getCollectionTypeCode().equals(Constants.JULY);
+            .isPresent() && !sdcStudentSagaData.getCollectionTypeCode().equals(Constants.JULY)
+             && isValidationDependencyResolved("V65", validationErrorsMap);
     }
 
     @Override

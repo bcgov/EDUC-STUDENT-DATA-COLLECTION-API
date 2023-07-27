@@ -11,20 +11,29 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V46 | ERROR    | School-aged student enrolled in grade 8, 9, 10, 11, 12, SU, or        | V04,V28,V29  |
+ *                     GA, not reported by a provincial or district online school must have
+ *                     Number of Courses > 0.
+ */
 @Component
+@Order(470)
 public class SchoolAgedNoOfCoursesRule implements BaseRule {
     private static final DecimalFormat df = new DecimalFormat("00.00");
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent()
-                && DOBUtil.isValidDate(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob());
+                && isValidationDependencyResolved("V46", validationErrorsMap);
     }
 
     @Override

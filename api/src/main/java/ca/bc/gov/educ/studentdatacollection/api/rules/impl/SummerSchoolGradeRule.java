@@ -9,19 +9,26 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SummerSchoolGradeCo
 import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V73 | ERROR    | Students in summer school must be in grade 1-12.                      | V28          |
+ */
 @Component
+@Order(370)
 public class SummerSchoolGradeRule implements BaseRule {
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent() &&
                 sdcStudentSagaData.getSchool().getFacilityTypeCode().equalsIgnoreCase(Constants.SUMMER) &&
-                sdcStudentSagaData.getCollectionTypeCode().equalsIgnoreCase(Constants.JULY);
+                sdcStudentSagaData.getCollectionTypeCode().equalsIgnoreCase(Constants.JULY) && isValidationDependencyResolved("V73", validationErrorsMap);
     }
 
     @Override

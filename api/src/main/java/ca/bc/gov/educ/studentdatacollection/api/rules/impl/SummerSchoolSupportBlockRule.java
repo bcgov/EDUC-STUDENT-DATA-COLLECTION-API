@@ -9,19 +9,27 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.BaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ *  | ID  | Severity | Rule                                                        | Dependent On |
+ *  |-----|----------|-------------------------------------------------------------|--------------|
+ *  | V71 | ERROR    | Student cannot be reported with any Support Blocks.         | V67  |
+ *                     Support Block must be reported as a 0 or a blank.
+ */
 @Component
+@Order(500)
 public class SummerSchoolSupportBlockRule implements BaseRule {
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent() &&
                 sdcStudentSagaData.getSchool().getFacilityTypeCode().equalsIgnoreCase(Constants.SUMMER) &&
-                sdcStudentSagaData.getCollectionTypeCode().equalsIgnoreCase(Constants.JULY);
+                sdcStudentSagaData.getCollectionTypeCode().equalsIgnoreCase(Constants.JULY)
+                && isValidationDependencyResolved("V71", validationErrorsMap);
     }
 
     @Override
