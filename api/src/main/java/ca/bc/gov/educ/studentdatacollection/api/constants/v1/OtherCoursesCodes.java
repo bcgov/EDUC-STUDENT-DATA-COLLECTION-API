@@ -5,7 +5,6 @@ import lombok.Getter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public enum OtherCoursesCodes {
     ZERO("0"),

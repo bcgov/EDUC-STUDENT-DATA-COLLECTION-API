@@ -24,7 +24,6 @@ public class RulesProcessor {
         validationErrorsMap.addAll(rule.executeValidation(sdcStudentSagaData));
       }
     });
-//    rules.stream().filter(rule-> rule.shouldExecute(sdcStudentSagaData)).forEach(rule -> validationErrorsMap.addAll(rule.executeValidation(sdcStudentSagaData)));
     return validationErrorsMap;
   }
 }

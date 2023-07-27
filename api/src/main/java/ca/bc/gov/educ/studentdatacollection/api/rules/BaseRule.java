@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStu
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public interface BaseRule extends Rule<SdcStudentSagaData, SdcSchoolCollectionStudentValidationIssue> {
   default SdcSchoolCollectionStudentValidationIssue createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode severityCode, SdcSchoolCollectionStudentValidationFieldCode fieldCode, SdcSchoolCollectionStudentValidationIssueTypeCode typeCode){
@@ -20,7 +21,11 @@ public interface BaseRule extends Rule<SdcStudentSagaData, SdcSchoolCollectionSt
   }
 
   default boolean isValidationDependencyResolved(String fieldName, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-    String[] errorCodesToCheck = ValidationRulesDependencyMatrix.findByValue(fieldName).get().getBaseRuleErrorCode();
-    return !validationErrorsMap.stream().anyMatch(val -> Arrays.stream(errorCodesToCheck).anyMatch(val.getValidationIssueCode()::contains));
+    Optional<ValidationRulesDependencyMatrix> errorCodesToCheck = ValidationRulesDependencyMatrix.findByValue(fieldName);
+    if(errorCodesToCheck.isPresent()) {
+      String[] errorCodes = errorCodesToCheck.get().getBaseRuleErrorCode();
+      return validationErrorsMap.stream().noneMatch(val -> Arrays.stream(errorCodes).anyMatch(val.getValidationIssueCode()::contains));
+    }
+    return false;
   }
 }
