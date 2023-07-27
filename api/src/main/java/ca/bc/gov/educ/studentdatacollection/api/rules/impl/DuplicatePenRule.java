@@ -9,12 +9,19 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesServic
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V21 | ERROR    | A PEN can only appear once in a school.                               | V02          |
+ */
 @Component
+@Order(320)
 public class DuplicatePenRule implements BaseRule {
 
     private final ValidationRulesService validationRulesService;
@@ -25,7 +32,8 @@ public class DuplicatePenRule implements BaseRule {
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent();
+        return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent() &&
+                isValidationDependencyResolved("V21", validationErrorsMap);
     }
 
     @Override

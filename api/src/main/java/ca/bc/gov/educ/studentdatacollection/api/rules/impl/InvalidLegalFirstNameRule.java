@@ -15,6 +15,11 @@ import java.util.List;
 
 import static ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil.containsInvalidChars;
 
+/**
+ *  | ID  | Severity | Rule                                                            | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------|--------------|
+ *  | V07 | ERROR    | can only contain Aa-Zz, apostrophes, hyphens, and periods.      | NONE         |
+ */
 @Component
 @Order(50)
 public class InvalidLegalFirstNameRule implements BaseRule {

@@ -11,13 +11,22 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V33 | ERROR    | For adult students, enrolled in grade 10, 11, 12, SU, or GA,          | V04,V28,V29  |
+ *                     not reported by a provincial or district online learning school,
+ *                     their Number of Courses must be a number > 0.
+ */
 @Component
+@Order(460)
 public class AdultStudentCoursesRule implements BaseRule {
 
     private static final DecimalFormat df = new DecimalFormat("00.00");
@@ -26,7 +35,7 @@ public class AdultStudentCoursesRule implements BaseRule {
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent() &&
                 !sdcStudentSagaData.getCollectionTypeCode().equalsIgnoreCase(Constants.JULY)
-                && DOBUtil.isValidDate(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob())
+                && isValidationDependencyResolved("V33", validationErrorsMap)
                 && DOBUtil.isAdult(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob());
     }
 

@@ -10,12 +10,24 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesServic
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V19 | ERROR    | If the student is reported by a CSF school, one of the program     |  V30      |
+ *                     codes reported for the student must be Programme francophone.
+ *
+ *  | V20 | ERROR    | If one of the program codes reported for a students is Programme   |  V30      |
+ *                     francophone, the student must be reported by a CSF school.
+ *
+ */
 @Component
+@Order(590)
 public class CSFProgramRule implements BaseRule {
 
     private final ValidationRulesService validationRulesService;
@@ -28,8 +40,7 @@ public class CSFProgramRule implements BaseRule {
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent()
                  && StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes())
-                 && sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes().length() % 2 == 0
-                 && !validationRulesService.isEnrolledProgramCodeInvalid(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
+                 && isValidationDependencyResolved("V19", validationErrorsMap);
     }
 
     @Override

@@ -16,6 +16,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V67 | ERROR    | For students reported with a non-blank Support Block,              | NONE         |
+ *                     the value reported must be from 0 to 8.
+ */
 @Component
 @Order(180)
 public class InvalidSupportBlocksRule implements BaseRule {

@@ -18,25 +18,25 @@ import static ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil.conta
 /**
  *  | ID  | Severity | Rule                                                            | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------|--------------|
- *  | V08 | ERROR    | can only contain Aa-Zz, apostrophes, hyphens, and periods.      | NONE         |
+ *  | V09 | ERROR    | can only contain Aa-Zz, apostrophes, hyphens, and periods.      | V06          |
  */
 @Component
-@Order(60)
-public class InvalidLegalMiddleNameRule implements BaseRule {
+@Order(240)
+public class InvalidLegalLastNameRule implements BaseRule {
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent();
+        return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent() &&
+                isValidationDependencyResolved(SdcSchoolCollectionStudentValidationFieldCode.LEGAL_LAST_NAME.getCode(), validationErrorsMap);
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        if (containsInvalidChars(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalMiddleNames())) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_MIDDLE_NAMES, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_MIDDLE_NAME_CHAR_FIX));
+        if (containsInvalidChars(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalLastName())) {
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_LAST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_LAST_NAME_CHAR_FIX));
         }
-
         return errors;
     }
 

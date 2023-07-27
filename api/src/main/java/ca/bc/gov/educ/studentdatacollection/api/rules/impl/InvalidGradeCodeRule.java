@@ -16,6 +16,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V28 | ERROR    | A student's enrolled grade code must a valid non-expired              | NONE         |
+ *                     grade code. It cannot be blank.
+ */
 @Component
 @Order(10)
 public class InvalidGradeCodeRule implements BaseRule {

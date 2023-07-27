@@ -9,6 +9,7 @@ public final class Constants {
     public static final String SUMMER="SUMMER";
     public static final String INDEPEND="INDEPEND";
     public static final String OFFSHORE="OFFSHORE";
+    public static final String INDP_FNS="INDP_FNS";
     public static final String PROGRAMME_FRANCOPHONE_CODE="05";
     public static final String CSF="CSF";
     public static final String HS="HS";

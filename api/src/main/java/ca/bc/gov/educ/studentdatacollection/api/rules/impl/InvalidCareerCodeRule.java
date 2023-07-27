@@ -16,6 +16,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V32 | ERROR    | Any of the reported Career Code must appear in a                      | NONE         |
+ *                     list of valid, non-expired Career Codes.
+ */
 @Component
 @Order(130)
 public class InvalidCareerCodeRule implements BaseRule {

@@ -15,6 +15,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V62 | ERROR    | Other Courses must be reported as blank or a number from 0 to 9.      |  NONE     |
+ *
+ */
 @Component
 @Order(170)
 public class InvalidOtherCoursesRule implements BaseRule {

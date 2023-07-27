@@ -14,6 +14,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V27 | ERROR    | A student's Indigenous Ancestry Indicator must be Y or N.         | NONE         |
+ *                     It cannot be blank.
+ */
 @Component
 @Order(110)
 public class InvalidIndigenousIndicatorRule implements BaseRule {

@@ -14,6 +14,11 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V29 | ERROR    | Number of Courses must be reports with numeric values only.           | NONE         |
+ */
 @Component
 @Order(120)
 public class InvalidNumberOfCoursesRule implements BaseRule {

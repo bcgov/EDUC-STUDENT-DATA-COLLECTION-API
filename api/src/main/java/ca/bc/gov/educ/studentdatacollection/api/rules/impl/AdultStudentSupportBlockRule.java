@@ -11,20 +11,27 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V68 | WARNING  | Adult students in grade 10, 11, 12, or SU , should not be reported    | V04,V28,V67  |
+ *                      with support blocks.
+ */
 @Component
+@Order(510)
 public class AdultStudentSupportBlockRule implements BaseRule {
-
 
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent() &&
                 !sdcStudentSagaData.getCollectionTypeCode().equalsIgnoreCase(Constants.JULY)
-                && DOBUtil.isValidDate(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob())
+                && isValidationDependencyResolved("V68", validationErrorsMap)
                 && DOBUtil.isAdult(sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob());
     }
 

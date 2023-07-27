@@ -16,6 +16,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V41 | ERROR    | If a student is reported with a Band Code,                            | NONE         |
+ *                     it must appear in the list of valid, non-expired Band Codes.
+ */
 @Component
 @Order(150)
 public class InvalidBandCodeRule implements BaseRule {

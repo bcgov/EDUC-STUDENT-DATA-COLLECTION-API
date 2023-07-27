@@ -16,6 +16,13 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V35 | ERROR    | If reported, a student's reported Language Spoken at Home must be     |  NONE     |
+ *                     blank or appear in list of valid, non-expired home language codes.
+ *
+ */
 @Component
 @Order(140)
 public class HomeLanguageRule implements BaseRule {

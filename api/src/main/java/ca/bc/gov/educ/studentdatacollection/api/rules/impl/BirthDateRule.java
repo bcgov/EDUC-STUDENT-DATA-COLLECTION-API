@@ -19,6 +19,15 @@ import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                       | Dependent On |
+ *  |-----|----------|--------------------------------------------|--------------|
+ *  | V04 | ERROR    | Birthdate must                             | NONE         |
+ *                     be after Jan 1 1900 and
+ *                     be a calendar date and
+ *                     not be in the future
+ *                     Birthdate cannot be blank.
+ */
 @Component
 @Order(40)
 public class BirthDateRule implements BaseRule {

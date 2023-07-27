@@ -14,6 +14,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                  | Dependent On |
+ *  |-----|----------|-------------------------------------------------------|--------------|
+ *  | V05 | ERROR    | Gender must be one of M or F. It cannot be blank.     |  NONE     |
+ *
+ */
 @Component
 @Order(20)
 public class GenderRule implements BaseRule {

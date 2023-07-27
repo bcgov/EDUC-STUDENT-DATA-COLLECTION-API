@@ -14,6 +14,14 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V74 | ERROR    | List of enrolled program codes must:                                  | NONE         |
+ *                     be of an even length: 0, 2, 4, 6, 8, ... 16
+ *                     not contain any spaces
+ *                     contain only numeric values: 0-9
+ */
 @Component
 @Order(190)
 public class EnrolledProgramParseRule implements BaseRule {

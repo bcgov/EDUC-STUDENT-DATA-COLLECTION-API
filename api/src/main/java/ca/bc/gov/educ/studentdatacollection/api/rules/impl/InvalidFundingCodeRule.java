@@ -16,6 +16,15 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V26 | ERROR    | A student's School Funding Code must be set to one of the following:  | NONE         |
+ *                     Blank
+ *                     14 - Out of province/international student)
+ *                     20 - Ordinarily Living on a Reserve
+ *                     16 - Newcomer Refugee
+ */
 @Component
 @Order(100)
 public class InvalidFundingCodeRule implements BaseRule {

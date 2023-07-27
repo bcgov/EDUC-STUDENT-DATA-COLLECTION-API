@@ -16,6 +16,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V60 | ERROR    | For students reported with a Special Education Category,              | NONE         |
+ *                     the category must be a valid, non-expired SPED Category.
+ */
 @Component
 @Order(160)
 public class InvalidSpecialEducationCategoryRule implements BaseRule {
