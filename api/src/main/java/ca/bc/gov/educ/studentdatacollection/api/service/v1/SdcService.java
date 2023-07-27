@@ -3,20 +3,15 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.threads.EnhancedQueueExecutor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,8 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 
 
@@ -49,7 +42,7 @@ public class SdcService {
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void startSDCCollection(CollectionTypeCodeEntity collectionCode, List<String> listOfSchoolIDs) {
+  public void startSDCCollection(CollectionTypeCodeEntity collectionCode, List<School> listOfSchools) {
     CollectionEntity collectionEntity = CollectionEntity.builder()
       .collectionTypeCode(collectionCode.getCollectionTypeCode())
       .openDate(collectionCode.getOpenDate())
@@ -63,9 +56,10 @@ public class SdcService {
     log.info("Collection created and saved");
 
     Set<SdcSchoolCollectionEntity> sdcSchoolEntityList = new HashSet<>();
-    for(String schoolID : listOfSchoolIDs) {
+    for(School school : listOfSchools) {
       SdcSchoolCollectionEntity sdcSchoolEntity = SdcSchoolCollectionEntity.builder().collectionEntity(savedCollection)
-        .schoolID(UUID.fromString(schoolID))
+        .schoolID(UUID.fromString(school.getSchoolId()))
+        .districtID(UUID.fromString(school.getDistrictId()))
         .sdcSchoolCollectionStatusCode("NEW")
         .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
         .createDate(LocalDateTime.now())

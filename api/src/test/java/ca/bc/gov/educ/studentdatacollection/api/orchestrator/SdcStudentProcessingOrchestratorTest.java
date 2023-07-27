@@ -1,48 +1,14 @@
 package ca.bc.gov.educ.studentdatacollection.api.orchestrator;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.PEN_MATCH_PROCESSED;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.PEN_MATCH_RESULTS_PROCESSED;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCESS_PEN_MATCH;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCESS_PEN_MATCH_RESULTS;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atMost;
-import static org.mockito.Mockito.verify;
-
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.TimeoutException;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentEnrolledProgramRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
@@ -52,6 +18,31 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStu
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import lombok.SneakyThrows;
 import lombok.val;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.TimeoutException;
+
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.PEN_MATCH_PROCESSED;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.PEN_MATCH_RESULTS_PROCESSED;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCESS_PEN_MATCH;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCESS_PEN_MATCH_RESULTS;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.verify;
 
 class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPITest {
 
@@ -84,7 +75,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   @Test
   void testHandleEvent_givenEventTypeInitiated_shouldExecuteValidateStudentWithEventOutComeVALIDATION_SUCCESS_NO_ERROR() {
     var collection = collectionRepository.save(createMockCollectionEntity());
-    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,null));
+    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,null, null));
     val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
     entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
     entity.setUpdateDate(LocalDateTime.now());
@@ -115,7 +106,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   @Test
   void testHandleEvent_givenEventTypeInitiated_shouldExecuteWriteEnrolledProgramsWithEventOutComeENROLLED_PROGRAMS_WRITTEN() {
     var collection = collectionRepository.save(createMockCollectionEntity());
-    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,null));
+    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,null, null));
     val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
     entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
     entity.setUpdateDate(LocalDateTime.now());
@@ -147,7 +138,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   void testHandleEvent_givenEventTypeInitiated_shouldExecuteCalculateAdditionalStudentAttributesADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED() {
     CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionRepository
-      .save(createMockSdcSchoolCollectionEntity(collection,null));
+      .save(createMockSdcSchoolCollectionEntity(collection,null, null));
     SdcSchoolCollectionStudentEntity entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
     entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
@@ -196,7 +187,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   @Test
   void testHandleEvent_givenEventTypeInitiated_shouldExecuteWriteEnrolledProgramsOverwriteWithEventOutComeENROLLED_PROGRAMS_WRITTEN() {
     var collection = collectionRepository.save(createMockCollectionEntity());
-    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,null));
+    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,null, null));
     val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
     entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
     entity.setUpdateDate(LocalDateTime.now());
@@ -240,7 +231,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   @Test
   void testHandleEvent_givenEventTypeInitiated_shouldExecuteValidateStudentWithEventOutComeVALIDATION_SUCCESS_WITH_ERROR() {
     var collection = collectionRepository.save(createMockCollectionEntity());
-    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
     val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
     entity.setGender("G");
     entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
@@ -302,7 +293,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
 
   private void runBasedOnPenStatus(final String penStatus, final String status, final String pen) throws InterruptedException, IOException, TimeoutException {
     var collection = collectionRepository.save(createMockCollectionEntity());
-    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
     SdcSchoolCollectionStudentEntity entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
     SdcSchoolCollectionStudent sdcStudent = SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity);
     entity.setCreateDate(LocalDateTime.now().minusMinutes(14));

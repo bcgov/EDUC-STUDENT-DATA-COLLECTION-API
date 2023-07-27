@@ -1,5 +1,31 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
+import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
+import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Search;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SearchCriteria;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValueType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.val;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.time.LocalDateTime;
+import java.util.*;
+
 import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.AND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -12,37 +38,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
-import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentEnrolledProgramRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
-import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Search;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SearchCriteria;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValueType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDateTime;
-import java.util.*;
-
-import lombok.val;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollectionAPITest {
 
@@ -76,7 +71,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
         sdcMockSchool.setUploadDate(null);
         sdcMockSchool.setUploadFileName(null);
         var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
@@ -99,7 +94,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
         sdcMockSchool.setUploadDate(null);
         sdcMockSchool.setUploadFileName(null);
         var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
@@ -135,7 +130,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
         sdcMockSchool.setUploadDate(null);
         sdcMockSchool.setUploadFileName(null);
         var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
@@ -175,7 +170,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
         sdcMockSchool.setUploadDate(null);
         sdcMockSchool.setUploadFileName(null);
         var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
@@ -215,7 +210,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
         sdcMockSchool.setUploadDate(null);
         sdcMockSchool.setUploadFileName(null);
         var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
@@ -239,7 +234,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
         sdcMockSchool.setUploadDate(null);
         sdcMockSchool.setUploadFileName(null);
         var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
@@ -273,7 +268,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
         sdcMockSchool.setUploadDate(null);
         sdcMockSchool.setUploadFileName(null);
         var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
@@ -327,7 +322,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
         sdcMockSchool.setUploadDate(null);
         sdcMockSchool.setUploadFileName(null);
         var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
@@ -381,7 +376,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
         sdcMockSchool.setUploadDate(null);
         sdcMockSchool.setUploadFileName(null);
         var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
@@ -435,7 +430,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
         sdcMockSchool.setUploadDate(null);
         sdcMockSchool.setUploadFileName(null);
         var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
@@ -511,7 +506,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     @Test
     void ErrorAndWarningCountBySdcSchoolCollectionID_WithErrorsAndWarnings_ShouldReturnData() throws Exception {
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var school = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var school = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         var student = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(school));
         sdcSchoolCollectionStudentValidationIssueRepository.save(createMockSdcSchoolCollectionStudentValidationIssueEntity(student));
         sdcSchoolCollectionStudentValidationIssueRepository.save(createMockSdcSchoolCollectionStudentValidationIssueEntity(student));
@@ -538,7 +533,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
 
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
@@ -584,7 +579,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
 
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
@@ -646,7 +641,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
 
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
@@ -682,7 +677,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
 
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setCreateDate(LocalDateTime.now().minusMinutes(14));

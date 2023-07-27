@@ -1,20 +1,17 @@
 package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.PastOrPresent;
-import java.time.LocalDateTime;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -40,6 +37,9 @@ public class SdcSchoolCollectionHistoryEntity {
 
   @Column(name = "SCHOOL_ID", columnDefinition = "BINARY(16)")
   private UUID schoolID;
+
+  @Column(name = "DISTRICT_ID", columnDefinition = "BINARY(16)")
+  private UUID districtID;
 
   @Column(name = "UPLOAD_DATE")
   private LocalDateTime uploadDate;
