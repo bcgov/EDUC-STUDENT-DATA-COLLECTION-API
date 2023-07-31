@@ -22,11 +22,15 @@ public class StringMapper {
   }
 
   public static String removeLeadingApostrophes(String value) {
-    if (StringUtils.isNotBlank(value) && StringUtils.startsWith(value, "'")) {
-        return StringUtils.replaceOnce(value, "'", "");
+    if (StringUtils.isNotBlank(value)) {
+      value = value.trim();
+      if (value.startsWith("'")) {
+        return value.substring(1);
+      }
     }
     return value;
   }
+
 
   public static String processGivenName(String value) {
     String legalGivenName = removeLeadingApostrophes(value);
