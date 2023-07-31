@@ -20,4 +20,17 @@ public class StringMapper {
     }
     return value;
   }
+
+  public static String removeLeadingApostrophes(String value) {
+    if (StringUtils.isNotBlank(value) && StringUtils.startsWith(value, "'")) {
+        return StringUtils.replaceOnce(value, "'", "");
+    }
+    return value;
+  }
+
+  public static String processGivenName(String value) {
+    String legalGivenName = removeLeadingApostrophes(value);
+    return trimAndUppercase(legalGivenName);
+  }
+
 }
