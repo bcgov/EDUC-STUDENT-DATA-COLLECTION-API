@@ -31,26 +31,8 @@ public class StringMapper {
     return value;
   }
 
-
   public static String processGivenName(String value) {
     String legalGivenName = removeLeadingApostrophes(value);
     return trimAndUppercase(legalGivenName);
   }
-
-  public static void main(String[] args) {
-    String[] testCases = {
-            "'",       // Expected output: ""
-            "''",      // Expected output: ""
-            "'Jackson",// Expected output: "'Jackson"
-            " Space 'Jackson", // Expected output: "'Jackson"
-            "MC'Onnel",
-            "    'JAckson", // Expected output: "'JAckson"
-    };
-
-    for (String testCase : testCases) {
-      String result = removeLeadingApostrophes(testCase);
-      System.out.println(result);
-    }
-  }
-
 }
