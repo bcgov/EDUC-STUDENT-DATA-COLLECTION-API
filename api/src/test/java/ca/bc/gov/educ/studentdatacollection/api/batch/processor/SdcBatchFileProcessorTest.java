@@ -276,7 +276,7 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     assertThat(students).isNotNull();
 
     final var studentEntity = students.get(0);
-    assertThat(studentEntity.getLegalFirstName()).isEqualTo(null);
+    assertThat(studentEntity.getLegalFirstName()).isNull();
   }
 
 }
