@@ -113,6 +113,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcFile_givenVerFiletype_ShouldReturnStatusOk() throws Exception {
     CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
     School school = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(
       collection,
       UUID.fromString(school.getSchoolId()),

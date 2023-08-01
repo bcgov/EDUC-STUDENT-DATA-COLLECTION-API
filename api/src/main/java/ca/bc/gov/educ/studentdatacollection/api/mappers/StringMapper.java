@@ -24,8 +24,8 @@ public class StringMapper {
   public static String removeLeadingApostrophes(String value) {
     if (StringUtils.isNotBlank(value)) {
       value = value.trim();
-      if (value.startsWith("'") && (!StringUtils.isAlpha(value.substring((1)))) ) {
-        return value.substring(1);
+      if (value.startsWith("'") && value.length() == 1) {
+        return null;
       }
     }
     return value;

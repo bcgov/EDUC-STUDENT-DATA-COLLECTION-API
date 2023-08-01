@@ -256,7 +256,7 @@ public class SdcBatchFileProcessor {
       .legalGivenName(StringMapper.processGivenName(ds.getString(LEGAL_GIVEN_NAME.getName())))
       .legalMiddleName(StringMapper.trimAndUppercase(ds.getString(LEGAL_MIDDLE_NAME.getName())))
       .usualSurname(StringMapper.trimAndUppercase(ds.getString(USUAL_SURNAME.getName())))
-      .usualGivenName(StringMapper.trimAndUppercase(ds.getString(USUAL_GIVEN_NAME.getName())))
+      .usualGivenName(StringMapper.processGivenName(ds.getString(USUAL_GIVEN_NAME.getName())))
       .usualMiddleName(StringMapper.trimAndUppercase(ds.getString(USUAL_MIDDLE_NAME.getName())))
       .birthDate(StringMapper.trimAndUppercase(ds.getString(BIRTH_DATE.getName())))
       .gender(StringMapper.trimAndUppercase(ds.getString(GENDER.getName())))
