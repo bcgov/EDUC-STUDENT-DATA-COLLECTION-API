@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import java.util.List;
 import java.util.Optional;
