@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +15,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
   long countBySdcSchoolCollectionStudentStatusCode(String sdcSchoolCollectionStudentStatusCode);
+  long countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollectionID(String sdcSchoolCollectionStudentStatusCode, UUID sdcSchoolCollectionID);
 
 @Query(value = """
     SELECT COUNT(*) FROM (SELECT I.SDC_SCHOOL_COLLECTION_STUDENT_ID, COUNT(I.VALIDATION_ISSUE_SEVERITY_CODE), I.VALIDATION_ISSUE_CODE
@@ -35,7 +37,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   @Query(value="""
     SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE stud.sdcSchoolCollectionStudentID 
-    NOT IN (SELECT saga.sdcSchoolCollectionStudentID FROM SdcSagaEntity saga) 
+    NOT IN (SELECT saga.sdcSchoolCollectionStudentID FROM SdcSagaEntity saga WHERE saga.status != 'COMPLETED') 
     AND stud.sdcSchoolCollectionStudentStatusCode = 'LOADED' 
     order by stud.createDate 
     LIMIT :numberOfStudentsToProcess""")

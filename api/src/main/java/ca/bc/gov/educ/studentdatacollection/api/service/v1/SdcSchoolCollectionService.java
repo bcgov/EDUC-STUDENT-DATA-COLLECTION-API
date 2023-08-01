@@ -88,7 +88,7 @@ public class SdcSchoolCollectionService {
       summary.setFileName(sdcSchoolCollectionEntity.getUploadFileName());
       summary.setUploadReportDate(sdcSchoolCollectionEntity.getUploadReportDate());
       var totalCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollectionID(sdcSchoolCollectionID);
-      var loadedCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.getCode());
+      var loadedCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollectionID(SdcSchoolStudentStatus.LOADED.getCode(), sdcSchoolCollectionID);
       var totalProcessed = totalCount - loadedCount;
       summary.setTotalProcessed(Long.toString(totalProcessed));
       summary.setTotalStudents(Long.toString(totalCount));
