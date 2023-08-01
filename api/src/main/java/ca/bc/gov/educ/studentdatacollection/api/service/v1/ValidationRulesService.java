@@ -46,7 +46,7 @@ public class ValidationRulesService {
     }
 
     public List<EnrolledGradeCode> getActiveGradeCodes() {
-        return codeTableService.getAllGradeCodes().stream().filter(code -> code.getExpiryDate().isAfter(LocalDateTime.now())).map(mapper::toStructure).toList();
+        return codeTableService.getAllEnrolledGradeCodes().stream().filter(code -> code.getExpiryDate().isAfter(LocalDateTime.now())).map(mapper::toStructure).toList();
     }
 
     public List<SpecialEducationCategoryCode> getActiveSpecialEducationCategoryCodes() {
