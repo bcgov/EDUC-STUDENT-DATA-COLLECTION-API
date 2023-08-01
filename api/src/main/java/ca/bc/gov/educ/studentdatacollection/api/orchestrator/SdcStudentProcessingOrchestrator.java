@@ -62,8 +62,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
       .end(VALIDATE_SDC_STUDENT, VALIDATION_SUCCESS_WITH_ERROR, this::completeSdcStudentSagaWithError)
       .or()
       .step(PROCESS_PEN_MATCH, PEN_MATCH_PROCESSED, PROCESS_PEN_MATCH_RESULTS, this::processPenMatchResults)
-      .step(PROCESS_PEN_MATCH_RESULTS, PEN_MATCH_RESULTS_PROCESSED, WRITE_ENROLLED_PROGRAMS, this::writeEnrolledPrograms)
-      .step(WRITE_ENROLLED_PROGRAMS, ENROLLED_PROGRAMS_WRITTEN, CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES, this::calculateAdditionalStudentAttributes)
+      .step(PROCESS_PEN_MATCH_RESULTS, PEN_MATCH_RESULTS_PROCESSED, CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES, this::calculateAdditionalStudentAttributes)
       .end(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES, ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED);
   }
 
@@ -74,6 +73,14 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
+    // Write Enrolled Program Codes
+    if(StringUtils.isNotBlank(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes())) {
+      List<String> enrolledProgramList = TransformUtil.splitIntoChunks(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes(), 2);
+
+      this.sdcSchoolCollectionStudentService.deleteExistingAndWriteEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), enrolledProgramList);
+    }
+
+    // Update Student age columns
     UUID studentUUID = UUID
       .fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
     String studentDOB = sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob();
@@ -84,21 +91,6 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
       .eventType(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES).eventOutcome(ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED)
       .build());
-  }
-
-  private void writeEnrolledPrograms(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
-    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-    saga.setSagaState(WRITE_ENROLLED_PROGRAMS.toString());
-    saga.setStatus(IN_PROGRESS.toString());
-    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-    if(StringUtils.isNotBlank(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes())) {
-      List<String> enrolledProgramList = TransformUtil.splitIntoChunks(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes(), 2);
-
-      this.sdcSchoolCollectionStudentService.deleteExistingAndWriteEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), enrolledProgramList);
-    }
-        this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
-            .eventType(WRITE_ENROLLED_PROGRAMS).eventOutcome(ENROLLED_PROGRAMS_WRITTEN)
-            .build());
   }
 
   protected void processPenMatchResults(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {

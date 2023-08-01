@@ -104,37 +104,6 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
 
   @SneakyThrows
   @Test
-  void testHandleEvent_givenEventTypeInitiated_shouldExecuteWriteEnrolledProgramsWithEventOutComeENROLLED_PROGRAMS_WRITTEN() {
-    var collection = collectionRepository.save(createMockCollectionEntity());
-    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,null, null));
-    val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-    entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
-    entity.setUpdateDate(LocalDateTime.now());
-    entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-    entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-    this.sdcSchoolCollectionStudentRepository.save(entity);
-    val saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
-    saga.setSagaId(null);
-    this.sagaRepository.save(saga);
-    final SdcStudentSagaData sagaData = SdcStudentSagaData.builder().sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)).build();
-    val event = Event.builder()
-            .sagaId(saga.getSagaId())
-            .eventType(EventType.PROCESS_PEN_MATCH_RESULTS)
-            .eventOutcome(EventOutcome.PEN_MATCH_RESULTS_PROCESSED)
-            .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
-    this.sdcStudentProcessingOrchestrator.handleEvent(event);
-    val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
-    assertThat(savedSagaInDB).isPresent();
-    assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
-    assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(EventType.WRITE_ENROLLED_PROGRAMS.toString());
-    verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.sdcStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
-    final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
-    assertThat(newEvent.getEventType()).isEqualTo(EventType.WRITE_ENROLLED_PROGRAMS);
-    assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.ENROLLED_PROGRAMS_WRITTEN);
-  }
-
-  @SneakyThrows
-  @Test
   void testHandleEvent_givenEventTypeInitiated_shouldExecuteCalculateAdditionalStudentAttributesADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED() {
     CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionRepository
@@ -157,8 +126,8 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
 
     Event event = Event.builder()
       .sagaId(saga.getSagaId())
-      .eventType(EventType.WRITE_ENROLLED_PROGRAMS)
-      .eventOutcome(EventOutcome.ENROLLED_PROGRAMS_WRITTEN)
+      .eventType(EventType.PROCESS_PEN_MATCH_RESULTS)
+      .eventOutcome(EventOutcome.PEN_MATCH_RESULTS_PROCESSED)
       .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
     this.sdcStudentProcessingOrchestrator.handleEvent(event);
 
@@ -181,50 +150,6 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     assertThat(student.getIsAdult()).isFalse();
     assertThat(student.getIsSchoolAged()).isTrue();
 
-  }
-
-  @SneakyThrows
-  @Test
-  void testHandleEvent_givenEventTypeInitiated_shouldExecuteWriteEnrolledProgramsOverwriteWithEventOutComeENROLLED_PROGRAMS_WRITTEN() {
-    var collection = collectionRepository.save(createMockCollectionEntity());
-    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,null, null));
-    val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-    entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
-    entity.setUpdateDate(LocalDateTime.now());
-    entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-    entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-    entity.setEnrolledProgramCodes("1011121314151617");
-    this.sdcSchoolCollectionStudentRepository.save(entity);
-
-    var enrolledProgram = new SdcSchoolCollectionStudentEnrolledProgramEntity();
-    enrolledProgram.setSdcSchoolCollectionStudentEntity(entity);
-    enrolledProgram.setUpdateUser("ABC");
-    enrolledProgram.setCreateDate(LocalDateTime.now());
-    enrolledProgram.setUpdateDate(LocalDateTime.now());
-    enrolledProgram.setCreateUser("ABC");
-    enrolledProgram.setEnrolledProgramCode("AA");
-    this.sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProgram);
-
-    val saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
-    saga.setSagaId(null);
-    this.sagaRepository.save(saga);
-    final SdcStudentSagaData sagaData = SdcStudentSagaData.builder().sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)).build();
-    val event = Event.builder()
-            .sagaId(saga.getSagaId())
-            .eventType(EventType.PROCESS_PEN_MATCH_RESULTS)
-            .eventOutcome(EventOutcome.PEN_MATCH_RESULTS_PROCESSED)
-            .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
-    this.sdcStudentProcessingOrchestrator.handleEvent(event);
-    val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
-    assertThat(savedSagaInDB).isPresent();
-    assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
-    assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(EventType.WRITE_ENROLLED_PROGRAMS.toString());
-    verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.sdcStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
-    final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
-    assertThat(newEvent.getEventType()).isEqualTo(EventType.WRITE_ENROLLED_PROGRAMS);
-    assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.ENROLLED_PROGRAMS_WRITTEN);
-
-    assertThat(this.sdcSchoolCollectionStudentEnrolledProgramRepository.findAll()).hasSize(8);
   }
 
   @SneakyThrows

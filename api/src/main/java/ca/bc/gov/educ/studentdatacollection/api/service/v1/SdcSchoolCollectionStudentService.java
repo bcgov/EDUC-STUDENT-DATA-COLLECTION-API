@@ -197,7 +197,7 @@ public class SdcSchoolCollectionStudentService {
       throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", studentEntity.getSdcSchoolCollectionStudentID().toString());
     }
 
-    //update student record --? Should we sanitize enrolled programcode?
+    //update student record
     SdcSchoolCollectionStudentEntity getCurStudentEntity = curStudentEntity.get();
     getCurStudentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(getCurStudentEntity.getEnrolledProgramCodes()));
     BeanUtils.copyProperties(studentEntity, getCurStudentEntity, "sdcSchoolCollectionStudentID, sdcSchoolCollectionID, sdcSchoolCollectionStudentStatusCode, createUser, createDate", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
@@ -210,6 +210,9 @@ public class SdcSchoolCollectionStudentService {
     List<SdcSchoolCollectionStudentValidationIssue> validationErrors = this.rulesProcessor.processRules(createSagaDataForValidation(updatedStudentEntity));
 
     if (validationErrors.isEmpty()) {
+      //delete student validation errors
+      this.sdcStudentValidationErrorRepository.deleteSdcStudentValidationErrors(updatedStudentEntity.getSdcSchoolCollectionStudentID());
+
       // if no validation errors, mark the record status as LOADED
       updatedStudentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.getCode());
       SdcSchoolCollectionStudentEntity updatedStatusStudentEntity = this.sdcSchoolCollectionStudentRepository.save(updatedStudentEntity);

@@ -14,6 +14,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
   long countBySdcSchoolCollectionStudentStatusCode(String sdcSchoolCollectionStudentStatusCode);
+  long countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollectionID(String sdcSchoolCollectionStudentStatusCode, UUID sdcSchoolCollectionID);
 
 @Query(value = """
     SELECT COUNT(*) FROM (SELECT I.SDC_SCHOOL_COLLECTION_STUDENT_ID, COUNT(I.VALIDATION_ISSUE_SEVERITY_CODE), I.VALIDATION_ISSUE_CODE
@@ -35,7 +36,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   @Query(value="""
     SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE stud.sdcSchoolCollectionStudentID 
-    NOT IN (SELECT saga.sdcSchoolCollectionStudentID FROM SdcSagaEntity saga) 
+    NOT IN (SELECT saga.sdcSchoolCollectionStudentID FROM SdcSagaEntity saga WHERE saga.status != 'COMPLETED') 
     AND stud.sdcSchoolCollectionStudentStatusCode = 'LOADED' 
     order by stud.createDate 
     LIMIT :numberOfStudentsToProcess""")
