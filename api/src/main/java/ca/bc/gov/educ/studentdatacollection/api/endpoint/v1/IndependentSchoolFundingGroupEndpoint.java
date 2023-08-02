@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.IndependentSchoolFundingGroup;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.IndependentSchoolFundingGroupSnapshot;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -37,6 +38,14 @@ public interface IndependentSchoolFundingGroupEndpoint {
   @Tag(name = "IndependentSchoolFundingGroup Entity", description = "Endpoints for independent school group funding entity.")
   @Schema(name = "IndependentSchoolFundingGroup", implementation = IndependentSchoolFundingGroup.class)
   List<IndependentSchoolFundingGroup> getIndependentSchoolFundingGroups(@PathVariable("schoolID") UUID schoolID);
+
+  @GetMapping("/snapshot/{schoolID}/{collectionID}")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SCHOOL_FUNDING_GROUP')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "IndependentSchoolFundingGroupSnapshot Entity", description = "Endpoints for independent school group funding entity.")
+  @Schema(name = "IndependentSchoolFundingGroupSnapshot", implementation = IndependentSchoolFundingGroupSnapshot.class)
+  List<IndependentSchoolFundingGroupSnapshot> getIndependentSchoolFundingGroupSnapshot(@PathVariable("schoolID") UUID schoolID, @PathVariable("collectionID") UUID collectionID);
 
   @PostMapping()
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SCHOOL_FUNDING_GROUP')")

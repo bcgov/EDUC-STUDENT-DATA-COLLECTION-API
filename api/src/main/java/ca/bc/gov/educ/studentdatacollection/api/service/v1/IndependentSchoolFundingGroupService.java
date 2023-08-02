@@ -3,7 +3,9 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.IndependentSchoolFundingGroupMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.IndependentSchoolFundingGroupEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.IndependentSchoolFundingGroupSnapshotEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.IndependentSchoolFundingGroupRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.IndependentSchoolFundingGroupSnapshotRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.AccessLevel;
@@ -23,11 +25,14 @@ public class IndependentSchoolFundingGroupService {
 
   @Getter(AccessLevel.PRIVATE)
   private final IndependentSchoolFundingGroupRepository independentSchoolFundingGroupRepository;
+  @Getter(AccessLevel.PRIVATE)
+  private final IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository;
   private static final IndependentSchoolFundingGroupMapper independentSchoolFundingGroupMapper = IndependentSchoolFundingGroupMapper.mapper;
 
   @Autowired
-  public IndependentSchoolFundingGroupService(IndependentSchoolFundingGroupRepository independentSchoolFundingGroupRepository) {
+  public IndependentSchoolFundingGroupService(IndependentSchoolFundingGroupRepository independentSchoolFundingGroupRepository, IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository) {
     this.independentSchoolFundingGroupRepository = independentSchoolFundingGroupRepository;
+    this.independentSchoolFundingGroupSnapshotRepository = independentSchoolFundingGroupSnapshotRepository;
   }
 
   public Optional<IndependentSchoolFundingGroupEntity> getIndependentSchoolFundingGroup(UUID schoolFundingGroupID) {
@@ -36,6 +41,10 @@ public class IndependentSchoolFundingGroupService {
 
   public List<IndependentSchoolFundingGroupEntity> getIndependentSchoolFundingGroups(UUID schoolID) {
     return independentSchoolFundingGroupRepository.findAllBySchoolID(schoolID);
+  }
+
+  public List<IndependentSchoolFundingGroupSnapshotEntity> getIndependentSchoolFundingGroupSnapshot(UUID schoolID, UUID collectionID) {
+    return independentSchoolFundingGroupSnapshotRepository.findAllBySchoolIDAndAndCollectionID(schoolID, collectionID);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)

@@ -116,6 +116,19 @@ public abstract class BaseStudentDataCollectionAPITest {
     return independentSchoolFundingGroupEntity;
   }
 
+  public IndependentSchoolFundingGroupSnapshotEntity createMockIndependentSchoolFundingGroupSnapshotEntity(UUID schoolID, UUID collectionID){
+    IndependentSchoolFundingGroupSnapshotEntity independentSchoolFundingGroupEntity = new IndependentSchoolFundingGroupSnapshotEntity();
+    independentSchoolFundingGroupEntity.setSchoolID(schoolID);
+    independentSchoolFundingGroupEntity.setCollectionID(collectionID);
+    independentSchoolFundingGroupEntity.setSchoolFundingGroupCode("GROUP1");
+    independentSchoolFundingGroupEntity.setSchoolGradeCode("GRADE01");
+    independentSchoolFundingGroupEntity.setCreateUser("ABC");
+    independentSchoolFundingGroupEntity.setCreateDate(LocalDateTime.now());
+    independentSchoolFundingGroupEntity.setUpdateUser("ABC");
+    independentSchoolFundingGroupEntity.setUpdateDate(LocalDateTime.now());
+    return independentSchoolFundingGroupEntity;
+  }
+
   public SdcSchoolCollectionEntity createMockSdcSchoolCollectionEntity(CollectionEntity entity, UUID schoolID, UUID districtID){
     SdcSchoolCollectionEntity sdcEntity = new SdcSchoolCollectionEntity();
     sdcEntity.setCollectionEntity(entity);

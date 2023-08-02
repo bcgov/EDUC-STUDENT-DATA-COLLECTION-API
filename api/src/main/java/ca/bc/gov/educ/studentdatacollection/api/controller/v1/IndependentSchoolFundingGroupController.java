@@ -6,8 +6,10 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.IndependentSchoolFundingGroupMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.IndependentSchoolFundingGroupEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.IndependentSchoolFundingGroupSnapshotEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.IndependentSchoolFundingGroupService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.IndependentSchoolFundingGroup;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.IndependentSchoolFundingGroupSnapshot;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.IndependentSchoolFundingGroupPayloadValidator;
@@ -69,6 +71,18 @@ public class IndependentSchoolFundingGroupController implements IndependentSchoo
 
     List<IndependentSchoolFundingGroup> independentSchoolFundingGroupList = new ArrayList<>();
     for(IndependentSchoolFundingGroupEntity entity: independentSchoolFundingGroups){
+      independentSchoolFundingGroupList.add(independentSchoolFundingGroupMapper.toStructure(entity));
+    }
+
+    return independentSchoolFundingGroupList;
+  }
+
+  @Override
+  public List<IndependentSchoolFundingGroupSnapshot> getIndependentSchoolFundingGroupSnapshot(UUID schoolID, UUID collectionID) {
+    List<IndependentSchoolFundingGroupSnapshotEntity> independentSchoolFundingGroupSnapshot = this.independentSchoolFundingGroupService.getIndependentSchoolFundingGroupSnapshot(schoolID, collectionID);
+
+    List<IndependentSchoolFundingGroupSnapshot> independentSchoolFundingGroupList = new ArrayList<>();
+    for(IndependentSchoolFundingGroupSnapshotEntity entity: independentSchoolFundingGroupSnapshot){
       independentSchoolFundingGroupList.add(independentSchoolFundingGroupMapper.toStructure(entity));
     }
 
