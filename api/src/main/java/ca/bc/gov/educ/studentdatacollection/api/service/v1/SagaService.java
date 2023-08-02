@@ -130,8 +130,8 @@ public class SagaService {
    * @param sagaName             the saga name
    * @return the list
    */
-  public Optional<SdcSagaEntity> findBySdcSchoolCollectionStudentIDAndSagaName(final UUID sdcSchoolCollectionStudentID, final String sagaName) {
-    return this.getSagaRepository().findBySdcSchoolCollectionStudentIDAndSagaName(sdcSchoolCollectionStudentID, sagaName);
+  public Optional<SdcSagaEntity> findBySdcSchoolCollectionStudentIDAndSagaNameAndStatusNot(final UUID sdcSchoolCollectionStudentID, final String sagaName, final String status) {
+    return this.getSagaRepository().findBySdcSchoolCollectionStudentIDAndSagaNameAndStatusNot(sdcSchoolCollectionStudentID, sagaName, status);
   }
 
   /**
