@@ -168,6 +168,22 @@ class IndependentSchoolFundingGroupControllerTest extends BaseStudentDataCollect
   }
 
   @Test
+  void testCreateCollection_GivenInvalidPayload_ShouldReturnStatusBadRequest() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SCHOOL_FUNDING_GROUP";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(createMockSchool()));
+    final var independentSchoolFundingGroupEntity = this.createMockIndependentSchoolFundingGroupEntity(UUID.randomUUID());
+    independentSchoolFundingGroupEntity.setCreateDate(null);
+    independentSchoolFundingGroupEntity.setUpdateDate(null);
+    independentSchoolFundingGroupEntity.setSchoolFundingGroupID(UUID.randomUUID());
+
+    this.mockMvc.perform(post(URL.BASE_URL_SCHOOL_FUNDING).contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON).content(asJsonString(independentSchoolFundingGroupEntity)).with(mockAuthority))
+        .andDo(print()).andExpect(status().isBadRequest());
+  }
+
+  @Test
   void testCreateCollection_GivenInValidGrade_ShouldReturnStatusBadRequest() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SCHOOL_FUNDING_GROUP";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
