@@ -16,7 +16,7 @@ import java.util.UUID;
 @Repository
 public interface SagaRepository extends JpaRepository<SdcSagaEntity, UUID>, JpaSpecificationExecutor<SdcSagaEntity> {
 
-  Optional<SdcSagaEntity> findBySdcSchoolCollectionStudentIDAndSagaName(UUID sdcSchoolCollectionStudentID, String sagaName);
+  Optional<SdcSagaEntity> findBySdcSchoolCollectionStudentIDAndSagaNameAndStatusNot(UUID sdcSchoolCollectionStudentID, String sagaName, String status);
 
   List<SdcSagaEntity> findTop100ByStatusInOrderByCreateDate(List<String> statuses);
 

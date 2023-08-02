@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1.events;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.SdcStudentProcessingOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
@@ -48,7 +49,7 @@ public class EventHandlerService {
   public void handleReadFromTopicEvent(final Event event) throws JsonProcessingException {
     if (event.getEventOutcome() == EventOutcome.READ_FROM_TOPIC_SUCCESS) {
       final SdcStudentSagaData sagaData = JsonUtil.getJsonObjectFromString(SdcStudentSagaData.class, event.getEventPayload());
-      final var sagaOptional = this.getSagaService().findBySdcSchoolCollectionStudentIDAndSagaName(UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString());
+      final var sagaOptional = this.getSagaService().findBySdcSchoolCollectionStudentIDAndSagaNameAndStatusNot(UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
       if (sagaOptional.isPresent()) { // possible duplicate message.
         log.trace("Execution is not required for this message returning EVENT is :: {}", event);
         return;
