@@ -5,11 +5,11 @@ import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.CodeTableAPIEndpoint
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CodeTableMapper;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Slf4j
@@ -47,7 +47,7 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
 
     @Override
     public List<EnrolledGradeCode> getEnrolledGradeCodes() {
-        return codeTableService.getAllGradeCodes().stream().map(mapper::toStructure).toList();
+        return codeTableService.getAllEnrolledGradeCodes().stream().map(mapper::toStructure).toList();
     }
 
     @Override

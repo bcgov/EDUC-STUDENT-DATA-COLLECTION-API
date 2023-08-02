@@ -49,6 +49,10 @@ public abstract class BaseStudentDataCollectionAPITest {
   SpecialEducationCategoryRepository specialEducationCategoryRepository;
   @Autowired
   GenderCodeRepository genderCodeRepository;
+  @Autowired
+  SchoolGradeCodeRepository schoolGradeCodeRepository;
+  @Autowired
+  SchoolFundingGroupCodeRepository schoolFundingGroupCodeRepository;
 
   @BeforeEach
   public void before() {
@@ -67,6 +71,8 @@ public abstract class BaseStudentDataCollectionAPITest {
     enrolledProgramCodeRepository.save(createEnrolledProgramCode41Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode40Data());
     genderCodeRepository.save(createGenderCodeData());
+    schoolGradeCodeRepository.save(createSchoolGradeCodeData());
+    schoolFundingGroupCodeRepository.save(createSchoolFundingGroupCodeData());
   }
 
   @AfterEach
@@ -84,6 +90,43 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setUpdateUser("ABC");
     sdcEntity.setUpdateDate(LocalDateTime.now());
     return sdcEntity;
+  }
+
+  public SchoolGradeCodeEntity createSchoolGradeCodeData() {
+    return SchoolGradeCodeEntity.builder().schoolGradeCode("GRADE01").label("Grade1").legacyCode("01").description("G1")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Business").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public SchoolFundingGroupCodeEntity createSchoolFundingGroupCodeData() {
+    return SchoolFundingGroupCodeEntity.builder().schoolFundingGroupCode("GROUP1").label("Group1").legacyCode("01").description("G1")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Business").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public IndependentSchoolFundingGroupEntity createMockIndependentSchoolFundingGroupEntity(UUID schoolID){
+    IndependentSchoolFundingGroupEntity independentSchoolFundingGroupEntity = new IndependentSchoolFundingGroupEntity();
+    independentSchoolFundingGroupEntity.setSchoolID(schoolID);
+    independentSchoolFundingGroupEntity.setSchoolFundingGroupCode("GROUP1");
+    independentSchoolFundingGroupEntity.setSchoolGradeCode("GRADE01");
+    independentSchoolFundingGroupEntity.setCreateUser("ABC");
+    independentSchoolFundingGroupEntity.setCreateDate(LocalDateTime.now());
+    independentSchoolFundingGroupEntity.setUpdateUser("ABC");
+    independentSchoolFundingGroupEntity.setUpdateDate(LocalDateTime.now());
+    return independentSchoolFundingGroupEntity;
+  }
+
+  public IndependentSchoolFundingGroupSnapshotEntity createMockIndependentSchoolFundingGroupSnapshotEntity(UUID schoolID, UUID collectionID){
+    IndependentSchoolFundingGroupSnapshotEntity independentSchoolFundingGroupEntity = new IndependentSchoolFundingGroupSnapshotEntity();
+    independentSchoolFundingGroupEntity.setSchoolID(schoolID);
+    independentSchoolFundingGroupEntity.setCollectionID(collectionID);
+    independentSchoolFundingGroupEntity.setSchoolFundingGroupCode("GROUP1");
+    independentSchoolFundingGroupEntity.setSchoolGradeCode("GRADE01");
+    independentSchoolFundingGroupEntity.setCreateUser("ABC");
+    independentSchoolFundingGroupEntity.setCreateDate(LocalDateTime.now());
+    independentSchoolFundingGroupEntity.setUpdateUser("ABC");
+    independentSchoolFundingGroupEntity.setUpdateDate(LocalDateTime.now());
+    return independentSchoolFundingGroupEntity;
   }
 
   public SdcSchoolCollectionEntity createMockSdcSchoolCollectionEntity(CollectionEntity entity, UUID schoolID, UUID districtID){

@@ -2,13 +2,12 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
-
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CodeTableService {
@@ -21,6 +20,8 @@ public class CodeTableService {
   private final EnrolledGradeCodeRepository enrolledGradeCodeRepository;
   private final SpecialEducationCategoryRepository specialEducationCategoryRepository;
   private final GenderCodeRepository genderCodeRepository;
+  private final SchoolGradeCodeRepository schoolGradeCodeRepository;
+  private final SchoolFundingGroupCodeRepository schoolFundingGroupCodeRepository;
 
   /**
    * Instantiates a new Code table service.
@@ -34,10 +35,12 @@ public class CodeTableService {
    * @param enrolledGradeCodeRepository
    * @param specialEducationCategoryRepository
    * @param genderCodeRepository
+   * @param schoolGradeCodeRepository
+   * @param schoolFundingGroupCodeRepository
    */
   @Autowired
   public CodeTableService(CollectionTypeCodeRepository collectionCodeRepository, EnrolledProgramCodeRepository enrolledProgramCodeRepository, CareerProgramCodeRepository careerProgramCodeRepository, HomeLanguageSpokenCodeRepository homeLanguageSpokenCodeRepository, BandCodeRepository bandCodeRepository, FundingCodeRepository fundingCodeRepository, EnrolledGradeCodeRepository enrolledGradeCodeRepository, SpecialEducationCategoryRepository specialEducationCategoryRepository,
-      GenderCodeRepository genderCodeRepository) {
+                          GenderCodeRepository genderCodeRepository, SchoolGradeCodeRepository schoolGradeCodeRepository, SchoolFundingGroupCodeRepository schoolFundingGroupCodeRepository) {
     this.collectionCodeRepository = collectionCodeRepository;
     this.enrolledProgramCodeRepository = enrolledProgramCodeRepository;
     this.careerProgramCodeRepository = careerProgramCodeRepository;
@@ -47,6 +50,8 @@ public class CodeTableService {
     this.enrolledGradeCodeRepository = enrolledGradeCodeRepository;
     this.specialEducationCategoryRepository = specialEducationCategoryRepository;
     this.genderCodeRepository = genderCodeRepository;
+    this.schoolGradeCodeRepository = schoolGradeCodeRepository;
+    this.schoolFundingGroupCodeRepository = schoolFundingGroupCodeRepository;
   }
 
   @Cacheable("enrolledProgramCodes")
@@ -75,7 +80,7 @@ public class CodeTableService {
   }
 
   @Cacheable("enrolledGradeCodes")
-  public List<EnrolledGradeCodeEntity> getAllGradeCodes() {
+  public List<EnrolledGradeCodeEntity> getAllEnrolledGradeCodes() {
     return enrolledGradeCodeRepository.findAll();
   }
   @Cacheable("specialEducationCategoryCodes")
@@ -91,6 +96,16 @@ public class CodeTableService {
   @Cacheable("collectionCodes")
   public List<CollectionTypeCodeEntity> getCollectionCodeList() {
     return collectionCodeRepository.findAll();
+  }
+
+  @Cacheable("schoolGradeCodes")
+  public List<SchoolGradeCodeEntity> getAllSchoolGradeCodes() {
+    return schoolGradeCodeRepository.findAll();
+  }
+
+  @Cacheable("schoolFundingGroupCodes")
+  public List<SchoolFundingGroupCodeEntity> getAllSchoolFundingGroupCodes() {
+    return schoolFundingGroupCodeRepository.findAll();
   }
 
   public Optional<CollectionTypeCodeEntity> getCollectionCode(String collectionCode) {
