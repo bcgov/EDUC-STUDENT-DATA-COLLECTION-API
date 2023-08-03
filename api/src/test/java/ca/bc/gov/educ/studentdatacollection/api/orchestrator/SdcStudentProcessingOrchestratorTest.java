@@ -6,7 +6,10 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -126,8 +129,8 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
 
     Event event = Event.builder()
       .sagaId(saga.getSagaId())
-      .eventType(EventType.PROCESS_PEN_MATCH_RESULTS)
-      .eventOutcome(EventOutcome.PEN_MATCH_RESULTS_PROCESSED)
+      .eventType(EventType.PROCESS_GRAD_STATUS_RESULT)
+      .eventOutcome(EventOutcome.GRAD_STATUS_RESULTS_PROCESSED)
       .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
     this.sdcStudentProcessingOrchestrator.handleEvent(event);
 
@@ -149,9 +152,104 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionStudentEntity student = students.get(0);
     assertThat(student.getIsAdult()).isFalse();
     assertThat(student.getIsSchoolAged()).isTrue();
-
   }
 
+  @SneakyThrows
+  @Test
+  void testHandleEvent_givenEventTypeInitiated_shouldExecuteFetchGradStatusGRAD_STATUS_FETCHED() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionRepository
+      .save(createMockSdcSchoolCollectionEntity(collection,null, null));
+    SdcSchoolCollectionStudentEntity entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+    entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+    entity.setUpdateDate(LocalDateTime.now());
+    entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+    entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+
+    this.sdcSchoolCollectionStudentRepository.save(entity);
+    SdcSagaEntity saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    saga.setSagaId(null);
+    this.sagaRepository.save(saga);
+
+    final SdcStudentSagaData sagaData = SdcStudentSagaData.builder()
+      .sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity))
+      .build();
+
+    Event event = Event.builder()
+      .sagaId(saga.getSagaId())
+      .eventType(EventType.PROCESS_PEN_MATCH_RESULTS)
+      .eventOutcome(EventOutcome.PEN_MATCH_RESULTS_PROCESSED)
+      .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+    this.sdcStudentProcessingOrchestrator.handleEvent(event);
+
+    Optional<SdcSagaEntity> savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+    assertThat(savedSagaInDB).isPresent();
+    assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
+    assertThat(savedSagaInDB.get().getSagaState())
+      .isEqualTo(EventType.FETCH_GRAD_STATUS.toString());
+    verify(this.messagePublisher, atMost(3))
+      .dispatchMessage(eq(this.sdcStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
+    final Event newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
+    assertThat(newEvent.getEventType()).isEqualTo(EventType.FETCH_GRAD_STATUS);
+    assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.GRAD_STATUS_FETCHED);
+
+    List<SdcSchoolCollectionStudentEntity> students = this.sdcSchoolCollectionStudentRepository
+      .findAllBySdcSchoolCollectionID(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+    assertThat(students).hasAtLeastOneElementOfType(SdcSchoolCollectionStudentEntity.class);
+
+    savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+    assertThat(savedSagaInDB).isPresent();
+  }
+
+  @SneakyThrows
+  @Test
+  void testHandleEvent_givenEventTypeInitiated_shouldExecuteProcessGradStatusGRAD_STATUS_PROCESSED() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionRepository
+      .save(createMockSdcSchoolCollectionEntity(collection,null, null));
+    SdcSchoolCollectionStudentEntity entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+    entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+    entity.setUpdateDate(LocalDateTime.now());
+    entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+    entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+
+    this.sdcSchoolCollectionStudentRepository.save(entity);
+    SdcSagaEntity saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    saga.setSagaId(null);
+    this.sagaRepository.save(saga);
+
+    final SdcStudentSagaData sagaData = SdcStudentSagaData.builder()
+      .sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity))
+      .gradStatus("false")
+      .build();
+
+    Event event = Event.builder()
+      .sagaId(saga.getSagaId())
+      .eventType(EventType.FETCH_GRAD_STATUS)
+      .eventOutcome(EventOutcome.GRAD_STATUS_FETCHED)
+      .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+    this.sdcStudentProcessingOrchestrator.handleEvent(event);
+
+    Optional<SdcSagaEntity> savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+    assertThat(savedSagaInDB).isPresent();
+    assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
+    assertThat(savedSagaInDB.get().getSagaState())
+      .isEqualTo(EventType.PROCESS_GRAD_STATUS_RESULT.toString());
+    verify(this.messagePublisher, atMost(3))
+      .dispatchMessage(eq(this.sdcStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
+    final Event newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
+    assertThat(newEvent.getEventType()).isEqualTo(EventType.PROCESS_GRAD_STATUS_RESULT);
+    assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.GRAD_STATUS_RESULTS_PROCESSED);
+
+    List<SdcSchoolCollectionStudentEntity> students = this.sdcSchoolCollectionStudentRepository
+      .findAllBySdcSchoolCollectionID(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+    assertThat(students).hasAtLeastOneElementOfType(SdcSchoolCollectionStudentEntity.class);
+
+    SdcSchoolCollectionStudentEntity student = students.get(0);
+    assertThat(student.getIsGraduated()).isFalse();
+  }
   @SneakyThrows
   @Test
   void testHandleEvent_givenEventTypeInitiated_shouldExecuteValidateStudentWithEventOutComeVALIDATION_SUCCESS_WITH_ERROR() {
