@@ -13,7 +13,6 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
@@ -78,6 +77,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
   }
 
   protected void postToGradAPI(final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
+    //Uncomment this when the GRAD service is ready
 //    val sdcSchoolStudent = sdcStudentSagaData.getSdcSchoolCollectionStudent();
 //    val gradStatusRequest = JsonUtil.mapper.writeValueAsString(sdcSchoolStudent.getAssignedPen());
 //    final Event nextEvent = Event.builder().sagaId(saga.getSagaId())
@@ -87,6 +87,8 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
 //      .build();
 //    this.postMessageToTopic(GRAD_API_TOPIC.toString(), nextEvent);
     log.info("message sent to GRAD_API_TOPIC for FETCH_GRAD_STATUS Event. :: {}", saga.getSagaId());
+
+    //Remove the following when the GRAD service is ready
     this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
       .eventType(FETCH_GRAD_STATUS).eventOutcome(GRAD_STATUS_FETCHED)
       .build());
