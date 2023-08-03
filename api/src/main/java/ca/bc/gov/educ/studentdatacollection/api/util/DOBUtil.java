@@ -31,7 +31,7 @@ public class DOBUtil {
         SchoolYear schoolYear = new SchoolYear();
         LocalDate decemberCutoff = LocalDate.parse(schoolYear.getStartDate().getYear() + "-12-31");
         LocalDate dateStudentTurnedFive = LocalDate.parse(dob, format).plusYears(5);
-        return dateStudentTurnedFive.isBefore(decemberCutoff);
+        return dateStudentTurnedFive.isBefore(decemberCutoff) || dateStudentTurnedFive.isEqual(decemberCutoff);
     }
 
     public static boolean isSchoolAged(String dob) {

@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,5 +18,11 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             AND C.collectionID = SSC.collectionEntity.collectionID
             AND C.openDate <= CURRENT_TIMESTAMP AND C.closeDate >= CURRENT_TIMESTAMP""")
     Optional<SdcSchoolCollectionEntity> findActiveCollectionBySchoolId(UUID schoolID);
+
+    Optional<List<SdcSchoolCollectionEntity>> findAllBySchoolIDAndCreateDateBetween(UUID schoolId, LocalDateTime startDate, LocalDateTime endDate);
+
+    Optional<List<SdcSchoolCollectionEntity>> findAllByDistrictIDAndCreateDateBetween(UUID schoolId, LocalDateTime startDate, LocalDateTime endDate);
+
+    Optional<List<SdcSchoolCollectionEntity>> findAllBySchoolIDInAndCreateDateBetween(List<UUID> schoolIds, LocalDateTime startDate, LocalDateTime endDate);
 
 }
