@@ -30,7 +30,7 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   USUAL_LAST_NAME_CHAR_FIX("USUALLASTNAMECHARFIX", "Usual surname contains characters that are not yet supported by legacy systems. Please remove or replace any special characters in this field."),
   LEGAL_FIRST_NAME_BAD_VALUE("LEGALFIRSTNAMEBADVALUE", "Legal given name contains a questionable value."),
   LEGAL_MIDDLE_NAME_BAD_VALUE("LEGALMIDDLENAMEBADVALUE", "Legal middle name contains a questionable value."),
-  LEGAL_LAST_NAME_BAD_VALUE("LEGALLASTNAMEBADVALUE", "Legal surname name contains a questionable value."),
+  LEGAL_LAST_NAME_BAD_VALUE("LEGALLASTNAMEBADVALUE", "Legal surname contains a questionable value."),
   USUAL_FIRST_NAME_BAD_VALUE("USUALFIRSTNAMEBADVALUE", "Usual given name contains a questionable value."),
   USUAL_MIDDLE_NAME_BAD_VALUE("USUALMIDDLENAMEBADVALUE", "Usual middle name contains a questionable value."),
   USUAL_LAST_NAME_BAD_VALUE("USUALLASTNAMEBADVALUE", "Usual surname contains a questionable value."),
