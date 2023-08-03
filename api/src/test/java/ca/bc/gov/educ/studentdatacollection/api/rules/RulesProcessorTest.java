@@ -122,7 +122,26 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
-    void testSchoolRule() {
+    void testStandardSchoolWithBlankPen() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setEnrolledGradeCode("08");
+        val school = createMockSchool();
+        school.setFacilityTypeCode("STANDARD");
+
+        val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
+        assertThat(validationError.size()).isZero();
+
+        entity.setStudentPen(null);
+        val sagaData = createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school);
+        sagaData.setCollectionTypeCode("JULY");
+        val validationErrorBlank = rulesProcessor.processRules(sagaData);
+        assertThat(validationErrorBlank.size()).isZero();
+    }
+
+    @Test
+    void testSummerSchoolWithBlankPen(){
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
@@ -139,6 +158,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationErrorBlank = rulesProcessor.processRules(sagaData);
         assertThat(validationErrorBlank.size()).isNotZero();
         assertThat(validationErrorBlank.get(0).getValidationIssueFieldCode()).isEqualTo("STUDENT_PEN");
+        assertThat(validationErrorBlank.get(0).getValidationIssueCode()).isEqualTo("STUDENTPENBLANK");
     }
 
     @Test
@@ -327,7 +347,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
-    void testPenRule() {
+    void testDuplicatePenRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
@@ -363,8 +383,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setStudentPen(null);
         val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
-        assertThat(validationError.size()).isNotZero();
-        assertThat(validationError.get(0).getValidationIssueCode()).isEqualTo("STUDENTPENDUPLICATE");
+        assertThat(validationError.size()).isZero();
 
         entity.setStudentPen("2345");
         val validationDigitError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
