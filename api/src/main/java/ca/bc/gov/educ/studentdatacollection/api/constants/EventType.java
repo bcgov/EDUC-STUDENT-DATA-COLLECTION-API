@@ -6,6 +6,8 @@ package ca.bc.gov.educ.studentdatacollection.api.constants;
 public enum EventType {
   VALIDATE_SDC_STUDENT,
   PROCESS_PEN_MATCH,
+  FETCH_GRAD_STATUS,
+  PROCESS_GRAD_STATUS_RESULT,
   PROCESS_PEN_MATCH_RESULTS,
   READ_FROM_TOPIC,
   INITIATED,

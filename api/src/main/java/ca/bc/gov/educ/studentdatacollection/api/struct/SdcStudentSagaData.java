@@ -18,6 +18,7 @@ public class SdcStudentSagaData {
   private static final long serialVersionUID = -2329245910142215178L;
   private SdcSchoolCollectionStudent sdcSchoolCollectionStudent;
   private PenMatchResult penMatchResult;
+  private String gradStatus;
   private String collectionTypeCode;
   private School school;
 

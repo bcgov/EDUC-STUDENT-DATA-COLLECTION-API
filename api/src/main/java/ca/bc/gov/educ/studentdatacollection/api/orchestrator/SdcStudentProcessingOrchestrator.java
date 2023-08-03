@@ -17,11 +17,12 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionSe
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
-import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +47,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
 
-  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final RestUtils restUtils, SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
+  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
     super(sagaService, messagePublisher, SdcStudentSagaData.class, SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString(), TopicsEnum.STUDENT_DATA_COLLECTION_PROCESS_STUDENT_SAGA_TOPIC.toString());
     this.rulesProcessor = rulesProcessor;
     this.restUtils = restUtils;
@@ -62,13 +63,37 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
       .end(VALIDATE_SDC_STUDENT, VALIDATION_SUCCESS_WITH_ERROR, this::completeSdcStudentSagaWithError)
       .or()
       .step(PROCESS_PEN_MATCH, PEN_MATCH_PROCESSED, PROCESS_PEN_MATCH_RESULTS, this::processPenMatchResults)
-      .step(PROCESS_PEN_MATCH_RESULTS, PEN_MATCH_RESULTS_PROCESSED, CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES, this::calculateAdditionalStudentAttributes)
+      .step(PROCESS_PEN_MATCH_RESULTS, PEN_MATCH_RESULTS_PROCESSED, FETCH_GRAD_STATUS, this::fetchGradStatus)
+      .step(FETCH_GRAD_STATUS, GRAD_STATUS_FETCHED, PROCESS_GRAD_STATUS_RESULT, this::processGradStatusResults)
+      .step(PROCESS_GRAD_STATUS_RESULT, GRAD_STATUS_RESULTS_PROCESSED, CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES, this::calculateAdditionalStudentAttributes)
       .end(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES, ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED);
   }
 
+  protected void fetchGradStatus(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
+    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
+    saga.setSagaState(FETCH_GRAD_STATUS.toString());
+    saga.setStatus(IN_PROGRESS.toString());
+    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+    this.postToGradAPI(saga, sdcStudentSagaData);
+  }
+
+  protected void postToGradAPI(final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
+//    val sdcSchoolStudent = sdcStudentSagaData.getSdcSchoolCollectionStudent();
+//    val gradStatusRequest = JsonUtil.mapper.writeValueAsString(sdcSchoolStudent.getAssignedPen());
+//    final Event nextEvent = Event.builder().sagaId(saga.getSagaId())
+//      .eventType(FETCH_GRAD_STATUS)
+//      .replyTo(this.getTopicToSubscribe())
+//      .eventPayload(gradStatusRequest)
+//      .build();
+//    this.postMessageToTopic(GRAD_API_TOPIC.toString(), nextEvent);
+    log.info("message sent to GRAD_API_TOPIC for FETCH_GRAD_STATUS Event. :: {}", saga.getSagaId());
+    this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
+      .eventType(FETCH_GRAD_STATUS).eventOutcome(GRAD_STATUS_FETCHED)
+      .build());
+  }
+
   private void calculateAdditionalStudentAttributes(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
-    final SagaEventStatesEntity eventStates =
-      this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
+    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES.toString());
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
@@ -81,16 +106,35 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     }
 
     // Update Student age columns
-    UUID studentUUID = UUID
-      .fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
+    UUID studentUUID = UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
     String studentDOB = sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob();
 
-    this.sdcSchoolCollectionStudentService
-      .updateStudentAgeColumns(studentUUID, DOBUtil.isAdult(studentDOB), DOBUtil.isSchoolAged(studentDOB));
+    this.sdcSchoolCollectionStudentService.updateStudentAgeColumns(studentUUID, DOBUtil.isAdult(studentDOB), DOBUtil.isSchoolAged(studentDOB));
 
     this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
       .eventType(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES).eventOutcome(ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED)
       .build());
+  }
+
+  protected void processGradStatusResults(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
+    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
+    saga.setSagaState(PROCESS_GRAD_STATUS_RESULT.toString());
+//    final var gradStatusResult = JsonUtil.getJsonObjectFromString(GradStatusResult.class, event.getEventPayload());
+//    sdcStudentSagaData.setGradStatus(gradStatusResult.getGradStatus());
+    GradStatusResult gradStatusResult = new GradStatusResult();
+    gradStatusResult.setGradStatus("false");
+    saga.setPayload(JsonUtil.getJsonStringFromObject(sdcStudentSagaData));
+    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+
+    val sdcStudOptional = this.sdcSchoolCollectionStudentService.findBySdcSchoolStudentID(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
+    if (sdcStudOptional.isPresent()) {
+      val sdcStud = sdcStudOptional.get();
+      sdcStud.setIsGraduated(gradStatusResult.getGradStatus().equals("true"));
+      this.sdcSchoolCollectionStudentService.saveSdcSchoolCollectionStudent(sdcStud);
+    }
+    this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
+      .eventType(PROCESS_GRAD_STATUS_RESULT).eventOutcome(GRAD_STATUS_RESULTS_PROCESSED)
+      .eventPayload(gradStatusResult.getGradStatus()).build());
   }
 
   protected void processPenMatchResults(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
