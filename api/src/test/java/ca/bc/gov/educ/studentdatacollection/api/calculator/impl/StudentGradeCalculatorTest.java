@@ -30,20 +30,21 @@ class StudentGradeCalculatorTest {
 
     @ParameterizedTest
     @CsvSource({
-            "KH, 0.5",
-            "HS, 0.0471",
-            "08, 0.75",
-            "09, 0.75",
-            "10, 0",
-            "11, 0",
-            "12, 0",
-            "SU, 0"
+            "KH, 2, 0.5",
+            "HS, 2, 0.0471",
+            "08, 2, 0.75",
+            "09, 2, 0.75",
+            "10, 2, 0",
+            "11, 2, 0",
+            "12, 2, 0",
+            "SU, 2, 0",
+            "08, 12, 1",
     })
-    void testCalculateFte_WithValidGradeCodes(String gradeCode, String expectedFteValue) {
+    void testCalculateFte_WithValidGradeCodes(String gradeCode, String numberOfCourses, String expectedFteValue) {
         // Given
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
         student.setEnrolledGradeCode(gradeCode);
-        student.setNumberOfCourses("2");
+        student.setNumberOfCourses(numberOfCourses);
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSdcSchoolCollectionStudent(student);

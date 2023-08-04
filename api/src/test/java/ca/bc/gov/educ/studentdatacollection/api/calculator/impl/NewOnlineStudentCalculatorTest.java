@@ -34,24 +34,25 @@ class NewOnlineStudentCalculatorTest {
 
     @ParameterizedTest
     @CsvSource({
-            "KH, 0.4529",
-            "KF, 0.9529",
-            "01, 0.9529",
-            "02, 0.9529",
-            "03, 0.9529",
-            "04, 0.9529",
-            "05, 0.9529",
-            "06, 0.9529",
-            "07, 0.9529",
-            "EU, 0.9529",
-            "08, 0.75",
-            "09, 0.75"
+            "KH, 2, 0.4529",
+            "KF, 2, 0.9529",
+            "01, 2, 0.9529",
+            "02, 2, 0.9529",
+            "03, 2, 0.9529",
+            "04, 2, 0.9529",
+            "05, 2, 0.9529",
+            "06, 2, 0.9529",
+            "07, 2, 0.9529",
+            "EU, 2, 0.9529",
+            "08, 2, 0.75",
+            "09, 2, 0.75",
+            "08, 12, 0.9529"
     })
-    void testCalculateFte_homeSchoolStudentIsNowOnlineKto9Student_ShouldCalculateFteCorrectly(String enrolledGradeCode, String expectedResult) {
+    void testCalculateFte_homeSchoolStudentIsNowOnlineKto9Student_ShouldCalculateFteCorrectly(String enrolledGradeCode, String numberOfCourses, String expectedResult) {
         // Given
         SdcSchoolCollectionStudent sdcSchoolCollectionStudent = new SdcSchoolCollectionStudent();
         sdcSchoolCollectionStudent.setEnrolledGradeCode(enrolledGradeCode);
-        sdcSchoolCollectionStudent.setNumberOfCourses("2");
+        sdcSchoolCollectionStudent.setNumberOfCourses(numberOfCourses);
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSdcSchoolCollectionStudent(sdcSchoolCollectionStudent);
 

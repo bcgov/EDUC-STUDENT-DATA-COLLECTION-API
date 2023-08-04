@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.rest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.UUIDMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeCriteriaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -63,7 +62,7 @@ public class RestUtils {
   @Value("${initialization.background.enabled}")
   private Boolean isBackgroundInitializationEnabled;
 
-  private final Map<String, List<UUID>> indepenentAuthorityToSchoolIDMap = new ConcurrentHashMap<>();
+  private final Map<String, List<UUID>> independentAuthorityToSchoolIDMap = new ConcurrentHashMap<>();
 
   @Autowired
   public RestUtils(WebClient webClient, final ApplicationProperties props, final MessagePublisher messagePublisher) {
@@ -100,7 +99,7 @@ public class RestUtils {
       writeLock.lock();
       for (val school : this.getSchools()) {
         this.schoolMap.put(school.getSchoolId(), school);
-        this.indepenentAuthorityToSchoolIDMap.computeIfAbsent(school.getIndependentAuthorityId(), k -> new ArrayList<>()).add(UUID.fromString(school.getSchoolId()));
+        this.independentAuthorityToSchoolIDMap.computeIfAbsent(school.getIndependentAuthorityId(), k -> new ArrayList<>()).add(UUID.fromString(school.getSchoolId()));
       }
     }
     catch (Exception ex) {
@@ -193,10 +192,10 @@ public class RestUtils {
   }
 
   public Optional<List<UUID>> getSchoolIDsByIndependentAuthorityID(final String independentAuthorityID) {
-    if (this.indepenentAuthorityToSchoolIDMap.isEmpty()) {
+    if (this.independentAuthorityToSchoolIDMap.isEmpty()) {
       log.info("The map is empty reloading schools");
       this.populateSchoolMap();
     }
-    return Optional.ofNullable(this.indepenentAuthorityToSchoolIDMap.get(independentAuthorityID));
+    return Optional.ofNullable(this.independentAuthorityToSchoolIDMap.get(independentAuthorityID));
   }
 }

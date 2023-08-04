@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.*;
 
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
@@ -17,17 +15,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.BandCodeEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.BandCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 
 class IndependentSchoolAndBandCodeCalculatorTest {
 
     @Mock
     private FteCalculator nextCalculator;
-
-    @Mock
-    private BandCodeRepository bandCodeRepository;
 
     @InjectMocks
     private IndependentSchoolAndBandCodeCalculator independentSchoolAndBandCodeCalculator;
@@ -43,8 +36,6 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         // Given
         String schoolCategory = "INDEPEND";
         String bandCodeValue = "BAND_CODE_1";
-        LocalDateTime effectiveDate = LocalDateTime.now().minusDays(1); // One day ago
-        LocalDateTime expiryDate = LocalDateTime.now().plusDays(1); // One day ahead of now
 
         School school = new School();
         school.setSchoolCategoryCode(schoolCategory);
@@ -55,12 +46,6 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSchool(school);
         studentData.setSdcSchoolCollectionStudent(student);
-
-        BandCodeEntity bandCode = new BandCodeEntity();
-        bandCode.setEffectiveDate(effectiveDate);
-        bandCode.setExpiryDate(expiryDate);
-
-        when(bandCodeRepository.findById(bandCodeValue)).thenReturn(Optional.of(bandCode));
 
         // When
         FteCalculationResult result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
@@ -75,28 +60,22 @@ class IndependentSchoolAndBandCodeCalculatorTest {
     }
 
     @Test
-    void testCalculateFte_WithIndependentSchoolAndInvalidBandCode_CallsNextFte() {
+    void testCalculateFte_WithValidBandCodeAndExistingFundingCode_ReturnsFte() {
         // Given
         String schoolCategory = "INDEPEND";
-        String bandCodeValue = "BAND_CODE_INVALID"; // Invalid band code value
-        LocalDateTime effectiveDate = LocalDateTime.now().plusDays(1); // One day ahead of now
-        LocalDateTime expiryDate = LocalDateTime.now().plusDays(2); // Two days ahead of now
+        String bandCodeValue = "BAND_CODE_1";
+        String fundingCode = "21";
 
         School school = new School();
         school.setSchoolCategoryCode(schoolCategory);
 
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
         student.setBandCode(bandCodeValue);
+        student.setSchoolFundingCode(fundingCode);
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSchool(school);
         studentData.setSdcSchoolCollectionStudent(student);
-
-        BandCodeEntity bandCode = new BandCodeEntity();
-        bandCode.setEffectiveDate(effectiveDate);
-        bandCode.setExpiryDate(expiryDate);
-
-        when(bandCodeRepository.findById(bandCodeValue)).thenReturn(Optional.of(bandCode));
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();
@@ -117,8 +96,6 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         String schoolCategory = "INDEPEND";
         String bandCodeValue = "BAND_CODE_INVALID";
         String fundingCode = "20";
-        LocalDateTime effectiveDate = LocalDateTime.now().plusDays(1); // One day ahead of now
-        LocalDateTime expiryDate = LocalDateTime.now().plusDays(2); // Two days ahead of now
 
         School school = new School();
         school.setSchoolCategoryCode(schoolCategory);
@@ -130,12 +107,6 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSchool(school);
         studentData.setSdcSchoolCollectionStudent(student);
-
-        BandCodeEntity bandCode = new BandCodeEntity();
-        bandCode.setEffectiveDate(effectiveDate);
-        bandCode.setExpiryDate(expiryDate);
-
-        when(bandCodeRepository.findById(bandCodeValue)).thenReturn(Optional.of(bandCode));
 
         // When
         FteCalculationResult result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
@@ -155,8 +126,6 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         String schoolCategory = "DISTRICT"; // Non-independent school facility type code
         String bandCodeValue = "BAND_CODE_3";
         String fundingCode = "20";
-        LocalDateTime effectiveDate = LocalDateTime.now().minusDays(1); // One day ago
-        LocalDateTime expiryDate = LocalDateTime.now().plusDays(1); // One day ahead of now
 
         School school = new School();
         school.setSchoolCategoryCode(schoolCategory);
@@ -169,42 +138,6 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         studentData.setSchool(school);
         studentData.setSdcSchoolCollectionStudent(student);
 
-        BandCodeEntity bandCode = new BandCodeEntity();
-        bandCode.setEffectiveDate(effectiveDate);
-        bandCode.setExpiryDate(expiryDate);
-
-        when(bandCodeRepository.findById(bandCodeValue)).thenReturn(Optional.of(bandCode));
-
-        // When
-        FteCalculationResult expectedResult = new FteCalculationResult();
-        expectedResult.setFte(BigDecimal.ONE);
-        expectedResult.setFteZeroReason(null);
-        when(nextCalculator.calculateFte(any())).thenReturn(expectedResult);
-        FteCalculationResult result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
-
-        // Then
-        assertEquals(expectedResult.getFte(), result.getFte());
-        assertNull(result.getFteZeroReason());
-        verify(nextCalculator).calculateFte(studentData);
-    }
-
-    @Test
-    void testCalculateFte_WithInvalidBandCode_CallsNextFte() {
-        // Given
-        String schoolCategory = "INDEPEND";
-        String bandCodeValue = "UNKNOWN_BAND_CODE";
-
-        School school = new School();
-        school.setSchoolCategoryCode(schoolCategory);
-
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setBandCode(bandCodeValue);
-
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSchool(school);
-        studentData.setSdcSchoolCollectionStudent(student);
-
-        when(bandCodeRepository.findById(bandCodeValue)).thenReturn(Optional.empty()); // Return empty optional for unknown band code
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();
@@ -251,8 +184,6 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         // Given
         String bandCodeValue = "BAND_CODE_3";
         String fundingCode = "20";
-        LocalDateTime effectiveDate = LocalDateTime.now().minusDays(1); // One day ago
-        LocalDateTime expiryDate = LocalDateTime.now().plusDays(1); // One day ahead of now
 
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
         student.setBandCode(bandCodeValue);
@@ -260,12 +191,6 @@ class IndependentSchoolAndBandCodeCalculatorTest {
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSdcSchoolCollectionStudent(student);
-
-        BandCodeEntity bandCode = new BandCodeEntity();
-        bandCode.setEffectiveDate(effectiveDate);
-        bandCode.setExpiryDate(expiryDate);
-
-        when(bandCodeRepository.findById(bandCodeValue)).thenReturn(Optional.of(bandCode));
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();

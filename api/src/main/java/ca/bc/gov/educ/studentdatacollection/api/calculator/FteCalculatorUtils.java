@@ -98,7 +98,7 @@ public class FteCalculatorUtils {
         var student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
         var school = sdcStudentSagaData.getSchool();
         var isIndependentOnlineSchool = school != null && StringUtils.equals(school.getSchoolCategoryCode(), SchoolCategoryCodes.INDEPEND.getCode()) && StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode());
-        var isStudentInDistrictFundedGrade = student != null && SchoolGradeCodes.getDistrictFundingGrades().contains(student.getEnrolledGradeCode());
+        var isStudentInDistrictFundedGrade = SchoolGradeCodes.getDistrictFundingGrades().contains(student.getEnrolledGradeCode());
 
         if(isSpringCollection(sdcStudentSagaData) && isIndependentOnlineSchool && isStudentInDistrictFundedGrade) {
             var startAndEndDateOfCollectionMap = getPreviousCollectionStartAndEndDates(sdcStudentSagaData);

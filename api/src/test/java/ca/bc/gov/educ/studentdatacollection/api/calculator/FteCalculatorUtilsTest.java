@@ -219,9 +219,11 @@ class FteCalculatorUtilsTest {
             "PUBLIC, DIST_LEARN, true",
             "PUBLIC, DISTONLINE, true",
             "PUBLIC, STANDARD, false",
+            "PUBLIC, CONT_ED, true",
             "INDEPEND, DIST_LEARN, false",
             "INDEPEND, DISTONLINE, false",
-            "INDEPEND, STANDARD, false"
+            "INDEPEND, STANDARD, false",
+            "PUBLIC, CONT_ED, true",
     })
     void studentPreviouslyReportedInDistrict_GivenDifferentSchoolCategoriesAndFacilities_ReturnExpectedResult(String schoolCategory, String facilityType, boolean expectedResult) {
         // Given
@@ -355,6 +357,33 @@ class FteCalculatorUtilsTest {
         assertTrue(result);
     }
 
+    @Test
+    void studentPreviouslyReportedInIndependentAuthority_NoSchoolIdsFound_ReturnsFalse() {
+        // Given
+        SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        School school = new School();
+        school.setSchoolCategoryCode("INDEPEND");
+        school.setFacilityTypeCode("DIST_LEARN");
+        school.setIndependentAuthorityId("AUTH_ID");
+        sdcStudentSagaData.setSchool(school);
+        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+        student.setCreateDate(LocalDateTime.now().toString());
+        student.setAssignedStudentId(UUID.randomUUID().toString());
+        sdcStudentSagaData.setSdcSchoolCollectionStudent(student);
+
+        when(restUtils.getSchoolIDsByIndependentAuthorityID(anyString())).thenReturn(Optional.empty());
+        when(sdcSchoolCollectionRepository.findAllBySchoolIDInAndCreateDateBetween(anyList(), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(Optional.of(Collections.emptyList()));
+        when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(any(UUID.class), anyList())).thenReturn(1L);
+
+        // When
+        var result = fteCalculatorUtils.studentPreviouslyReportedInIndependentAuthority(sdcStudentSagaData);
+
+        // Then
+        assertFalse(result);
+    }
+
     @ParameterizedTest
     @CsvSource({
             "HS, true",
@@ -432,7 +461,6 @@ class FteCalculatorUtilsTest {
 
         // Then
         assertEquals(expectedResult, result);
-
     }
 
     @ParameterizedTest
@@ -513,6 +541,29 @@ class FteCalculatorUtilsTest {
 
         // Then
         assertEquals(expectedResult, result);
+    }
+
+    @Test
+    void testHomeSchoolStudentIsNowOnlineKto9Student_GivenNoPreviousCollectionForStudent_ReturnsFalse() {
+        // Given
+        SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
+        sdcStudentSagaData.setCollectionTypeCode("FEBRUARY");
+        School school = new School();
+        school.setFacilityTypeCode("DIST_LEARN");
+        sdcStudentSagaData.setSchool(school);
+        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+        student.setCreateDate(LocalDateTime.now().toString());
+        student.setAssignedStudentId(UUID.randomUUID().toString());
+        sdcStudentSagaData.setSdcSchoolCollectionStudent(student);
+
+        when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndEnrolledGradeCodeAndCreateDateBetween(any(UUID.class), any(String.class), any(), any())).thenReturn(0L);
+
+        // When
+        var result = fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(sdcStudentSagaData);
+
+        // Then
+        assertFalse(result);
     }
 
 @Test
@@ -657,6 +708,52 @@ void noCoursesForStudentInLastTwoYears_NotSchoolAged_ShouldReturnFalse() {
 
         // Then
         assertFalse(result);
+    }
+
+    @Test
+    void noCoursesForStudentInLastTwoYears_NoCollectionsInLastTwoYears_ReturnsTrue() {
+        // Given
+        UUID schoolId = UUID.randomUUID();
+        String studentCreateDate = LocalDateTime.now().toString();
+        String enrolledGradeCode = "10";
+        String facilityTypeCode = "DIST_LEARN";
+        String numberOfCourses = "0";
+
+        School school = new School();
+        school.setSchoolId(schoolId.toString());
+        school.setFacilityTypeCode(facilityTypeCode);
+
+        SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
+        schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
+        schoolCollection1.setSchoolID(schoolId);
+        schoolCollection1.setCreateDate(LocalDateTime.parse(studentCreateDate).minusYears(1)); // One year ago
+
+        SdcSchoolCollectionEntity schoolCollection2 = new SdcSchoolCollectionEntity();
+        schoolCollection2.setSdcSchoolCollectionID(UUID.randomUUID());
+        schoolCollection2.setSchoolID(schoolId);
+        schoolCollection2.setCreateDate(LocalDateTime.parse(studentCreateDate).minusYears(2)); // Two years ago
+
+        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        student.setCreateDate(studentCreateDate);
+        student.setEnrolledGradeCode(enrolledGradeCode);
+        student.setNumberOfCourses(numberOfCourses);
+        student.setAssignedStudentId(UUID.randomUUID().toString());
+        student.setIsSchoolAged(true);
+
+        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        studentData.setSchool(school);
+        studentData.setSdcSchoolCollectionStudent(student);
+
+        when(sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(Optional.empty());
+        when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(any(UUID.class), anyList(), any(String.class)))
+                .thenReturn(1L);
+
+        // When
+        boolean result = fteCalculatorUtils.noCoursesForStudentInLastTwoYears(studentData);
+
+        // Then
+        assertTrue(result);
     }
 
     @ParameterizedTest
