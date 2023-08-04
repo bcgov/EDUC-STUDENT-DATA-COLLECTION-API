@@ -39,9 +39,11 @@ public class DuplicatePenRule implements ValidationBaseRule {
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        Long penCount = validationRulesService.getDuplicatePenCount(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionID(), sdcStudentSagaData.getSdcSchoolCollectionStudent().getStudentPen());
-        if(StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getStudentPen()) || penCount > 1) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.STUDENT_PEN, SdcSchoolCollectionStudentValidationIssueTypeCode.STUDENT_PEN_DUPLICATE));
+        if(StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getStudentPen())) {
+            Long penCount = validationRulesService.getDuplicatePenCount(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionID(), sdcStudentSagaData.getSdcSchoolCollectionStudent().getStudentPen());
+            if (penCount > 1) {
+                errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.STUDENT_PEN, SdcSchoolCollectionStudentValidationIssueTypeCode.STUDENT_PEN_DUPLICATE));
+            }
         }
         return errors;
     }
