@@ -463,6 +463,28 @@ class FteCalculatorUtilsTest {
         assertEquals(expectedResult, result);
     }
 
+    @Test
+    void studentPreviouslyReportedInIndependentAuthority_SchoolIsNull_ReturnsFalse() {
+        // Given
+        SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+        student.setCreateDate(LocalDateTime.now().toString());
+        student.setAssignedStudentId(UUID.randomUUID().toString());
+        sdcStudentSagaData.setSdcSchoolCollectionStudent(student);
+
+        when(restUtils.getSchoolIDsByIndependentAuthorityID(anyString())).thenReturn(Optional.of(Collections.singletonList(UUID.randomUUID())));
+        when(sdcSchoolCollectionRepository.findAllBySchoolIDInAndCreateDateBetween(anyList(), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(Optional.of(Collections.emptyList()));
+        when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(any(UUID.class), anyList())).thenReturn(1L);
+
+        // When
+        var result = fteCalculatorUtils.studentPreviouslyReportedInIndependentAuthority(sdcStudentSagaData);
+
+        // Then
+        assertFalse(result);
+    }
+
     @ParameterizedTest
     @CsvSource({
             "HS, false",
