@@ -118,8 +118,6 @@ public class FteCalculatorUtils {
     /**
      * Returns true if the given student (in a correct grade) is part of a spring (Feb or May) collection reported
      * by an online school and the student was reported as an HS student in the previous collection
-     * 20f024a9-43a1-4b4a-b2a7-1689cf6ad712
-     * 20f024a9-43a1-4b4a-b2a7-1689cf6ad712
      */
     public boolean homeSchoolStudentIsNowOnlineKto9Student(SdcStudentSagaData sdcStudentSagaData) {
         var student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
