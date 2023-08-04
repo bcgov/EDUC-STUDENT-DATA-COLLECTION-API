@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -22,6 +23,7 @@ public class IndependentSchoolAndBandCodeCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Getter
     private int processingSequenceNumber = 5;
+    @Autowired
     BandCodeRepository bandCodeRepository;
     @Override
     public void setNext(FteCalculator nextCalculator) {

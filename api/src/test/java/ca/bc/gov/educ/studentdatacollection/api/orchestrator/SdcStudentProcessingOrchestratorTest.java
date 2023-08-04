@@ -6,10 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -63,6 +60,8 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository;
   @Autowired
   SagaRepository sagaRepository;
+  @Autowired
+  BandCodeRepository bandCodeRepository;
   @Autowired
   MessagePublisher messagePublisher;
   @Captor
@@ -119,6 +118,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
 
     this.sdcSchoolCollectionStudentRepository.save(entity);
+    this.bandCodeRepository.save(bandCodeData());
     SdcSagaEntity saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
     saga.setSagaId(null);
     this.sagaRepository.save(saga);
