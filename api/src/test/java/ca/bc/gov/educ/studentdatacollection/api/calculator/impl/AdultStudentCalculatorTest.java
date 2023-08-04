@@ -4,10 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,11 +38,11 @@ class AdultStudentCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> result = adultStudentCalculator.calculateFte(studentData);
+        FteCalculationResult result = adultStudentCalculator.calculateFte(studentData);
 
         // Then
-        assertEquals(new BigDecimal("0.625"), result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(new BigDecimal("0.625"), result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
@@ -59,11 +58,11 @@ class AdultStudentCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> result = adultStudentCalculator.calculateFte(studentData);
+        FteCalculationResult result = adultStudentCalculator.calculateFte(studentData);
 
         // Then
-        assertEquals(new BigDecimal("0.375"), result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(new BigDecimal("0.375"), result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
@@ -78,15 +77,15 @@ class AdultStudentCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> fteValues = new HashMap<>();
-        fteValues.put("fte", BigDecimal.ZERO);
-        fteValues.put("fteZeroReason", null);
+        FteCalculationResult fteValues = new FteCalculationResult();
+        fteValues.setFte(BigDecimal.ZERO);
+        fteValues.setFteZeroReason(null);
         when(nextCalculator.calculateFte(any())).thenReturn(fteValues);
-        Map<String, Object> result = adultStudentCalculator.calculateFte(studentData);
+        FteCalculationResult result = adultStudentCalculator.calculateFte(studentData);
 
         // Then
-        assertEquals(fteValues.get("fte"), result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(fteValues.getFte(), result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator).calculateFte(studentData);
     }
 
@@ -100,15 +99,15 @@ class AdultStudentCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> fteValues = new HashMap<>();
-        fteValues.put("fte", BigDecimal.ZERO);
-        fteValues.put("fteZeroReason", null);
+        FteCalculationResult fteValues = new FteCalculationResult();
+        fteValues.setFte(BigDecimal.ZERO);
+        fteValues.setFteZeroReason(null);
         when(nextCalculator.calculateFte(any())).thenReturn(fteValues);
-        Map<String, Object> result = adultStudentCalculator.calculateFte(studentData);
+        FteCalculationResult result = adultStudentCalculator.calculateFte(studentData);
 
         // Then
-        assertEquals(fteValues.get("fte"), result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(fteValues.getFte(), result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator).calculateFte(studentData);
     }
 
@@ -123,11 +122,11 @@ class AdultStudentCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> result = adultStudentCalculator.calculateFte(studentData);
+        FteCalculationResult result = adultStudentCalculator.calculateFte(studentData);
 
         // Then
-        assertEquals(BigDecimal.ZERO, result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(BigDecimal.ZERO, result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 }

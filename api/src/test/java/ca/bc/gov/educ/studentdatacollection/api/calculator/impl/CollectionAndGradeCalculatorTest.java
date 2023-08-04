@@ -4,9 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,13 +42,13 @@ class CollectionAndGradeCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> result = collectionAndGradeCalculator.calculateFte(studentData);
+        FteCalculationResult result = collectionAndGradeCalculator.calculateFte(studentData);
 
         // Then
         BigDecimal expectedFte = BigDecimal.ONE;
 
-        assertEquals(expectedFte, result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(expectedFte, result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
@@ -69,13 +68,13 @@ class CollectionAndGradeCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> result = collectionAndGradeCalculator.calculateFte(studentData);
+        FteCalculationResult result = collectionAndGradeCalculator.calculateFte(studentData);
 
         // Then
         BigDecimal expectedFte = new BigDecimal("0.75");
 
-        assertEquals(expectedFte, result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(expectedFte, result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
@@ -113,11 +112,11 @@ class CollectionAndGradeCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("fte", BigDecimal.ONE);
-        expectedResult.put("fteZeroReason", null);
+        FteCalculationResult expectedResult = new FteCalculationResult();
+        expectedResult.setFte(BigDecimal.ONE);
+        expectedResult.setFteZeroReason(null);
         when(nextCalculator.calculateFte(studentData)).thenReturn(expectedResult);
-        Map<String, Object> result = collectionAndGradeCalculator.calculateFte(studentData);
+        FteCalculationResult result = collectionAndGradeCalculator.calculateFte(studentData);
 
         // Then
         assertEquals(expectedResult, result);
@@ -138,13 +137,13 @@ class CollectionAndGradeCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> result = collectionAndGradeCalculator.calculateFte(studentData);
+        FteCalculationResult result = collectionAndGradeCalculator.calculateFte(studentData);
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
 
-        assertEquals(expectedFte, result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(expectedFte, result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
@@ -162,11 +161,11 @@ class CollectionAndGradeCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("fte", BigDecimal.ONE);
-        expectedResult.put("fteZeroReason", null);
+        FteCalculationResult expectedResult = new FteCalculationResult();
+        expectedResult.setFte(BigDecimal.ONE);
+        expectedResult.setFteZeroReason(null);
         when(nextCalculator.calculateFte(studentData)).thenReturn(expectedResult);
-        Map<String, Object> result = collectionAndGradeCalculator.calculateFte(studentData);
+        FteCalculationResult result = collectionAndGradeCalculator.calculateFte(studentData);
 
         // Then
         assertEquals(expectedResult, result);

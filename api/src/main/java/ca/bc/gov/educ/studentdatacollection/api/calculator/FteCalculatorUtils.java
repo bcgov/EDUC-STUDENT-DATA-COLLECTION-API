@@ -25,6 +25,8 @@ public class FteCalculatorUtils {
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final RestUtils restUtils;
+    private static final String START_DATE_KEY = "startDate";
+    private static final String END_DATE_KEY = "endDate";
 
     @Autowired
     private FteCalculatorUtils(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
@@ -53,8 +55,8 @@ public class FteCalculatorUtils {
             endOfCollectionDate = LocalDate.of(currentYear, Month.FEBRUARY, daysInFebruary).atTime(LocalTime.MAX);
         }
         Map<String, LocalDateTime> startAndEndOfCollectionMap = new HashMap<>();
-        startAndEndOfCollectionMap.put("startDate", startOfCollectionDate);
-        startAndEndOfCollectionMap.put("endDate", endOfCollectionDate);
+        startAndEndOfCollectionMap.put(START_DATE_KEY, startOfCollectionDate);
+        startAndEndOfCollectionMap.put(END_DATE_KEY, endOfCollectionDate);
         return startAndEndOfCollectionMap;
     }
 
@@ -78,11 +80,11 @@ public class FteCalculatorUtils {
 
         if(isSpringCollection(sdcStudentSagaData) && isPublicOnlineOrContEdSchool && isStudentInDistrictFundedGrade) {
             var startAndEndDateOfCollectionMap = getPreviousCollectionStartAndEndDates(sdcStudentSagaData);
-            var startOfCollectionDate = startAndEndDateOfCollectionMap.get("startDate");
-            var endOfCollectionDate = startAndEndDateOfCollectionMap.get("endDate");
+            var startOfCollectionDate = startAndEndDateOfCollectionMap.get(START_DATE_KEY);
+            var endOfCollectionDate = startAndEndDateOfCollectionMap.get(END_DATE_KEY);
             if(StringUtils.isNotBlank(school.getDistrictId())) {
                 var previousCollections = sdcSchoolCollectionRepository.findAllByDistrictIDAndCreateDateBetween(UUID.fromString(school.getDistrictId()), startOfCollectionDate, endOfCollectionDate);
-                return previousCollections.isEmpty() || sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getAssignedStudentId()), previousCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) == 0;
+                return previousCollections.isPresent() && sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getAssignedStudentId()), previousCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
             }
         }
         return false;
@@ -100,13 +102,13 @@ public class FteCalculatorUtils {
 
         if(isSpringCollection(sdcStudentSagaData) && isIndependentOnlineSchool && isStudentInDistrictFundedGrade) {
             var startAndEndDateOfCollectionMap = getPreviousCollectionStartAndEndDates(sdcStudentSagaData);
-            var startOfCollectionDate = startAndEndDateOfCollectionMap.get("startDate");
-            var endOfCollectionDate = startAndEndDateOfCollectionMap.get("endDate");
+            var startOfCollectionDate = startAndEndDateOfCollectionMap.get(START_DATE_KEY);
+            var endOfCollectionDate = startAndEndDateOfCollectionMap.get(END_DATE_KEY);
             if(StringUtils.isNotBlank(school.getIndependentAuthorityId())) {
                 var schoolIDs = restUtils.getSchoolIDsByIndependentAuthorityID(school.getIndependentAuthorityId());
                 if (schoolIDs.isPresent()) {
                     var previousCollections = sdcSchoolCollectionRepository.findAllBySchoolIDInAndCreateDateBetween(schoolIDs.get(), startOfCollectionDate, endOfCollectionDate);
-                    return previousCollections.isEmpty() || sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID.fromString(student.getAssignedStudentId()), previousCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) == 0;
+                    return previousCollections.isPresent() && sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID.fromString(student.getAssignedStudentId()), previousCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
                 }
             }
         }
@@ -116,6 +118,8 @@ public class FteCalculatorUtils {
     /**
      * Returns true if the given student (in a correct grade) is part of a spring (Feb or May) collection reported
      * by an online school and the student was reported as an HS student in the previous collection
+     * 20f024a9-43a1-4b4a-b2a7-1689cf6ad712
+     * 20f024a9-43a1-4b4a-b2a7-1689cf6ad712
      */
     public boolean homeSchoolStudentIsNowOnlineKto9Student(SdcStudentSagaData sdcStudentSagaData) {
         var student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
@@ -124,10 +128,10 @@ public class FteCalculatorUtils {
 
         if(isSpringCollection(sdcStudentSagaData) && studentReportedByOnlineSchool && isStudentGradeKToNine) {
             var startAndEndDateOfPreviousCollection = getPreviousCollectionStartAndEndDates(sdcStudentSagaData);
-            var startDate = startAndEndDateOfPreviousCollection.get("startDate");
-            var endDate = startAndEndDateOfPreviousCollection.get("endDate");
+            var startDate = startAndEndDateOfPreviousCollection.get(START_DATE_KEY);
+            var endDate = startAndEndDateOfPreviousCollection.get(END_DATE_KEY);
             //Check if student was in previous collection as HS student
-            return sdcSchoolCollectionStudentRepository.findByAssignedStudentIdAndEnrolledGradeCodeAndCreateDateBetween(UUID.fromString(student.getAssignedStudentId()), SchoolGradeCodes.HOMESCHOOL.getCode(), startDate, endDate).isPresent();
+            return sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndEnrolledGradeCodeAndCreateDateBetween(UUID.fromString(student.getAssignedStudentId()), SchoolGradeCodes.HOMESCHOOL.getCode(), startDate, endDate) > 0;
         }
         return false;
     }
@@ -144,7 +148,7 @@ public class FteCalculatorUtils {
 
         if(Boolean.TRUE.equals(student.getIsSchoolAged()) && isEightPlusGradeCode && reportedByOnlineSchoolWithNoCourses) {
             var startOfMonth = LocalDateTime.parse(student.getCreateDate()).with(TemporalAdjusters.firstDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
-            var lastTwoYearsOfCollections = sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(UUID.fromString(school.getSchoolId()), startOfMonth, startOfMonth.minusYears(2));
+            var lastTwoYearsOfCollections = sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(UUID.fromString(school.getSchoolId()), startOfMonth.minusYears(2), startOfMonth);
             return lastTwoYearsOfCollections.isEmpty() || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(UUID.fromString(student.getAssignedStudentId()), lastTwoYearsOfCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(), "0") == 0;
         }
         return false;

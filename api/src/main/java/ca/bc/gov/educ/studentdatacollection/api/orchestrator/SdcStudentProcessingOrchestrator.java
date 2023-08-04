@@ -118,6 +118,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
 
     // Calculate Fte
     var fteResults = this.fteCalculatorChainProcessor.processFteCalculator(sdcStudentSagaData);
+    this.sdcSchoolCollectionStudentService.updateFteColumns(fteResults, studentUUID);
 
     this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
       .eventType(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES).eventOutcome(ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED)

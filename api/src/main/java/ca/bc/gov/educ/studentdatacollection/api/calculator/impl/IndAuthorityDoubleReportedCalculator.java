@@ -3,13 +3,13 @@ package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -17,6 +17,7 @@ public class IndAuthorityDoubleReportedCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Getter
     private int processingSequenceNumber = 8;
+    @Autowired
     FteCalculatorUtils fteCalculatorUtils;
 
     @Override
@@ -24,12 +25,12 @@ public class IndAuthorityDoubleReportedCalculator implements FteCalculator {
         this.nextCalculator = nextCalculator;
     }
     @Override
-    public Map<String, Object> calculateFte(SdcStudentSagaData studentData) {
+    public FteCalculationResult calculateFte(SdcStudentSagaData studentData) {
         if(fteCalculatorUtils.studentPreviouslyReportedInIndependentAuthority(studentData)) {
-            Map<String, Object> fteValues = new HashMap<>();
-            fteValues.put("fte", BigDecimal.ZERO);
-            fteValues.put("fteZeroReason", "The authority has already received funding for the student this year.");
-            return fteValues;
+            FteCalculationResult fteCalculationResult = new FteCalculationResult();
+            fteCalculationResult.setFte(BigDecimal.ZERO);
+            fteCalculationResult.setFteZeroReason("The authority has already received funding for the student this year.");
+            return fteCalculationResult;
         } else {
             return this.nextCalculator.calculateFte(studentData);
         }

@@ -2,14 +2,13 @@ package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,11 +41,11 @@ class GraduatedAdultIndySchoolCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> result = graduatedAdultIndySchoolCalculator.calculateFte(studentData);
+        FteCalculationResult result = graduatedAdultIndySchoolCalculator.calculateFte(studentData);
 
         // Then
-        assertEquals(BigDecimal.ZERO, result.get("fte"));
-        assertEquals("The student is graduated adult reported by an independent school.", result.get("fteZeroReason"));
+        assertEquals(BigDecimal.ZERO, result.getFte());
+        assertEquals("The student is graduated adult reported by an independent school.", result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
@@ -64,11 +63,11 @@ class GraduatedAdultIndySchoolCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("fte", BigDecimal.ONE);
-        expectedResult.put("fteZeroReason", null);
+        FteCalculationResult expectedResult = new FteCalculationResult();
+        expectedResult.setFte(BigDecimal.ONE);
+        expectedResult.setFteZeroReason(null);
         when(nextCalculator.calculateFte(studentData)).thenReturn(expectedResult);
-        Map<String, Object> result = graduatedAdultIndySchoolCalculator.calculateFte(studentData);
+        FteCalculationResult result = graduatedAdultIndySchoolCalculator.calculateFte(studentData);
 
         // Then
         assertEquals(expectedResult, result);
@@ -89,11 +88,11 @@ class GraduatedAdultIndySchoolCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("fte", BigDecimal.ONE);
-        expectedResult.put("fteZeroReason", null);
+        FteCalculationResult expectedResult = new FteCalculationResult();
+        expectedResult.setFte(BigDecimal.ONE);
+        expectedResult.setFteZeroReason(null);
         when(nextCalculator.calculateFte(studentData)).thenReturn(expectedResult);
-        Map<String, Object> result = graduatedAdultIndySchoolCalculator.calculateFte(studentData);
+        FteCalculationResult result = graduatedAdultIndySchoolCalculator.calculateFte(studentData);
 
         // Then
         assertEquals(expectedResult, result);
@@ -110,11 +109,11 @@ class GraduatedAdultIndySchoolCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("fte", BigDecimal.ONE);
-        expectedResult.put("fteZeroReason", null);
+        FteCalculationResult expectedResult = new FteCalculationResult();
+        expectedResult.setFte(BigDecimal.ONE);
+        expectedResult.setFteZeroReason(null);
         when(nextCalculator.calculateFte(studentData)).thenReturn(expectedResult);
-        Map<String, Object> result = graduatedAdultIndySchoolCalculator.calculateFte(studentData);
+        FteCalculationResult result = graduatedAdultIndySchoolCalculator.calculateFte(studentData);
 
         // Then
         assertEquals(expectedResult, result);

@@ -3,13 +3,13 @@ package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -17,6 +17,7 @@ public class NoCoursesInLastTwoYearsCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Getter
     private int processingSequenceNumber = 6;
+    @Autowired
     FteCalculatorUtils fteCalculatorUtils;
 
     @Override
@@ -24,12 +25,12 @@ public class NoCoursesInLastTwoYearsCalculator implements FteCalculator {
         this.nextCalculator = nextCalculator;
     }
     @Override
-    public Map<String, Object> calculateFte(SdcStudentSagaData studentData) {
+    public FteCalculationResult calculateFte(SdcStudentSagaData studentData) {
         if(fteCalculatorUtils.noCoursesForStudentInLastTwoYears(studentData)) {
-            Map<String, Object> fteValues = new HashMap<>();
-            fteValues.put("fte", BigDecimal.ZERO);
-            fteValues.put("fteZeroReason", "The student has not been reported as \"active\" in a new course in the last two years.");
-            return fteValues;
+            FteCalculationResult fteCalculationResult = new FteCalculationResult();
+            fteCalculationResult.setFte(BigDecimal.ZERO);
+            fteCalculationResult.setFteZeroReason("The student has not been reported as \"active\" in a new course in the last two years.");
+            return fteCalculationResult;
         } else {
             return this.nextCalculator.calculateFte(studentData);
         }

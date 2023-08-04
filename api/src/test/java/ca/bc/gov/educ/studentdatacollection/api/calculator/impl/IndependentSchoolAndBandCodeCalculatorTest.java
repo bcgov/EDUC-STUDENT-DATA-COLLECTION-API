@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,14 +63,14 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         when(bandCodeRepository.findById(bandCodeValue)).thenReturn(Optional.of(bandCode));
 
         // When
-        Map<String, Object> result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
+        FteCalculationResult result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
         String expectedFteZeroReason = "The student is Nominal Roll eligible and is federally funded.";
 
-        assertEquals(expectedFte, result.get("fte"));
-        assertEquals(expectedFteZeroReason, result.get("fteZeroReason"));
+        assertEquals(expectedFte, result.getFte());
+        assertEquals(expectedFteZeroReason, result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
@@ -98,15 +99,15 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         when(bandCodeRepository.findById(bandCodeValue)).thenReturn(Optional.of(bandCode));
 
         // When
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("fte", BigDecimal.ONE);
-        expectedResult.put("fteZeroReason", null);
+        FteCalculationResult expectedResult = new FteCalculationResult();
+        expectedResult.setFte(BigDecimal.ONE);
+        expectedResult.setFteZeroReason(null);
         when(nextCalculator.calculateFte(any())).thenReturn(expectedResult);
-        Map<String, Object> result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
+        FteCalculationResult result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
 
         // Then
-        assertEquals(expectedResult.get("fte"), result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(expectedResult.getFte(), result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator).calculateFte(studentData);
     }
 
@@ -115,7 +116,7 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         // Given
         String schoolCategory = "INDEPEND";
         String bandCodeValue = "BAND_CODE_INVALID";
-        String fundingcode = "20";
+        String fundingCode = "20";
         LocalDateTime effectiveDate = LocalDateTime.now().plusDays(1); // One day ahead of now
         LocalDateTime expiryDate = LocalDateTime.now().plusDays(2); // Two days ahead of now
 
@@ -124,7 +125,7 @@ class IndependentSchoolAndBandCodeCalculatorTest {
 
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
         student.setBandCode(bandCodeValue);
-        student.setSchoolFundingCode(fundingcode);
+        student.setSchoolFundingCode(fundingCode);
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSchool(school);
@@ -137,14 +138,14 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         when(bandCodeRepository.findById(bandCodeValue)).thenReturn(Optional.of(bandCode));
 
         // When
-        Map<String, Object> result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
+        FteCalculationResult result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
         String expectedFteZeroReason = "The student is Nominal Roll eligible and is federally funded.";
 
-        assertEquals(expectedFte, result.get("fte"));
-        assertEquals(expectedFteZeroReason, result.get("fteZeroReason"));
+        assertEquals(expectedFte, result.getFte());
+        assertEquals(expectedFteZeroReason, result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
@@ -175,15 +176,15 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         when(bandCodeRepository.findById(bandCodeValue)).thenReturn(Optional.of(bandCode));
 
         // When
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("fte", BigDecimal.ONE);
-        expectedResult.put("fteZeroReason", null);
+        FteCalculationResult expectedResult = new FteCalculationResult();
+        expectedResult.setFte(BigDecimal.ONE);
+        expectedResult.setFteZeroReason(null);
         when(nextCalculator.calculateFte(any())).thenReturn(expectedResult);
-        Map<String, Object> result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
+        FteCalculationResult result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
 
         // Then
-        assertEquals(expectedResult.get("fte"), result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(expectedResult.getFte(), result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator).calculateFte(studentData);
     }
 
@@ -206,15 +207,15 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         when(bandCodeRepository.findById(bandCodeValue)).thenReturn(Optional.empty()); // Return empty optional for unknown band code
 
         // When
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("fte", BigDecimal.ONE);
-        expectedResult.put("fteZeroReason", null);
+        FteCalculationResult expectedResult = new FteCalculationResult();
+        expectedResult.setFte(BigDecimal.ONE);
+        expectedResult.setFteZeroReason(null);
         when(nextCalculator.calculateFte(any())).thenReturn(expectedResult);
-        Map<String, Object> result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
+        FteCalculationResult result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
 
         // Then
-        assertEquals(expectedResult.get("fte"), result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(expectedResult.getFte(), result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator).calculateFte(studentData);
     }
 
@@ -233,15 +234,15 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("fte", BigDecimal.ONE);
-        expectedResult.put("fteZeroReason", null);
+        FteCalculationResult expectedResult = new FteCalculationResult();
+        expectedResult.setFte(BigDecimal.ONE);
+        expectedResult.setFteZeroReason(null);
         when(nextCalculator.calculateFte(any())).thenReturn(expectedResult);
-        Map<String, Object> result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
+        FteCalculationResult result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
 
         // Then
-        assertEquals(expectedResult.get("fte"), result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(expectedResult.getFte(), result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator).calculateFte(studentData);
     }
 
@@ -267,15 +268,15 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         when(bandCodeRepository.findById(bandCodeValue)).thenReturn(Optional.of(bandCode));
 
         // When
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("fte", BigDecimal.ONE);
-        expectedResult.put("fteZeroReason", null);
+        FteCalculationResult expectedResult = new FteCalculationResult();
+        expectedResult.setFte(BigDecimal.ONE);
+        expectedResult.setFteZeroReason(null);
         when(nextCalculator.calculateFte(any())).thenReturn(expectedResult);
-        Map<String, Object> result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
+        FteCalculationResult result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
 
         // Then
-        assertEquals(expectedResult.get("fte"), result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(expectedResult.getFte(), result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator).calculateFte(studentData);
     }
 }

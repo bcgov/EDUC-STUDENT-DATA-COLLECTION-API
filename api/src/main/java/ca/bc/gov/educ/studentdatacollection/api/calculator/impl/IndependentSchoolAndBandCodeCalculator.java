@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.BandCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.BandCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -13,8 +14,6 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -29,7 +28,7 @@ public class IndependentSchoolAndBandCodeCalculator implements FteCalculator {
         this.nextCalculator = nextCalculator;
     }
     @Override
-    public Map<String, Object> calculateFte(SdcStudentSagaData studentData) {
+    public FteCalculationResult calculateFte(SdcStudentSagaData studentData) {
         var isIndependentSchool = studentData.getSchool() != null && StringUtils.equals(studentData.getSchool().getSchoolCategoryCode(), SchoolCategoryCodes.INDEPEND.getCode());
         Optional<BandCodeEntity> bandCode = StringUtils.isBlank(studentData.getSdcSchoolCollectionStudent().getBandCode()) ? (Optional.empty()): bandCodeRepository.findById(studentData.getSdcSchoolCollectionStudent().getBandCode());
         var hasValidBandCode = false;
@@ -38,10 +37,10 @@ public class IndependentSchoolAndBandCodeCalculator implements FteCalculator {
         }
         var fundingCode = studentData.getSdcSchoolCollectionStudent().getSchoolFundingCode();
         if(isIndependentSchool && (StringUtils.equals(fundingCode, Constants.IND_FUNDING_CODE) || (hasValidBandCode && StringUtils.isBlank(fundingCode)))) {
-            Map<String, Object> fteValues = new HashMap<>();
-            fteValues.put("fte", BigDecimal.ZERO);
-            fteValues.put("fteZeroReason", "The student is Nominal Roll eligible and is federally funded.");
-            return fteValues;
+            FteCalculationResult fteCalculationResult = new FteCalculationResult();
+            fteCalculationResult.setFte(BigDecimal.ZERO);
+            fteCalculationResult.setFteZeroReason("The student is Nominal Roll eligible and is federally funded.");
+            return fteCalculationResult;
         } else {
             return this.nextCalculator.calculateFte(studentData);
         }

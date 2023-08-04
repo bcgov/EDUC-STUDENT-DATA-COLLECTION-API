@@ -4,14 +4,15 @@ import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -19,6 +20,7 @@ public class NewOnlineStudentCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Getter
     private int processingSequenceNumber = 11;
+    @Autowired
     FteCalculatorUtils fteCalculatorUtils;
 
     @Override
@@ -26,23 +28,23 @@ public class NewOnlineStudentCalculator implements FteCalculator {
         this.nextCalculator = nextCalculator;
     }
     @Override
-    public Map<String, Object> calculateFte(SdcStudentSagaData studentData) {
+    public FteCalculationResult calculateFte(SdcStudentSagaData studentData) {
         if(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(studentData)) {
             var student = studentData.getSdcSchoolCollectionStudent();
-            Map<String, Object> fteValues = new HashMap<>();
+            FteCalculationResult fteCalculationResult = new FteCalculationResult();
             if(student.getEnrolledGradeCode().equals(SchoolGradeCodes.KINDHALF.getCode())) {
-                fteValues.put("fte", new BigDecimal("0.4529"));
+                fteCalculationResult.setFte(new BigDecimal("0.4529"));
             } else if (student.getEnrolledGradeCode().equals(SchoolGradeCodes.GRADE08.getCode()) || student.getEnrolledGradeCode().equals(SchoolGradeCodes.GRADE09.getCode())) {
                 BigDecimal fteMultiplier = new BigDecimal("0.125");
-                BigDecimal numCourses = new BigDecimal(studentData.getSdcSchoolCollectionStudent().getNumberOfCourses());
+                BigDecimal numCourses = StringUtils.isBlank(studentData.getSdcSchoolCollectionStudent().getNumberOfCourses()) ? BigDecimal.ZERO : new BigDecimal(studentData.getSdcSchoolCollectionStudent().getNumberOfCourses());
                 BigDecimal largestFte = new BigDecimal("0.9529");
-                var fte = (numCourses.multiply(fteMultiplier).add(new BigDecimal("0.5"))).setScale(4, RoundingMode.HALF_UP);
-                fteValues.put("fte", fte.compareTo(largestFte) > 0 ? largestFte : fte);
+                var fte = (numCourses.multiply(fteMultiplier).add(new BigDecimal("0.5"))).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros();
+                fteCalculationResult.setFte(fte.compareTo(largestFte) > 0 ? largestFte : fte);
             } else {
-                fteValues.put("fte", new BigDecimal("0.9529"));
+                fteCalculationResult.setFte(new BigDecimal("0.9529"));
             }
-            fteValues.put("fteZeroReason", null);
-            return fteValues;
+            fteCalculationResult.setFteZeroReason(null);
+            return fteCalculationResult;
         } else {
             return this.nextCalculator.calculateFte(studentData);
         }

@@ -1,12 +1,12 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator;
 
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class FteCalculatorChainProcessor {
@@ -18,7 +18,7 @@ public class FteCalculatorChainProcessor {
         this.fteCalculators = fteCalculators;
     }
 
-    public Map<String, Object> processFteCalculator(SdcStudentSagaData sdcStudentSagaData) {
+    public FteCalculationResult processFteCalculator(SdcStudentSagaData sdcStudentSagaData) {
         fteCalculators.sort(Comparator.comparing(FteCalculator::getProcessingSequenceNumber));
 
         for (int i = 0; i < fteCalculators.size() - 1; i++) {

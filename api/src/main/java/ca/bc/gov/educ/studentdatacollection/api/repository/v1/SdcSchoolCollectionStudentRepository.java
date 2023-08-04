@@ -53,5 +53,5 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   long countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID assignedStudentId, List<UUID> sdcSchoolCollectionID);
 
-  Optional<SdcSchoolCollectionStudentEntity> findByAssignedStudentIdAndEnrolledGradeCodeAndCreateDateBetween(UUID assignedStudentId, String enrolledGradeCode, LocalDateTime startDate, LocalDateTime endDate);
+  long countAllByAssignedStudentIdAndEnrolledGradeCodeAndCreateDateBetween(UUID assignedStudentId, String enrolledGradeCode, LocalDateTime startDate, LocalDateTime endDate);
 }

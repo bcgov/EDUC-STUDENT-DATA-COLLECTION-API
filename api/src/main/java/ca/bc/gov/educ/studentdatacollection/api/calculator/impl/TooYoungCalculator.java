@@ -2,14 +2,13 @@ package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -22,12 +21,12 @@ public class TooYoungCalculator implements FteCalculator {
         this.nextCalculator = nextCalculator;
     }
     @Override
-    public Map<String, Object> calculateFte(SdcStudentSagaData studentData) {
+    public FteCalculationResult calculateFte(SdcStudentSagaData studentData) {
         if(!DOBUtil.is5YearsOldByDec31ThisSchoolYear(studentData.getSdcSchoolCollectionStudent().getDob())) {
-            Map<String, Object> fteValues = new HashMap<>();
-            fteValues.put("fte", BigDecimal.ZERO);
-            fteValues.put("fteZeroReason", "The student is too young.");
-            return fteValues;
+            FteCalculationResult fteCalculationResult = new FteCalculationResult();
+            fteCalculationResult.setFte(BigDecimal.ZERO);
+            fteCalculationResult.setFteZeroReason("The student is too young.");
+            return fteCalculationResult;
         } else {
             return this.nextCalculator.calculateFte(studentData);
         }

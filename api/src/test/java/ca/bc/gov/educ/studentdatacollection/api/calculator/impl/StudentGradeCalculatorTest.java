@@ -4,9 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,18 +51,18 @@ class StudentGradeCalculatorTest {
         // When
         boolean isHighSchoolGrade = gradeCode.equals("10") || gradeCode.equals("11") || gradeCode.equals("12") || gradeCode.equals("SU");
         if (isHighSchoolGrade) {
-            Map<String, Object> expectedResult = new HashMap<>();
-            expectedResult.put("fte", new BigDecimal(expectedFteValue));
-            expectedResult.put("fteZeroReason", null);
+            FteCalculationResult expectedResult = new FteCalculationResult();
+            expectedResult.setFte(new BigDecimal(expectedFteValue));
+            expectedResult.setFteZeroReason(null);
 
             when(nextCalculator.calculateFte(any())).thenReturn(expectedResult);
         }
-        Map<String, Object> result = studentGradeCalculator.calculateFte(studentData);
+        FteCalculationResult result = studentGradeCalculator.calculateFte(studentData);
 
         // Then
         BigDecimal expectedFte = new BigDecimal(expectedFteValue);
-        assertEquals(expectedFte, result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(expectedFte, result.getFte());
+        assertNull(result.getFteZeroReason());
 
         // Ensure that the nextCalculator.calculateFte method is called for grade codes "10", "11", "12", and "SU"
         if (isHighSchoolGrade) {
@@ -84,12 +83,12 @@ class StudentGradeCalculatorTest {
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSdcSchoolCollectionStudent(student);
 
-        Map<String, Object> result = studentGradeCalculator.calculateFte(studentData);
+        FteCalculationResult result = studentGradeCalculator.calculateFte(studentData);
 
         // Then
         BigDecimal expectedFte = new BigDecimal("0.5");
-        assertEquals(expectedFte, result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(expectedFte, result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
@@ -102,12 +101,12 @@ class StudentGradeCalculatorTest {
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSdcSchoolCollectionStudent(student);
 
-        Map<String, Object> result = studentGradeCalculator.calculateFte(studentData);
+        FteCalculationResult result = studentGradeCalculator.calculateFte(studentData);
 
         // Then
         BigDecimal expectedFte = new BigDecimal("0.5");
-        assertEquals(expectedFte, result.get("fte"));
-        assertNull(result.get("fteZeroReason"));
+        assertEquals(expectedFte, result.getFte());
+        assertNull(result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 

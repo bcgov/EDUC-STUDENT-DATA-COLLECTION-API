@@ -1,0 +1,61 @@
+{
+  "sdcSchoolCollectionStudent": {
+    "sdcSchoolCollectionStudentID": "20f024a9-43a1-4b4a-b2a7-1689cf6ad712",
+    "sdcSchoolCollectionID": "20f024b3-43a1-4b4a-b2a7-1689cf6ad712",
+    "localID": "LOCAL123",
+    "studentPen": "PEN123456",
+    "legalFirstName": "John",
+    "legalMiddleNames": "Michael",
+    "legalLastName": "Doe",
+    "usualFirstName": "John",
+    "usualMiddleNames": "Mike",
+    "usualLastName": "Doe",
+    "dob": "20050515",
+    "gender": "M",
+    "specialEducationCategoryCode": "SPED01",
+    "schoolFundingCode": "FUND02",
+    "nativeAncestryInd": "N",
+    "homeLanguageSpokenCode": "ENG",
+    "otherCourses": "0",
+    "supportBlocks": "1",
+    "enrolledGradeCode": "10",
+    "enrolledProgramCodes": "PROG001,PROG002",
+    "careerProgramCode": "CAREER001",
+    "numberOfCourses": "6",
+    "bandCode": "",
+    "postalCode": "V6G 1A1",
+    "sdcSchoolCollectionStudentStatusCode": "ACTIVE",
+    "isAdult": false,
+    "isSchoolAged": true,
+    "fte": 0.875,
+    "fteZeroReasonCode": "REASON001",
+    "frenchProgramNonEligReasonCode": "REASON002",
+    "ellNonEligReasonCode": "REASON003",
+    "indigenousSupportProgramNonEligReasonCode": "REASON004",
+    "careerProgramNonEligReasonCode": "REASON005",
+    "specialEducationNonEligReasonCode": "REASON006",
+    "isGraduated": false,
+    "assignedStudentId": "20f024a9-43a1-4b4a-b2a7-1689cf6ad712",
+    "assignedPen": "120164447"
+  },
+  "penMatchResult": {
+    "matchingRecords": [
+      {
+        "matchingPEN": "120164447",
+        "studentID": "20f024a9-43a1-4b4a-b2a7-1689cf6ad712"
+      }
+    ],
+    "penStatus": "MATCHED",
+    "penStatusMessage": "Matching record found."
+  },
+  "gradStatus": "IN_PROGRESS",
+  "collectionTypeCode": "JAN",
+  "school": {
+    "schoolId": "20f024a9-43a1-4b4c-b2a7-1689cf6ad712",
+    "schoolName": "Sample School",
+    "schoolCategoryCode": "ONLINE",
+    "facilityTypeCode": "DIST_LEARN",
+    "districtId": "20f024b9-43a1-4b4a-b2a7-1689cf6ad712",
+    "independentAuthorityId": "20f024a9-43b1-4b4a-b2a7-1689cf6ad712"
+  }
+}

@@ -1,10 +1,5 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.math.BigDecimal;
-
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
@@ -12,10 +7,15 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class IndAuthorityDoubleReportedCalculatorTest {
+import java.math.BigDecimal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+class DistrictDoubleReportedCalculatorTest {
     private FteCalculator nextCalculator;
-    private IndAuthorityDoubleReportedCalculator indAuthorityDoubleReportedCalculator;
+    private DistrictDoubleReportedCalculator districtDoubleReportedCalculator;
     private FteCalculatorUtils fteCalculatorUtils;
 
     @BeforeEach
@@ -23,9 +23,9 @@ class IndAuthorityDoubleReportedCalculatorTest {
         nextCalculator = mock(FteCalculator.class);
         fteCalculatorUtils = mock(FteCalculatorUtils.class);
 
-        indAuthorityDoubleReportedCalculator = new IndAuthorityDoubleReportedCalculator();
-        indAuthorityDoubleReportedCalculator.setNext(nextCalculator);
-        indAuthorityDoubleReportedCalculator.fteCalculatorUtils = fteCalculatorUtils;
+        districtDoubleReportedCalculator = new DistrictDoubleReportedCalculator();
+        districtDoubleReportedCalculator.setNext(nextCalculator);
+        districtDoubleReportedCalculator.fteCalculatorUtils = fteCalculatorUtils;
     }
 
     @Test
@@ -33,14 +33,14 @@ class IndAuthorityDoubleReportedCalculatorTest {
         // Given
         SdcStudentSagaData studentData = new SdcStudentSagaData();
 
-        when(fteCalculatorUtils.studentPreviouslyReportedInIndependentAuthority(studentData)).thenReturn(true);
+        when(fteCalculatorUtils.studentPreviouslyReportedInDistrict(studentData)).thenReturn(true);
 
         // When
-        FteCalculationResult result = indAuthorityDoubleReportedCalculator.calculateFte(studentData);
+        FteCalculationResult result = districtDoubleReportedCalculator.calculateFte(studentData);
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
-        String expectedFteZeroReason = "The authority has already received funding for the student this year.";
+        String expectedFteZeroReason = "The district has already received funding for the student this year.";
 
         assertEquals(expectedFte, result.getFte());
         assertEquals(expectedFteZeroReason, result.getFteZeroReason());
@@ -52,7 +52,7 @@ class IndAuthorityDoubleReportedCalculatorTest {
         // Given
         SdcStudentSagaData studentData = new SdcStudentSagaData();
 
-        when(fteCalculatorUtils.studentPreviouslyReportedInIndependentAuthority(studentData)).thenReturn(false);
+        when(fteCalculatorUtils.studentPreviouslyReportedInDistrict(studentData)).thenReturn(false);
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();
@@ -60,11 +60,10 @@ class IndAuthorityDoubleReportedCalculatorTest {
         expectedResult.setFteZeroReason(null);
 
         when(nextCalculator.calculateFte(any())).thenReturn(expectedResult);
-        FteCalculationResult result = indAuthorityDoubleReportedCalculator.calculateFte(studentData);
+        FteCalculationResult result = districtDoubleReportedCalculator.calculateFte(studentData);
 
         // Then
         assertEquals(expectedResult, result);
         verify(nextCalculator).calculateFte(studentData);
     }
 }
-

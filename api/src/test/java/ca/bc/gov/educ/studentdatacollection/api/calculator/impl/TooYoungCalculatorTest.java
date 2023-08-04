@@ -7,9 +7,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
 
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.util.SchoolYear;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,11 +39,11 @@ class TooYoungCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> result = tooYoungCalculator.calculateFte(studentData);
+        FteCalculationResult result = tooYoungCalculator.calculateFte(studentData);
 
         // Then
-        assertEquals(BigDecimal.ZERO, result.get("fte"));
-        assertEquals("The student is too young.", result.get("fteZeroReason"));
+        assertEquals(BigDecimal.ZERO, result.getFte());
+        assertEquals("The student is too young.", result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
@@ -59,12 +58,12 @@ class TooYoungCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("fte", BigDecimal.ONE);
-        expectedResult.put("fteZeroReason", null);
+        FteCalculationResult expectedResult = new FteCalculationResult();
+        expectedResult.setFte(BigDecimal.ONE);
+        expectedResult.setFteZeroReason(null);
 
         when(nextCalculator.calculateFte(any())).thenReturn(expectedResult);
-        Map<String, Object> result = tooYoungCalculator.calculateFte(studentData);
+        FteCalculationResult result = tooYoungCalculator.calculateFte(studentData);
 
         // Then
         assertEquals(expectedResult, result);
@@ -85,12 +84,12 @@ class TooYoungCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("fte", BigDecimal.ONE);
-        expectedResult.put("fteZeroReason", null);
+        FteCalculationResult expectedResult = new FteCalculationResult();
+        expectedResult.setFte(BigDecimal.ONE);
+        expectedResult.setFteZeroReason(null);
 
         when(nextCalculator.calculateFte(any())).thenReturn(expectedResult);
-        Map<String, Object> result = tooYoungCalculator.calculateFte(studentData);
+        FteCalculationResult result = tooYoungCalculator.calculateFte(studentData);
 
         // Then
         assertEquals(expectedResult, result);

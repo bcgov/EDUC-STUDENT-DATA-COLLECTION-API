@@ -43,6 +43,20 @@ public enum SchoolGradeCodes {
         return districtFundingGrades;
     }
 
+    public static List<String> getKfOneToSevenEuGrades() {
+        List<String> districtFundingGrades = new ArrayList<>();
+        districtFundingGrades.add(KINDFULL.getCode());
+        districtFundingGrades.add(GRADE01.getCode());
+        districtFundingGrades.add(GRADE02.getCode());
+        districtFundingGrades.add(GRADE03.getCode());
+        districtFundingGrades.add(GRADE04.getCode());
+        districtFundingGrades.add(GRADE05.getCode());
+        districtFundingGrades.add(GRADE06.getCode());
+        districtFundingGrades.add(GRADE07.getCode());
+        districtFundingGrades.add(ELEMUNGR.getCode());
+        return districtFundingGrades;
+    }
+
     public static List<String> getKToNineGrades() {
         List<String> districtFundingGrades = new ArrayList<>();
         districtFundingGrades.add(KINDHALF.getCode());

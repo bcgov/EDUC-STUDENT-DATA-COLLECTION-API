@@ -4,9 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,11 +35,11 @@ class StudentOutOfProvinceCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> result = studentOutOfProvinceCalculator.calculateFte(studentData);
+        FteCalculationResult result = studentOutOfProvinceCalculator.calculateFte(studentData);
 
         // Then
-        assertEquals(BigDecimal.ZERO, result.get("fte"));
-        assertEquals("Out-of-Province/International Students are not eligible for funding.", result.get("fteZeroReason"));
+        assertEquals(BigDecimal.ZERO, result.getFte());
+        assertEquals("Out-of-Province/International Students are not eligible for funding.", result.getFteZeroReason());
 
         // Ensure that the nextCalculator.calculateFte method is not called
         verify(nextCalculator, never()).calculateFte(any());
@@ -56,12 +55,12 @@ class StudentOutOfProvinceCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("fte", BigDecimal.ONE);
-        expectedResult.put("fteZeroReason", null);
+        FteCalculationResult expectedResult = new FteCalculationResult();
+        expectedResult.setFte(BigDecimal.ONE);
+        expectedResult.setFteZeroReason(null);
 
         when(nextCalculator.calculateFte(any())).thenReturn(expectedResult);
-        Map<String, Object> result = studentOutOfProvinceCalculator.calculateFte(studentData);
+        FteCalculationResult result = studentOutOfProvinceCalculator.calculateFte(studentData);
 
         // Then
         assertEquals(expectedResult, result);
@@ -80,12 +79,12 @@ class StudentOutOfProvinceCalculatorTest {
         studentData.setSdcSchoolCollectionStudent(student);
 
         // When
-        Map<String, Object> expectedResult = new HashMap<>();
-        expectedResult.put("fte", BigDecimal.ONE);
-        expectedResult.put("fteZeroReason", null);
+        FteCalculationResult expectedResult = new FteCalculationResult();
+        expectedResult.setFte(BigDecimal.ONE);
+        expectedResult.setFteZeroReason(null);
 
         when(nextCalculator.calculateFte(any())).thenReturn(expectedResult);
-        Map<String, Object> result = studentOutOfProvinceCalculator.calculateFte(studentData);
+        FteCalculationResult result = studentOutOfProvinceCalculator.calculateFte(studentData);
 
         // Then
         assertEquals(expectedResult, result);
