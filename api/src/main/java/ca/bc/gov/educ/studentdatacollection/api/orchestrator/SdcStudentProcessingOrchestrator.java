@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.orchestrator;
 
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorChainProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
@@ -45,13 +46,15 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
   private final RestUtils restUtils;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+  private final FteCalculatorChainProcessor fteCalculatorChainProcessor;
 
-  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
+  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, FteCalculatorChainProcessor fteCalculatorChainProcessor) {
     super(sagaService, messagePublisher, SdcStudentSagaData.class, SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString(), TopicsEnum.STUDENT_DATA_COLLECTION_PROCESS_STUDENT_SAGA_TOPIC.toString());
     this.rulesProcessor = rulesProcessor;
     this.restUtils = restUtils;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
+    this.fteCalculatorChainProcessor = fteCalculatorChainProcessor;
   }
 
   @Override
@@ -112,6 +115,10 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     String studentDOB = sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob();
 
     this.sdcSchoolCollectionStudentService.updateStudentAgeColumns(studentUUID, DOBUtil.isAdult(studentDOB), DOBUtil.isSchoolAged(studentDOB));
+
+    // Calculate Fte
+    var fteResults = this.fteCalculatorChainProcessor.processFteCalculator(sdcStudentSagaData);
+    this.sdcSchoolCollectionStudentService.updateFteColumns(fteResults, studentUUID);
 
     this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
       .eventType(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES).eventOutcome(ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED)

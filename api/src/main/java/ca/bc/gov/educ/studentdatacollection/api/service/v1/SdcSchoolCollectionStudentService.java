@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -21,6 +20,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
@@ -39,9 +39,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.VALIDATION_SUCCESS_NO_ERROR_WARNING;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.VALIDATION_SUCCESS_WITH_ERROR;
 
 @Service
 @Slf4j
@@ -226,6 +223,19 @@ public class SdcSchoolCollectionStudentService {
       updatedStudentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
       this.sdcSchoolCollectionStudentRepository.save(updatedStudentEntity);
     }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void updateFteColumns(FteCalculationResult fteCalculationResult, UUID sdcSchoolCollectionStudentID) {
+    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
+
+    var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
+            new EntityNotFoundException(SdcSchoolCollectionStudent.class, "sdcSchoolCollectionStudentId", sdcSchoolCollectionStudentID.toString()));
+
+    student.setFte(fteCalculationResult.getFte());
+    student.setFteZeroReasonCode(fteCalculationResult.getFteZeroReason());
+
+    sdcSchoolCollectionStudentRepository.save(student);
   }
 
   private SdcStudentSagaData createSagaDataForValidation(SdcSchoolCollectionStudentEntity studentEntity) {

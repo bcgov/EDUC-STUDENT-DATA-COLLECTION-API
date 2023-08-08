@@ -1,0 +1,40 @@
+{
+  "sdcSchoolCollectionID": "40d5fb43-149e-4c51-b66d-08b1b8269f4f",
+  "collectionEntity": {
+    "collectionID": "a31165d9-6246-4d04-90f3-83bf7414b8c7",
+    "collectionTypeCode": "JAN",
+    "openDate": "2023-01-01T00:00:00",
+    "closeDate": "2023-01-31T23:59:59",
+    "createUser": "john_doe",
+    "createDate": "2023-07-28T12:00:00",
+    "updateUser": "jane_smith",
+    "updateDate": "2023-07-28T13:30:00"
+  },
+  "schoolID": "ad39f462-0c50-46d5-8913-d0c4cd1de4f7",
+  "districtID": "2ae2c956-9cb2-4147-8cc0-26c249e380dd",
+  "uploadDate": "2023-07-28T14:45:00",
+  "uploadFileName": "school_data.csv",
+  "uploadReportDate": "2023-07-28",
+  "sdcSchoolCollectionStatusCode": "ACTIVE",
+  "createUser": "admin_user",
+  "createDate": "2023-07-28T10:00:00",
+  "updateUser": "admin_user",
+  "updateDate": "2023-07-28T10:30:00",
+  "sdcSchoolCollectionHistoryEntities": [
+    {
+      "sdcSchoolCollectionHistoryID": "b3d3e438-e0cc-41b3-9f7e-1b44f2bc480e",
+      "sdcSchoolCollectionID": "40d5fb43-149e-4c51-b66d-08b1b8269f4f",
+      "historyDescription": "Collection created",
+      "createUser": "admin_user",
+      "createDate": "2023-07-28T10:00:00"
+    },
+    {
+      "sdcSchoolCollectionHistoryID": "79d7e2c2-7277-4465-9137-78245114e566",
+      "sdcSchoolCollectionID": "40d5fb43-149e-4c51-b66d-08b1b8269f4f",
+      "historyDescription": "Collection updated",
+      "createUser": "admin_user",
+      "createDate": "2023-07-28T10:30:00"
+    }
+  ],
+  "sdcSchoolStudentEntities": []
+}

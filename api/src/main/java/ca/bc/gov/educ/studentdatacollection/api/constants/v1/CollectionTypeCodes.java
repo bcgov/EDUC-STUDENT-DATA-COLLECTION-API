@@ -1,9 +1,12 @@
 package ca.bc.gov.educ.studentdatacollection.api.constants.v1;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 
 import java.util.Optional;
 
+@Getter
 public enum CollectionTypeCodes {
     ENTRY1("SEPTEMBER", new String[]{Constants.PUBLIC, Constants.INDEPEND, Constants.OFFSHORE}),
     ENTRY2("FEBRUARY", new String[]{Constants.PUBLIC, Constants.INDEPEND, Constants.OFFSHORE}),

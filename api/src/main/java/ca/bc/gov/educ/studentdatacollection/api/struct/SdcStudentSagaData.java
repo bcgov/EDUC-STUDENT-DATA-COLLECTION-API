@@ -21,5 +21,4 @@ public class SdcStudentSagaData {
   private String gradStatus;
   private String collectionTypeCode;
   private School school;
-
 }

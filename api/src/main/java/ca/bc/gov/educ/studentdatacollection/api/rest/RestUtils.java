@@ -62,6 +62,8 @@ public class RestUtils {
   @Value("${initialization.background.enabled}")
   private Boolean isBackgroundInitializationEnabled;
 
+  private final Map<String, List<UUID>> independentAuthorityToSchoolIDMap = new ConcurrentHashMap<>();
+
   @Autowired
   public RestUtils(WebClient webClient, final ApplicationProperties props, final MessagePublisher messagePublisher) {
     this.webClient = webClient;
@@ -97,6 +99,7 @@ public class RestUtils {
       writeLock.lock();
       for (val school : this.getSchools()) {
         this.schoolMap.put(school.getSchoolId(), school);
+        this.independentAuthorityToSchoolIDMap.computeIfAbsent(school.getIndependentAuthorityId(), k -> new ArrayList<>()).add(UUID.fromString(school.getSchoolId()));
       }
     }
     catch (Exception ex) {
@@ -188,4 +191,11 @@ public class RestUtils {
     return SearchCriteria.builder().key(key).operation(operation).value(value).valueType(valueType).condition(condition).build();
   }
 
+  public Optional<List<UUID>> getSchoolIDsByIndependentAuthorityID(final String independentAuthorityID) {
+    if (this.independentAuthorityToSchoolIDMap.isEmpty()) {
+      log.info("The map is empty reloading schools");
+      this.populateSchoolMap();
+    }
+    return Optional.ofNullable(this.independentAuthorityToSchoolIDMap.get(independentAuthorityID));
+  }
 }
