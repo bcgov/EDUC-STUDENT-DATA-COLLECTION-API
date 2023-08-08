@@ -134,10 +134,15 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationError.size()).isZero();
 
         entity.setStudentPen(null);
-        val sagaData = createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school);
-        sagaData.setCollectionTypeCode("JULY");
-        val validationErrorBlank = rulesProcessor.processRules(sagaData);
-        assertThat(validationErrorBlank.size()).isZero();
+        val summerSagaData = createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school);
+        summerSagaData.setCollectionTypeCode("JULY");
+        val summerValidationErrorBlank = rulesProcessor.processRules(summerSagaData);
+        assertThat(summerValidationErrorBlank.size()).isNotZero();
+
+        val septemberSagaData = createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school);
+        septemberSagaData.setCollectionTypeCode("SEPTEMBER");
+        val septemberValidationErrorBlank = rulesProcessor.processRules(septemberSagaData);
+        assertThat(septemberValidationErrorBlank.size()).isZero();
     }
 
     @Test
