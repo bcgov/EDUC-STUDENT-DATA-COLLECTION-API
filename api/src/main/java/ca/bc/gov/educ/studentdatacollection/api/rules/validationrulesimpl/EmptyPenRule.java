@@ -26,7 +26,7 @@ public class EmptyPenRule implements ValidationBaseRule {
     @Override
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent() &&
-                sdcStudentSagaData.getCollectionTypeCode().equalsIgnoreCase(Constants.JULY) && sdcStudentSagaData.getSchool().getFacilityTypeCode().equalsIgnoreCase(Constants.SUMMER);
+                sdcStudentSagaData.getCollectionTypeCode().equalsIgnoreCase(Constants.JULY);
     }
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
