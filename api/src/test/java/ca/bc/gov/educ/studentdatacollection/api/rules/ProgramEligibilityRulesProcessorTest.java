@@ -57,7 +57,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
         createMockSchool()
       )
     );
-    assertThat(emptyErrorsList.size()).isZero();
+    assertThat(emptyErrorsList).isEmpty();
 
     schoolStudentEntity.setEnrolledGradeCode(Constants.HS);
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithHSError = rulesProcessor.processRules(
@@ -86,7 +86,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
         SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
         createMockSchool()
       )
-    ).size()).isZero();
+    )).isEmpty();
 
     schoolStudentEntity.setSchoolFundingCode(Constants.FUNDING_CODE_14);
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithOutOfProvinceError = rulesProcessor.processRules(
@@ -120,7 +120,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
         createMockSchool()
       )
     );
-    assertThat(emptyErrorsList.size()).isZero();
+    assertThat(emptyErrorsList).isEmpty();
 
     School offshoreSchool = createMockSchool();
     offshoreSchool.setSchoolCategoryCode(Constants.OFFSHORE);
