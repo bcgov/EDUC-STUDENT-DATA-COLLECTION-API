@@ -24,5 +24,4 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     Optional<List<SdcSchoolCollectionEntity>> findAllByDistrictIDAndCreateDateBetween(UUID schoolId, LocalDateTime startDate, LocalDateTime endDate);
 
     Optional<List<SdcSchoolCollectionEntity>> findAllBySchoolIDInAndCreateDateBetween(List<UUID> schoolIds, LocalDateTime startDate, LocalDateTime endDate);
-
 }

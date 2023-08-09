@@ -176,6 +176,8 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setCreateDate(LocalDateTime.now());
     sdcEntity.setUpdateUser("ABC");
     sdcEntity.setUpdateDate(LocalDateTime.now());
+    sdcEntity.setIsSchoolAged(true);
+    sdcEntity.setIsAdult(false);
     return sdcEntity;
   }
 

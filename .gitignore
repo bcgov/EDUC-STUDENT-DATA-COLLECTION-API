@@ -31,3 +31,6 @@ api/src/main/resources/student-request.http
 *.iml
 api/src/main/resources/*.http
 api/*.iml
+.envrc
+shell.nix
+Session.vim

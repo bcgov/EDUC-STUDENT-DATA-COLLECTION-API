@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.orchestrator;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorChainProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -12,6 +13,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.BaseOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityRulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
@@ -43,14 +45,16 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.PEN_
 @Slf4j
 public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStudentSagaData> {
   private final RulesProcessor rulesProcessor;
+  private final ProgramEligibilityRulesProcessor programEligibilityRulesProcessor;
   private final RestUtils restUtils;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
   private final FteCalculatorChainProcessor fteCalculatorChainProcessor;
 
-  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, FteCalculatorChainProcessor fteCalculatorChainProcessor) {
+  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final ProgramEligibilityRulesProcessor programEligibilityRulesProcessor, final RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, FteCalculatorChainProcessor fteCalculatorChainProcessor) {
     super(sagaService, messagePublisher, SdcStudentSagaData.class, SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString(), TopicsEnum.STUDENT_DATA_COLLECTION_PROCESS_STUDENT_SAGA_TOPIC.toString());
     this.rulesProcessor = rulesProcessor;
+    this.programEligibilityRulesProcessor = programEligibilityRulesProcessor;
     this.restUtils = restUtils;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
@@ -115,6 +119,12 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     String studentDOB = sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob();
 
     this.sdcSchoolCollectionStudentService.updateStudentAgeColumns(studentUUID, DOBUtil.isAdult(studentDOB), DOBUtil.isSchoolAged(studentDOB));
+
+    // Update program eligibility
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> programEligibilityErrors =
+      this.programEligibilityRulesProcessor.processRules(sdcStudentSagaData);
+
+    this.sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(programEligibilityErrors, studentUUID);
 
     // Calculate Fte
     var fteResults = this.fteCalculatorChainProcessor.processFteCalculator(sdcStudentSagaData);
