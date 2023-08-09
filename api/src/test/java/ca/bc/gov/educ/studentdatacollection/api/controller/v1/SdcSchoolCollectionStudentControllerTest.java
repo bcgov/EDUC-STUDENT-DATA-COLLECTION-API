@@ -708,7 +708,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
-    void testReadPenRequestBatchPaginated_GivenFixableCountFilterWithoutData_ShouldReturnStatusOk() throws Exception {
+    void testFindAll_multipleOrCriteriaAndAnAndCriteriaCombined_ShouldReturnStatusOk() throws Exception {
         final File file = new File(
                 Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
         );
