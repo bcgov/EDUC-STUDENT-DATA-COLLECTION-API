@@ -9,9 +9,11 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStud
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SearchCriteria;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValueType;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
@@ -23,10 +25,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.AND;
+import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.OR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -700,5 +705,48 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         assertThat(curStudentEntity).isPresent();
         var studentEntity = curStudentEntity.get();
         assertThat(studentEntity.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.LOADED.toString());
+    }
+
+    @Test
+    void testReadPenRequestBatchPaginated_GivenFixableCountFilterWithoutData_ShouldReturnStatusOk() throws Exception {
+        final File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+        );
+        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+        });
+        final var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).collect(Collectors.toList());
+        this.sdcSchoolCollectionStudentRepository.saveAll(models);
+        final SearchCriteria criteria = SearchCriteria.builder().key("enrolledGradeCode").operation(FilterOperation.IN).value("01,02").valueType(ValueType.STRING).build();
+        final List<SearchCriteria> criteriaList1 = new ArrayList<>();
+        criteriaList1.add(criteria);
+        final SearchCriteria criteria2 = SearchCriteria.builder().key("legalFirstName").operation(FilterOperation.CONTAINS).value("OLIVIA").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria3 = SearchCriteria.builder().key("usualFirstName").condition(OR).operation(FilterOperation.CONTAINS).value("OLIVIA").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria4 = SearchCriteria.builder().key("legalMiddleNames").condition(OR).operation(FilterOperation.CONTAINS).value("OLIVIA").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria5 = SearchCriteria.builder().key("usualMiddleNames").condition(OR).operation(FilterOperation.CONTAINS).value("OLIVIA").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria6 = SearchCriteria.builder().key("legalLastName").condition(OR).operation(FilterOperation.CONTAINS).value("OLIVIA").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria7 = SearchCriteria.builder().key("usualLastName").condition(OR).operation(FilterOperation.CONTAINS).value("OLIVIA").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria8 = SearchCriteria.builder().key("studentPen").condition(OR).operation(FilterOperation.CONTAINS).value("OLIVIA").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria9 = SearchCriteria.builder().key("localID").condition(OR).operation(FilterOperation.CONTAINS).value("OLIVIA").valueType(ValueType.STRING).build();
+        final List<SearchCriteria> criteriaList2 = new ArrayList<>();
+        criteriaList2.add(criteria2);
+        criteriaList2.add(criteria3);
+        criteriaList2.add(criteria4);
+        criteriaList2.add(criteria5);
+        criteriaList2.add(criteria6);
+        criteriaList2.add(criteria7);
+        criteriaList2.add(criteria8);
+        criteriaList2.add(criteria9);
+        final List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList1).build());
+        searches.add(Search.builder().condition(AND).searchCriteriaList(criteriaList2).build());
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final String criteriaJSON = objectMapper.writeValueAsString(searches);
+        final MvcResult result = this.mockMvc
+                .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.PAGINATED)
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("searchCriteriaList", criteriaJSON)
+                        .contentType(APPLICATION_JSON))
+                .andReturn();
+        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
     }
 }
