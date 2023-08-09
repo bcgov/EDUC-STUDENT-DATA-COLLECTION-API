@@ -99,7 +99,9 @@ public class RestUtils {
       writeLock.lock();
       for (val school : this.getSchools()) {
         this.schoolMap.put(school.getSchoolId(), school);
-        this.independentAuthorityToSchoolIDMap.computeIfAbsent(school.getIndependentAuthorityId(), k -> new ArrayList<>()).add(UUID.fromString(school.getSchoolId()));
+        if(StringUtils.isNotBlank(school.getIndependentAuthorityId())) {
+          this.independentAuthorityToSchoolIDMap.computeIfAbsent(school.getIndependentAuthorityId(), k -> new ArrayList<>()).add(UUID.fromString(school.getSchoolId()));
+        }
       }
     }
     catch (Exception ex) {

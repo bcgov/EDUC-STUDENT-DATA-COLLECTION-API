@@ -82,6 +82,48 @@ class RestUtilsTest {
     }
 
     @Test
+    void testPopulateSchoolMap_WhenNoIndependentAuthorityId_ShouldPopulateMapsCorrectly() {
+        // Given
+        val school1ID = String.valueOf(UUID.randomUUID());
+        val school2ID = String.valueOf(UUID.randomUUID());
+        val school3ID = String.valueOf(UUID.randomUUID());
+        val school1 = School.builder()
+                .schoolId(school1ID)
+                .displayName("School 1")
+                .independentAuthorityId("Authority 1")
+                .build();
+        val school2 = School.builder()
+                .schoolId(school2ID)
+                .displayName("School 2")
+                .build();
+        val school3 = School.builder()
+                .schoolId(school3ID)
+                .displayName("School 3")
+                .independentAuthorityId("Authority 2")
+                .build();
+
+        doReturn(List.of(school1, school2, school3)).when(restUtils).getSchools();
+
+        // When
+        restUtils.populateSchoolMap();
+
+        // Then verify the maps are populated
+        Map<String, School> schoolMap = (Map<String, School>) ReflectionTestUtils.getField(restUtils, "schoolMap");
+        assertEquals(3, schoolMap.size());
+        assertEquals(school1, schoolMap.get(school1ID));
+        assertEquals(school2, schoolMap.get(school2ID));
+        assertEquals(school3, schoolMap.get(school3ID));
+
+        Map<String, List<UUID>> independentAuthorityToSchoolIDMap = (Map<String, List<UUID>>) ReflectionTestUtils.getField(restUtils, "independentAuthorityToSchoolIDMap");
+        assertEquals(2, independentAuthorityToSchoolIDMap.size());
+        assertTrue(independentAuthorityToSchoolIDMap.containsKey("Authority 1"));
+        assertTrue(independentAuthorityToSchoolIDMap.containsKey("Authority 2"));
+        assertEquals(1, independentAuthorityToSchoolIDMap.get("Authority 1").size());
+        assertEquals(1, independentAuthorityToSchoolIDMap.get("Authority 2").size());
+    }
+
+
+    @Test
     void testPopulateSchoolMap_WhenApiCallFails_ShouldHandleException() {
         // Given
         doThrow(new RuntimeException("API call failed")).when(restUtils).getSchools();
