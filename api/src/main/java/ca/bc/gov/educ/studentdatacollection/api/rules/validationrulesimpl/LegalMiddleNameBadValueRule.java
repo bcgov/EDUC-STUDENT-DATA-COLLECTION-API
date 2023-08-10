@@ -35,7 +35,7 @@ public class LegalMiddleNameBadValueRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         if (containsBadValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalMiddleNames())) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_MIDDLE_NAMES, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_MIDDLE_NAME_BAD_VALUE));
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.INFO_WARNING, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_MIDDLE_NAMES, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_MIDDLE_NAME_BAD_VALUE));
         }
 
         return errors;

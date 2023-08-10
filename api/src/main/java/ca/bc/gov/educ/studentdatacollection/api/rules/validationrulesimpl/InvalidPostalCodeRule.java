@@ -38,7 +38,7 @@ public class InvalidPostalCodeRule implements ValidationBaseRule {
         if(!sdcStudentSagaData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(Constants.OFFSHORE)) {
             Pattern pattern = Pattern.compile("^[A-Za-z]\\d[A-Za-z]\\d[A-Za-z]\\d$");
             if(!pattern.matcher(sdcStudentSagaData.getSdcSchoolCollectionStudent().getPostalCode()).matches()) {
-                errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.POSTAL_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.INVALID_POSTAL_CODE));
+                errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.INFO_WARNING, SdcSchoolCollectionStudentValidationFieldCode.POSTAL_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.INVALID_POSTAL_CODE));
             }
         }
         return errors;

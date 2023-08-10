@@ -21,7 +21,7 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V42 | ERROR    | For students reported in grade 8, 9, 10, 11, 12, SU, or GA , their    | V29          |
+ *  | V42 | WARNING    | For students reported in grade 8, 9, 10, 11, 12, SU, or GA , their    | V29          |
  *                     Number of Courses should be less than 15.
  */
 @Component
@@ -47,7 +47,7 @@ public class MaximumNumberOfCoursesRule implements ValidationBaseRule {
 
         if (StringUtils.isNotEmpty(courseCountStr) && hasEightPlusGradeCodes && courseCount > 15) {
             errors.add(createValidationIssue(
-                SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING,
+                SdcSchoolCollectionStudentValidationIssueSeverityCode.INFO_WARNING,
                 SdcSchoolCollectionStudentValidationFieldCode.NUMBER_OF_COURSES,
                 SdcSchoolCollectionStudentValidationIssueTypeCode.NO_OF_COURSE_MAX
             ));

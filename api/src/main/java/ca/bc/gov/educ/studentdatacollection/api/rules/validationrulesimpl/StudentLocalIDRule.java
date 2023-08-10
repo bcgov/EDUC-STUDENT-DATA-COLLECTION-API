@@ -31,7 +31,7 @@ public class StudentLocalIDRule implements ValidationBaseRule {
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(SdcStudentSagaData sdcStudentSagaData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         if(StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLocalID())) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.LOCAL_ID, SdcSchoolCollectionStudentValidationIssueTypeCode.LOCALID_BLANK));
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.INFO_WARNING, SdcSchoolCollectionStudentValidationFieldCode.LOCAL_ID, SdcSchoolCollectionStudentValidationIssueTypeCode.LOCALID_BLANK));
         }
         return errors;
     }

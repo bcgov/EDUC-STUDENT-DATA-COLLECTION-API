@@ -35,7 +35,7 @@ public class LegalFirstNameBadValueRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         if (containsBadValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getLegalFirstName())) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_FIRST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_FIRST_NAME_BAD_VALUE));
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.INFO_WARNING, SdcSchoolCollectionStudentValidationFieldCode.LEGAL_FIRST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.LEGAL_FIRST_NAME_BAD_VALUE));
         }
 
         return errors;
