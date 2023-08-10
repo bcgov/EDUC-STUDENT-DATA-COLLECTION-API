@@ -2,7 +2,10 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcSchoolCollectionEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.IndependentSchoolFundingGroupEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
@@ -11,6 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -58,4 +64,15 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
       this.sdcSchoolCollectionService.deleteSdcCollection(sdcSchoolCollectionID);
       return ResponseEntity.noContent().build();
   }
+
+    @Override
+    public List<SdcSchoolCollection> getAllSchoolCollectionsBySchoolId(UUID schoolID) {
+        List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities = this.sdcSchoolCollectionService.getAllSchoolCollectionsBySchoolId(schoolID);
+
+        List<SdcSchoolCollection> sdcSchoolCollectionList = new ArrayList<>();
+        for(SdcSchoolCollectionEntity entity: sdcSchoolCollectionEntities){
+            sdcSchoolCollectionList.add(mapper.toSdcSchoolBatch(entity));
+        }
+        return sdcSchoolCollectionList;
+    }
 }
