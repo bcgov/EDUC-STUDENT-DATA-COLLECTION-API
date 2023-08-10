@@ -5,11 +5,15 @@ package ca.bc.gov.educ.studentdatacollection.api.constants;
  */
 public enum SdcSchoolCollectionStudentValidationIssueSeverityCode {
   /**
-   * Error pen request batch student validation issue severity code.
+   * Error student validation issue severity code.
    */
   ERROR,
   /**
-   * Warning pen request batch student validation issue severity code.
+   * Funding Warning student validation issue severity code.
    */
-  WARNING
+  FUNDING_WARNING,
+  /**
+   * Informational Warning student validation issue severity code.
+   */
+  INFO_WARNING
 }

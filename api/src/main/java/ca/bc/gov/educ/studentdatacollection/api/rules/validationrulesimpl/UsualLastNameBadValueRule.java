@@ -35,7 +35,7 @@ public class UsualLastNameBadValueRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         if (containsBadValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualLastName())) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.USUAL_LAST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.USUAL_LAST_NAME_BAD_VALUE));
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.INFO_WARNING, SdcSchoolCollectionStudentValidationFieldCode.USUAL_LAST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.USUAL_LAST_NAME_BAD_VALUE));
         }
 
         return errors;

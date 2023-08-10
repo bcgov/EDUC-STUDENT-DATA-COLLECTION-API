@@ -405,13 +405,13 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         val validationError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationError.size()).isNotZero();
-        val vError = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSLANG") && val.getValidationIssueSeverityCode().equals("WARNING"));
+        val vError = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSLANG") && val.getValidationIssueSeverityCode().equals("FUNDING_WARNING"));
         assertThat(vError).isTrue();
 
         entity.setEnrolledProgramCodes("33");
         val validationErrorInd = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorInd.size()).isNotZero();
-        val error = validationErrorInd.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSIND") && val.getValidationIssueSeverityCode().equals("WARNING"));
+        val error = validationErrorInd.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSIND") && val.getValidationIssueSeverityCode().equals("FUNDING_WARNING"));
         assertThat(error).isTrue();
 
         entity.setEnrolledProgramCodes("40");
@@ -431,14 +431,14 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setSpecialEducationCategoryCode(null);
         val validationErrorCarr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorCarr.size()).isNotZero();
-        val error3 = validationErrorCarProg.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSCAREER") && val.getValidationIssueSeverityCode().equals("WARNING"));
+        val error3 = validationErrorCarProg.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSCAREER") && val.getValidationIssueSeverityCode().equals("FUNDING_WARNING"));
         assertThat(error3).isTrue();
 
         entity.setEnrolledProgramCodes("40");
         entity.setSpecialEducationCategoryCode(null);
         val validationErrorCarrCodes = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
         assertThat(validationErrorCarrCodes.size()).isNotZero();
-        val error4 = validationErrorCarProg.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSCAREER") && val.getValidationIssueSeverityCode().equals("WARNING"));
+        val error4 = validationErrorCarProg.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSCAREER") && val.getValidationIssueSeverityCode().equals("FUNDING_WARNING"));
         assertThat(error4).isTrue();
     }
 

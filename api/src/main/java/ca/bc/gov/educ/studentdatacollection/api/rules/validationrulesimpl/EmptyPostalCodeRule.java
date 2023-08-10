@@ -34,7 +34,7 @@ public class EmptyPostalCodeRule implements ValidationBaseRule {
 
         if(!sdcStudentSagaData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(Constants.OFFSHORE) &&
                 StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getPostalCode())) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.POSTAL_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.MISSING_POSTAL_CODE));
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.INFO_WARNING, SdcSchoolCollectionStudentValidationFieldCode.POSTAL_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.MISSING_POSTAL_CODE));
         }
         return errors;
     }

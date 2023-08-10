@@ -35,7 +35,7 @@ public class UsualMiddleNameBadValueRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         if (containsBadValue(sdcStudentSagaData.getSdcSchoolCollectionStudent().getUsualMiddleNames())) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING, SdcSchoolCollectionStudentValidationFieldCode.USUAL_MIDDLE_NAMES, SdcSchoolCollectionStudentValidationIssueTypeCode.USUAL_MIDDLE_NAME_BAD_VALUE));
+            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.INFO_WARNING, SdcSchoolCollectionStudentValidationFieldCode.USUAL_MIDDLE_NAMES, SdcSchoolCollectionStudentValidationIssueTypeCode.USUAL_MIDDLE_NAME_BAD_VALUE));
         }
 
         return errors;

@@ -56,12 +56,12 @@ public class SupportBlocksRule implements ValidationBaseRule {
         && StringUtils.isNotEmpty(courseCountStr)
         && courseCount >= 8) {
             errors.add(createValidationIssue(
-                SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING,
+                SdcSchoolCollectionStudentValidationIssueSeverityCode.FUNDING_WARNING,
                 SdcSchoolCollectionStudentValidationFieldCode.SUPPORT_BLOCKS,
                 SdcSchoolCollectionStudentValidationIssueTypeCode.SUPPORT_BLOCKS_NOT_COUNT
             ));
             errors.add(createValidationIssue(
-                SdcSchoolCollectionStudentValidationIssueSeverityCode.WARNING,
+                SdcSchoolCollectionStudentValidationIssueSeverityCode.FUNDING_WARNING,
                 SdcSchoolCollectionStudentValidationFieldCode.NUMBER_OF_COURSES,
                 SdcSchoolCollectionStudentValidationIssueTypeCode.SUPPORT_BLOCKS_NOT_COUNT
             ));
