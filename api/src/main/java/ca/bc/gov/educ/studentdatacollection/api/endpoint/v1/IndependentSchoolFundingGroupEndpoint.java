@@ -61,7 +61,7 @@ public interface IndependentSchoolFundingGroupEndpoint {
   @Transactional
   @Tag(name = "IndependentSchoolFundingGroup Entity", description = "Endpoints for independent school group funding entity.")
   @Schema(name = "IndependentSchoolFundingGroup", implementation = IndependentSchoolFundingGroup.class)
-  IndependentSchoolFundingGroup updateIndependentSchoolFundingGroup(@PathVariable("sdcSchoolCollectionStudentID") UUID schoolFundingGroupID, @Validated @RequestBody IndependentSchoolFundingGroup independentSchoolFundingGroup);
+  IndependentSchoolFundingGroup updateIndependentSchoolFundingGroup(@PathVariable("schoolFundingGroupID") UUID schoolFundingGroupID, @Validated @RequestBody IndependentSchoolFundingGroup independentSchoolFundingGroup);
 
   @DeleteMapping("/{schoolFundingGroupID}")
   @PreAuthorize("hasAuthority('SCOPE_DELETE_SCHOOL_FUNDING_GROUP')")
