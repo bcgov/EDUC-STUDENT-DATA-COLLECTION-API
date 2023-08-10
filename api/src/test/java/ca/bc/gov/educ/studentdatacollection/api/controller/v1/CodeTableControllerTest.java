@@ -105,4 +105,14 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
         .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
   }
 
+  @Test
+  void testGetAllFundingGroups_ShouldReturnCodes() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(get(URL.BASE_URL + URL.FUNDING_GROUP_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolFundingGroupCode").value("GROUP1"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
+  }
+
 }

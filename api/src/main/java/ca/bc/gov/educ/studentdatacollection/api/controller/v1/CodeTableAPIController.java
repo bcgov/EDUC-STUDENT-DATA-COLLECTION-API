@@ -74,4 +74,9 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
 
         return  validationIssues;
     }
+
+    @Override
+    public List<SchoolFundingGroupCode> getIndependentSchoolFundingGroupCodes() {
+        return codeTableService.getAllSchoolFundingGroupCodes().stream().map(mapper::toStructure).toList();
+    }
 }

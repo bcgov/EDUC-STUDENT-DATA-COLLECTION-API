@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.CREATED;
@@ -54,5 +55,12 @@ public interface SdcSchoolCollectionEndpoint {
   @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "NO CONTENT"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @ResponseStatus(NO_CONTENT)
   ResponseEntity<Void> deleteSdcSchoolCollection(@PathVariable UUID sdcSchoolCollectionID);
+
+  @GetMapping("/searchAll/{schoolID}")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "Sdc School Collection", description = "Endpoints to get school collection entity.")
+  List<SdcSchoolCollection> getAllSchoolCollectionsBySchoolId(@PathVariable("schoolID") UUID schoolID);
 
 }

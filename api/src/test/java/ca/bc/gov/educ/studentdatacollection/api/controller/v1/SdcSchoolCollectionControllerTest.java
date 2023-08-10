@@ -171,6 +171,35 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     }
 
     @Test
+    void testGetAllCollectionsBySchoolID_ShouldReturnCollection() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCloseDate(LocalDateTime.now().plusDays(2));
+        collectionRepository.save(collection);
+
+        School school = createMockSchool();
+        SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()),UUID.fromString(school.getDistrictId()));
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        CollectionEntity collection2 = createMockCollectionEntity();
+        collection2.setCloseDate(LocalDateTime.now().minusDays(5));
+        collectionRepository.save(collection2);
+
+        SdcSchoolCollectionEntity sdcMockSchool2 = createMockSdcSchoolCollectionEntity(collection2, UUID.fromString(school.getSchoolId()),UUID.fromString(school.getDistrictId()));
+        sdcMockSchool2.setUploadDate(null);
+        sdcMockSchool2.setUploadFileName(null);
+        sdcSchoolCollectionRepository.save(sdcMockSchool2);
+
+        this.mockMvc.perform(
+                        get(URL.BASE_URL_SCHOOL_COLLECTION + "/searchAll/" + school.getSchoolId()).with(mockAuthority))
+                .andDo(print()).andExpect(status().isOk());
+    }
+
+    @Test
     void testGetCollectionBySchoolID_withSameSchoolInPastCollection_ShouldReturnCollection() throws Exception {
         final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
