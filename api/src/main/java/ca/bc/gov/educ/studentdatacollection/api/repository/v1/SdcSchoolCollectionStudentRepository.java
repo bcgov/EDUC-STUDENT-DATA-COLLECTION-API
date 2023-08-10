@@ -45,6 +45,17 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     LIMIT :numberOfStudentsToProcess""")
   List<SdcSchoolCollectionStudentEntity> findTopLoadedStudentForProcessing(String numberOfStudentsToProcess);
 
+  @Query(value = """
+    UPDATE SDC_SCHOOL_COLLECTION_STUDENT
+    SET FRENCH_PROGRAM_NON_ELIG_REASON_CODE = NULL,
+        ELL_NON_ELIG_REASON_CODE = NULL,
+        INDIGENOUS_SUPPORT_PROGRAM_NON_ELIG_REASON_CODE = NULL,
+        CAREER_PROGRAM_NON_ELIG_REASON_CODE = NULL,
+        SPECIAL_EDUCATION_NON_ELIG_REASON_CODE = NULL
+    WHERE SDC_SCHOOL_COLLECTION_STUDENT_ID = :sdcSchoolCollectionID;
+    """)
+  void deleteSdcStudentEligibilityErrorReasons(UUID sdcSchoolCollectionStudentID);
+
   List<SdcSchoolCollectionStudentEntity> findTop100BySdcSchoolCollectionStudentStatusCodeOrderByCreateDate(String sdcSchoolCollectionStudentStatusCode);
 
   Optional<SdcSchoolCollectionStudentEntity> findBySdcSchoolCollectionStudentIDAndSdcSchoolCollectionID(UUID sdcSchoolCollectionStudentID, UUID sdcSchoolCollectionID);
