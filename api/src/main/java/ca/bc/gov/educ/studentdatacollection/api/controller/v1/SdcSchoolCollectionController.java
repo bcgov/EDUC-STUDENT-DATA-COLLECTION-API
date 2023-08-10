@@ -2,10 +2,8 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcSchoolCollectionEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.IndependentSchoolFundingGroupEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
