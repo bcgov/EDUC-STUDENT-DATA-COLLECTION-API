@@ -31,8 +31,7 @@ public class NoInactiveOnlineAdultStudentsRule implements ProgramEligibilityBase
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
-  @Autowired
-  private NoInactiveOnlineAdultStudentsRule(
+  public NoInactiveOnlineAdultStudentsRule(
     SdcSchoolCollectionRepository sdcSchoolCollectionRepository,
     SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository
   ) {
