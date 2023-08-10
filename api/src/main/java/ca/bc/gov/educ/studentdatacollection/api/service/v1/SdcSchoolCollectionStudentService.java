@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
+import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
@@ -222,6 +223,34 @@ public class SdcSchoolCollectionStudentService {
       updatedStudentEntity.getSDCStudentValidationIssueEntities().addAll(SdcHelper.populateValidationErrors(validationErrors, updatedStudentEntity));
       updatedStudentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
       this.sdcSchoolCollectionStudentRepository.save(updatedStudentEntity);
+    }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void updateProgramEligibilityColumns(
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors,
+    UUID studentId
+  ) {
+    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional =
+      sdcSchoolCollectionStudentRepository.findById(studentId);
+
+    SdcSchoolCollectionStudentEntity student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
+      new EntityNotFoundException(
+        SdcSchoolCollectionStudent.class,
+        "sdcSchoolCollectionStudentId",
+        studentId.toString()
+      ));
+
+    Optional<SdcSchoolCollectionStudentProgramEligibilityIssueCode> reasonForNoEligiblility =
+      SdcSchoolCollectionStudentProgramEligibilityIssueCode.isNotEligibleForAnyProgramReason(errors);
+
+    if (reasonForNoEligiblility.isPresent()) {
+      String reasonCode = reasonForNoEligiblility.get().getCode();
+      student.setFrenchProgramNonEligReasonCode(reasonCode);
+      student.setEllNonEligReasonCode(reasonCode);
+      student.setIndigenousSupportProgramNonEligReasonCode(reasonCode);
+      student.setCareerProgramNonEligReasonCode(reasonCode);
+      student.setSpecialEducationNonEligReasonCode(reasonCode);
     }
   }
 
