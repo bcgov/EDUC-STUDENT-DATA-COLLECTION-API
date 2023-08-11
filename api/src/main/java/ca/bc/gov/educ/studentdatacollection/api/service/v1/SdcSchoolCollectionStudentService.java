@@ -154,7 +154,7 @@ public class SdcSchoolCollectionStudentService {
     student.setIndigenousSupportProgramNonEligReasonCode(null);
     student.setCareerProgramNonEligReasonCode(null);
     student.setSpecialEducationCategoryCode(null);
-    this.saveSdcSchoolCollectionStudent(student);
+    this.sdcSchoolCollectionStudentRepository.save(student);
   }
 
   public void updateStudentAgeColumns(UUID sdcSchoolCollectionStudentID, boolean isAdult, boolean isSchoolAged) throws EntityNotFoundException {
