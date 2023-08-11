@@ -97,4 +97,33 @@ class SdcSchoolCollectionStudentServiceTest {
         assertSame(reasonCode, mockStudentEntity.getCareerProgramNonEligReasonCode());
         assertSame(reasonCode, mockStudentEntity.getSpecialEducationNonEligReasonCode());
     }
+
+  @Test
+  void testClearSdcSchoolStudentProgramEligibilityColumns_WhenColumnsAreSet_SetsAllColumnsToNull() {
+        UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
+        String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.HOMESCHOOL.getCode();
+
+        // Create a mock SdcSchoolCollectionStudentEntity
+        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
+        mockStudentEntity.setFrenchProgramNonEligReasonCode(reasonCode);
+        mockStudentEntity.setEllNonEligReasonCode(reasonCode);
+        mockStudentEntity.setIndigenousSupportProgramNonEligReasonCode(reasonCode);
+        mockStudentEntity.setCareerProgramNonEligReasonCode(reasonCode);
+        mockStudentEntity.setSpecialEducationNonEligReasonCode(reasonCode);
+
+        when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
+
+        sdcSchoolCollectionStudentService.clearSdcSchoolStudentProgramEligibilityColumns(sdcSchoolCollectionStudentID);
+
+        // Then
+        // Verify that the save method is called once with the correct entity
+        verify(sdcSchoolCollectionStudentRepository, times(1)).save(mockStudentEntity);
+
+        assertNull(mockStudentEntity.getFrenchProgramNonEligReasonCode());
+        assertNull(mockStudentEntity.getEllNonEligReasonCode());
+        assertNull(mockStudentEntity.getIndigenousSupportProgramNonEligReasonCode());
+        assertNull(mockStudentEntity.getCareerProgramNonEligReasonCode());
+        assertNull(mockStudentEntity.getSpecialEducationNonEligReasonCode());
+  }
 }

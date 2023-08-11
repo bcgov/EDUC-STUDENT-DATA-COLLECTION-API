@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -31,8 +30,7 @@ public class NoInactiveOnlineMinorStudentsRule implements ProgramEligibilityBase
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
-  @Autowired
-  private NoInactiveOnlineMinorStudentsRule(
+  public NoInactiveOnlineMinorStudentsRule(
     SdcSchoolCollectionRepository sdcSchoolCollectionRepository,
     SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository
   ) {

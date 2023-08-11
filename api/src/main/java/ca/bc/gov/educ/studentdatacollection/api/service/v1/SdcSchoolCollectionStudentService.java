@@ -137,6 +137,25 @@ public class SdcSchoolCollectionStudentService {
     return this.sdcSchoolCollectionStudentRepository.save(entity);
   }
 
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void clearSdcSchoolStudentProgramEligibilityColumns(
+    UUID sdcSchoolCollectionStudentID
+  ) {
+    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional =
+      sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
+
+    if (sdcSchoolCollectionStudentEntityOptional.isEmpty()) {
+      throw new EntityNotFoundException(SdcSchoolCollectionStudent.class, "sdcSchoolCollectionStudentId", sdcSchoolCollectionStudentID.toString());
+    }
+
+    SdcSchoolCollectionStudentEntity student = sdcSchoolCollectionStudentEntityOptional.get();
+    student.setFrenchProgramNonEligReasonCode(null);
+    student.setEllNonEligReasonCode(null);
+    student.setIndigenousSupportProgramNonEligReasonCode(null);
+    student.setCareerProgramNonEligReasonCode(null);
+    student.setSpecialEducationNonEligReasonCode(null);
+    this.sdcSchoolCollectionStudentRepository.save(student);
+  }
 
   public void updateStudentAgeColumns(UUID sdcSchoolCollectionStudentID, boolean isAdult, boolean isSchoolAged) throws EntityNotFoundException {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional =
