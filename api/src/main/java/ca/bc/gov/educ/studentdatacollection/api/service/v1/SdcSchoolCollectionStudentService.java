@@ -153,7 +153,7 @@ public class SdcSchoolCollectionStudentService {
     student.setEllNonEligReasonCode(null);
     student.setIndigenousSupportProgramNonEligReasonCode(null);
     student.setCareerProgramNonEligReasonCode(null);
-    student.setSpecialEducationCategoryCode(null);
+    student.setSpecialEducationNonEligReasonCode(null);
     this.sdcSchoolCollectionStudentRepository.save(student);
   }
 
