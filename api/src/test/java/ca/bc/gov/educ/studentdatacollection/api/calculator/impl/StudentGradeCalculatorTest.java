@@ -30,15 +30,15 @@ class StudentGradeCalculatorTest {
 
     @ParameterizedTest
     @CsvSource({
-            "KH, 2, 0.5",
-            "HS, 2, 0.0471",
-            "08, 2, 0.75",
-            "09, 2, 0.75",
-            "10, 2, 0",
-            "11, 2, 0",
-            "12, 2, 0",
-            "SU, 2, 0",
-            "08, 12, 1",
+            "KH, 0200, 0.5",
+            "HS, 0200, 0.0471",
+            "08, 0200, 0.75",
+            "09, 0200, 0.75",
+            "10, 0200, 0",
+            "11, 0200, 0",
+            "12, 0200, 0",
+            "SU, 0200, 0",
+            "08, 1200, 1",
     })
     void testCalculateFte_WithValidGradeCodes(String gradeCode, String numberOfCourses, String expectedFteValue) {
         // Given

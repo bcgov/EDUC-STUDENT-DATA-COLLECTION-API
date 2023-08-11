@@ -4,18 +4,17 @@ import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
 @Component
 @Slf4j
+@Order(3)
 public class TooYoungCalculator implements FteCalculator {
     FteCalculator nextCalculator;
-    @Getter
-    private int processingSequenceNumber = 3;
     @Override
     public void setNext(FteCalculator nextCalculator) {
         this.nextCalculator = nextCalculator;

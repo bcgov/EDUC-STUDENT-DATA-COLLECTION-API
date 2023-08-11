@@ -265,7 +265,7 @@ class FteCalculatorChainProcessorIntegrationTest {
     void testProcessFteCalculator_AdultStudent() {
         // Given
         this.studentData.getSdcSchoolCollectionStudent().setIsAdult(true);
-        this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("5");
+        this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("0500");
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
@@ -280,7 +280,7 @@ class FteCalculatorChainProcessorIntegrationTest {
         // Given
         this.studentData.setCollectionTypeCode("JULY");
         this.studentData.getSdcSchoolCollectionStudent().setEnrolledGradeCode("12");
-        this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("7");
+        this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("0700");
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
@@ -348,7 +348,7 @@ class FteCalculatorChainProcessorIntegrationTest {
     void testProcessFteCalculator_SupportBlocks() {
         // Given
         this.studentData.getSdcSchoolCollectionStudent().setSupportBlocks("0");
-        this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("9");
+        this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("0900");
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
@@ -362,7 +362,7 @@ class FteCalculatorChainProcessorIntegrationTest {
     void testProcessFteCalculator_StudentGraduated() {
         // Given
         this.studentData.getSdcSchoolCollectionStudent().setIsGraduated(true);
-        this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("11");
+        this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("1100");
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
