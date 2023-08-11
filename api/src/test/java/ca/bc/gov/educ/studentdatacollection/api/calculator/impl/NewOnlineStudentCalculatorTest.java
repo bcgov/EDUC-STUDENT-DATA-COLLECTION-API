@@ -34,19 +34,19 @@ class NewOnlineStudentCalculatorTest {
 
     @ParameterizedTest
     @CsvSource({
-            "KH, 2, 0.4529",
-            "KF, 2, 0.9529",
-            "01, 2, 0.9529",
-            "02, 2, 0.9529",
-            "03, 2, 0.9529",
-            "04, 2, 0.9529",
-            "05, 2, 0.9529",
-            "06, 2, 0.9529",
-            "07, 2, 0.9529",
-            "EU, 2, 0.9529",
-            "08, 2, 0.75",
-            "09, 2, 0.75",
-            "08, 12, 0.9529"
+            "KH, 0200, 0.4529",
+            "KF, 0200, 0.9529",
+            "01, 0200, 0.9529",
+            "02, 0200, 0.9529",
+            "03, 0200, 0.9529",
+            "04, 0200, 0.9529",
+            "05, 0200, 0.9529",
+            "06, 0200, 0.9529",
+            "07, 0200, 0.9529",
+            "EU, 0200, 0.9529",
+            "08, 0200, 0.75",
+            "09, 0200, 0.75",
+            "08, 1200, 0.9529"
     })
     void testCalculateFte_homeSchoolStudentIsNowOnlineKto9Student_ShouldCalculateFteCorrectly(String enrolledGradeCode, String numberOfCourses, String expectedResult) {
         // Given

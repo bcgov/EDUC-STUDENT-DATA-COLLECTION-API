@@ -32,7 +32,7 @@ class AdultStudentCalculatorTest {
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
         student.setIsAdult(true);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
-        student.setNumberOfCourses("5");
+        student.setNumberOfCourses("0500");
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSdcSchoolCollectionStudent(student);
@@ -52,7 +52,7 @@ class AdultStudentCalculatorTest {
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
         student.setIsAdult(false);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADUATED_ADULT.getCode());
-        student.setNumberOfCourses("3");
+        student.setNumberOfCourses("0300");
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSdcSchoolCollectionStudent(student);

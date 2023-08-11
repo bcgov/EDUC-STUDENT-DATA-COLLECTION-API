@@ -29,9 +29,9 @@ class StudentGraduatedCalculatorTest {
 
     @ParameterizedTest
     @CsvSource({
-            "true, 5, 0.625",
-            "false, 5, 0.875",
-            "false, 8, 1",
+            "true, 0500, 0.625",
+            "false, 0500, 0.875",
+            "false, 0800, 1",
             "false, , 0.25"
     })
     void testCalculateFte_StudentGraduated_ThenFteCalculatedWithoutSupportBlocks(boolean isGraduated, String numberOfCourses, String expectedResults) {
@@ -79,7 +79,7 @@ class StudentGraduatedCalculatorTest {
     void testCalculateFte_StudentWithNullGraduation_ThenFteCalculatedWithSupportBlocks() {
         // Given
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setNumberOfCourses("5");
+        student.setNumberOfCourses("0500");
         student.setSupportBlocks("2");
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();

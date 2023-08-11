@@ -4,19 +4,18 @@ import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
 @Component
 @Slf4j
+@Order(1)
 public class OffshoreStudentCalculator implements FteCalculator {
     FteCalculator nextCalculator;
-    @Getter
-    private int processingSequenceNumber = 1;
     @Override
     public void setNext(FteCalculator nextCalculator) {
         this.nextCalculator = nextCalculator;

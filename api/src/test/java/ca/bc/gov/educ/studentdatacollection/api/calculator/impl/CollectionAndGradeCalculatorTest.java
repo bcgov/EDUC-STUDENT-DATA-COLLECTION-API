@@ -57,11 +57,10 @@ class CollectionAndGradeCalculatorTest {
         // Given
         String collectionTypeCode = "JULY";
         String enrolledGradeCode = "10";
-        int numberOfCourses = 6;
 
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
         student.setEnrolledGradeCode(enrolledGradeCode);
-        student.setNumberOfCourses(String.valueOf(numberOfCourses));
+        student.setNumberOfCourses("0600");
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setCollectionTypeCode(collectionTypeCode);

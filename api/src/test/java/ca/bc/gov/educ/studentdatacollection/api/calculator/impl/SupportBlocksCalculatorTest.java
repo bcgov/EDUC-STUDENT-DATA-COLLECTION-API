@@ -53,7 +53,7 @@ class SupportBlocksCalculatorTest {
         // Given
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
         student.setSupportBlocks("0");
-        student.setNumberOfCourses("5");
+        student.setNumberOfCourses("0500");
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSdcSchoolCollectionStudent(student);
@@ -73,7 +73,7 @@ class SupportBlocksCalculatorTest {
         // Given
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
         student.setSupportBlocks("");
-        student.setNumberOfCourses("5");
+        student.setNumberOfCourses("0500");
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSdcSchoolCollectionStudent(student);
@@ -92,7 +92,7 @@ class SupportBlocksCalculatorTest {
     void testCalculateFte_WithNullSupportBlocks_ThenFteReturned() {
         // Given
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setNumberOfCourses("5");
+        student.setNumberOfCourses("0500");
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSdcSchoolCollectionStudent(student);

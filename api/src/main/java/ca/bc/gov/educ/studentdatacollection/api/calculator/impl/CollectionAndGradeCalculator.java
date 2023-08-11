@@ -6,9 +6,10 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import lombok.Getter;
+import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -16,10 +17,9 @@ import java.math.RoundingMode;
 
 @Component
 @Slf4j
+@Order(10)
 public class CollectionAndGradeCalculator implements FteCalculator {
     FteCalculator nextCalculator;
-    @Getter
-    private int processingSequenceNumber = 10;
     @Override
     public void setNext(FteCalculator nextCalculator) {
         this.nextCalculator = nextCalculator;
@@ -34,7 +34,7 @@ public class CollectionAndGradeCalculator implements FteCalculator {
                 fteCalculationResult.setFte(BigDecimal.ONE);
             } else if (SchoolGradeCodes.get9To12Grades().contains(student.getEnrolledGradeCode())) {
                 BigDecimal fteMultiplier = new BigDecimal("0.125");
-                BigDecimal numCourses = StringUtils.isBlank(student.getNumberOfCourses()) ? BigDecimal.ZERO : new BigDecimal(student.getNumberOfCourses());
+                BigDecimal numCourses = StringUtils.isBlank(student.getNumberOfCourses()) ? BigDecimal.ZERO : BigDecimal.valueOf(TransformUtil.parseNumberOfCourses(student.getNumberOfCourses(), student.getSdcSchoolCollectionStudentID()));
                 fteCalculationResult.setFte(numCourses.multiply(fteMultiplier).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros());
             } else {
                 String errorMessage = "SdcStudentSagaData has invalid enrolledGradeCode for a summer collection :: " + student.getSdcSchoolCollectionID();
