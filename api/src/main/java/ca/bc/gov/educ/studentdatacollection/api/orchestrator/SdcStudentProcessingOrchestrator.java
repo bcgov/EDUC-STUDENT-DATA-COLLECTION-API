@@ -121,13 +121,13 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     this.sdcSchoolCollectionStudentService.updateStudentAgeColumns(studentUUID, DOBUtil.isAdult(studentDOB), DOBUtil.isSchoolAged(studentDOB));
 
     // Update program eligibility
-    this.sdcSchoolCollectionStudentService.clearProgramEligibilityErrorReasons(studentUUID);
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> programEligibilityErrors =
       this.programEligibilityRulesProcessor.processRules(sdcStudentSagaData);
 
     this.sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(programEligibilityErrors, studentUUID);
 
     // Calculate Fte
+    this.sdcSchoolCollectionStudentService.clearSdcSchoolStudentProgramEligibilityColumns(studentUUID);
     var fteResults = this.fteCalculatorChainProcessor.processFteCalculator(sdcStudentSagaData);
     this.sdcSchoolCollectionStudentService.updateFteColumns(fteResults, studentUUID);
 

@@ -19,7 +19,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   long countBySdcSchoolCollectionStudentStatusCode(String sdcSchoolCollectionStudentStatusCode);
   long countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollectionID(String sdcSchoolCollectionStudentStatusCode, UUID sdcSchoolCollectionID);
 
-@Query(value = """
+  @Query(value = """
     SELECT COUNT(*) FROM (SELECT I.SDC_SCHOOL_COLLECTION_STUDENT_ID, COUNT(I.VALIDATION_ISSUE_SEVERITY_CODE), I.VALIDATION_ISSUE_CODE
     FROM SDC_SCHOOL_COLLECTION_STUDENT S, SDC_SCHOOL_COLLECTION_STUDENT_VALIDATION_ISSUE I
     WHERE S.SDC_SCHOOL_COLLECTION_STUDENT_ID = I.SDC_SCHOOL_COLLECTION_STUDENT_ID
@@ -44,17 +44,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     order by stud.createDate 
     LIMIT :numberOfStudentsToProcess""")
   List<SdcSchoolCollectionStudentEntity> findTopLoadedStudentForProcessing(String numberOfStudentsToProcess);
-
-  @Query(value = """
-    UPDATE SDC_SCHOOL_COLLECTION_STUDENT
-    SET FRENCH_PROGRAM_NON_ELIG_REASON_CODE = NULL,
-        ELL_NON_ELIG_REASON_CODE = NULL,
-        INDIGENOUS_SUPPORT_PROGRAM_NON_ELIG_REASON_CODE = NULL,
-        CAREER_PROGRAM_NON_ELIG_REASON_CODE = NULL,
-        SPECIAL_EDUCATION_NON_ELIG_REASON_CODE = NULL
-    WHERE SDC_SCHOOL_COLLECTION_STUDENT_ID = :sdcSchoolCollectionID;
-    """)
-  void deleteSdcStudentEligibilityErrorReasons(UUID sdcSchoolCollectionStudentID);
 
   List<SdcSchoolCollectionStudentEntity> findTop100BySdcSchoolCollectionStudentStatusCodeOrderByCreateDate(String sdcSchoolCollectionStudentStatusCode);
 

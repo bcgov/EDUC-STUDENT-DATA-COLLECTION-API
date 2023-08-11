@@ -123,11 +123,6 @@ public class SdcSchoolCollectionStudentService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void clearProgramEligibilityErrorReasons(final UUID sdcSchoolStudentID) {
-    this.sdcSchoolCollectionStudentRepository.deleteSdcStudentEligibilityErrorReasons(sdcSchoolStudentID);
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public SdcSchoolCollectionStudentEntity saveSdcSchoolStudentValidationErrors(final String sdcSchoolCollectionStudentID, final List<SdcSchoolCollectionStudentValidationIssue> issues, SdcSchoolCollectionStudentEntity entity) {
     if(entity == null) {
       val sdcSchoolCollectionStudent = this.findBySdcSchoolStudentID(sdcSchoolCollectionStudentID);
@@ -142,6 +137,25 @@ public class SdcSchoolCollectionStudentService {
     return this.sdcSchoolCollectionStudentRepository.save(entity);
   }
 
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void clearSdcSchoolStudentProgramEligibilityColumns(
+    UUID sdcSchoolCollectionStudentID
+  ) {
+    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional =
+      sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
+
+    if (sdcSchoolCollectionStudentEntityOptional.isEmpty()) {
+      throw new EntityNotFoundException(SdcSchoolCollectionStudent.class, "sdcSchoolCollectionStudentId", sdcSchoolCollectionStudentID.toString());
+    }
+
+    SdcSchoolCollectionStudentEntity student = sdcSchoolCollectionStudentEntityOptional.get();
+    student.setFrenchProgramNonEligReasonCode(null);
+    student.setEllNonEligReasonCode(null);
+    student.setIndigenousSupportProgramNonEligReasonCode(null);
+    student.setCareerProgramNonEligReasonCode(null);
+    student.setSpecialEducationCategoryCode(null);
+    this.saveSdcSchoolCollectionStudent(student);
+  }
 
   public void updateStudentAgeColumns(UUID sdcSchoolCollectionStudentID, boolean isAdult, boolean isSchoolAged) throws EntityNotFoundException {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional =
