@@ -322,6 +322,3 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
 
 
 }
-
-// Test data for SDC School Collection
-// upload the file, manually change the file upload status to something other than NEW, then re-upload the file and check the upload status to be equal to LOADED.
