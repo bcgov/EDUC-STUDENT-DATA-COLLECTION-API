@@ -41,8 +41,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCE
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atMost;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPITest {
 
@@ -116,6 +115,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     entity.setUpdateDate(LocalDateTime.now());
     entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+    entity.setIsAdult(null);
 
     this.sdcSchoolCollectionStudentRepository.save(entity);
     this.bandCodeRepository.save(bandCodeData());

@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,15 +46,12 @@ class SdcSchoolCollectionStudentServiceTest {
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
         // When
-        sdcSchoolCollectionStudentService.updateFteColumns(fteCalculationResult, sdcSchoolCollectionStudentID);
+        var result = sdcSchoolCollectionStudentService.updateFteColumns(fteCalculationResult, sdcSchoolCollectionStudentID);
 
         // Then
-        // Verify that the save method is called once with the correct entity
-        verify(sdcSchoolCollectionStudentRepository, times(1)).save(mockStudentEntity);
-
         // Assert that the FTE and FTE zero reason code are updated as expected
-        assertSame(fteCalculationResult.getFte(), mockStudentEntity.getFte());
-        assertSame(fteCalculationResult.getFteZeroReason(), mockStudentEntity.getFteZeroReasonCode());
+        assertSame(fteCalculationResult.getFte(), result.getFte());
+        assertSame(fteCalculationResult.getFteZeroReason(), result.getFteZeroReasonCode());
     }
 
     @Test
@@ -70,16 +66,14 @@ class SdcSchoolCollectionStudentServiceTest {
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.empty());
 
         // Then assert that an EntityNotFoundException is thrown
-        assertThrows(EntityNotFoundException.class, () -> {
-            sdcSchoolCollectionStudentService.updateFteColumns(fteCalculationResult, sdcSchoolCollectionStudentID);
-        });
+        assertThrows(EntityNotFoundException.class, () -> sdcSchoolCollectionStudentService.updateFteColumns(fteCalculationResult, sdcSchoolCollectionStudentID));
     }
 
     @Test
-    void testupdateProgramEligibilityColumns_WhenNotEligibleForAnything_UpdatesAllColumns() {
+    void testUpdateProgramEligibilityColumns_WhenNotEligibleForAnything_UpdatesAllColumns() {
         UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
-        List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = Arrays.asList(
-            SdcSchoolCollectionStudentProgramEligibilityIssueCode.OFFSHORE
+        List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = List.of(
+                SdcSchoolCollectionStudentProgramEligibilityIssueCode.OFFSHORE
         );
 
         // Create a mock SdcSchoolCollectionStudentEntity
@@ -87,15 +81,15 @@ class SdcSchoolCollectionStudentServiceTest {
         mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
-        sdcSchoolCollectionStudentService
+        var result = sdcSchoolCollectionStudentService
             .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
 
         String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.OFFSHORE.getCode();
-        assertSame(reasonCode, mockStudentEntity.getFrenchProgramNonEligReasonCode());
-        assertSame(reasonCode, mockStudentEntity.getEllNonEligReasonCode());
-        assertSame(reasonCode, mockStudentEntity.getIndigenousSupportProgramNonEligReasonCode());
-        assertSame(reasonCode, mockStudentEntity.getCareerProgramNonEligReasonCode());
-        assertSame(reasonCode, mockStudentEntity.getSpecialEducationNonEligReasonCode());
+        assertSame(reasonCode, result.getFrenchProgramNonEligReasonCode());
+        assertSame(reasonCode, result.getEllNonEligReasonCode());
+        assertSame(reasonCode, result.getIndigenousSupportProgramNonEligReasonCode());
+        assertSame(reasonCode, result.getCareerProgramNonEligReasonCode());
+        assertSame(reasonCode, result.getSpecialEducationNonEligReasonCode());
     }
 
   @Test
@@ -114,16 +108,13 @@ class SdcSchoolCollectionStudentServiceTest {
 
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
-        sdcSchoolCollectionStudentService.clearSdcSchoolStudentProgramEligibilityColumns(sdcSchoolCollectionStudentID);
+        var result = sdcSchoolCollectionStudentService.clearSdcSchoolStudentProgramEligibilityColumns(sdcSchoolCollectionStudentID);
 
         // Then
-        // Verify that the save method is called once with the correct entity
-        verify(sdcSchoolCollectionStudentRepository, times(1)).save(mockStudentEntity);
-
-        assertNull(mockStudentEntity.getFrenchProgramNonEligReasonCode());
-        assertNull(mockStudentEntity.getEllNonEligReasonCode());
-        assertNull(mockStudentEntity.getIndigenousSupportProgramNonEligReasonCode());
-        assertNull(mockStudentEntity.getCareerProgramNonEligReasonCode());
-        assertNull(mockStudentEntity.getSpecialEducationNonEligReasonCode());
+        assertNull(result.getFrenchProgramNonEligReasonCode());
+        assertNull(result.getEllNonEligReasonCode());
+        assertNull(result.getIndigenousSupportProgramNonEligReasonCode());
+        assertNull(result.getCareerProgramNonEligReasonCode());
+        assertNull(result.getSpecialEducationNonEligReasonCode());
   }
 }
