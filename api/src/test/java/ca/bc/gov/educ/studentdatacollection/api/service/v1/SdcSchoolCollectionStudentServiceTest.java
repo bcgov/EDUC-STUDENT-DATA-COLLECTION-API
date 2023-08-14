@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
@@ -116,5 +117,39 @@ class SdcSchoolCollectionStudentServiceTest {
         assertNull(result.getIndigenousSupportProgramNonEligReasonCode());
         assertNull(result.getCareerProgramNonEligReasonCode());
         assertNull(result.getSpecialEducationNonEligReasonCode());
+  }
+
+    @Test
+    void testSoftDeleteSdcSchoolCollectionStudents_WhenStudentExists_SavesEntity() {
+        // Given
+        UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
+
+        // Create a mock SdcSchoolCollectionStudentEntity
+        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
+
+        // When
+        sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
+
+        // Then
+        // Verify that the save method is called once with the correct entity
+        verify(sdcSchoolCollectionStudentRepository, times(1)).save(mockStudentEntity);
+
+        // Assert that the status has been updated to DELETED
+        assertSame(mockStudentEntity.getSdcSchoolCollectionStudentStatusCode(), SdcSchoolStudentStatus.DELETED.toString());
+    }
+
+  @Test
+  void testSoftDeleteSdcSchoolCollectionStudent_WhenStudentDoesNotExist_ThrowsError() {
+      // Given
+      UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
+
+      // When
+      when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.empty());
+
+      // Then assert that an EntityNotFoundException is thrown
+      assertThrows(EntityNotFoundException.class, () -> {
+          sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
+      });
   }
 }

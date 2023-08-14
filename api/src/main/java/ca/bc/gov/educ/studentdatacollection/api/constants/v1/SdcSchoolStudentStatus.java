@@ -11,7 +11,8 @@ public enum SdcSchoolStudentStatus {
   ERROR("ERROR"),
   WARNING("WARNING"),
   VERIFIED("VERIFIED"),
-  FIXABLE("FIXABLE");
+  FIXABLE("FIXABLE"),
+  DELETED("DELETED");
 
 
   private static final Map<String, SdcSchoolStudentStatus> codeMap = new HashMap<>();

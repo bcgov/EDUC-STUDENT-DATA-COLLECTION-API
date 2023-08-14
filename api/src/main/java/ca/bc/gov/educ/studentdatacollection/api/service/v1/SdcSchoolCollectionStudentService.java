@@ -21,10 +21,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -283,6 +280,18 @@ public class SdcSchoolCollectionStudentService {
     student.setFteZeroReasonCode(fteCalculationResult.getFteZeroReason());
 
     return student;
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public SdcSchoolCollectionStudentEntity softDeleteSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID) {
+    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
+
+    SdcSchoolCollectionStudentEntity student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
+            new EntityNotFoundException(SdcSchoolCollectionStudent.class, "sdcSchoolCollectionStudentId", sdcSchoolCollectionStudentID.toString()));
+
+    student.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.DELETED.toString());
+
+    return sdcSchoolCollectionStudentRepository.save(student);
   }
 
   private SdcStudentSagaData createSagaDataForValidation(SdcSchoolCollectionStudentEntity studentEntity) {

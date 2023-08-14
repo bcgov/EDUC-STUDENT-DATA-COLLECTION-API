@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -50,4 +49,10 @@ public interface SdcSchoolCollectionStudentEndpoint {
   @Tag(name = "Sdc School Collection Student", description = "Endpoints to update school collection student entity.")
   @Schema(name = "SdcSchoolCollectionStudent", implementation = SdcSchoolCollectionStudent.class)
   ResponseEntity<Void> updateAndValidateSdcSchoolCollectionStudent(@PathVariable("sdcSchoolCollectionStudentID") UUID collectionStudentID, @Validated @RequestBody SdcSchoolCollectionStudent sdcSchoolCollectionStudent);
+
+  @DeleteMapping("/{sdcSchoolCollectionStudentID}")
+  @PreAuthorize("hasAuthority('SCOPE_DELETE_SDC_SCHOOL_COLLECTION_STUDENT')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional
+  SdcSchoolCollectionStudent deleteSdcSchoolCollectionStudent(@PathVariable UUID sdcSchoolCollectionStudentID);
 }

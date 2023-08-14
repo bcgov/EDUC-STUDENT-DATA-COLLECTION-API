@@ -19,6 +19,7 @@ import lombok.val;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.AND;
 import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.OR;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -749,5 +751,33 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .contentType(APPLICATION_JSON))
                 .andReturn();
         this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
+    }
+
+    @Test
+    void testDeleteSdcSchoolCollectionStudent_WithValidPayload_ShouldReturnOkay() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_DELETE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+                grantedAuthority);
+
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
+        var savedSdcSchoolCollectionStudent = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(sdcSchoolCollection));
+
+        this.mockMvc.perform(
+                delete(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID()).contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .with(mockAuthority))
+                .andDo(print()).andExpect(status().isOk()).andExpect(
+                        MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionStudentStatusCode", equalTo(SdcSchoolStudentStatus.DELETED.toString()))
+                );
+
+        var deletedSdcSchoolCollectionStudent = sdcSchoolCollectionStudentRepository.findById(savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID());
+        assertThat(deletedSdcSchoolCollectionStudent).isPresent();
+        assertThat(deletedSdcSchoolCollectionStudent.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.DELETED.toString());
     }
 }

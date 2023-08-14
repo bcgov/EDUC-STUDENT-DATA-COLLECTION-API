@@ -74,4 +74,10 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Override
+    public SdcSchoolCollectionStudent deleteSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID) {
+        SdcSchoolCollectionStudentEntity softDeletedSdcSchoolCollectionStudent = this.sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
+        return mapper.toSdcSchoolStudent(softDeletedSdcSchoolCollectionStudent);
+    }
+
 }
