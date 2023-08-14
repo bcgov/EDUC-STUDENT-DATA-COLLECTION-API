@@ -21,6 +21,8 @@ public class SdcSchoolCollectionStudentValidationIssueErrorWarningCount implemen
 
   private long error = 0;
 
-  private long warning = 0;
+  private long infoWarning = 0;
+
+  private long fundingWarning = 0;
 
 }
