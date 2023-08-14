@@ -63,7 +63,7 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
     assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
     assertThat(entity.getUploadReportDate()).isNotNull();
-    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADED");
 
     final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
@@ -95,7 +95,7 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
     assertThat(entity.getUploadFileName()).isEqualTo("SampleUploadEnrolled.std");
     assertThat(entity.getUploadReportDate()).isNotNull();
-    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADED");
 
     final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).hasSize(1);
@@ -130,7 +130,7 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
     assertThat(entity.getUploadFileName()).isEqualTo("SampleUploadEnrolled.std");
     assertThat(entity.getUploadReportDate()).isNotNull();
-    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADED");
 
     final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).hasSize(1);
@@ -165,7 +165,7 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
     assertThat(entity.getUploadFileName()).isEqualTo("SampleUploadEnrolled.std");
     assertThat(entity.getUploadReportDate()).isNotNull();
-    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADED");
 
     final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).hasSize(1);
@@ -200,7 +200,7 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
     assertThat(entity.getUploadFileName()).isEqualTo("SampleUploadEnrolled.std");
     assertThat(entity.getUploadReportDate()).isNotNull();
-    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADED");
 
     final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).hasSize(1);
@@ -235,7 +235,7 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
     assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
     assertThat(entity.getUploadReportDate()).isNotNull();
-    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADED");
 
     final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
@@ -270,7 +270,7 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
     assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
     assertThat(entity.getUploadReportDate()).isNotNull();
-    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADED");
 
     final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
@@ -279,5 +279,46 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     assertThat(studentEntity.getLegalFirstName()).isNull();
   }
 
-}
+  @Test
+  @Transactional
+  void testProcessSdcBatchFileFromTSW_FileUploadStatus_ShouldCreateRecordsInDB() throws IOException {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+    Optional<SdcSchoolCollectionEntity> schoolCollectionOptional = Optional.of(sdcSchoolCollection);
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.std").build();
 
+    var response = this.sdcBatchProcessor.processSdcBatchFile(
+            fileUpload,
+            sdcSchoolCollection.getSdcSchoolCollectionID().toString(),
+            schoolCollectionOptional
+    );
+    assertThat(response).isNotNull();
+
+    final var result = this.sdcSchoolCollectionRepository.findAll();
+    assertThat(result).hasSize(1);
+    final var entity = result.get(0);
+
+    entity.setSdcSchoolCollectionStatusCode("LOADFAIL");
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADFAIL");
+
+    final FileInputStream fisTwo = new FileInputStream("src/test/resources/sample-1-student.txt");
+    final String fileContentsTwo = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fisTwo));
+    var fileUploadTwo = SdcFileUpload.builder().fileContents(fileContentsTwo).fileName("SampleUpload.std").build();
+
+    var responseTwo = this.sdcBatchProcessor.processSdcBatchFile(
+            fileUploadTwo,
+            sdcSchoolCollection.getSdcSchoolCollectionID().toString(),
+            schoolCollectionOptional
+    );
+    assertThat(responseTwo).isNotNull();
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADED");
+    final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    assertThat(students).isNotNull();
+  }
+
+
+}
