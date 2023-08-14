@@ -137,8 +137,7 @@ public class SdcSchoolCollectionStudentService {
     return this.sdcSchoolCollectionStudentRepository.save(entity);
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void clearSdcSchoolStudentProgramEligibilityColumns(
+  public SdcSchoolCollectionStudentEntity clearSdcSchoolStudentProgramEligibilityColumns(
     UUID sdcSchoolCollectionStudentID
   ) {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional =
@@ -154,10 +153,10 @@ public class SdcSchoolCollectionStudentService {
     student.setIndigenousSupportProgramNonEligReasonCode(null);
     student.setCareerProgramNonEligReasonCode(null);
     student.setSpecialEducationNonEligReasonCode(null);
-    this.sdcSchoolCollectionStudentRepository.save(student);
+    return student;
   }
 
-  public void updateStudentAgeColumns(UUID sdcSchoolCollectionStudentID, boolean isAdult, boolean isSchoolAged) throws EntityNotFoundException {
+  public SdcSchoolCollectionStudentEntity updateStudentAgeColumns(UUID sdcSchoolCollectionStudentID, boolean isAdult, boolean isSchoolAged) throws EntityNotFoundException {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional =
       sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
@@ -168,11 +167,10 @@ public class SdcSchoolCollectionStudentService {
     SdcSchoolCollectionStudentEntity student = sdcSchoolCollectionStudentEntityOptional.get();
     student.setIsAdult(isAdult);
     student.setIsSchoolAged(isSchoolAged);
-    this.saveSdcSchoolCollectionStudent(student);
+    return student;
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void deleteExistingAndWriteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID, List<String> enrolledProgramCodes) {
+  public SdcSchoolCollectionStudentEntity deleteExistingAndWriteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID, List<String> enrolledProgramCodes) {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
     var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
@@ -192,7 +190,7 @@ public class SdcSchoolCollectionStudentService {
       student.getSdcStudentEnrolledProgramEntities().add(enrolledProgramEntity);
     });
 
-    sdcSchoolCollectionStudentRepository.save(student);
+    return student;
   }
 
   public SdcSchoolCollectionStudentValidationIssueErrorWarningCount errorAndWarningCountBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
@@ -247,8 +245,7 @@ public class SdcSchoolCollectionStudentService {
     }
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void updateProgramEligibilityColumns(
+  public SdcSchoolCollectionStudentEntity updateProgramEligibilityColumns(
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors,
     UUID studentId
   ) {
@@ -273,10 +270,10 @@ public class SdcSchoolCollectionStudentService {
       student.setCareerProgramNonEligReasonCode(reasonCode);
       student.setSpecialEducationNonEligReasonCode(reasonCode);
     }
+    return student;
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void updateFteColumns(FteCalculationResult fteCalculationResult, UUID sdcSchoolCollectionStudentID) {
+  public SdcSchoolCollectionStudentEntity updateFteColumns(FteCalculationResult fteCalculationResult, UUID sdcSchoolCollectionStudentID) {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
     var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
@@ -285,7 +282,7 @@ public class SdcSchoolCollectionStudentService {
     student.setFte(fteCalculationResult.getFte());
     student.setFteZeroReasonCode(fteCalculationResult.getFteZeroReason());
 
-    sdcSchoolCollectionStudentRepository.save(student);
+    return student;
   }
 
   private SdcStudentSagaData createSagaDataForValidation(SdcSchoolCollectionStudentEntity studentEntity) {

@@ -170,7 +170,7 @@ public class SdcFileValidator {
     Optional<DataError> maybeError = ds
       .getErrors()
       .stream()
-      .filter(e -> isMalformedRowError(e))
+      .filter(SdcFileValidator::isMalformedRowError)
       .findFirst();
 
     if (maybeError.isPresent()) {

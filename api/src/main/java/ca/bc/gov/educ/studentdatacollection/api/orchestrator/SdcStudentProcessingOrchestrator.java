@@ -7,9 +7,11 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.PenMatchSagaMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.BaseOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -106,30 +108,37 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     saga.setSagaState(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES.toString());
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+    SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity;
 
     // Write Enrolled Program Codes
     if(StringUtils.isNotBlank(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes())) {
       List<String> enrolledProgramList = TransformUtil.splitIntoChunks(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes(), 2);
 
-      this.sdcSchoolCollectionStudentService.deleteExistingAndWriteEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), enrolledProgramList);
+      sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.deleteExistingAndWriteEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), enrolledProgramList);
+      sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
     }
 
     // Update Student age columns
     UUID studentUUID = UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
     String studentDOB = sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob();
 
-    this.sdcSchoolCollectionStudentService.updateStudentAgeColumns(studentUUID, DOBUtil.isAdult(studentDOB), DOBUtil.isSchoolAged(studentDOB));
+    sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.updateStudentAgeColumns(studentUUID, DOBUtil.isAdult(studentDOB), DOBUtil.isSchoolAged(studentDOB));
+    sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
 
     // Update program eligibility
-    this.sdcSchoolCollectionStudentService.clearSdcSchoolStudentProgramEligibilityColumns(studentUUID);
+    sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.clearSdcSchoolStudentProgramEligibilityColumns(studentUUID);
+    sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> programEligibilityErrors =
       this.programEligibilityRulesProcessor.processRules(sdcStudentSagaData);
 
-    this.sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(programEligibilityErrors, studentUUID);
+    sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(programEligibilityErrors, studentUUID);
+    sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
 
     // Calculate Fte
     var fteResults = this.fteCalculatorChainProcessor.processFteCalculator(sdcStudentSagaData);
-    this.sdcSchoolCollectionStudentService.updateFteColumns(fteResults, studentUUID);
+    sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.updateFteColumns(fteResults, studentUUID);
+
+    this.sdcSchoolCollectionStudentService.saveSdcSchoolCollectionStudent(sdcSchoolCollectionStudentEntity);
 
     this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
       .eventType(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES).eventOutcome(ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED)
