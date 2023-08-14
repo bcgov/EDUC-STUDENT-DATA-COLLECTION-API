@@ -103,7 +103,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
       .build());
   }
 
-  public void calculateAdditionalStudentAttributes(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
+  private void calculateAdditionalStudentAttributes(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES.toString());
     saga.setStatus(IN_PROGRESS.toString());
