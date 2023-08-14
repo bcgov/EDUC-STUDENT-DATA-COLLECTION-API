@@ -200,8 +200,10 @@ public class SdcSchoolCollectionStudentService {
     SdcSchoolCollectionStudentValidationIssueErrorWarningCount sdcSchoolCollectionStudentValidationIssueErrorWarningCount = new SdcSchoolCollectionStudentValidationIssueErrorWarningCount();
     sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setError(
         sdcSchoolCollectionStudentRepository.getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID("ERROR", sdcSchoolCollectionID));
-    sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setWarning(
-        sdcSchoolCollectionStudentRepository.getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID("WARNING", sdcSchoolCollectionID));
+    sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setFundingWarning(
+        sdcSchoolCollectionStudentRepository.getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID("FUNDING_WARNING", sdcSchoolCollectionID));
+    sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setInfoWarning(
+            sdcSchoolCollectionStudentRepository.getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID("INFO_WARNING", sdcSchoolCollectionID));
 
     return sdcSchoolCollectionStudentValidationIssueErrorWarningCount;
   }

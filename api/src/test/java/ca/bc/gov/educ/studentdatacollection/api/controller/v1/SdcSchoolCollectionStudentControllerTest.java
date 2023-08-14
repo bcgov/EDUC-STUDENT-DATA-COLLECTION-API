@@ -505,7 +505,8 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .contentType(APPLICATION_JSON))
             .andDo(print())
             .andExpect(MockMvcResultMatchers.jsonPath("$.error").value(0))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.warning").value(0));
+            .andExpect(MockMvcResultMatchers.jsonPath("$.infoWarning").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.fundingWarning").value(0));
     }
 
     @Test
@@ -516,7 +517,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         sdcSchoolCollectionStudentValidationIssueRepository.save(createMockSdcSchoolCollectionStudentValidationIssueEntity(student));
         sdcSchoolCollectionStudentValidationIssueRepository.save(createMockSdcSchoolCollectionStudentValidationIssueEntity(student));
         var warningValidationIssue = createMockSdcSchoolCollectionStudentValidationIssueEntity(student);
-        warningValidationIssue.setValidationIssueSeverityCode("WARNING");
+        warningValidationIssue.setValidationIssueSeverityCode("INFO_WARNING");
         sdcSchoolCollectionStudentValidationIssueRepository.save(warningValidationIssue);
 
         this.mockMvc
@@ -525,7 +526,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .contentType(APPLICATION_JSON))
             .andDo(print())
             .andExpect(MockMvcResultMatchers.jsonPath("$.error").value(1)) //should only show 1 error since it is for the same validationIssueCode
-            .andExpect(MockMvcResultMatchers.jsonPath("$.warning").value(1));
+            .andExpect(MockMvcResultMatchers.jsonPath("$.infoWarning").value(1));
     }
 
     @Test
