@@ -777,7 +777,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 );
 
         var deletedSdcSchoolCollectionStudent = sdcSchoolCollectionStudentRepository.findById(savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID());
-        assertThat(deletedSdcSchoolCollectionStudent.isPresent()).isTrue();
+        assertThat(deletedSdcSchoolCollectionStudent).isPresent();
         assertThat(deletedSdcSchoolCollectionStudent.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.DELETED.toString());
     }
 }
