@@ -17,6 +17,7 @@ public enum SdcSchoolCollectionStudentProgramEligibilityIssueCode {
     + " years to be eligible for this program."),
   INACTIVE_SCHOOL_AGE("INACTMINOR", "School aged students must have been reported to have 1 or more courses in the"
     + " last two years to be eligible for this program."),
+  NOT_ENROLLED_FRENCH("NOENROLLED", "The student is not enrolled in French programming.")
   ;
 
   @Getter
@@ -25,7 +26,7 @@ public enum SdcSchoolCollectionStudentProgramEligibilityIssueCode {
   @Getter
   private final String message;
 
-  public static final Optional<SdcSchoolCollectionStudentProgramEligibilityIssueCode> isNotEligibleForAnyProgramReason(
+  public static final Optional<SdcSchoolCollectionStudentProgramEligibilityIssueCode> getBaseProgramEligibilityFailure(
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors
   ) {
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> ineligibleCodes = Arrays.asList(
