@@ -112,6 +112,25 @@ class SdcSchoolCollectionStudentServiceTest {
         assertSame(reasonCode, result.getFrenchProgramNonEligReasonCode());
     }
 
+    @Test
+    void testUpdateProgramEligibilityColumns_WhenNotEnrolledInCareerPrograms_UpdatesCareerProgramEligibilityColumn() {
+        UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
+        List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = List.of(
+                SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_CAREER
+        );
+
+        // Create a mock SdcSchoolCollectionStudentEntity
+        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
+        when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
+
+        var result = sdcSchoolCollectionStudentService
+            .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
+
+        String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_CAREER.getCode();
+        assertSame(reasonCode, result.getCareerProgramNonEligReasonCode());
+    }
+
   @Test
   void testClearSdcSchoolStudentProgramEligibilityColumns_WhenColumnsAreSet_SetsAllColumnsToNull() {
         UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
