@@ -25,7 +25,7 @@ public enum SdcSchoolCollectionStudentProgramEligibilityIssueCode {
   @Getter
   private final String message;
 
-  public static final Optional<SdcSchoolCollectionStudentProgramEligibilityIssueCode> isNotEligibleForAnyProgramReason(
+  public static final Optional<SdcSchoolCollectionStudentProgramEligibilityIssueCode> getBaseProgramEligibilityFailure(
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors
   ) {
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> ineligibleCodes = Arrays.asList(

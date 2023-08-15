@@ -257,7 +257,7 @@ public class SdcSchoolCollectionStudentService {
       ));
 
     Optional<SdcSchoolCollectionStudentProgramEligibilityIssueCode> reasonForNoEligiblility =
-      SdcSchoolCollectionStudentProgramEligibilityIssueCode.isNotEligibleForAnyProgramReason(errors);
+      SdcSchoolCollectionStudentProgramEligibilityIssueCode.getBaseProgramEligibilityFailure(errors);
 
     if (reasonForNoEligiblility.isPresent()) {
       String reasonCode = reasonForNoEligiblility.get().getCode();
