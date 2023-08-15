@@ -79,7 +79,7 @@ public class SdcSchoolCollectionStudentService {
           sdcStudentSagaData.setCollectionTypeCode(sdcSchoolCollection.get().getCollectionEntity().getCollectionTypeCode());
           sdcStudentSagaData.setSchool(school.get());
         }
-        sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(el));
+        sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolCollectionStudentWithValidationIssues(el));
         return sdcStudentSagaData;
       }).toList();
     this.publishUnprocessedStudentRecordsForProcessing(sdcStudentSagaDatas);
@@ -301,7 +301,7 @@ public class SdcSchoolCollectionStudentService {
       var school = this.restUtils.getSchoolBySchoolID(sdcSchoolCollection.get().getSchoolID().toString());
       sdcStudentSagaData.setCollectionTypeCode(sdcSchoolCollection.get().getCollectionEntity().getCollectionTypeCode());
       school.ifPresent(sdcStudentSagaData::setSchool);
-      sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(studentEntity));
+      sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolCollectionStudentWithValidationIssues(studentEntity));
       return sdcStudentSagaData;
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionEntity.class, "SdcSchoolCollectionEntity", studentEntity.getSdcSchoolCollectionID().toString());

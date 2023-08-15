@@ -51,7 +51,6 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public CompletableFuture<Page<SdcSchoolCollectionStudent>> findAll(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
         final List<Sort.Order> sorts = new ArrayList<>();
         Specification<SdcSchoolCollectionStudentEntity> studentSpecs = sdcSchoolCollectionStudentSearchService
@@ -63,7 +62,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
                 );
         return this.sdcSchoolCollectionStudentSearchService
                 .findAll(studentSpecs, pageNumber, pageSize, sorts)
-                .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.map(mapper::toSdcSchoolStudent));
+                .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.map(mapper::toSdcSchoolCollectionStudentWithValidationIssues));
     }
 
     @Override
@@ -77,7 +76,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     @Override
     public SdcSchoolCollectionStudent deleteSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID) {
         SdcSchoolCollectionStudentEntity softDeletedSdcSchoolCollectionStudent = this.sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
-        return mapper.toSdcSchoolStudent(softDeletedSdcSchoolCollectionStudent);
+        return mapper.toSdcSchoolCollectionStudentWithValidationIssues(softDeletedSdcSchoolCollectionStudent);
     }
 
 }
