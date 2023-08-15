@@ -267,6 +267,13 @@ public class SdcSchoolCollectionStudentService {
       student.setCareerProgramNonEligReasonCode(reasonCode);
       student.setSpecialEducationNonEligReasonCode(reasonCode);
     }
+
+    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_FRENCH)) {
+      student.setFrenchProgramNonEligReasonCode(
+        SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_FRENCH.getCode()
+      );
+    }
+
     return student;
   }
 
