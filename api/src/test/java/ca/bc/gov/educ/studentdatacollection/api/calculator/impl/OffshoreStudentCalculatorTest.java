@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import java.math.BigDecimal;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +42,7 @@ class OffshoreStudentCalculatorTest {
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
         assertEquals(expectedFte, result.getFte());
-        assertEquals("Offshore students do not receive funding.", result.getFteZeroReason());
+        assertEquals(ZeroFteReasonCodes.OFFSHORE.getCode(), result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 

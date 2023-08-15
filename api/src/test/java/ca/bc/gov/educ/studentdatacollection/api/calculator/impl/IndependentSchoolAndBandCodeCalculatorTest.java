@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
@@ -52,7 +53,7 @@ class IndependentSchoolAndBandCodeCalculatorTest {
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
-        String expectedFteZeroReason = "The student is Nominal Roll eligible and is federally funded.";
+        String expectedFteZeroReason = ZeroFteReasonCodes.NOMINAL_ROLL_ELIGIBLE.getCode();
 
         assertEquals(expectedFte, result.getFte());
         assertEquals(expectedFteZeroReason, result.getFteZeroReason());
@@ -113,7 +114,7 @@ class IndependentSchoolAndBandCodeCalculatorTest {
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
-        String expectedFteZeroReason = "The student is Nominal Roll eligible and is federally funded.";
+        String expectedFteZeroReason = ZeroFteReasonCodes.NOMINAL_ROLL_ELIGIBLE.getCode();
 
         assertEquals(expectedFte, result.getFte());
         assertEquals(expectedFteZeroReason, result.getFteZeroReason());

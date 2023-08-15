@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.NOMINAL_ROLL_ELIGIBLE;
+
 @Component
 @Slf4j
 @Order(5)
@@ -30,7 +32,7 @@ public class IndependentSchoolAndBandCodeCalculator implements FteCalculator {
         if(isIndependentSchool && (StringUtils.equals(fundingCode, Constants.IND_FUNDING_CODE) || (hasBandCode && StringUtils.isBlank(fundingCode)))) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
-            fteCalculationResult.setFteZeroReason("The student is Nominal Roll eligible and is federally funded.");
+            fteCalculationResult.setFteZeroReason(NOMINAL_ROLL_ELIGIBLE.getCode());
             return fteCalculationResult;
         } else {
             return this.nextCalculator.calculateFte(studentData);

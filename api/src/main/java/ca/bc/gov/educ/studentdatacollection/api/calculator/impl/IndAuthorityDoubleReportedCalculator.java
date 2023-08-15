@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.IND_AUTH_DUPLICATE_FUNDING;
+
 @Component
 @Slf4j
 @Order(8)
@@ -28,7 +30,7 @@ public class IndAuthorityDoubleReportedCalculator implements FteCalculator {
         if(fteCalculatorUtils.studentPreviouslyReportedInIndependentAuthority(studentData)) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
-            fteCalculationResult.setFteZeroReason("The authority has already received funding for the student this year.");
+            fteCalculationResult.setFteZeroReason(IND_AUTH_DUPLICATE_FUNDING.getCode());
             return fteCalculationResult;
         } else {
             return this.nextCalculator.calculateFte(studentData);

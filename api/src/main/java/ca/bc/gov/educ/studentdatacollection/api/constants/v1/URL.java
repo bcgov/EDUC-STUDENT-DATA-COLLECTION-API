@@ -22,5 +22,6 @@ public final class URL {
   public static final String VALIDATION_ISSUE_TYPE_CODES = "/validation-issue-type-codes";
   public static final String ERROR_WARNING_COUNT = "/stats/error-warning-count";
   public static final String FUNDING_GROUP_CODES = "/funding-group-codes";
+  public static final String ZERO_FTE_REASON_CODES = "/zero-fte-reason-codes";
 
 }

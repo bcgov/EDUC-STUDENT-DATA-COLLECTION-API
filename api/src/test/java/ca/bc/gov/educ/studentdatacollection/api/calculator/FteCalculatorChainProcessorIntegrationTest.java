@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
@@ -66,7 +67,7 @@ class FteCalculatorChainProcessorIntegrationTest {
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
-        String expectedFteZeroReason = "Offshore students do not receive funding.";
+        String expectedFteZeroReason = ZeroFteReasonCodes.OFFSHORE.getCode();
 
         assertEquals(expectedFte, result.getFte());
         assertEquals(expectedFteZeroReason, result.getFteZeroReason());
@@ -82,7 +83,7 @@ class FteCalculatorChainProcessorIntegrationTest {
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
-        String expectedFteZeroReason = "Out-of-Province/International Students are not eligible for funding.";
+        String expectedFteZeroReason = ZeroFteReasonCodes.OUT_OF_PROVINCE.getCode();
 
         assertEquals(expectedFte, result.getFte());
         assertEquals(expectedFteZeroReason, result.getFteZeroReason());
@@ -99,7 +100,7 @@ class FteCalculatorChainProcessorIntegrationTest {
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
-        String expectedFteZeroReason = "The student is too young.";
+        String expectedFteZeroReason = ZeroFteReasonCodes.TOO_YOUNG.getCode();
 
         assertEquals(expectedFte, result.getFte());
         assertEquals(expectedFteZeroReason, result.getFteZeroReason());
@@ -116,7 +117,7 @@ class FteCalculatorChainProcessorIntegrationTest {
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
-        String expectedFteZeroReason = "The student is graduated adult reported by an independent school.";
+        String expectedFteZeroReason = ZeroFteReasonCodes.GRADUATED_ADULT_IND_AUTH.getCode();
 
         assertEquals(expectedFte, result.getFte());
         assertEquals(expectedFteZeroReason, result.getFteZeroReason());
@@ -134,7 +135,7 @@ class FteCalculatorChainProcessorIntegrationTest {
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
-        String expectedFteZeroReason = "The student is Nominal Roll eligible and is federally funded.";
+        String expectedFteZeroReason = ZeroFteReasonCodes.NOMINAL_ROLL_ELIGIBLE.getCode();
 
         assertEquals(expectedFte, result.getFte());
         assertEquals(expectedFteZeroReason, result.getFteZeroReason());
@@ -169,7 +170,7 @@ class FteCalculatorChainProcessorIntegrationTest {
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
-        String expectedFteZeroReason = "The student has not been reported as \"active\" in a new course in the last two years.";
+        String expectedFteZeroReason = ZeroFteReasonCodes.INACTIVE.getCode();
 
         assertEquals(expectedFte, result.getFte());
         assertEquals(expectedFteZeroReason, result.getFteZeroReason());
@@ -211,7 +212,7 @@ class FteCalculatorChainProcessorIntegrationTest {
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
-        String expectedFteZeroReason = "The district has already received funding for the student this year.";
+        String expectedFteZeroReason = ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING.getCode();
 
         assertEquals(expectedFte, result.getFte());
         assertEquals(expectedFteZeroReason, result.getFteZeroReason());
@@ -255,7 +256,7 @@ class FteCalculatorChainProcessorIntegrationTest {
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
-        String expectedFteZeroReason = "The authority has already received funding for the student this year.";
+        String expectedFteZeroReason = ZeroFteReasonCodes.IND_AUTH_DUPLICATE_FUNDING.getCode();
 
         assertEquals(expectedFte, result.getFte());
         assertEquals(expectedFteZeroReason, result.getFteZeroReason());
