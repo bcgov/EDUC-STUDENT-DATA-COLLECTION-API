@@ -283,5 +283,37 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     )).isTrue();
 
   }
+  @Test
+  void testCareerProgramStudentsMustBeEnrolled() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
+    .save(createMockSdcSchoolCollectionEntity(collection, null, null));
+    SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
+      createMockStudentSagaData(
+        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+        createMockSchool()
+      )
+    );
+
+    assertThat(listWithoutEnrollmentError.stream().anyMatch(e ->
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_CAREER)
+    )).isFalse();
+
+    schoolStudentEntity.setEnrolledProgramCodes("3900000000000017");
+
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithEnrollmenError = rulesProcessor.processRules(
+      createMockStudentSagaData(
+        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+        createMockSchool()
+      )
+    );
+
+    assertThat(listWithEnrollmenError.stream().anyMatch(e ->
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_CAREER)
+    )).isTrue();
+
+  }
 
 }

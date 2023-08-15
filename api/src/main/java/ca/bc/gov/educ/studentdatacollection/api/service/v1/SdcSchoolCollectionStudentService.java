@@ -274,6 +274,12 @@ public class SdcSchoolCollectionStudentService {
       );
     }
 
+    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_CAREER)) {
+      student.setCareerProgramNonEligReasonCode(
+        SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_CAREER.getCode()
+      );
+    }
+
     return student;
   }
 
