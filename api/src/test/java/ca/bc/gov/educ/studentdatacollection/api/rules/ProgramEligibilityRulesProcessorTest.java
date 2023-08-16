@@ -281,8 +281,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     assertThat(listWithEnrollmenError.stream().anyMatch(e ->
       e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_FRENCH)
     )).isTrue();
-
   }
+
   @Test
   void testCareerProgramStudentsMustBeEnrolled() {
     CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
@@ -313,7 +313,93 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     assertThat(listWithEnrollmenError.stream().anyMatch(e ->
       e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_CAREER)
     )).isTrue();
-
   }
 
+  @Test
+  void testSpecialEdStudentsMustRequireSpecialEd() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
+    .save(createMockSdcSchoolCollectionEntity(collection, null, null));
+    SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
+      createMockStudentSagaData(
+        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+        createMockSchool()
+      )
+    );
+
+    assertThat(listWithoutEnrollmentError.stream().anyMatch(e ->
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED)
+    )).isFalse();
+
+    schoolStudentEntity.setSpecialEducationCategoryCode(null);
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithEnrollmentError = rulesProcessor.processRules(
+      createMockStudentSagaData(
+        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+        createMockSchool()
+      )
+    );
+
+    assertThat(listWithEnrollmentError.stream().anyMatch(e ->
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED)
+    )).isTrue();
+  }
+
+  @Test
+  void testSpecialEdStudentsMustBeSchoolAgeOrNotGraduated() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
+    .save(createMockSdcSchoolCollectionEntity(collection, null, null));
+    SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listFromSchoolAgedStudent = rulesProcessor.processRules(
+      createMockStudentSagaData(
+        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+        createMockSchool()
+      )
+    );
+
+    assertThat(listFromSchoolAgedStudent.stream().anyMatch(e ->
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_ADULT_OR_GRADUATED)
+    )).isFalse();
+
+    schoolStudentEntity.setIsAdult(true);
+    schoolStudentEntity.setIsSchoolAged(false);
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listFromUngraduatedAdult = rulesProcessor.processRules(
+      createMockStudentSagaData(
+        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+        createMockSchool()
+      )
+    );
+
+    assertThat(listFromUngraduatedAdult.stream().anyMatch(e ->
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_ADULT_OR_GRADUATED)
+    )).isFalse();
+
+    schoolStudentEntity.setIsGraduated(true);
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithGraduatedAdultError = rulesProcessor.processRules(
+      createMockStudentSagaData(
+        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+        createMockSchool()
+      )
+    );
+
+    assertThat(listWithGraduatedAdultError.stream().anyMatch(e ->
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_ADULT_OR_GRADUATED)
+    )).isTrue();
+
+    schoolStudentEntity.setIsAdult(false);
+    schoolStudentEntity.setIsSchoolAged(true);
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithGraduatedMinorError = rulesProcessor.processRules(
+      createMockStudentSagaData(
+        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+        createMockSchool()
+      )
+    );
+
+    assertThat(listWithGraduatedMinorError.stream().anyMatch(e ->
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_ADULT_OR_GRADUATED)
+    )).isTrue();
+  }
 }
