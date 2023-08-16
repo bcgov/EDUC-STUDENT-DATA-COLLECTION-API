@@ -271,14 +271,14 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     schoolStudentEntity.setEnrolledProgramCodes("4000000000000017");
 
-    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithEnrollmenError = rulesProcessor.processRules(
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithEnrollmentError = rulesProcessor.processRules(
       createMockStudentSagaData(
         SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
         createMockSchool()
       )
     );
 
-    assertThat(listWithEnrollmenError.stream().anyMatch(e ->
+    assertThat(listWithEnrollmentError.stream().anyMatch(e ->
       e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_FRENCH)
     )).isTrue();
   }
@@ -303,14 +303,14 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     schoolStudentEntity.setEnrolledProgramCodes("3900000000000017");
 
-    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithEnrollmenError = rulesProcessor.processRules(
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithEnrollmentError = rulesProcessor.processRules(
       createMockStudentSagaData(
         SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
         createMockSchool()
       )
     );
 
-    assertThat(listWithEnrollmenError.stream().anyMatch(e ->
+    assertThat(listWithEnrollmentError.stream().anyMatch(e ->
       e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_CAREER)
     )).isTrue();
   }
