@@ -154,7 +154,7 @@ class SdcSchoolCollectionStudentServiceTest {
     void testUpdateProgramEligibilityColumns_WhenStudentIsGraduatedOrAGraduatedAdult_UpdatesSpecialEdEligibilityColumn() {
         UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
         List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = List.of(
-                SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_ADULT_OR_GRADUATED
+                SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED
         );
 
         // Create a mock SdcSchoolCollectionStudentEntity
@@ -165,7 +165,7 @@ class SdcSchoolCollectionStudentServiceTest {
         var result = sdcSchoolCollectionStudentService
             .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
 
-        String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_ADULT_OR_GRADUATED.getCode();
+        String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED.getCode();
         assertSame(reasonCode, result.getSpecialEducationNonEligReasonCode());
     }
 

@@ -361,7 +361,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     );
 
     assertThat(listFromSchoolAgedStudent.stream().anyMatch(e ->
-      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_ADULT_OR_GRADUATED)
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED)
     )).isFalse();
 
     schoolStudentEntity.setIsAdult(true);
@@ -374,7 +374,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     );
 
     assertThat(listFromUngraduatedAdult.stream().anyMatch(e ->
-      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_ADULT_OR_GRADUATED)
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED)
     )).isFalse();
 
     schoolStudentEntity.setIsGraduated(true);
@@ -386,7 +386,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     );
 
     assertThat(listWithGraduatedAdultError.stream().anyMatch(e ->
-      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_ADULT_OR_GRADUATED)
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED)
     )).isTrue();
 
     schoolStudentEntity.setIsAdult(false);
@@ -399,7 +399,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     );
 
     assertThat(listWithGraduatedMinorError.stream().anyMatch(e ->
-      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_ADULT_OR_GRADUATED)
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED)
     )).isTrue();
   }
 }

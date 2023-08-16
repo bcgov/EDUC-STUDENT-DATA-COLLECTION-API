@@ -20,7 +20,7 @@ public enum SdcSchoolCollectionStudentProgramEligibilityIssueCode {
   NOT_ENROLLED_FRENCH("NOENROLLED", "The student is not enrolled in French programming."),
   NOT_ENROLLED_CAREER("NOENROLLED", "The student is not enrolled in career programming."),
   DOES_NOT_NEED_SPECIAL_ED("NOSPECIAL", "The student does not require special education assistance."),
-  IS_ADULT_OR_GRADUATED("GRADORADLT", "Student must be school-aged or a non-graduated adult to be eligible for "
+  IS_GRADUATED("GRADUATED", "Student must be school-aged or a non-graduated adult to be eligible for "
     + "Special Education funding.")
   ;
 

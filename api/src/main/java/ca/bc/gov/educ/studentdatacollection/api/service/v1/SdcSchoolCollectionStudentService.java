@@ -286,9 +286,9 @@ public class SdcSchoolCollectionStudentService {
       );
     }
 
-    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_ADULT_OR_GRADUATED)) {
+    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED)) {
       student.setSpecialEducationNonEligReasonCode(
-        SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_ADULT_OR_GRADUATED.getCode()
+        SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED.getCode()
       );
     }
 
