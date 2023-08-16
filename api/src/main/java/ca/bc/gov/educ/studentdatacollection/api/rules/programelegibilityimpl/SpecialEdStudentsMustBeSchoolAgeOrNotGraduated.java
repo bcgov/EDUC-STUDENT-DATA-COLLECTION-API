@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibilityimpl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -26,9 +27,9 @@ public class SpecialEdStudentsMustBeSchoolAgeOrNotGraduated implements ProgramEl
   public List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = new ArrayList<>();
 
-    Boolean isGraduated = saga.getSdcSchoolCollectionStudent().getIsGraduated();
+    String isGraduated = saga.getSdcSchoolCollectionStudent().getIsGraduated().toString();
 
-    if (Boolean.TRUE.equals(isGraduated)) {
+    if (StringUtils.isNotEmpty(isGraduated) && isGraduated.equals("true")) {
       errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED);
     }
 
