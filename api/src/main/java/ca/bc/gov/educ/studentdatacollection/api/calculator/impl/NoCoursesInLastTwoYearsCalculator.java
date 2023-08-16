@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.INACTIVE;
+
 @Component
 @Slf4j
 @Order(6)
@@ -28,7 +30,7 @@ public class NoCoursesInLastTwoYearsCalculator implements FteCalculator {
         if(fteCalculatorUtils.noCoursesForStudentInLastTwoYears(studentData)) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
-            fteCalculationResult.setFteZeroReason("The student has not been reported as \"active\" in a new course in the last two years.");
+            fteCalculationResult.setFteZeroReason(INACTIVE.getCode());
             return fteCalculationResult;
         } else {
             return this.nextCalculator.calculateFte(studentData);

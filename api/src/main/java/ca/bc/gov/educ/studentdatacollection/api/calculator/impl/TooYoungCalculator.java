@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.TOO_YOUNG;
+
 @Component
 @Slf4j
 @Order(3)
@@ -24,7 +26,7 @@ public class TooYoungCalculator implements FteCalculator {
         if(!DOBUtil.is5YearsOldByDec31ThisSchoolYear(studentData.getSdcSchoolCollectionStudent().getDob())) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
-            fteCalculationResult.setFteZeroReason("The student is too young.");
+            fteCalculationResult.setFteZeroReason(TOO_YOUNG.getCode());
             return fteCalculationResult;
         } else {
             return this.nextCalculator.calculateFte(studentData);

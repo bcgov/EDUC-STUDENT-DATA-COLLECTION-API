@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.GRADUATED_ADULT_IND_AUTH;
+
 @Component
 @Slf4j
 @Order(4)
@@ -28,7 +30,7 @@ public class GraduatedAdultIndySchoolCalculator implements FteCalculator {
         if(isGraduatedAdultStudent && isIndependentSchool) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
-            fteCalculationResult.setFteZeroReason("The student is graduated adult reported by an independent school.");
+            fteCalculationResult.setFteZeroReason(GRADUATED_ADULT_IND_AUTH.getCode());
             return fteCalculationResult;
         } else {
             return this.nextCalculator.calculateFte(studentData);

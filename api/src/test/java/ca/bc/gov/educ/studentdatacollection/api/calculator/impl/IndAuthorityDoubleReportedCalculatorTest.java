@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +41,7 @@ class IndAuthorityDoubleReportedCalculatorTest {
 
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
-        String expectedFteZeroReason = "The authority has already received funding for the student this year.";
+        String expectedFteZeroReason = ZeroFteReasonCodes.IND_AUTH_DUPLICATE_FUNDING.getCode();
 
         assertEquals(expectedFte, result.getFte());
         assertEquals(expectedFteZeroReason, result.getFteZeroReason());

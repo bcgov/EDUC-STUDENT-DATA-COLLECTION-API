@@ -115,4 +115,13 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
             .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
   }
 
+  @Test
+  void testGetZeroFteReasonCodes_ShouldReturnCodes() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(get(URL.BASE_URL + URL.ZERO_FTE_REASON_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fteZeroReasonCode").value("TOOYOUNG"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
+  }
 }

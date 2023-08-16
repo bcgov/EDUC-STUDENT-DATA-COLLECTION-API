@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.CodeTableAPIEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CodeTableMapper;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -78,5 +80,16 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
     @Override
     public List<SchoolFundingGroupCode> getIndependentSchoolFundingGroupCodes() {
         return codeTableService.getAllSchoolFundingGroupCodes().stream().map(mapper::toStructure).toList();
+    }
+
+    @Override
+    public List<ZeroFteReasonCode> getZeroFteReasonCodes() {
+        return  Arrays.stream(ZeroFteReasonCodes.values()).map(code -> {
+                    ZeroFteReasonCode issue = new ZeroFteReasonCode();
+                    issue.setFteZeroReasonCode(code.getCode());
+                    issue.setMessage(code.getMessage());
+                    return issue;
+                })
+                .toList();
     }
 }

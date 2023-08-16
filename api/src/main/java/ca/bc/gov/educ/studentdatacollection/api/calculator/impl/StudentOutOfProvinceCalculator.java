@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.OUT_OF_PROVINCE;
+
 @Component
 @Slf4j
 @Order(2)
@@ -25,7 +27,7 @@ public class StudentOutOfProvinceCalculator implements FteCalculator {
         if(StringUtils.equals(studentData.getSdcSchoolCollectionStudent().getSchoolFundingCode(), Constants.FUNDING_CODE_14)) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
-            fteCalculationResult.setFteZeroReason("Out-of-Province/International Students are not eligible for funding.");
+            fteCalculationResult.setFteZeroReason(OUT_OF_PROVINCE.getCode());
             return fteCalculationResult;
         } else {
             return this.nextCalculator.calculateFte(studentData);

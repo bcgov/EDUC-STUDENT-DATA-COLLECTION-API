@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
@@ -45,7 +46,7 @@ class GraduatedAdultIndySchoolCalculatorTest {
 
         // Then
         assertEquals(BigDecimal.ZERO, result.getFte());
-        assertEquals("The student is graduated adult reported by an independent school.", result.getFteZeroReason());
+        assertEquals(ZeroFteReasonCodes.GRADUATED_ADULT_IND_AUTH.getCode(), result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 

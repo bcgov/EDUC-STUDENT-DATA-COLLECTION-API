@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +40,7 @@ class StudentOutOfProvinceCalculatorTest {
 
         // Then
         assertEquals(BigDecimal.ZERO, result.getFte());
-        assertEquals("Out-of-Province/International Students are not eligible for funding.", result.getFteZeroReason());
+        assertEquals(ZeroFteReasonCodes.OUT_OF_PROVINCE.getCode(), result.getFteZeroReason());
 
         // Ensure that the nextCalculator.calculateFte method is not called
         verify(nextCalculator, never()).calculateFte(any());

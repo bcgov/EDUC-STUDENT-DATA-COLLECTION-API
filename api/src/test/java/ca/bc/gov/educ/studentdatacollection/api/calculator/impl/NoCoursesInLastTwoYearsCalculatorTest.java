@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import java.math.BigDecimal;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,7 @@ class NoCoursesInLastTwoYearsCalculatorTest {
 
         // Then
         assertEquals(BigDecimal.ZERO, result.getFte());
-        assertEquals("The student has not been reported as \"active\" in a new course in the last two years.", result.getFteZeroReason());
+        assertEquals(ZeroFteReasonCodes.INACTIVE.getCode(), result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
