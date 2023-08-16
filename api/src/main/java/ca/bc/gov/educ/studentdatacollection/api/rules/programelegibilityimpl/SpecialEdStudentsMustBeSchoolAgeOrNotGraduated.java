@@ -26,8 +26,9 @@ public class SpecialEdStudentsMustBeSchoolAgeOrNotGraduated implements ProgramEl
   public List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = new ArrayList<>();
 
-    boolean isGraduated = saga.getSdcSchoolCollectionStudent().getIsGraduated();
-    if (isGraduated) {
+    Boolean isGraduated = saga.getSdcSchoolCollectionStudent().getIsGraduated();
+
+    if (Boolean.TRUE.equals(isGraduated)) {
       errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED);
     }
 
