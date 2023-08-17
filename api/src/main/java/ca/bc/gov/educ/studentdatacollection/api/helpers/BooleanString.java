@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class BooleanString {
 
-  private BooleanString() {};
+  private BooleanString() {}
 
   private static void booleanStringMustBeTrueOrFalse(String val) {
     if (!val.equals("true") && !val.equals("false")) {
@@ -41,7 +41,7 @@ public final class BooleanString {
    *
    * @param testValue The string being tested
    * @param trueOrFalse Must be a string of "true" or "false"
-   * @param nullIsTruthy Make null testValues truthy
+   * @param nullIsTruthy Make a null testValue truthy
    */
   public static boolean areEqual(String testValue, Boolean trueOrFalse, boolean nullIsTruthy) {
     if (StringUtils.isEmpty(testValue)) {
@@ -60,7 +60,7 @@ public final class BooleanString {
    *
    * @param testValue The string being tested
    * @param trueOrFalse Must be a string of "true" or "false"
-   * @param nullIsTruthy Make null testValues truthy
+   * @param nullIsTruthy Make a `null` testValue truthy
    */
   public static boolean areEqual(String testValue, String trueOrFalse, boolean nullIsTruthy) {
     booleanStringMustBeTrueOrFalse(trueOrFalse);
