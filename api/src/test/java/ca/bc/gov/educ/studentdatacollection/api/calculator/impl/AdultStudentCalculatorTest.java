@@ -30,7 +30,7 @@ class AdultStudentCalculatorTest {
     void testCalculateFte_IsAdultStudent() {
         // Given
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsAdult(true);
+        student.setIsAdult("true");
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
         student.setNumberOfCourses("0500");
 
@@ -50,7 +50,7 @@ class AdultStudentCalculatorTest {
     void testCalculateFte_IsGAAndNotAdultStudent() {
         // Given
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsAdult(false);
+        student.setIsAdult("false");
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADUATED_ADULT.getCode());
         student.setNumberOfCourses("0300");
 
@@ -70,7 +70,7 @@ class AdultStudentCalculatorTest {
     void testCalculateFte_IsNotAdultAndNotGAStudent() {
         // Given
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsAdult(false);
+        student.setIsAdult("false");
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
@@ -115,7 +115,7 @@ class AdultStudentCalculatorTest {
     void testCalculateFte_NullNumCourses() {
         // Given
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsAdult(true);
+        student.setIsAdult("true");
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADUATED_ADULT.getCode());
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();

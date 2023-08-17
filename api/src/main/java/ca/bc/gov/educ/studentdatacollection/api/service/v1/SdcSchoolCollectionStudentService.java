@@ -279,6 +279,18 @@ public class SdcSchoolCollectionStudentService {
       );
     }
 
+    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED)) {
+      student.setSpecialEducationNonEligReasonCode(
+        SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED.getCode()
+      );
+    }
+
+    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED)) {
+      student.setSpecialEducationNonEligReasonCode(
+        SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED.getCode()
+      );
+    }
+
     return student;
   }
 

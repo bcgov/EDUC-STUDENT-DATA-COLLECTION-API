@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
+import ca.bc.gov.educ.studentdatacollection.api.helpers.BooleanString;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
@@ -53,7 +54,7 @@ public class NoInactiveOnlineAdultStudentsRule implements ProgramEligibilityBase
       || StringUtils.equals(gradeCode, Constants.GA);
     boolean has0Courses = StringUtils.isNotEmpty(numberOfCoursesString)
       && Double.parseDouble(df.format(Double.valueOf(numberOfCoursesString))) == 0;
-    boolean isAdult = Boolean.TRUE.equals(saga.getSdcSchoolCollectionStudent().getIsAdult());
+    boolean isAdult = BooleanString.areEqual(saga.getSdcSchoolCollectionStudent().getIsAdult(), Boolean.TRUE);
 
     return isOnlineSchool && isInRelevantGrade && has0Courses && isAdult;
   }

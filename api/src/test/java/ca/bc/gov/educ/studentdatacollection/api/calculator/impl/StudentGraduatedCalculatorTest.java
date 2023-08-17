@@ -37,7 +37,7 @@ class StudentGraduatedCalculatorTest {
     void testCalculateFte_StudentGraduated_ThenFteCalculatedWithoutSupportBlocks(boolean isGraduated, String numberOfCourses, String expectedResults) {
         // Given
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsGraduated(isGraduated);
+        student.setIsGraduated(Boolean.toString(isGraduated));
         student.setNumberOfCourses(numberOfCourses);
         student.setSupportBlocks("2");
 
@@ -58,7 +58,7 @@ class StudentGraduatedCalculatorTest {
     void testCalculateFte_StudentNotGraduatedWithEmptyCourses_ThenFteCalculatedWithSupportBlocks() {
         // Given
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsGraduated(false);
+        student.setIsGraduated("false");
         student.setNumberOfCourses("");
         student.setSupportBlocks("2");
 

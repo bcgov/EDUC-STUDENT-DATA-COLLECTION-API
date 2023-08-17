@@ -131,6 +131,44 @@ class SdcSchoolCollectionStudentServiceTest {
         assertSame(reasonCode, result.getCareerProgramNonEligReasonCode());
     }
 
+    @Test
+    void testUpdateProgramEligibilityColumns_WhenStudentDoesNotRequireSpecialEd_UpdatesSpecialEdEligibilityColumn() {
+        UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
+        List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = List.of(
+                SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED
+        );
+
+        // Create a mock SdcSchoolCollectionStudentEntity
+        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
+        when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
+
+        var result = sdcSchoolCollectionStudentService
+            .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
+
+        String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED.getCode();
+        assertSame(reasonCode, result.getSpecialEducationNonEligReasonCode());
+    }
+
+    @Test
+    void testUpdateProgramEligibilityColumns_WhenStudentIsGraduatedOrAGraduatedAdult_UpdatesSpecialEdEligibilityColumn() {
+        UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
+        List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = List.of(
+                SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED
+        );
+
+        // Create a mock SdcSchoolCollectionStudentEntity
+        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
+        when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
+
+        var result = sdcSchoolCollectionStudentService
+            .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
+
+        String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED.getCode();
+        assertSame(reasonCode, result.getSpecialEducationNonEligReasonCode());
+    }
+
   @Test
   void testClearSdcSchoolStudentProgramEligibilityColumns_WhenColumnsAreSet_SetsAllColumnsToNull() {
         UUID sdcSchoolCollectionStudentID = UUID.randomUUID();

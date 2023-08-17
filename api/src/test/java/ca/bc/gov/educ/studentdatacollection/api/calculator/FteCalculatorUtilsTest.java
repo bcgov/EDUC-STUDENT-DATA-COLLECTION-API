@@ -618,7 +618,7 @@ void noCoursesForStudentInLastTwoYears_NotSchoolAged_ShouldReturnFalse() {
     student.setEnrolledGradeCode(enrolledGradeCode);
     student.setNumberOfCourses(numberOfCourses);
     student.setAssignedStudentId(UUID.randomUUID().toString());
-    student.setIsSchoolAged(false);
+    student.setIsSchoolAged("false");
 
     SdcStudentSagaData studentData = new SdcStudentSagaData();
     studentData.setSchool(school);
@@ -666,7 +666,7 @@ void noCoursesForStudentInLastTwoYears_NotSchoolAged_ShouldReturnFalse() {
         student.setEnrolledGradeCode(enrolledGradeCode);
         student.setNumberOfCourses(numberOfCourses);
         student.setAssignedStudentId(UUID.randomUUID().toString());
-        student.setIsSchoolAged(true);
+        student.setIsSchoolAged("true");
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSchool(school);
@@ -714,7 +714,7 @@ void noCoursesForStudentInLastTwoYears_NotSchoolAged_ShouldReturnFalse() {
         student.setEnrolledGradeCode(enrolledGradeCode);
         student.setNumberOfCourses(numberOfCourses);
         student.setAssignedStudentId(UUID.randomUUID().toString());
-        student.setIsSchoolAged(true);
+        student.setIsSchoolAged("true");
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSchool(school);
@@ -760,7 +760,7 @@ void noCoursesForStudentInLastTwoYears_NotSchoolAged_ShouldReturnFalse() {
         student.setEnrolledGradeCode(enrolledGradeCode);
         student.setNumberOfCourses(numberOfCourses);
         student.setAssignedStudentId(UUID.randomUUID().toString());
-        student.setIsSchoolAged(true);
+        student.setIsSchoolAged("true");
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSchool(school);
@@ -813,7 +813,7 @@ void noCoursesForStudentInLastTwoYears_NotSchoolAged_ShouldReturnFalse() {
         student.setEnrolledGradeCode("10");
         student.setNumberOfCourses(numberOfCourses);
         student.setAssignedStudentId(UUID.randomUUID().toString());
-        student.setIsSchoolAged(true);
+        student.setIsSchoolAged("true");
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSchool(school);
@@ -880,7 +880,7 @@ void noCoursesForStudentInLastTwoYears_NotSchoolAged_ShouldReturnFalse() {
         student.setEnrolledGradeCode(enrolledGradeCode);
         student.setNumberOfCourses(numberOfCourses);
         student.setAssignedStudentId(UUID.randomUUID().toString());
-        student.setIsSchoolAged(true);
+        student.setIsSchoolAged("true");
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSchool(school);
@@ -925,7 +925,7 @@ void noCoursesForStudentInLastTwoYears_NotSchoolAged_ShouldReturnFalse() {
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
         student.setCreateDate(studentCreateDate);
         student.setEnrolledGradeCode(enrolledGradeCode);
-        student.setIsSchoolAged(true);
+        student.setIsSchoolAged("true");
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSchool(school);

@@ -34,7 +34,7 @@ class AlternateProgramsCalculatorTest {
         String enrolledGradeCode = SchoolGradeCodes.GRADE07.getCode();
 
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsGraduated(true);
+        student.setIsGraduated("true");
         student.setEnrolledGradeCode(enrolledGradeCode);
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
@@ -55,7 +55,7 @@ class AlternateProgramsCalculatorTest {
         String enrolledGradeCode = SchoolGradeCodes.HOMESCHOOL.getCode();
 
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsGraduated(false);
+        student.setIsGraduated("false");
         student.setEnrolledGradeCode(enrolledGradeCode);
 
         School school = new School();
@@ -84,7 +84,7 @@ class AlternateProgramsCalculatorTest {
         String enrolledGradeCode = SchoolGradeCodes.HOMESCHOOL.getCode();
 
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsGraduated(true);
+        student.setIsGraduated("true");
         student.setEnrolledGradeCode(enrolledGradeCode);
 
         School school = new School();
@@ -113,7 +113,7 @@ class AlternateProgramsCalculatorTest {
         String enrolledGradeCode = SchoolGradeCodes.HOMESCHOOL.getCode();
 
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsGraduated(true);
+        student.setIsGraduated("true");
         student.setEnrolledGradeCode(enrolledGradeCode);
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
