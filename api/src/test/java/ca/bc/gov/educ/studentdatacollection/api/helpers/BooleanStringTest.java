@@ -3,11 +3,21 @@ package ca.bc.gov.educ.studentdatacollection.api.helpers;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BooleanStringTest {
 
   @Test
-  void testEqual_whenGivenMatchingValues_BooleanTrueIsReturned() {
+  void testAreEqual_whenGivenInvalidStringValue_ThrowsIllegalArgumentException() {
+    Exception e = assertThrows(IllegalArgumentException.class, () ->
+      BooleanString.areEqual("true", "truth")
+    );
+
+    assertThat(e.getMessage().equals("Boolean string must be a value of \"true\" or \"false\"")).isTrue();
+  }
+
+  @Test
+  void testAreEqual_whenGivenMatchingValues_BooleanTrueIsReturned() {
     assertThat(BooleanString.areEqual("true", Boolean.TRUE)).isTrue();
     assertThat(BooleanString.areEqual("true", "true")).isTrue();
     assertThat(BooleanString.areEqual("false", Boolean.FALSE)).isTrue();
@@ -15,7 +25,7 @@ class BooleanStringTest {
   }
 
   @Test
-  void testEqual_whenGivenMismatchedValues_BooleanFalseIsReturned() {
+  void testAreEqual_whenGivenMismatchedValues_BooleanFalseIsReturned() {
     assertThat(BooleanString.areEqual("true", Boolean.FALSE)).isFalse();
     assertThat(BooleanString.areEqual("true", "false")).isFalse();
     assertThat(BooleanString.areEqual("false", Boolean.TRUE)).isFalse();
@@ -23,7 +33,7 @@ class BooleanStringTest {
   }
 
   @Test
-  void testEqual_whenGivenANullishDefaultOfTrue_NullValuesAreTruthy() {
+  void testAreEqual_whenGivenANullishDefaultOfTrue_NullValuesAreTruthy() {
     assertThat(BooleanString.areEqual(null, Boolean.TRUE, true)).isTrue();
     assertThat(BooleanString.areEqual(null, "true", true)).isTrue();
     assertThat(BooleanString.areEqual("", Boolean.TRUE, true)).isTrue();
@@ -31,7 +41,7 @@ class BooleanStringTest {
   }
 
   @Test
-  void testEqual_whenGivenANullishDefaultOfFalse_NullValuesAreFalsy() {
+  void testAreEqual_whenGivenANullishDefaultOfFalse_NullValuesAreFalsy() {
     assertThat(BooleanString.areEqual(null, Boolean.TRUE, false)).isFalse();
     assertThat(BooleanString.areEqual(null, "true", false)).isFalse();
     assertThat(BooleanString.areEqual("", Boolean.FALSE, false)).isTrue();
