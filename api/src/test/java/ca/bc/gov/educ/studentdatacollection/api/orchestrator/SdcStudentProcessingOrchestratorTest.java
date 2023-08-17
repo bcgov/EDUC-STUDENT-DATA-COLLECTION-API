@@ -100,7 +100,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.sdcStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
     final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
     assertThat(newEvent.getEventType()).isEqualTo(EventType.VALIDATE_SDC_STUDENT);
-    assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.VALIDATION_SUCCESS_NO_ERROR_WARNING);
+    assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.VALIDATION_SUCCESS_NO_ERROR);
   }
 
   @SneakyThrows

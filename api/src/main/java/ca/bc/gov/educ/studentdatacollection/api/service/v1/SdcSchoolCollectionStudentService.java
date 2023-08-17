@@ -223,7 +223,7 @@ public class SdcSchoolCollectionStudentService {
     //run validation rules on updated student entity
     List<SdcSchoolCollectionStudentValidationIssue> validationErrors = this.rulesProcessor.processRules(createSagaDataForValidation(updatedStudentEntity));
 
-    if (validationErrors.isEmpty()) {
+    if (validationErrors.stream().noneMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase("ERROR"))) {
       //delete student validation errors
       this.sdcStudentValidationErrorRepository.deleteSdcStudentValidationErrors(updatedStudentEntity.getSdcSchoolCollectionStudentID());
 
