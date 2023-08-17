@@ -144,7 +144,7 @@ public class FteCalculatorUtils {
         var school = sdcStudentSagaData.getSchool();
         var isEightPlusGradeCode = EightPlusGradeCodes.findByValue(student.getEnrolledGradeCode()).isPresent();
         var reportedByOnlineSchoolWithNoCourses = (StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DISTONLINE.getCode())) && (StringUtils.isBlank(student.getNumberOfCourses()) || StringUtils.equals(student.getNumberOfCourses(), "0"));
-        boolean isSchoolAged = BooleanString.equal(student.getIsSchoolAged(), Boolean.TRUE);
+        boolean isSchoolAged = BooleanString.areEqual(student.getIsSchoolAged(), Boolean.TRUE);
 
         if (isSchoolAged && isEightPlusGradeCode && reportedByOnlineSchoolWithNoCourses) {
             var startOfMonth = LocalDateTime.parse(student.getCreateDate()).with(TemporalAdjusters.firstDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);

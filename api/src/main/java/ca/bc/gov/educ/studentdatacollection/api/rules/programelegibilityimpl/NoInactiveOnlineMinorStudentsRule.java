@@ -61,7 +61,7 @@ public class NoInactiveOnlineMinorStudentsRule implements ProgramEligibilityBase
     return isOnlineSchool
     && isInRelevantGrade
     && has0Courses
-    && BooleanString.equal(isSchoolAged, Boolean.TRUE);
+    && BooleanString.areEqual(isSchoolAged, Boolean.TRUE);
   }
 
   @Override

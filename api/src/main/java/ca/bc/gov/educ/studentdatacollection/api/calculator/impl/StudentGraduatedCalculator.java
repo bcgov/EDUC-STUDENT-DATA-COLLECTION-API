@@ -26,7 +26,7 @@ public class StudentGraduatedCalculator implements FteCalculator {
                 ? BigDecimal.ZERO
                 : BigDecimal.valueOf(TransformUtil.parseNumberOfCourses(studentData.getSdcSchoolCollectionStudent().getNumberOfCourses(), studentData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()));
         FteCalculationResult fteCalculationResult = new FteCalculationResult();
-        if (BooleanString.equal(studentData.getSdcSchoolCollectionStudent().getIsGraduated(), Boolean.TRUE)) {
+        if (BooleanString.areEqual(studentData.getSdcSchoolCollectionStudent().getIsGraduated(), Boolean.TRUE)) {
             fteCalculationResult.setFte(numCourses.multiply(fteMultiplier).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros());
         } else {
             BigDecimal numSupportBlocks = new BigDecimal(studentData.getSdcSchoolCollectionStudent().getSupportBlocks());

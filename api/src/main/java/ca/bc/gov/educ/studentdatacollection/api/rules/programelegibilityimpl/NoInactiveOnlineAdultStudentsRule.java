@@ -54,7 +54,7 @@ public class NoInactiveOnlineAdultStudentsRule implements ProgramEligibilityBase
       || StringUtils.equals(gradeCode, Constants.GA);
     boolean has0Courses = StringUtils.isNotEmpty(numberOfCoursesString)
       && Double.parseDouble(df.format(Double.valueOf(numberOfCoursesString))) == 0;
-    boolean isAdult = BooleanString.equal(saga.getSdcSchoolCollectionStudent().getIsAdult(), Boolean.TRUE);
+    boolean isAdult = BooleanString.areEqual(saga.getSdcSchoolCollectionStudent().getIsAdult(), Boolean.TRUE);
 
     return isOnlineSchool && isInRelevantGrade && has0Courses && isAdult;
   }

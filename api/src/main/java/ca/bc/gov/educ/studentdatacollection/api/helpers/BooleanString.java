@@ -18,7 +18,7 @@ public final class BooleanString {
    * @param testValue The string being tested. If it's empty, it will be considered falsy.
    * @param trueOrFalse Must be a string of "true" or "false"
    */
-  public static boolean equal(String testValue, Boolean trueOrFalse) {
+  public static boolean areEqual(String testValue, Boolean trueOrFalse) {
     return StringUtils.isNotEmpty(testValue) && testValue.equals(trueOrFalse.toString());
   }
 
@@ -28,9 +28,9 @@ public final class BooleanString {
    * @param testValue The string being tested. If it's empty, it will be considered falsy.
    * @param trueOrFalse Must be a string of "true" or "false"
    */
-  public static boolean equal(String testValue, String trueOrFalse) {
+  public static boolean areEqual(String testValue, String trueOrFalse) {
     booleanStringMustBeTrueOrFalse(trueOrFalse);
-    return equal(testValue, Boolean.valueOf(trueOrFalse));
+    return areEqual(testValue, Boolean.valueOf(trueOrFalse));
   }
 
   /**
@@ -41,15 +41,15 @@ public final class BooleanString {
    * @param trueOrFalse Must be a string of "true" or "false"
    * @param defaultForNull A boolean default for value an empty testValue
    */
-  public static boolean equal(String testValue, Boolean trueOrFalse, boolean defaultForNull) {
+  public static boolean areEqual(String testValue, Boolean trueOrFalse, boolean defaultForNull) {
     if (StringUtils.isEmpty(testValue)) {
       if (defaultForNull == true) {
-        return equal(Boolean.TRUE.toString(), trueOrFalse);
+        return areEqual(Boolean.TRUE.toString(), trueOrFalse);
       }
-      return equal(Boolean.FALSE.toString(), trueOrFalse);
+      return areEqual(Boolean.FALSE.toString(), trueOrFalse);
     }
 
-    return equal(testValue, trueOrFalse);
+    return areEqual(testValue, trueOrFalse);
   }
 
   /**
@@ -60,9 +60,9 @@ public final class BooleanString {
    * @param trueOrFalse Must be a string of "true" or "false"
    * @param defaultForNull A boolean default for value an empty testValue
    */
-  public static boolean equal(String testValue, String trueOrFalse, boolean defaultForNull) {
+  public static boolean areEqual(String testValue, String trueOrFalse, boolean defaultForNull) {
     booleanStringMustBeTrueOrFalse(trueOrFalse);
-    return equal(testValue, Boolean.valueOf(trueOrFalse), defaultForNull);
+    return areEqual(testValue, Boolean.valueOf(trueOrFalse), defaultForNull);
   }
 
 }
