@@ -68,6 +68,8 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     this.stepBuilder()
       .begin(VALIDATE_SDC_STUDENT, this::validateStudent)
       .step(VALIDATE_SDC_STUDENT, VALIDATION_SUCCESS_NO_ERROR, PROCESS_PEN_MATCH, this::processPenMatch)
+      .end(VALIDATE_SDC_STUDENT, VALIDATION_SUCCESS_WITH_ERROR, this::completeSdcStudentSagaWithError)
+      .or()
       .step(PROCESS_PEN_MATCH, PEN_MATCH_PROCESSED, PROCESS_PEN_MATCH_RESULTS, this::processPenMatchResults)
       .step(PROCESS_PEN_MATCH_RESULTS, PEN_MATCH_RESULTS_PROCESSED, FETCH_GRAD_STATUS, this::fetchGradStatus)
       .step(FETCH_GRAD_STATUS, GRAD_STATUS_FETCHED, PROCESS_GRAD_STATUS_RESULT, this::processGradStatusResults)
@@ -201,6 +203,14 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
       .eventPayload(penMatchResult.getPenStatus()).build());
   }
 
+  private void completeSdcStudentSagaWithError(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
+    final TypeReference<List<SdcSchoolCollectionStudentValidationIssue>> responseType = new TypeReference<>() {
+    };
+    val validationResults = JsonUtil.mapper.readValue(event.getEventPayload(), responseType);
+    this.sdcSchoolCollectionStudentService.deleteSdcStudentValidationErrors(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
+    this.sdcSchoolCollectionStudentService.saveSdcSchoolStudentValidationErrors(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID(), validationResults, null);
+  }
+
   protected void processPenMatch(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(PROCESS_PEN_MATCH.toString());
@@ -239,12 +249,11 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     eventBuilder.sagaId(saga.getSagaId()).eventType(VALIDATE_SDC_STUDENT);
     if (validationErrors.stream().noneMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase("ERROR"))) {
       eventBuilder.eventOutcome(VALIDATION_SUCCESS_NO_ERROR);
+      eventBuilder.eventPayload("");
     } else {
       eventBuilder.eventOutcome(VALIDATION_SUCCESS_WITH_ERROR);
+      eventBuilder.eventPayload(JsonUtil.getJsonStringFromObject(validationErrors));
     }
-    eventBuilder.eventPayload("");
-    this.sdcSchoolCollectionStudentService.deleteSdcStudentValidationErrors(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
-    this.sdcSchoolCollectionStudentService.saveSdcSchoolStudentValidationErrors(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID(), validationErrors, null);
 
     val nextEvent = eventBuilder.build();
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
