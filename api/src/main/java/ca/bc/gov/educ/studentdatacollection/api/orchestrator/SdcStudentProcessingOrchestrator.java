@@ -67,7 +67,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
   public void populateStepsToExecuteMap() {
     this.stepBuilder()
       .begin(VALIDATE_SDC_STUDENT, this::validateStudent)
-      .step(VALIDATE_SDC_STUDENT, VALIDATION_SUCCESS_NO_ERROR_WARNING, PROCESS_PEN_MATCH, this::processPenMatch)
+      .step(VALIDATE_SDC_STUDENT, VALIDATION_SUCCESS_NO_ERROR, PROCESS_PEN_MATCH, this::processPenMatch)
       .end(VALIDATE_SDC_STUDENT, VALIDATION_SUCCESS_WITH_ERROR, this::completeSdcStudentSagaWithError)
       .or()
       .step(PROCESS_PEN_MATCH, PEN_MATCH_PROCESSED, PROCESS_PEN_MATCH_RESULTS, this::processPenMatchResults)
@@ -247,8 +247,8 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     val validationErrors = this.rulesProcessor.processRules(sdcStudentSagaData);
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(VALIDATE_SDC_STUDENT);
-    if (validationErrors.isEmpty()) {
-      eventBuilder.eventOutcome(VALIDATION_SUCCESS_NO_ERROR_WARNING);
+    if (validationErrors.stream().noneMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase("ERROR"))) {
+      eventBuilder.eventOutcome(VALIDATION_SUCCESS_NO_ERROR);
       eventBuilder.eventPayload("");
     } else {
       eventBuilder.eventOutcome(VALIDATION_SUCCESS_WITH_ERROR);
