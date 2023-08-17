@@ -97,9 +97,11 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   @NotNull(message = "sdcSchoolCollectionStudentStatusCode cannot be null")
   private String sdcSchoolCollectionStudentStatusCode;
 
-  private Boolean isAdult;
+  @Size(max = 5)
+  private String isAdult;
 
-  private Boolean isSchoolAged;
+  @Size(max = 5)
+  private String isSchoolAged;
 
   @DecimalMin(value = "0")
   @DecimalMax(value = "1")
@@ -124,7 +126,8 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   @Size(max = 10)
   private String specialEducationNonEligReasonCode;
 
-  private Boolean isGraduated;
+  @Size(max = 5)
+  private String isGraduated;
 
   private String assignedStudentId;
 

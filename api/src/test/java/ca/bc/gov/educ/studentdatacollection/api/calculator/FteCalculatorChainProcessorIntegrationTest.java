@@ -146,7 +146,7 @@ class FteCalculatorChainProcessorIntegrationTest {
         // Given
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
         this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("0");
-        this.studentData.getSdcSchoolCollectionStudent().setIsSchoolAged(true);
+        this.studentData.getSdcSchoolCollectionStudent().setIsSchoolAged("true");
         this.studentData.getSdcSchoolCollectionStudent().setEnrolledGradeCode("10");
         this.studentData.getSdcSchoolCollectionStudent().setCreateDate(LocalDateTime.now().toString());
 
@@ -264,7 +264,7 @@ class FteCalculatorChainProcessorIntegrationTest {
     @Test
     void testProcessFteCalculator_AdultStudent() {
         // Given
-        this.studentData.getSdcSchoolCollectionStudent().setIsAdult(true);
+        this.studentData.getSdcSchoolCollectionStudent().setIsAdult("true");
         this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("0500");
 
         // When
@@ -319,7 +319,7 @@ class FteCalculatorChainProcessorIntegrationTest {
         // Given
         this.studentData.setCollectionTypeCode("SEPTEMBER");
         this.studentData.getSdcSchoolCollectionStudent().setEnrolledGradeCode("03");
-        this.studentData.getSdcSchoolCollectionStudent().setIsGraduated(false);
+        this.studentData.getSdcSchoolCollectionStudent().setIsGraduated("false");
         this.studentData.getSchool().setFacilityTypeCode("ALT_PROGS");
 
         // When
@@ -361,7 +361,7 @@ class FteCalculatorChainProcessorIntegrationTest {
     @Test
     void testProcessFteCalculator_StudentGraduated() {
         // Given
-        this.studentData.getSdcSchoolCollectionStudent().setIsGraduated(true);
+        this.studentData.getSdcSchoolCollectionStudent().setIsGraduated("true");
         this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("1100");
 
         // When
