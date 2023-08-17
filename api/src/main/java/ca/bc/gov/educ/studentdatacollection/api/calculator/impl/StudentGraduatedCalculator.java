@@ -1,10 +1,10 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
+import ca.bc.gov.educ.studentdatacollection.api.helpers.BooleanString;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Component
-@Slf4j
 @Order(15)
 public class StudentGraduatedCalculator implements FteCalculator {
     @Override
@@ -27,7 +26,7 @@ public class StudentGraduatedCalculator implements FteCalculator {
                 ? BigDecimal.ZERO
                 : BigDecimal.valueOf(TransformUtil.parseNumberOfCourses(studentData.getSdcSchoolCollectionStudent().getNumberOfCourses(), studentData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()));
         FteCalculationResult fteCalculationResult = new FteCalculationResult();
-        if (Boolean.TRUE.equals(studentData.getSdcSchoolCollectionStudent().getIsGraduated())) {
+        if (BooleanString.equal(studentData.getSdcSchoolCollectionStudent().getIsGraduated(), Boolean.TRUE)) {
             fteCalculationResult.setFte(numCourses.multiply(fteMultiplier).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros());
         } else {
             BigDecimal numSupportBlocks = new BigDecimal(studentData.getSdcSchoolCollectionStudent().getSupportBlocks());

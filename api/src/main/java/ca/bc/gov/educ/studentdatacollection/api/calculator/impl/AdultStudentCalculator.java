@@ -2,10 +2,10 @@ package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.helpers.BooleanString;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Component
-@Slf4j
 @Order(9)
 public class AdultStudentCalculator implements FteCalculator {
     FteCalculator nextCalculator;
@@ -25,7 +24,8 @@ public class AdultStudentCalculator implements FteCalculator {
     @Override
     public FteCalculationResult calculateFte(SdcStudentSagaData studentData) {
         var sdcSchoolStudent = studentData.getSdcSchoolCollectionStudent();
-        if(Boolean.TRUE.equals(sdcSchoolStudent.getIsAdult()) || StringUtils.equals(sdcSchoolStudent.getEnrolledGradeCode(), SchoolGradeCodes.GRADUATED_ADULT.getCode())) {
+        boolean isAdult = BooleanString.equal(sdcSchoolStudent.getIsAdult(), Boolean.TRUE);
+        if (isAdult || StringUtils.equals(sdcSchoolStudent.getEnrolledGradeCode(), SchoolGradeCodes.GRADUATED_ADULT.getCode())) {
             BigDecimal fteMultiplier = new BigDecimal("0.125");
             BigDecimal numCourses = StringUtils.isBlank(sdcSchoolStudent.getNumberOfCourses()) ? BigDecimal.ZERO : BigDecimal.valueOf(TransformUtil.parseNumberOfCourses(sdcSchoolStudent.getNumberOfCourses(), sdcSchoolStudent.getSdcSchoolCollectionStudentID()));
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
