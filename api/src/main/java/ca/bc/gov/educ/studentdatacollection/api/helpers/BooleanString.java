@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class BooleanString {
 
+  private BooleanString() {};
+
   private static void booleanStringMustBeTrueOrFalse(String val) {
     if (!val.equals("true") && !val.equals("false")) {
       throw new IllegalArgumentException("Boolean string must be a value of \"true\" or \"false\"");
@@ -39,11 +41,11 @@ public final class BooleanString {
    *
    * @param testValue The string being tested
    * @param trueOrFalse Must be a string of "true" or "false"
-   * @param defaultForNull A boolean default for value an empty testValue
+   * @param nullIsTruthy Make null testValues truthy
    */
-  public static boolean areEqual(String testValue, Boolean trueOrFalse, boolean defaultForNull) {
+  public static boolean areEqual(String testValue, Boolean trueOrFalse, boolean nullIsTruthy) {
     if (StringUtils.isEmpty(testValue)) {
-      if (defaultForNull == true) {
+      if (nullIsTruthy) {
         return areEqual(Boolean.TRUE.toString(), trueOrFalse);
       }
       return areEqual(Boolean.FALSE.toString(), trueOrFalse);
@@ -58,11 +60,11 @@ public final class BooleanString {
    *
    * @param testValue The string being tested
    * @param trueOrFalse Must be a string of "true" or "false"
-   * @param defaultForNull A boolean default for value an empty testValue
+   * @param nullIsTruthy Make null testValues truthy
    */
-  public static boolean areEqual(String testValue, String trueOrFalse, boolean defaultForNull) {
+  public static boolean areEqual(String testValue, String trueOrFalse, boolean nullIsTruthy) {
     booleanStringMustBeTrueOrFalse(trueOrFalse);
-    return areEqual(testValue, Boolean.valueOf(trueOrFalse), defaultForNull);
+    return areEqual(testValue, Boolean.valueOf(trueOrFalse), nullIsTruthy);
   }
 
 }
