@@ -4,12 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
 import lombok.Getter;
-
-abstract class Constants {
-  private Constants() {}
-  public static final String NOT_ENROLLED = "NOENROLLED";
-}
 
 public enum SdcSchoolCollectionStudentProgramEligibilityIssueCode {
   CRITICIAL_ERROR("CRITICAL",

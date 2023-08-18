@@ -41,4 +41,6 @@ public final class Constants {
     public static final String DOB_INVALID_FORMAT="DOBINVALIDFORMAT";
     public static final String NO_OF_COURSES_INVALID="NOOFCOURSESINVALID";
     public static final String SUPPORT_BLOCKS_INVALID="SUPPORTBLOCKSINVALID";
+
+    public static final String NOT_ENROLLED = "NOENROLLED";
 }
