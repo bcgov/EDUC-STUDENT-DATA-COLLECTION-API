@@ -28,7 +28,7 @@ public class IndigenousStudentsMustBeSchoolAged implements ProgramEligibilityBas
 
     if (BooleanString.areEqual(saga.getSdcSchoolCollectionStudent().getIsSchoolAged(), Boolean.FALSE)) {
       errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.INDIGENOUS_ADULT);
-    };
+    }
 
     return errors;
   }

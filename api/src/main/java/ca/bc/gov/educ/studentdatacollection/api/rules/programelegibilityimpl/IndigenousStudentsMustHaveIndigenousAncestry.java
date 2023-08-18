@@ -27,9 +27,9 @@ public class IndigenousStudentsMustHaveIndigenousAncestry implements ProgramElig
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = new ArrayList<>();
     String ancestryData = saga.getSdcSchoolCollectionStudent().getNativeAncestryInd();
 
-    if (StringUtils.isEmpty(ancestryData) || ancestryData.toUpperCase().equals("N")) {
+    if (StringUtils.isEmpty(ancestryData) || ancestryData.equalsIgnoreCase("N")) {
       errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY);
-    };
+    }
 
     return errors;
   }
