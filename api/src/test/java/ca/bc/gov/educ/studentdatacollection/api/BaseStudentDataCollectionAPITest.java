@@ -234,7 +234,7 @@ public abstract class BaseStudentDataCollectionAPITest {
   public CollectionTypeCodeEntity createMockCollectionCodeEntity() {
     return CollectionTypeCodeEntity.builder().collectionTypeCode("SEPTEMBER").label("Test")
         .description("Test code").displayOrder(0).effectiveDate(
-            LocalDateTime.now()).expiryDate(LocalDateTime.now().plusDays(7))
+            LocalDateTime.now().minusDays(1)).expiryDate(LocalDateTime.now().plusDays(7))
         .openDate(LocalDateTime.now())
         .closeDate(LocalDateTime.now().plusDays(7)).createUser("TEST").createDate(LocalDateTime.now())
         .updateUser("TEST").updateDate(LocalDateTime.now()).build();
