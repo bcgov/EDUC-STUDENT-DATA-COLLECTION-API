@@ -41,7 +41,7 @@ public class StudentDataCollectionScheduler {
   public void startSDCCollectionsWithOpenDateInThePast() {
     log.info("startSDCCollectionsWithOpenDateInThePast :: running scheduler for open collections");
     LocalDateTime today = LocalDateTime.now();
-    List<CollectionTypeCodeEntity> collectionsToOpen = this.collectionCodeRepository.findAllByOpenDateBefore(today);
+    List<CollectionTypeCodeEntity> collectionsToOpen = this.collectionCodeRepository.findAllByOpenDateBeforeAndEffectiveDateLessThanAndExpiryDateGreaterThan(today, today, today);
 
     if(!collectionsToOpen.isEmpty()) {
       for (var collection : collectionsToOpen) {
