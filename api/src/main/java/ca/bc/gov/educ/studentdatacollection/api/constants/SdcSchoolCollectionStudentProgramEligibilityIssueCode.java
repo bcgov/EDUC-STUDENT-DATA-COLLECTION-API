@@ -23,7 +23,8 @@ public enum SdcSchoolCollectionStudentProgramEligibilityIssueCode {
   DOES_NOT_NEED_SPECIAL_ED("NOSPECIAL", "The student does not require special education assistance."),
   IS_GRADUATED("GRADUATED", "Student must be school-aged or a non-graduated adult to be eligible for "
     + "Special Education funding."),
-  INDIGENOUS_ADULT("ISADULTAGE", "Indigenous students must be school-age to be eligible for indigenous programs")
+  INDIGENOUS_ADULT("ISADULTAGE", "Indigenous students must be school-age to be eligible for indigenous programs"),
+  NO_INDIGENOUS_ANCESTRY("NOANCESTRY", "Indigenous students must be school-age to be eligible for indigenous programs")
   ;
 
   @Getter

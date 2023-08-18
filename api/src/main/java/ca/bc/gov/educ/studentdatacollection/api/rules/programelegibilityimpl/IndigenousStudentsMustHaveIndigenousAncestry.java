@@ -3,40 +3,33 @@ package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibilityimpl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.IndigenousPrograms;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 
 @Component
-@Order
-public class IndigenousStudentsMustBeEnrolled implements ProgramEligibilityBaseRule {
-  private final ValidationRulesService validationRulesService;
-
-  public IndigenousStudentsMustBeEnrolled(ValidationRulesService validationRulesService) {
-    this.validationRulesService = validationRulesService;
-  }
+@Order(7)
+public class IndigenousStudentsMustHaveIndigenousAncestry implements ProgramEligibilityBaseRule {
 
   @Override
   public boolean shouldExecute(SdcStudentSagaData saga,
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors) {
-    return hasNotViolatedBaseRules(errors);
+    return hasNotViolatedBaseRules(errors)
+    && hasNotViolatedIndigenousRules(errors);
   }
 
   @Override
   public List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = new ArrayList<>();
+    String ancestryData = saga.getSdcSchoolCollectionStudent().getNativeAncestryInd();
 
-    List<String> studentPrograms = validationRulesService
-      .splitString(saga.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
-
-    if (IndigenousPrograms.getCodes().stream().noneMatch(studentPrograms::contains)) {
-      errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS);
-    }
+    if (StringUtils.isEmpty(ancestryData) || ancestryData.toUpperCase().equals("N")) {
+      errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY);
+    };
 
     return errors;
   }

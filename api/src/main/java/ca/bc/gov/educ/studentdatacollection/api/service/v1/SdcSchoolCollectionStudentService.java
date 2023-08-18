@@ -303,6 +303,11 @@ public class SdcSchoolCollectionStudentService {
       );
     }
 
+    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY)) {
+      student.setSpecialEducationNonEligReasonCode(
+        SdcSchoolCollectionStudentProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY.getCode()
+      );
+    }
 
     return student;
   }

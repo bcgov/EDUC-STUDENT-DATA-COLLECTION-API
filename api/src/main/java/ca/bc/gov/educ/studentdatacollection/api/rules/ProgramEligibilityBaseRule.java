@@ -19,6 +19,7 @@ extends Rule<SdcStudentSagaData, SdcSchoolCollectionStudentProgramEligibilityIss
     return errors.stream().noneMatch(e ->
       e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS)
       || e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.INDIGENOUS_ADULT)
+      || e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY)
     );
   }
 }
