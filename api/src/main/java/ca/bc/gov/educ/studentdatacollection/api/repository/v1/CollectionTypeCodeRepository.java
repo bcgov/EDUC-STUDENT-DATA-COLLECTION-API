@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CollectionTypeCodeRepository extends JpaRepository<CollectionTypeCodeEntity, String> {
 
-  List<CollectionTypeCodeEntity> findAllByOpenDateBefore(LocalDateTime dateTime);
+  List<CollectionTypeCodeEntity> findAllByOpenDateBeforeAndEffectiveDateLessThanAndExpiryDateGreaterThan(LocalDateTime dateTime, LocalDateTime dateTimeGreat, LocalDateTime dateTimeLess);
 
 }
