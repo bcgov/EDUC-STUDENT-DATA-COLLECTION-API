@@ -6,6 +6,10 @@ import java.util.Optional;
 
 import lombok.Getter;
 
+abstract class Constants {
+  public static String NOT_ENROLLED = "NOENROLLED";
+}
+
 public enum SdcSchoolCollectionStudentProgramEligibilityIssueCode {
   CRITICIAL_ERROR("CRITICAL",
     "The student data contains critical errors and cannot be eligible for this program."),
@@ -17,12 +21,9 @@ public enum SdcSchoolCollectionStudentProgramEligibilityIssueCode {
     + " years to be eligible for this program."),
   INACTIVE_SCHOOL_AGE("INACTMINOR", "School aged students must have been reported to have 1 or more courses in the"
     + " last two years to be eligible for this program."),
-  NOT_ENROLLED_FRENCH(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED,
-    "The student is not enrolled with French programming."),
-  NOT_ENROLLED_CAREER(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED,
-    "The student is not enrolled with career programming."),
-  NOT_ENROLLED_INDIGENOUS(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED,
-    "The student is not enrolled with indigeneous programming."),
+  NOT_ENROLLED_FRENCH(Constants.NOT_ENROLLED, "The student is not enrolled with French programming."),
+  NOT_ENROLLED_CAREER(Constants.NOT_ENROLLED, "The student is not enrolled with career programming."),
+  NOT_ENROLLED_INDIGENOUS(Constants.NOT_ENROLLED, "The student is not enrolled with indigeneous programming."),
   DOES_NOT_NEED_SPECIAL_ED("NOSPECIAL", "The student does not require special education assistance."),
   IS_GRADUATED("GRADUATED", "Student must be school-aged or a non-graduated adult to be eligible for "
     + "Special Education funding."),
@@ -35,8 +36,6 @@ public enum SdcSchoolCollectionStudentProgramEligibilityIssueCode {
 
   @Getter
   private final String message;
-
-  private static final String NOT_ENROLLED = "NOENROLLED";
 
   public static final Optional<SdcSchoolCollectionStudentProgramEligibilityIssueCode> getBaseProgramEligibilityFailure(
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors
