@@ -7,17 +7,17 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FrenchPrograms;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.IndigenousPrograms;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 
 @Component
 @Order
-public class FrenchStudentsMustBeEnrolled implements ProgramEligibilityBaseRule {
+public class IndigenousStudentsMustBeEnrolled implements ProgramEligibilityBaseRule {
   private final ValidationRulesService validationRulesService;
 
-  public FrenchStudentsMustBeEnrolled(ValidationRulesService validationRulesService) {
+  public IndigenousStudentsMustBeEnrolled(ValidationRulesService validationRulesService) {
     this.validationRulesService = validationRulesService;
   }
 
@@ -34,8 +34,8 @@ public class FrenchStudentsMustBeEnrolled implements ProgramEligibilityBaseRule 
     List<String> studentPrograms = validationRulesService
       .splitString(saga.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
 
-    if (FrenchPrograms.getFrenchProgramCodes().stream().noneMatch(studentPrograms::contains)) {
-      errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_FRENCH);
+    if (IndigenousPrograms.getCodes().stream().noneMatch(studentPrograms::contains)) {
+      errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS);
     }
 
     return errors;

@@ -132,6 +132,25 @@ class SdcSchoolCollectionStudentServiceTest {
     }
 
     @Test
+    void testUpdateProgramEligibilityColumns_WhenNotEnrolledInIndigenousPrograms_UpdatesIndigenousEligibilityColumn() {
+        UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
+        List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = List.of(
+                SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS
+        );
+
+        // Create a mock SdcSchoolCollectionStudentEntity
+        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
+        when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
+
+        var result = sdcSchoolCollectionStudentService
+            .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
+
+        String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS.getCode();
+        assertSame(reasonCode, result.getCareerProgramNonEligReasonCode());
+    }
+
+    @Test
     void testUpdateProgramEligibilityColumns_WhenStudentDoesNotRequireSpecialEd_UpdatesSpecialEdEligibilityColumn() {
         UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
         List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = List.of(
@@ -166,6 +185,44 @@ class SdcSchoolCollectionStudentServiceTest {
             .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
 
         String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED.getCode();
+        assertSame(reasonCode, result.getSpecialEducationNonEligReasonCode());
+    }
+
+    @Test
+    void testUpdateProgramEligibilityColumns_WhenIndigenousStudentIsAdult_UpdatesIndigenousEligibilityColumn() {
+        UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
+        List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = List.of(
+                SdcSchoolCollectionStudentProgramEligibilityIssueCode.INDIGENOUS_ADULT
+        );
+
+        // Create a mock SdcSchoolCollectionStudentEntity
+        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
+        when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
+
+        var result = sdcSchoolCollectionStudentService
+            .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
+
+        String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.INDIGENOUS_ADULT.getCode();
+        assertSame(reasonCode, result.getSpecialEducationNonEligReasonCode());
+    }
+
+    @Test
+    void testUpdateProgramEligibilityColumns_WhenIndigenousStudentHasNoAncestry_UpdatesIndigenousEligibilityColumn() {
+        UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
+        List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = List.of(
+                SdcSchoolCollectionStudentProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY
+        );
+
+        // Create a mock SdcSchoolCollectionStudentEntity
+        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
+        when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
+
+        var result = sdcSchoolCollectionStudentService
+            .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
+
+        String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY.getCode();
         assertSame(reasonCode, result.getSpecialEducationNonEligReasonCode());
     }
 

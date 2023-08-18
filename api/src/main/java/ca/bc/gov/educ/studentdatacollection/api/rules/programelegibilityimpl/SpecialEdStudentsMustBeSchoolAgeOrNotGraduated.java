@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 
 @Component
-@Order(Ordered.LOWEST_PRECEDENCE)
+@Order
 public class SpecialEdStudentsMustBeSchoolAgeOrNotGraduated implements ProgramEligibilityBaseRule {
 
   @Override

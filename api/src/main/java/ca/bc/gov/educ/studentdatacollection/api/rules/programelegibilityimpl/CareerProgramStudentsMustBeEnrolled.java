@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibilityimpl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +13,7 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesServic
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 
 @Component
-@Order(Ordered.LOWEST_PRECEDENCE)
+@Order
 public class CareerProgramStudentsMustBeEnrolled implements ProgramEligibilityBaseRule {
   private final ValidationRulesService validationRulesService;
 

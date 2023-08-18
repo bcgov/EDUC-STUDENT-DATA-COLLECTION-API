@@ -279,6 +279,12 @@ public class SdcSchoolCollectionStudentService {
       );
     }
 
+    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS)) {
+      student.setCareerProgramNonEligReasonCode(
+        SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS.getCode()
+      );
+    }
+
     if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED)) {
       student.setSpecialEducationNonEligReasonCode(
         SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED.getCode()
@@ -288,6 +294,18 @@ public class SdcSchoolCollectionStudentService {
     if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED)) {
       student.setSpecialEducationNonEligReasonCode(
         SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED.getCode()
+      );
+    }
+
+    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.INDIGENOUS_ADULT)) {
+      student.setSpecialEducationNonEligReasonCode(
+        SdcSchoolCollectionStudentProgramEligibilityIssueCode.INDIGENOUS_ADULT.getCode()
+      );
+    }
+
+    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY)) {
+      student.setSpecialEducationNonEligReasonCode(
+        SdcSchoolCollectionStudentProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY.getCode()
       );
     }
 
