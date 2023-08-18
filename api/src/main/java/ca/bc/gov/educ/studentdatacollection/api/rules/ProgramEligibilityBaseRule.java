@@ -14,4 +14,11 @@ extends Rule<SdcStudentSagaData, SdcSchoolCollectionStudentProgramEligibilityIss
       SdcSchoolCollectionStudentProgramEligibilityIssueCode.getBaseProgramEligibilityFailure(errors);
     return baseReason.isEmpty();
   }
+
+  default boolean hasNotViolatedIndigenousRules(List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors) {
+    return errors.stream().noneMatch(e ->
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS)
+      || e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.INDIGENOUS_ADULT)
+    );
+  }
 }

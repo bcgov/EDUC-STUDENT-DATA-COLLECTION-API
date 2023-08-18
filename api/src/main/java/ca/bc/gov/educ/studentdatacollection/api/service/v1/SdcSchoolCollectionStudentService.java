@@ -297,6 +297,13 @@ public class SdcSchoolCollectionStudentService {
       );
     }
 
+    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.INDIGENOUS_ADULT)) {
+      student.setSpecialEducationNonEligReasonCode(
+        SdcSchoolCollectionStudentProgramEligibilityIssueCode.INDIGENOUS_ADULT.getCode()
+      );
+    }
+
+
     return student;
   }
 

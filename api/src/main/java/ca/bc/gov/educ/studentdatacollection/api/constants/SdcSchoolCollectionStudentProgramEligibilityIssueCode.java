@@ -19,10 +19,11 @@ public enum SdcSchoolCollectionStudentProgramEligibilityIssueCode {
     + " last two years to be eligible for this program."),
   NOT_ENROLLED_FRENCH("NOENROLLED", "The student is not enrolled with French programming."),
   NOT_ENROLLED_CAREER("NOENROLLED", "The student is not enrolled with career programming."),
-  NOT_ENROLLED_INDIGENOUS("NOENROLLED", "The student is not enrolled with indigineous programming."),
+  NOT_ENROLLED_INDIGENOUS("NOENROLLED", "The student is not enrolled with indigeneous programming."),
   DOES_NOT_NEED_SPECIAL_ED("NOSPECIAL", "The student does not require special education assistance."),
   IS_GRADUATED("GRADUATED", "Student must be school-aged or a non-graduated adult to be eligible for "
-    + "Special Education funding.")
+    + "Special Education funding."),
+  INDIGENOUS_ADULT("ISADULTAGE", "Indigenous students must be school-age to be eligible for indigenous programs")
   ;
 
   @Getter

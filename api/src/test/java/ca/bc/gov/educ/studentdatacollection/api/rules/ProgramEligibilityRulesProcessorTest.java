@@ -441,4 +441,37 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
       e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED)
     )).isTrue();
   }
+
+  @Test
+  void testIndigenousStudendsMustBeSchoolAged() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
+    .save(createMockSdcSchoolCollectionEntity(collection, null, null));
+    SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+    schoolStudentEntity.setEnrolledProgramCodes("3900000000002917");
+    schoolStudentEntity.setNativeAncestryInd("Y");
+
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithoutAgeError = rulesProcessor.processRules(
+      createMockStudentSagaData(
+        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+        createMockSchool()
+      )
+    );
+    assertThat(listWithoutAgeError.stream().anyMatch(e ->
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.INDIGENOUS_ADULT)
+    )).isFalse();
+
+    schoolStudentEntity.setIsAdult(true);
+    schoolStudentEntity.setIsSchoolAged(false);
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithAgeError = rulesProcessor.processRules(
+      createMockStudentSagaData(
+        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+        createMockSchool()
+      )
+    );
+    assertThat(listWithAgeError.stream().anyMatch(e ->
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.INDIGENOUS_ADULT)
+    )).isTrue();
+  }
+
 }
