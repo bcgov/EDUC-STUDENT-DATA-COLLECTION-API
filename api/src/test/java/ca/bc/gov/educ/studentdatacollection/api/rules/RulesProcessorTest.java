@@ -576,6 +576,30 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val errorCarrGradeErr = validationCrrGradeErr.stream().anyMatch(val -> val.getValidationIssueCode().equals("CAREERCODEGRADEERR"));
         assertThat(errorCarrGradeErr).isTrue();
 
+        entity.setEnrolledGradeCode("08");
+        entity.setSpecialEducationCategoryCode("0");
+        val validationCodeSpedErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationCodeSpedErr.size()).isNotZero();
+        val errorSpedErr = validationCodeSpedErr.stream().anyMatch(val -> val.getValidationIssueCode().equals("SPEDERR"));
+        assertThat(errorSpedErr).isTrue();
+    }
+
+    @Test
+    void testCareerProgramCodeRule() {
+
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setEnrolledGradeCode("08");
+
+        entity.setEnrolledProgramCodes("0000000000000005");
+        entity.setCareerProgramCode("XA");
+        entity.setEnrolledGradeCode("08");
+        val validationCareerCodeNullErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        assertThat(validationCareerCodeNullErr.size()).isNotZero();
+        val errorCareerNullErr = validationCareerCodeNullErr.stream().anyMatch(val -> val.getValidationIssueCode().equals("CAREERCODEPROGERR"));
+        assertThat(errorCareerNullErr).isTrue();
+
         entity.setEnrolledProgramCodes("0000004000000040");
         entity.setCareerProgramCode(null);
         entity.setEnrolledGradeCode("08");
@@ -584,12 +608,13 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val errorCarrErr = validationCodeCrrErr.stream().anyMatch(val -> val.getValidationIssueCode().equals("CAREERCODEPROGERR"));
         assertThat(errorCarrErr).isTrue();
 
-        entity.setEnrolledGradeCode("08");
-        entity.setSpecialEducationCategoryCode("0");
-        val validationCodeSpedErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
-        assertThat(validationCodeSpedErr.size()).isNotZero();
-        val errorSpedErr = validationCodeSpedErr.stream().anyMatch(val -> val.getValidationIssueCode().equals("SPEDERR"));
-        assertThat(errorSpedErr).isTrue();
+        entity.setEnrolledProgramCodes("0000000000000008");
+        entity.setCareerProgramCode(null);
+        entity.setEnrolledGradeCode("09");
+        val validationNoCareerCodeErr = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool()));
+        val errorNoCareer = validationNoCareerCodeErr.stream().noneMatch(val -> val.getValidationIssueCode().equals("CAREERCODEPROGERR"));
+        assertThat(errorNoCareer).isTrue();
+
     }
 
     @Test

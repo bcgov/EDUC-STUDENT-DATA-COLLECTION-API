@@ -7,7 +7,6 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.CareerProgramCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
@@ -42,10 +41,8 @@ public class CareerProgramCodeRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         final List<String> enrolledProgramCodes = validationRulesService.splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
 
-        List<CareerProgramCode> activeCareerPrograms = validationRulesService.getActiveCareerProgramCodes();
-
-        if(activeCareerPrograms.stream().noneMatch(program -> program.getCareerProgramCode().equals(sdcStudentSagaData.getSdcSchoolCollectionStudent().getCareerProgramCode()))
-                || CareerPrograms.getCodes().stream().noneMatch(enrolledProgramCodes::contains)) {
+        if((StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getCareerProgramCode()) && CareerPrograms.getCodes().stream().anyMatch(enrolledProgramCodes::contains))
+                || (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getCareerProgramCode()) && CareerPrograms.getCodes().stream().noneMatch(enrolledProgramCodes::contains))) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.CAREER_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.CAREER_CODE_PROG_ERR));
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.CAREER_CODE_PROG_ERR));
         }
