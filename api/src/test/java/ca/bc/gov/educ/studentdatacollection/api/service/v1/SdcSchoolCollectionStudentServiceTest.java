@@ -147,7 +147,7 @@ class SdcSchoolCollectionStudentServiceTest {
             .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
 
         String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS.getCode();
-        assertSame(reasonCode, result.getCareerProgramNonEligReasonCode());
+        assertSame(reasonCode, result.getIndigenousSupportProgramNonEligReasonCode());
     }
 
     @Test
@@ -204,7 +204,7 @@ class SdcSchoolCollectionStudentServiceTest {
             .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
 
         String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.INDIGENOUS_ADULT.getCode();
-        assertSame(reasonCode, result.getSpecialEducationNonEligReasonCode());
+        assertSame(reasonCode, result.getIndigenousSupportProgramNonEligReasonCode());
     }
 
     @Test
@@ -223,7 +223,7 @@ class SdcSchoolCollectionStudentServiceTest {
             .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
 
         String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY.getCode();
-        assertSame(reasonCode, result.getSpecialEducationNonEligReasonCode());
+        assertSame(reasonCode, result.getIndigenousSupportProgramNonEligReasonCode());
     }
 
   @Test
