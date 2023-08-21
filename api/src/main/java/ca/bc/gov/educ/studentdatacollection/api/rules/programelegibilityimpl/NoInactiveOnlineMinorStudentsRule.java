@@ -8,12 +8,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.BooleanString;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -45,15 +46,15 @@ public class NoInactiveOnlineMinorStudentsRule implements ProgramEligibilityBase
     String gradeCode = saga.getSdcSchoolCollectionStudent().getEnrolledGradeCode();
     String numberOfCoursesString = saga.getSdcSchoolCollectionStudent().getNumberOfCourses();
 
-    boolean isOnlineSchool = StringUtils.equals(facilityType, Constants.PROV_ONLINE)
-      || StringUtils.equals(facilityType, Constants.DISTRICT_ONLINE);
-    boolean isInRelevantGrade = StringUtils.equals(gradeCode, Constants.GRADE_08)
-      || StringUtils.equals(gradeCode, Constants.GRADE_09)
-      || StringUtils.equals(gradeCode, Constants.GRADE_10)
-      || StringUtils.equals(gradeCode, Constants.GRADE_11)
-      || StringUtils.equals(gradeCode, Constants.GRADE_12)
-      || StringUtils.equals(gradeCode, Constants.SU)
-      || StringUtils.equals(gradeCode, Constants.GA);
+    boolean isOnlineSchool = StringUtils.equals(facilityType, FacilityTypeCodes.DIST_LEARN.getCode())
+      || StringUtils.equals(facilityType, FacilityTypeCodes.DISTONLINE.getCode());
+    boolean isInRelevantGrade = StringUtils.equals(gradeCode, SchoolGradeCodes.GRADE08.getCode())
+      || StringUtils.equals(gradeCode, SchoolGradeCodes.GRADE09.getCode())
+      || StringUtils.equals(gradeCode, SchoolGradeCodes.GRADE10.getCode())
+      || StringUtils.equals(gradeCode, SchoolGradeCodes.GRADE11.getCode())
+      || StringUtils.equals(gradeCode, SchoolGradeCodes.GRADE12.getCode())
+      || StringUtils.equals(gradeCode, SchoolGradeCodes.SECONDARY_UNGRADED.getCode())
+      || StringUtils.equals(gradeCode, SchoolGradeCodes.GRADUATED_ADULT.getCode());
     boolean has0Courses = StringUtils.isNotEmpty(numberOfCoursesString)
       && Double.parseDouble(df.format(Double.valueOf(numberOfCoursesString))) == 0;
     String isSchoolAged = saga.getSdcSchoolCollectionStudent().getIsSchoolAged();

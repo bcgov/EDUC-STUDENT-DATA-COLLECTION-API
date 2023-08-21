@@ -44,7 +44,7 @@ class FteCalculatorUtilsTest {
     void testIsSpringCollectionForFebruaryCollection() {
         // Arrange
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
 
         // Act
         var result = fteCalculatorUtils.isSpringCollection(sdcStudentSagaData);
@@ -57,7 +57,7 @@ class FteCalculatorUtilsTest {
     void testIsSpringCollectionForMayCollection() {
         // Arrange
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY3.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
 
         // Act
         var result = fteCalculatorUtils.isSpringCollection(sdcStudentSagaData);
@@ -70,7 +70,7 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_NoPreviousCollectionsForSchools_ReturnsFalse() {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         School school = new School();
         school.setSchoolCategoryCode("PUBLIC");
         school.setFacilityTypeCode("DIST_LEARN");
@@ -95,7 +95,7 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_NoPreviousCollectionsForStudent_ReturnsFalse() {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         School school = new School();
         school.setSchoolCategoryCode("PUBLIC");
         school.setFacilityTypeCode("DIST_LEARN");
@@ -121,7 +121,7 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_NullDistrictID_ReturnsFalse() {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         School school = new School();
         school.setSchoolCategoryCode("PUBLIC");
         school.setFacilityTypeCode("DIST_LEARN");
@@ -146,7 +146,7 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_StudentHadPreviousCourse_ReturnsTrue() {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         School school = new School();
         school.setSchoolCategoryCode("PUBLIC");
         school.setFacilityTypeCode("DIST_LEARN");
@@ -192,7 +192,7 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_GivenDifferentGrades_ReturnExpectedResult(String enrolledGradeCode, boolean expectedResult) {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         School school = new School();
         school.setSchoolCategoryCode("PUBLIC");
         school.setFacilityTypeCode("DIST_LEARN");
@@ -228,7 +228,7 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_GivenDifferentSchoolCategoriesAndFacilities_ReturnExpectedResult(String schoolCategory, String facilityType, boolean expectedResult) {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         School school = new School();
         school.setSchoolCategoryCode(schoolCategory);
         school.setFacilityTypeCode(facilityType);
@@ -255,7 +255,7 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_NoPreviousCollectionsForSchools_ReturnsFalse() {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         School school = new School();
         school.setSchoolCategoryCode("INDEPEND");
         school.setFacilityTypeCode("DIST_LEARN");
@@ -281,7 +281,7 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_NoPreviousCollectionsForStudent_ReturnsFalse() {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         School school = new School();
         school.setSchoolCategoryCode("INDEPEND");
         school.setFacilityTypeCode("DIST_LEARN");
@@ -308,7 +308,7 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_NullIndependentAuthority_ReturnsFalse() {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         School school = new School();
         school.setSchoolCategoryCode("INDEPEND");
         school.setFacilityTypeCode("DIST_LEARN");
@@ -334,7 +334,7 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_StudentHadPreviousCourse_ReturnsTrue() {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         School school = new School();
         school.setSchoolCategoryCode("INDEPEND");
         school.setFacilityTypeCode("DIST_LEARN");
@@ -361,7 +361,7 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_NoSchoolIdsFound_ReturnsFalse() {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         School school = new School();
         school.setSchoolCategoryCode("INDEPEND");
         school.setFacilityTypeCode("DIST_LEARN");
@@ -408,7 +408,7 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_GivenDifferentGrades_ReturnExpectedResult(String enrolledGradeCode, boolean expectedResult) {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         School school = new School();
         school.setSchoolCategoryCode("INDEPEND");
         school.setFacilityTypeCode("DIST_LEARN");
@@ -440,7 +440,7 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_GivenDifferentSchoolCategoriesAndFacilities_ReturnExpectedResult(String schoolCategory, String facilityType, boolean expectedResult) {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         School school = new School();
         school.setSchoolCategoryCode(schoolCategory);
         school.setFacilityTypeCode(facilityType);
@@ -467,7 +467,7 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_SchoolIsNull_ReturnsFalse() {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now().toString());
@@ -509,7 +509,7 @@ class FteCalculatorUtilsTest {
     void testHomeSchoolStudentIsNowOnlineKto9Student_GivenDifferentGrades_ReturnExpectedResult(String enrolledGradeCode, boolean expectedResult) {
         // Given
         SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.ENTRY2.getTypeCode());
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         School school = new School();
         school.setFacilityTypeCode("DIST_LEARN");
         sdcStudentSagaData.setSchool(school);

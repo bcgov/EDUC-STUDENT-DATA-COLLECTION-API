@@ -2,7 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.rules;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -49,7 +49,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     .save(createMockSdcSchoolCollectionEntity(collection, null, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
 
-    schoolStudentEntity.setEnrolledGradeCode(Constants.GRADE_07);
+    schoolStudentEntity.setEnrolledGradeCode(SchoolGradeCodes.GRADE07.getCode());
     schoolStudentEntity.setIsAdult(true);
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithoutError = rulesProcessor.processRules(
       createMockStudentSagaData(
@@ -61,7 +61,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
       e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.HOMESCHOOL)
     )).isFalse();
 
-    schoolStudentEntity.setEnrolledGradeCode(Constants.HS);
+    schoolStudentEntity.setEnrolledGradeCode(SchoolGradeCodes.HOMESCHOOL.getCode());
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithHSError = rulesProcessor.processRules(
       createMockStudentSagaData(
         SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
@@ -81,7 +81,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     .save(createMockSdcSchoolCollectionEntity(collection, null, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
 
-    schoolStudentEntity.setSchoolFundingCode(Constants.IND_FUNDING_CODE);
+    schoolStudentEntity.setSchoolFundingCode(SchoolFundingCodes.STATUS_FIRST_NATION.getCode());
     schoolStudentEntity.setIsAdult(true);
     assertThat(rulesProcessor.processRules(
       createMockStudentSagaData(
@@ -92,7 +92,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
         e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.OUT_OF_PROVINCE)
       )).isFalse();
 
-    schoolStudentEntity.setSchoolFundingCode(Constants.FUNDING_CODE_14);
+    schoolStudentEntity.setSchoolFundingCode(SchoolFundingCodes.OUT_OF_PROVINCE.getCode());
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithOutOfProvinceError = rulesProcessor.processRules(
       createMockStudentSagaData(
         SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
@@ -117,7 +117,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setIsAdult(false);
 
     School localSchool = createMockSchool();
-    localSchool.setSchoolCategoryCode(Constants.PUBLIC);
+    localSchool.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithoutError = rulesProcessor.processRules(
       createMockStudentSagaData(
         SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
@@ -129,7 +129,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     )).isFalse();
 
     School offshoreSchool = createMockSchool();
-    offshoreSchool.setSchoolCategoryCode(Constants.OFFSHORE);
+    offshoreSchool.setSchoolCategoryCode(SchoolCategoryCodes.OFFSHORE.getCode());
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> listWithOffshoreError = rulesProcessor.processRules(
       createMockStudentSagaData(
         SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
@@ -148,7 +148,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     LocalDateTime studentCreateDate = LocalDateTime.now();
 
     School school = this.createMockSchool();
-    school.setFacilityTypeCode(Constants.PROV_ONLINE);
+    school.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
 
     CollectionEntity oneYearOldCollection = collectionRepository.save(createMockCollectionEntity());
     CollectionEntity twoYearOldCollection = collectionRepository.save(createMockCollectionEntity());
@@ -187,7 +187,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionStudentEntity schoolStudentEntity = createMockSchoolStudentEntity(currentSchoolCollection);
     schoolStudentEntity.setIsAdult(true);
     schoolStudentEntity.setIsSchoolAged(false);
-    schoolStudentEntity.setEnrolledGradeCode(Constants.GRADE_10);
+    schoolStudentEntity.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
     schoolStudentEntity.setNumberOfCourses("0");
     schoolStudentEntity.setAssignedStudentId(assignedStudentID);
 
@@ -206,7 +206,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     LocalDateTime studentCreateDate = LocalDateTime.now();
 
     School school = this.createMockSchool();
-    school.setFacilityTypeCode(Constants.PROV_ONLINE);
+    school.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
 
     CollectionEntity oneYearOldCollection = collectionRepository.save(createMockCollectionEntity());
     CollectionEntity twoYearOldCollection = collectionRepository.save(createMockCollectionEntity());
@@ -244,7 +244,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     SdcSchoolCollectionStudentEntity schoolStudentEntity = createMockSchoolStudentEntity(currentSchoolCollection);
     schoolStudentEntity.setIsSchoolAged(true);
-    schoolStudentEntity.setEnrolledGradeCode(Constants.GRADE_10);
+    schoolStudentEntity.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
     schoolStudentEntity.setNumberOfCourses("0");
     schoolStudentEntity.setAssignedStudentId(assignedStudentID);
 

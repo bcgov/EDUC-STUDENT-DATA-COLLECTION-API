@@ -12,23 +12,24 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 
 @Component
-@Order(7)
-public class IndigenousStudentsMustHaveIndigenousAncestry implements ProgramEligibilityBaseRule {
+@Order
+public class SpecialEdStudentsMustBeSchoolAgeOrNotGraduatedRule implements ProgramEligibilityBaseRule {
 
   @Override
   public boolean shouldExecute(SdcStudentSagaData saga,
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors) {
     return hasNotViolatedBaseRules(errors)
-    && hasNotViolatedIndigenousRules(errors);
+    && !errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED);
   }
 
   @Override
   public List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = new ArrayList<>();
-    String ancestryData = saga.getSdcSchoolCollectionStudent().getNativeAncestryInd();
 
-    if (StringUtils.isEmpty(ancestryData) || ancestryData.equalsIgnoreCase("N")) {
-      errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY);
+    String isGraduated = saga.getSdcSchoolCollectionStudent().getIsGraduated();
+
+    if (StringUtils.isNotEmpty(isGraduated) && isGraduated.equals("true")) {
+      errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED);
     }
 
     return errors;

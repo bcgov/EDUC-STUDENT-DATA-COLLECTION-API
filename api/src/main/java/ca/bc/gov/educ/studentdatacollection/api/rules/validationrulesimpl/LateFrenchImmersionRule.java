@@ -40,7 +40,7 @@ public class LateFrenchImmersionRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         final List<String> enrolledProgramCodes = validationRulesService.splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
 
-        if (enrolledProgramCodes.contains(Constants.LATE_FRENCH_IMMERSION_CODE) && !sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode().equals(Constants.GRADE_06) && !sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode().equals(Constants.GRADE_07)) {
+        if (enrolledProgramCodes.contains(EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode()) && !sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode().equals(SchoolGradeCodes.GRADE06.getCode()) && !sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode().equals(SchoolGradeCodes.GRADE07.getCode())) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_CODE_FRANCOPHONE_ERR));
         }
 

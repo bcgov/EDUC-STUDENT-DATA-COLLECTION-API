@@ -27,7 +27,7 @@ public class CollectionAndGradeCalculator implements FteCalculator {
     @Override
     public FteCalculationResult calculateFte(SdcStudentSagaData studentData) {
         var student = studentData.getSdcSchoolCollectionStudent();
-        var isJulyCollection = StringUtils.equals(studentData.getCollectionTypeCode(), CollectionTypeCodes.ENTRY4.getTypeCode());
+        var isJulyCollection = StringUtils.equals(studentData.getCollectionTypeCode(), CollectionTypeCodes.JULY.getTypeCode());
         if(isJulyCollection) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             if(SchoolGradeCodes.get1To7Grades().contains(student.getEnrolledGradeCode())) {

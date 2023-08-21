@@ -13,7 +13,7 @@ import ca.bc.gov.educ.studentdatacollection.api.helpers.BooleanString;
 
 @Component
 @Order
-public class IndigenousStudentsMustBeSchoolAged implements ProgramEligibilityBaseRule {
+public class IndigenousStudentsMustBeSchoolAgedRule implements ProgramEligibilityBaseRule {
 
   @Override
   public boolean shouldExecute(SdcStudentSagaData saga,

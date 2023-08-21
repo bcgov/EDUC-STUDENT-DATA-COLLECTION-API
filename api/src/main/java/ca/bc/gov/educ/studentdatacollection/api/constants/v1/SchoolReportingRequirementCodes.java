@@ -7,23 +7,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public enum IndigenousPrograms {
-    ABORIGINAL_LANGUAGE_AND_CULTURE("29"),
-    ABORIGINAL_SUPPORT_SERVICES("33"),
-    OTHER_APPROVED_ABORIGINAL_PROGRAM("36")
+public enum SchoolReportingRequirementCodes {
+    REGULAR("REGULAR"),
+    CSF("CSF"),
+    NONE("NONE"),
+    RECIPROCAL_TUITION("RT");
 
-;
     @Getter
     private final String code;
-    IndigenousPrograms(String code) {
+    SchoolReportingRequirementCodes(String code) {
         this.code = code;
     }
 
-    public static Optional<IndigenousPrograms> findByValue(String value) {
+    public static Optional<SchoolReportingRequirementCodes> findByValue(String value) {
         return Arrays.stream(values()).filter(e -> Arrays.asList(e.code).contains(value)).findFirst();
     }
 
     public static List<String> getCodes() {
-        return Arrays.stream(IndigenousPrograms.values()).map(IndigenousPrograms::getCode).collect(Collectors.toList());
+        return Arrays.stream(SchoolReportingRequirementCodes.values()).map(SchoolReportingRequirementCodes::getCode).collect(Collectors.toList());
     }
 }

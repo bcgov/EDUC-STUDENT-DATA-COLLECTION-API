@@ -4,7 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStu
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
@@ -32,7 +32,7 @@ public class SupportBlocksOLRule implements ValidationBaseRule {
         return CollectionTypeCodes
                 .findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode())
                 .isPresent()
-                && !sdcStudentSagaData.getCollectionTypeCode().equals(Constants.JULY)
+                && !sdcStudentSagaData.getCollectionTypeCode().equals(CollectionTypeCodes.JULY.getTypeCode())
                 && isValidationDependencyResolved("V66", validationErrorsMap);
     }
 
@@ -43,7 +43,7 @@ public class SupportBlocksOLRule implements ValidationBaseRule {
         final String supportBlocks = student.getSupportBlocks();
 
         final String facultyTypeCode = sdcStudentSagaData.getSchool().getFacilityTypeCode();
-        if ((facultyTypeCode.equals(Constants.PROV_ONLINE) || facultyTypeCode.equals(Constants.DISTRICT_ONLINE))
+        if ((facultyTypeCode.equals(FacilityTypeCodes.DIST_LEARN.getCode()) || facultyTypeCode.equals(FacilityTypeCodes.DISTONLINE.getCode()))
                 && (StringUtils.isNotEmpty(supportBlocks)
                 && !supportBlocks.equals("0"))) {
             errors.add(createValidationIssue(

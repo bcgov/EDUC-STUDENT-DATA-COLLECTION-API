@@ -44,7 +44,7 @@ public class FteCalculatorUtils {
         LocalDateTime startOfCollectionDate;
         LocalDateTime endOfCollectionDate;
         //if it's a February collection, get the previous september collection
-        if(sdcStudentSagaData.getCollectionTypeCode().equals(CollectionTypeCodes.ENTRY2.getTypeCode())) {
+        if(sdcStudentSagaData.getCollectionTypeCode().equals(CollectionTypeCodes.FEBRUARY.getTypeCode())) {
             int previousYear = LocalDateTime.parse(sdcStudentSagaData.getSdcSchoolCollectionStudent().getCreateDate()).minusYears(1).getYear();
             startOfCollectionDate = LocalDate.of(previousYear, Month.SEPTEMBER, 1).atTime(LocalTime.MIN);
             endOfCollectionDate = LocalDate.of(previousYear, Month.SEPTEMBER, 30).atTime(LocalTime.MAX);
@@ -65,7 +65,7 @@ public class FteCalculatorUtils {
      * Returns true if the collection is a February or May collection; otherwise it is false
      */
     public boolean isSpringCollection(SdcStudentSagaData sdcStudentSagaData) {
-        return StringUtils.equals(sdcStudentSagaData.getCollectionTypeCode(), CollectionTypeCodes.ENTRY2.getTypeCode()) || StringUtils.equals(sdcStudentSagaData.getCollectionTypeCode(), CollectionTypeCodes.ENTRY3.getTypeCode());
+        return StringUtils.equals(sdcStudentSagaData.getCollectionTypeCode(), CollectionTypeCodes.FEBRUARY.getTypeCode()) || StringUtils.equals(sdcStudentSagaData.getCollectionTypeCode(), CollectionTypeCodes.MAY.getTypeCode());
     }
 
     /**

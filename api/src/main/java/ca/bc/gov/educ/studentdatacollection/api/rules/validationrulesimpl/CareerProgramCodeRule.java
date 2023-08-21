@@ -41,8 +41,8 @@ public class CareerProgramCodeRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         final List<String> enrolledProgramCodes = validationRulesService.splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
 
-        if((StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getCareerProgramCode()) && CareerPrograms.getCodes().stream().anyMatch(enrolledProgramCodes::contains))
-                || (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getCareerProgramCode()) && CareerPrograms.getCodes().stream().noneMatch(enrolledProgramCodes::contains))) {
+        if((StringUtils.isEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getCareerProgramCode()) && EnrolledProgramCodes.getCareerProgramCodes().stream().anyMatch(enrolledProgramCodes::contains))
+                || (StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getCareerProgramCode()) && EnrolledProgramCodes.getCareerProgramCodes().stream().noneMatch(enrolledProgramCodes::contains))) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.CAREER_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.CAREER_CODE_PROG_ERR));
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.CAREER_CODE_PROG_ERR));
         }

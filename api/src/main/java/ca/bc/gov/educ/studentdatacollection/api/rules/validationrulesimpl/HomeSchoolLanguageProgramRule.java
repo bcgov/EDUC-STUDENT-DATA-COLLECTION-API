@@ -37,7 +37,7 @@ public class HomeSchoolLanguageProgramRule implements ValidationBaseRule {
     public boolean shouldExecute(SdcStudentSagaData sdcStudentSagaData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes.findByValue(sdcStudentSagaData.getCollectionTypeCode(), sdcStudentSagaData.getSchool().getSchoolCategoryCode()).isPresent() &&
                 isValidationDependencyResolved("V22", validationErrorsMap) &&
-                sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode().equals(Constants.HS) &&
+                sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode().equals(SchoolGradeCodes.HOMESCHOOL.getCode()) &&
                 StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
     }
 
@@ -47,7 +47,7 @@ public class HomeSchoolLanguageProgramRule implements ValidationBaseRule {
         var student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
         final List<String> enrolledProgramCodes = validationRulesService.splitString(student.getEnrolledProgramCodes());
 
-        if (FrenchPrograms.getCodes().stream().anyMatch(enrolledProgramCodes::contains)) {
+        if (EnrolledProgramCodes.getFrenchProgramCodesWithEll().stream().anyMatch(enrolledProgramCodes::contains)) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.FUNDING_WARNING, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.PROGRAM_CODE_HS_LANG));
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.FUNDING_WARNING, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_GRADE_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.PROGRAM_CODE_HS_LANG));
         }

@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolFundingCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class IndependentSchoolAndBandCodeCalculator implements FteCalculator {
         var hasBandCode = StringUtils.isNotBlank(studentData.getSdcSchoolCollectionStudent().getBandCode());
         var fundingCode = studentData.getSdcSchoolCollectionStudent().getSchoolFundingCode();
 
-        if(isIndependentSchool && (StringUtils.equals(fundingCode, Constants.IND_FUNDING_CODE) || (hasBandCode && StringUtils.isBlank(fundingCode)))) {
+        if(isIndependentSchool && (StringUtils.equals(fundingCode, SchoolFundingCodes.STATUS_FIRST_NATION.getCode()) || (hasBandCode && StringUtils.isBlank(fundingCode)))) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
             fteCalculationResult.setFteZeroReason(NOMINAL_ROLL_ELIGIBLE.getCode());

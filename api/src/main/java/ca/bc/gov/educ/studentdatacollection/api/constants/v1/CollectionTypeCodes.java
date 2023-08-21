@@ -8,11 +8,11 @@ import java.util.Optional;
 
 @Getter
 public enum CollectionTypeCodes {
-    ENTRY1("SEPTEMBER", new String[]{Constants.PUBLIC, Constants.INDEPEND, Constants.OFFSHORE}),
-    ENTRY2("FEBRUARY", new String[]{Constants.PUBLIC, Constants.INDEPEND, Constants.OFFSHORE}),
-    ENTRY3("MAY", new String[]{Constants.PUBLIC, Constants.INDEPEND, Constants.OFFSHORE}),
-    ENTRY4("JULY", new String[]{"PUBLIC"})
-;
+    SEPTEMBER("SEPTEMBER", new String[]{SchoolCategoryCodes.PUBLIC.getCode(), SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.OFFSHORE.getCode()}),
+    FEBRUARY("FEBRUARY", new String[]{SchoolCategoryCodes.PUBLIC.getCode(), SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.OFFSHORE.getCode()}),
+    MAY("MAY", new String[]{SchoolCategoryCodes.PUBLIC.getCode(), SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.OFFSHORE.getCode()}),
+    JULY("JULY", new String[]{SchoolCategoryCodes.PUBLIC.getCode()});
+
     private final String typeCode;
     private final String[] schoolCode;
     CollectionTypeCodes(String typeCode, String[] schoolCode) {

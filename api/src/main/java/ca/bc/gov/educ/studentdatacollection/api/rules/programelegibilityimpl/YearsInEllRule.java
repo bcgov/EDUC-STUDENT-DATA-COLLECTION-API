@@ -1,29 +1,26 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibilityimpl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
-
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FrenchPrograms;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Order
-public class FrenchStudentsMustBeEnrolled implements ProgramEligibilityBaseRule {
+public class YearsInEllRule implements ProgramEligibilityBaseRule {
   private final ValidationRulesService validationRulesService;
 
-  public FrenchStudentsMustBeEnrolled(ValidationRulesService validationRulesService) {
+  public YearsInEllRule(ValidationRulesService validationRulesService) {
     this.validationRulesService = validationRulesService;
   }
 
   @Override
-  public boolean shouldExecute(SdcStudentSagaData saga,
-    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors) {
+  public boolean shouldExecute(SdcStudentSagaData saga, List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors) {
     return hasNotViolatedBaseRules(errors);
   }
 
@@ -31,10 +28,9 @@ public class FrenchStudentsMustBeEnrolled implements ProgramEligibilityBaseRule 
   public List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = new ArrayList<>();
 
-    List<String> studentPrograms = validationRulesService
-      .splitString(saga.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
+    List<String> studentPrograms = validationRulesService.splitString(saga.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
 
-    if (FrenchPrograms.getFrenchProgramCodes().stream().noneMatch(studentPrograms::contains)) {
+    if (studentPrograms.contains()) {
       errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_FRENCH);
     }
 

@@ -13,10 +13,10 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 
 @Component
 @Order(6)
-public class SpecialEdStudentsMustRequireSpecialEd implements ProgramEligibilityBaseRule {
+public class SpecialEdStudentsMustRequireSpecialEdRule implements ProgramEligibilityBaseRule {
   private final ValidationRulesService validationRulesService;
 
-  public SpecialEdStudentsMustRequireSpecialEd(ValidationRulesService validationRulesService) {
+  public SpecialEdStudentsMustRequireSpecialEdRule(ValidationRulesService validationRulesService) {
     this.validationRulesService = validationRulesService;
   }
 

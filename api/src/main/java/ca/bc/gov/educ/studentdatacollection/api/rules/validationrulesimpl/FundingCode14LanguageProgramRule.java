@@ -38,7 +38,7 @@ public class FundingCode14LanguageProgramRule implements ValidationBaseRule {
                 StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes()) &&
                 StringUtils.isNotEmpty(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode()) &&
                 isValidationDependencyResolved("V50", validationErrorsMap) &&
-                sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode().equals(Constants.FUNDING_CODE_14);
+                sdcStudentSagaData.getSdcSchoolCollectionStudent().getSchoolFundingCode().equals(SchoolFundingCodes.OUT_OF_PROVINCE.getCode());
     }
 
     @Override
@@ -46,7 +46,7 @@ public class FundingCode14LanguageProgramRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         final List<String> enrolledProgramCodes = validationRulesService.splitString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
 
-        if (FrenchPrograms.getCodes().stream().anyMatch(enrolledProgramCodes::contains)) {
+        if (EnrolledProgramCodes.getFrenchProgramCodesWithEll().stream().anyMatch(enrolledProgramCodes::contains)) {
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.FUNDING_WARNING, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_PROGRAM_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_CODE_FUNDING_ERR));
             errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.FUNDING_WARNING, SdcSchoolCollectionStudentValidationFieldCode.SCHOOL_FUNDING_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.ENROLLED_CODE_FUNDING_ERR));
         }

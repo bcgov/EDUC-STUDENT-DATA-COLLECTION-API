@@ -7,24 +7,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public enum CareerPrograms {
-    CAREER_PREPARATION("40"),
-    CO_OP("41"),
-    APPRENTICESHIP("42"),
-    CAREER_TECHNICAL_CENTRE("43"),
+public enum SchoolFundingCodes {
+    EDUC_SERVICE_CHILDREN("05"),
+    OUT_OF_PROVINCE("14"),
+    STATUS_FIRST_NATION("20");
 
-;
     @Getter
     private final String code;
-    CareerPrograms(String code) {
+    SchoolFundingCodes(String code) {
         this.code = code;
     }
 
-    public static Optional<CareerPrograms> findByValue(String value) {
+    public static Optional<SchoolFundingCodes> findByValue(String value) {
         return Arrays.stream(values()).filter(e -> Arrays.asList(e.code).contains(value)).findFirst();
     }
 
     public static List<String> getCodes() {
-        return Arrays.stream(CareerPrograms.values()).map(CareerPrograms::getCode).collect(Collectors.toList());
+        return Arrays.stream(SchoolFundingCodes.values()).map(SchoolFundingCodes::getCode).collect(Collectors.toList());
     }
 }

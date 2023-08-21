@@ -136,9 +136,7 @@ public class SdcSchoolCollectionStudentService {
     return this.sdcSchoolCollectionStudentRepository.save(entity);
   }
 
-  public SdcSchoolCollectionStudentEntity clearSdcSchoolStudentProgramEligibilityColumns(
-    UUID sdcSchoolCollectionStudentID
-  ) {
+  public SdcSchoolCollectionStudentEntity clearSdcSchoolStudentProgramEligibilityColumns(UUID sdcSchoolCollectionStudentID) {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional =
       sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
