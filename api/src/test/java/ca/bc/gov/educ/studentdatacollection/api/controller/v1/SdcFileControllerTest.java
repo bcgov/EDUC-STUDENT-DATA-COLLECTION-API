@@ -105,7 +105,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
     assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADED");
-    final var students = this.schoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    final var students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
   }
 
@@ -273,7 +273,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
     assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADED");
-    final var students = this.schoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    final var students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
   }
 
@@ -303,7 +303,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
     assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADED");
-    var students = this.schoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    var students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
 
     var historyStuds = this.sdcSchoolCollectionStudentHistoryRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
@@ -328,7 +328,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
     assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADED");
-    students = this.schoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
 
     var issues = sdcSchoolCollectionStudentValidationIssueRepository.findAll();
@@ -364,7 +364,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
     assertThat(entity.getUploadReportDate()).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADED");
-    final var students = this.schoolStudentRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    final var students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
 
     var resultActions = this.mockMvc.perform(get(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")

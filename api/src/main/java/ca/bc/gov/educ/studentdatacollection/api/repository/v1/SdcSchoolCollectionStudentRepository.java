@@ -14,10 +14,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcSchoolCollectionStudentEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionStudentEntity> {
-  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
+  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_SdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
-  long countBySdcSchoolCollectionStudentStatusCode(String sdcSchoolCollectionStudentStatusCode);
-  long countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollectionID(String sdcSchoolCollectionStudentStatusCode, UUID sdcSchoolCollectionID);
+  long countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollection_SdcSchoolCollectionID(String sdcSchoolCollectionStudentStatusCode, UUID sdcSchoolCollectionID);
 
   @Query(value = """
     SELECT COUNT(*) FROM (SELECT I.SDC_SCHOOL_COLLECTION_STUDENT_ID, COUNT(I.VALIDATION_ISSUE_SEVERITY_CODE), I.VALIDATION_ISSUE_CODE
@@ -30,7 +29,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     """, nativeQuery= true)
   long getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID(String validationIssueSeverityCode, UUID sdcSchoolCollectionID);
 
-  long countBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
+  long countBySdcSchoolCollection_SdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
   @Query(value = """
     SELECT COUNT(*) FROM SDC_SCHOOL_COLLECTION_STUDENT SSCS 
@@ -48,11 +47,11 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   List<SdcSchoolCollectionStudentEntity> findTop100BySdcSchoolCollectionStudentStatusCodeOrderByCreateDate(String sdcSchoolCollectionStudentStatusCode);
 
-  Optional<SdcSchoolCollectionStudentEntity> findBySdcSchoolCollectionStudentIDAndSdcSchoolCollectionID(UUID sdcSchoolCollectionStudentID, UUID sdcSchoolCollectionID);
+  Optional<SdcSchoolCollectionStudentEntity> findBySdcSchoolCollectionStudentIDAndSdcSchoolCollection_SdcSchoolCollectionID(UUID sdcSchoolCollectionStudentID, UUID sdcSchoolCollectionID);
 
-  long countByAssignedStudentIdAndSdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(UUID assignedStudentId, List<UUID> sdcSchoolCollectionID, String numberOfCourses);
+  long countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(UUID assignedStudentId, List<UUID> sdcSchoolCollectionID, String numberOfCourses);
 
-  long countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID assignedStudentId, List<UUID> sdcSchoolCollectionID);
+  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(UUID assignedStudentId, List<UUID> sdcSchoolCollectionID);
 
   long countAllByAssignedStudentIdAndEnrolledGradeCodeAndCreateDateBetween(UUID assignedStudentId, String enrolledGradeCode, LocalDateTime startDate, LocalDateTime endDate);
 }

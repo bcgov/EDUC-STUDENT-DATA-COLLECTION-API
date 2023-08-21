@@ -75,7 +75,7 @@ public class SdcSchoolCollectionStudentService {
     final List<SdcStudentSagaData> sdcStudentSagaDatas = sdcStudentEntities.stream()
       .map(el -> {
         val sdcStudentSagaData = new SdcStudentSagaData();
-        Optional<SdcSchoolCollectionEntity> sdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(el.getSdcSchoolCollectionID());
+        Optional<SdcSchoolCollectionEntity> sdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(el.getSdcSchoolCollection().getSdcSchoolCollectionID());
         if(sdcSchoolCollection.isPresent()) {
           var school = this.restUtils.getSchoolBySchoolID(sdcSchoolCollection.get().getSchoolID().toString());
           sdcStudentSagaData.setCollectionTypeCode(sdcSchoolCollection.get().getCollectionEntity().getCollectionTypeCode());
@@ -207,7 +207,7 @@ public class SdcSchoolCollectionStudentService {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void updateAndValidateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity) {
-    Optional<SdcSchoolCollectionStudentEntity> curStudentEntity = sdcSchoolCollectionStudentRepository.findBySdcSchoolCollectionStudentIDAndSdcSchoolCollectionID(studentEntity.getSdcSchoolCollectionStudentID(), studentEntity.getSdcSchoolCollectionID());
+    Optional<SdcSchoolCollectionStudentEntity> curStudentEntity = sdcSchoolCollectionStudentRepository.findBySdcSchoolCollectionStudentIDAndSdcSchoolCollection_SdcSchoolCollectionID(studentEntity.getSdcSchoolCollectionStudentID(), studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID());
 
     if(curStudentEntity.isEmpty()) {
       throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", studentEntity.getSdcSchoolCollectionStudentID().toString());
@@ -308,7 +308,7 @@ public class SdcSchoolCollectionStudentService {
 
   private SdcStudentSagaData createSagaDataForValidation(SdcSchoolCollectionStudentEntity studentEntity) {
     SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-    Optional<SdcSchoolCollectionEntity> sdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(studentEntity.getSdcSchoolCollectionID());
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID());
     if(sdcSchoolCollection.isPresent()) {
       var school = this.restUtils.getSchoolBySchoolID(sdcSchoolCollection.get().getSchoolID().toString());
       sdcStudentSagaData.setCollectionTypeCode(sdcSchoolCollection.get().getCollectionEntity().getCollectionTypeCode());
@@ -316,7 +316,7 @@ public class SdcSchoolCollectionStudentService {
       sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolCollectionStudentWithValidationIssues(studentEntity));
       return sdcStudentSagaData;
     } else {
-      throw new EntityNotFoundException(SdcSchoolCollectionEntity.class, "SdcSchoolCollectionEntity", studentEntity.getSdcSchoolCollectionID().toString());
+      throw new EntityNotFoundException(SdcSchoolCollectionEntity.class, "SdcSchoolCollectionEntity", studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID().toString());
     }
   }
 }

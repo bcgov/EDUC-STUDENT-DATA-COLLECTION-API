@@ -332,7 +332,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     this.mockMvc.perform(
             post(URL.BASE_URL_SCHOOL_COLLECTION + "/" + newCollectionEntity.getCollectionID()).contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toStructure(sdcMockSchool)))
+                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolBatch(sdcMockSchool)))
                 .with(mockAuthority))
          .andDo(print()).andExpect(status().isCreated()).andExpect(
             MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));
@@ -354,7 +354,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     this.mockMvc.perform(
             post(URL.BASE_URL_SCHOOL_COLLECTION + "/" + UUID.randomUUID()).contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toStructure(sdcMockSchool)))
+                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolBatch(sdcMockSchool)))
                 .with(mockAuthority))
         .andDo(print()).andExpect(status().isNotFound());
   }
@@ -375,7 +375,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         this.mockMvc.perform(
                         post(URL.BASE_URL_SCHOOL_COLLECTION + "/" + newCollectionEntity.getCollectionID()).contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toStructure(sdcMockSchool)))
+                                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolBatch(sdcMockSchool)))
                                 .with(mockAuthority))
                 .andDo(print()).andExpect(status().isCreated()).andExpect(
                         MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));

@@ -204,7 +204,7 @@ class FteCalculatorChainProcessorIntegrationTest {
 
         var oneYearAgoStudentCollection = SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudentEntity(this.studentData.getSdcSchoolCollectionStudent());
         oneYearAgoStudentCollection.setCreateDate(lastCollectionDate);
-        oneYearAgoStudentCollection.setSdcSchoolCollectionID(sdcSchoolCollection.getSdcSchoolCollectionID());
+        oneYearAgoStudentCollection.setSdcSchoolCollection(sdcSchoolCollection);
         sdcSchoolCollectionStudentRepository.save(oneYearAgoStudentCollection);
 
         // When
@@ -246,7 +246,7 @@ class FteCalculatorChainProcessorIntegrationTest {
 
         var oneYearAgoStudentCollection = SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudentEntity(this.studentData.getSdcSchoolCollectionStudent());
         oneYearAgoStudentCollection.setCreateDate(lastCollectionDate);
-        oneYearAgoStudentCollection.setSdcSchoolCollectionID(sdcSchoolCollection.getSdcSchoolCollectionID());
+        oneYearAgoStudentCollection.setSdcSchoolCollection(sdcSchoolCollection);
         sdcSchoolCollectionStudentRepository.save(oneYearAgoStudentCollection);
 
         when(restUtils.getSchoolIDsByIndependentAuthorityID(anyString())).thenReturn(Optional.of(Collections.singletonList(sdcSchoolCollection.getSchoolID())));

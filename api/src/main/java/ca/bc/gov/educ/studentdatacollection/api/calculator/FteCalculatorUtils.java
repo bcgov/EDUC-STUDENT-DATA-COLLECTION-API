@@ -85,7 +85,7 @@ public class FteCalculatorUtils {
             var endOfCollectionDate = startAndEndDateOfCollectionMap.get(END_DATE_KEY);
             if(StringUtils.isNotBlank(school.getDistrictId())) {
                 var previousCollections = sdcSchoolCollectionRepository.findAllByDistrictIDAndCreateDateBetween(UUID.fromString(school.getDistrictId()), startOfCollectionDate, endOfCollectionDate);
-                return previousCollections.isPresent() && sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getAssignedStudentId()), previousCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
+                return previousCollections.isPresent() && sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getAssignedStudentId()), previousCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
             }
         }
         return false;
@@ -109,7 +109,7 @@ public class FteCalculatorUtils {
                 var schoolIDs = restUtils.getSchoolIDsByIndependentAuthorityID(school.getIndependentAuthorityId());
                 if (schoolIDs.isPresent()) {
                     var previousCollections = sdcSchoolCollectionRepository.findAllBySchoolIDInAndCreateDateBetween(schoolIDs.get(), startOfCollectionDate, endOfCollectionDate);
-                    return previousCollections.isPresent() && sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID.fromString(student.getAssignedStudentId()), previousCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
+                    return previousCollections.isPresent() && sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(UUID.fromString(student.getAssignedStudentId()), previousCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
                 }
             }
         }
@@ -149,7 +149,7 @@ public class FteCalculatorUtils {
         if (isSchoolAged && isEightPlusGradeCode && reportedByOnlineSchoolWithNoCourses) {
             var startOfMonth = LocalDateTime.parse(student.getCreateDate()).with(TemporalAdjusters.firstDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
             var lastTwoYearsOfCollections = sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(UUID.fromString(school.getSchoolId()), startOfMonth.minusYears(2), startOfMonth);
-            return lastTwoYearsOfCollections.isEmpty() || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(UUID.fromString(student.getAssignedStudentId()), lastTwoYearsOfCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(), "0") == 0;
+            return lastTwoYearsOfCollections.isEmpty() || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(UUID.fromString(student.getAssignedStudentId()), lastTwoYearsOfCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(), "0") == 0;
         }
         return false;
     }

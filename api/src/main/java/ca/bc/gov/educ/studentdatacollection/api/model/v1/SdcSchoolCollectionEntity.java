@@ -77,7 +77,7 @@ public class SdcSchoolCollectionEntity {
   private Set<SdcSchoolCollectionHistoryEntity> sdcSchoolCollectionHistoryEntities;
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  @OneToMany(mappedBy = "sdcSchoolCollectionID", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentEntity.class)
+  @OneToMany(mappedBy = "sdcSchoolCollection", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentEntity.class)
   Set<SdcSchoolCollectionStudentEntity> sdcSchoolStudentEntities;
 
   public Set<SdcSchoolCollectionStudentEntity> getSDCSchoolStudentEntities() {

@@ -31,9 +31,12 @@ public class SdcSchoolCollectionStudentEntity {
   @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   UUID sdcSchoolCollectionStudentID;
 
-  @Basic
-  @Column(name = "SDC_SCHOOL_COLLECTION_ID", columnDefinition = "BINARY(16)", updatable = false)
-  private UUID sdcSchoolCollectionID;
+
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  @ManyToOne(optional = false, targetEntity = SdcSchoolCollectionEntity.class)
+  @JoinColumn(name = "SDC_SCHOOL_COLLECTION_ID", referencedColumnName = "SDC_SCHOOL_COLLECTION_ID", updatable = false)
+  private SdcSchoolCollectionEntity sdcSchoolCollection;
 
   @Column(name = "LOCAL_ID")
   private String localID;
