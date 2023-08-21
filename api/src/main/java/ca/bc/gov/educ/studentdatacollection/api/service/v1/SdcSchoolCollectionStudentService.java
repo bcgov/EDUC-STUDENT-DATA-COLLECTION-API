@@ -25,8 +25,10 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.RequiredArgsConstructor;
@@ -265,48 +267,16 @@ public class SdcSchoolCollectionStudentService {
       student.setIndigenousSupportProgramNonEligReasonCode(reasonCode);
       student.setCareerProgramNonEligReasonCode(reasonCode);
       student.setSpecialEducationNonEligReasonCode(reasonCode);
-    }
+    } else {
+      Map<SdcSchoolCollectionStudentProgramEligibilityIssueCode, Consumer<String>> errorHandlers =
+        SdcSchoolCollectionStudentProgramEligibilityIssueCode.getEligibilityErrorHandlers(student);
 
-    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_FRENCH)) {
-      student.setFrenchProgramNonEligReasonCode(
-        SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_FRENCH.getCode()
-      );
-    }
-
-    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_CAREER)) {
-      student.setCareerProgramNonEligReasonCode(
-        SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_CAREER.getCode()
-      );
-    }
-
-    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS)) {
-      student.setIndigenousSupportProgramNonEligReasonCode(
-        SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS.getCode()
-      );
-    }
-
-    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED)) {
-      student.setSpecialEducationNonEligReasonCode(
-        SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED.getCode()
-      );
-    }
-
-    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED)) {
-      student.setSpecialEducationNonEligReasonCode(
-        SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED.getCode()
-      );
-    }
-
-    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.INDIGENOUS_ADULT)) {
-      student.setIndigenousSupportProgramNonEligReasonCode(
-        SdcSchoolCollectionStudentProgramEligibilityIssueCode.INDIGENOUS_ADULT.getCode()
-      );
-    }
-
-    if (errors.contains(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY)) {
-      student.setIndigenousSupportProgramNonEligReasonCode(
-        SdcSchoolCollectionStudentProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY.getCode()
-      );
+      errors.stream().forEach(e -> {
+        Consumer<String> handler = errorHandlers.get(e);
+        if (handler != null) {
+          handler.accept(e.getCode());
+        }
+      });
     }
 
     return student;

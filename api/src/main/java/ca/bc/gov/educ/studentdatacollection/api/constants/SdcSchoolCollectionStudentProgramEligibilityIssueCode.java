@@ -2,9 +2,12 @@ package ca.bc.gov.educ.studentdatacollection.api.constants;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import lombok.Getter;
 
 public enum SdcSchoolCollectionStudentProgramEligibilityIssueCode {
@@ -33,6 +36,19 @@ public enum SdcSchoolCollectionStudentProgramEligibilityIssueCode {
 
   @Getter
   private final String message;
+
+
+  public static final Map<SdcSchoolCollectionStudentProgramEligibilityIssueCode, Consumer<String>> getEligibilityErrorHandlers(SdcSchoolCollectionStudentEntity student) {
+    return Map.of(
+      NOT_ENROLLED_FRENCH, student::setFrenchProgramNonEligReasonCode,
+      NOT_ENROLLED_CAREER, student::setCareerProgramNonEligReasonCode,
+      NOT_ENROLLED_INDIGENOUS, student::setIndigenousSupportProgramNonEligReasonCode,
+      DOES_NOT_NEED_SPECIAL_ED, student::setSpecialEducationNonEligReasonCode,
+      IS_GRADUATED, student::setSpecialEducationNonEligReasonCode,
+      INDIGENOUS_ADULT, student::setIndigenousSupportProgramNonEligReasonCode,
+      NO_INDIGENOUS_ANCESTRY, student::setIndigenousSupportProgramNonEligReasonCode
+    );
+  }
 
   public static final Optional<SdcSchoolCollectionStudentProgramEligibilityIssueCode> getBaseProgramEligibilityFailure(
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors
