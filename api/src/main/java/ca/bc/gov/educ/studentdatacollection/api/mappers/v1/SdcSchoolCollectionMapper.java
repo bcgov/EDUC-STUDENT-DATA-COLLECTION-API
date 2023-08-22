@@ -23,9 +23,7 @@ public interface SdcSchoolCollectionMapper {
 
   SdcSchoolCollectionEntity toSdcSchoolBatchEntity(SdcSchoolCollection sdcSchoolBatch);
 
+  @Mapping(target = "uploadDate", expression = "java(java.time.LocalDateTime.now() )")
   SdcSchoolCollectionEntity toModel(SdcSchoolCollection sdcSchoolCollection);
-
-  @Mapping(target = "collectionID", source = "sdcSchoolCollectionEntity.collectionEntity.collectionID")
-  SdcSchoolCollection toStructure(SdcSchoolCollectionEntity sdcSchoolCollectionEntity);
 
 }

@@ -1,7 +1,9 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcSchoolCollectionEndpoint;
+import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
@@ -10,6 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -21,6 +24,8 @@ import java.util.UUID;
 public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoint {
 
     private static final SdcSchoolCollectionMapper mapper = SdcSchoolCollectionMapper.mapper;
+
+    private static final SdcSchoolCollectionStudentMapper studentMapper = SdcSchoolCollectionStudentMapper.mapper;
 
     private final SdcSchoolCollectionService sdcSchoolCollectionService;
 
@@ -53,7 +58,17 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   public SdcSchoolCollection createSdcSchoolCollectionByCollectionID(SdcSchoolCollection sdcSchoolCollection, UUID collectionID) {
     ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionValidator.validatePayload(sdcSchoolCollection, true));
     RequestUtil.setAuditColumnsForCreate(sdcSchoolCollection);
-    return mapper.toStructure(sdcSchoolCollectionService.createSdcSchoolCollectionByCollectionID(mapper.toModel(sdcSchoolCollection), collectionID));
+    SdcSchoolCollectionEntity entity = mapper.toModel(sdcSchoolCollection);
+    if(!CollectionUtils.isEmpty(sdcSchoolCollection.getStudents())) {
+        sdcSchoolCollection.getStudents().forEach(RequestUtil::setAuditColumnsForCreate);
+        for(final var student : sdcSchoolCollection.getStudents()) {
+            final var sdcStudentEntity = studentMapper.toSdcSchoolStudentEntity(student);
+            sdcStudentEntity.setSdcSchoolCollection(entity);
+            sdcStudentEntity.getSDCStudentValidationIssueEntities().addAll(SdcHelper.populateValidationErrors(student.getSdcSchoolCollectionStudentValidationIssues(), sdcStudentEntity));
+            entity.getSDCSchoolStudentEntities().add(sdcStudentEntity);
+        }
+    }
+    return mapper.toSdcSchoolBatch(sdcSchoolCollectionService.createSdcSchoolCollectionByCollectionID(entity, collectionID));
   }
 
   @Override
