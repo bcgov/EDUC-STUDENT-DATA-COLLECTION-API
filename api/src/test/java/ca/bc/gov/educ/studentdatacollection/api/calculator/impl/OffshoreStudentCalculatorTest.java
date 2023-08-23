@@ -5,7 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
@@ -31,7 +31,7 @@ class OffshoreStudentCalculatorTest {
     void testCalculateFte_WithOffshoreSchoolCategory_ReturnsZeroFteWithReason() {
         // Given
         School school = new School();
-        school.setSchoolCategoryCode(Constants.OFFSHORE);
+        school.setSchoolCategoryCode(SchoolCategoryCodes.OFFSHORE.getCode());
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSchool(school);
@@ -50,7 +50,7 @@ class OffshoreStudentCalculatorTest {
     void testCalculateFte_WithNonOffshoreSchoolCategory_CallsNextFteCalculation() {
         // Given
         School school = new School();
-        school.setSchoolCategoryCode(Constants.INDEPEND);
+        school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
 
         SdcStudentSagaData studentData = new SdcStudentSagaData();
         studentData.setSchool(school);

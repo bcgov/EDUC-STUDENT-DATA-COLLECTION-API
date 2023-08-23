@@ -128,8 +128,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     // Update program eligibility
     sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.clearSdcSchoolStudentProgramEligibilityColumns(studentUUID);
     sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
-    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> programEligibilityErrors =
-      this.programEligibilityRulesProcessor.processRules(sdcStudentSagaData);
+    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> programEligibilityErrors = this.programEligibilityRulesProcessor.processRules(sdcStudentSagaData);
 
     sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(programEligibilityErrors, studentUUID);
     sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
