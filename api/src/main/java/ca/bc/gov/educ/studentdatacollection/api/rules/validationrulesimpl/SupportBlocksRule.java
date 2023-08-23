@@ -4,20 +4,18 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStu
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SupportBlockGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
@@ -43,17 +41,11 @@ public class SupportBlocksRule implements ValidationBaseRule {
         final SdcSchoolCollectionStudent student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
         final String supportBlocks = student.getSupportBlocks();
         final String courseCountStr = student.getNumberOfCourses();
-        final Double courseCount = TransformUtil
-            .parseNumberOfCourses(courseCountStr, student.getSdcSchoolCollectionID());
+        final Double courseCount = TransformUtil.parseNumberOfCourses(courseCountStr, student.getSdcSchoolCollectionID());
         final String enrolledGradeCode = student.getEnrolledGradeCode();
-        Optional<SupportBlockGradeCodes> supportBlockGradeCodeOptional = SupportBlockGradeCodes
-            .findByValue(enrolledGradeCode);
 
-        if (StringUtils.isNotEmpty(enrolledGradeCode)
-        && supportBlockGradeCodeOptional.isPresent()
-        && StringUtils.isNotEmpty(supportBlocks)
-        && StringUtils.isNotEmpty(courseCountStr)
-        && courseCount >= 8) {
+        if (StringUtils.isNotEmpty(enrolledGradeCode) && SchoolGradeCodes.getSupportBlockGrades().contains(enrolledGradeCode)
+                && StringUtils.isNotEmpty(supportBlocks) && StringUtils.isNotEmpty(courseCountStr) && courseCount >= 8) {
             errors.add(createValidationIssue(
                 SdcSchoolCollectionStudentValidationIssueSeverityCode.FUNDING_WARNING,
                 SdcSchoolCollectionStudentValidationFieldCode.SUPPORT_BLOCKS,

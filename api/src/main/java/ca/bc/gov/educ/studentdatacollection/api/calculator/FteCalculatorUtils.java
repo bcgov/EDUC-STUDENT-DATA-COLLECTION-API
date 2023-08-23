@@ -1,6 +1,9 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.BooleanString;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -142,7 +145,7 @@ public class FteCalculatorUtils {
     public boolean noCoursesForStudentInLastTwoYears(SdcStudentSagaData sdcStudentSagaData) {
         var student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
         var school = sdcStudentSagaData.getSchool();
-        var isEightPlusGradeCode = EightPlusGradeCodes.findByValue(student.getEnrolledGradeCode()).isPresent();
+        var isEightPlusGradeCode = SchoolGradeCodes.get8PlusGrades().contains(student.getEnrolledGradeCode());
         var reportedByOnlineSchoolWithNoCourses = (StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DISTONLINE.getCode())) && (StringUtils.isBlank(student.getNumberOfCourses()) || StringUtils.equals(student.getNumberOfCourses(), "0"));
         boolean isSchoolAged = BooleanString.areEqual(student.getIsSchoolAged(), Boolean.TRUE);
 

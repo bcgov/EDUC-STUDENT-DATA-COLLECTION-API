@@ -85,7 +85,7 @@ public enum SchoolGradeCodes {
         return codes;
     }
 
-    public static List<String> get9To12Grades() {
+    public static List<String> get8To12Grades() {
         List<String> codes = new ArrayList<>();
         codes.add(GRADE08.getCode());
         codes.add(GRADE09.getCode());
@@ -95,13 +95,31 @@ public enum SchoolGradeCodes {
         return codes;
     }
 
-    public static List<String> getHighSchoolGrades() {
+    public static List<String> get8PlusGrades() {
         List<String> codes = new ArrayList<>();
+        codes.add(GRADE08.getCode());
+        codes.add(GRADE09.getCode());
+        codes.add(GRADE10.getCode());
+        codes.add(GRADE11.getCode());
+        codes.add(GRADE12.getCode());
+        codes.add(SECONDARY_UNGRADED.getCode());
+        codes.add(GRADUATED_ADULT.getCode());
+        return codes;
+    }
+
+    public static List<String> get8PlusGradesNoGA() {
+        List<String> codes = new ArrayList<>();
+        codes.add(GRADE08.getCode());
+        codes.add(GRADE09.getCode());
         codes.add(GRADE10.getCode());
         codes.add(GRADE11.getCode());
         codes.add(GRADE12.getCode());
         codes.add(SECONDARY_UNGRADED.getCode());
         return codes;
+    }
+
+    public static List<String> getHighSchoolGrades() {
+        return getGrades10toSU();
     }
 
     public static List<String> getAllowedAdultGrades() {
@@ -115,12 +133,7 @@ public enum SchoolGradeCodes {
     }
 
     public static List<String> getAllowedAdultGradesNonGraduate() {
-        List<String> codes = new ArrayList<>();
-        codes.add(GRADE10.getCode());
-        codes.add(GRADE11.getCode());
-        codes.add(GRADE12.getCode());
-        codes.add(SECONDARY_UNGRADED.getCode());
-        return codes;
+        return getGrades10toSU();
     }
 
     public static List<String> getSummerSchoolGrades() {
@@ -137,6 +150,19 @@ public enum SchoolGradeCodes {
         codes.add(GRADE10.getCode());
         codes.add(GRADE11.getCode());
         codes.add(GRADE12.getCode());
+        return codes;
+    }
+
+    public static List<String> getSupportBlockGrades() {
+        return getGrades10toSU();
+    }
+
+    public static List<String> getGrades10toSU() {
+        List<String> codes = new ArrayList<>();
+        codes.add(GRADE10.getCode());
+        codes.add(GRADE11.getCode());
+        codes.add(GRADE12.getCode());
+        codes.add(SECONDARY_UNGRADED.getCode());
         return codes;
     }
 }

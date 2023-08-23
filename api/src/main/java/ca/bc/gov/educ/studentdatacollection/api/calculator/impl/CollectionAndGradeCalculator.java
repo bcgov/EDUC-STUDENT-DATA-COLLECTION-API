@@ -32,7 +32,7 @@ public class CollectionAndGradeCalculator implements FteCalculator {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             if(SchoolGradeCodes.get1To7Grades().contains(student.getEnrolledGradeCode())) {
                 fteCalculationResult.setFte(BigDecimal.ONE);
-            } else if (SchoolGradeCodes.get9To12Grades().contains(student.getEnrolledGradeCode())) {
+            } else if (SchoolGradeCodes.get8To12Grades().contains(student.getEnrolledGradeCode())) {
                 BigDecimal fteMultiplier = new BigDecimal("0.125");
                 BigDecimal numCourses = StringUtils.isBlank(student.getNumberOfCourses()) ? BigDecimal.ZERO : BigDecimal.valueOf(TransformUtil.parseNumberOfCourses(student.getNumberOfCourses(), student.getSdcSchoolCollectionStudentID()));
                 fteCalculationResult.setFte(numCourses.multiply(fteMultiplier).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros());
