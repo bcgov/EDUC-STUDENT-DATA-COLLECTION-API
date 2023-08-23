@@ -469,7 +469,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProg2);
         sdcSchoolCollectionStudentValidationIssueRepository.save(createMockSdcSchoolCollectionStudentValidationIssueEntity(stud2));
 
-        final SearchCriteria criteriaColl = SearchCriteria.builder().condition(AND).key("sdcSchoolCollectionID").operation(FilterOperation.EQUAL).value(sdcMockSchool.getSdcSchoolCollectionID().toString()).valueType(ValueType.UUID).build();
+        final SearchCriteria criteriaColl = SearchCriteria.builder().condition(AND).key("sdcSchoolCollection.sdcSchoolCollectionID").operation(FilterOperation.EQUAL).value(sdcMockSchool.getSdcSchoolCollectionID().toString()).valueType(ValueType.UUID).build();
         final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("sdcStudentEnrolledProgramEntities.enrolledProgramCode").operation(FilterOperation.NOT_IN).value("CD,EF").valueType(ValueType.STRING).build();
 
         final List<SearchCriteria> criteriaList = new ArrayList<>();
@@ -649,7 +649,8 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+        var sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
 
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
@@ -661,6 +662,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setCreateDate(null);
         entity.setEnrolledProgramCodes("1011121314151617");
         entity.setPostalCode(null);
+
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
@@ -754,7 +756,16 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         );
         final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
         });
+
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+
+
         final var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).collect(Collectors.toList());
+        models.forEach(entity -> entity.setSdcSchoolCollection(sdcSchoolCollectionEntity));
         this.sdcSchoolCollectionStudentRepository.saveAll(models);
         final SearchCriteria criteria = SearchCriteria.builder().key("enrolledGradeCode").operation(FilterOperation.IN).value("01,02").valueType(ValueType.STRING).build();
         final List<SearchCriteria> criteriaList1 = new ArrayList<>();
