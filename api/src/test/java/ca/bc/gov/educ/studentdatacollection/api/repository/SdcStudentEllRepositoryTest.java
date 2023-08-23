@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 @SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
@@ -37,7 +38,8 @@ class SdcStudentEllRepositoryTest extends BaseStudentDataCollectionAPITest {
 
         var savedEntity = sdcStudentEllRepository.findByStudentID(newEntity.getStudentID());
 
-        assertSame(savedEntity.getYearsInEll(), newEntity.getYearsInEll());
+        assertNotNull(savedEntity.get());
+        assertSame(savedEntity.get().getYearsInEll(), newEntity.getYearsInEll());
     }
 
     private SdcStudentEllEntity getSdcStudentEllEntity(){

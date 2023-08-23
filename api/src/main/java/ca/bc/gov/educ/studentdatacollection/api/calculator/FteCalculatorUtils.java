@@ -1,6 +1,9 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.BooleanString;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -44,7 +47,7 @@ public class FteCalculatorUtils {
         LocalDateTime startOfCollectionDate;
         LocalDateTime endOfCollectionDate;
         //if it's a February collection, get the previous september collection
-        if(sdcStudentSagaData.getCollectionTypeCode().equals(CollectionTypeCodes.ENTRY2.getTypeCode())) {
+        if(sdcStudentSagaData.getCollectionTypeCode().equals(CollectionTypeCodes.FEBRUARY.getTypeCode())) {
             int previousYear = LocalDateTime.parse(sdcStudentSagaData.getSdcSchoolCollectionStudent().getCreateDate()).minusYears(1).getYear();
             startOfCollectionDate = LocalDate.of(previousYear, Month.SEPTEMBER, 1).atTime(LocalTime.MIN);
             endOfCollectionDate = LocalDate.of(previousYear, Month.SEPTEMBER, 30).atTime(LocalTime.MAX);
@@ -65,7 +68,7 @@ public class FteCalculatorUtils {
      * Returns true if the collection is a February or May collection; otherwise it is false
      */
     public boolean isSpringCollection(SdcStudentSagaData sdcStudentSagaData) {
-        return StringUtils.equals(sdcStudentSagaData.getCollectionTypeCode(), CollectionTypeCodes.ENTRY2.getTypeCode()) || StringUtils.equals(sdcStudentSagaData.getCollectionTypeCode(), CollectionTypeCodes.ENTRY3.getTypeCode());
+        return StringUtils.equals(sdcStudentSagaData.getCollectionTypeCode(), CollectionTypeCodes.FEBRUARY.getTypeCode()) || StringUtils.equals(sdcStudentSagaData.getCollectionTypeCode(), CollectionTypeCodes.MAY.getTypeCode());
     }
 
     /**
@@ -79,14 +82,12 @@ public class FteCalculatorUtils {
                 school.getFacilityTypeCode().equals(FacilityTypeCodes.CONT_ED.getCode());
         var isStudentInDistrictFundedGrade = SchoolGradeCodes.getDistrictFundingGrades().contains(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode());
 
-        if(isSpringCollection(sdcStudentSagaData) && isPublicOnlineOrContEdSchool && isStudentInDistrictFundedGrade) {
+        if(isSpringCollection(sdcStudentSagaData) && isPublicOnlineOrContEdSchool && isStudentInDistrictFundedGrade && StringUtils.isNotBlank(school.getDistrictId())) {
             var startAndEndDateOfCollectionMap = getPreviousCollectionStartAndEndDates(sdcStudentSagaData);
             var startOfCollectionDate = startAndEndDateOfCollectionMap.get(START_DATE_KEY);
             var endOfCollectionDate = startAndEndDateOfCollectionMap.get(END_DATE_KEY);
-            if(StringUtils.isNotBlank(school.getDistrictId())) {
-                var previousCollections = sdcSchoolCollectionRepository.findAllByDistrictIDAndCreateDateBetween(UUID.fromString(school.getDistrictId()), startOfCollectionDate, endOfCollectionDate);
-                return previousCollections.isPresent() && sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getAssignedStudentId()), previousCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
-            }
+            var previousCollections = sdcSchoolCollectionRepository.findAllByDistrictIDAndCreateDateBetween(UUID.fromString(school.getDistrictId()), startOfCollectionDate, endOfCollectionDate);
+            return previousCollections.isPresent() && sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getAssignedStudentId()), previousCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
         }
         return false;
     }
@@ -130,7 +131,8 @@ public class FteCalculatorUtils {
             var startDate = startAndEndDateOfPreviousCollection.get(START_DATE_KEY);
             var endDate = startAndEndDateOfPreviousCollection.get(END_DATE_KEY);
             //Check if student was in previous collection as HS student
-            return sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndEnrolledGradeCodeAndCreateDateBetween(UUID.fromString(student.getAssignedStudentId()), SchoolGradeCodes.HOMESCHOOL.getCode(), startDate, endDate) > 0;
+            var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndEnrolledGradeCodeAndCreateDateBetween(UUID.fromString(student.getAssignedStudentId()), SchoolGradeCodes.HOMESCHOOL.getCode(), startDate, endDate);
+            return count > 0;
         }
         return false;
     }
@@ -142,7 +144,7 @@ public class FteCalculatorUtils {
     public boolean noCoursesForStudentInLastTwoYears(SdcStudentSagaData sdcStudentSagaData) {
         var student = sdcStudentSagaData.getSdcSchoolCollectionStudent();
         var school = sdcStudentSagaData.getSchool();
-        var isEightPlusGradeCode = EightPlusGradeCodes.findByValue(student.getEnrolledGradeCode()).isPresent();
+        var isEightPlusGradeCode = SchoolGradeCodes.get8PlusGrades().contains(student.getEnrolledGradeCode());
         var reportedByOnlineSchoolWithNoCourses = (StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DISTONLINE.getCode())) && (StringUtils.isBlank(student.getNumberOfCourses()) || StringUtils.equals(student.getNumberOfCourses(), "0"));
         boolean isSchoolAged = BooleanString.areEqual(student.getIsSchoolAged(), Boolean.TRUE);
 

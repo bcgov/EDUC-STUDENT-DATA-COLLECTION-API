@@ -37,70 +37,132 @@ public enum SchoolGradeCodes {
      * @return - all grades HS, K-9, and EU
      */
     public static List<String> getDistrictFundingGrades() {
-        List<String> districtFundingGrades = new ArrayList<>();
-        districtFundingGrades.add(HOMESCHOOL.getCode());
-        districtFundingGrades.addAll(getKToNineGrades());
-        return districtFundingGrades;
+        List<String> codes = new ArrayList<>();
+        codes.add(HOMESCHOOL.getCode());
+        codes.addAll(getKToNineGrades());
+        return codes;
     }
 
     public static List<String> getKfOneToSevenEuGrades() {
-        List<String> districtFundingGrades = new ArrayList<>();
-        districtFundingGrades.add(KINDFULL.getCode());
-        districtFundingGrades.add(GRADE01.getCode());
-        districtFundingGrades.add(GRADE02.getCode());
-        districtFundingGrades.add(GRADE03.getCode());
-        districtFundingGrades.add(GRADE04.getCode());
-        districtFundingGrades.add(GRADE05.getCode());
-        districtFundingGrades.add(GRADE06.getCode());
-        districtFundingGrades.add(GRADE07.getCode());
-        districtFundingGrades.add(ELEMUNGR.getCode());
-        return districtFundingGrades;
+        List<String> codes = new ArrayList<>();
+        codes.add(KINDFULL.getCode());
+        codes.add(GRADE01.getCode());
+        codes.add(GRADE02.getCode());
+        codes.add(GRADE03.getCode());
+        codes.add(GRADE04.getCode());
+        codes.add(GRADE05.getCode());
+        codes.add(GRADE06.getCode());
+        codes.add(GRADE07.getCode());
+        codes.add(ELEMUNGR.getCode());
+        return codes;
     }
 
     public static List<String> getKToNineGrades() {
-        List<String> districtFundingGrades = new ArrayList<>();
-        districtFundingGrades.add(KINDHALF.getCode());
-        districtFundingGrades.add(KINDFULL.getCode());
-        districtFundingGrades.add(GRADE01.getCode());
-        districtFundingGrades.add(GRADE02.getCode());
-        districtFundingGrades.add(GRADE03.getCode());
-        districtFundingGrades.add(GRADE04.getCode());
-        districtFundingGrades.add(GRADE05.getCode());
-        districtFundingGrades.add(GRADE06.getCode());
-        districtFundingGrades.add(GRADE07.getCode());
-        districtFundingGrades.add(ELEMUNGR.getCode());
-        districtFundingGrades.add(GRADE08.getCode());
-        districtFundingGrades.add(GRADE09.getCode());
-        return districtFundingGrades;
+        List<String> codes = new ArrayList<>();
+        codes.add(KINDHALF.getCode());
+        codes.add(KINDFULL.getCode());
+        codes.add(GRADE01.getCode());
+        codes.add(GRADE02.getCode());
+        codes.add(GRADE03.getCode());
+        codes.add(GRADE04.getCode());
+        codes.add(GRADE05.getCode());
+        codes.add(GRADE06.getCode());
+        codes.add(GRADE07.getCode());
+        codes.add(ELEMUNGR.getCode());
+        codes.add(GRADE08.getCode());
+        codes.add(GRADE09.getCode());
+        return codes;
     }
     public static List<String> get1To7Grades() {
-        List<String> districtFundingGrades = new ArrayList<>();
-        districtFundingGrades.add(GRADE01.getCode());
-        districtFundingGrades.add(GRADE02.getCode());
-        districtFundingGrades.add(GRADE03.getCode());
-        districtFundingGrades.add(GRADE04.getCode());
-        districtFundingGrades.add(GRADE05.getCode());
-        districtFundingGrades.add(GRADE06.getCode());
-        districtFundingGrades.add(GRADE07.getCode());
-        return districtFundingGrades;
+        List<String> codes = new ArrayList<>();
+        codes.add(GRADE01.getCode());
+        codes.add(GRADE02.getCode());
+        codes.add(GRADE03.getCode());
+        codes.add(GRADE04.getCode());
+        codes.add(GRADE05.getCode());
+        codes.add(GRADE06.getCode());
+        codes.add(GRADE07.getCode());
+        return codes;
     }
 
-    public static List<String> get9To12Grades() {
-        List<String> districtFundingGrades = new ArrayList<>();
-        districtFundingGrades.add(GRADE08.getCode());
-        districtFundingGrades.add(GRADE09.getCode());
-        districtFundingGrades.add(GRADE10.getCode());
-        districtFundingGrades.add(GRADE11.getCode());
-        districtFundingGrades.add(GRADE12.getCode());
-        return districtFundingGrades;
+    public static List<String> get8To12Grades() {
+        List<String> codes = new ArrayList<>();
+        codes.add(GRADE08.getCode());
+        codes.add(GRADE09.getCode());
+        codes.add(GRADE10.getCode());
+        codes.add(GRADE11.getCode());
+        codes.add(GRADE12.getCode());
+        return codes;
+    }
+
+    public static List<String> get8PlusGrades() {
+        List<String> codes = new ArrayList<>();
+        codes.add(GRADE08.getCode());
+        codes.add(GRADE09.getCode());
+        codes.add(GRADE10.getCode());
+        codes.add(GRADE11.getCode());
+        codes.add(GRADE12.getCode());
+        codes.add(SECONDARY_UNGRADED.getCode());
+        codes.add(GRADUATED_ADULT.getCode());
+        return codes;
+    }
+
+    public static List<String> get8PlusGradesNoGA() {
+        List<String> codes = new ArrayList<>();
+        codes.add(GRADE08.getCode());
+        codes.add(GRADE09.getCode());
+        codes.add(GRADE10.getCode());
+        codes.add(GRADE11.getCode());
+        codes.add(GRADE12.getCode());
+        codes.add(SECONDARY_UNGRADED.getCode());
+        return codes;
     }
 
     public static List<String> getHighSchoolGrades() {
-        List<String> districtFundingGrades = new ArrayList<>();
-        districtFundingGrades.add(GRADE10.getCode());
-        districtFundingGrades.add(GRADE11.getCode());
-        districtFundingGrades.add(GRADE12.getCode());
-        districtFundingGrades.add(SECONDARY_UNGRADED.getCode());
-        return districtFundingGrades;
+        return getGrades10toSU();
+    }
+
+    public static List<String> getAllowedAdultGrades() {
+        List<String> codes = new ArrayList<>();
+        codes.add(GRADE10.getCode());
+        codes.add(GRADE11.getCode());
+        codes.add(GRADE12.getCode());
+        codes.add(SECONDARY_UNGRADED.getCode());
+        codes.add(GRADUATED_ADULT.getCode());
+        return codes;
+    }
+
+    public static List<String> getAllowedAdultGradesNonGraduate() {
+        return getGrades10toSU();
+    }
+
+    public static List<String> getSummerSchoolGrades() {
+        List<String> codes = new ArrayList<>();
+        codes.add(GRADE01.getCode());
+        codes.add(GRADE02.getCode());
+        codes.add(GRADE03.getCode());
+        codes.add(GRADE04.getCode());
+        codes.add(GRADE05.getCode());
+        codes.add(GRADE06.getCode());
+        codes.add(GRADE07.getCode());
+        codes.add(GRADE08.getCode());
+        codes.add(GRADE09.getCode());
+        codes.add(GRADE10.getCode());
+        codes.add(GRADE11.getCode());
+        codes.add(GRADE12.getCode());
+        return codes;
+    }
+
+    public static List<String> getSupportBlockGrades() {
+        return getGrades10toSU();
+    }
+
+    public static List<String> getGrades10toSU() {
+        List<String> codes = new ArrayList<>();
+        codes.add(GRADE10.getCode());
+        codes.add(GRADE11.getCode());
+        codes.add(GRADE12.getCode());
+        codes.add(SECONDARY_UNGRADED.getCode());
+        return codes;
     }
 }

@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.Constants;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolFundingCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ public class StudentOutOfProvinceCalculator implements FteCalculator {
     }
     @Override
     public FteCalculationResult calculateFte(SdcStudentSagaData studentData) {
-        if(StringUtils.equals(studentData.getSdcSchoolCollectionStudent().getSchoolFundingCode(), Constants.FUNDING_CODE_14)) {
+        if(StringUtils.equals(studentData.getSdcSchoolCollectionStudent().getSchoolFundingCode(), SchoolFundingCodes.OUT_OF_PROVINCE.getCode())) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
             fteCalculationResult.setFteZeroReason(OUT_OF_PROVINCE.getCode());
