@@ -82,17 +82,12 @@ public class FteCalculatorUtils {
                 school.getFacilityTypeCode().equals(FacilityTypeCodes.CONT_ED.getCode());
         var isStudentInDistrictFundedGrade = SchoolGradeCodes.getDistrictFundingGrades().contains(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledGradeCode());
 
-        if(isSpringCollection(sdcStudentSagaData) && isPublicOnlineOrContEdSchool && isStudentInDistrictFundedGrade) {
+        if(isSpringCollection(sdcStudentSagaData) && isPublicOnlineOrContEdSchool && isStudentInDistrictFundedGrade && StringUtils.isNotBlank(school.getDistrictId())) {
             var startAndEndDateOfCollectionMap = getPreviousCollectionStartAndEndDates(sdcStudentSagaData);
             var startOfCollectionDate = startAndEndDateOfCollectionMap.get(START_DATE_KEY);
             var endOfCollectionDate = startAndEndDateOfCollectionMap.get(END_DATE_KEY);
-            if(StringUtils.isNotBlank(school.getDistrictId())) {
-                var previousCollections = sdcSchoolCollectionRepository.findAllByDistrictIDAndCreateDateBetween(UUID.fromString(school.getDistrictId()), startOfCollectionDate, endOfCollectionDate);
-                if(previousCollections.isPresent()) {
-                    var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getAssignedStudentId()), previousCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList());
-                    return count > 0;
-                }
-            }
+            var previousCollections = sdcSchoolCollectionRepository.findAllByDistrictIDAndCreateDateBetween(UUID.fromString(school.getDistrictId()), startOfCollectionDate, endOfCollectionDate);
+            return previousCollections.isPresent() && sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getAssignedStudentId()), previousCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
         }
         return false;
     }
@@ -136,7 +131,8 @@ public class FteCalculatorUtils {
             var startDate = startAndEndDateOfPreviousCollection.get(START_DATE_KEY);
             var endDate = startAndEndDateOfPreviousCollection.get(END_DATE_KEY);
             //Check if student was in previous collection as HS student
-            return sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndEnrolledGradeCodeAndCreateDateBetween(UUID.fromString(student.getAssignedStudentId()), SchoolGradeCodes.HOMESCHOOL.getCode(), startDate, endDate) > 0;
+            var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndEnrolledGradeCodeAndCreateDateBetween(UUID.fromString(student.getAssignedStudentId()), SchoolGradeCodes.HOMESCHOOL.getCode(), startDate, endDate);
+            return count > 0;
         }
         return false;
     }
