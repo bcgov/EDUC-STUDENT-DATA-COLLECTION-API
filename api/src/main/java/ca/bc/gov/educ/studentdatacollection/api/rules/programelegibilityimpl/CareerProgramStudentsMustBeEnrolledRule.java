@@ -21,8 +21,7 @@ public class CareerProgramStudentsMustBeEnrolledRule implements ProgramEligibili
   }
 
   @Override
-  public boolean shouldExecute(SdcStudentSagaData saga,
-    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors) {
+  public boolean shouldExecute(SdcStudentSagaData saga, List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors) {
     return hasNotViolatedBaseRules(errors);
   }
 
@@ -30,8 +29,7 @@ public class CareerProgramStudentsMustBeEnrolledRule implements ProgramEligibili
   public List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
     List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = new ArrayList<>();
 
-    List<String> studentPrograms = validationRulesService
-      .splitString(saga.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
+    List<String> studentPrograms = validationRulesService.splitString(saga.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
 
     if (EnrolledProgramCodes.getCareerProgramCodes().stream().noneMatch(studentPrograms::contains)) {
       errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_CAREER);

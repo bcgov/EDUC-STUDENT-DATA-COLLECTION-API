@@ -2,7 +2,10 @@ package ca.bc.gov.educ.studentdatacollection.api.rules;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolFundingCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -11,7 +14,6 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionReposito
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -369,7 +371,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     );
 
     assertThat(listWithoutEnrollmentError.stream().anyMatch(e ->
-      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED)
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_SPECIAL_ED)
     )).isFalse();
 
     schoolStudentEntity.setSpecialEducationCategoryCode(null);
@@ -381,7 +383,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     );
 
     assertThat(listWithEnrollmentError.stream().anyMatch(e ->
-      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED)
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_SPECIAL_ED)
     )).isTrue();
   }
 
@@ -400,7 +402,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     );
 
     assertThat(listFromSchoolAgedStudent.stream().anyMatch(e ->
-      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED)
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION)
     )).isFalse();
 
     schoolStudentEntity.setIsAdult(true);
@@ -413,7 +415,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     );
 
     assertThat(listFromUngraduatedAdult.stream().anyMatch(e ->
-      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED)
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION)
     )).isFalse();
 
     schoolStudentEntity.setIsGraduated(true);
@@ -425,7 +427,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     );
 
     assertThat(listWithGraduatedAdultError.stream().anyMatch(e ->
-      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED)
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION)
     )).isTrue();
 
     schoolStudentEntity.setIsAdult(false);
@@ -438,7 +440,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     );
 
     assertThat(listWithGraduatedMinorError.stream().anyMatch(e ->
-      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED)
+      e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION)
     )).isTrue();
   }
 

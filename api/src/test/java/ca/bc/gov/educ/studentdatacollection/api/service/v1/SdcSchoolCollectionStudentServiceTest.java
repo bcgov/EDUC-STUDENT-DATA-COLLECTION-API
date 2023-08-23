@@ -1,11 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -154,7 +154,7 @@ class SdcSchoolCollectionStudentServiceTest {
     void testUpdateProgramEligibilityColumns_WhenStudentDoesNotRequireSpecialEd_UpdatesSpecialEdEligibilityColumn() {
         UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
         List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = List.of(
-                SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED
+                SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_SPECIAL_ED
         );
 
         // Create a mock SdcSchoolCollectionStudentEntity
@@ -165,7 +165,7 @@ class SdcSchoolCollectionStudentServiceTest {
         var result = sdcSchoolCollectionStudentService
             .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
 
-        String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.DOES_NOT_NEED_SPECIAL_ED.getCode();
+        String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_SPECIAL_ED.getCode();
         assertSame(reasonCode, result.getSpecialEducationNonEligReasonCode());
     }
 
@@ -173,7 +173,7 @@ class SdcSchoolCollectionStudentServiceTest {
     void testUpdateProgramEligibilityColumns_WhenStudentIsGraduatedOrAGraduatedAdult_UpdatesSpecialEdEligibilityColumn() {
         UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
         List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = List.of(
-                SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED
+                SdcSchoolCollectionStudentProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION
         );
 
         // Create a mock SdcSchoolCollectionStudentEntity
@@ -184,7 +184,7 @@ class SdcSchoolCollectionStudentServiceTest {
         var result = sdcSchoolCollectionStudentService
             .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
 
-        String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.IS_GRADUATED.getCode();
+        String reasonCode = SdcSchoolCollectionStudentProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION.getCode();
         assertSame(reasonCode, result.getSpecialEducationNonEligReasonCode());
     }
 

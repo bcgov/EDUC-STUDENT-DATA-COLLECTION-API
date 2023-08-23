@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
@@ -66,7 +67,7 @@ public class ValidationRulesService {
         return Pattern.compile(".{1,2}").matcher(enrolledProgramCode).results().map(MatchResult::group).toList();
     }
 
-    public SdcStudentEllEntity getStudentYearsInEll(String studentID){
+    public Optional<SdcStudentEllEntity> getStudentYearsInEll(String studentID){
         return sdcStudentEllRepository.findByStudentID(UUID.fromString(studentID));
     }
 }
