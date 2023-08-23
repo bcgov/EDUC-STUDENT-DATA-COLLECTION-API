@@ -441,7 +441,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     assertThat(listWithGraduatedMinorError.stream().anyMatch(e ->
       e.equals(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION)
-    )).isTrue();
+    )).isFalse();
   }
 
   @Test
