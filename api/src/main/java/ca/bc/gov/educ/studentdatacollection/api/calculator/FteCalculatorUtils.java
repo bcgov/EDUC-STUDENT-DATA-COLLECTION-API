@@ -88,7 +88,9 @@ public class FteCalculatorUtils {
             var endOfCollectionDate = startAndEndDateOfCollectionMap.get(END_DATE_KEY);
             if(StringUtils.isNotBlank(school.getDistrictId())) {
                 var previousCollections = sdcSchoolCollectionRepository.findAllByDistrictIDAndCreateDateBetween(UUID.fromString(school.getDistrictId()), startOfCollectionDate, endOfCollectionDate);
-                return previousCollections.isPresent() && sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getAssignedStudentId()), previousCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
+                if(previousCollections.isPresent()) {
+                    return sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getAssignedStudentId()), previousCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
+                }
             }
         }
         return false;
