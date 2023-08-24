@@ -6,9 +6,11 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,6 +66,9 @@ public class ValidationRulesService {
     }
 
     public List<String> splitString(String enrolledProgramCode) {
+        if(StringUtils.isEmpty(enrolledProgramCode)) {
+            return Collections.<String>emptyList();
+        }
         return Pattern.compile(".{1,2}").matcher(enrolledProgramCode).results().map(MatchResult::group).toList();
     }
 

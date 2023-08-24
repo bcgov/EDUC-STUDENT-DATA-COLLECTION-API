@@ -427,6 +427,39 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
   }
 
   @Test
+  void testNullEnrolledProgramCode() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
+            .save(createMockSdcSchoolCollectionEntity(collection, null, null));
+    SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+    schoolStudentEntity.setEnrolledProgramCodes(null);
+
+    List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
+            createMockStudentSagaData(
+                    SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+                    createMockSchool()
+            )
+    );
+
+    assertThat(listWithoutEnrollmentError.stream().anyMatch(e ->
+            e.equals(ProgramEligibilityIssueCode.NOT_ENROLLED_CAREER)
+    )).isTrue();
+
+    assertThat(listWithoutEnrollmentError.stream().anyMatch(e ->
+            e.equals(ProgramEligibilityIssueCode.NOT_ENROLLED_ELL)
+    )).isTrue();
+
+    assertThat(listWithoutEnrollmentError.stream().anyMatch(e ->
+            e.equals(ProgramEligibilityIssueCode.NOT_ENROLLED_FRENCH)
+    )).isTrue();
+
+    assertThat(listWithoutEnrollmentError.stream().anyMatch(e ->
+            e.equals(ProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS)
+    )).isTrue();
+
+  }
+
+  @Test
   void testIndigenousStudentsMustBeEnrolled() {
     CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
     SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
