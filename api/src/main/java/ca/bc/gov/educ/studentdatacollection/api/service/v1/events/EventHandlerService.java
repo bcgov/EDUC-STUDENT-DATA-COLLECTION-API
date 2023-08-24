@@ -54,7 +54,7 @@ public class EventHandlerService {
         log.trace("Execution is not required for this message returning EVENT is :: {}", event);
         return;
       }
-      val saga = this.studentProcessingOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      val saga = this.studentProcessingOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionID()), ApplicationProperties.STUDENT_DATA_COLLECTION_API);
       this.studentProcessingOrchestrator.startSaga(saga);
     }
   }
