@@ -64,7 +64,9 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
         for(final var student : sdcSchoolCollection.getStudents()) {
             final var sdcStudentEntity = studentMapper.toSdcSchoolStudentEntity(student);
             sdcStudentEntity.setSdcSchoolCollection(entity);
-            sdcStudentEntity.getSDCStudentValidationIssueEntities().addAll(SdcHelper.populateValidationErrors(student.getSdcSchoolCollectionStudentValidationIssues(), sdcStudentEntity));
+            if(!CollectionUtils.isEmpty(student.getSdcSchoolCollectionStudentValidationIssues())) {
+                sdcStudentEntity.getSDCStudentValidationIssueEntities().addAll(SdcHelper.populateValidationErrors(student.getSdcSchoolCollectionStudentValidationIssues(), sdcStudentEntity));
+            }
             entity.getSDCSchoolStudentEntities().add(sdcStudentEntity);
         }
     }

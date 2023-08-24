@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
@@ -20,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -337,6 +339,54 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
          .andDo(print()).andExpect(status().isCreated()).andExpect(
             MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));
   }
+
+    @Test
+    void testCreateSdcSchoolCollectionWithStudent_WithValidPayloadCollectionID_ShouldReturnStatusOkWithData() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+                grantedAuthority);
+
+        CollectionEntity newCollectionEntity = collectionRepository.save(createMockCollectionEntity());
+
+        SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(
+                newCollectionEntity, UUID.randomUUID(),UUID.randomUUID());
+        sdcMockSchool.setCreateDate(null);
+        sdcMockSchool.setUpdateDate(null);
+        sdcMockSchool.getSDCSchoolStudentEntities().add(createMockSchoolStudentEntity(null));
+
+        this.mockMvc.perform(
+                        post(URL.BASE_URL_SCHOOL_COLLECTION + "/" + newCollectionEntity.getCollectionID()).contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolBatch(sdcMockSchool)))
+                                .with(mockAuthority))
+                .andDo(print()).andExpect(status().isCreated()).andExpect(
+                        MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));
+    }
+
+    @Test
+    void testCreateSdcSchoolCollectionWithStudentAndValidationError_WithValidPayloadCollectionID_ShouldReturnStatusOkWithData() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+                grantedAuthority);
+
+        CollectionEntity newCollectionEntity = collectionRepository.save(createMockCollectionEntity());
+
+        SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(
+                newCollectionEntity, UUID.randomUUID(),UUID.randomUUID());
+        sdcMockSchool.setCreateDate(null);
+        sdcMockSchool.setUpdateDate(null);
+        var student = createMockSchoolStudentEntity(null);
+        student.getSDCStudentValidationIssueEntities().add(createMockSdcSchoolCollectionStudentValidationIssueEntity(null));
+        sdcMockSchool.getSDCSchoolStudentEntities().add(student);
+
+        this.mockMvc.perform(
+                        post(URL.BASE_URL_SCHOOL_COLLECTION + "/" + newCollectionEntity.getCollectionID()).contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolBatch(sdcMockSchool)))
+                                .with(mockAuthority))
+                .andDo(print()).andExpect(status().isCreated()).andExpect(
+                        MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));
+    }
 
   @Test
   void testCreateSdcSchoolCollection_WithInvalidCollectionIDUrl_ShouldReturnStatusNotFound() throws Exception {

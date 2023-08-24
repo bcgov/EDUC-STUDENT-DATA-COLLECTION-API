@@ -34,8 +34,6 @@ public class SdcSchoolCollectionService {
 
   private final CollectionRepository collectionRepository;
 
-  private static final SdcSchoolCollectionStudentMapper studentMapper = SdcSchoolCollectionStudentMapper.mapper;
-
   @Autowired
   public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository) {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
