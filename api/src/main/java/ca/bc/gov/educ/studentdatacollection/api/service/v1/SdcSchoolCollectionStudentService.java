@@ -263,17 +263,17 @@ public class SdcSchoolCollectionStudentService {
       student.setCareerProgramNonEligReasonCode(reasonCode);
       student.setSpecialEducationNonEligReasonCode(reasonCode);
     } else {
-      student.setFrenchProgramNonEligReasonCode(getReason(errors, Arrays.asList(NOT_ENROLLED_FRENCH)));
-      student.setEllNonEligReasonCode(getReason(errors, Arrays.asList(NOT_ENROLLED_ELL, YEARS_IN_ELL)));
-      student.setIndigenousSupportProgramNonEligReasonCode(getReason(errors, Arrays.asList(NOT_ENROLLED_INDIGENOUS, INDIGENOUS_ADULT, NO_INDIGENOUS_ANCESTRY)));
-      student.setCareerProgramNonEligReasonCode(getReason(errors, Arrays.asList(NOT_ENROLLED_CAREER)));
-      student.setSpecialEducationNonEligReasonCode(getReason(errors, Arrays.asList(NOT_ENROLLED_SPECIAL_ED, NON_ELIG_SPECIAL_EDUCATION)));
+      student.setFrenchProgramNonEligReasonCode(getReasonCode(errors, Arrays.asList(NOT_ENROLLED_FRENCH)));
+      student.setEllNonEligReasonCode(getReasonCode(errors, Arrays.asList(NOT_ENROLLED_ELL, YEARS_IN_ELL)));
+      student.setIndigenousSupportProgramNonEligReasonCode(getReasonCode(errors, Arrays.asList(NOT_ENROLLED_INDIGENOUS, INDIGENOUS_ADULT, NO_INDIGENOUS_ANCESTRY)));
+      student.setCareerProgramNonEligReasonCode(getReasonCode(errors, Arrays.asList(NOT_ENROLLED_CAREER)));
+      student.setSpecialEducationNonEligReasonCode(getReasonCode(errors, Arrays.asList(NOT_ENROLLED_SPECIAL_ED, NON_ELIG_SPECIAL_EDUCATION)));
     }
 
     return student;
   }
 
-  private String getReason(List<ProgramEligibilityIssueCode> errors, List<ProgramEligibilityIssueCode> codes){
+  private String getReasonCode(List<ProgramEligibilityIssueCode> errors, List<ProgramEligibilityIssueCode> codes){
     var first = errors.stream().filter(codes::contains).findFirst();
     return first.isPresent() ? first.get().getCode() : null;
   }
