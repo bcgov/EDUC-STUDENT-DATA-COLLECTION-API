@@ -6,7 +6,6 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
@@ -21,7 +20,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,7 +81,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     sdcMockSchool.setUploadFileName(null);
     sdcSchoolCollectionRepository.save(sdcMockSchool);
 
-    var mockSchool = SdcSchoolCollectionMapper.mapper.toSdcSchoolBatch(sdcMockSchool);
+    var mockSchool = SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool);
     mockSchool.setCreateDate(null);
     mockSchool.setUpdateDate(null);
     mockSchool.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
@@ -114,7 +112,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     sdcMockSchool.setUploadFileName(null);
     sdcSchoolCollectionRepository.save(sdcMockSchool);
 
-    var mockSchool = SdcSchoolCollectionMapper.mapper.toSdcSchoolBatch(sdcMockSchool);
+    var mockSchool = SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool);
     mockSchool.setCreateDate(null);
     mockSchool.setUpdateDate(null);
     mockSchool.setSdcSchoolCollectionStatusCode("ABC");
@@ -334,7 +332,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     this.mockMvc.perform(
             post(URL.BASE_URL_SCHOOL_COLLECTION + "/" + newCollectionEntity.getCollectionID()).contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolBatch(sdcMockSchool)))
+                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool)))
                 .with(mockAuthority))
          .andDo(print()).andExpect(status().isCreated()).andExpect(
             MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));
@@ -357,7 +355,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         this.mockMvc.perform(
                         post(URL.BASE_URL_SCHOOL_COLLECTION + "/" + newCollectionEntity.getCollectionID()).contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolBatch(sdcMockSchool)))
+                                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool)))
                                 .with(mockAuthority))
                 .andDo(print()).andExpect(status().isCreated()).andExpect(
                         MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));
@@ -382,7 +380,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         this.mockMvc.perform(
                         post(URL.BASE_URL_SCHOOL_COLLECTION + "/" + newCollectionEntity.getCollectionID()).contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolBatch(sdcMockSchool)))
+                                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool)))
                                 .with(mockAuthority))
                 .andDo(print()).andExpect(status().isCreated()).andExpect(
                         MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));
@@ -404,7 +402,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     this.mockMvc.perform(
             post(URL.BASE_URL_SCHOOL_COLLECTION + "/" + UUID.randomUUID()).contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolBatch(sdcMockSchool)))
+                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool)))
                 .with(mockAuthority))
         .andDo(print()).andExpect(status().isNotFound());
   }
@@ -425,7 +423,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         this.mockMvc.perform(
                         post(URL.BASE_URL_SCHOOL_COLLECTION + "/" + newCollectionEntity.getCollectionID()).contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
-                                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolBatch(sdcMockSchool)))
+                                .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool)))
                                 .with(mockAuthority))
                 .andDo(print()).andExpect(status().isCreated()).andExpect(
                         MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));
