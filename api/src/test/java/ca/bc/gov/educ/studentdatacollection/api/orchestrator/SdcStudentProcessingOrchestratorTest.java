@@ -146,7 +146,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED);
 
     List<SdcSchoolCollectionStudentEntity> students = this.sdcSchoolCollectionStudentRepository
-      .findAllBySdcSchoolCollectionID(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+      .findAllBySdcSchoolCollection_SdcSchoolCollectionID(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
     assertThat(students).hasAtLeastOneElementOfType(SdcSchoolCollectionStudentEntity.class);
 
     SdcSchoolCollectionStudentEntity student = students.get(0);
@@ -195,7 +195,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.GRAD_STATUS_FETCHED);
 
     List<SdcSchoolCollectionStudentEntity> students = this.sdcSchoolCollectionStudentRepository
-      .findAllBySdcSchoolCollectionID(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+      .findAllBySdcSchoolCollection_SdcSchoolCollectionID(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
     assertThat(students).hasAtLeastOneElementOfType(SdcSchoolCollectionStudentEntity.class);
 
     savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
@@ -244,7 +244,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.GRAD_STATUS_RESULTS_PROCESSED);
 
     List<SdcSchoolCollectionStudentEntity> students = this.sdcSchoolCollectionStudentRepository
-      .findAllBySdcSchoolCollectionID(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+      .findAllBySdcSchoolCollection_SdcSchoolCollectionID(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
     assertThat(students).hasAtLeastOneElementOfType(SdcSchoolCollectionStudentEntity.class);
 
     SdcSchoolCollectionStudentEntity student = students.get(0);

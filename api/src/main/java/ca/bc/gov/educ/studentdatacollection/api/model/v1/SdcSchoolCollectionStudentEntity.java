@@ -31,9 +31,12 @@ public class SdcSchoolCollectionStudentEntity {
   @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   UUID sdcSchoolCollectionStudentID;
 
-  @Basic
-  @Column(name = "SDC_SCHOOL_COLLECTION_ID", columnDefinition = "BINARY(16)", updatable = false)
-  private UUID sdcSchoolCollectionID;
+
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  @ManyToOne(optional = false, targetEntity = SdcSchoolCollectionEntity.class)
+  @JoinColumn(name = "SDC_SCHOOL_COLLECTION_ID", referencedColumnName = "SDC_SCHOOL_COLLECTION_ID", updatable = false)
+  private SdcSchoolCollectionEntity sdcSchoolCollection;
 
   @Column(name = "LOCAL_ID")
   private String localID;
@@ -165,23 +168,11 @@ public class SdcSchoolCollectionStudentEntity {
   @OneToMany(mappedBy = "sdcSchoolCollectionStudentEntity", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentEnrolledProgramEntity.class)
   Set<SdcSchoolCollectionStudentEnrolledProgramEntity> sdcStudentEnrolledProgramEntities;
 
-  @EqualsAndHashCode.Exclude
-  @ToString.Exclude
-  @OneToMany(mappedBy = "sdcSchoolCollectionStudentID", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentHistoryEntity.class)
-  Set<SdcSchoolCollectionStudentHistoryEntity> sdcStudentHistoryEntities;
-
   public Set<SdcSchoolCollectionStudentValidationIssueEntity> getSDCStudentValidationIssueEntities() {
     if (this.sdcStudentValidationIssueEntities == null) {
       this.sdcStudentValidationIssueEntities = new HashSet<>();
     }
     return this.sdcStudentValidationIssueEntities;
-  }
-
-  public Set<SdcSchoolCollectionStudentHistoryEntity> getSDCStudentHistoryEntities() {
-    if (this.sdcStudentHistoryEntities == null) {
-      this.sdcStudentHistoryEntities = new HashSet<>();
-    }
-    return this.sdcStudentHistoryEntities;
   }
 
   public Set<SdcSchoolCollectionStudentEnrolledProgramEntity> getSdcStudentEnrolledProgramEntities() {
