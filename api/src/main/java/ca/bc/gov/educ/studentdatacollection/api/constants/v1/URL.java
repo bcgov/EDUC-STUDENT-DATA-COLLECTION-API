@@ -23,5 +23,6 @@ public final class URL {
   public static final String ERROR_WARNING_COUNT = "/stats/error-warning-count";
   public static final String FUNDING_GROUP_CODES = "/funding-group-codes";
   public static final String ZERO_FTE_REASON_CODES = "/zero-fte-reason-codes";
+  public static final String HEADCOUNTS = "/headcounts";
 
 }

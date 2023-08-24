@@ -1,11 +1,14 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcSchoolCollectionStudentEndpoint;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentHeadcountService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHeadcounts;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import java.util.ArrayList;
@@ -35,6 +38,8 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     private final SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService;
 
     private final SdcSchoolCollectionStudentValidator schoolCollectionStudentValidator;
+
+    private final SdcSchoolCollectionStudentHeadcountService sdcSchoolCollectionStudentHeadcountService;
 
     private static final SdcSchoolCollectionStudentMapper mapper = SdcSchoolCollectionStudentMapper.mapper;
 
@@ -75,6 +80,17 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     public SdcSchoolCollectionStudent deleteSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID) {
         SdcSchoolCollectionStudentEntity softDeletedSdcSchoolCollectionStudent = this.sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
         return mapper.toSdcSchoolCollectionStudentWithValidationIssues(softDeletedSdcSchoolCollectionStudent);
+    }
+
+    @Override
+    public SdcSchoolCollectionStudentHeadcounts getSdcSchoolCollectionStudentHeadcounts(UUID sdcSchoolCollectionID, String type, boolean compare) {
+        switch (type) {
+            case "enrollment":
+                return sdcSchoolCollectionStudentHeadcountService.getEnrollmentHeadcounts(sdcSchoolCollectionID, compare);
+            default:
+                log.error("Invalid type for getSdcSchoolCollectionStudentHeadcounts::" + type);
+                throw new InvalidParameterException();
+        }
     }
 
 }

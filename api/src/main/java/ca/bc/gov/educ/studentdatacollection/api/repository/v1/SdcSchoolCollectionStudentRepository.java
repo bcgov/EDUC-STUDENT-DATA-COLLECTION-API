@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.EnrollmentHeadcountResult;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -55,4 +57,21 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   long countAllByAssignedStudentIdAndSdcSchoolCollectionIDIn(UUID assignedStudentId, List<UUID> sdcSchoolCollectionID);
 
   long countAllByAssignedStudentIdAndEnrolledGradeCodeAndCreateDateBetween(UUID assignedStudentId, String enrolledGradeCode, LocalDateTime startDate, LocalDateTime endDate);
+
+  @Query("SELECT " +
+          "s.enrolledGradeCode AS enrolledGradeCode, " +
+          "COUNT(CASE WHEN s.isSchoolAged = true THEN 1 END) AS schoolAgedHeadcount, " +
+          "SUM(CASE WHEN s.isSchoolAged = true AND s.fte > 0 THEN 1 ELSE 0 END) AS schoolAgedEligibleForFte, " +
+          "SUM(CASE WHEN s.isSchoolAged = true THEN s.fte ELSE 0 END) AS schoolAgedFteTotal, " +
+          "COUNT(CASE WHEN s.isAdult = true THEN 1 END) AS adultHeadcount, " +
+          "SUM(CASE WHEN s.isAdult = true AND s.fte > 0 THEN 1 ELSE 0 END) AS adultEligibleForFte, " +
+          "SUM(CASE WHEN s.isAdult = true THEN s.fte ELSE 0 END) AS adultFteTotal, " +
+          "COUNT(s) AS totalHeadcount, " +
+          "SUM(CASE WHEN s.fte > 0 THEN 1 ELSE 0 END) AS totalEligibleForFte, " +
+          "SUM(s.fte) AS totalFteTotal " +
+          "FROM SdcSchoolCollectionStudentEntity s " +
+          "WHERE s.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
+          "GROUP BY s.enrolledGradeCode " +
+          "ORDER BY s.enrolledGradeCode")
+  List<EnrollmentHeadcountResult> getSectionHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 }
