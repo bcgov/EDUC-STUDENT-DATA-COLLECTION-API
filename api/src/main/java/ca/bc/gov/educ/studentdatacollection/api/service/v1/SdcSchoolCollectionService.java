@@ -92,8 +92,8 @@ public class SdcSchoolCollectionService {
       summary.setUploadDate(String.valueOf(sdcSchoolCollectionEntity.getUploadDate()));
       summary.setFileName(sdcSchoolCollectionEntity.getUploadFileName());
       summary.setUploadReportDate(sdcSchoolCollectionEntity.getUploadReportDate());
-      var totalCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollectionID(sdcSchoolCollectionID);
-      var loadedCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollectionID(SdcSchoolStudentStatus.LOADED.getCode(), sdcSchoolCollectionID);
+      var totalCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollection_SdcSchoolCollectionID(sdcSchoolCollectionID);
+      var loadedCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollection_SdcSchoolCollectionID(SdcSchoolStudentStatus.LOADED.getCode(), sdcSchoolCollectionID);
       var totalProcessed = totalCount - loadedCount;
       summary.setTotalProcessed(Long.toString(totalProcessed));
       summary.setTotalStudents(Long.toString(totalCount));
@@ -109,6 +109,7 @@ public class SdcSchoolCollectionService {
     TransformUtil.uppercaseFields(sdcSchoolCollectionEntity);
     sdcSchoolCollectionEntity.setCollectionEntity(collectionEntity);
     SdcSchoolCollectionEntity savedSdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
+
     sdcSchoolCollectionHistoryService.createSDCSchoolHistory(savedSdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser());
 
     return savedSdcSchoolCollectionEntity;

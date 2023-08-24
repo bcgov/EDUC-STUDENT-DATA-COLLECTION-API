@@ -70,7 +70,7 @@ public class NoInactiveOnlineMinorStudentsRule implements ProgramEligibilityBase
 
     if (lastTwoYearsOfCollections.isEmpty()
     || lastTwoYearsOfCollections.get().isEmpty()
-    || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(
+    || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(
       UUID.fromString(student.getAssignedStudentId()),
       lastTwoYearsOfCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(),
       "0"

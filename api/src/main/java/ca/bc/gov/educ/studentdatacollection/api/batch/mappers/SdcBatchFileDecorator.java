@@ -48,7 +48,7 @@ public abstract class SdcBatchFileDecorator implements SdcBatchFileMapper {
   @Override
   public SdcSchoolCollectionStudentEntity toSdcSchoolStudentEntity(final SdcStudentDetails studentDetails, final SdcSchoolCollectionEntity sdcSchoolBatchEntity) {
     final var entity = this.delegate.toSdcSchoolStudentEntity(studentDetails, sdcSchoolBatchEntity);
-    entity.setSdcSchoolCollectionID(sdcSchoolBatchEntity.getSdcSchoolCollectionID()); // add thePK/FK relationship
+    entity.setSdcSchoolCollection(sdcSchoolBatchEntity); // add thePK/FK relationship
     entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolCollectionStatus.LOADED.getCode());
 
     entity.setStudentPen(StringMapper.trimAndUppercase(studentDetails.getPen()));

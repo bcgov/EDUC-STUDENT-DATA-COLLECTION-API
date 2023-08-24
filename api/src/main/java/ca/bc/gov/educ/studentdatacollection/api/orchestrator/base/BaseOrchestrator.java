@@ -523,8 +523,8 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
 
   @Override
   @Transactional
-  public SdcSagaEntity createSaga(@NotNull final String payload, final UUID sdcSchoolStudentID, final String userName) {
-    return this.sagaService.createSagaRecordInDB(this.sagaName, userName, payload, sdcSchoolStudentID);
+  public SdcSagaEntity createSaga(@NotNull final String payload, final UUID sdcSchoolStudentID, final UUID sdcSchoolCollectionID, final String userName) {
+    return this.sagaService.createSagaRecordInDB(this.sagaName, userName, payload, sdcSchoolStudentID, sdcSchoolCollectionID);
   }
 
   /**

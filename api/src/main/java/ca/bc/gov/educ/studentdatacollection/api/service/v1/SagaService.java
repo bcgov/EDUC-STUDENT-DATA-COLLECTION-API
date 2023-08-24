@@ -144,10 +144,11 @@ public class SagaService {
    * @return the saga
    */
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public SdcSagaEntity createSagaRecordInDB(final String sagaName, final String userName, final String payload, final UUID sdcSchoolStudentID) {
+  public SdcSagaEntity createSagaRecordInDB(final String sagaName, final String userName, final String payload, final UUID sdcSchoolStudentID, final UUID sdcSchoolCollectionID) {
     final var saga = SdcSagaEntity
       .builder()
       .payload(payload)
+      .sdcSchoolCollectionID(sdcSchoolCollectionID)
       .sdcSchoolCollectionStudentID(sdcSchoolStudentID)
       .sagaName(sagaName)
       .status(STARTED.toString())
