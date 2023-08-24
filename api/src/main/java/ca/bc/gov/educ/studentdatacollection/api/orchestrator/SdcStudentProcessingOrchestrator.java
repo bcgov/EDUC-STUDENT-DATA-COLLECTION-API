@@ -2,8 +2,8 @@ package ca.bc.gov.educ.studentdatacollection.api.orchestrator;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorChainProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.PenMatchSagaMapper;
@@ -82,19 +82,10 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     saga.setSagaState(FETCH_GRAD_STATUS.toString());
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-    this.postToGradAPI(saga, sdcStudentSagaData);
+    this.postToGradAPI(saga);
   }
 
-  protected void postToGradAPI(final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
-    //Uncomment this when the GRAD service is ready
-//    val sdcSchoolStudent = sdcStudentSagaData.getSdcSchoolCollectionStudent();
-//    val gradStatusRequest = JsonUtil.mapper.writeValueAsString(sdcSchoolStudent.getAssignedPen());
-//    final Event nextEvent = Event.builder().sagaId(saga.getSagaId())
-//      .eventType(FETCH_GRAD_STATUS)
-//      .replyTo(this.getTopicToSubscribe())
-//      .eventPayload(gradStatusRequest)
-//      .build();
-//    this.postMessageToTopic(GRAD_API_TOPIC.toString(), nextEvent);
+  protected void postToGradAPI(final SdcSagaEntity saga) throws JsonProcessingException {
     log.info("message sent to GRAD_API_TOPIC for FETCH_GRAD_STATUS Event. :: {}", saga.getSagaId());
 
     //Remove the following when the GRAD service is ready
@@ -128,7 +119,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     // Update program eligibility
     sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.clearSdcSchoolStudentProgramEligibilityColumns(studentUUID);
     sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
-    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> programEligibilityErrors = this.programEligibilityRulesProcessor.processRules(sdcStudentSagaData);
+    List<ProgramEligibilityIssueCode> programEligibilityErrors = this.programEligibilityRulesProcessor.processRules(sdcStudentSagaData);
 
     sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(programEligibilityErrors, studentUUID);
     sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
@@ -147,8 +138,6 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
   protected void processGradStatusResults(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(PROCESS_GRAD_STATUS_RESULT.toString());
-//    final var gradStatusResult = JsonUtil.getJsonObjectFromString(GradStatusResult.class, event.getEventPayload());
-//    sdcStudentSagaData.setGradStatus(gradStatusResult.getGradStatus());
     GradStatusResult gradStatusResult = new GradStatusResult();
     gradStatusResult.setGradStatus("false");
     saga.setPayload(JsonUtil.getJsonStringFromObject(sdcStudentSagaData));

@@ -1,20 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibility.impl;
 
-import java.text.DecimalFormat;
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
-
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.BooleanString;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -23,6 +11,17 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @Order(5)
@@ -41,7 +40,7 @@ public class NoInactiveOnlineMinorStudentsRule implements ProgramEligibilityBase
   }
 
   @Override
-  public boolean shouldExecute(SdcStudentSagaData saga, List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> list) {
+  public boolean shouldExecute(SdcStudentSagaData saga, List<ProgramEligibilityIssueCode> list) {
     String facilityType = saga.getSchool().getFacilityTypeCode();
     String gradeCode = saga.getSdcSchoolCollectionStudent().getEnrolledGradeCode();
     String numberOfCoursesString = saga.getSdcSchoolCollectionStudent().getNumberOfCourses();
@@ -55,8 +54,8 @@ public class NoInactiveOnlineMinorStudentsRule implements ProgramEligibilityBase
   }
 
   @Override
-  public List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
-    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = new ArrayList<>();
+  public List<ProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
+    List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
     School school = saga.getSchool();
     SdcSchoolCollectionStudent student = saga.getSdcSchoolCollectionStudent();
     LocalDateTime startOfMonth = LocalDateTime.parse(student.getCreateDate())
@@ -76,7 +75,7 @@ public class NoInactiveOnlineMinorStudentsRule implements ProgramEligibilityBase
       lastTwoYearsOfCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(),
       "0"
     ) == 0) {
-      errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.INACTIVE_SCHOOL_AGE);
+      errors.add(ProgramEligibilityIssueCode.INACTIVE_SCHOOL_AGE);
     }
 
     return errors;
