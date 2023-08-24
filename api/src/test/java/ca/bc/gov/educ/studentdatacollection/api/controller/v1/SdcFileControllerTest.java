@@ -335,7 +335,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(issues).isEmpty();
 
     var historyStuds2 = this.sdcSchoolCollectionStudentHistoryRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
-    assertThat(historyStuds2).isNotNull().hasSize(1);
+    assertThat(historyStuds2).isNotNull().hasSize(2);
   }
 
   @Test
