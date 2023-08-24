@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -61,7 +60,7 @@ public class NoInactiveOnlineAdultStudentsRule implements ProgramEligibilityBase
     LocalDateTime startOfMonth = LocalDateTime.parse(student.getCreateDate())
       .with(TemporalAdjusters.firstDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
-    Optional<List<SdcSchoolCollectionEntity>> lastTwoYearsOfCollections = sdcSchoolCollectionRepository
+    List<SdcSchoolCollectionEntity> lastTwoYearsOfCollections = sdcSchoolCollectionRepository
       .findAllBySchoolIDAndCreateDateBetween(
         UUID.fromString(school.getSchoolId()),
         startOfMonth.minusYears(2),
@@ -69,10 +68,9 @@ public class NoInactiveOnlineAdultStudentsRule implements ProgramEligibilityBase
       );
 
     if (lastTwoYearsOfCollections.isEmpty()
-    || lastTwoYearsOfCollections.get().isEmpty()
     || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(
       UUID.fromString(student.getAssignedStudentId()),
-      lastTwoYearsOfCollections.get().stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(),
+      lastTwoYearsOfCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(),
       "0"
     ) == 0) {
       errors.add(ProgramEligibilityIssueCode.INACTIVE_ADULT);

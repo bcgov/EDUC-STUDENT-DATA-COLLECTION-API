@@ -69,7 +69,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "SUM(CASE WHEN s.fte > 0 THEN 1 ELSE 0 END) AS totalEligibleForFte, " +
           "SUM(s.fte) AS totalFteTotal " +
           "FROM SdcSchoolCollectionStudentEntity s " +
-          "WHERE s.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
   List<EnrollmentHeadcountResult> getSectionHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);

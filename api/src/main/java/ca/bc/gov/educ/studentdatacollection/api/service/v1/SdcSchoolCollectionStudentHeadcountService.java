@@ -70,8 +70,11 @@ public class SdcSchoolCollectionStudentHeadcountService {
     LocalDateTime endOfCollectionDate = LocalDate.of(previousYear, Month.SEPTEMBER, 30).atTime(LocalTime.MAX);
 
     var septemberCollection = sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(sdcSchoolCollectionEntity.getSchoolID(), startOfCollectionDate, endOfCollectionDate);
-
-    return septemberCollection.map(sdcSchoolCollectionEntities -> sdcSchoolCollectionEntities.get(0).getSdcSchoolCollectionID()).orElse(null);
+    if(!septemberCollection.isEmpty()) {
+      return septemberCollection.get(0).getSdcSchoolCollectionID();
+    } else {
+      return null;
+    }
   }
 
   private HeadcountHeader getGradesHeadcountTotals(List<HeadcountTableData> headcountTableDataList) {
