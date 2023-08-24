@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibility.impl;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.EnrolledProgramCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.BooleanString;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
@@ -23,18 +23,18 @@ public class YearsInEllRule implements ProgramEligibilityBaseRule {
   }
 
   @Override
-  public boolean shouldExecute(SdcStudentSagaData saga, List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors) {
+  public boolean shouldExecute(SdcStudentSagaData saga, List<ProgramEligibilityIssueCode> errors) {
     return hasNotViolatedBaseRules(errors);
   }
 
   @Override
-  public List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
-    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = new ArrayList<>();
+  public List<ProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
+    List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
     var student = saga.getSdcSchoolCollectionStudent();
     List<String> studentPrograms = validationRulesService.splitString(student.getEnrolledProgramCodes());
 
     if(!studentPrograms.contains(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode())){
-      errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_ELL);
+      errors.add(ProgramEligibilityIssueCode.NOT_ENROLLED_ELL);
     }
 
     var totalYearsInEll = 0;
@@ -47,7 +47,7 @@ public class YearsInEllRule implements ProgramEligibilityBaseRule {
     }
 
     if (errors.isEmpty() && (BooleanString.areEqual(saga.getSdcSchoolCollectionStudent().getIsSchoolAged(), Boolean.FALSE) || totalYearsInEll >= 5)) {
-      errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.YEARS_IN_ELL);
+      errors.add(ProgramEligibilityIssueCode.YEARS_IN_ELL);
     }
     return errors;
   }

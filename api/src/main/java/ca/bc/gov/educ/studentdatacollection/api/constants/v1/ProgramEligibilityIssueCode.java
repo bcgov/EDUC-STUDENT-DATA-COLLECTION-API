@@ -1,15 +1,8 @@
-package ca.bc.gov.educ.studentdatacollection.api.constants;
+package ca.bc.gov.educ.studentdatacollection.api.constants.v1;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import lombok.Getter;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
-
-public enum SdcSchoolCollectionStudentProgramEligibilityIssueCode {
+public enum ProgramEligibilityIssueCode {
   HOMESCHOOL("HOMESCHOOL", "Home schooled students are not eligible for this program."),
   OFFSHORE("OFFSHORE", "Offshore students are not eligible for this program."),
   OUT_OF_PROVINCE("OUTOFPROV", "Students who are out of province are not eligible for this program."),
@@ -31,36 +24,7 @@ public enum SdcSchoolCollectionStudentProgramEligibilityIssueCode {
   @Getter
   private final String message;
 
-  public static final Map<SdcSchoolCollectionStudentProgramEligibilityIssueCode, Consumer<String>> getEligibilityErrorHandlers(SdcSchoolCollectionStudentEntity student) {
-    return Map.of(
-      NOT_ENROLLED_FRENCH, student::setFrenchProgramNonEligReasonCode,
-      NOT_ENROLLED_CAREER, student::setCareerProgramNonEligReasonCode,
-      NOT_ENROLLED_INDIGENOUS, student::setIndigenousSupportProgramNonEligReasonCode,
-      NOT_ENROLLED_SPECIAL_ED, student::setSpecialEducationNonEligReasonCode,
-      NON_ELIG_SPECIAL_EDUCATION, student::setSpecialEducationNonEligReasonCode,
-      INDIGENOUS_ADULT, student::setIndigenousSupportProgramNonEligReasonCode,
-      NO_INDIGENOUS_ANCESTRY, student::setIndigenousSupportProgramNonEligReasonCode
-    );
-  }
-
-  public static final Optional<SdcSchoolCollectionStudentProgramEligibilityIssueCode> getBaseProgramEligibilityFailure(
-    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors
-  ) {
-    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> ineligibleCodes = Arrays.asList(
-      HOMESCHOOL,
-      OFFSHORE,
-      OUT_OF_PROVINCE,
-      INACTIVE_ADULT,
-      INACTIVE_SCHOOL_AGE
-    );
-
-    return errors
-      .stream()
-      .filter(ineligibleCodes::contains)
-      .findFirst();
-  }
-
-  SdcSchoolCollectionStudentProgramEligibilityIssueCode(String code, String message) {
+  ProgramEligibilityIssueCode(String code, String message) {
     this.code = code;
     this.message = message;
   }

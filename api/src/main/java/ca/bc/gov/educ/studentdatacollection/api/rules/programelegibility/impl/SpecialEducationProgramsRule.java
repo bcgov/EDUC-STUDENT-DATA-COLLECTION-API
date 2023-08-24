@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibility.impl;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
@@ -21,13 +21,13 @@ public class SpecialEducationProgramsRule implements ProgramEligibilityBaseRule 
   }
 
   @Override
-  public boolean shouldExecute(SdcStudentSagaData saga, List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors) {
+  public boolean shouldExecute(SdcStudentSagaData saga, List<ProgramEligibilityIssueCode> errors) {
     return hasNotViolatedBaseRules(errors);
   }
 
   @Override
-  public List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
-    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors = new ArrayList<>();
+  public List<ProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
+    List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
 
     List<String> activeSpecialEdPrograms = validationRulesService.getActiveSpecialEducationCategoryCodes().stream().map(e -> e.getSpecialEducationCategoryCode()).toList();
 
@@ -40,9 +40,9 @@ public class SpecialEducationProgramsRule implements ProgramEligibilityBaseRule 
     boolean isNonGraduatedAdult = !isGraduatedVal && isAdultVal;
 
     if (StringUtils.isEmpty(saga.getSdcSchoolCollectionStudent().getSpecialEducationCategoryCode()) || !activeSpecialEdPrograms.contains(saga.getSdcSchoolCollectionStudent().getSpecialEducationCategoryCode())) {
-      errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NOT_ENROLLED_SPECIAL_ED);
+      errors.add(ProgramEligibilityIssueCode.NOT_ENROLLED_SPECIAL_ED);
     }else if (!isSchoolAgedVal && !isNonGraduatedAdult) {
-      errors.add(SdcSchoolCollectionStudentProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION);
+      errors.add(ProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION);
     }
 
     return errors;
