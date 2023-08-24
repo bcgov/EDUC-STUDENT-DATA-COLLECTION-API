@@ -2,8 +2,8 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -37,11 +37,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Consumer;
+
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.*;
 
 @Service
 @Slf4j
@@ -245,42 +246,48 @@ public class SdcSchoolCollectionStudentService {
     this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(updatedStatusStudentEntity, updatedStudentEntity.getUpdateUser());
   }
 
-  public SdcSchoolCollectionStudentEntity updateProgramEligibilityColumns(
-    List<SdcSchoolCollectionStudentProgramEligibilityIssueCode> errors,
-    UUID studentId
-  ) {
+  public SdcSchoolCollectionStudentEntity updateProgramEligibilityColumns(List<ProgramEligibilityIssueCode> errors, UUID studentId) {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional =
       sdcSchoolCollectionStudentRepository.findById(studentId);
 
     SdcSchoolCollectionStudentEntity student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
-      new EntityNotFoundException(
-        SdcSchoolCollectionStudent.class,
-        SDC_SCHOOL_COLLECTION_STUDENT_ID,
-        studentId.toString()
-      ));
+      new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, studentId.toString()));
 
-    Optional<SdcSchoolCollectionStudentProgramEligibilityIssueCode> reasonForNoEligiblility =
-      SdcSchoolCollectionStudentProgramEligibilityIssueCode.getBaseProgramEligibilityFailure(errors);
+    Optional<ProgramEligibilityIssueCode> baseProgramEligibilityFailure = getBaseProgramEligibilityFailure(errors);
 
-    if (reasonForNoEligiblility.isPresent()) {
-      String reasonCode = reasonForNoEligiblility.get().getCode();
+    if (baseProgramEligibilityFailure.isPresent()) {
+      String reasonCode = baseProgramEligibilityFailure.get().getCode();
       student.setFrenchProgramNonEligReasonCode(reasonCode);
       student.setEllNonEligReasonCode(reasonCode);
       student.setIndigenousSupportProgramNonEligReasonCode(reasonCode);
       student.setCareerProgramNonEligReasonCode(reasonCode);
       student.setSpecialEducationNonEligReasonCode(reasonCode);
     } else {
-      Map<SdcSchoolCollectionStudentProgramEligibilityIssueCode, Consumer<String>> errorHandlers = SdcSchoolCollectionStudentProgramEligibilityIssueCode.getEligibilityErrorHandlers(student);
-
-      errors.stream().forEach(e -> {
-        Consumer<String> handler = errorHandlers.get(e);
-        if (handler != null) {
-          handler.accept(e.getCode());
-        }
-      });
+      student.setFrenchProgramNonEligReasonCode(getReason(errors, Arrays.asList(NOT_ENROLLED_FRENCH)));
+      student.setEllNonEligReasonCode(getReason(errors, Arrays.asList(NOT_ENROLLED_ELL, YEARS_IN_ELL)));
+      student.setIndigenousSupportProgramNonEligReasonCode(getReason(errors, Arrays.asList(NOT_ENROLLED_INDIGENOUS, INDIGENOUS_ADULT, NO_INDIGENOUS_ANCESTRY)));
+      student.setCareerProgramNonEligReasonCode(getReason(errors, Arrays.asList(NOT_ENROLLED_CAREER)));
+      student.setSpecialEducationNonEligReasonCode(getReason(errors, Arrays.asList(NOT_ENROLLED_SPECIAL_ED, NON_ELIG_SPECIAL_EDUCATION)));
     }
 
     return student;
+  }
+
+  private String getReason(List<ProgramEligibilityIssueCode> errors, List<ProgramEligibilityIssueCode> codes){
+    var first = errors.stream().filter(codes::contains).findFirst();
+    return first.isPresent() ? first.get().getCode() : null;
+  }
+
+  public static final Optional<ProgramEligibilityIssueCode> getBaseProgramEligibilityFailure(List<ProgramEligibilityIssueCode> errors) {
+    List<ProgramEligibilityIssueCode> ineligibleCodes = Arrays.asList(
+      HOMESCHOOL,
+      OFFSHORE,
+      OUT_OF_PROVINCE,
+      INACTIVE_ADULT,
+      INACTIVE_SCHOOL_AGE
+    );
+
+    return errors.stream().filter(ineligibleCodes::contains).findFirst();
   }
 
   public SdcSchoolCollectionStudentEntity updateFteColumns(FteCalculationResult fteCalculationResult, UUID sdcSchoolCollectionStudentID) {
