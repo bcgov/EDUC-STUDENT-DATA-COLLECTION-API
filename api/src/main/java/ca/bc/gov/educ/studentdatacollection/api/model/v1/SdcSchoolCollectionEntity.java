@@ -76,6 +76,11 @@ public class SdcSchoolCollectionEntity {
   @OneToMany(mappedBy = "sdcSchoolCollection", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentEntity.class)
   Set<SdcSchoolCollectionStudentEntity> sdcSchoolStudentEntities;
 
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  @OneToMany(mappedBy = "sdcSchoolCollectionID", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolCollectionHistoryEntity.class)
+  private Set<SdcSchoolCollectionHistoryEntity> sdcSchoolCollectionHistoryEntities;
+
   public Set<SdcSchoolCollectionStudentEntity> getSDCSchoolStudentEntities() {
     if (this.sdcSchoolStudentEntities == null) {
       this.sdcSchoolStudentEntities = new HashSet<>();
