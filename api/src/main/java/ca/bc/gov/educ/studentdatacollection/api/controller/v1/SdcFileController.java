@@ -60,7 +60,7 @@ public class SdcFileController implements SdcFileEndpoint {
       schoolCollectionEntity
     );
 
-    return ResponseEntity.ok(SdcSchoolCollectionMapper.mapper.toSdcSchoolBatch(sdcSchoolCollectionEntity));
+    return ResponseEntity.ok(SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcSchoolCollectionEntity));
   }
 
   @Override

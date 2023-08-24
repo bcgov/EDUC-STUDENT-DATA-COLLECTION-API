@@ -38,19 +38,19 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
 
     @Override
     public SdcSchoolCollection getSchoolCollection(UUID sdcSchoolCollectionID) {
-        return mapper.toSdcSchoolBatch(sdcSchoolCollectionService.getSdcSchoolCollection(sdcSchoolCollectionID));
+        return mapper.toSdcSchoolWithStudents(sdcSchoolCollectionService.getSdcSchoolCollection(sdcSchoolCollectionID));
     }
 
   @Override
   public SdcSchoolCollection updateSchoolCollection(SdcSchoolCollection sdcSchoolCollection, UUID sdcSchoolCollectionID) {
     ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionValidator.validatePayload(sdcSchoolCollection, false));
     RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollection);
-    return mapper.toSdcSchoolBatch(sdcSchoolCollectionService.updateSdcSchoolCollection(mapper.toSdcSchoolBatchEntity(sdcSchoolCollection)));
+    return mapper.toSdcSchoolWithStudents(sdcSchoolCollectionService.updateSdcSchoolCollection(mapper.toSdcSchoolCollectionEntity(sdcSchoolCollection)));
   }
 
   @Override
   public SdcSchoolCollection getActiveSchoolCollectionBySchoolId(UUID schoolID) {
-    return mapper.toSdcSchoolBatch(
+    return mapper.toSdcSchoolWithStudents(
         sdcSchoolCollectionService.getActiveSdcSchoolCollectionBySchoolID(schoolID));
   }
 
@@ -70,7 +70,7 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
             entity.getSDCSchoolStudentEntities().add(sdcStudentEntity);
         }
     }
-    return mapper.toSdcSchoolBatch(sdcSchoolCollectionService.createSdcSchoolCollectionByCollectionID(entity, collectionID));
+    return mapper.toSdcSchoolWithStudents(sdcSchoolCollectionService.createSdcSchoolCollectionByCollectionID(entity, collectionID));
   }
 
   @Override
@@ -85,7 +85,7 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
 
         List<SdcSchoolCollection> sdcSchoolCollectionList = new ArrayList<>();
         for(SdcSchoolCollectionEntity entity: sdcSchoolCollectionEntities){
-            sdcSchoolCollectionList.add(mapper.toSdcSchoolBatch(entity));
+            sdcSchoolCollectionList.add(mapper.toStructure(entity));
         }
         return sdcSchoolCollectionList;
     }
