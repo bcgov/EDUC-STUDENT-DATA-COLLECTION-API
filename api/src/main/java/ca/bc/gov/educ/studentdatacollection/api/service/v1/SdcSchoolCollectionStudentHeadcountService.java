@@ -30,6 +30,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
   private static final String HEADCOUNT_TITLE = "Headcount";
   private static final String SCHOOL_AGED_TITLE = "School Aged";
   private static final String ADULT_TITLE = "Adult";
+  private static final String ALL_STUDENT_TITLE = "All Students";
   private static final String TOTAL_TITLE = "Total";
 
   public SdcSchoolCollectionStudentHeadcounts getEnrollmentHeadcounts(UUID sdcSchoolCollectionID, boolean compare) {
@@ -80,6 +81,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
   private HeadcountHeader getGradesHeadcountTotals(List<HeadcountTableData> headcountTableDataList) {
     HeadcountHeader headcountTotals = new HeadcountHeader();
     headcountTotals.setTitle("Grade Headcount");
+    headcountTotals.setOrderedColumnTitles(Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList());
     headcountTotals.setColumns(new HashMap<>());
       for (HeadCountTableDataRow row : headcountTableDataList.get(2).getRows()) {
         if(!row.getTitle().equals(TOTAL_TITLE)) {
@@ -95,6 +97,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
   private HeadcountHeader getStudentsHeadcountTotals(List<HeadcountTableData> headcountTableDataList) {
     HeadcountHeader studentTotals = new HeadcountHeader();
     studentTotals.setTitle("Student Headcount");
+    studentTotals.setOrderedColumnTitles(List.of(SCHOOL_AGED_TITLE, ADULT_TITLE, ALL_STUDENT_TITLE));
     studentTotals.setColumns(new HashMap<>());
 
     for (HeadcountTableData tableData : headcountTableDataList) {
@@ -123,7 +126,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
               .orElse(null);
       schoolAgedRows.add(buildDataRow(result, SCHOOL_AGED_TITLE, gradeCode));
       adultRows.add(buildDataRow(result, ADULT_TITLE, gradeCode));
-      totalRows.add(buildDataRow(result, TOTAL_TITLE, gradeCode));
+      totalRows.add(buildDataRow(result, ALL_STUDENT_TITLE, gradeCode));
     }
     schoolAgedRows.add(calculateSummaryRow(schoolAgedRows));
     adultRows.add(calculateSummaryRow(adultRows));
@@ -131,7 +134,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
 
     headcountTableDataList.add(buildHeadcountTableData(SCHOOL_AGED_TITLE, schoolAgedRows));
     headcountTableDataList.add(buildHeadcountTableData(ADULT_TITLE, adultRows));
-    headcountTableDataList.add(buildHeadcountTableData(TOTAL_TITLE, totalRows));
+    headcountTableDataList.add(buildHeadcountTableData(ALL_STUDENT_TITLE, totalRows));
 
     return headcountTableDataList;
   }
@@ -168,7 +171,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
           valuesMap.put(ELIGIBLE_FTE_TITLE, String.valueOf(result.getAdultEligibleForFte()));
           valuesMap.put(TOTAL_FTE_TITLE, String.valueOf(result.getAdultFteTotal()));
         }
-        case TOTAL_TITLE -> {
+        case ALL_STUDENT_TITLE -> {
           valuesMap.put(HEADCOUNT_TITLE, String.valueOf(result.getTotalHeadcount()));
           valuesMap.put(ELIGIBLE_FTE_TITLE, String.valueOf(result.getTotalEligibleForFte()));
           valuesMap.put(TOTAL_FTE_TITLE, String.valueOf(result.getTotalFteTotal()));

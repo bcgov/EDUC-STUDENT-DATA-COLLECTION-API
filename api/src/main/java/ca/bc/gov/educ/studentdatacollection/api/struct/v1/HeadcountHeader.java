@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -15,5 +16,6 @@ import java.util.Map;
 public class HeadcountHeader implements Serializable {
     private static final long serialVersionUID = 1L;
     private String title;
+    private List<String> orderedColumnTitles;
     private Map<String, HeadcountHeaderColumn> columns;
 }
