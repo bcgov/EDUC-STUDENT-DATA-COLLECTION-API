@@ -66,12 +66,12 @@ class SdcSchoolCollectionStudentHeadcountServiceTest {
     // Assertions
     assertEquals("Student Headcount", headcounts.getHeadcountHeaders().get(0).getTitle());
     assertEquals("Grade Headcount", headcounts.getHeadcountHeaders().get(1).getTitle());
-    assertNull(headcounts.getHeadcountHeaders().get(0).getColumns().get("Total").getComparisonValue());
+    assertNull(headcounts.getHeadcountHeaders().get(0).getColumns().get("All Students").getComparisonValue());
     assertEquals("School Aged", headcounts.getHeadcountTableDataList().get(0).getTitle());
-    assertEquals("10", headcounts.getHeadcountTableDataList().get(0).getRows().get(13).getTitle());
-    assertEquals("50", headcounts.getHeadcountTableDataList().get(0).getRows().get(13).getColumnTitleAndValueMap().get("Headcount"));
-    assertEquals("48", headcounts.getHeadcountTableDataList().get(0).getRows().get(13).getColumnTitleAndValueMap().get("Eligible for FTE"));
-    assertEquals("47.5", headcounts.getHeadcountTableDataList().get(0).getRows().get(13).getColumnTitleAndValueMap().get("FTE Total"));
+    assertEquals("10", headcounts.getHeadcountTableDataList().get(0).getRows().get(12).getTitle());
+    assertEquals("50", headcounts.getHeadcountTableDataList().get(0).getRows().get(12).getColumnTitleAndValueMap().get("Headcount"));
+    assertEquals("48", headcounts.getHeadcountTableDataList().get(0).getRows().get(12).getColumnTitleAndValueMap().get("Eligible for FTE"));
+    assertEquals("47.5", headcounts.getHeadcountTableDataList().get(0).getRows().get(12).getColumnTitleAndValueMap().get("FTE Total"));
     assertEquals("Total", headcounts.getHeadcountTableDataList().get(0).getRows().get(18).getTitle());
     assertEquals("50", headcounts.getHeadcountTableDataList().get(0).getRows().get(18).getColumnTitleAndValueMap().get("Headcount"));
     assertEquals("48", headcounts.getHeadcountTableDataList().get(0).getRows().get(18).getColumnTitleAndValueMap().get("Eligible for FTE"));
@@ -136,7 +136,7 @@ class SdcSchoolCollectionStudentHeadcountServiceTest {
     SdcSchoolCollectionStudentHeadcounts headcounts = headcountService.getEnrollmentHeadcounts(collectionId, true);
 
     // Assertions
-    assertEquals("63", headcounts.getHeadcountHeaders().get(0).getColumns().get("Total").getCurrentValue());
-    assertEquals("20", headcounts.getHeadcountHeaders().get(0).getColumns().get("Total").getComparisonValue());
+    assertEquals("63", headcounts.getHeadcountHeaders().get(0).getColumns().get("All Students").getCurrentValue());
+    assertEquals("20", headcounts.getHeadcountHeaders().get(0).getColumns().get("All Students").getComparisonValue());
   }
 }

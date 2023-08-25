@@ -7,7 +7,6 @@ import java.util.List;
 
 @Getter
 public enum SchoolGradeCodes {
-    HOMESCHOOL("HS"),
     KINDHALF("KH"),
     KINDFULL("KF"),
     GRADE01("01"),
@@ -24,7 +23,8 @@ public enum SchoolGradeCodes {
     GRADE11("11"),
     GRADE12("12"),
     SECONDARY_UNGRADED("SU"),
-    GRADUATED_ADULT("GA");
+    GRADUATED_ADULT("GA"),
+    HOMESCHOOL("HS");
 
     @Getter
     private final String code;

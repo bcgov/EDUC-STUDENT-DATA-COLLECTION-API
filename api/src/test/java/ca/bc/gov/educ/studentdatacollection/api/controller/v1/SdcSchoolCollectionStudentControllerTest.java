@@ -871,8 +871,8 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].title", equalTo("Student Headcount")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.Total.currentValue", equalTo("4")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.Total.comparisonValue", equalTo("4")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['All Students'].currentValue", equalTo("4")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['All Students'].comparisonValue", equalTo("4")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].title", equalTo("Grade Headcount")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.11.currentValue", equalTo("2")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.11.comparisonValue", equalTo("1")));
