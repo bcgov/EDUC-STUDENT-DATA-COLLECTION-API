@@ -26,10 +26,12 @@
     "sdcSchoolCollectionStudentStatusCode": "UPDATED",
     "createUser": "XYZ",
     "updateUser": "XYZ",
-    "fte": "0.789"
+    "fte": "0.789",
+    "isAdult": true,
+    "isSchoolAged": false
   },
   {
-    "sdcSchoolCollectionID": "8fb16f16-07d9-4f0e-a001-7ea26c84e9e2",
+    "sdcSchoolCollectionID": "5c1e49d0-7c87-4c2b-b5bf-5096622cf8e1",
     "localID": "B22222222",
     "studentPen": "320567891",
     "legalFirstName": "BOB",
@@ -46,7 +48,7 @@
     "homeLanguageSpokenCode": "001",
     "otherCourses": null,
     "supportBlocks": null,
-    "enrolledGradeCode": "09",
+    "enrolledGradeCode": "11",
     "enrolledProgramCodes": "9876543210",
     "careerProgramCode": "XA",
     "numberOfCourses": null,
@@ -55,10 +57,12 @@
     "sdcSchoolCollectionStudentStatusCode": "LOADED",
     "createUser": "ABC",
     "updateUser": "ABC",
-    "fte": "1.234"
+    "fte": "1.234",
+    "isAdult": true,
+    "isSchoolAged": false
   },
   {
-    "sdcSchoolCollectionID": "4d20d3c3-2d1e-43e1-b83a-182c1e6f5db1",
+    "sdcSchoolCollectionID": "5c1e49d0-7c87-4c2b-b5bf-5096622cf8e1",
     "localID": "B22222222",
     "studentPen": "320567891",
     "legalFirstName": "CHRISTINE",
@@ -84,10 +88,12 @@
     "sdcSchoolCollectionStudentStatusCode": "CREATED",
     "createUser": "DEF",
     "updateUser": "DEF",
-    "fte": "0.567"
+    "fte": "0.567",
+    "isAdult": false,
+    "isSchoolAged": true
   },
   {
-    "sdcSchoolCollectionID": "31588106-97dd-4f37-a896-433e06253d0f",
+    "sdcSchoolCollectionID": "5c1e49d0-7c87-4c2b-b5bf-5096622cf8e1",
     "localID": "B22222222",
     "studentPen": "320567891",
     "legalFirstName": "OLIVIA",
@@ -104,7 +110,7 @@
     "homeLanguageSpokenCode": "004",
     "otherCourses": null,
     "supportBlocks": null,
-    "enrolledGradeCode": "12",
+    "enrolledGradeCode": "11",
     "enrolledProgramCodes": "7654321098",
     "careerProgramCode": "XD",
     "numberOfCourses": null,
@@ -113,10 +119,12 @@
     "sdcSchoolCollectionStudentStatusCode": "DELETED",
     "createUser": "GHI",
     "updateUser": "GHI",
-    "frenchProgramNonEligReasonCode": "F reason"
+    "frenchProgramNonEligReasonCode": "F reason",
+    "isAdult": false,
+    "isSchoolAged": true
   },
   {
-    "sdcSchoolCollectionID": "5c1e49d0-7c87-4c2b-b5bf-5096622cf8e2",
+    "sdcSchoolCollectionID": "5c1e49d0-7c87-4c2b-b5bf-5096622cf8e1",
     "localID": "C33333333",
     "studentPen": "420567891",
     "legalFirstName": "NICOLE",
@@ -142,10 +150,12 @@
     "sdcSchoolCollectionStudentStatusCode": "UPDATED",
     "createUser": "IJK",
     "updateUser": "IJK",
-    "fte": "0.789"
+    "fte": "0.789",
+    "isAdult": false,
+    "isSchoolAged": true
   },
   {
-    "sdcSchoolCollectionID": "8fb16f16-07d9-4f0e-a001-7ea26c84e9e3",
+    "sdcSchoolCollectionID": "5c1e49d0-7c87-4c2b-b5bf-5096622cf8e1",
     "localID": "C33333333",
     "studentPen": "420567891",
     "legalFirstName": "HARRY",
@@ -171,10 +181,12 @@
     "sdcSchoolCollectionStudentStatusCode": "LOADED",
     "createUser": "LMN",
     "updateUser": "LMN",
-    "fte": "1.234"
+    "fte": "1.234",
+    "isAdult": false,
+    "isSchoolAged": true
   },
   {
-    "sdcSchoolCollectionID": "4d20d3c3-2d1e-43e1-b83a-182c1e6f5db2",
+    "sdcSchoolCollectionID": "5c1e49d0-7c87-4c2b-b5bf-5096622cf8e1",
     "localID": "C33333333",
     "studentPen": "420567891",
     "legalFirstName": "EMMA",
@@ -200,7 +212,9 @@
     "sdcSchoolCollectionStudentStatusCode": "CREATED",
     "createUser": "OPQ",
     "updateUser": "OPQ",
-    "fte": "0.567"
+    "fte": "0.567",
+    "isAdult": false,
+    "isSchoolAged": true
   },
   {
     "sdcSchoolCollectionID": "31588106-97dd-4f37-a896-433e06253d1f",
@@ -220,7 +234,7 @@
     "homeLanguageSpokenCode": "008",
     "otherCourses": null,
     "supportBlocks": null,
-    "enrolledGradeCode": "01",
+    "enrolledGradeCode": "04",
     "enrolledProgramCodes": "6543210987",
     "careerProgramCode": "XC",
     "numberOfCourses": null,
@@ -229,6 +243,9 @@
     "sdcSchoolCollectionStudentStatusCode": "DELETED",
     "createUser": "RST",
     "updateUser": "RST",
-    "frenchProgramNonEligReasonCode": "I reason"
+    "frenchProgramNonEligReasonCode": "I reason",
+    "isAdult": true,
+    "isSchoolAged": false,
+    "fte": "0.567"
   }
 ]
