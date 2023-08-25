@@ -9,10 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStud
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Search;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SearchCriteria;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValueType;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
@@ -28,8 +25,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.Year;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.AND;
 import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.OR;
@@ -827,5 +827,55 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var deletedSdcSchoolCollectionStudent = sdcSchoolCollectionStudentRepository.findById(savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID());
         assertThat(deletedSdcSchoolCollectionStudent).isPresent();
         assertThat(deletedSdcSchoolCollectionStudent.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.DELETED.toString());
+    }
+
+    @Test
+    void testGetSdcSchoolCollectionStudentHeadcounts() throws Exception {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        firstSchool.setUploadDate(null);
+        firstSchool.setUploadFileName(null);
+        var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        secondSchool.setUploadDate(null);
+        secondSchool.setUploadFileName(null);
+        secondSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+        sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchool, secondSchool));
+
+
+        final File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+        );
+        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+        });
+        var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+        var students = IntStream.range(0, models.size())
+                .mapToObj(i -> {
+                    if (i % 2 == 0) {
+                        models.get(i).setSdcSchoolCollection(secondSchool);
+                    } else {
+                        models.get(i).setSdcSchoolCollection(firstSchool);
+                    }
+                    return models.get(i);
+                })
+                .toList();
+
+        sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        this.mockMvc
+                .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("type", "enrollment")
+                        .param("compare", "true")
+                        .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].title", equalTo("Student Headcount")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.Total.currentValue", equalTo("4")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.Total.comparisonValue", equalTo("4")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].title", equalTo("Grade Headcount")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.11.currentValue", equalTo("2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.11.comparisonValue", equalTo("1")));
+
     }
 }

@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHeadcounts;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -55,4 +56,12 @@ public interface SdcSchoolCollectionStudentEndpoint {
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional
   SdcSchoolCollectionStudent deleteSdcSchoolCollectionStudent(@PathVariable UUID sdcSchoolCollectionStudentID);
+
+  @GetMapping(URL.HEADCOUNTS + "/{sdcSchoolCollectionID}")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_SCHOOL_COLLECTION_STUDENT')")
+  @Transactional(readOnly = true)
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  SdcSchoolCollectionStudentHeadcounts getSdcSchoolCollectionStudentHeadcounts(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID,
+                                                                               @RequestParam(name = "type") String type,
+                                                                               @RequestParam(name = "compare", defaultValue = "false") boolean compare);
 }
