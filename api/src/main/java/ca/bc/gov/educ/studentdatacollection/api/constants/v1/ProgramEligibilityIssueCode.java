@@ -11,7 +11,7 @@ public enum ProgramEligibilityIssueCode {
   NOT_ENROLLED_FRENCH("NTENRFRENC", "The student is not enrolled in french programs."),
   NOT_ENROLLED_CAREER("NTENRCAREE", "The student is not enrolled in career programs."),
   NOT_ENROLLED_INDIGENOUS("NTENRINDIG", "The student is not enrolled in indigenous programs."),
-  NOT_ENROLLED_SPECIAL_ED("NOSPECIAL", "The student was not reported in any special education programs."),
+  NOT_ENROLLED_SPECIAL_ED("NTENRSPED", "The student was not reported in any special education programs."),
   NON_ELIG_SPECIAL_EDUCATION("NELISPED", "Student must be school-aged or a non-graduated adult to be eligible for Special Education funding."),
   INDIGENOUS_ADULT("ISADULTAGE", "Indigenous students must be school-age to be eligible for indigenous programs."),
   YEARS_IN_ELL("ELL5ORLESS", "Student must be school-aged and have been reported in ELL for 5 years or less."),

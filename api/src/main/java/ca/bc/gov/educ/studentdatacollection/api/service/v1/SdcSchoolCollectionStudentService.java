@@ -253,12 +253,9 @@ public class SdcSchoolCollectionStudentService {
     SdcSchoolCollectionStudentEntity student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
       new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, studentId.toString()));
 
-    log.info("Base Program errors: " + errors);
     Optional<ProgramEligibilityIssueCode> baseProgramEligibilityFailure = getBaseProgramEligibilityFailure(errors);
-    log.info("Base Program eligibility failure: " + baseProgramEligibilityFailure.isPresent());
 
     if (baseProgramEligibilityFailure.isPresent()) {
-      log.info("Inside base eligible present: " + baseProgramEligibilityFailure.get().getCode());
       String reasonCode = baseProgramEligibilityFailure.get().getCode();
       student.setFrenchProgramNonEligReasonCode(reasonCode);
       student.setEllNonEligReasonCode(reasonCode);
