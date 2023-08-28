@@ -704,6 +704,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationError.size()).isNotZero();
         val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("SCHOOLAGEZEROCOURSES"));
         assertThat(error).isTrue();
+
+        school.setFacilityTypeCode("DIST_LEARN");
+        val validationErrorDist = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), school));
+        assertThat(validationErrorDist.size()).isZero();
     }
 
     @Test
