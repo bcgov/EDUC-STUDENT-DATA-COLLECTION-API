@@ -17,6 +17,7 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentEnrolledProgramRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
@@ -58,6 +59,8 @@ public class SdcSchoolCollectionStudentService {
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
   private final SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository;
+
+  private final SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository;
 
   private final RestUtils restUtils;
 
@@ -172,7 +175,7 @@ public class SdcSchoolCollectionStudentService {
     return student;
   }
 
-  public SdcSchoolCollectionStudentEntity deleteExistingAndWriteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID, List<String> enrolledProgramCodes) {
+  public SdcSchoolCollectionStudentEntity writeEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID, List<String> enrolledProgramCodes) {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
     var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
@@ -188,12 +191,24 @@ public class SdcSchoolCollectionStudentService {
       enrolledProgramEntity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
       enrolledProgramEntity.setCreateDate(LocalDateTime.now());
       enrolledProgramEntity.setEnrolledProgramCode(enrolledProgramCode);
-
       student.getSdcStudentEnrolledProgramEntities().add(enrolledProgramEntity);
     });
 
-    return student;
+    return sdcSchoolCollectionStudentRepository.save(student);
   }
+
+  public SdcSchoolCollectionStudentEntity deleteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID) {
+    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
+
+    var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
+            new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, sdcSchoolCollectionStudentID.toString()));
+
+    student.getSdcStudentEnrolledProgramEntities().clear();
+
+    // Update the student entity after clearing enrolled programs
+    return sdcSchoolCollectionStudentRepository.save(student);
+  }
+
 
   public SdcSchoolCollectionStudentValidationIssueErrorWarningCount errorAndWarningCountBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
 

@@ -101,10 +101,17 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
     SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity;
 
+    sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.deleteEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()));
+    log.info("After Delete - sdcSchoolCollectionStudentEntity: {}" + sdcSchoolCollectionStudentEntity);
+
     // Write Enrolled Program Codes
     if(StringUtils.isNotBlank(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes())) {
       List<String> enrolledProgramList = TransformUtil.splitIntoChunks(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes(), 2);
-      sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.deleteExistingAndWriteEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), enrolledProgramList);
+      log.info("Enrolled Program Codes: {}" + enrolledProgramList);
+
+      sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.writeEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), enrolledProgramList);
+      log.info("After Write - sdcSchoolCollectionStudentEntity: {}" + sdcSchoolCollectionStudentEntity);
+
       sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
     }
 
