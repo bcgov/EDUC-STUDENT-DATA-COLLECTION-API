@@ -101,8 +101,8 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
     SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity;
 
-    sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.deleteEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()));
-    log.info("After Delete - sdcSchoolCollectionStudentEntity: {}" + sdcSchoolCollectionStudentEntity);
+    this.sdcSchoolCollectionStudentService.deleteEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()));
+    log.info("After Delete - sdcSchoolCollectionStudentEntity: {}" + this.sdcSchoolCollectionStudentService);
 
     // Write Enrolled Program Codes
     if(StringUtils.isNotBlank(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes())) {

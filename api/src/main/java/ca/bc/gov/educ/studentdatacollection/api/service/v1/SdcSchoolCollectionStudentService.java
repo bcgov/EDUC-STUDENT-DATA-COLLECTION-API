@@ -197,7 +197,8 @@ public class SdcSchoolCollectionStudentService {
     return sdcSchoolCollectionStudentRepository.save(student);
   }
 
-  public SdcSchoolCollectionStudentEntity deleteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID) {
+
+  public SdcSchoolCollectionStudentEntity deleteExistingAndWriteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID, List<String> enrolledProgramCodes) {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
     var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
@@ -205,8 +206,27 @@ public class SdcSchoolCollectionStudentService {
 
     student.getSdcStudentEnrolledProgramEntities().clear();
 
-    // Update the student entity after clearing enrolled programs
-    return sdcSchoolCollectionStudentRepository.save(student);
+    enrolledProgramCodes.forEach(enrolledProgramCode -> {
+      var enrolledProgramEntity = new SdcSchoolCollectionStudentEnrolledProgramEntity();
+      enrolledProgramEntity.setSdcSchoolCollectionStudentEntity(student);
+      enrolledProgramEntity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      enrolledProgramEntity.setUpdateDate(LocalDateTime.now());
+      enrolledProgramEntity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      enrolledProgramEntity.setCreateDate(LocalDateTime.now());
+      enrolledProgramEntity.setEnrolledProgramCode(enrolledProgramCode);
+
+      student.getSdcStudentEnrolledProgramEntities().add(enrolledProgramEntity);
+    });
+
+    return student;
+  }
+  public void deleteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID) {
+    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
+
+    var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
+            new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, sdcSchoolCollectionStudentID.toString()));
+
+    student.getSdcStudentEnrolledProgramEntities().clear();
   }
 
 
