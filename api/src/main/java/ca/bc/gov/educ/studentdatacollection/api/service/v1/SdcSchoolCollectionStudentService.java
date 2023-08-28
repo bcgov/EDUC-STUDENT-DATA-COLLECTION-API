@@ -175,7 +175,7 @@ public class SdcSchoolCollectionStudentService {
     return student;
   }
 
-  public SdcSchoolCollectionStudentEntity writeEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID, List<String> enrolledProgramCodes) {
+  public void writeEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID, List<String> enrolledProgramCodes) {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
     var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
@@ -194,7 +194,7 @@ public class SdcSchoolCollectionStudentService {
       student.getSdcStudentEnrolledProgramEntities().add(enrolledProgramEntity);
     });
 
-    return sdcSchoolCollectionStudentRepository.save(student);
+//    return sdcSchoolCollectionStudentRepository.save(student);
   }
 
   public void deleteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID) {
