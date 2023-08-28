@@ -5,6 +5,7 @@ import lombok.Getter;
 public enum ProgramEligibilityIssueCode {
   HOMESCHOOL("HOMESCHOOL", "Home schooled students are not eligible for this program."),
   OFFSHORE("OFFSHORE", "Offshore students are not eligible for this program."),
+  TOO_YOUNG("TOO_YOUNG", "Students that are too young are not eligible for program funding."),
   OUT_OF_PROVINCE("OUTOFPROV", "Students who are out of province are not eligible for this program."),
   INACTIVE_ADULT("INACTADULT", "Adult students must have been reported to have 1 or more courses in the last two years to be eligible for this program."),
   INACTIVE_SCHOOL_AGE("INACTMINOR", "School aged students must have been reported to have 1 or more courses in the last two years to be eligible for this program."),
