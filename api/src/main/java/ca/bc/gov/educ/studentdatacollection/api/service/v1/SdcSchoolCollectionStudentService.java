@@ -175,15 +175,13 @@ public class SdcSchoolCollectionStudentService {
     return student;
   }
 
-  public void writeEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID, List<String> enrolledProgramCodes) {
+  public SdcSchoolCollectionStudentEntity writeEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID, List<String> enrolledProgramCodes) {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
     var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
             new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, sdcSchoolCollectionStudentID.toString()));
 
-
     enrolledProgramCodes.forEach(enrolledProgramCode -> {
-      log.info("Adding enrolled program code {} to student {}", enrolledProgramCode, sdcSchoolCollectionStudentID);
       var enrolledProgramEntity = new SdcSchoolCollectionStudentEnrolledProgramEntity();
       enrolledProgramEntity.setSdcSchoolCollectionStudentEntity(student);
       enrolledProgramEntity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
@@ -191,10 +189,12 @@ public class SdcSchoolCollectionStudentService {
       enrolledProgramEntity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
       enrolledProgramEntity.setCreateDate(LocalDateTime.now());
       enrolledProgramEntity.setEnrolledProgramCode(enrolledProgramCode);
+      log.info("EnrolledProgramEntity", enrolledProgramEntity);
       student.getSdcStudentEnrolledProgramEntities().add(enrolledProgramEntity);
+      log.info("Student Enrolled Program Entities", student.getSdcStudentEnrolledProgramEntities());
     });
 
-    sdcSchoolCollectionStudentRepository.save(student);
+    return sdcSchoolCollectionStudentRepository.save(student);
   }
 
   public void deleteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID) {

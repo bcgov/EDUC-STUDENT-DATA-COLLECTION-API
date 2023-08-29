@@ -109,10 +109,10 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
       List<String> enrolledProgramList = TransformUtil.splitIntoChunks(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes(), 2);
       log.info("Enrolled Program Codes: {}" + enrolledProgramList);
 
-//      this.sdcSchoolCollectionStudentService.writeEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), enrolledProgramList);
-//      log.info("After Write - sdcSchoolCollectionStudentEntity: {}" + this.sdcSchoolCollectionStudentService);
+      sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.writeEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), enrolledProgramList);
+      log.info("After Write - sdcSchoolCollectionStudentEntity: {}" + this.sdcSchoolCollectionStudentService);
 
-//      sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
+      sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
     }
 
     // Update Student age columns
