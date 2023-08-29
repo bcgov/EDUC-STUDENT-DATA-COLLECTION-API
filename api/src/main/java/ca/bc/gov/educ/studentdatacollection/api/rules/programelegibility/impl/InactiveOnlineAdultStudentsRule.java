@@ -24,13 +24,13 @@ import java.util.UUID;
 
 @Component
 @Order(4)
-public class NoInactiveOnlineAdultStudentsRule implements ProgramEligibilityBaseRule {
+public class InactiveOnlineAdultStudentsRule implements ProgramEligibilityBaseRule {
 
   private static final DecimalFormat df = new DecimalFormat("00.00");
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
-  public NoInactiveOnlineAdultStudentsRule(
+  public InactiveOnlineAdultStudentsRule(
     SdcSchoolCollectionRepository sdcSchoolCollectionRepository,
     SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository
   ) {
