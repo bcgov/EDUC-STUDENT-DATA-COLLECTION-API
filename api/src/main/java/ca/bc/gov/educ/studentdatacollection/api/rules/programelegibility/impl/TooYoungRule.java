@@ -12,7 +12,7 @@ import java.util.List;
 
 @Component
 @Order(6)
-public class TooYoungStudentsRule implements ProgramEligibilityBaseRule {
+public class TooYoungRule implements ProgramEligibilityBaseRule {
 
   @Override
   public boolean shouldExecute(SdcStudentSagaData saga, List<ProgramEligibilityIssueCode> list) {
