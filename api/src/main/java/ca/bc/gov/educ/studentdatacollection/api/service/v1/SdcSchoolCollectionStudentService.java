@@ -195,6 +195,7 @@ public class SdcSchoolCollectionStudentService {
     });
 
 //    return sdcSchoolCollectionStudentRepository.save(student);
+    sdcSchoolCollectionStudentRepository.save(student);
   }
 
   public void deleteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID) {
