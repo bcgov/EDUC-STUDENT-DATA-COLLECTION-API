@@ -194,7 +194,6 @@ public class SdcSchoolCollectionStudentService {
       student.getSdcStudentEnrolledProgramEntities().add(enrolledProgramEntity);
     });
 
-//    return sdcSchoolCollectionStudentRepository.save(student);
     sdcSchoolCollectionStudentRepository.save(student);
   }
 
@@ -297,7 +296,8 @@ public class SdcSchoolCollectionStudentService {
       OFFSHORE,
       OUT_OF_PROVINCE,
       INACTIVE_ADULT,
-      INACTIVE_SCHOOL_AGE
+      INACTIVE_SCHOOL_AGE,
+      TOO_YOUNG
     );
 
     return errors.stream().filter(ineligibleCodes::contains).findFirst();
