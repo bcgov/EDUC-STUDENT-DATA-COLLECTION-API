@@ -189,9 +189,7 @@ public class SdcSchoolCollectionStudentService {
       enrolledProgramEntity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
       enrolledProgramEntity.setCreateDate(LocalDateTime.now());
       enrolledProgramEntity.setEnrolledProgramCode(enrolledProgramCode);
-      log.info("EnrolledProgramEntity", enrolledProgramEntity);
       student.getSdcStudentEnrolledProgramEntities().add(enrolledProgramEntity);
-      log.info("Student Enrolled Program Entities", student.getSdcStudentEnrolledProgramEntities());
     });
 
     return sdcSchoolCollectionStudentRepository.save(student);
