@@ -4,13 +4,16 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityI
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentValidationIssueEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -28,6 +31,9 @@ class SdcSchoolCollectionStudentServiceTest {
 
     @InjectMocks
     private SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+
+    @Mock
+    SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;
 
     @BeforeEach
     void setUp() {
@@ -260,6 +266,9 @@ class SdcSchoolCollectionStudentServiceTest {
         // Create a mock SdcSchoolCollectionStudentEntity
         SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
+
+        SdcSchoolCollectionStudentValidationIssueEntity mockValidationError = new SdcSchoolCollectionStudentValidationIssueEntity();
+        when(sdcSchoolCollectionStudentValidationIssueRepository.findById(any())).thenReturn(Optional.of(mockValidationError));
 
         // When
         sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
