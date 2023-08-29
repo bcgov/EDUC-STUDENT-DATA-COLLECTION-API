@@ -16,13 +16,16 @@ public class TooYoungStudentsRule implements ProgramEligibilityBaseRule {
 
   @Override
   public boolean shouldExecute(SdcStudentSagaData saga, List<ProgramEligibilityIssueCode> list) {
-    return !DOBUtil.is5YearsOldByDec31ThisSchoolYear(saga.getSdcSchoolCollectionStudent().getDob());
+    return true;
   }
 
   @Override
   public List<ProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
     List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
-    errors.add(ProgramEligibilityIssueCode.TOO_YOUNG);
+
+    if(!DOBUtil.is5YearsOldByDec31ThisSchoolYear(saga.getSdcSchoolCollectionStudent().getDob())) {
+      errors.add(ProgramEligibilityIssueCode.TOO_YOUNG);
+    }
     return errors;
   }
 
