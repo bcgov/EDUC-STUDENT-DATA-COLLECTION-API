@@ -17,6 +17,7 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentEnrolledProgramRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
@@ -58,6 +59,8 @@ public class SdcSchoolCollectionStudentService {
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
   private final SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository;
+
+  private final SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository;
 
   private final RestUtils restUtils;
 
@@ -172,13 +175,11 @@ public class SdcSchoolCollectionStudentService {
     return student;
   }
 
-  public SdcSchoolCollectionStudentEntity deleteExistingAndWriteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID, List<String> enrolledProgramCodes) {
+  public SdcSchoolCollectionStudentEntity writeEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID, List<String> enrolledProgramCodes) {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
     var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
             new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, sdcSchoolCollectionStudentID.toString()));
-
-    student.getSdcStudentEnrolledProgramEntities().clear();
 
     enrolledProgramCodes.forEach(enrolledProgramCode -> {
       var enrolledProgramEntity = new SdcSchoolCollectionStudentEnrolledProgramEntity();
@@ -188,12 +189,23 @@ public class SdcSchoolCollectionStudentService {
       enrolledProgramEntity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
       enrolledProgramEntity.setCreateDate(LocalDateTime.now());
       enrolledProgramEntity.setEnrolledProgramCode(enrolledProgramCode);
-
+      log.info("EnrolledProgramEntity", enrolledProgramEntity);
       student.getSdcStudentEnrolledProgramEntities().add(enrolledProgramEntity);
+      log.info("Student Enrolled Program Entities", student.getSdcStudentEnrolledProgramEntities());
     });
 
-    return student;
+    return sdcSchoolCollectionStudentRepository.save(student);
   }
+
+  public void deleteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID) {
+    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
+
+    var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
+            new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, sdcSchoolCollectionStudentID.toString()));
+
+    student.getSdcStudentEnrolledProgramEntities().clear();
+  }
+
 
   public SdcSchoolCollectionStudentValidationIssueErrorWarningCount errorAndWarningCountBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
 
@@ -284,7 +296,8 @@ public class SdcSchoolCollectionStudentService {
       OFFSHORE,
       OUT_OF_PROVINCE,
       INACTIVE_ADULT,
-      INACTIVE_SCHOOL_AGE
+      INACTIVE_SCHOOL_AGE,
+      TOO_YOUNG
     );
 
     return errors.stream().filter(ineligibleCodes::contains).findFirst();

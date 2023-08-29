@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -258,6 +259,25 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     assertThat(errors.stream().anyMatch(e ->
       StringUtils.equals(e.toString(), ProgramEligibilityIssueCode.INACTIVE_SCHOOL_AGE.toString())
     )).isTrue();
+  }
+
+  @Test
+  void testTooYoungStudentsRule() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+    SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+    schoolStudentEntity.setIsAdult(false);
+
+    School localSchool = createMockSchool();
+    localSchool.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+    List<ProgramEligibilityIssueCode> listWithoutError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity), createMockSchool()));
+    assertThat(listWithoutError.stream().anyMatch(e -> e.equals(ProgramEligibilityIssueCode.TOO_YOUNG))).isFalse();
+
+    DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd");
+    schoolStudentEntity.setDob(format.format(LocalDateTime.now().minusYears(1)));
+    List<ProgramEligibilityIssueCode> listWithTooYoungStudentError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity), createMockSchool()));
+    assertThat(listWithTooYoungStudentError.size()).isNotZero();
+    assertThat(listWithTooYoungStudentError.stream().anyMatch(e -> StringUtils.equals(e.toString(), ProgramEligibilityIssueCode.TOO_YOUNG.toString()))).isTrue();
   }
 
   @Test
