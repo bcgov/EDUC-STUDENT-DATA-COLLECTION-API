@@ -104,13 +104,13 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
 
     // Write Enrolled Program Codes
     if(StringUtils.isNotBlank(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes())) {
-      log.debug("Angadh Test 1 - If condition check" + sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
+      log.info("Angadh Test 1 - If condition check" + sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
 
       List<String> enrolledProgramList = TransformUtil.splitIntoChunks(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes(), 2);
-      log.debug("Angadh Test 2 - Enrolled Program List" + enrolledProgramList);
+      log.info("Angadh Test 2 - Enrolled Program List" + enrolledProgramList);
 
       sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.writeEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), enrolledProgramList);
-      log.debug("Angadh Test 3 - sdcSchoolCollectionStudentEntity" + sdcSchoolCollectionStudentEntity);
+      log.info("Angadh Test 3 - sdcSchoolCollectionStudentEntity" + sdcSchoolCollectionStudentEntity);
 
       sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
     }
@@ -121,7 +121,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
 
     sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.updateStudentAgeColumns(studentUUID, DOBUtil.isAdult(studentDOB), DOBUtil.isSchoolAged(studentDOB));
     sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
-    log.debug("Angadh Test 4 - sdcSchoolCollectionStudentEntity" + sdcSchoolCollectionStudentEntity);
+    log.info("Angadh Test 4 - sdcSchoolCollectionStudentEntity" + sdcSchoolCollectionStudentEntity);
 
     // Update program eligibility
     sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.clearSdcSchoolStudentProgramEligibilityColumns(studentUUID);
@@ -130,7 +130,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
 
     sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(programEligibilityErrors, studentUUID);
     sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
-    log.debug("Angadh Test 5 - sdcSchoolCollectionStudentEntity" + sdcSchoolCollectionStudentEntity);
+    log.info("Angadh Test 5 - sdcSchoolCollectionStudentEntity" + sdcSchoolCollectionStudentEntity);
 
     // Calculate Fte
     var fteResults = this.fteCalculatorChainProcessor.processFteCalculator(sdcStudentSagaData);
