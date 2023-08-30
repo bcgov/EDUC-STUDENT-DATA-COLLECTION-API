@@ -120,6 +120,8 @@ public class SdcSchoolCollectionStudentService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public SdcSchoolCollectionStudentEntity saveSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity curSdcSchoolCollectionStudentEntity) {
     var entity = this.sdcSchoolCollectionStudentRepository.save(curSdcSchoolCollectionStudentEntity);
+    log.info("Angadh Test 9 - sdcSchoolCollectionStudentEntity" + entity.getSdcStudentEnrolledProgramEntities());
+
     this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, curSdcSchoolCollectionStudentEntity.getUpdateUser());
     return entity;
   }

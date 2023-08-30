@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentHistoryRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
+@Slf4j
 public class SdcSchoolCollectionStudentHistoryService {
 
   private final SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
@@ -30,7 +32,7 @@ public class SdcSchoolCollectionStudentHistoryService {
     sdcSchoolCollectionStudentHistoryEntity.setCreateDate(LocalDateTime.now());
     sdcSchoolCollectionStudentHistoryEntity.setUpdateUser(updateUser);
     sdcSchoolCollectionStudentHistoryEntity.setUpdateDate(LocalDateTime.now());
-
+    log.info("Angadh Test 10 - sdcSchoolCollectionStudentEntity" + sdcSchoolCollectionStudentHistoryEntity.getEnrolledProgramCodes());
     sdcSchoolCollectionStudentHistoryRepository.save(sdcSchoolCollectionStudentHistoryEntity);
   }
 }
