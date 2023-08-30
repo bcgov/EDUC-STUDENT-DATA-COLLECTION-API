@@ -135,6 +135,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     // Calculate Fte
     var fteResults = this.fteCalculatorChainProcessor.processFteCalculator(sdcStudentSagaData);
     sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.updateFteColumns(fteResults, studentUUID);
+    log.info("Angadh Test 6 - sdcSchoolCollectionStudentEntity" + sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities());
 
     this.sdcSchoolCollectionStudentService.saveSdcSchoolCollectionStudent(sdcSchoolCollectionStudentEntity);
 
