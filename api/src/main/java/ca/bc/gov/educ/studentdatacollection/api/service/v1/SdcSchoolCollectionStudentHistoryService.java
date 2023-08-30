@@ -32,7 +32,6 @@ public class SdcSchoolCollectionStudentHistoryService {
     sdcSchoolCollectionStudentHistoryEntity.setCreateDate(LocalDateTime.now());
     sdcSchoolCollectionStudentHistoryEntity.setUpdateUser(updateUser);
     sdcSchoolCollectionStudentHistoryEntity.setUpdateDate(LocalDateTime.now());
-    log.info("Angadh Test 10 - sdcSchoolCollectionStudentEntity" + sdcSchoolCollectionStudentHistoryEntity.getEnrolledProgramCodes());
     sdcSchoolCollectionStudentHistoryRepository.save(sdcSchoolCollectionStudentHistoryEntity);
   }
 }

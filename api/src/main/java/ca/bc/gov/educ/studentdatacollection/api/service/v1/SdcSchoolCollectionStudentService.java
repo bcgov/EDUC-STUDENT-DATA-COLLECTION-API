@@ -120,7 +120,6 @@ public class SdcSchoolCollectionStudentService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public SdcSchoolCollectionStudentEntity saveSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity curSdcSchoolCollectionStudentEntity) {
     var entity = this.sdcSchoolCollectionStudentRepository.save(curSdcSchoolCollectionStudentEntity);
-    log.info("Angadh Test 9 - sdcSchoolCollectionStudentEntity" + entity.getSdcStudentEnrolledProgramEntities());
 
     this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, curSdcSchoolCollectionStudentEntity.getUpdateUser());
     return entity;
@@ -193,8 +192,7 @@ public class SdcSchoolCollectionStudentService {
       enrolledProgramEntity.setEnrolledProgramCode(enrolledProgramCode);
       student.getSdcStudentEnrolledProgramEntities().add(enrolledProgramEntity);
     });
-    return student;
-//    return sdcSchoolCollectionStudentRepository.save(student);
+    return sdcSchoolCollectionStudentRepository.save(student);
   }
 
   public void deleteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID) {
@@ -236,7 +234,6 @@ public class SdcSchoolCollectionStudentService {
 
     SdcSchoolCollectionStudentEntity updatedStudentEntity = this.sdcSchoolCollectionStudentRepository.save(getCurStudentEntity);
     this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(updatedStudentEntity, getCurStudentEntity.getUpdateUser());
-    log.info("Angadh Test 7 - After Orchestration "+ updatedStudentEntity.getEnrolledProgramCodes());
 
     //run validation rules on updated student entity
     List<SdcSchoolCollectionStudentValidationIssue> validationErrors = this.rulesProcessor.processRules(createSagaDataForValidation(updatedStudentEntity));
@@ -253,7 +250,6 @@ public class SdcSchoolCollectionStudentService {
     this.sdcStudentValidationErrorRepository.deleteSdcStudentValidationErrors(updatedStudentEntity.getSdcSchoolCollectionStudentID());
     //save the updates to the student record
     updatedStudentEntity.getSDCStudentValidationIssueEntities().addAll(SdcHelper.populateValidationErrors(validationErrors, updatedStudentEntity));
-    log.info("Angadh Test 8 - After Orchestration  "+ updatedStudentEntity.getEnrolledProgramCodes());
 
     SdcSchoolCollectionStudentEntity updatedStatusStudentEntity = this.sdcSchoolCollectionStudentRepository.save(updatedStudentEntity);
 
