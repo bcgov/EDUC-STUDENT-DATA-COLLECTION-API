@@ -193,8 +193,8 @@ public class SdcSchoolCollectionStudentService {
       enrolledProgramEntity.setEnrolledProgramCode(enrolledProgramCode);
       student.getSdcStudentEnrolledProgramEntities().add(enrolledProgramEntity);
     });
-
-    return sdcSchoolCollectionStudentRepository.save(student);
+    return student;
+//    return sdcSchoolCollectionStudentRepository.save(student);
   }
 
   public void deleteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID) {
