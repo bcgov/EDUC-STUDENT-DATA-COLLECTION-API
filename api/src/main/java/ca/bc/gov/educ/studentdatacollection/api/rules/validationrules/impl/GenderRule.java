@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationFieldCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -32,7 +32,7 @@ public class GenderRule implements ValidationBaseRule {
   public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
     final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
     if(StringUtils.isEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getGender()) || (!studentRuleData.getSdcSchoolCollectionStudentEntity().getGender().equals("M") && !studentRuleData.getSdcSchoolCollectionStudentEntity().getGender().equals("F"))) {
-      errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.GENDER_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.GENDER_INVALID));
+      errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.GENDER_CODE, StudentValidationIssueTypeCode.GENDER_INVALID));
     }
     return errors;
   }

@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationFieldCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
@@ -42,8 +42,8 @@ public class SchoolAgedNoOfCoursesRule implements ValidationBaseRule {
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
         if (conditionPassed(studentRuleData) && StringUtils.isNotEmpty(student.getNumberOfCourses()) && Double.parseDouble(df.format(Double.valueOf(student.getNumberOfCourses()))) == 0) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.NUMBER_OF_COURSES, SdcSchoolCollectionStudentValidationIssueTypeCode.SCHOOLAGE_ZERO_COURSES));
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_GRADE_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.SCHOOLAGE_ZERO_COURSES));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.NUMBER_OF_COURSES, StudentValidationIssueTypeCode.SCHOOLAGE_ZERO_COURSES));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SCHOOLAGE_ZERO_COURSES));
         }
         return errors;
     }

@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationFieldCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -31,7 +31,7 @@ public class EmptyPenRule implements ValidationBaseRule {
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         if(StringUtils.isEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getStudentPen())) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.STUDENT_PEN, SdcSchoolCollectionStudentValidationIssueTypeCode.STUDENT_PEN_BLANK));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.STUDENT_PEN, StudentValidationIssueTypeCode.STUDENT_PEN_BLANK));
         }
         return errors;
     }

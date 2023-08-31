@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -708,7 +708,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setDob("20220101");
         val validationErrorTooYoung = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorTooYoung.size()).isNotZero();
-        val errorTooYoung = validationErrorTooYoung.stream().anyMatch(val -> val.getValidationIssueCode().equals(SdcSchoolCollectionStudentValidationIssueTypeCode.AGE_LESS_THAN_FIVE.getCode()));
+        val errorTooYoung = validationErrorTooYoung.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.AGE_LESS_THAN_FIVE.getCode()));
         assertThat(errorTooYoung).isTrue();
 
         entity.setDob("20150101");

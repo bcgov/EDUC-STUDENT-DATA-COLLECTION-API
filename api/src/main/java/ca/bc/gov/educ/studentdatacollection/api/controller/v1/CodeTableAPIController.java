@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.CodeTableAPIEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CodeTableMapper;
@@ -66,7 +66,7 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
     public List<ValidationIssueTypeCode> getValidationIssueTypeCodes() {
         List<ValidationIssueTypeCode> validationIssues = new ArrayList<>();
 
-        for (var code : SdcSchoolCollectionStudentValidationIssueTypeCode.values()) {
+        for (var code : StudentValidationIssueTypeCode.values()) {
             ValidationIssueTypeCode issue = new ValidationIssueTypeCode();
             issue.setValidationIssueTypeCode(code.getCode());
             issue.setMessage(code.getMessage());

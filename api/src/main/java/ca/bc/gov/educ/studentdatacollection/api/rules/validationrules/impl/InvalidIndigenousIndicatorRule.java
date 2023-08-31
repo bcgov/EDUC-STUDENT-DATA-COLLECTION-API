@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationFieldCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -34,7 +34,7 @@ public class InvalidIndigenousIndicatorRule implements ValidationBaseRule {
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
         if(StringUtils.isEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getNativeAncestryInd()) || (!student.getNativeAncestryInd().equals("Y") && !student.getNativeAncestryInd().equals("N"))) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR, SdcSchoolCollectionStudentValidationFieldCode.NATIVE_ANCESTRY_IND, SdcSchoolCollectionStudentValidationIssueTypeCode.NATIVE_IND_INVALID));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.NATIVE_ANCESTRY_IND, StudentValidationIssueTypeCode.NATIVE_IND_INVALID));
         }
 
         return errors;

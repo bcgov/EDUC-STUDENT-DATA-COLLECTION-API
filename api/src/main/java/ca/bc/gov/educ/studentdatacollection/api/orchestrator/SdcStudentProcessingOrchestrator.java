@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.STUDENT_PROCESSED;
@@ -36,17 +37,11 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.
 @Component
 @Slf4j
 public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStudentSagaData> {
-  private final RulesProcessor rulesProcessor;
-  private final ProgramEligibilityRulesProcessor programEligibilityRulesProcessor;
   private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
-  private final FteCalculatorChainProcessor fteCalculatorChainProcessor;
 
-  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final ProgramEligibilityRulesProcessor programEligibilityRulesProcessor, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, FteCalculatorChainProcessor fteCalculatorChainProcessor) {
+  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
     super(sagaService, messagePublisher, SdcStudentSagaData.class, SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString(), TopicsEnum.STUDENT_DATA_COLLECTION_PROCESS_STUDENT_SAGA_TOPIC.toString());
-    this.rulesProcessor = rulesProcessor;
-    this.programEligibilityRulesProcessor = programEligibilityRulesProcessor;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
-    this.fteCalculatorChainProcessor = fteCalculatorChainProcessor;
   }
 
   @Override
@@ -56,20 +51,13 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
       .end(PROCESS_SDC_STUDENT, STUDENT_PROCESSED, this::completeSdcStudentSagaWithError);
   }
 
-//  @Transactional(propagation = Propagation.REQUIRES_NEW)
   private void processStudentRecord(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(PROCESS_SDC_STUDENT.toString());
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-    SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.getSdcSchoolCollectionStudent(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionID()));
 
-    StudentRuleData ruleStudent = new StudentRuleData();
-    ruleStudent.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentEntity);
-    ruleStudent.setSchool(sdcStudentSagaData.getSchool());
-
-    validateStudent(ruleStudent);
-    calculateAdditionalStudentAttributes(ruleStudent);
+    this.sdcSchoolCollectionStudentService.processStudentRecord(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), sdcStudentSagaData.getSchool(), sdcStudentSagaData.getCollectionTypeCode(), Optional.empty());
 
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(PROCESS_SDC_STUDENT);
@@ -80,46 +68,8 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     log.info("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
-  private void calculateAdditionalStudentAttributes(final StudentRuleData studentRuleData) {
-    var sdcSchoolCollectionStudentEntity = studentRuleData.getSdcSchoolCollectionStudentEntity();
-    sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
-
-    // Write Enrolled Program Codes
-    if(StringUtils.isNotBlank(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes())) {
-      List<String> enrolledProgramList = TransformUtil.splitIntoChunks(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes(), 2);
-      this.sdcSchoolCollectionStudentService.writeEnrolledProgramCodes(sdcSchoolCollectionStudentEntity, enrolledProgramList);
-    }
-
-    // Update Student age columns
-    String studentDOB = sdcSchoolCollectionStudentEntity.getDob();
-    sdcSchoolCollectionStudentEntity.setIsAdult(DOBUtil.isAdult(studentDOB));
-    sdcSchoolCollectionStudentEntity.setIsSchoolAged(DOBUtil.isSchoolAged(studentDOB));
-
-    // Update program eligibility
-    this.sdcSchoolCollectionStudentService.clearSdcSchoolStudentProgramEligibilityColumns(sdcSchoolCollectionStudentEntity);
-    List<ProgramEligibilityIssueCode> programEligibilityErrors = this.programEligibilityRulesProcessor.processRules(studentRuleData);
-    this.sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(programEligibilityErrors, studentRuleData.getSdcSchoolCollectionStudentEntity());
-
-    // Calculate Fte
-    var fteResults = this.fteCalculatorChainProcessor.processFteCalculator(studentRuleData);
-    this.sdcSchoolCollectionStudentService.updateFteColumns(fteResults, sdcSchoolCollectionStudentEntity);
-
-    this.sdcSchoolCollectionStudentService.saveSdcSchoolCollectionStudent(sdcSchoolCollectionStudentEntity);
-  }
-
-  private void validateStudent(final StudentRuleData studentRuleData){
-    val validationErrors = this.rulesProcessor.processRules(studentRuleData);
-    var entity = studentRuleData.getSdcSchoolCollectionStudentEntity();
-    entity.getSDCStudentValidationIssueEntities().clear();
-    entity.getSDCStudentValidationIssueEntities().addAll(SdcHelper.populateValidationErrors(validationErrors, entity));
-    if(!validationErrors.isEmpty()) {
-      entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.HAS_ISSUES.toString());
-    }else{
-      entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.VERIFIED.toString());
-    }
-  }
-
   private void completeSdcStudentSagaWithError(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
+    //This is ok
   }
 
 }

@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * The enum Pen request batch student validation field code.
  */
-public enum SdcSchoolCollectionStudentValidationFieldCode {
+public enum StudentValidationFieldCode {
   LOCAL_ID("LOCALID"),
   STUDENT_PEN("STUDENT_PEN"),
   LEGAL_FIRST_NAME("LEGAL_FIRST_NAME"),
@@ -41,7 +41,7 @@ public enum SdcSchoolCollectionStudentValidationFieldCode {
    *
    * @param code the code
    */
-  SdcSchoolCollectionStudentValidationFieldCode(String code) {
+  StudentValidationFieldCode(String code) {
     this.code = code;
   }
 }

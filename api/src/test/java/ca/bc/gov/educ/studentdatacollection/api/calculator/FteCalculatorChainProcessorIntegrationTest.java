@@ -204,10 +204,11 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
         this.studentData.getSchool().setDistrictId(String.valueOf(sdcSchoolCollection.getDistrictID()));
 
-        var oneYearAgoStudentCollection = this.studentData.getSdcSchoolCollectionStudentEntity();
-        oneYearAgoStudentCollection.setCreateDate(lastCollectionDate);
-        oneYearAgoStudentCollection.setSdcSchoolCollection(sdcSchoolCollection);
-        sdcSchoolCollectionStudentRepository.save(oneYearAgoStudentCollection);
+        var oneYearAgoCollectionStudent = createMockSchoolStudentEntity(sdcSchoolCollection);
+        oneYearAgoCollectionStudent.setCreateDate(lastCollectionDate);
+        oneYearAgoCollectionStudent.setSdcSchoolCollection(sdcSchoolCollection);
+        oneYearAgoCollectionStudent.setAssignedStudentId(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId());
+        sdcSchoolCollectionStudentRepository.save(oneYearAgoCollectionStudent);
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
@@ -246,10 +247,11 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
         this.studentData.getSchool().setDistrictId(String.valueOf(sdcSchoolCollection.getDistrictID()));
 
-        var oneYearAgoStudentCollection = this.studentData.getSdcSchoolCollectionStudentEntity();
-        oneYearAgoStudentCollection.setCreateDate(lastCollectionDate);
-        oneYearAgoStudentCollection.setSdcSchoolCollection(sdcSchoolCollection);
-        sdcSchoolCollectionStudentRepository.save(oneYearAgoStudentCollection);
+        var oneYearAgoCollectionStudent = createMockSchoolStudentEntity(sdcSchoolCollection);
+        oneYearAgoCollectionStudent.setCreateDate(lastCollectionDate);
+        oneYearAgoCollectionStudent.setSdcSchoolCollection(sdcSchoolCollection);
+        oneYearAgoCollectionStudent.setAssignedStudentId(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId());
+        sdcSchoolCollectionStudentRepository.save(oneYearAgoCollectionStudent);
 
         when(restUtils.getSchoolIDsByIndependentAuthorityID(anyString())).thenReturn(Optional.of(Collections.singletonList(sdcSchoolCollection.getSchoolID())));
 
@@ -309,12 +311,13 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
 
-        var oneYearAgoStudentCollection = this.studentData.getSdcSchoolCollectionStudentEntity();
-        oneYearAgoStudentCollection.setSdcSchoolCollection(sdcSchoolCollectionEntity);
-        oneYearAgoStudentCollection.setCreateDate(lastCollectionDate);
-        oneYearAgoStudentCollection.setEnrolledGradeCode("HS");
+        var oneYearAgoCollectionStudent = createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        oneYearAgoCollectionStudent.setCreateDate(lastCollectionDate);
+        oneYearAgoCollectionStudent.setSdcSchoolCollection(sdcSchoolCollectionEntity);
+        oneYearAgoCollectionStudent.setAssignedStudentId(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId());
+        oneYearAgoCollectionStudent.setEnrolledGradeCode("HS");
 
-        sdcSchoolCollectionStudentRepository.save(oneYearAgoStudentCollection);
+        sdcSchoolCollectionStudentRepository.save(oneYearAgoCollectionStudent);
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);

@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * The enum Pen request batch student validation issue type code.
  */
-public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
+public enum StudentValidationIssueTypeCode {
 
   /**
    * Gender invalid student validation issue type code.
@@ -102,7 +102,7 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
    *
    * @param code the code
    */
-  SdcSchoolCollectionStudentValidationIssueTypeCode(String code, String message) {
+  StudentValidationIssueTypeCode(String code, String message) {
     this.code = code;
     this.message = message;
   }

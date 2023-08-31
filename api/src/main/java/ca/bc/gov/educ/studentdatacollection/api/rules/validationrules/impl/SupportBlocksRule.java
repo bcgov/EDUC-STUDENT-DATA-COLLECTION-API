@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationFieldCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
@@ -46,14 +46,14 @@ public class SupportBlocksRule implements ValidationBaseRule {
         if (StringUtils.isNotEmpty(enrolledGradeCode) && SchoolGradeCodes.getSupportBlockGrades().contains(enrolledGradeCode)
                 && StringUtils.isNotEmpty(supportBlocks) && StringUtils.isNotEmpty(courseCountStr) && courseCount >= 8) {
             errors.add(createValidationIssue(
-                SdcSchoolCollectionStudentValidationIssueSeverityCode.FUNDING_WARNING,
-                SdcSchoolCollectionStudentValidationFieldCode.SUPPORT_BLOCKS,
-                SdcSchoolCollectionStudentValidationIssueTypeCode.SUPPORT_BLOCKS_NOT_COUNT
+                StudentValidationIssueSeverityCode.FUNDING_WARNING,
+                StudentValidationFieldCode.SUPPORT_BLOCKS,
+                StudentValidationIssueTypeCode.SUPPORT_BLOCKS_NOT_COUNT
             ));
             errors.add(createValidationIssue(
-                SdcSchoolCollectionStudentValidationIssueSeverityCode.FUNDING_WARNING,
-                SdcSchoolCollectionStudentValidationFieldCode.NUMBER_OF_COURSES,
-                SdcSchoolCollectionStudentValidationIssueTypeCode.SUPPORT_BLOCKS_NOT_COUNT
+                StudentValidationIssueSeverityCode.FUNDING_WARNING,
+                StudentValidationFieldCode.NUMBER_OF_COURSES,
+                StudentValidationIssueTypeCode.SUPPORT_BLOCKS_NOT_COUNT
             ));
         }
         return errors;

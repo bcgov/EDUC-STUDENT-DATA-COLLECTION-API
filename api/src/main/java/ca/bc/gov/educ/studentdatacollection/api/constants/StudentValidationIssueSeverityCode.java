@@ -3,7 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.constants;
 /**
  * The enum Pen request batch student validation issue severity code.
  */
-public enum SdcSchoolCollectionStudentValidationIssueSeverityCode {
+public enum StudentValidationIssueSeverityCode {
   /**
    * Error student validation issue severity code.
    */

@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationFieldCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -35,7 +35,7 @@ public class UsualLastNameBadValueRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         if (containsBadValue(studentRuleData.getSdcSchoolCollectionStudentEntity().getUsualLastName())) {
-            errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.INFO_WARNING, SdcSchoolCollectionStudentValidationFieldCode.USUAL_LAST_NAME, SdcSchoolCollectionStudentValidationIssueTypeCode.USUAL_LAST_NAME_BAD_VALUE));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.INFO_WARNING, StudentValidationFieldCode.USUAL_LAST_NAME, StudentValidationIssueTypeCode.USUAL_LAST_NAME_BAD_VALUE));
         }
 
         return errors;

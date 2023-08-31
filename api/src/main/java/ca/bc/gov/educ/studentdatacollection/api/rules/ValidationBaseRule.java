@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationFieldCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ValidationRulesDependencyMatrix;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ValidationBaseRule extends Rule<StudentRuleData, SdcSchoolCollectionStudentValidationIssue> {
-  default SdcSchoolCollectionStudentValidationIssue createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode severityCode, SdcSchoolCollectionStudentValidationFieldCode fieldCode, SdcSchoolCollectionStudentValidationIssueTypeCode typeCode){
+  default SdcSchoolCollectionStudentValidationIssue createValidationIssue(StudentValidationIssueSeverityCode severityCode, StudentValidationFieldCode fieldCode, StudentValidationIssueTypeCode typeCode){
     SdcSchoolCollectionStudentValidationIssue sdcSchoolCollectionStudentValidationIssue = new SdcSchoolCollectionStudentValidationIssue();
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueSeverityCode(severityCode.toString());
     sdcSchoolCollectionStudentValidationIssue.setValidationIssueCode(typeCode.getCode());

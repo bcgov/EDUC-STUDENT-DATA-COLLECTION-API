@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationFieldCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -39,14 +39,14 @@ public class GARule implements ValidationBaseRule {
         final String studentDOB = student.getDob();
         if (DOBUtil.isSchoolAged(studentDOB) && enrolledGradeCode.equals("GA")) {
             errors.add(createValidationIssue(
-                SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR,
-                SdcSchoolCollectionStudentValidationFieldCode.DOB,
-                SdcSchoolCollectionStudentValidationIssueTypeCode.GA_ERROR
+                StudentValidationIssueSeverityCode.ERROR,
+                StudentValidationFieldCode.DOB,
+                StudentValidationIssueTypeCode.GA_ERROR
             ));
             errors.add(createValidationIssue(
-                SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR,
-                SdcSchoolCollectionStudentValidationFieldCode.ENROLLED_GRADE_CODE,
-                SdcSchoolCollectionStudentValidationIssueTypeCode.GA_ERROR
+                StudentValidationIssueSeverityCode.ERROR,
+                StudentValidationFieldCode.ENROLLED_GRADE_CODE,
+                StudentValidationIssueTypeCode.GA_ERROR
             ));
         }
         return errors;

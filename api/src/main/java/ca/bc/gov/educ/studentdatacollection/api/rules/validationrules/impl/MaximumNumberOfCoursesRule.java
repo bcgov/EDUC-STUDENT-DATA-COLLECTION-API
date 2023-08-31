@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationFieldCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
@@ -43,9 +43,9 @@ public class MaximumNumberOfCoursesRule implements ValidationBaseRule {
 
         if (StringUtils.isNotEmpty(courseCountStr) && hasEightPlusGradeCodes && courseCount > 15) {
             errors.add(createValidationIssue(
-                SdcSchoolCollectionStudentValidationIssueSeverityCode.INFO_WARNING,
-                SdcSchoolCollectionStudentValidationFieldCode.NUMBER_OF_COURSES,
-                SdcSchoolCollectionStudentValidationIssueTypeCode.NO_OF_COURSE_MAX
+                StudentValidationIssueSeverityCode.INFO_WARNING,
+                StudentValidationFieldCode.NUMBER_OF_COURSES,
+                StudentValidationIssueTypeCode.NO_OF_COURSE_MAX
             ));
         }
 

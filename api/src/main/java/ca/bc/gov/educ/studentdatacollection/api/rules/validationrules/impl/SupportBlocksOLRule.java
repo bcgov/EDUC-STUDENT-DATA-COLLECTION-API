@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationFieldCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
@@ -46,9 +46,9 @@ public class SupportBlocksOLRule implements ValidationBaseRule {
                 && (StringUtils.isNotEmpty(supportBlocks)
                 && !supportBlocks.equals("0"))) {
             errors.add(createValidationIssue(
-                    SdcSchoolCollectionStudentValidationIssueSeverityCode.ERROR,
-                    SdcSchoolCollectionStudentValidationFieldCode.SUPPORT_BLOCKS,
-                    SdcSchoolCollectionStudentValidationIssueTypeCode.SUPPORT_FACILITY_NA
+                    StudentValidationIssueSeverityCode.ERROR,
+                    StudentValidationFieldCode.SUPPORT_BLOCKS,
+                    StudentValidationIssueTypeCode.SUPPORT_FACILITY_NA
             ));
         }
         return errors;

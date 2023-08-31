@@ -3,9 +3,11 @@ package ca.bc.gov.educ.studentdatacollection.api;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.support.StudentDataCollectionTestUtils;
@@ -206,7 +208,8 @@ public abstract class BaseStudentDataCollectionAPITest {
       .sagaName(SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString())
       .status(SagaStatusEnum.IN_PROGRESS.toString())
       .sagaState(EventType.INITIATED.toString())
-      .payload(JsonUtil.getJsonStringFromObject(createMockStudentRuleData(student, createMockSchool())))
+      .payload(JsonUtil.getJsonStringFromObject(SdcStudentSagaData.builder()
+              .sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolCollectionStudentWithValidationIssues(student)).school(createMockSchool()).build()))
       .build();
   }
 

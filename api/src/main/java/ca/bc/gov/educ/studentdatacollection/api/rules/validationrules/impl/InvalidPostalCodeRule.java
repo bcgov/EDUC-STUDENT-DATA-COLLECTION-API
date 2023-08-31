@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationFieldCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SdcSchoolCollectionStudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
@@ -38,7 +38,7 @@ public class InvalidPostalCodeRule implements ValidationBaseRule {
         if(!studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())) {
             Pattern pattern = Pattern.compile("^[A-Za-z]\\d[A-Za-z]\\d[A-Za-z]\\d$");
             if(!pattern.matcher(studentRuleData.getSdcSchoolCollectionStudentEntity().getPostalCode()).matches()) {
-                errors.add(createValidationIssue(SdcSchoolCollectionStudentValidationIssueSeverityCode.INFO_WARNING, SdcSchoolCollectionStudentValidationFieldCode.POSTAL_CODE, SdcSchoolCollectionStudentValidationIssueTypeCode.INVALID_POSTAL_CODE));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.INFO_WARNING, StudentValidationFieldCode.POSTAL_CODE, StudentValidationIssueTypeCode.INVALID_POSTAL_CODE));
             }
         }
         return errors;
