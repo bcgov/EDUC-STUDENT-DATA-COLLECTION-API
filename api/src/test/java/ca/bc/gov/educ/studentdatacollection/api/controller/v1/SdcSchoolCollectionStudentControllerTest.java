@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
@@ -36,6 +37,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.OR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -830,7 +832,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
-    void testGetSdcSchoolCollectionStudentHeadcounts() throws Exception {
+    void testGetSdcSchoolCollectionStudentHeadcounts_enrollmentHeadcounts() throws Exception {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
@@ -877,5 +879,98 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.11.currentValue", equalTo("2")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.11.comparisonValue", equalTo("1")));
 
+    }
+
+    @Test
+    void testGetSdcSchoolCollectionStudentHeadcounts_frenchHeadcounts() throws Exception {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        firstSchool.setUploadDate(null);
+        firstSchool.setUploadFileName(null);
+        var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        secondSchool.setUploadDate(null);
+        secondSchool.setUploadFileName(null);
+        secondSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+        sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchool, secondSchool));
+
+        final File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+        );
+        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+        });
+        var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+        var students = IntStream.range(0, models.size())
+                .mapToObj(i -> {
+                    if (i % 2 == 0) {
+                        models.get(i).setSdcSchoolCollection(secondSchool);
+                    } else {
+                        models.get(i).setSdcSchoolCollection(firstSchool);
+                    }
+                    return models.get(i);
+                })
+                .toList();
+
+        var savedStudents = sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        List<SdcSchoolCollectionStudentEnrolledProgramEntity> enrolledPrograms = new ArrayList<>();
+
+        savedStudents.forEach(student -> {
+            var enrolledProg = new SdcSchoolCollectionStudentEnrolledProgramEntity();
+            enrolledProg.setSdcSchoolCollectionStudentEntity(student);
+            enrolledProg.setEnrolledProgramCode("14");
+            enrolledProg.setCreateUser("ABC");
+            enrolledProg.setUpdateUser("ABC");
+            enrolledProg.setCreateDate(LocalDateTime.now());
+            enrolledProg.setUpdateDate(LocalDateTime.now());
+            enrolledPrograms.add(enrolledProg);
+        });
+
+
+        sdcSchoolCollectionStudentEnrolledProgramRepository.saveAll(enrolledPrograms);
+
+        this.mockMvc
+                .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("type", "french")
+                        .param("compare", "true")
+                        .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].title", equalTo("Core French")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("4")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].title", equalTo("Early French Immersion")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Not Reported'].currentValue", equalTo("4")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("0")));
+
+    }
+    @Test
+    void testGetSdcSchoolCollectionStudentHeadcounts_WithInvalidCollection() throws Exception {
+        UUID collectionID = UUID.randomUUID();
+        this.mockMvc
+                .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + collectionID.toString())
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("type", "enrollment")
+                        .param("compare", "true")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof EntityNotFoundException))
+                .andExpect(result -> assertTrue(Objects.requireNonNull(result.getResolvedException()).getMessage().contains(collectionID.toString())));
+    }
+    @Test
+    void testGetSdcSchoolCollectionStudentHeadcounts_WithInvalidType_ShouldReturnBadRequest() throws Exception {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var schoolEntity = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        sdcSchoolCollectionRepository.save(schoolEntity);
+
+        mockMvc.perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + schoolEntity.getSdcSchoolCollectionID())
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("type", "invalidType")
+                        .param("compare", "true")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }
