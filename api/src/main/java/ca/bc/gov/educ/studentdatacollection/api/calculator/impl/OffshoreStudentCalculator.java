@@ -2,7 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +23,7 @@ public class OffshoreStudentCalculator implements FteCalculator {
         this.nextCalculator = nextCalculator;
     }
     @Override
-    public FteCalculationResult calculateFte(SdcStudentSagaData studentData) {
+    public FteCalculationResult calculateFte(StudentRuleData studentData) {
         if(studentData.getSchool() != null && StringUtils.equals(studentData.getSchool().getSchoolCategoryCode(), SchoolCategoryCodes.OFFSHORE.getCode())) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);

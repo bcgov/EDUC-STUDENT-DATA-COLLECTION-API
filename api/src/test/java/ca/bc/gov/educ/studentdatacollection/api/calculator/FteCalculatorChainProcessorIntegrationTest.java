@@ -1,18 +1,13 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -35,6 +30,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 @SpringBootTest
 @ActiveProfiles("test")
 class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollectionAPITest {
@@ -47,7 +47,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     CollectionRepository collectionRepository;
     @Autowired
     SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
-    private SdcStudentSagaData studentData;
+    private StudentRuleData studentData;
     @Autowired
     RestUtils restUtils;
 
@@ -56,7 +56,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         final File file = new File(
                 Objects.requireNonNull(getClass().getClassLoader().getResource("sdc-student-saga-data.json")).getFile()
         );
-        studentData = new ObjectMapper().readValue(file, SdcStudentSagaData.class);
+        studentData = new ObjectMapper().readValue(file, StudentRuleData.class);
     }
 
     @Test
@@ -78,7 +78,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     @Test
     void testProcessFteCalculator_StudentOutOfProvince() {
         // Given
-        this.studentData.getSdcSchoolCollectionStudent().setSchoolFundingCode("14");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSchoolFundingCode("14");
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
@@ -95,7 +95,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     void testProcessFteCalculator_TooYoung() {
         // Given
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd");
-        this.studentData.getSdcSchoolCollectionStudent().setDob(format.format(LocalDate.now().minusYears(3)));
+        this.studentData.getSdcSchoolCollectionStudentEntity().setDob(format.format(LocalDate.now().minusYears(3)));
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
@@ -112,7 +112,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     void testProcessFteCalculator_GraduatedAdultIndySchool() {
         // Given
         this.studentData.getSchool().setSchoolCategoryCode("INDEPEND");
-        this.studentData.getSdcSchoolCollectionStudent().setEnrolledGradeCode("GA");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("GA");
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
@@ -129,8 +129,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     void testProcessFteCalculator_IndependentSchoolAndBandCode() {
         // Given
         this.studentData.getSchool().setSchoolCategoryCode("INDEPEND");
-        this.studentData.getSdcSchoolCollectionStudent().setBandCode("");
-        this.studentData.getSdcSchoolCollectionStudent().setSchoolFundingCode("20");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setBandCode("");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSchoolFundingCode("20");
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
@@ -148,10 +148,10 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     void testProcessFteCalculator_NoCoursesInLastTwoYears() throws IOException {
         // Given
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
-        this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("0");
-        this.studentData.getSdcSchoolCollectionStudent().setIsSchoolAged("true");
-        this.studentData.getSdcSchoolCollectionStudent().setEnrolledGradeCode("10");
-        this.studentData.getSdcSchoolCollectionStudent().setCreateDate(LocalDateTime.now().toString());
+        this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setIsSchoolAged(true);
+        this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("10");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setCreateDate(LocalDateTime.now());
 
         final File file = new File(
                 Objects.requireNonNull(getClass().getClassLoader().getResource("sdc-school-collection-entity.json")).getFile()
@@ -185,8 +185,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSchool().setSchoolCategoryCode("PUBLIC");
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
         this.studentData.setCollectionTypeCode("FEBRUARY");
-        this.studentData.getSdcSchoolCollectionStudent().setEnrolledGradeCode("08");
-        this.studentData.getSdcSchoolCollectionStudent().setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 5, 0, 0).toString());
+        this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("08");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 5, 0, 0));
 
         final File file = new File(
                 Objects.requireNonNull(getClass().getClassLoader().getResource("sdc-school-collection-entity.json")).getFile()
@@ -204,7 +204,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
         this.studentData.getSchool().setDistrictId(String.valueOf(sdcSchoolCollection.getDistrictID()));
 
-        var oneYearAgoStudentCollection = SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudentEntity(this.studentData.getSdcSchoolCollectionStudent());
+        var oneYearAgoStudentCollection = this.studentData.getSdcSchoolCollectionStudentEntity();
         oneYearAgoStudentCollection.setCreateDate(lastCollectionDate);
         oneYearAgoStudentCollection.setSdcSchoolCollection(sdcSchoolCollection);
         sdcSchoolCollectionStudentRepository.save(oneYearAgoStudentCollection);
@@ -227,8 +227,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSchool().setSchoolCategoryCode("INDEPEND");
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
         this.studentData.setCollectionTypeCode("FEBRUARY");
-        this.studentData.getSdcSchoolCollectionStudent().setEnrolledGradeCode("08");
-        this.studentData.getSdcSchoolCollectionStudent().setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 5, 0, 0).toString());
+        this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("08");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 5, 0, 0));
 
         final File file = new File(
                 Objects.requireNonNull(getClass().getClassLoader().getResource("sdc-school-collection-entity.json")).getFile()
@@ -246,7 +246,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
         this.studentData.getSchool().setDistrictId(String.valueOf(sdcSchoolCollection.getDistrictID()));
 
-        var oneYearAgoStudentCollection = SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudentEntity(this.studentData.getSdcSchoolCollectionStudent());
+        var oneYearAgoStudentCollection = this.studentData.getSdcSchoolCollectionStudentEntity();
         oneYearAgoStudentCollection.setCreateDate(lastCollectionDate);
         oneYearAgoStudentCollection.setSdcSchoolCollection(sdcSchoolCollection);
         sdcSchoolCollectionStudentRepository.save(oneYearAgoStudentCollection);
@@ -267,8 +267,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     @Test
     void testProcessFteCalculator_AdultStudent() {
         // Given
-        this.studentData.getSdcSchoolCollectionStudent().setIsAdult("true");
-        this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("0500");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
+        this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0500");
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
@@ -282,8 +282,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     void testProcessFteCalculator_CollectionAndGrade() {
         // Given
         this.studentData.setCollectionTypeCode("JULY");
-        this.studentData.getSdcSchoolCollectionStudent().setEnrolledGradeCode("12");
-        this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("0700");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("12");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0700");
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
@@ -301,15 +301,15 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         // Given
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
         this.studentData.setCollectionTypeCode("FEBRUARY");
-        this.studentData.getSdcSchoolCollectionStudent().setEnrolledGradeCode("KH");
-        this.studentData.getSdcSchoolCollectionStudent().setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 5, 0, 0).toString());
+        this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("KH");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 5, 0, 0));
 
         var lastCollectionDate = LocalDateTime.of(LocalDateTime.now().minusYears(1).getYear(), Month.SEPTEMBER, 5, 0, 0);
 
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
 
-        var oneYearAgoStudentCollection = SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudentEntity(this.studentData.getSdcSchoolCollectionStudent());
+        var oneYearAgoStudentCollection = this.studentData.getSdcSchoolCollectionStudentEntity();
         oneYearAgoStudentCollection.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         oneYearAgoStudentCollection.setCreateDate(lastCollectionDate);
         oneYearAgoStudentCollection.setEnrolledGradeCode("HS");
@@ -328,8 +328,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     void testProcessFteCalculator_AlternatePrograms() {
         // Given
         this.studentData.setCollectionTypeCode("SEPTEMBER");
-        this.studentData.getSdcSchoolCollectionStudent().setEnrolledGradeCode("03");
-        this.studentData.getSdcSchoolCollectionStudent().setIsGraduated("false");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("03");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setIsGraduated(false);
         this.studentData.getSchool().setFacilityTypeCode("ALT_PROGS");
 
         // When
@@ -344,7 +344,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     void testProcessFteCalculator_StudentGrade() {
         // Given
         this.studentData.setCollectionTypeCode("SEPTEMBER");
-        this.studentData.getSdcSchoolCollectionStudent().setEnrolledGradeCode("KH");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("KH");
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
@@ -357,8 +357,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     @Test
     void testProcessFteCalculator_SupportBlocks() {
         // Given
-        this.studentData.getSdcSchoolCollectionStudent().setSupportBlocks("0");
-        this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("0900");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSupportBlocks("0");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0900");
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
@@ -371,8 +371,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     @Test
     void testProcessFteCalculator_StudentGraduated() {
         // Given
-        this.studentData.getSdcSchoolCollectionStudent().setIsGraduated("true");
-        this.studentData.getSdcSchoolCollectionStudent().setNumberOfCourses("1100");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
+        this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("1100");
 
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);

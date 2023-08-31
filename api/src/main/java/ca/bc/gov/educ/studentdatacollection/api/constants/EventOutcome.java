@@ -4,8 +4,7 @@ package ca.bc.gov.educ.studentdatacollection.api.constants;
  * The enum Event outcome.
  */
 public enum EventOutcome {
-  VALIDATION_SUCCESS_NO_ERROR,
-  VALIDATION_SUCCESS_WITH_ERROR,
+  STUDENT_PROCESSED,
   PEN_MATCH_PROCESSED,
   GRAD_STATUS_FETCHED,
   GRAD_STATUS_RESULTS_PROCESSED,

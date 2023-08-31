@@ -4,7 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.SagaRuntimeException;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +25,8 @@ public class CollectionAndGradeCalculator implements FteCalculator {
         this.nextCalculator = nextCalculator;
     }
     @Override
-    public FteCalculationResult calculateFte(SdcStudentSagaData studentData) {
-        var student = studentData.getSdcSchoolCollectionStudent();
+    public FteCalculationResult calculateFte(StudentRuleData studentData) {
+        var student = studentData.getSdcSchoolCollectionStudentEntity();
         var isJulyCollection = StringUtils.equals(studentData.getCollectionTypeCode(), CollectionTypeCodes.JULY.getTypeCode());
         if(isJulyCollection) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
@@ -37,7 +37,7 @@ public class CollectionAndGradeCalculator implements FteCalculator {
                 BigDecimal numCourses = StringUtils.isBlank(student.getNumberOfCourses()) ? BigDecimal.ZERO : BigDecimal.valueOf(TransformUtil.parseNumberOfCourses(student.getNumberOfCourses(), student.getSdcSchoolCollectionStudentID()));
                 fteCalculationResult.setFte(numCourses.multiply(fteMultiplier).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros());
             } else {
-                String errorMessage = "SdcStudentSagaData has invalid enrolledGradeCode for a summer collection :: " + student.getSdcSchoolCollectionID();
+                String errorMessage = "SdcStudentSagaData has invalid enrolledGradeCode for a summer collection :: " + student.getSdcSchoolCollection().getSdcSchoolCollectionID();
                 log.error(errorMessage);
                 throw new SagaRuntimeException(errorMessage);
             }

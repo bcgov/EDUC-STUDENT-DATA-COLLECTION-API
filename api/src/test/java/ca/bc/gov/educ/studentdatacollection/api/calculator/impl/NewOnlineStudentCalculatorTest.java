@@ -2,9 +2,9 @@ package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -50,11 +50,11 @@ class NewOnlineStudentCalculatorTest {
     })
     void testCalculateFte_homeSchoolStudentIsNowOnlineKto9Student_ShouldCalculateFteCorrectly(String enrolledGradeCode, String numberOfCourses, String expectedResult) {
         // Given
-        SdcSchoolCollectionStudent sdcSchoolCollectionStudent = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudent = new SdcSchoolCollectionStudentEntity();
         sdcSchoolCollectionStudent.setEnrolledGradeCode(enrolledGradeCode);
         sdcSchoolCollectionStudent.setNumberOfCourses(numberOfCourses);
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(sdcSchoolCollectionStudent);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudent);
 
         when(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(studentData)).thenReturn(true);
 
@@ -70,10 +70,10 @@ class NewOnlineStudentCalculatorTest {
     @Test
     void testCalculateFte_numCoursesIsNull() {
         // Given
-        SdcSchoolCollectionStudent sdcSchoolCollectionStudent = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudent = new SdcSchoolCollectionStudentEntity();
         sdcSchoolCollectionStudent.setEnrolledGradeCode("08");
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(sdcSchoolCollectionStudent);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudent);
 
         when(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(studentData)).thenReturn(true);
 
@@ -89,7 +89,7 @@ class NewOnlineStudentCalculatorTest {
     @Test
     void testCalculateFte_homeSchoolStudentIsNotOnlineKto9Student() {
         // Given
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
 
         when(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(studentData)).thenReturn(false);
 

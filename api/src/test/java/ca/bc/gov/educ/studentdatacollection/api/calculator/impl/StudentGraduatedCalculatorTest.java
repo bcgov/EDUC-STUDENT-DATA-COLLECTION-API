@@ -1,19 +1,19 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.math.BigDecimal;
 
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.*;
 
 class StudentGraduatedCalculatorTest {
 
@@ -36,13 +36,13 @@ class StudentGraduatedCalculatorTest {
     })
     void testCalculateFte_StudentGraduated_ThenFteCalculatedWithoutSupportBlocks(boolean isGraduated, String numberOfCourses, String expectedResults) {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsGraduated(Boolean.toString(isGraduated));
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setIsGraduated(isGraduated);
         student.setNumberOfCourses(numberOfCourses);
         student.setSupportBlocks("2");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = studentGraduatedCalculator.calculateFte(studentData);
@@ -57,13 +57,13 @@ class StudentGraduatedCalculatorTest {
     @Test
     void testCalculateFte_StudentNotGraduatedWithEmptyCourses_ThenFteCalculatedWithSupportBlocks() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsGraduated("false");
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setIsGraduated(false);
         student.setNumberOfCourses("");
         student.setSupportBlocks("2");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = studentGraduatedCalculator.calculateFte(studentData);
@@ -78,12 +78,12 @@ class StudentGraduatedCalculatorTest {
     @Test
     void testCalculateFte_StudentWithNullGraduation_ThenFteCalculatedWithSupportBlocks() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setNumberOfCourses("0500");
         student.setSupportBlocks("2");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = studentGraduatedCalculator.calculateFte(studentData);

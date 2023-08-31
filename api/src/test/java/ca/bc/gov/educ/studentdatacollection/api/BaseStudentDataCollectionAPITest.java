@@ -6,9 +6,8 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.support.StudentDataCollectionTestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -197,7 +196,7 @@ public abstract class BaseStudentDataCollectionAPITest {
   }
 
   @SneakyThrows
-  protected SdcSagaEntity createMockSaga(final SdcSchoolCollectionStudent student) {
+  protected SdcSagaEntity createMockSaga(final SdcSchoolCollectionStudentEntity student) {
     return SdcSagaEntity.builder()
       .sagaId(UUID.randomUUID())
       .updateDate(LocalDateTime.now().minusMinutes(15))
@@ -207,7 +206,7 @@ public abstract class BaseStudentDataCollectionAPITest {
       .sagaName(SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString())
       .status(SagaStatusEnum.IN_PROGRESS.toString())
       .sagaState(EventType.INITIATED.toString())
-      .payload(JsonUtil.getJsonStringFromObject(createMockStudentSagaData(student, createMockSchool())))
+      .payload(JsonUtil.getJsonStringFromObject(createMockStudentRuleData(student, createMockSchool())))
       .build();
   }
 
@@ -224,12 +223,12 @@ public abstract class BaseStudentDataCollectionAPITest {
     return school;
   }
 
-  public SdcStudentSagaData createMockStudentSagaData(final SdcSchoolCollectionStudent student, final School school) {
-    final SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
-    sdcStudentSagaData.setSchool(school);
-    sdcStudentSagaData.setCollectionTypeCode("SEPTEMBER");
-    sdcStudentSagaData.setSdcSchoolCollectionStudent(student);
-    return sdcStudentSagaData;
+  public StudentRuleData createMockStudentRuleData(final SdcSchoolCollectionStudentEntity student, final School school) {
+    final StudentRuleData studentRuleData = new StudentRuleData();
+    studentRuleData.setSchool(school);
+    studentRuleData.setCollectionTypeCode("SEPTEMBER");
+    studentRuleData.setSdcSchoolCollectionStudentEntity(student);
+    return studentRuleData;
   }
   public CollectionTypeCodeEntity createMockCollectionCodeEntity() {
     return CollectionTypeCodeEntity.builder().collectionTypeCode("SEPTEMBER").label("Test")

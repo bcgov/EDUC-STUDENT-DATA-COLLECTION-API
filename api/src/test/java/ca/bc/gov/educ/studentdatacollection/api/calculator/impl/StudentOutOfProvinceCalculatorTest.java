@@ -1,18 +1,17 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.math.BigDecimal;
-
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 class StudentOutOfProvinceCalculatorTest {
 
@@ -29,11 +28,11 @@ class StudentOutOfProvinceCalculatorTest {
     @Test
     void testCalculateFte_StudentOutOfProvince_ThenReturnZeroFteAndReason() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setSchoolFundingCode("14");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = studentOutOfProvinceCalculator.calculateFte(studentData);
@@ -49,11 +48,11 @@ class StudentOutOfProvinceCalculatorTest {
     @Test
     void testCalculateFte_StudentInProvince_ThenNextFteCalculatorCalled() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setSchoolFundingCode("05");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();
@@ -73,11 +72,11 @@ class StudentOutOfProvinceCalculatorTest {
     @Test
     void testCalculateFte_NullSchoolFundingCode_ThenNextFteCalculatorIsCalled() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setSchoolFundingCode(null);
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();

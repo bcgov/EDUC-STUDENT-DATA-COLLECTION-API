@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules;
 
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,11 +17,11 @@ public class RulesProcessor {
     this.rules = rules;
   }
 
-  public List<SdcSchoolCollectionStudentValidationIssue> processRules(SdcStudentSagaData sdcStudentSagaData) {
+  public List<SdcSchoolCollectionStudentValidationIssue> processRules(StudentRuleData ruleStudent) {
     final List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap = new ArrayList<>();
     rules.forEach(rule -> {
-      if(rule.shouldExecute(sdcStudentSagaData, validationErrorsMap)) {
-        validationErrorsMap.addAll(rule.executeValidation(sdcStudentSagaData));
+      if(rule.shouldExecute(ruleStudent, validationErrorsMap)) {
+        validationErrorsMap.addAll(rule.executeValidation(ruleStudent));
       }
     });
     return validationErrorsMap;

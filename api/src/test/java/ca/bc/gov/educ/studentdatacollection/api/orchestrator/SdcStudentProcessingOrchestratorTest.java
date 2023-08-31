@@ -6,7 +6,10 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -16,6 +19,9 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenM
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +47,8 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCE
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.verify;
 
 class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPITest {
 
@@ -70,6 +77,9 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   public void setUp() {
     Mockito.reset(this.messagePublisher);
     Mockito.reset(this.restUtils);
+    ObjectMapper mapper = JsonMapper.builder()
+    .findAndAddModules()
+    .build();
   }
 
   @SneakyThrows
@@ -83,7 +93,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     this.sdcSchoolCollectionStudentRepository.save(entity);
-    val saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    val saga = this.createMockSaga(entity);
     saga.setSagaId(null);
     this.sagaRepository.save(saga);
     final SdcStudentSagaData sagaData = SdcStudentSagaData.builder().sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)).build();
@@ -96,11 +106,11 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
     assertThat(savedSagaInDB).isPresent();
     assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
-    assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(EventType.VALIDATE_SDC_STUDENT.toString());
+    assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(EventType.PROCESS_SDC_STUDENT.toString());
     verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.sdcStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
     final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
-    assertThat(newEvent.getEventType()).isEqualTo(EventType.VALIDATE_SDC_STUDENT);
-    assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.VALIDATION_SUCCESS_NO_ERROR);
+    assertThat(newEvent.getEventType()).isEqualTo(EventType.PROCESS_SDC_STUDENT);
+    assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.STUDENT_PROCESSED);
   }
 
   @SneakyThrows
@@ -119,7 +129,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
 
     this.sdcSchoolCollectionStudentRepository.save(entity);
     this.bandCodeRepository.save(bandCodeData());
-    SdcSagaEntity saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    SdcSagaEntity saga = this.createMockSaga(entity);
     saga.setSagaId(null);
     this.sagaRepository.save(saga);
 
@@ -168,7 +178,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
 
     this.sdcSchoolCollectionStudentRepository.save(entity);
-    SdcSagaEntity saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    SdcSagaEntity saga = this.createMockSaga(entity);
     saga.setSagaId(null);
     this.sagaRepository.save(saga);
 
@@ -216,7 +226,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
 
     this.sdcSchoolCollectionStudentRepository.save(entity);
-    SdcSagaEntity saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    SdcSagaEntity saga = this.createMockSaga(entity);
     saga.setSagaId(null);
     this.sagaRepository.save(saga);
 
@@ -263,11 +273,13 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     this.sdcSchoolCollectionStudentRepository.save(entity);
 
-    val saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    val saga = this.createMockSaga(entity);
     saga.setSagaId(null);
     this.sagaRepository.save(saga);
 
-    final SdcStudentSagaData sagaData = createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity), createMockSchool());
+    final SdcStudentSagaData sagaData = SdcStudentSagaData.builder()
+      .sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity))
+      .school(createMockSchool()).build();
     val event = Event.builder()
       .sagaId(saga.getSagaId())
       .eventType(EventType.INITIATED)
@@ -277,11 +289,11 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
     assertThat(savedSagaInDB).isPresent();
     assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
-    assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(EventType.VALIDATE_SDC_STUDENT.toString());
+    assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(EventType.PROCESS_SDC_STUDENT.toString());
     verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.sdcStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
     final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
-    assertThat(newEvent.getEventType()).isEqualTo(EventType.VALIDATE_SDC_STUDENT);
-    assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.VALIDATION_SUCCESS_WITH_ERROR);
+    assertThat(newEvent.getEventType()).isEqualTo(EventType.PROCESS_SDC_STUDENT);
+    assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.STUDENT_PROCESSED);
   }
 
   @SneakyThrows
@@ -311,6 +323,8 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   @SneakyThrows
   @Test
   void testHandleEvent_givenEventTypePROCESS_PEN_MATCHAndEventOutComePEN_MATCH_PROCESSEDOther_shouldExecutePROCESS_PEN_MATCH_RESULTS() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
     this.runBasedOnPenStatus("F1", SdcSchoolStudentStatus.FIXABLE.toString(), "120164447");
   }
 
@@ -326,7 +340,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     entity = this.sdcSchoolCollectionStudentRepository.save(entity);
     sdcStudent.setSdcSchoolCollectionStudentID(entity.getSdcSchoolCollectionStudentID().toString());
 
-    val saga = this.createMockSaga(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity));
+    val saga = this.createMockSaga(entity);
     saga.setSagaId(null);
     saga.setStatus(IN_PROGRESS.toString());
     saga.setSdcSchoolCollectionStudentID(UUID.fromString(sdcStudent.getSdcSchoolCollectionStudentID()));

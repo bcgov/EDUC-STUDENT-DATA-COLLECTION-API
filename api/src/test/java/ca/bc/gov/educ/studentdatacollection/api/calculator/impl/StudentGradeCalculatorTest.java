@@ -1,20 +1,20 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.math.BigDecimal;
-
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
+import ca.bc.gov.educ.studentdatacollection.api.exception.SagaRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
-import ca.bc.gov.educ.studentdatacollection.api.exception.SagaRuntimeException;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class StudentGradeCalculatorTest {
 
@@ -42,12 +42,12 @@ class StudentGradeCalculatorTest {
     })
     void testCalculateFte_WithValidGradeCodes(String gradeCode, String numberOfCourses, String expectedFteValue) {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(gradeCode);
         student.setNumberOfCourses(numberOfCourses);
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         boolean isHighSchoolGrade = gradeCode.equals("10") || gradeCode.equals("11") || gradeCode.equals("12") || gradeCode.equals("SU");
@@ -77,12 +77,12 @@ class StudentGradeCalculatorTest {
     @Test
     void testCalculateFte_With8GradeAndEmptyCourses_ThenReturnFteCalculation() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode("08");
         student.setNumberOfCourses("");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         FteCalculationResult result = studentGradeCalculator.calculateFte(studentData);
 
@@ -96,11 +96,11 @@ class StudentGradeCalculatorTest {
     @Test
     void testCalculateFte_With8GradeAndNullCourses_ThenReturnFteCalculation() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode("08");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         FteCalculationResult result = studentGradeCalculator.calculateFte(studentData);
 
@@ -114,11 +114,12 @@ class StudentGradeCalculatorTest {
     @Test
     void testCalculateFte_InvalidGradeCode() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode("InvalidGradeCode");
+        student.setSdcSchoolCollection(new SdcSchoolCollectionEntity());
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When and Then
         assertThrows(SagaRuntimeException.class, () -> studentGradeCalculator.calculateFte(studentData));

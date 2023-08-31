@@ -4,7 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.EnrolledProgramCode
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -21,15 +21,15 @@ public class CareerProgramStudentsMustBeEnrolledRule implements ProgramEligibili
   }
 
   @Override
-  public boolean shouldExecute(SdcStudentSagaData saga, List<ProgramEligibilityIssueCode> errors) {
+  public boolean shouldExecute(StudentRuleData studentRuleData, List<ProgramEligibilityIssueCode> errors) {
     return hasNotViolatedBaseRules(errors);
   }
 
   @Override
-  public List<ProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
+  public List<ProgramEligibilityIssueCode> executeValidation(StudentRuleData studentRuleData) {
     List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
 
-    List<String> studentPrograms = validationRulesService.splitString(saga.getSdcSchoolCollectionStudent().getEnrolledProgramCodes());
+    List<String> studentPrograms = validationRulesService.splitString(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
 
     if (EnrolledProgramCodes.getCareerProgramCodes().stream().noneMatch(studentPrograms::contains)) {
       errors.add(ProgramEligibilityIssueCode.NOT_ENROLLED_CAREER);

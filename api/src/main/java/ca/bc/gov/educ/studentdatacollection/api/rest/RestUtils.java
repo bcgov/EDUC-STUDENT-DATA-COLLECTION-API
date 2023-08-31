@@ -8,6 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.PenMatchSagaMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeCriteriaEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
@@ -128,7 +129,7 @@ public class RestUtils {
   }
 
   @Retryable(value = {Exception.class}, exclude = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public PenMatchResult getPenMatchResult(UUID correlationID, SdcSchoolCollectionStudent sdcSchoolStudent, String mincode) {
+  public PenMatchResult getPenMatchResult(UUID correlationID, SdcSchoolCollectionStudentEntity sdcSchoolStudent, String mincode) {
     try {
       val penMatchRequest = PenMatchSagaMapper.mapper.toPenMatchStudent(sdcSchoolStudent, mincode);
       penMatchRequest.setDob(StringUtils.replace(penMatchRequest.getDob(), "-", "")); // pen-match api expects yyyymmdd
@@ -152,13 +153,11 @@ public class RestUtils {
   @Retryable(value = {Exception.class}, exclude = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public PenMatchResult getGradStatusResult(UUID correlationID, SdcSchoolCollectionStudent sdcSchoolStudent) {
     try {
-      val penMatchRequest = PenMatchSagaMapper.mapper.toPenMatchStudent(sdcSchoolStudent, mincode);
-      penMatchRequest.setDob(StringUtils.replace(penMatchRequest.getDob(), "-", "")); // pen-match api expects yyyymmdd
-      val penMatchRequestJson = JsonUtil.mapper.writeValueAsString(penMatchRequest);
+      val gradStatusJSON = JsonUtil.mapper.writeValueAsString(sdcSchoolStudent.getAssignedStudentId());
       final TypeReference<PenMatchResult> ref = new TypeReference<>() {
       };
-      Object event = Event.builder().sagaId(correlationID).eventType(EventType.PROCESS_PEN_MATCH).eventPayload(penMatchRequestJson).build();
-      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.PEN_MATCH_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+      Object event = Event.builder().sagaId(correlationID).eventType(EventType.FETCH_GRAD_STATUS).eventPayload(gradStatusJSON).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
       if (null != responseMessage) {
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {

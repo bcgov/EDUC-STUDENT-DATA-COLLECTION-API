@@ -31,8 +31,8 @@ public class ValidationRulesService {
         this.sdcStudentEllRepository = sdcStudentEllRepository;
         this.sdcSchoolStudentRepository = sdcSchoolStudentRepository;
     }
-    public Long getDuplicatePenCount(String sdcSchoolID, String studentPen) {
-        return sdcSchoolStudentRepository.countForDuplicateStudentPENs(UUID.fromString(sdcSchoolID), studentPen);
+    public Long getDuplicatePenCount(UUID sdcSchoolID, String studentPen) {
+        return sdcSchoolStudentRepository.countForDuplicateStudentPENs(sdcSchoolID, studentPen);
     }
     public List<EnrolledProgramCode> getActiveEnrolledProgramCodes() {
         return codeTableService.getAllEnrolledProgramCodes().stream().filter(code -> code.getExpiryDate().isAfter(LocalDateTime.now())).map(mapper::toStructure).toList();

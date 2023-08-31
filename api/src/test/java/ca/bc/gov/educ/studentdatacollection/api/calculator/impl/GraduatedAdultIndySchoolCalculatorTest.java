@@ -2,10 +2,10 @@ package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,12 +34,12 @@ class GraduatedAdultIndySchoolCalculatorTest {
         School school = new School();
         school.setSchoolCategoryCode("INDEPEND");
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode("GA");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
-        studentData.setSdcSchoolCollectionStudent(student);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = graduatedAdultIndySchoolCalculator.calculateFte(studentData);
@@ -56,12 +56,12 @@ class GraduatedAdultIndySchoolCalculatorTest {
         School school = new School();
         school.setSchoolCategoryCode("INDEPEND");
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode("12");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
-        studentData.setSdcSchoolCollectionStudent(student);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();
@@ -81,12 +81,12 @@ class GraduatedAdultIndySchoolCalculatorTest {
         School school = new School();
         school.setSchoolCategoryCode("DIST_ONLINE");
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode("GA");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
-        studentData.setSdcSchoolCollectionStudent(student);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();
@@ -103,11 +103,11 @@ class GraduatedAdultIndySchoolCalculatorTest {
     @Test
     void testCalculateFte_NonGraduatedNullSchool() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode("GA");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();

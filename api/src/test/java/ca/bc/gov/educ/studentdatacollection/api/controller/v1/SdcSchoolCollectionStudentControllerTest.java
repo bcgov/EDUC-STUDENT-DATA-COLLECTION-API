@@ -9,7 +9,10 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStud
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Search;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SearchCriteria;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValueType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
@@ -548,7 +551,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setUpdateDate(LocalDateTime.now());
         entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
+        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.HAS_ISSUES.toString());
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
         entity.setEnrolledProgramCodes("1011121314151617");
@@ -594,7 +597,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setUpdateDate(LocalDateTime.now());
         entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
+        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.HAS_ISSUES.toString());
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
         entity.setEnrolledProgramCodes("1011121314151617");
@@ -657,7 +660,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setUpdateDate(LocalDateTime.now());
         entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
+        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.HAS_ISSUES.toString());
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
         entity.setEnrolledProgramCodes("1011121314151617");
@@ -675,7 +678,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
         assertThat(curStudentEntity).isPresent();
         var studentEntity = curStudentEntity.get();
-        assertThat(studentEntity.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.ERROR.toString());
+        assertThat(studentEntity.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.HAS_ISSUES.toString());
     }
 
     @Test
@@ -695,7 +698,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setUpdateDate(LocalDateTime.now());
         entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
+        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.HAS_ISSUES.toString());
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
         this.sdcSchoolCollectionStudentRepository.save(entity);
@@ -710,7 +713,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
         assertThat(curStudentEntity).isPresent();
         var studentEntity = curStudentEntity.get();
-        assertThat(studentEntity.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.LOADED.toString());
+        assertThat(studentEntity.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.HAS_ISSUES.toString());
     }
 
     @Test
@@ -730,7 +733,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setUpdateDate(LocalDateTime.now());
         entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
+        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.HAS_ISSUES.toString());
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
         entity.setPostalCode(null);
@@ -746,7 +749,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
         assertThat(curStudentEntity).isPresent();
         var studentEntity = curStudentEntity.get();
-        assertThat(studentEntity.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.LOADED.toString());
+        assertThat(studentEntity.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.HAS_ISSUES.toString());
     }
 
     @Test

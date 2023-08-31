@@ -1,20 +1,20 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.math.BigDecimal;
-
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.*;
 
 class AlternateProgramsCalculatorTest {
 
@@ -33,12 +33,12 @@ class AlternateProgramsCalculatorTest {
         // Given
         String enrolledGradeCode = SchoolGradeCodes.GRADE07.getCode();
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsGraduated("true");
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setIsGraduated(true);
         student.setEnrolledGradeCode(enrolledGradeCode);
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = alternateProgramsCalculator.calculateFte(studentData);
@@ -54,15 +54,15 @@ class AlternateProgramsCalculatorTest {
         // Given
         String enrolledGradeCode = SchoolGradeCodes.HOMESCHOOL.getCode();
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsGraduated("false");
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setIsGraduated(false);
         student.setEnrolledGradeCode(enrolledGradeCode);
 
         School school = new School();
         school.setFacilityTypeCode(FacilityTypeCodes.DISTONLINE.getCode());
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
         studentData.setSchool(school);
 
         // When
@@ -83,15 +83,15 @@ class AlternateProgramsCalculatorTest {
         // Given
         String enrolledGradeCode = SchoolGradeCodes.HOMESCHOOL.getCode();
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsGraduated("true");
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setIsGraduated(true);
         student.setEnrolledGradeCode(enrolledGradeCode);
 
         School school = new School();
         school.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
         studentData.setSchool(school);
 
         // When
@@ -112,12 +112,12 @@ class AlternateProgramsCalculatorTest {
         // Given
         String enrolledGradeCode = SchoolGradeCodes.HOMESCHOOL.getCode();
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsGraduated("true");
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setIsGraduated(true);
         student.setEnrolledGradeCode(enrolledGradeCode);
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult fteValues = new FteCalculationResult();
@@ -137,14 +137,14 @@ class AlternateProgramsCalculatorTest {
         // Given
         String enrolledGradeCode = SchoolGradeCodes.HOMESCHOOL.getCode();
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
 
         School school = new School();
         school.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
         studentData.setSchool(school);
 
         // When

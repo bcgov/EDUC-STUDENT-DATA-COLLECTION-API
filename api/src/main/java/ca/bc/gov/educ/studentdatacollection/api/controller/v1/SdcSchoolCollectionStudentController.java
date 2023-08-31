@@ -11,11 +11,6 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStu
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHeadcounts;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionStudentValidator;
@@ -27,6 +22,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @Slf4j
@@ -49,7 +49,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
-    public SdcSchoolCollectionStudentValidationIssueErrorWarningCount ErrorAndWarningCountBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
+    public SdcSchoolCollectionStudentValidationIssueErrorWarningCount getErrorAndWarningCountBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         return this.sdcSchoolCollectionStudentService.errorAndWarningCountBySdcSchoolCollectionID(sdcSchoolCollectionID);
     }
 

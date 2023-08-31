@@ -3,7 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibility.impl;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -21,27 +21,25 @@ public class SpecialEducationProgramsRule implements ProgramEligibilityBaseRule 
   }
 
   @Override
-  public boolean shouldExecute(SdcStudentSagaData saga, List<ProgramEligibilityIssueCode> errors) {
+  public boolean shouldExecute(StudentRuleData studentRuleData, List<ProgramEligibilityIssueCode> errors) {
     return hasNotViolatedBaseRules(errors);
   }
 
   @Override
-  public List<ProgramEligibilityIssueCode> executeValidation(SdcStudentSagaData saga) {
+  public List<ProgramEligibilityIssueCode> executeValidation(StudentRuleData studentRuleData) {
     List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
+    var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
     List<String> activeSpecialEdPrograms = validationRulesService.getActiveSpecialEducationCategoryCodes().stream().map(e -> e.getSpecialEducationCategoryCode()).toList();
 
-    String isGraduated = saga.getSdcSchoolCollectionStudent().getIsGraduated();
-    boolean isGraduatedVal = StringUtils.isNotEmpty(isGraduated) && isGraduated.equals("true");
-    String isSchoolAged = saga.getSdcSchoolCollectionStudent().getIsSchoolAged();
-    boolean isSchoolAgedVal = StringUtils.isNotEmpty(isSchoolAged) && isSchoolAged.equals("true");
-    String isAdult = saga.getSdcSchoolCollectionStudent().getIsAdult();
-    boolean isAdultVal = StringUtils.isNotEmpty(isAdult) && isAdult.equals("true");
-    boolean isNonGraduatedAdult = !isGraduatedVal && isAdultVal;
+    Boolean isGraduated = student.getIsGraduated();
+    Boolean isSchoolAged = student.getIsSchoolAged();
+    Boolean isAdult = student.getIsAdult();
+    boolean isNonGraduatedAdult = !isGraduated && isAdult;
 
-    if (StringUtils.isEmpty(saga.getSdcSchoolCollectionStudent().getSpecialEducationCategoryCode()) || !activeSpecialEdPrograms.contains(saga.getSdcSchoolCollectionStudent().getSpecialEducationCategoryCode())) {
+    if (StringUtils.isEmpty(student.getSpecialEducationCategoryCode()) || !activeSpecialEdPrograms.contains(student.getSpecialEducationCategoryCode())) {
       errors.add(ProgramEligibilityIssueCode.NOT_ENROLLED_SPECIAL_ED);
-    }else if (!isSchoolAgedVal && !isNonGraduatedAdult) {
+    }else if (!isSchoolAged && !isNonGraduatedAdult) {
       errors.add(ProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION);
     }
 

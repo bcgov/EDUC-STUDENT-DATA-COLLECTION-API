@@ -1,6 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.util;
 
-import static org.springframework.util.StringUtils.capitalize;
+import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.beans.Expression;
 import java.beans.Statement;
@@ -8,13 +10,11 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
-
-import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
-import lombok.extern.slf4j.Slf4j;
+import static org.springframework.util.StringUtils.capitalize;
 
 /**
  * The type Transform util.
@@ -71,7 +71,7 @@ public class TransformUtil {
    * @param string - the four didgit float string, eg: "0800"
    * @return a Double, eg: 8.00
    */
-  public static Double parseNumberOfCourses(String string, String studentId) {
+  public static Double parseNumberOfCourses(String string, UUID studentId) {
     if (StringUtils.isEmpty(string)) { return 0D; }
     try {
       return Double.parseDouble(string) / 100;

@@ -5,60 +5,46 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
-import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.PenMatchSagaMapper;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
+import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.BaseOrchestrator;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityRulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
-import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.STUDENT_PROCESSED;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCESS_SDC_STUDENT;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.PEN_MATCH_API_TOPIC;
 
 @Component
 @Slf4j
 public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStudentSagaData> {
   private final RulesProcessor rulesProcessor;
   private final ProgramEligibilityRulesProcessor programEligibilityRulesProcessor;
-  private final RestUtils restUtils;
-  private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
   private final FteCalculatorChainProcessor fteCalculatorChainProcessor;
 
-  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final ProgramEligibilityRulesProcessor programEligibilityRulesProcessor, final RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, FteCalculatorChainProcessor fteCalculatorChainProcessor) {
+  protected SdcStudentProcessingOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, final RulesProcessor rulesProcessor, final ProgramEligibilityRulesProcessor programEligibilityRulesProcessor, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, FteCalculatorChainProcessor fteCalculatorChainProcessor) {
     super(sagaService, messagePublisher, SdcStudentSagaData.class, SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString(), TopicsEnum.STUDENT_DATA_COLLECTION_PROCESS_STUDENT_SAGA_TOPIC.toString());
     this.rulesProcessor = rulesProcessor;
     this.programEligibilityRulesProcessor = programEligibilityRulesProcessor;
-    this.restUtils = restUtils;
-    this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
     this.fteCalculatorChainProcessor = fteCalculatorChainProcessor;
   }
@@ -66,187 +52,74 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
   @Override
   public void populateStepsToExecuteMap() {
     this.stepBuilder()
-      .begin(VALIDATE_SDC_STUDENT, this::validateStudent)
-      .step(VALIDATE_SDC_STUDENT, VALIDATION_SUCCESS_NO_ERROR, PROCESS_PEN_MATCH, this::processPenMatch)
-      .end(VALIDATE_SDC_STUDENT, VALIDATION_SUCCESS_WITH_ERROR, this::completeSdcStudentSagaWithError)
-      .or()
-      .step(PROCESS_PEN_MATCH, PEN_MATCH_PROCESSED, PROCESS_PEN_MATCH_RESULTS, this::processPenMatchResults)
-      .step(PROCESS_PEN_MATCH_RESULTS, PEN_MATCH_RESULTS_PROCESSED, FETCH_GRAD_STATUS, this::fetchGradStatus)
-      .step(FETCH_GRAD_STATUS, GRAD_STATUS_FETCHED, PROCESS_GRAD_STATUS_RESULT, this::processGradStatusResults)
-      .step(PROCESS_GRAD_STATUS_RESULT, GRAD_STATUS_RESULTS_PROCESSED, CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES, this::calculateAdditionalStudentAttributes)
-      .end(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES, ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED);
+      .begin(PROCESS_SDC_STUDENT, this::processStudentRecord)
+      .end(PROCESS_SDC_STUDENT, STUDENT_PROCESSED, this::completeSdcStudentSagaWithError);
   }
 
-  protected void fetchGradStatus(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
+//  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  private void processStudentRecord(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-    saga.setSagaState(FETCH_GRAD_STATUS.toString());
+    saga.setSagaState(PROCESS_SDC_STUDENT.toString());
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-    this.postToGradAPI(saga);
-  }
+    SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.getSdcSchoolCollectionStudent(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionID()));
 
-  protected void postToGradAPI(final SdcSagaEntity saga) throws JsonProcessingException {
-    log.info("message sent to GRAD_API_TOPIC for FETCH_GRAD_STATUS Event. :: {}", saga.getSagaId());
+    StudentRuleData ruleStudent = new StudentRuleData();
+    ruleStudent.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentEntity);
+    ruleStudent.setSchool(sdcStudentSagaData.getSchool());
 
-    //Remove the following when the GRAD service is ready
-    this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
-      .eventType(FETCH_GRAD_STATUS).eventOutcome(GRAD_STATUS_FETCHED)
-      .build());
-  }
+    validateStudent(ruleStudent);
+    calculateAdditionalStudentAttributes(ruleStudent);
 
-  private void calculateAdditionalStudentAttributes(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
-    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-    saga.setSagaState(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES.toString());
-    saga.setStatus(IN_PROGRESS.toString());
-    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-    SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity;
-    this.sdcSchoolCollectionStudentService.deleteEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()));
-
-    // Write Enrolled Program Codes
-    if(StringUtils.isNotBlank(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes())) {
-      List<String> enrolledProgramList = TransformUtil.splitIntoChunks(sdcStudentSagaData.getSdcSchoolCollectionStudent().getEnrolledProgramCodes(), 2);
-      sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.writeEnrolledProgramCodes(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), enrolledProgramList);
-      sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
-    }
-
-    // Update Student age columns
-    UUID studentUUID = UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
-    String studentDOB = sdcStudentSagaData.getSdcSchoolCollectionStudent().getDob();
-
-    sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.updateStudentAgeColumns(studentUUID, DOBUtil.isAdult(studentDOB), DOBUtil.isSchoolAged(studentDOB));
-    sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
-
-    // Update program eligibility
-    sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.clearSdcSchoolStudentProgramEligibilityColumns(studentUUID);
-    sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
-    List<ProgramEligibilityIssueCode> programEligibilityErrors = this.programEligibilityRulesProcessor.processRules(sdcStudentSagaData);
-
-    sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(programEligibilityErrors, studentUUID);
-    sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity));
-
-    // Calculate Fte
-    var fteResults = this.fteCalculatorChainProcessor.processFteCalculator(sdcStudentSagaData);
-    sdcSchoolCollectionStudentEntity = this.sdcSchoolCollectionStudentService.updateFteColumns(fteResults, studentUUID);
-
-    this.sdcSchoolCollectionStudentService.saveSdcSchoolCollectionStudent(sdcSchoolCollectionStudentEntity);
-
-    this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
-      .eventType(CALCULATE_ADDITIONAL_STUDENT_ATTRIBUTES).eventOutcome(ADDITIONAL_STUDENT_ATTRIBUTES_CALCULATED)
-      .build());
-  }
-
-  protected void processGradStatusResults(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
-    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-    saga.setSagaState(PROCESS_GRAD_STATUS_RESULT.toString());
-    GradStatusResult gradStatusResult = new GradStatusResult();
-    gradStatusResult.setGradStatus("false");
-    saga.setPayload(JsonUtil.getJsonStringFromObject(sdcStudentSagaData));
-    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-
-    val sdcStudOptional = this.sdcSchoolCollectionStudentService.findBySdcSchoolStudentID(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
-    if (sdcStudOptional.isPresent()) {
-      val sdcStud = sdcStudOptional.get();
-      sdcStud.setIsGraduated(gradStatusResult.getGradStatus().equals("true"));
-      this.sdcSchoolCollectionStudentService.saveSdcSchoolCollectionStudent(sdcStud);
-    }
-    this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
-      .eventType(PROCESS_GRAD_STATUS_RESULT).eventOutcome(GRAD_STATUS_RESULTS_PROCESSED)
-      .eventPayload(gradStatusResult.getGradStatus()).build());
-  }
-
-  protected void processPenMatchResults(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
-    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-    saga.setSagaState(PROCESS_PEN_MATCH_RESULTS.toString());
-    final var penMatchResult = JsonUtil.getJsonObjectFromString(PenMatchResult.class, event.getEventPayload());
-    sdcStudentSagaData.setPenMatchResult(penMatchResult); // update the original payload with response from PEN_MATCH_API
-    saga.setPayload(JsonUtil.getJsonStringFromObject(sdcStudentSagaData)); // save the updated payload to DB...
-    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-    val algorithmStatusCode = penMatchResult.getPenStatus();
-    Optional<String> assignedPEN = Optional.empty();
-    //system matched status.
-    if (StringUtils.equalsIgnoreCase(algorithmStatusCode, "AA")
-      || StringUtils.equalsIgnoreCase(algorithmStatusCode, "B1")
-      || StringUtils.equalsIgnoreCase(algorithmStatusCode, "C1")
-      || StringUtils.equalsIgnoreCase(algorithmStatusCode, "D1")) {
-      final var penMatchRecordOptional = penMatchResult.getMatchingRecords().stream().findFirst();
-      if (penMatchRecordOptional.isPresent()) {
-        assignedPEN = Optional.of(penMatchRecordOptional.get().getMatchingPEN());
-      } else {
-        log.error("PenMatchRecord in priority queue is empty for matched status, this should not have happened.");
-        throw new StudentDataCollectionAPIRuntimeException("PenMatchRecord in priority queue is empty for matched status, this should not have happened.");
-      }
-    }
-    val sdcStudOptional = this.sdcSchoolCollectionStudentService.findBySdcSchoolStudentID(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
-    if (sdcStudOptional.isPresent()) {
-      val sdcStud = sdcStudOptional.get();
-      if (assignedPEN.isPresent()) {
-        sdcStud.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.VERIFIED.toString());
-      } else {
-        sdcStud.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.FIXABLE.toString());
-      }
-      this.sdcSchoolCollectionStudentService.saveSdcSchoolCollectionStudent(sdcStud);
-    }
-    this.postMessageToTopic(this.getTopicToSubscribe(), Event.builder().sagaId(saga.getSagaId())
-      .eventType(PROCESS_PEN_MATCH_RESULTS).eventOutcome(PEN_MATCH_RESULTS_PROCESSED)
-      .eventPayload(penMatchResult.getPenStatus()).build());
-  }
-
-  private void completeSdcStudentSagaWithError(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
-    final TypeReference<List<SdcSchoolCollectionStudentValidationIssue>> responseType = new TypeReference<>() {
-    };
-    val validationResults = JsonUtil.mapper.readValue(event.getEventPayload(), responseType);
-    this.sdcSchoolCollectionStudentService.deleteSdcStudentValidationErrors(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID());
-    this.sdcSchoolCollectionStudentService.saveSdcSchoolStudentValidationErrors(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID(), validationResults, null);
-  }
-
-  protected void processPenMatch(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
-    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-    saga.setSagaState(PROCESS_PEN_MATCH.toString());
-    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-    this.postToPenMatchAPI(saga, sdcStudentSagaData);
-  }
-
-  protected void postToPenMatchAPI(final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
-    val sdcSchoolStudent = sdcStudentSagaData.getSdcSchoolCollectionStudent();
-    var sdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolStudent.getSdcSchoolCollectionID()));
-    var school = this.restUtils.getSchoolBySchoolID(sdcSchoolCollection.get().getSchoolID().toString());
-    if(school.isPresent()) {
-      final String mincode = school.get().getMincode();
-      val penMatchRequest = PenMatchSagaMapper.mapper.toPenMatchStudent(sdcSchoolStudent, mincode);
-      penMatchRequest.setDob(StringUtils.replace(penMatchRequest.getDob(), "-", "")); // pen-match api expects yyyymmdd
-      val penMatchRequestJson = JsonUtil.mapper.writeValueAsString(penMatchRequest);
-      final Event nextEvent = Event.builder().sagaId(saga.getSagaId())
-        .eventType(PROCESS_PEN_MATCH)
-        .replyTo(this.getTopicToSubscribe())
-        .eventPayload(penMatchRequestJson)
-        .build();
-      this.postMessageToTopic(PEN_MATCH_API_TOPIC.toString(), nextEvent);
-      log.info("message sent to PEN_MATCH_API_TOPIC for PROCESS_PEN_MATCH Event. :: {}", saga.getSagaId());
-    }else{
-      throw new StudentDataCollectionAPIRuntimeException("School was not found for schoolID " + sdcSchoolCollection.get().getSchoolID() + " :: this should not have happened");
-    }
-  }
-
-  protected void validateStudent(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
-    final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-    saga.setSagaState(VALIDATE_SDC_STUDENT.toString());
-    saga.setStatus(IN_PROGRESS.toString());
-    this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-    val validationErrors = this.rulesProcessor.processRules(sdcStudentSagaData);
     final Event.EventBuilder eventBuilder = Event.builder();
-    eventBuilder.sagaId(saga.getSagaId()).eventType(VALIDATE_SDC_STUDENT);
-    if (validationErrors.stream().noneMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase("ERROR"))) {
-      eventBuilder.eventOutcome(VALIDATION_SUCCESS_NO_ERROR);
-      eventBuilder.eventPayload("");
-    } else {
-      eventBuilder.eventOutcome(VALIDATION_SUCCESS_WITH_ERROR);
-      eventBuilder.eventPayload(JsonUtil.getJsonStringFromObject(validationErrors));
-    }
+    eventBuilder.sagaId(saga.getSagaId()).eventType(PROCESS_SDC_STUDENT);
+    eventBuilder.eventOutcome(STUDENT_PROCESSED);
 
     val nextEvent = eventBuilder.build();
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
     log.info("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
   }
 
+  private void calculateAdditionalStudentAttributes(final StudentRuleData studentRuleData) {
+    var sdcSchoolCollectionStudentEntity = studentRuleData.getSdcSchoolCollectionStudentEntity();
+    sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
+
+    // Write Enrolled Program Codes
+    if(StringUtils.isNotBlank(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes())) {
+      List<String> enrolledProgramList = TransformUtil.splitIntoChunks(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes(), 2);
+      this.sdcSchoolCollectionStudentService.writeEnrolledProgramCodes(sdcSchoolCollectionStudentEntity, enrolledProgramList);
+    }
+
+    // Update Student age columns
+    String studentDOB = sdcSchoolCollectionStudentEntity.getDob();
+    sdcSchoolCollectionStudentEntity.setIsAdult(DOBUtil.isAdult(studentDOB));
+    sdcSchoolCollectionStudentEntity.setIsSchoolAged(DOBUtil.isSchoolAged(studentDOB));
+
+    // Update program eligibility
+    this.sdcSchoolCollectionStudentService.clearSdcSchoolStudentProgramEligibilityColumns(sdcSchoolCollectionStudentEntity);
+    List<ProgramEligibilityIssueCode> programEligibilityErrors = this.programEligibilityRulesProcessor.processRules(studentRuleData);
+    this.sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(programEligibilityErrors, studentRuleData.getSdcSchoolCollectionStudentEntity());
+
+    // Calculate Fte
+    var fteResults = this.fteCalculatorChainProcessor.processFteCalculator(studentRuleData);
+    this.sdcSchoolCollectionStudentService.updateFteColumns(fteResults, sdcSchoolCollectionStudentEntity);
+
+    this.sdcSchoolCollectionStudentService.saveSdcSchoolCollectionStudent(sdcSchoolCollectionStudentEntity);
+  }
+
+  private void validateStudent(final StudentRuleData studentRuleData){
+    val validationErrors = this.rulesProcessor.processRules(studentRuleData);
+    var entity = studentRuleData.getSdcSchoolCollectionStudentEntity();
+    entity.getSDCStudentValidationIssueEntities().clear();
+    entity.getSDCStudentValidationIssueEntities().addAll(SdcHelper.populateValidationErrors(validationErrors, entity));
+    if(!validationErrors.isEmpty()) {
+      entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.HAS_ISSUES.toString());
+    }else{
+      entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.VERIFIED.toString());
+    }
+  }
+
+  private void completeSdcStudentSagaWithError(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
+  }
 
 }

@@ -1,17 +1,17 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.math.BigDecimal;
-
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.*;
 
 class SupportBlocksCalculatorTest {
 
@@ -28,12 +28,12 @@ class SupportBlocksCalculatorTest {
     @Test
     void testCalculateFte_WithSupportBlocks_ThenNextCalculatorCalled() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setSupportBlocks("1");
         student.setNumberOfCourses("6");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();
@@ -51,12 +51,12 @@ class SupportBlocksCalculatorTest {
     @Test
     void testCalculateFte_WithoutSupportBlocks_ThenFteReturned() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setSupportBlocks("0");
         student.setNumberOfCourses("0500");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = supportBlocksCalculator.calculateFte(studentData);
@@ -71,12 +71,12 @@ class SupportBlocksCalculatorTest {
     @Test
     void testCalculateFte_WithoutEmptySupportBlocks_ThenFteReturned() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setSupportBlocks("");
         student.setNumberOfCourses("0500");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = supportBlocksCalculator.calculateFte(studentData);
@@ -91,11 +91,11 @@ class SupportBlocksCalculatorTest {
     @Test
     void testCalculateFte_WithNullSupportBlocks_ThenFteReturned() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setNumberOfCourses("0500");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = supportBlocksCalculator.calculateFte(studentData);
@@ -110,12 +110,12 @@ class SupportBlocksCalculatorTest {
     @Test
     void testCalculateFte_WithoutSupportBlocksAndEmptyCourses_ThenFteReturned() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setSupportBlocks("0");
         student.setNumberOfCourses("");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = supportBlocksCalculator.calculateFte(studentData);
@@ -130,11 +130,11 @@ class SupportBlocksCalculatorTest {
     @Test
     void testCalculateFte_WithoutSupportBlocksAndNullCourses_ThenFteReturned() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setSupportBlocks("0");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = supportBlocksCalculator.calculateFte(studentData);

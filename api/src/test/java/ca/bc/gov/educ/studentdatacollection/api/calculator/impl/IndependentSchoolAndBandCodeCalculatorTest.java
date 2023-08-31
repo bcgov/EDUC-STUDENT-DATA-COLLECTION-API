@@ -1,22 +1,22 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.math.BigDecimal;
-
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.*;
 
 class IndependentSchoolAndBandCodeCalculatorTest {
 
@@ -41,12 +41,12 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         School school = new School();
         school.setSchoolCategoryCode(schoolCategory);
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setBandCode(bandCodeValue);
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
-        studentData.setSdcSchoolCollectionStudent(student);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
@@ -70,13 +70,13 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         School school = new School();
         school.setSchoolCategoryCode(schoolCategory);
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setBandCode(bandCodeValue);
         student.setSchoolFundingCode(fundingCode);
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
-        studentData.setSdcSchoolCollectionStudent(student);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();
@@ -101,13 +101,13 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         School school = new School();
         school.setSchoolCategoryCode(schoolCategory);
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setBandCode(bandCodeValue);
         student.setSchoolFundingCode(fundingCode);
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
-        studentData.setSdcSchoolCollectionStudent(student);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = independentSchoolAndBandCodeCalculator.calculateFte(studentData);
@@ -131,13 +131,13 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         School school = new School();
         school.setSchoolCategoryCode(schoolCategory);
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setBandCode(bandCodeValue);
         student.setSchoolFundingCode(fundingCode);
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
-        studentData.setSdcSchoolCollectionStudent(student);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
 
         // When
@@ -161,11 +161,11 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         School school = new School();
         school.setSchoolCategoryCode(schoolCategory);
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
-        studentData.setSdcSchoolCollectionStudent(student);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();
@@ -186,12 +186,13 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         String bandCodeValue = "BAND_CODE_3";
         String fundingCode = "20";
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setBandCode(bandCodeValue);
         student.setSchoolFundingCode(fundingCode);
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();

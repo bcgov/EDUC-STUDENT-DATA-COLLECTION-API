@@ -1,17 +1,17 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.math.BigDecimal;
-
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 class IndAuthorityDoubleReportedCalculatorTest {
 
@@ -32,7 +32,7 @@ class IndAuthorityDoubleReportedCalculatorTest {
     @Test
     void testCalculateFte_StudentDoubleReported() {
         // Given
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
 
         when(fteCalculatorUtils.studentPreviouslyReportedInIndependentAuthority(studentData)).thenReturn(true);
 
@@ -51,7 +51,7 @@ class IndAuthorityDoubleReportedCalculatorTest {
     @Test
     void testCalculateFte_StudentNotDoubleReported() {
         // Given
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
 
         when(fteCalculatorUtils.studentPreviouslyReportedInIndependentAuthority(studentData)).thenReturn(false);
 
