@@ -146,6 +146,7 @@ public class RestUtils {
       }
 
     } catch (final Exception ex) {
+      log.error("Error occurred calling PEN Match service :: " + ex.getMessage());
       Thread.currentThread().interrupt();
       throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
     }
@@ -166,6 +167,7 @@ public class RestUtils {
       }
 
     } catch (final Exception ex) {
+      log.error("Error occurred calling Grad service :: " + ex.getMessage());
       Thread.currentThread().interrupt();
       throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
     }
