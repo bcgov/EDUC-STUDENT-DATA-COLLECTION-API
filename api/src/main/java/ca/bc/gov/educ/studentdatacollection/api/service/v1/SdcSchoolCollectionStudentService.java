@@ -8,7 +8,6 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
-import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
@@ -191,29 +190,6 @@ public class SdcSchoolCollectionStudentService {
     sdcSchoolCollectionStudentEntity.setIndigenousSupportProgramNonEligReasonCode(null);
     sdcSchoolCollectionStudentEntity.setCareerProgramNonEligReasonCode(null);
     sdcSchoolCollectionStudentEntity.setSpecialEducationNonEligReasonCode(null);
-  }
-
-  public void updatePenMatchAndGradStatusColumns(SdcSchoolCollectionStudentEntity student, String mincode) throws EntityNotFoundException {
-    var penMatchResult = restUtils.getPenMatchResult(UUID.randomUUID(), student, mincode);
-    val penMatchResultCode = penMatchResult.getPenStatus();
-    student.setPenMatchResult(penMatchResultCode);
-    var validPenMatchResults = Arrays.asList("AA", "B1", "C1", "D1");
-
-    if (StringUtils.isNotEmpty(penMatchResultCode) && validPenMatchResults.contains(penMatchResultCode)) {
-      final var penMatchRecordOptional = penMatchResult.getMatchingRecords().stream().findFirst();
-      if (penMatchRecordOptional.isPresent()) {
-        var assignedPEN = penMatchRecordOptional.get().getMatchingPEN();
-        var assignedStudentID = penMatchRecordOptional.get().getStudentID();
-
-        student.setAssignedStudentId(UUID.fromString(assignedStudentID));
-        student.setAssignedPen(assignedPEN);
-      } else {
-        log.error("PenMatchRecord in priority queue is empty for matched status, this should not have happened.");
-        throw new StudentDataCollectionAPIRuntimeException("PenMatchRecord in priority queue is empty for matched status, this should not have happened.");
-      }
-    }else{
-      student.setPenMatchResult("NEW");
-    }
   }
 
   public void writeEnrolledProgramCodes(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity, List<String> enrolledProgramCodes) {

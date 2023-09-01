@@ -45,16 +45,8 @@ public class SupportBlocksRule implements ValidationBaseRule {
 
         if (StringUtils.isNotEmpty(enrolledGradeCode) && SchoolGradeCodes.getSupportBlockGrades().contains(enrolledGradeCode)
                 && StringUtils.isNotEmpty(supportBlocks) && StringUtils.isNotEmpty(courseCountStr) && courseCount >= 8) {
-            errors.add(createValidationIssue(
-                StudentValidationIssueSeverityCode.FUNDING_WARNING,
-                StudentValidationFieldCode.SUPPORT_BLOCKS,
-                StudentValidationIssueTypeCode.SUPPORT_BLOCKS_NOT_COUNT
-            ));
-            errors.add(createValidationIssue(
-                StudentValidationIssueSeverityCode.FUNDING_WARNING,
-                StudentValidationFieldCode.NUMBER_OF_COURSES,
-                StudentValidationIssueTypeCode.SUPPORT_BLOCKS_NOT_COUNT
-            ));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SUPPORT_BLOCKS, StudentValidationIssueTypeCode.SUPPORT_BLOCKS_NOT_COUNT));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.NUMBER_OF_COURSES, StudentValidationIssueTypeCode.SUPPORT_BLOCKS_NOT_COUNT));
         }
         return errors;
     }

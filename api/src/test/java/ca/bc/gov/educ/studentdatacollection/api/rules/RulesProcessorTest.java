@@ -2,10 +2,14 @@ package ca.bc.gov.educ.studentdatacollection.api.rules;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -16,6 +20,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @Slf4j
 class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
@@ -29,6 +36,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     @Autowired
     SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+    @Autowired
+    RestUtils restUtils;
 
     @Test
     void testGenderRule() {
@@ -786,6 +795,99 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorCarr.size()).isNotZero();
         val error3 = validationErrorCarr.stream().anyMatch(val -> val.getValidationIssueCode().equals("ENROLLEDCODECAREERERR"));
         assertThat(error3).isTrue();
+    }
+
+    @Test
+    void testAdultGraduatesRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val school = createMockSchool();
+        school.setFacilityTypeCode("SUMMER");
+
+        entity.setDob("19890101");
+        val saga = createMockStudentRuleData(entity, school);
+        saga.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        saga.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
+        saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
+
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+        val validationGradRule = rulesProcessor.processRules(saga);
+        assertThat(validationGradRule.size()).isNotZero();
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.ADULT_GRADUATED.getCode()));
+        assertThat(error).isTrue();
+    }
+
+    @Test
+    void testIndependentSchoolGraduateStudentRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val school = createMockSchool();
+        school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+
+        entity.setDob("19890101");
+        val saga = createMockStudentRuleData(entity, school);
+        saga.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        saga.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
+        saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
+
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+        val validationGradRule = rulesProcessor.processRules(saga);
+        assertThat(validationGradRule.size()).isNotZero();
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.GRADUATE_STUDENT_INDEPENDENT.getCode()));
+        assertThat(error).isTrue();
+    }
+
+    @Test
+    void testSchoolAgedGraduatesSummerRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val school = createMockSchool();
+        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+
+        entity.setDob("19890101");
+        val saga = createMockStudentRuleData(entity, school);
+        saga.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+        saga.getSdcSchoolCollectionStudentEntity().setIsSchoolAged(true);
+        saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
+
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+        val validationGradRule = rulesProcessor.processRules(saga);
+        assertThat(validationGradRule.size()).isNotZero();
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_GRADUATE_SUMMER.getCode()));
+        assertThat(error).isTrue();
+    }
+
+    @Test
+    void testSchoolAgedGraduatesSupportRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val school = createMockSchool();
+        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+
+        entity.setDob("19890101");
+        val saga = createMockStudentRuleData(entity, school);
+        saga.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        saga.getSdcSchoolCollectionStudentEntity().setIsSchoolAged(true);
+        saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
+        saga.getSdcSchoolCollectionStudentEntity().setSupportBlocks("1");
+
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+        val validationGradRule = rulesProcessor.processRules(saga);
+        assertThat(validationGradRule.size()).isNotZero();
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_GRADUATE_SUPPORT_BLOCKS.getCode()));
+        assertThat(error).isTrue();
     }
 
     @Test

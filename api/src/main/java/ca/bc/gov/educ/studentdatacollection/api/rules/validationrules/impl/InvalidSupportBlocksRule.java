@@ -39,11 +39,7 @@ public class InvalidSupportBlocksRule implements ValidationBaseRule {
         final String supportBlocks = student.getSupportBlocks();
 
         if (StringUtils.isNotEmpty(supportBlocks) && OtherCoursesCodes.matchSupportBlockValue(supportBlocks).isEmpty()) {
-            errors.add(createValidationIssue(
-                StudentValidationIssueSeverityCode.ERROR,
-                StudentValidationFieldCode.SUPPORT_BLOCKS,
-                StudentValidationIssueTypeCode.SUPPORT_BLOCKS_INVALID
-            ));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.SUPPORT_BLOCKS, StudentValidationIssueTypeCode.SUPPORT_BLOCKS_INVALID));
         }
         return errors;
     }

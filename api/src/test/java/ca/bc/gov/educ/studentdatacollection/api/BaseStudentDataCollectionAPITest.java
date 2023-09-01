@@ -9,6 +9,8 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.support.StudentDataCollectionTestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
@@ -24,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.UUID;
 
 @SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
@@ -342,6 +345,17 @@ public abstract class BaseStudentDataCollectionAPITest {
     return SpecialEducationCategoryCodeEntity.builder().specialEducationCategoryCode("A").description("PHYS DEPEND")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("PHYS DEPEND").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public PenMatchResult getPenMatchResult(){
+      PenMatchResult penMatchResult = new PenMatchResult();
+      PenMatchRecord record = new PenMatchRecord();
+      record.setMatchingPEN("123456789");
+      record.setStudentID(UUID.randomUUID().toString());
+      penMatchResult.setMatchingRecords(Arrays.asList(record));
+      penMatchResult.setPenStatus("AA");
+      penMatchResult.setPenStatusMessage("ABC");
+      return penMatchResult;
   }
 
 }

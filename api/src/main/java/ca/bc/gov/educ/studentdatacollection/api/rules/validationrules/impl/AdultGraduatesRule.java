@@ -6,7 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.PenMatchAndGradStatusService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.springframework.core.annotation.Order;
@@ -21,13 +21,13 @@ import java.util.List;
  *  | V48 | ERROR    | Adult graduates must be reported in grade GA.                         | V04,V28,V29  |
  */
 @Component
-@Order(470)
+@Order(700)
 public class AdultGraduatesRule implements ValidationBaseRule {
 
-    private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+    private final PenMatchAndGradStatusService penMatchAndGradStatusService;
 
-    public AdultGraduatesRule(SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
-        this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
+    public AdultGraduatesRule(PenMatchAndGradStatusService penMatchAndGradStatusService) {
+        this.penMatchAndGradStatusService = penMatchAndGradStatusService;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class AdultGraduatesRule implements ValidationBaseRule {
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
         if(student.getIsGraduated() == null){
-            sdcSchoolCollectionStudentService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
+            penMatchAndGradStatusService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
         }
 
         if (student.getIsAdult() && student.getIsGraduated() && !student.getEnrolledGradeCode().equalsIgnoreCase(SchoolGradeCodes.GRADUATED_ADULT.getCode())) {

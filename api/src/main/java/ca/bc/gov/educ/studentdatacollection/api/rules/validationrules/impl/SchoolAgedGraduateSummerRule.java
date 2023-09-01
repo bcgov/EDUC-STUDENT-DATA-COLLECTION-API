@@ -4,9 +4,8 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationField
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.PenMatchAndGradStatusService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.springframework.core.annotation.Order;
@@ -22,13 +21,13 @@ import java.util.List;
  *                     summer collection, cannot be graduated.
  */
 @Component
-@Order(470)
+@Order(720)
 public class SchoolAgedGraduateSummerRule implements ValidationBaseRule {
 
-    private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+    private final PenMatchAndGradStatusService penMatchAndGradStatusService;
 
-    public SchoolAgedGraduateSummerRule(SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
-        this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
+    public SchoolAgedGraduateSummerRule(PenMatchAndGradStatusService penMatchAndGradStatusService) {
+        this.penMatchAndGradStatusService = penMatchAndGradStatusService;
     }
 
     @Override
@@ -44,7 +43,7 @@ public class SchoolAgedGraduateSummerRule implements ValidationBaseRule {
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
         if(student.getIsGraduated() == null){
-            sdcSchoolCollectionStudentService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
+            penMatchAndGradStatusService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
         }
 
         if (student.getIsSchoolAged() && student.getIsGraduated()) {

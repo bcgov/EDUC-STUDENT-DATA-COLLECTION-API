@@ -6,7 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.PenMatchAndGradStatusService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.springframework.core.annotation.Order;
@@ -22,13 +22,13 @@ import java.util.List;
  *                     summer collection, cannot be graduated.
  */
 @Component
-@Order(470)
+@Order(710)
 public class IndependentSchoolGraduateStudentRule implements ValidationBaseRule {
 
-    private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+    private final PenMatchAndGradStatusService penMatchAndGradStatusService;
 
-    public IndependentSchoolGraduateStudentRule(SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
-        this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
+    public IndependentSchoolGraduateStudentRule(PenMatchAndGradStatusService penMatchAndGradStatusService) {
+        this.penMatchAndGradStatusService = penMatchAndGradStatusService;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class IndependentSchoolGraduateStudentRule implements ValidationBaseRule 
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
         if(student.getIsGraduated() == null){
-            sdcSchoolCollectionStudentService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
+            penMatchAndGradStatusService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
         }
 
         if (student.getIsAdult() && student.getIsGraduated()) {

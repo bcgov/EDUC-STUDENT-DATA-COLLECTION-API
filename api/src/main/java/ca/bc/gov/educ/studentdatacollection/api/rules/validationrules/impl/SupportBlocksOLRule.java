@@ -45,11 +45,7 @@ public class SupportBlocksOLRule implements ValidationBaseRule {
         if ((facultyTypeCode.equals(FacilityTypeCodes.DIST_LEARN.getCode()) || facultyTypeCode.equals(FacilityTypeCodes.DISTONLINE.getCode()))
                 && (StringUtils.isNotEmpty(supportBlocks)
                 && !supportBlocks.equals("0"))) {
-            errors.add(createValidationIssue(
-                    StudentValidationIssueSeverityCode.ERROR,
-                    StudentValidationFieldCode.SUPPORT_BLOCKS,
-                    StudentValidationIssueTypeCode.SUPPORT_FACILITY_NA
-            ));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.SUPPORT_BLOCKS, StudentValidationIssueTypeCode.SUPPORT_FACILITY_NA));
         }
         return errors;
     }

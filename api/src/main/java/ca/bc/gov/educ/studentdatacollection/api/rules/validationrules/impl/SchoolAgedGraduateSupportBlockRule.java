@@ -5,7 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.PenMatchAndGradStatusService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
@@ -22,13 +22,13 @@ import java.util.List;
  *                     should not be reported with support blocks.
  */
 @Component
-@Order(470)
+@Order(740)
 public class SchoolAgedGraduateSupportBlockRule implements ValidationBaseRule {
 
-    private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+    private final PenMatchAndGradStatusService penMatchAndGradStatusService;
 
-    public SchoolAgedGraduateSupportBlockRule(SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
-        this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
+    public SchoolAgedGraduateSupportBlockRule(PenMatchAndGradStatusService penMatchAndGradStatusService) {
+        this.penMatchAndGradStatusService = penMatchAndGradStatusService;
     }
 
     @Override
@@ -44,7 +44,7 @@ public class SchoolAgedGraduateSupportBlockRule implements ValidationBaseRule {
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
         if(student.getIsGraduated() == null){
-            sdcSchoolCollectionStudentService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
+            penMatchAndGradStatusService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
         }
 
         if (student.getIsSchoolAged() && student.getIsGraduated() && StringUtils.isNotEmpty(student.getSupportBlocks())) {
