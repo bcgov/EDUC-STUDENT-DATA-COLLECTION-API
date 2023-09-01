@@ -139,7 +139,8 @@ public class RestUtils {
       };
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.PROCESS_PEN_MATCH).eventPayload(penMatchRequestJson).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.PEN_MATCH_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
-      if (null != responseMessage) {
+      if (responseMessage != null) {
+        log.info("PEN Match Payload is :: " + responseMessage);
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {
         throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
@@ -160,7 +161,7 @@ public class RestUtils {
       };
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.FETCH_GRAD_STATUS).eventPayload(gradStatusJSON).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
-      if (null != responseMessage) {
+      if (responseMessage != null) {
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {
         throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
