@@ -44,7 +44,7 @@ public class YearsInEllRule implements ProgramEligibilityBaseRule {
       }
     }
 
-    if (errors.isEmpty() && (student.getIsSchoolAged() == Boolean.FALSE || totalYearsInEll >= 5)) {
+    if (errors.isEmpty() && (Boolean.FALSE.equals(student.getIsSchoolAged()) || totalYearsInEll >= 5)) {
       errors.add(ProgramEligibilityIssueCode.YEARS_IN_ELL);
     }
     return errors;

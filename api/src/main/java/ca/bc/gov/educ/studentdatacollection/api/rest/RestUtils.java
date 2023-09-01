@@ -49,6 +49,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class RestUtils {
   public static final String SEARCH_CRITERIA_LIST = "searchCriteriaList";
   public static final String SCHOOL_CATEGORY_CODE = "schoolCategoryCode";
+  public static final String NATS_TIMEOUT = "Either NATS timed out or the response is null , correlationID :: ";
   public static final String SCHOOL_REPORTING_REQUIREMENT_CODE = "schoolReportingRequirementCode";
   public static final String FACILITY_TYPE_CODE = "facilityTypeCode";
   public static final String OPEN_DATE = "openedDate";
@@ -128,7 +129,7 @@ public class RestUtils {
       .block();
   }
 
-  @Retryable(value = {Exception.class}, exclude = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public PenMatchResult getPenMatchResult(UUID correlationID, SdcSchoolCollectionStudentEntity sdcSchoolStudent, String mincode) {
     try {
       val penMatchRequest = PenMatchSagaMapper.mapper.toPenMatchStudent(sdcSchoolStudent, mincode);
@@ -141,16 +142,16 @@ public class RestUtils {
       if (null != responseMessage) {
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {
-        throw new StudentDataCollectionAPIRuntimeException("Either NATS timed out or the response is null , correlationID :: " + correlationID);
+        throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
 
     } catch (final Exception ex) {
       Thread.currentThread().interrupt();
-      throw new StudentDataCollectionAPIRuntimeException("Either NATS timed out or the response is null , correlationID :: " + correlationID + ex.getMessage());
+      throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
     }
   }
 
-  @Retryable(value = {Exception.class}, exclude = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public PenMatchResult getGradStatusResult(UUID correlationID, SdcSchoolCollectionStudent sdcSchoolStudent) {
     try {
       val gradStatusJSON = JsonUtil.mapper.writeValueAsString(sdcSchoolStudent.getAssignedStudentId());
@@ -161,12 +162,12 @@ public class RestUtils {
       if (null != responseMessage) {
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {
-        throw new StudentDataCollectionAPIRuntimeException("Either NATS timed out or the response is null , correlationID :: " + correlationID);
+        throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
 
     } catch (final Exception ex) {
       Thread.currentThread().interrupt();
-      throw new StudentDataCollectionAPIRuntimeException("Either NATS timed out or the response is null , correlationID :: " + correlationID + ex.getMessage());
+      throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
     }
   }
 
@@ -218,12 +219,12 @@ public class RestUtils {
       if (null != responseMessage) {
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {
-        throw new StudentDataCollectionAPIRuntimeException("Either NATS timed out or the response is null , correlationID :: " + correlationID);
+        throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
 
     } catch (final Exception ex) {
       Thread.currentThread().interrupt();
-      throw new StudentDataCollectionAPIRuntimeException("Either NATS timed out or the response is null , correlationID :: " + correlationID + ex.getMessage());
+      throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
     }
   }
 

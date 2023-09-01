@@ -23,7 +23,7 @@ public class AdultStudentCalculator implements FteCalculator {
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
         var sdcSchoolStudent = studentData.getSdcSchoolCollectionStudentEntity();
-        boolean isAdult = sdcSchoolStudent.getIsAdult() == Boolean.TRUE;
+        boolean isAdult = Boolean.TRUE.equals(sdcSchoolStudent.getIsAdult());
         if (isAdult || StringUtils.equals(sdcSchoolStudent.getEnrolledGradeCode(), SchoolGradeCodes.GRADUATED_ADULT.getCode())) {
             BigDecimal fteMultiplier = new BigDecimal("0.125");
             BigDecimal numCourses = StringUtils.isBlank(sdcSchoolStudent.getNumberOfCourses()) ? BigDecimal.ZERO : BigDecimal.valueOf(TransformUtil.parseNumberOfCourses(sdcSchoolStudent.getNumberOfCourses(), sdcSchoolStudent.getSdcSchoolCollectionStudentID()));

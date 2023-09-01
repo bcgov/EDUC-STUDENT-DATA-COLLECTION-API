@@ -36,7 +36,7 @@ public class IndigenousSupportProgramsRule implements ProgramEligibilityBaseRule
 
     if (EnrolledProgramCodes.getIndigenousProgramCodes().stream().noneMatch(studentPrograms::contains)) {
       errors.add(ProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS);
-    }else if (student.getIsSchoolAged() == Boolean.FALSE) {
+    }else if (Boolean.FALSE.equals(student.getIsSchoolAged())) {
       errors.add(ProgramEligibilityIssueCode.INDIGENOUS_ADULT);
     }else if(StringUtils.isEmpty(ancestryData) || ancestryData.equalsIgnoreCase("N")) {
       errors.add(ProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY);

@@ -48,7 +48,7 @@ public class InactiveOnlineMinorStudentsRule implements ProgramEligibilityBaseRu
     boolean has0Courses = StringUtils.isNotEmpty(numberOfCoursesString) && Double.parseDouble(df.format(Double.valueOf(numberOfCoursesString))) == 0;
     Boolean isSchoolAged = student.getIsSchoolAged();
 
-    return isOnlineSchool && isInRelevantGrade && has0Courses && isSchoolAged == Boolean.TRUE;
+    return isOnlineSchool && isInRelevantGrade && has0Courses && Boolean.TRUE.equals(isSchoolAged);
   }
 
   @Override

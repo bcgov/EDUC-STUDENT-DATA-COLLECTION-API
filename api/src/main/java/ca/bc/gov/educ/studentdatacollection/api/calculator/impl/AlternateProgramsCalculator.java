@@ -21,7 +21,7 @@ public class AlternateProgramsCalculator implements FteCalculator {
     }
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
-        boolean hasGraduated = studentData.getSdcSchoolCollectionStudentEntity().getIsGraduated() == Boolean.TRUE;
+        boolean hasGraduated = Boolean.TRUE.equals(studentData.getSdcSchoolCollectionStudentEntity().getIsGraduated());
         var schoolHasAlternateProgram = studentData.getSchool() != null && StringUtils.equals(studentData.getSchool().getFacilityTypeCode(), FacilityTypeCodes.ALT_PROGS.getCode());
         var gradeCodeInList = SchoolGradeCodes.getKfOneToSevenEuGrades().contains(studentData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode());
 

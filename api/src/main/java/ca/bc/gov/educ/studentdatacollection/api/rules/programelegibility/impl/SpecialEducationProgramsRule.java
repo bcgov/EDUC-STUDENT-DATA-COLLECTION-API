@@ -35,11 +35,11 @@ public class SpecialEducationProgramsRule implements ProgramEligibilityBaseRule 
     Boolean isGraduated = student.getIsGraduated();
     Boolean isSchoolAged = student.getIsSchoolAged();
     Boolean isAdult = student.getIsAdult();
-    boolean isNonGraduatedAdult = !isGraduated && isAdult;
+    boolean isNonGraduatedAdult = Boolean.FALSE.equals(isGraduated) && Boolean.TRUE.equals(isAdult);
 
     if (StringUtils.isEmpty(student.getSpecialEducationCategoryCode()) || !activeSpecialEdPrograms.contains(student.getSpecialEducationCategoryCode())) {
       errors.add(ProgramEligibilityIssueCode.NOT_ENROLLED_SPECIAL_ED);
-    }else if (!isSchoolAged && !isNonGraduatedAdult) {
+    }else if (Boolean.FALSE.equals(isSchoolAged) && !isNonGraduatedAdult) {
       errors.add(ProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION);
     }
 

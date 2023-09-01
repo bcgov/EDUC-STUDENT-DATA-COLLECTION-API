@@ -46,7 +46,7 @@ public class InactiveOnlineAdultStudentsRule implements ProgramEligibilityBaseRu
     boolean isOnlineSchool = StringUtils.equals(facilityType, FacilityTypeCodes.DIST_LEARN.getCode()) || StringUtils.equals(facilityType, FacilityTypeCodes.DISTONLINE.getCode());
     boolean isInRelevantGrade = SchoolGradeCodes.get8PlusGrades().contains(gradeCode);
     boolean has0Courses = StringUtils.isNotEmpty(numberOfCoursesString) && Double.parseDouble(df.format(Double.valueOf(numberOfCoursesString))) == 0;
-    boolean isAdult = student.getIsAdult() == Boolean.TRUE;
+    boolean isAdult = Boolean.TRUE.equals(student.getIsAdult());
 
     return isOnlineSchool && isInRelevantGrade && has0Courses && isAdult;
   }
