@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PenMatchResult implements Serializable {
 
   private static final long serialVersionUID = 7900220143043919913L;
