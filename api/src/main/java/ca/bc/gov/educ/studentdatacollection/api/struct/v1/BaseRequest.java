@@ -1,12 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.v1;
 
+import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import jakarta.validation.constraints.Null;
-import jakarta.validation.constraints.Size;
 
 @Data
 @SuperBuilder

@@ -2,14 +2,14 @@ package ca.bc.gov.educ.studentdatacollection.api.config;
 
 import ca.bc.gov.educ.studentdatacollection.api.helpers.LogHelper;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.time.Instant;
 
 @Component

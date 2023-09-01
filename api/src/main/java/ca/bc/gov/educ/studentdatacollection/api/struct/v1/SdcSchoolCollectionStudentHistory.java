@@ -1,13 +1,10 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.io.Serializable;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+
+import java.io.Serializable;
 
 @Data
 @SuperBuilder

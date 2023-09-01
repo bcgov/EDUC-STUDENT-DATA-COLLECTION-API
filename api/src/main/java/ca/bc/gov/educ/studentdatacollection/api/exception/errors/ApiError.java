@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.exception.errors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.ConstraintViolation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
-import jakarta.validation.ConstraintViolation;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

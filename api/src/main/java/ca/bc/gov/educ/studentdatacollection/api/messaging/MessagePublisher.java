@@ -2,10 +2,11 @@ package ca.bc.gov.educ.studentdatacollection.api.messaging;
 
 import io.nats.client.Connection;
 import io.nats.client.Message;
-import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * The type Message publisher.
