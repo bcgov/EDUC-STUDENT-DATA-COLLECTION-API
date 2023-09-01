@@ -6,7 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.PenMatchAndGradStatusService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.springframework.core.annotation.Order;
@@ -22,12 +22,10 @@ import java.util.List;
  */
 @Component
 @Order(700)
-public class AdultGraduatesRule implements ValidationBaseRule {
+public class AdultGraduatesRule extends BaseAdultSchoolAgeRule implements ValidationBaseRule {
 
-    private final PenMatchAndGradStatusService penMatchAndGradStatusService;
-
-    public AdultGraduatesRule(PenMatchAndGradStatusService penMatchAndGradStatusService) {
-        this.penMatchAndGradStatusService = penMatchAndGradStatusService;
+    public AdultGraduatesRule(ValidationRulesService validationRulesService) {
+        super(validationRulesService);
     }
 
     @Override
@@ -42,9 +40,7 @@ public class AdultGraduatesRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
-        if(student.getIsGraduated() == null){
-            penMatchAndGradStatusService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
-        }
+        this.setupAgeAndGraduateValues(studentRuleData);
 
         if (student.getIsAdult() && student.getIsGraduated() && !student.getEnrolledGradeCode().equalsIgnoreCase(SchoolGradeCodes.GRADUATED_ADULT.getCode())) {
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.ADULT_GRADUATED));

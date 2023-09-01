@@ -103,6 +103,11 @@ public class SdcSchoolCollectionStudentService {
     studentRuleData.setSchool(school);
     studentRuleData.setCollectionTypeCode(collectionTypeCode);
 
+    // Update Student age columns
+    String studentDOB = studentRuleData.getSdcSchoolCollectionStudentEntity().getDob();
+    studentRuleData.getSdcSchoolCollectionStudentEntity().setIsAdult(DOBUtil.isAdult(studentDOB));
+    studentRuleData.getSdcSchoolCollectionStudentEntity().setIsSchoolAged(DOBUtil.isSchoolAged(studentDOB));
+
     var validationErrors = validateStudent(studentRuleData);
     if(validationErrors.stream().noneMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString()))){
       calculateAdditionalStudentAttributes(studentRuleData);
@@ -133,11 +138,6 @@ public class SdcSchoolCollectionStudentService {
       List<String> enrolledProgramList = TransformUtil.splitIntoChunks(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes(), 2);
       writeEnrolledProgramCodes(sdcSchoolCollectionStudentEntity, enrolledProgramList);
     }
-
-    // Update Student age columns
-    String studentDOB = sdcSchoolCollectionStudentEntity.getDob();
-    sdcSchoolCollectionStudentEntity.setIsAdult(DOBUtil.isAdult(studentDOB));
-    sdcSchoolCollectionStudentEntity.setIsSchoolAged(DOBUtil.isSchoolAged(studentDOB));
 
     // Update program eligibility
     clearSdcSchoolStudentProgramEligibilityColumns(sdcSchoolCollectionStudentEntity);

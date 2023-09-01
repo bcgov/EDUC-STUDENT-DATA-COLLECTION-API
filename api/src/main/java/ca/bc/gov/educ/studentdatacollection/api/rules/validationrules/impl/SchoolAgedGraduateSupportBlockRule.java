@@ -6,7 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.PenMatchAndGradStatusService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.apache.commons.lang3.StringUtils;
@@ -24,12 +24,10 @@ import java.util.List;
  */
 @Component
 @Order(740)
-public class SchoolAgedGraduateSupportBlockRule implements ValidationBaseRule {
+public class SchoolAgedGraduateSupportBlockRule extends BaseAdultSchoolAgeRule implements ValidationBaseRule {
 
-    private final PenMatchAndGradStatusService penMatchAndGradStatusService;
-
-    public SchoolAgedGraduateSupportBlockRule(PenMatchAndGradStatusService penMatchAndGradStatusService) {
-        this.penMatchAndGradStatusService = penMatchAndGradStatusService;
+    public SchoolAgedGraduateSupportBlockRule(ValidationRulesService validationRulesService) {
+        super(validationRulesService);
     }
 
     @Override
@@ -45,9 +43,7 @@ public class SchoolAgedGraduateSupportBlockRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
-        if(student.getIsGraduated() == null){
-            penMatchAndGradStatusService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
-        }
+        this.setupAgeAndGraduateValues(studentRuleData);
 
         if (student.getIsSchoolAged() && student.getIsGraduated() && StringUtils.isNotEmpty(student.getSupportBlocks())) {
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SUPPORT_BLOCKS, StudentValidationIssueTypeCode.SCHOOL_AGED_GRADUATE_SUPPORT_BLOCKS));

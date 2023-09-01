@@ -5,7 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.PenMatchAndGradStatusService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import org.springframework.core.annotation.Order;
@@ -22,12 +22,10 @@ import java.util.List;
  */
 @Component
 @Order(720)
-public class SchoolAgedGraduateSummerRule implements ValidationBaseRule {
+public class SchoolAgedGraduateSummerRule extends BaseAdultSchoolAgeRule implements ValidationBaseRule {
 
-    private final PenMatchAndGradStatusService penMatchAndGradStatusService;
-
-    public SchoolAgedGraduateSummerRule(PenMatchAndGradStatusService penMatchAndGradStatusService) {
-        this.penMatchAndGradStatusService = penMatchAndGradStatusService;
+    public SchoolAgedGraduateSummerRule(ValidationRulesService validationRulesService) {
+        super(validationRulesService);
     }
 
     @Override
@@ -42,9 +40,7 @@ public class SchoolAgedGraduateSummerRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
-        if(student.getIsGraduated() == null){
-            penMatchAndGradStatusService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
-        }
+        this.setupAgeAndGraduateValues(studentRuleData);
 
         if (student.getIsSchoolAged() && student.getIsGraduated()) {
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.SCHOOL_AGED_GRADUATE_SUMMER));

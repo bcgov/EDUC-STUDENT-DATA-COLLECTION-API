@@ -14,10 +14,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
-class PenMatchAndGradStatusServiceTest extends BaseStudentDataCollectionAPITest {
+class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
 
     @Autowired
-    private PenMatchAndGradStatusService penMatchAndGradStatusService;
+    private ValidationRulesService validationRulesService;
 
     @Autowired
     private RestUtils restUtils;
@@ -34,7 +34,7 @@ class PenMatchAndGradStatusServiceTest extends BaseStudentDataCollectionAPITest 
         penMatchResult.setPenStatus("DM");
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
 
-        penMatchAndGradStatusService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
+        validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
 
         assertNull(mockStudentEntity.getAssignedStudentId());
         assertSame("NEW", mockStudentEntity.getPenMatchResult());
@@ -46,7 +46,7 @@ class PenMatchAndGradStatusServiceTest extends BaseStudentDataCollectionAPITest 
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
 
-        penMatchAndGradStatusService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
+        validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
 
         assertEquals(mockStudentEntity.getAssignedStudentId().toString(), penMatchResult.getMatchingRecords().get(0).getStudentID());
         assertSame(mockStudentEntity.getPenMatchResult(), penMatchResult.getPenStatus());
