@@ -888,6 +888,11 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationGradRule.size()).isNotZero();
         val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_GRADUATE_SUPPORT_BLOCKS.getCode()));
         assertThat(error).isTrue();
+
+        saga.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("07");
+        val validationGradRule2 = rulesProcessor.processRules(saga);
+        val error2 = validationGradRule2.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_GRADUATE_SUPPORT_BLOCKS.getCode()));
+        assertThat(error2).isFalse();
     }
 
     @Test

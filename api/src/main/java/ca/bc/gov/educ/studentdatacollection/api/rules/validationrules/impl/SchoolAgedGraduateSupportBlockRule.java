@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationField
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.PenMatchAndGradStatusService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -34,6 +35,7 @@ public class SchoolAgedGraduateSupportBlockRule implements ValidationBaseRule {
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent()
+                && SchoolGradeCodes.get8PlusGradesNoGA().contains(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode())
                 && !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
                 && isValidationDependencyResolved("V69", validationErrorsMap);
     }
