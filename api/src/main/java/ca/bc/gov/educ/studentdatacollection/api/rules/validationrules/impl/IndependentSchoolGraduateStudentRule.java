@@ -18,8 +18,8 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V49 | WARNING  | School-aged students, reported in the                                 | V04          |
- *                     summer collection, cannot be graduated.
+ *  | V49 | WARNING  | Adult students, reported by Independent or                            | V04          |
+ *                     Independent First Nations schools cannot be graduated.
  */
 @Component
 @Order(710)
