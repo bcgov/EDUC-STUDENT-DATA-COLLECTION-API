@@ -2,7 +2,6 @@ package ca.bc.gov.educ.studentdatacollection.api.rules;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
@@ -56,8 +55,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setEnrolledGradeCode(SchoolGradeCodes.GRADE07.getCode());
     schoolStudentEntity.setIsAdult(true);
     List<ProgramEligibilityIssueCode> listWithoutError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -67,8 +66,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     schoolStudentEntity.setEnrolledGradeCode(SchoolGradeCodes.HOMESCHOOL.getCode());
     List<ProgramEligibilityIssueCode> listWithHSError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -88,8 +87,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setSchoolFundingCode(SchoolFundingCodes.STATUS_FIRST_NATION.getCode());
     schoolStudentEntity.setIsAdult(true);
     assertThat(rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     ).stream().anyMatch(e ->
@@ -98,8 +97,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     schoolStudentEntity.setSchoolFundingCode(SchoolFundingCodes.OUT_OF_PROVINCE.getCode());
     List<ProgramEligibilityIssueCode> listWithOutOfProvinceError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -123,8 +122,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     School localSchool = createMockSchool();
     localSchool.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
     List<ProgramEligibilityIssueCode> listWithoutError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -135,8 +134,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     School offshoreSchool = createMockSchool();
     offshoreSchool.setSchoolCategoryCode(SchoolCategoryCodes.OFFSHORE.getCode());
     List<ProgramEligibilityIssueCode> listWithOffshoreError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         offshoreSchool
       )
     );
@@ -196,7 +195,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setAssignedStudentId(assignedStudentID);
 
     List<ProgramEligibilityIssueCode> errors = rulesProcessor.processRules(
-      createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity), school)
+      createMockStudentRuleData(schoolStudentEntity, school)
     );
 
     assertThat(errors.stream().anyMatch(e ->
@@ -253,7 +252,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setAssignedStudentId(assignedStudentID);
 
     List<ProgramEligibilityIssueCode> errors = rulesProcessor.processRules(
-      createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity), school)
+      createMockStudentRuleData(schoolStudentEntity, school)
     );
 
     assertThat(errors.stream().anyMatch(e ->
@@ -270,12 +269,12 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     School localSchool = createMockSchool();
     localSchool.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
-    List<ProgramEligibilityIssueCode> listWithoutError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity), createMockSchool()));
+    List<ProgramEligibilityIssueCode> listWithoutError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, createMockSchool()));
     assertThat(listWithoutError.stream().anyMatch(e -> e.equals(ProgramEligibilityIssueCode.TOO_YOUNG))).isFalse();
 
     DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd");
     schoolStudentEntity.setDob(format.format(LocalDateTime.now().minusYears(1)));
-    List<ProgramEligibilityIssueCode> listWithTooYoungStudentError = rulesProcessor.processRules(createMockStudentSagaData(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity), createMockSchool()));
+    List<ProgramEligibilityIssueCode> listWithTooYoungStudentError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, createMockSchool()));
     assertThat(listWithTooYoungStudentError.size()).isNotZero();
     assertThat(listWithTooYoungStudentError.stream().anyMatch(e -> StringUtils.equals(e.toString(), ProgramEligibilityIssueCode.TOO_YOUNG.toString()))).isTrue();
   }
@@ -288,8 +287,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
 
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -301,8 +300,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setEnrolledProgramCodes("4000000000000017");
 
     List<ProgramEligibilityIssueCode> listWithEnrollmentError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -321,8 +320,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setEnrolledProgramCodes("4017000000000005");
 
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -334,8 +333,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setEnrolledProgramCodes("4000000000000005");
 
     List<ProgramEligibilityIssueCode> listWithEnrollmentError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -355,8 +354,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setIsSchoolAged(false);
 
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -367,8 +366,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     schoolStudentEntity.setIsSchoolAged(true);
     listWithoutEnrollmentError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -389,8 +388,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setAssignedStudentId(studentID);
 
     listWithoutEnrollmentError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -403,8 +402,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     sdcStudentEllRepository.save(entity);
 
     listWithoutEnrollmentError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -422,8 +421,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
 
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -435,8 +434,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setEnrolledProgramCodes("3900000000000017");
 
     List<ProgramEligibilityIssueCode> listWithEnrollmentError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -455,8 +454,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setEnrolledProgramCodes(null);
 
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
-            createMockStudentSagaData(
-                    SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+            createMockStudentRuleData(
+                    schoolStudentEntity,
                     createMockSchool()
             )
     );
@@ -488,8 +487,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     schoolStudentEntity.setEnrolledProgramCodes("3900000000002917");
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -501,8 +500,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setEnrolledProgramCodes("3900000000000017");
 
     List<ProgramEligibilityIssueCode> listWithEnrollmentError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -520,8 +519,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
 
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -532,8 +531,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     schoolStudentEntity.setSpecialEducationCategoryCode(null);
     List<ProgramEligibilityIssueCode> listWithEnrollmentError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -551,8 +550,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
 
     List<ProgramEligibilityIssueCode> listFromSchoolAgedStudent = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -564,8 +563,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setIsAdult(true);
     schoolStudentEntity.setIsSchoolAged(false);
     List<ProgramEligibilityIssueCode> listFromUngraduatedAdult = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -576,8 +575,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     schoolStudentEntity.setIsGraduated(true);
     List<ProgramEligibilityIssueCode> listWithGraduatedAdultError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -589,8 +588,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setIsAdult(false);
     schoolStudentEntity.setIsSchoolAged(true);
     List<ProgramEligibilityIssueCode> listWithGraduatedMinorError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -610,8 +609,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setNativeAncestryInd("Y");
 
     List<ProgramEligibilityIssueCode> listWithoutAgeError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -622,8 +621,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setIsAdult(true);
     schoolStudentEntity.setIsSchoolAged(false);
     List<ProgramEligibilityIssueCode> listWithAgeError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -642,8 +641,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setNativeAncestryInd("Y");
 
     List<ProgramEligibilityIssueCode> listWithoutAncestryError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -653,8 +652,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     schoolStudentEntity.setNativeAncestryInd(null);
     List<ProgramEligibilityIssueCode> listWithNullAncestryError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );
@@ -664,8 +663,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     schoolStudentEntity.setNativeAncestryInd("N");
     List<ProgramEligibilityIssueCode> listWithNoAncestryError = rulesProcessor.processRules(
-      createMockStudentSagaData(
-        SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(schoolStudentEntity),
+      createMockStudentRuleData(
+        schoolStudentEntity,
         createMockSchool()
       )
     );

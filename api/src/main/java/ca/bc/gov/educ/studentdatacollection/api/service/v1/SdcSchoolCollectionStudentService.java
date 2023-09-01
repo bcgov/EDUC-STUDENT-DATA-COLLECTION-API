@@ -1,12 +1,13 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorChainProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
-import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
@@ -17,20 +18,20 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentEnrolledProgramRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityRulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -60,7 +61,9 @@ public class SdcSchoolCollectionStudentService {
 
   private final SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository;
 
-  private final SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository;
+  private final FteCalculatorChainProcessor fteCalculatorChainProcessor;
+
+  private final ProgramEligibilityRulesProcessor programEligibilityRulesProcessor;
 
   private final RestUtils restUtils;
 
@@ -70,12 +73,80 @@ public class SdcSchoolCollectionStudentService {
   public SdcSchoolCollectionStudentEntity getSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID) {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
-    return sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
-            new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, sdcSchoolCollectionStudentID.toString()));
+    return sdcSchoolCollectionStudentEntityOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, sdcSchoolCollectionStudentID.toString()));
   }
 
   public void publishUnprocessedStudentRecordsForProcessing(final List<SdcStudentSagaData> sdcStudentSagaDatas) {
     sdcStudentSagaDatas.forEach(this::sendIndividualStudentAsMessageToTopic);
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void updateAndValidateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity) {
+    var studentRuleData = createStudentRuleDataForValidation(studentEntity);
+    processStudentRecord(studentEntity.getSdcSchoolCollectionStudentID(), studentRuleData.getSchool(), studentRuleData.getCollectionTypeCode(), Optional.of(studentEntity));
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public void processStudentRecord(final UUID sdcSchoolCollectionStudentID, School school, String collectionTypeCode, Optional<SdcSchoolCollectionStudentEntity> incomingStudentEntity) {
+    var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
+    if(incomingStudentEntity.isPresent() && currentStudentEntity.isPresent()) {
+      SdcSchoolCollectionStudentEntity getCurStudentEntity = currentStudentEntity.get();
+      getCurStudentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(getCurStudentEntity.getEnrolledProgramCodes()));
+      BeanUtils.copyProperties(incomingStudentEntity, getCurStudentEntity, "sdcSchoolCollectionStudentID, sdcSchoolCollection, sdcSchoolCollectionStudentStatusCode, createUser, createDate", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
+      TransformUtil.uppercaseFields(getCurStudentEntity);
+    }else if (currentStudentEntity.isEmpty()) {
+      throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", sdcSchoolCollectionStudentID.toString());
+    }
+
+    StudentRuleData studentRuleData = new StudentRuleData();
+    studentRuleData.setSdcSchoolCollectionStudentEntity(currentStudentEntity.get());
+    studentRuleData.setSchool(school);
+    studentRuleData.setCollectionTypeCode(collectionTypeCode);
+
+    var validationErrors = validateStudent(studentRuleData);
+    if(validationErrors.stream().noneMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString()))){
+      calculateAdditionalStudentAttributes(studentRuleData);
+    }
+    var entity = this.sdcSchoolCollectionStudentRepository.save(studentRuleData.getSdcSchoolCollectionStudentEntity());
+    this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, studentRuleData.getSdcSchoolCollectionStudentEntity().getUpdateUser());
+  }
+
+  private List<SdcSchoolCollectionStudentValidationIssue> validateStudent(final StudentRuleData studentRuleData){
+    val validationErrors = this.rulesProcessor.processRules(studentRuleData);
+    var entity = studentRuleData.getSdcSchoolCollectionStudentEntity();
+    entity.getSDCStudentValidationIssueEntities().clear();
+    entity.getSDCStudentValidationIssueEntities().addAll(SdcHelper.populateValidationErrors(validationErrors, entity));
+    if(!validationErrors.isEmpty()) {
+      entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.HAS_ISSUES.toString());
+    }else{
+      entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.VERIFIED.toString());
+    }
+    return validationErrors;
+  }
+
+  private void calculateAdditionalStudentAttributes(final StudentRuleData studentRuleData) {
+    var sdcSchoolCollectionStudentEntity = studentRuleData.getSdcSchoolCollectionStudentEntity();
+    sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
+
+    // Write Enrolled Program Codes
+    if(StringUtils.isNotBlank(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes())) {
+      List<String> enrolledProgramList = TransformUtil.splitIntoChunks(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes(), 2);
+      writeEnrolledProgramCodes(sdcSchoolCollectionStudentEntity, enrolledProgramList);
+    }
+
+    // Update Student age columns
+    String studentDOB = sdcSchoolCollectionStudentEntity.getDob();
+    sdcSchoolCollectionStudentEntity.setIsAdult(DOBUtil.isAdult(studentDOB));
+    sdcSchoolCollectionStudentEntity.setIsSchoolAged(DOBUtil.isSchoolAged(studentDOB));
+
+    // Update program eligibility
+    clearSdcSchoolStudentProgramEligibilityColumns(sdcSchoolCollectionStudentEntity);
+    List<ProgramEligibilityIssueCode> programEligibilityErrors = this.programEligibilityRulesProcessor.processRules(studentRuleData);
+    updateProgramEligibilityColumns(programEligibilityErrors, studentRuleData.getSdcSchoolCollectionStudentEntity());
+
+    // Calculate Fte
+    var fteResults = this.fteCalculatorChainProcessor.processFteCalculator(studentRuleData);
+    updateFteColumns(fteResults, sdcSchoolCollectionStudentEntity);
   }
 
   @Async("publisherExecutor")
@@ -113,100 +184,28 @@ public class SdcSchoolCollectionStudentService {
     }
   }
 
-  public Optional<SdcSchoolCollectionStudentEntity> findBySdcSchoolStudentID(final String sdcSchoolStudentID) {
-    return this.sdcSchoolCollectionStudentRepository.findById(UUID.fromString(sdcSchoolStudentID));
+  public void clearSdcSchoolStudentProgramEligibilityColumns(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity) {
+    sdcSchoolCollectionStudentEntity.setFrenchProgramNonEligReasonCode(null);
+    sdcSchoolCollectionStudentEntity.setEllNonEligReasonCode(null);
+    sdcSchoolCollectionStudentEntity.setIndigenousSupportProgramNonEligReasonCode(null);
+    sdcSchoolCollectionStudentEntity.setCareerProgramNonEligReasonCode(null);
+    sdcSchoolCollectionStudentEntity.setSpecialEducationNonEligReasonCode(null);
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public SdcSchoolCollectionStudentEntity saveSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity curSdcSchoolCollectionStudentEntity) {
-    var entity = this.sdcSchoolCollectionStudentRepository.save(curSdcSchoolCollectionStudentEntity);
-
-    this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, curSdcSchoolCollectionStudentEntity.getUpdateUser());
-    return entity;
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void deleteSdcStudentValidationErrors(final String sdcSchoolStudentID) {
-    this.sdcStudentValidationErrorRepository.deleteSdcStudentValidationErrors(UUID.fromString(sdcSchoolStudentID));
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public SdcSchoolCollectionStudentEntity saveSdcSchoolStudentValidationErrors(final String sdcSchoolCollectionStudentID, final List<SdcSchoolCollectionStudentValidationIssue> issues, SdcSchoolCollectionStudentEntity entity) {
-    if(entity == null) {
-      val sdcSchoolCollectionStudent = this.findBySdcSchoolStudentID(sdcSchoolCollectionStudentID);
-      if (sdcSchoolCollectionStudent.isPresent()) {
-        entity = sdcSchoolCollectionStudent.get();
-      }else{
-        throw new StudentDataCollectionAPIRuntimeException("Error while saving SDC school student with ValidationErrors - entity was null");
-      }
-    }
-    entity.getSDCStudentValidationIssueEntities().addAll(SdcHelper.populateValidationErrors(issues, entity));
-    entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
-    return this.sdcSchoolCollectionStudentRepository.save(entity);
-  }
-
-  public SdcSchoolCollectionStudentEntity clearSdcSchoolStudentProgramEligibilityColumns(UUID sdcSchoolCollectionStudentID) {
-    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional =
-      sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
-
-    if (sdcSchoolCollectionStudentEntityOptional.isEmpty()) {
-      throw new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, sdcSchoolCollectionStudentID.toString());
-    }
-
-    SdcSchoolCollectionStudentEntity student = sdcSchoolCollectionStudentEntityOptional.get();
-    student.setFrenchProgramNonEligReasonCode(null);
-    student.setEllNonEligReasonCode(null);
-    student.setIndigenousSupportProgramNonEligReasonCode(null);
-    student.setCareerProgramNonEligReasonCode(null);
-    student.setSpecialEducationNonEligReasonCode(null);
-    return student;
-  }
-
-  public SdcSchoolCollectionStudentEntity updateStudentAgeColumns(UUID sdcSchoolCollectionStudentID, boolean isAdult, boolean isSchoolAged) throws EntityNotFoundException {
-    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional =
-      sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
-
-    if (sdcSchoolCollectionStudentEntityOptional.isEmpty()) {
-      throw new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, sdcSchoolCollectionStudentID.toString());
-    }
-
-    SdcSchoolCollectionStudentEntity student = sdcSchoolCollectionStudentEntityOptional.get();
-    student.setIsAdult(isAdult);
-    student.setIsSchoolAged(isSchoolAged);
-    return student;
-  }
-
-  public SdcSchoolCollectionStudentEntity writeEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID, List<String> enrolledProgramCodes) {
-    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
-
-    var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
-            new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, sdcSchoolCollectionStudentID.toString()));
-
+  public void writeEnrolledProgramCodes(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity, List<String> enrolledProgramCodes) {
     enrolledProgramCodes.forEach(enrolledProgramCode -> {
       var enrolledProgramEntity = new SdcSchoolCollectionStudentEnrolledProgramEntity();
-      enrolledProgramEntity.setSdcSchoolCollectionStudentEntity(student);
+      enrolledProgramEntity.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentEntity);
       enrolledProgramEntity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
       enrolledProgramEntity.setUpdateDate(LocalDateTime.now());
       enrolledProgramEntity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
       enrolledProgramEntity.setCreateDate(LocalDateTime.now());
       enrolledProgramEntity.setEnrolledProgramCode(enrolledProgramCode);
-      student.getSdcStudentEnrolledProgramEntities().add(enrolledProgramEntity);
+      sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().add(enrolledProgramEntity);
     });
-    return sdcSchoolCollectionStudentRepository.save(student);
   }
-
-  public void deleteEnrolledProgramCodes(UUID sdcSchoolCollectionStudentID) {
-    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
-
-    var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
-            new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, sdcSchoolCollectionStudentID.toString()));
-
-    student.getSdcStudentEnrolledProgramEntities().clear();
-  }
-
 
   public SdcSchoolCollectionStudentValidationIssueErrorWarningCount errorAndWarningCountBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
-
     SdcSchoolCollectionStudentValidationIssueErrorWarningCount sdcSchoolCollectionStudentValidationIssueErrorWarningCount = new SdcSchoolCollectionStudentValidationIssueErrorWarningCount();
     sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setError(
         sdcSchoolCollectionStudentRepository.getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID("ERROR", sdcSchoolCollectionID));
@@ -218,52 +217,7 @@ public class SdcSchoolCollectionStudentService {
     return sdcSchoolCollectionStudentValidationIssueErrorWarningCount;
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void updateAndValidateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity) {
-    Optional<SdcSchoolCollectionStudentEntity> curStudentEntity = sdcSchoolCollectionStudentRepository.findBySdcSchoolCollectionStudentIDAndSdcSchoolCollection_SdcSchoolCollectionID(studentEntity.getSdcSchoolCollectionStudentID(), studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID());
-
-    if(curStudentEntity.isEmpty()) {
-      throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", studentEntity.getSdcSchoolCollectionStudentID().toString());
-    }
-
-    //update student record
-    SdcSchoolCollectionStudentEntity getCurStudentEntity = curStudentEntity.get();
-    getCurStudentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(getCurStudentEntity.getEnrolledProgramCodes()));
-    BeanUtils.copyProperties(studentEntity, getCurStudentEntity, "sdcSchoolCollectionStudentID, sdcSchoolCollection, sdcSchoolCollectionStudentStatusCode, createUser, createDate", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
-    TransformUtil.uppercaseFields(getCurStudentEntity);
-
-    SdcSchoolCollectionStudentEntity updatedStudentEntity = this.sdcSchoolCollectionStudentRepository.save(getCurStudentEntity);
-    this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(updatedStudentEntity, getCurStudentEntity.getUpdateUser());
-
-    //run validation rules on updated student entity
-    List<SdcSchoolCollectionStudentValidationIssue> validationErrors = this.rulesProcessor.processRules(createSagaDataForValidation(updatedStudentEntity));
-
-    if (validationErrors.stream().noneMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase("ERROR"))) {
-      // if no validation errors, mark the record status as LOADED
-      updatedStudentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.getCode());
-    } else {
-      //save new validation errors for student record and mark the record as ERROR
-      updatedStudentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
-    }
-
-    //delete student validation errors
-    this.sdcStudentValidationErrorRepository.deleteSdcStudentValidationErrors(updatedStudentEntity.getSdcSchoolCollectionStudentID());
-    //save the updates to the student record
-    updatedStudentEntity.getSDCStudentValidationIssueEntities().addAll(SdcHelper.populateValidationErrors(validationErrors, updatedStudentEntity));
-
-    SdcSchoolCollectionStudentEntity updatedStatusStudentEntity = this.sdcSchoolCollectionStudentRepository.save(updatedStudentEntity);
-
-    //write student history
-    this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(updatedStatusStudentEntity, updatedStudentEntity.getUpdateUser());
-  }
-
-  public SdcSchoolCollectionStudentEntity updateProgramEligibilityColumns(List<ProgramEligibilityIssueCode> errors, UUID studentId) {
-    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional =
-      sdcSchoolCollectionStudentRepository.findById(studentId);
-
-    SdcSchoolCollectionStudentEntity student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
-      new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, studentId.toString()));
-
+  public void updateProgramEligibilityColumns(List<ProgramEligibilityIssueCode> errors, SdcSchoolCollectionStudentEntity student) {
     Optional<ProgramEligibilityIssueCode> baseProgramEligibilityFailure = getBaseProgramEligibilityFailure(errors);
 
     if (baseProgramEligibilityFailure.isPresent()) {
@@ -280,8 +234,6 @@ public class SdcSchoolCollectionStudentService {
       student.setCareerProgramNonEligReasonCode(getReasonCode(errors, Arrays.asList(NOT_ENROLLED_CAREER)));
       student.setSpecialEducationNonEligReasonCode(getReasonCode(errors, Arrays.asList(NOT_ENROLLED_SPECIAL_ED, NON_ELIG_SPECIAL_EDUCATION)));
     }
-
-    return student;
   }
 
   private String getReasonCode(List<ProgramEligibilityIssueCode> errors, List<ProgramEligibilityIssueCode> codes){
@@ -302,16 +254,9 @@ public class SdcSchoolCollectionStudentService {
     return errors.stream().filter(ineligibleCodes::contains).findFirst();
   }
 
-  public SdcSchoolCollectionStudentEntity updateFteColumns(FteCalculationResult fteCalculationResult, UUID sdcSchoolCollectionStudentID) {
-    Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
-
-    var student = sdcSchoolCollectionStudentEntityOptional.orElseThrow(() ->
-            new EntityNotFoundException(SdcSchoolCollectionStudent.class, SDC_SCHOOL_COLLECTION_STUDENT_ID, sdcSchoolCollectionStudentID.toString()));
-
-    student.setFte(fteCalculationResult.getFte());
-    student.setFteZeroReasonCode(fteCalculationResult.getFteZeroReason());
-
-    return student;
+  public void updateFteColumns(FteCalculationResult fteCalculationResult, SdcSchoolCollectionStudentEntity studentEntity) {
+    studentEntity.setFte(fteCalculationResult.getFte());
+    studentEntity.setFteZeroReasonCode(fteCalculationResult.getFteZeroReason());
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -328,14 +273,14 @@ public class SdcSchoolCollectionStudentService {
     return sdcSchoolCollectionStudentRepository.save(student);
   }
 
-  private SdcStudentSagaData createSagaDataForValidation(SdcSchoolCollectionStudentEntity studentEntity) {
-    SdcStudentSagaData sdcStudentSagaData = new SdcStudentSagaData();
+  private StudentRuleData createStudentRuleDataForValidation(SdcSchoolCollectionStudentEntity studentEntity) {
+    StudentRuleData sdcStudentSagaData = new StudentRuleData();
     Optional<SdcSchoolCollectionEntity> sdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID());
     if(sdcSchoolCollection.isPresent()) {
       var school = this.restUtils.getSchoolBySchoolID(sdcSchoolCollection.get().getSchoolID().toString());
       sdcStudentSagaData.setCollectionTypeCode(sdcSchoolCollection.get().getCollectionEntity().getCollectionTypeCode());
       school.ifPresent(sdcStudentSagaData::setSchool);
-      sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolCollectionStudentWithValidationIssues(studentEntity));
+      sdcStudentSagaData.setSdcSchoolCollectionStudentEntity(studentEntity);
       return sdcStudentSagaData;
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionEntity.class, "SdcSchoolCollectionEntity", studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID().toString());

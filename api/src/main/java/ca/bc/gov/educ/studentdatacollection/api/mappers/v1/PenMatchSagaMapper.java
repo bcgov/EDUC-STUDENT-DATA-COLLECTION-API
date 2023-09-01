@@ -3,8 +3,8 @@ package ca.bc.gov.educ.studentdatacollection.api.mappers.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.mappers.LocalDateTimeMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.UUIDMapper;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -31,5 +31,7 @@ public interface PenMatchSagaMapper {
   @Mapping(target = "dob", source = "sdcSchoolStudent.dob")
   @Mapping(target = "postal", source = "sdcSchoolStudent.postalCode")
   @Mapping(target = "surname", source = "sdcSchoolStudent.legalLastName")
-  PenMatchStudent toPenMatchStudent(SdcSchoolCollectionStudent sdcSchoolStudent, String mincode);
+  @Mapping(target = "localID", source = "sdcSchoolStudent.localID")
+  @Mapping(target = "enrolledGradeCode", source = "sdcSchoolStudent.enrolledGradeCode")
+  PenMatchStudent toPenMatchStudent(SdcSchoolCollectionStudentEntity sdcSchoolStudent, String mincode);
 }

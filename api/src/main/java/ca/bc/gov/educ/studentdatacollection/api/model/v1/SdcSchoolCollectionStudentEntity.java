@@ -144,6 +144,9 @@ public class SdcSchoolCollectionStudentEntity {
   @Column(name = "ASSIGNED_PEN")
   private String assignedPen;
 
+  @Column(name = "PEN_MATCH_RESULT")
+  private String penMatchResult;
+
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
 

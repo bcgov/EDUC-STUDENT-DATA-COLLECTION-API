@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -53,50 +52,32 @@ class SdcSchoolCollectionStudentServiceTest {
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
         // When
-        var result = sdcSchoolCollectionStudentService.updateFteColumns(fteCalculationResult, sdcSchoolCollectionStudentID);
+        sdcSchoolCollectionStudentService.updateFteColumns(fteCalculationResult, mockStudentEntity);
 
         // Then
         // Assert that the FTE and FTE zero reason code are updated as expected
-        assertSame(fteCalculationResult.getFte(), result.getFte());
-        assertSame(fteCalculationResult.getFteZeroReason(), result.getFteZeroReasonCode());
-    }
-
-    @Test
-    void testUpdateFteColumns_WhenStudentDoesNotExist_ThrowsError() {
-        // Given
-        UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
-        FteCalculationResult fteCalculationResult = new FteCalculationResult();
-        fteCalculationResult.setFte(BigDecimal.ONE);
-        fteCalculationResult.setFteZeroReason("SomeReason");
-
-        // When
-        when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.empty());
-
-        // Then assert that an EntityNotFoundException is thrown
-        assertThrows(EntityNotFoundException.class, () -> sdcSchoolCollectionStudentService.updateFteColumns(fteCalculationResult, sdcSchoolCollectionStudentID));
+        assertSame(fteCalculationResult.getFte(), mockStudentEntity.getFte());
+        assertSame(fteCalculationResult.getFteZeroReason(), mockStudentEntity.getFteZeroReasonCode());
     }
 
     @Test
     void testUpdateProgramEligibilityColumns_WhenNotEligibleForAnything_UpdatesAllColumns() {
         UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
-        List<ProgramEligibilityIssueCode> errors = List.of(
-                ProgramEligibilityIssueCode.OFFSHORE
-        );
+        List<ProgramEligibilityIssueCode> errors = List.of(ProgramEligibilityIssueCode.OFFSHORE);
 
         // Create a mock SdcSchoolCollectionStudentEntity
         SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
         mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
-        var result = sdcSchoolCollectionStudentService
-            .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
+        sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(errors, mockStudentEntity);
 
         String reasonCode = ProgramEligibilityIssueCode.OFFSHORE.getCode();
-        assertSame(reasonCode, result.getFrenchProgramNonEligReasonCode());
-        assertSame(reasonCode, result.getEllNonEligReasonCode());
-        assertSame(reasonCode, result.getIndigenousSupportProgramNonEligReasonCode());
-        assertSame(reasonCode, result.getCareerProgramNonEligReasonCode());
-        assertSame(reasonCode, result.getSpecialEducationNonEligReasonCode());
+        assertSame(reasonCode, mockStudentEntity.getFrenchProgramNonEligReasonCode());
+        assertSame(reasonCode, mockStudentEntity.getEllNonEligReasonCode());
+        assertSame(reasonCode, mockStudentEntity.getIndigenousSupportProgramNonEligReasonCode());
+        assertSame(reasonCode, mockStudentEntity.getCareerProgramNonEligReasonCode());
+        assertSame(reasonCode, mockStudentEntity.getSpecialEducationNonEligReasonCode());
     }
 
     @Test
@@ -111,11 +92,10 @@ class SdcSchoolCollectionStudentServiceTest {
         mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
-        var result = sdcSchoolCollectionStudentService
-            .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
+        sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(errors, mockStudentEntity);
 
         String reasonCode = ProgramEligibilityIssueCode.NOT_ENROLLED_FRENCH.getCode();
-        assertSame(reasonCode, result.getFrenchProgramNonEligReasonCode());
+        assertSame(reasonCode, mockStudentEntity.getFrenchProgramNonEligReasonCode());
     }
 
     @Test
@@ -130,11 +110,10 @@ class SdcSchoolCollectionStudentServiceTest {
         mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
-        var result = sdcSchoolCollectionStudentService
-            .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
+        sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(errors, mockStudentEntity);
 
         String reasonCode = ProgramEligibilityIssueCode.NOT_ENROLLED_CAREER.getCode();
-        assertSame(reasonCode, result.getCareerProgramNonEligReasonCode());
+        assertSame(reasonCode, mockStudentEntity.getCareerProgramNonEligReasonCode());
     }
 
     @Test
@@ -149,11 +128,10 @@ class SdcSchoolCollectionStudentServiceTest {
         mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
-        var result = sdcSchoolCollectionStudentService
-            .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
+        sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(errors, mockStudentEntity);
 
         String reasonCode = ProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS.getCode();
-        assertSame(reasonCode, result.getIndigenousSupportProgramNonEligReasonCode());
+        assertSame(reasonCode, mockStudentEntity.getIndigenousSupportProgramNonEligReasonCode());
     }
 
     @Test
@@ -168,11 +146,10 @@ class SdcSchoolCollectionStudentServiceTest {
         mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
-        var result = sdcSchoolCollectionStudentService
-            .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
+        sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(errors, mockStudentEntity);
 
         String reasonCode = ProgramEligibilityIssueCode.NOT_ENROLLED_SPECIAL_ED.getCode();
-        assertSame(reasonCode, result.getSpecialEducationNonEligReasonCode());
+        assertSame(reasonCode, mockStudentEntity.getSpecialEducationNonEligReasonCode());
     }
 
     @Test
@@ -187,11 +164,10 @@ class SdcSchoolCollectionStudentServiceTest {
         mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
-        var result = sdcSchoolCollectionStudentService
-            .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
+        sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(errors, mockStudentEntity);
 
         String reasonCode = ProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION.getCode();
-        assertSame(reasonCode, result.getSpecialEducationNonEligReasonCode());
+        assertSame(reasonCode, mockStudentEntity.getSpecialEducationNonEligReasonCode());
     }
 
     @Test
@@ -206,11 +182,10 @@ class SdcSchoolCollectionStudentServiceTest {
         mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
-        var result = sdcSchoolCollectionStudentService
-            .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
+        sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(errors, mockStudentEntity);
 
         String reasonCode = ProgramEligibilityIssueCode.INDIGENOUS_ADULT.getCode();
-        assertSame(reasonCode, result.getIndigenousSupportProgramNonEligReasonCode());
+        assertSame(reasonCode, mockStudentEntity.getIndigenousSupportProgramNonEligReasonCode());
     }
 
     @Test
@@ -225,11 +200,10 @@ class SdcSchoolCollectionStudentServiceTest {
         mockStudentEntity.setSdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
-        var result = sdcSchoolCollectionStudentService
-            .updateProgramEligibilityColumns(errors, sdcSchoolCollectionStudentID);
+        sdcSchoolCollectionStudentService.updateProgramEligibilityColumns(errors, mockStudentEntity);
 
         String reasonCode = ProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY.getCode();
-        assertSame(reasonCode, result.getIndigenousSupportProgramNonEligReasonCode());
+        assertSame(reasonCode, mockStudentEntity.getIndigenousSupportProgramNonEligReasonCode());
     }
 
   @Test
@@ -248,14 +222,14 @@ class SdcSchoolCollectionStudentServiceTest {
 
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
-        var result = sdcSchoolCollectionStudentService.clearSdcSchoolStudentProgramEligibilityColumns(sdcSchoolCollectionStudentID);
+        sdcSchoolCollectionStudentService.clearSdcSchoolStudentProgramEligibilityColumns(mockStudentEntity);
 
         // Then
-        assertNull(result.getFrenchProgramNonEligReasonCode());
-        assertNull(result.getEllNonEligReasonCode());
-        assertNull(result.getIndigenousSupportProgramNonEligReasonCode());
-        assertNull(result.getCareerProgramNonEligReasonCode());
-        assertNull(result.getSpecialEducationNonEligReasonCode());
+        assertNull(mockStudentEntity.getFrenchProgramNonEligReasonCode());
+        assertNull(mockStudentEntity.getEllNonEligReasonCode());
+        assertNull(mockStudentEntity.getIndigenousSupportProgramNonEligReasonCode());
+        assertNull(mockStudentEntity.getCareerProgramNonEligReasonCode());
+        assertNull(mockStudentEntity.getSpecialEducationNonEligReasonCode());
   }
 
     @Test

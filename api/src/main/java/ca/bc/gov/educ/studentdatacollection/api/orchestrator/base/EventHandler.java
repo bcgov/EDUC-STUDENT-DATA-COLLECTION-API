@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.orchestrator.base;
 
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
+
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 

@@ -1,8 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
-import ca.bc.gov.educ.studentdatacollection.api.helpers.BooleanString;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -20,16 +19,16 @@ public class StudentGraduatedCalculator implements FteCalculator {
         // This is a final node of the decision tree, so there is no next to set
     }
     @Override
-    public FteCalculationResult calculateFte(SdcStudentSagaData studentData) {
+    public FteCalculationResult calculateFte(StudentRuleData studentData) {
         BigDecimal fteMultiplier = new BigDecimal("0.125");
-        BigDecimal numCourses = StringUtils.isBlank(studentData.getSdcSchoolCollectionStudent().getNumberOfCourses())
+        BigDecimal numCourses = StringUtils.isBlank(studentData.getSdcSchoolCollectionStudentEntity().getNumberOfCourses())
                 ? BigDecimal.ZERO
-                : BigDecimal.valueOf(TransformUtil.parseNumberOfCourses(studentData.getSdcSchoolCollectionStudent().getNumberOfCourses(), studentData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()));
+                : BigDecimal.valueOf(TransformUtil.parseNumberOfCourses(studentData.getSdcSchoolCollectionStudentEntity().getNumberOfCourses(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID()));
         FteCalculationResult fteCalculationResult = new FteCalculationResult();
-        if (BooleanString.areEqual(studentData.getSdcSchoolCollectionStudent().getIsGraduated(), Boolean.TRUE)) {
+        if (Boolean.TRUE.equals(studentData.getSdcSchoolCollectionStudentEntity().getIsGraduated())) {
             fteCalculationResult.setFte(numCourses.multiply(fteMultiplier).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros());
         } else {
-            BigDecimal numSupportBlocks = new BigDecimal(studentData.getSdcSchoolCollectionStudent().getSupportBlocks());
+            BigDecimal numSupportBlocks = new BigDecimal(studentData.getSdcSchoolCollectionStudentEntity().getSupportBlocks());
             BigDecimal fte = (numCourses.add(numSupportBlocks).multiply(fteMultiplier)).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros();
             fteCalculationResult.setFte(fte.compareTo(BigDecimal.ONE) > 0 ? BigDecimal.ONE : fte);
         }

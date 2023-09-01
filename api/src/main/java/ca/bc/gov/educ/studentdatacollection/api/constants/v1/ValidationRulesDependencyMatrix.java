@@ -55,7 +55,11 @@ public enum ValidationRulesDependencyMatrix {
     ENTRY47("V23", new String[]{RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID, RulesConstants.INVALID_GRADE_CODE}),
     ENTRY48("V38", new String[]{RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID, RulesConstants.INVALID_GRADE_CODE}),
     ENTRY49("V25", new String[]{RulesConstants.INVALID_GRADE_CODE, "SPEDERR"}),
-    ENTRY50("V09", new String[]{"LEGALLASTNAMECHARFIX"});
+    ENTRY50("V09", new String[]{"LEGALLASTNAMECHARFIX"}),
+    ENTRY51("V48", new String[]{RulesConstants.DOB_INVALID_FORMAT, RulesConstants.INVALID_GRADE_CODE}),
+    ENTRY52("V49", new String[]{RulesConstants.DOB_INVALID_FORMAT}),
+    ENTRY53("V69", new String[]{RulesConstants.NO_OF_COURSES_INVALID, RulesConstants.DOB_INVALID_FORMAT, RulesConstants.INVALID_GRADE_CODE}),
+    ENTRY54("V53", new String[]{RulesConstants.DOB_INVALID_FORMAT});
 
 
     @Getter

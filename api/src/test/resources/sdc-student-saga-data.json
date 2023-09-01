@@ -1,5 +1,5 @@
 {
-  "sdcSchoolCollectionStudent": {
+  "sdcSchoolCollectionStudentEntity": {
     "sdcSchoolCollectionStudentID": "20f024a9-43a1-4b4a-b2a7-1689cf6ad712",
     "sdcSchoolCollectionID": "20f024b3-43a1-4b4a-b2a7-1689cf6ad712",
     "localID": "LOCAL123",
@@ -38,17 +38,6 @@
     "assignedStudentId": "20f024a9-43a1-4b4a-b2a7-1689cf6ad712",
     "assignedPen": "120164447"
   },
-  "penMatchResult": {
-    "matchingRecords": [
-      {
-        "matchingPEN": "120164447",
-        "studentID": "20f024a9-43a1-4b4a-b2a7-1689cf6ad712"
-      }
-    ],
-    "penStatus": "MATCHED",
-    "penStatusMessage": "Matching record found."
-  },
-  "gradStatus": "IN_PROGRESS",
   "collectionTypeCode": "JAN",
   "school": {
     "schoolId": "20f024a9-43a1-4b4c-b2a7-1689cf6ad712",

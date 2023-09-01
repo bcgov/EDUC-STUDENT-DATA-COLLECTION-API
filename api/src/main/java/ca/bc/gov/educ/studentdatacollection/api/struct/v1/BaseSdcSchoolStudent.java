@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
 import java.math.BigDecimal;
 
 @Data
@@ -133,5 +134,7 @@ public class BaseSdcSchoolStudent extends BaseRequest {
 
   @Size(max = 10)
   private String assignedPen;
+
+  private String penMatchResult;
 
 }

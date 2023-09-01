@@ -1,18 +1,18 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.math.BigDecimal;
-
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
+import ca.bc.gov.educ.studentdatacollection.api.exception.SagaRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
-import ca.bc.gov.educ.studentdatacollection.api.exception.SagaRuntimeException;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class CollectionAndGradeCalculatorTest {
 
@@ -33,13 +33,13 @@ class CollectionAndGradeCalculatorTest {
         String enrolledGradeCode = "06";
         int numberOfCourses = 4;
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
         student.setNumberOfCourses(String.valueOf(numberOfCourses));
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
         studentData.setCollectionTypeCode(collectionTypeCode);
-        studentData.setSdcSchoolCollectionStudent(student);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = collectionAndGradeCalculator.calculateFte(studentData);
@@ -58,13 +58,13 @@ class CollectionAndGradeCalculatorTest {
         String collectionTypeCode = "JULY";
         String enrolledGradeCode = "10";
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
         student.setNumberOfCourses("0600");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
         studentData.setCollectionTypeCode(collectionTypeCode);
-        studentData.setSdcSchoolCollectionStudent(student);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = collectionAndGradeCalculator.calculateFte(studentData);
@@ -83,12 +83,13 @@ class CollectionAndGradeCalculatorTest {
         String collectionTypeCode = "JULY";
         String enrolledGradeCode = "13"; // Invalid grade code
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
+        student.setSdcSchoolCollection(new SdcSchoolCollectionEntity());
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
         studentData.setCollectionTypeCode(collectionTypeCode);
-        studentData.setSdcSchoolCollectionStudent(student);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When and Then
         assertThrows(SagaRuntimeException.class, () -> collectionAndGradeCalculator.calculateFte(studentData));
@@ -102,13 +103,13 @@ class CollectionAndGradeCalculatorTest {
         String enrolledGradeCode = "10";
         int numberOfCourses = 6;
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
         student.setNumberOfCourses(String.valueOf(numberOfCourses));
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
         studentData.setCollectionTypeCode(collectionTypeCode);
-        studentData.setSdcSchoolCollectionStudent(student);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();
@@ -128,12 +129,12 @@ class CollectionAndGradeCalculatorTest {
         String collectionTypeCode = "JULY";
         String enrolledGradeCode = "10";
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
+        StudentRuleData studentData = new StudentRuleData();
         studentData.setCollectionTypeCode(collectionTypeCode);
-        studentData.setSdcSchoolCollectionStudent(student);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = collectionAndGradeCalculator.calculateFte(studentData);
@@ -152,12 +153,12 @@ class CollectionAndGradeCalculatorTest {
         String enrolledGradeCode = "10";
         int numberOfCourses = 6;
 
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
         student.setNumberOfCourses(String.valueOf(numberOfCourses));
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();

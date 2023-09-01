@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * The enum Pen request batch student validation issue type code.
  */
-public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
+public enum StudentValidationIssueTypeCode {
 
   /**
    * Gender invalid student validation issue type code.
@@ -83,6 +83,10 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
   SPED_ERR("SPEDERR", "Reported Special Education Category is not valid."),
   PEN_CHECK_DIGIT_ERR("PENCHECKDIGITERR", "Student's PEN is not valid. Adjust or remove the PEN."),
   NO_OF_COURSES_INVALID("NOOFCOURSESINVALID", "Number of Courses must be a number."),
+  ADULT_GRADUATED("ADULTGRADUATED", "Adult graduates must be reported in grade GA."),
+  SCHOOL_AGED_GRADUATE_SUMMER("SCHLAGEDGRADSUMMER", "School-aged student has graduated and cannot be reported in Summer School. Remove the student from the submission."),
+  SCHOOL_AGED_GRADUATE_SUPPORT_BLOCKS("SCHLAGEDGRADSUPPORT", "Graduated school-aged students will not receive funding for support blocks."),
+  GRADUATE_STUDENT_INDEPENDENT("GRADSTUDENTINDEPEND", "Graduated adult students are not eligible for funding."),
   ;
 
   /**
@@ -102,7 +106,7 @@ public enum SdcSchoolCollectionStudentValidationIssueTypeCode {
    *
    * @param code the code
    */
-  SdcSchoolCollectionStudentValidationIssueTypeCode(String code, String message) {
+  StudentValidationIssueTypeCode(String code, String message) {
     this.code = code;
     this.message = message;
   }

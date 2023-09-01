@@ -1,12 +1,17 @@
 package ca.bc.gov.educ.studentdatacollection.api.rest;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
+import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.studentdatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.PenMatchSagaMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeCriteriaEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -44,6 +49,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class RestUtils {
   public static final String SEARCH_CRITERIA_LIST = "searchCriteriaList";
   public static final String SCHOOL_CATEGORY_CODE = "schoolCategoryCode";
+  public static final String NATS_TIMEOUT = "Either NATS timed out or the response is null , correlationID :: ";
   public static final String SCHOOL_REPORTING_REQUIREMENT_CODE = "schoolReportingRequirementCode";
   public static final String FACILITY_TYPE_CODE = "facilityTypeCode";
   public static final String OPEN_DATE = "openedDate";
@@ -51,7 +57,6 @@ public class RestUtils {
   private static final String CONTENT_TYPE = "Content-Type";
   private final Map<String, School> schoolMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
-  private static final String INSTITUTE_API_TOPIC = "INSTITUTE_API_TOPIC";
   private final WebClient webClient;
   private final MessagePublisher messagePublisher;
   private final ObjectMapper objectMapper = new ObjectMapper();
@@ -124,6 +129,48 @@ public class RestUtils {
       .block();
   }
 
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public PenMatchResult getPenMatchResult(UUID correlationID, SdcSchoolCollectionStudentEntity sdcSchoolStudent, String mincode) {
+    try {
+      val penMatchRequest = PenMatchSagaMapper.mapper.toPenMatchStudent(sdcSchoolStudent, mincode);
+      penMatchRequest.setDob(StringUtils.replace(penMatchRequest.getDob(), "-", "")); // pen-match api expects yyyymmdd
+      val penMatchRequestJson = JsonUtil.mapper.writeValueAsString(penMatchRequest);
+      final TypeReference<PenMatchResult> ref = new TypeReference<>() {
+      };
+      Object event = Event.builder().sagaId(correlationID).eventType(EventType.PROCESS_PEN_MATCH).eventPayload(penMatchRequestJson).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.PEN_MATCH_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+      if (null != responseMessage) {
+        return objectMapper.readValue(responseMessage.getData(), ref);
+      } else {
+        throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+      }
+
+    } catch (final Exception ex) {
+      Thread.currentThread().interrupt();
+      throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
+    }
+  }
+
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public PenMatchResult getGradStatusResult(UUID correlationID, SdcSchoolCollectionStudent sdcSchoolStudent) {
+    try {
+      val gradStatusJSON = JsonUtil.mapper.writeValueAsString(sdcSchoolStudent.getAssignedStudentId());
+      final TypeReference<PenMatchResult> ref = new TypeReference<>() {
+      };
+      Object event = Event.builder().sagaId(correlationID).eventType(EventType.FETCH_GRAD_STATUS).eventPayload(gradStatusJSON).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
+      if (null != responseMessage) {
+        return objectMapper.readValue(responseMessage.getData(), ref);
+      } else {
+        throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+      }
+
+    } catch (final Exception ex) {
+      Thread.currentThread().interrupt();
+      throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
+    }
+  }
+
   /**
    * Gets list of schools based on criteria.
    *
@@ -168,16 +215,16 @@ public class RestUtils {
       };
       val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(SEARCH_CRITERIA_LIST.concat("=").concat(
           URLEncoder.encode(this.objectMapper.writeValueAsString(searches), StandardCharsets.UTF_8)).concat("&").concat(PAGE_SIZE).concat("=").concat("100000")).build();
-      val responseMessage = this.messagePublisher.requestMessage(INSTITUTE_API_TOPIC, JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
       if (null != responseMessage) {
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {
-        throw new StudentDataCollectionAPIRuntimeException("Either NATS timed out or the response is null , correlationID :: " + correlationID);
+        throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
 
     } catch (final Exception ex) {
       Thread.currentThread().interrupt();
-      throw new StudentDataCollectionAPIRuntimeException("Either NATS timed out or the response is null , correlationID :: " + correlationID + ex.getMessage());
+      throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
     }
   }
 

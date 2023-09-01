@@ -1,18 +1,18 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.math.BigDecimal;
-
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.*;
 
 class AdultStudentCalculatorTest {
 
@@ -29,13 +29,13 @@ class AdultStudentCalculatorTest {
     @Test
     void testCalculateFte_IsAdultStudent() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsAdult("true");
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setIsAdult(true);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
         student.setNumberOfCourses("0500");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = adultStudentCalculator.calculateFte(studentData);
@@ -49,13 +49,13 @@ class AdultStudentCalculatorTest {
     @Test
     void testCalculateFte_IsGAAndNotAdultStudent() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsAdult("false");
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setIsAdult(false);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADUATED_ADULT.getCode());
         student.setNumberOfCourses("0300");
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = adultStudentCalculator.calculateFte(studentData);
@@ -69,12 +69,12 @@ class AdultStudentCalculatorTest {
     @Test
     void testCalculateFte_IsNotAdultAndNotGAStudent() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsAdult("false");
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setIsAdult(false);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult fteValues = new FteCalculationResult();
@@ -92,11 +92,11 @@ class AdultStudentCalculatorTest {
     @Test
     void testCalculateFte_NullIsAdultStudent() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult fteValues = new FteCalculationResult();
@@ -114,12 +114,12 @@ class AdultStudentCalculatorTest {
     @Test
     void testCalculateFte_NullNumCourses() {
         // Given
-        SdcSchoolCollectionStudent student = new SdcSchoolCollectionStudent();
-        student.setIsAdult("true");
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setIsAdult(true);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADUATED_ADULT.getCode());
 
-        SdcStudentSagaData studentData = new SdcStudentSagaData();
-        studentData.setSdcSchoolCollectionStudent(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
         FteCalculationResult result = adultStudentCalculator.calculateFte(studentData);
