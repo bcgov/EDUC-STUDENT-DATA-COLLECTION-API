@@ -32,9 +32,9 @@ env:
   MIN_REPLICAS: "3"
   MAX_REPLICAS: "5"
   MIN_CPU: "250m"
-  MAX_CPU: "500m"
+  MAX_CPU: "1"
   MIN_MEM: "1024Mi"
-  MAX_MEM: "2048Mi"
+  MAX_MEM: "4096Mi"
 
 on:
   # https://docs.github.com/en/actions/reference/events-that-trigger-workflows

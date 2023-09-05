@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.SagaRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
@@ -39,7 +40,7 @@ public class CollectionAndGradeCalculator implements FteCalculator {
             } else {
                 String errorMessage = "SdcStudentSagaData has invalid enrolledGradeCode for a summer collection :: " + student.getSdcSchoolCollection().getSdcSchoolCollectionID();
                 log.error(errorMessage);
-                throw new SagaRuntimeException(errorMessage);
+                throw new StudentDataCollectionAPIRuntimeException(errorMessage);
             }
             fteCalculationResult.setFteZeroReason(null);
             return fteCalculationResult;
