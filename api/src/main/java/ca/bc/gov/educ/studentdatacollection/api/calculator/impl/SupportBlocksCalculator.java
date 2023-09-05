@@ -23,6 +23,7 @@ public class SupportBlocksCalculator implements FteCalculator {
     }
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
+        log.debug("SupportBlocksCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         if (StringUtils.isBlank(studentData.getSdcSchoolCollectionStudentEntity().getSupportBlocks()) || studentData.getSdcSchoolCollectionStudentEntity().getSupportBlocks().equals("0")) {
             BigDecimal fteMultiplier = new BigDecimal("0.125");
             var numCoursesString = studentData.getSdcSchoolCollectionStudentEntity().getNumberOfCourses();
@@ -31,8 +32,10 @@ public class SupportBlocksCalculator implements FteCalculator {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(numCourses.multiply(fteMultiplier).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros());
             fteCalculationResult.setFteZeroReason(null);
+            log.debug("SupportBlocksCalculator: Fte result {} calculated for student :: {}", fteCalculationResult.getFte(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return fteCalculationResult;
         } else {
+            log.debug("SupportBlocksCalculator: No FTE result, moving to next calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return nextCalculator.calculateFte(studentData);
         }
     }
