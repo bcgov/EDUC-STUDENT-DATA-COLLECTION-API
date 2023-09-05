@@ -75,6 +75,9 @@ public class FteCalculatorUtils {
      * (of a certain grade) was reported in the previous collection for the same district
      */
     public boolean studentPreviouslyReportedInDistrict(StudentRuleData studentRuleData) {
+        if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
+            return false;
+        }
         var school = studentRuleData.getSchool();
         var isPublicOnlineOrContEdSchool = (school.getSchoolCategoryCode().equals(SchoolCategoryCodes.PUBLIC.getCode()) &&
                 (school.getFacilityTypeCode().equals(FacilityTypeCodes.DIST_LEARN.getCode()) || school.getFacilityTypeCode().equals(FacilityTypeCodes.DISTONLINE.getCode()))) ||
@@ -96,6 +99,9 @@ public class FteCalculatorUtils {
      * (of a certain grade) was reported in the previous collection for the same authority
      */
     public boolean studentPreviouslyReportedInIndependentAuthority(StudentRuleData studentRuleData) {
+        if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
+            return false;
+        }
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         var school = studentRuleData.getSchool();
         var isIndependentOnlineSchool = school != null && StringUtils.equals(school.getSchoolCategoryCode(), SchoolCategoryCodes.INDEPEND.getCode()) && StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode());
@@ -121,6 +127,9 @@ public class FteCalculatorUtils {
      * by an online school and the student was reported as an HS student in the previous collection
      */
     public boolean homeSchoolStudentIsNowOnlineKto9Student(StudentRuleData studentRuleData) {
+        if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
+            return false;
+        }
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         var studentReportedByOnlineSchool = studentRuleData.getSchool().getFacilityTypeCode().equals(FacilityTypeCodes.DIST_LEARN.getCode()) || studentRuleData.getSchool().getFacilityTypeCode().equals(FacilityTypeCodes.DISTONLINE.getCode());
         var isStudentGradeKToNine = SchoolGradeCodes.getKToNineGrades().contains(student.getEnrolledGradeCode());
@@ -141,6 +150,9 @@ public class FteCalculatorUtils {
      * with zero courses and the student has not been reported with courses > 0 for the last two years
      */
     public boolean noCoursesForStudentInLastTwoYears(StudentRuleData studentRuleData) {
+        if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
+            return false;
+        }
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         var school = studentRuleData.getSchool();
         var isEightPlusGradeCode = SchoolGradeCodes.get8PlusGrades().contains(student.getEnrolledGradeCode());
