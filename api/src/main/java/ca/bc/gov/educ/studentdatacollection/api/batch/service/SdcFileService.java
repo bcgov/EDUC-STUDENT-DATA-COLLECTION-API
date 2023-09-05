@@ -30,11 +30,7 @@ public class SdcFileService {
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
   @Transactional(propagation = Propagation.MANDATORY)
-  public SdcSchoolCollectionEntity runFileLoad(
-    SdcFileUpload sdcFileUpload,
-    String sdcSchoolCollectionID,
-    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional
-  ) {
+  public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload, String sdcSchoolCollectionID, Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional) {
     log.debug("Uploaded file contents for school collection ID: {}", sdcSchoolCollectionID);
 
     if (sdcSchoolCollectionOptional.isPresent() &&
@@ -47,10 +43,6 @@ public class SdcFileService {
       sdcSchoolCollectionService.saveSdcSchoolCollection(sdcSchoolCollection);
     }
 
-    return this.getSdcBatchProcessor().processSdcBatchFile(
-      sdcFileUpload,
-      sdcSchoolCollectionID,
-      sdcSchoolCollectionOptional
-    );
+    return this.getSdcBatchProcessor().processSdcBatchFile(sdcFileUpload, sdcSchoolCollectionID, sdcSchoolCollectionOptional);
   }
 }

@@ -92,11 +92,7 @@ public class SdcBatchFileProcessor {
   }
 
   @Transactional(propagation = Propagation.MANDATORY)
-  public SdcSchoolCollectionEntity processSdcBatchFile(
-    @NonNull final SdcFileUpload fileUpload,
-    String sdcSchoolCollectionID,
-    Optional<SdcSchoolCollectionEntity> sdcSchoolCollection
-  ) {
+  public SdcSchoolCollectionEntity processSdcBatchFile(@NonNull final SdcFileUpload fileUpload, String sdcSchoolCollectionID, Optional<SdcSchoolCollectionEntity> sdcSchoolCollection) {
     val stopwatch = Stopwatch.createStarted();
     final var guid = UUID.randomUUID().toString(); // this guid will be used throughout the logs for easy tracking.
     log.info("Started processing SDC file with school collection ID :: {} and correlation guid :: {}", sdcSchoolCollectionID, guid);
@@ -109,8 +105,7 @@ public class SdcBatchFileProcessor {
 
       this.sdcFileValidator.validateFileHasCorrectExtension(sdcSchoolCollectionID, fileUpload);
       this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
-      this.sdcFileValidator
-        .validateFileHasCorrectMincode(guid, ds, sdcSchoolCollection, this.restUtils);
+      this.sdcFileValidator.validateFileHasCorrectMincode(guid, ds, sdcSchoolCollection, this.restUtils);
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
 
@@ -185,7 +180,7 @@ public class SdcBatchFileProcessor {
       coll.setUploadReportDate(sdcSchoolCollectionEntity.getUploadReportDate());
       coll.setUpdateUser(sdcSchoolCollectionEntity.getUpdateUser());
       coll.setUpdateDate(LocalDateTime.now());
-      coll.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.LOADED));
+      coll.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.NEW));
       return sdcSchoolCollectionService.saveSdcSchoolCollection(coll);
     }else{
       throw new StudentDataCollectionAPIRuntimeException("SDC School Collection ID provided :: " + sdcSchoolCollectionID + " :: is not valid");

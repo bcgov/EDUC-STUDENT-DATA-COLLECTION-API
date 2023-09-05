@@ -32,12 +32,7 @@ public class SdcFileController implements SdcFileEndpoint {
 
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
-  public SdcFileController(
-    SdcFileService sdcFileService,
-    SdcSchoolCollectionService sdcSchoolCollectionService,
-    SdcSchoolCollectionFileValidator sdcSchoolCollectionFileValidator,
-    SdcSchoolCollectionRepository sdcSchoolCollectionRepository
-  ) {
+  public SdcFileController(SdcFileService sdcFileService, SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionFileValidator sdcSchoolCollectionFileValidator, SdcSchoolCollectionRepository sdcSchoolCollectionRepository) {
     this.sdcFileService = sdcFileService;
     this.sdcSchoolCollectionService = sdcSchoolCollectionService;
     this.sdcSchoolCollectionFileValidator = sdcSchoolCollectionFileValidator;
@@ -53,13 +48,9 @@ public class SdcFileController implements SdcFileEndpoint {
     ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionFileValidator.
       validatePayload(sdcSchoolCollectionID, schoolCollectionEntity));
 
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcFileService.runFileLoad(
-      fileUpload,
-      sdcSchoolCollectionID,
-      schoolCollectionEntity
-    );
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcFileService.runFileLoad(fileUpload, sdcSchoolCollectionID, schoolCollectionEntity);
 
-    return ResponseEntity.ok(SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcSchoolCollectionEntity));
+    return ResponseEntity.ok(SdcSchoolCollectionMapper.mapper.toStructure(sdcSchoolCollectionEntity));
   }
 
   @Override
