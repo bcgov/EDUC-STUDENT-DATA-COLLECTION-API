@@ -65,7 +65,26 @@ class FteCalculatorUtilsTest {
         // Assert
         assertTrue(result);
     }
+    @Test
+    void studentPreviouslyReportedInDistrict_NoAssignedStudentId_ReturnsFalse() {
+        // Given
+        StudentRuleData studentRuleData = new StudentRuleData();
+        studentRuleData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        School school = new School();
+        school.setSchoolCategoryCode("PUBLIC");
+        school.setFacilityTypeCode("DIST_LEARN");
+        school.setDistrictId(UUID.randomUUID().toString());
+        studentRuleData.setSchool(school);
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+        student.setCreateDate(LocalDateTime.now());
+        studentRuleData.setSdcSchoolCollectionStudentEntity(student);
+        // When
+        var result = fteCalculatorUtils.studentPreviouslyReportedInDistrict(studentRuleData);
 
+        // Then
+        assertFalse(result);
+    }
     @Test
     void studentPreviouslyReportedInDistrict_NoPreviousCollectionsForSchools_ReturnsFalse() {
         // Given
@@ -249,6 +268,27 @@ class FteCalculatorUtilsTest {
         // Then
         assertEquals(expectedResult, result);
 
+    }
+    @Test
+    void studentPreviouslyReportedInIndependentAuthority_NoAssignedStudentId_ReturnsFalse() {
+        // Given
+        StudentRuleData sdcStudentSagaData = new StudentRuleData();
+        sdcStudentSagaData.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        School school = new School();
+        school.setSchoolCategoryCode("INDEPEND");
+        school.setFacilityTypeCode("DIST_LEARN");
+        school.setIndependentAuthorityId("AUTH_ID");
+        sdcStudentSagaData.setSchool(school);
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+        student.setCreateDate(LocalDateTime.now());
+        sdcStudentSagaData.setSdcSchoolCollectionStudentEntity(student);
+
+        // When
+        var result = fteCalculatorUtils.studentPreviouslyReportedInIndependentAuthority(sdcStudentSagaData);
+
+        // Then
+        assertFalse(result);
     }
 
     @Test
@@ -564,7 +604,25 @@ class FteCalculatorUtilsTest {
         // Then
         assertEquals(expectedResult, result);
     }
+    @Test
+    void testHomeSchoolStudentIsNowOnlineKto9Student_GivenNoAssignedStudentId_ReturnsFalse() {
+        // Given
+        StudentRuleData sdcStudentSagaData = new StudentRuleData();
+        sdcStudentSagaData.setCollectionTypeCode("FEBRUARY");
+        School school = new School();
+        school.setFacilityTypeCode("DIST_LEARN");
+        sdcStudentSagaData.setSchool(school);
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+        student.setCreateDate(LocalDateTime.now());
+        sdcStudentSagaData.setSdcSchoolCollectionStudentEntity(student);
 
+        // When
+        var result = fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(sdcStudentSagaData);
+
+        // Then
+        assertFalse(result);
+    }
     @Test
     void testHomeSchoolStudentIsNowOnlineKto9Student_GivenNoPreviousCollectionForStudent_ReturnsFalse() {
         // Given
@@ -588,53 +646,53 @@ class FteCalculatorUtilsTest {
         assertFalse(result);
     }
 
-@Test
-void noCoursesForStudentInLastTwoYears_NotSchoolAged_ShouldReturnFalse() {
-    // Given
-    UUID schoolId = UUID.randomUUID();
-    LocalDateTime studentCreateDate = LocalDateTime.now();
-    String enrolledGradeCode = "10";
-    String facilityTypeCode = "DIST_LEARN";
-    String numberOfCourses = "0";
+    @Test
+    void noCoursesForStudentInLastTwoYears_NotSchoolAged_ShouldReturnFalse() {
+        // Given
+        UUID schoolId = UUID.randomUUID();
+        LocalDateTime studentCreateDate = LocalDateTime.now();
+        String enrolledGradeCode = "10";
+        String facilityTypeCode = "DIST_LEARN";
+        String numberOfCourses = "0";
 
-    School school = new School();
-    school.setSchoolId(UUID.randomUUID().toString());
-    school.setFacilityTypeCode(facilityTypeCode);
+        School school = new School();
+        school.setSchoolId(UUID.randomUUID().toString());
+        school.setFacilityTypeCode(facilityTypeCode);
 
-    SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
-    schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
-    schoolCollection1.setSchoolID(schoolId);
-    schoolCollection1.setCreateDate(studentCreateDate.minusYears(1)); // One year ago
+        SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
+        schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
+        schoolCollection1.setSchoolID(schoolId);
+        schoolCollection1.setCreateDate(studentCreateDate.minusYears(1)); // One year ago
 
-    SdcSchoolCollectionEntity schoolCollection2 = new SdcSchoolCollectionEntity();
-    schoolCollection2.setSdcSchoolCollectionID(UUID.randomUUID());
-    schoolCollection2.setSchoolID(schoolId);
-    schoolCollection2.setCreateDate(studentCreateDate.minusYears(2)); // Two years ago
+        SdcSchoolCollectionEntity schoolCollection2 = new SdcSchoolCollectionEntity();
+        schoolCollection2.setSdcSchoolCollectionID(UUID.randomUUID());
+        schoolCollection2.setSchoolID(schoolId);
+        schoolCollection2.setCreateDate(studentCreateDate.minusYears(2)); // Two years ago
 
-    List<SdcSchoolCollectionEntity> lastTwoYearsOfCollections = Arrays.asList(schoolCollection1, schoolCollection2);
+        List<SdcSchoolCollectionEntity> lastTwoYearsOfCollections = Arrays.asList(schoolCollection1, schoolCollection2);
 
-    SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
-    student.setCreateDate(studentCreateDate);
-    student.setEnrolledGradeCode(enrolledGradeCode);
-    student.setNumberOfCourses(numberOfCourses);
-    student.setAssignedStudentId(UUID.randomUUID());
-    student.setIsSchoolAged(false);
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setCreateDate(studentCreateDate);
+        student.setEnrolledGradeCode(enrolledGradeCode);
+        student.setNumberOfCourses(numberOfCourses);
+        student.setAssignedStudentId(UUID.randomUUID());
+        student.setIsSchoolAged(false);
 
-    StudentRuleData studentData = new StudentRuleData();
-    studentData.setSchool(school);
-    studentData.setSdcSchoolCollectionStudentEntity(student);
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSchool(school);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
 
-    when(sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class)))
-            .thenReturn(lastTwoYearsOfCollections);
-    when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(any(UUID.class), anyList(), any(String.class)))
-            .thenReturn(0L);
+        when(sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(lastTwoYearsOfCollections);
+        when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(any(UUID.class), anyList(), any(String.class)))
+                .thenReturn(0L);
 
-    // When
-    boolean result = fteCalculatorUtils.noCoursesForStudentInLastTwoYears(studentData);
+        // When
+        boolean result = fteCalculatorUtils.noCoursesForStudentInLastTwoYears(studentData);
 
-    // Then
-    assertFalse(result);
-}
+        // Then
+        assertFalse(result);
+    }
 
     @Test
     void noCoursesForStudentInLastTwoYears_NoCoursesInLastTwoYears_ShouldReturnTrue() {
@@ -731,7 +789,25 @@ void noCoursesForStudentInLastTwoYears_NotSchoolAged_ShouldReturnFalse() {
         // Then
         assertFalse(result);
     }
+    @Test
+    void noCoursesForStudentInLastTwoYears_NoAssignedStudentId_ReturnsFalse() {
+        // Given
+        StudentRuleData sdcStudentSagaData = new StudentRuleData();
+        sdcStudentSagaData.setCollectionTypeCode("FEBRUARY");
+        School school = new School();
+        school.setFacilityTypeCode("DIST_LEARN");
+        sdcStudentSagaData.setSchool(school);
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+        student.setCreateDate(LocalDateTime.now());
+        sdcStudentSagaData.setSdcSchoolCollectionStudentEntity(student);
 
+        // When
+        boolean result = fteCalculatorUtils.noCoursesForStudentInLastTwoYears(sdcStudentSagaData);
+
+        // Then
+        assertFalse(result);
+    }
     @Test
     void noCoursesForStudentInLastTwoYears_NoCollectionsInLastTwoYears_ReturnsTrue() {
         // Given
