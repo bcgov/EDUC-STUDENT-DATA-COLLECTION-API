@@ -41,7 +41,7 @@ env:
   MIN_CPU: "250m"
   MAX_CPU: "1"
   MIN_MEM: "1024Mi"
-  MAX_MEM: "4096Mi"
+  MAX_MEM: "3000Mi"
 
 on:
   # https://docs.github.com/en/actions/reference/events-that-trigger-workflows
