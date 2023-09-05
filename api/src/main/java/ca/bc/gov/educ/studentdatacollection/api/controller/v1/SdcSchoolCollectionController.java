@@ -45,13 +45,12 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   public SdcSchoolCollection updateSchoolCollection(SdcSchoolCollection sdcSchoolCollection, UUID sdcSchoolCollectionID) {
     ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionValidator.validatePayload(sdcSchoolCollection, false));
     RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollection);
-    return mapper.toSdcSchoolWithStudents(sdcSchoolCollectionService.updateSdcSchoolCollection(mapper.toSdcSchoolCollectionEntity(sdcSchoolCollection)));
+    return mapper.toStructure(sdcSchoolCollectionService.updateSdcSchoolCollection(mapper.toSdcSchoolCollectionEntity(sdcSchoolCollection)));
   }
 
   @Override
   public SdcSchoolCollection getActiveSchoolCollectionBySchoolId(UUID schoolID) {
-    return mapper.toSdcSchoolWithStudents(
-        sdcSchoolCollectionService.getActiveSdcSchoolCollectionBySchoolID(schoolID));
+    return mapper.toStructure(sdcSchoolCollectionService.getActiveSdcSchoolCollectionBySchoolID(schoolID));
   }
 
   @Override

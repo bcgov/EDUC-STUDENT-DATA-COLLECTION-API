@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.exception.SagaRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -122,6 +123,6 @@ class StudentGradeCalculatorTest {
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When and Then
-        assertThrows(SagaRuntimeException.class, () -> studentGradeCalculator.calculateFte(studentData));
+        assertThrows(StudentDataCollectionAPIRuntimeException.class, () -> studentGradeCalculator.calculateFte(studentData));
     }
 }
