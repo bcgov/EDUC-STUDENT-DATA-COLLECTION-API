@@ -29,23 +29,29 @@ public class NewOnlineStudentCalculator implements FteCalculator {
     }
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
+        log.debug("NewOnlineStudentCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         if(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(studentData)) {
             var student = studentData.getSdcSchoolCollectionStudentEntity();
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             if(student.getEnrolledGradeCode().equals(SchoolGradeCodes.KINDHALF.getCode())) {
+                log.debug("NewOnlineStudentCalculator: calculating for a half kindergarten student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 fteCalculationResult.setFte(new BigDecimal("0.4529"));
             } else if (student.getEnrolledGradeCode().equals(SchoolGradeCodes.GRADE08.getCode()) || student.getEnrolledGradeCode().equals(SchoolGradeCodes.GRADE09.getCode())) {
+                log.debug("NewOnlineStudentCalculator: calculating for a grade 8 or 9 student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 BigDecimal fteMultiplier = new BigDecimal("0.125");
                 BigDecimal numCourses = StringUtils.isBlank(studentData.getSdcSchoolCollectionStudentEntity().getNumberOfCourses()) ? BigDecimal.ZERO : BigDecimal.valueOf(TransformUtil.parseNumberOfCourses(student.getNumberOfCourses(), student.getSdcSchoolCollectionStudentID()));
                 BigDecimal largestFte = new BigDecimal("0.9529");
                 var fte = (numCourses.multiply(fteMultiplier).add(new BigDecimal("0.5"))).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros();
                 fteCalculationResult.setFte(fte.compareTo(largestFte) > 0 ? largestFte : fte);
             } else {
+                log.debug("NewOnlineStudentCalculator: calculating for all other grades with student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 fteCalculationResult.setFte(new BigDecimal("0.9529"));
             }
             fteCalculationResult.setFteZeroReason(null);
+            log.debug("NewOnlineStudentCalculator: Fte result {} calculated for student :: {}", fteCalculationResult.getFte(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return fteCalculationResult;
         } else {
+            log.debug("NewOnlineStudentCalculator: No FTE result, moving to next calculation for student  :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return this.nextCalculator.calculateFte(studentData);
         }
     }

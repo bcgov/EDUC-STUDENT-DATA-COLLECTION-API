@@ -23,12 +23,15 @@ public class TooYoungCalculator implements FteCalculator {
     }
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
+        log.debug("TooYoungCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         if(!DOBUtil.is5YearsOldByDec31ThisSchoolYear(studentData.getSdcSchoolCollectionStudentEntity().getDob())) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
             fteCalculationResult.setFteZeroReason(TOO_YOUNG.getCode());
+            log.debug("TooYoungCalculator: Fte result {} calculated with zero reason '{}' for student :: {}", fteCalculationResult.getFte(), fteCalculationResult.getFteZeroReason(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return fteCalculationResult;
         } else {
+            log.debug("TooYoungCalculator: No FTE result, moving to next calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return this.nextCalculator.calculateFte(studentData);
         }
     }

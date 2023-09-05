@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Component
+@Slf4j
 @Order(9)
 public class AdultStudentCalculator implements FteCalculator {
     FteCalculator nextCalculator;
@@ -22,6 +24,7 @@ public class AdultStudentCalculator implements FteCalculator {
     }
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
+        log.debug("AdultStudentCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         var sdcSchoolStudent = studentData.getSdcSchoolCollectionStudentEntity();
         boolean isAdult = Boolean.TRUE.equals(sdcSchoolStudent.getIsAdult());
         if (isAdult || StringUtils.equals(sdcSchoolStudent.getEnrolledGradeCode(), SchoolGradeCodes.GRADUATED_ADULT.getCode())) {
@@ -30,8 +33,10 @@ public class AdultStudentCalculator implements FteCalculator {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(numCourses.multiply(fteMultiplier).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros());
             fteCalculationResult.setFteZeroReason(null);
+            log.debug("AdultStudentCalculator: Fte result {} calculated for student :: {}", fteCalculationResult.getFte(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return fteCalculationResult;
         } else {
+            log.debug("AdultStudentCalculator: No FTE result, moving to next calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return this.nextCalculator.calculateFte(studentData);
         }
     }

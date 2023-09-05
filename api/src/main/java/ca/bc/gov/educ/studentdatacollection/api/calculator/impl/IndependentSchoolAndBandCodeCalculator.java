@@ -25,6 +25,7 @@ public class IndependentSchoolAndBandCodeCalculator implements FteCalculator {
     }
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
+        log.debug("IndependentSchoolAndBandCodeCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         var isIndependentSchool = studentData.getSchool() != null && StringUtils.equals(studentData.getSchool().getSchoolCategoryCode(), SchoolCategoryCodes.INDEPEND.getCode());
         var hasBandCode = StringUtils.isNotBlank(studentData.getSdcSchoolCollectionStudentEntity().getBandCode());
         var fundingCode = studentData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode();
@@ -33,8 +34,10 @@ public class IndependentSchoolAndBandCodeCalculator implements FteCalculator {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
             fteCalculationResult.setFteZeroReason(NOMINAL_ROLL_ELIGIBLE.getCode());
+            log.debug("IndependentSchoolAndBandCodeCalculator: Fte result {} calculated with zero reason '{}' for student :: {}", fteCalculationResult.getFte(), fteCalculationResult.getFteZeroReason(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return fteCalculationResult;
         } else {
+            log.debug("IndependentSchoolAndBandCodeCalculator: No FTE result, moving to next calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return this.nextCalculator.calculateFte(studentData);
         }
     }
