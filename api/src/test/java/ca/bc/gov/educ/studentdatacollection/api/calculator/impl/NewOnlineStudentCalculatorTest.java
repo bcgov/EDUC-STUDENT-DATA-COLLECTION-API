@@ -90,6 +90,7 @@ class NewOnlineStudentCalculatorTest {
     void testCalculateFte_homeSchoolStudentIsNotOnlineKto9Student() {
         // Given
         StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(new SdcSchoolCollectionStudentEntity());
 
         when(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(studentData)).thenReturn(false);
 

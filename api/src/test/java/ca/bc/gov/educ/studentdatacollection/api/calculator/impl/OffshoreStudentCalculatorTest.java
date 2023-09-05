@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
@@ -34,6 +35,7 @@ class OffshoreStudentCalculatorTest {
 
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
+        studentData.setSdcSchoolCollectionStudentEntity(new SdcSchoolCollectionStudentEntity());
 
         // When
         FteCalculationResult result = offshoreStudentCalculator.calculateFte(studentData);
@@ -53,6 +55,7 @@ class OffshoreStudentCalculatorTest {
 
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
+        studentData.setSdcSchoolCollectionStudentEntity(new SdcSchoolCollectionStudentEntity());
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();
@@ -71,6 +74,7 @@ class OffshoreStudentCalculatorTest {
     void testCalculateFte_WithNullSchool_CallsNextFteCalculation() {
         // Given
         StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(new SdcSchoolCollectionStudentEntity());
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();

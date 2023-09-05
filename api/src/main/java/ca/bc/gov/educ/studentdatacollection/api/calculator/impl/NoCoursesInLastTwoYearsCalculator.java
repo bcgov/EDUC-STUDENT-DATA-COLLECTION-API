@@ -27,12 +27,15 @@ public class NoCoursesInLastTwoYearsCalculator implements FteCalculator {
     }
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
+        log.debug("NoCoursesInLastTwoYearsCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         if(fteCalculatorUtils.noCoursesForStudentInLastTwoYears(studentData)) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
             fteCalculationResult.setFteZeroReason(INACTIVE.getCode());
+            log.debug("NoCoursesInLastTwoYearsCalculator: Fte result {} calculated with zero reason '{}' for student :: {}", fteCalculationResult.getFte(), fteCalculationResult.getFteZeroReason(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return fteCalculationResult;
         } else {
+            log.debug("NoCoursesInLastTwoYearsCalculator: No FTE result, moving to next calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return this.nextCalculator.calculateFte(studentData);
         }
     }

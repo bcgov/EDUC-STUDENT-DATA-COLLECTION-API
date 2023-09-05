@@ -27,12 +27,15 @@ public class DistrictDoubleReportedCalculator implements FteCalculator {
     }
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
+        log.debug("DistrictDoubleReportedCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         if(fteCalculatorUtils.studentPreviouslyReportedInDistrict(studentData)) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
             fteCalculationResult.setFteZeroReason(DISTRICT_DUPLICATE_FUNDING.getCode());
+            log.debug("DistrictDoubleReportedCalculator: Fte result {} calculated with zero reason '{}' for student :: {}", fteCalculationResult.getFte(), fteCalculationResult.getFteZeroReason(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return fteCalculationResult;
         } else {
+            log.debug("DistrictDoubleReportedCalculator: No FTE result, moving to next calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return this.nextCalculator.calculateFte(studentData);
         }
     }
