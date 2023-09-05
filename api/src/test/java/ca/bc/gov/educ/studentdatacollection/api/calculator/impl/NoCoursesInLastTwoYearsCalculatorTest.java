@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +34,7 @@ class NoCoursesInLastTwoYearsCalculatorTest {
     void testCalculateFte_NoCoursesInLastTwoYears_ReturnsFteCalculation() {
         // Given
         StudentRuleData student = new StudentRuleData();
+        student.setSdcSchoolCollectionStudentEntity(new SdcSchoolCollectionStudentEntity());
         when(fteCalculatorUtils.noCoursesForStudentInLastTwoYears(any())).thenReturn(true);
 
         // When
@@ -48,6 +50,7 @@ class NoCoursesInLastTwoYearsCalculatorTest {
     void testCalculateFte_HasCoursesInLastTwoYears_CallsNextCalculator() {
         // Given
         StudentRuleData student = new StudentRuleData();
+        student.setSdcSchoolCollectionStudentEntity(new SdcSchoolCollectionStudentEntity());
         when(fteCalculatorUtils.noCoursesForStudentInLastTwoYears(any())).thenReturn(false);
 
         // When
