@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -30,11 +31,11 @@ public class SdcFileService {
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload, String sdcSchoolCollectionID, Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional) {
+  public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload, String sdcSchoolCollectionID) {
     log.debug("Uploaded file contents for school collection ID: {}", sdcSchoolCollectionID);
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = this.sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
 
-    if (sdcSchoolCollectionOptional.isPresent() &&
-        StringUtils.isNotEmpty(sdcSchoolCollectionOptional.get().getUploadFileName())) {
+    if (sdcSchoolCollectionOptional.isPresent() && StringUtils.isNotEmpty(sdcSchoolCollectionOptional.get().getUploadFileName())) {
       SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionOptional.get();
       sdcSchoolCollection.setUploadFileName(null);
       sdcSchoolCollection.setUploadDate(null);

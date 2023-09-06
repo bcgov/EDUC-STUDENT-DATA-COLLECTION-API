@@ -7,12 +7,14 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class SdcSchoolCollectionFileValidator {
@@ -27,15 +29,17 @@ public class SdcSchoolCollectionFileValidator {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
   }
 
-  public List<FieldError> validatePayload(String sdcSchoolCollectionID, Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity) {
+  @Transactional
+  public List<FieldError> validatePayload(String sdcSchoolCollectionID) {
     final List<FieldError> apiValidationErrors = new ArrayList<>();
-    validateSdcFileUpload(sdcSchoolCollectionID, sdcSchoolCollectionEntity, apiValidationErrors);
+    validateSdcFileUpload(sdcSchoolCollectionID, apiValidationErrors);
 
     return apiValidationErrors;
   }
 
-  private void validateSdcFileUpload(String sdcSchoolCollectionID, Optional<SdcSchoolCollectionEntity> schoolCollectionEntity, List<FieldError> apiValidationErrors) {
+  private void validateSdcFileUpload(String sdcSchoolCollectionID, List<FieldError> apiValidationErrors) {
     try {
+      Optional<SdcSchoolCollectionEntity> schoolCollectionEntity = this.sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
       if (schoolCollectionEntity.isEmpty()) {
         apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, sdcSchoolCollectionID, "Invalid SDC school collection ID."));
       } else {

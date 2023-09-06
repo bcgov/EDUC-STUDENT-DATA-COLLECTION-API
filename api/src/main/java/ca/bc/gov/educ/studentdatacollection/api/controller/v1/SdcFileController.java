@@ -13,11 +13,8 @@ import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionFileValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -30,22 +27,17 @@ public class SdcFileController implements SdcFileEndpoint {
 
   private final SdcSchoolCollectionFileValidator sdcSchoolCollectionFileValidator;
 
-  private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
-
-  public SdcFileController(SdcFileService sdcFileService, SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionFileValidator sdcSchoolCollectionFileValidator, SdcSchoolCollectionRepository sdcSchoolCollectionRepository) {
+  public SdcFileController(SdcFileService sdcFileService, SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionFileValidator sdcSchoolCollectionFileValidator) {
     this.sdcFileService = sdcFileService;
     this.sdcSchoolCollectionService = sdcSchoolCollectionService;
     this.sdcSchoolCollectionFileValidator = sdcSchoolCollectionFileValidator;
-    this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
   }
 
   @Override
   public ResponseEntity<SdcSchoolCollection> processSdcBatchFile(SdcFileUpload fileUpload, String sdcSchoolCollectionID, String correlationID) {
-    Optional<SdcSchoolCollectionEntity> schoolCollectionEntity = this.sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
-
-    ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionFileValidator.validatePayload(sdcSchoolCollectionID, schoolCollectionEntity));
+    ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionFileValidator.validatePayload(sdcSchoolCollectionID));
     log.info("Running file load for file: " + fileUpload.getFileName());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcFileService.runFileLoad(fileUpload, sdcSchoolCollectionID, schoolCollectionEntity);
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcFileService.runFileLoad(fileUpload, sdcSchoolCollectionID);
     log.info("About to run mapper for entity: " + sdcSchoolCollectionEntity);
     var mapped = SdcSchoolCollectionMapper.mapper.toStructure(sdcSchoolCollectionEntity);
     log.info("After mapper, mapped value: " + mapped);
