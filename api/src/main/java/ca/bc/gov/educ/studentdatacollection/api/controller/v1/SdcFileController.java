@@ -40,12 +40,11 @@ public class SdcFileController implements SdcFileEndpoint {
   }
 
   @Override
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public ResponseEntity<SdcSchoolCollection> processSdcBatchFile(SdcFileUpload fileUpload, String sdcSchoolCollectionID, String correlationID) {
     Optional<SdcSchoolCollectionEntity> schoolCollectionEntity = this.sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
 
     ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionFileValidator.validatePayload(sdcSchoolCollectionID, schoolCollectionEntity));
-
+    log.info("Running file load for file: " + fileUpload.getFileName());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcFileService.runFileLoad(fileUpload, sdcSchoolCollectionID, schoolCollectionEntity);
     log.info("About to run mapper for entity: " + sdcSchoolCollectionEntity);
     var mapped = SdcSchoolCollectionMapper.mapper.toStructure(sdcSchoolCollectionEntity);

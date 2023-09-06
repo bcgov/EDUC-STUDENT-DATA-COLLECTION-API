@@ -21,7 +21,6 @@ public interface SdcFileEndpoint {
   @PostMapping("/{sdcSchoolCollectionID}/file")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
-  @Transactional
   @Tag(name = "Endpoint to Upload an SDC file and convert to json structure.", description = "Endpoint to Upload an SDC file and convert to json structure")
   @Schema(name = "FileUpload", implementation = SdcFileUpload.class)
   ResponseEntity<SdcSchoolCollection> processSdcBatchFile(@Validated @RequestBody SdcFileUpload fileUpload, @PathVariable(name = "sdcSchoolCollectionID") String sdcSchoolCollectionID, @RequestHeader(name = "correlationID") String correlationID);

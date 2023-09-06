@@ -27,25 +27,14 @@ public class SdcSchoolCollectionFileValidator {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
   }
 
-  public List<FieldError> validatePayload(
-    String sdcSchoolCollectionID,
-    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity
-  ) {
+  public List<FieldError> validatePayload(String sdcSchoolCollectionID, Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity) {
     final List<FieldError> apiValidationErrors = new ArrayList<>();
-    validateSdcFileUpload(
-      sdcSchoolCollectionID,
-      sdcSchoolCollectionEntity,
-      apiValidationErrors
-    );
+    validateSdcFileUpload(sdcSchoolCollectionID, sdcSchoolCollectionEntity, apiValidationErrors);
 
     return apiValidationErrors;
   }
 
-  private void validateSdcFileUpload(
-    String sdcSchoolCollectionID,
-    Optional<SdcSchoolCollectionEntity> schoolCollectionEntity,
-    List<FieldError> apiValidationErrors
-  ) {
+  private void validateSdcFileUpload(String sdcSchoolCollectionID, Optional<SdcSchoolCollectionEntity> schoolCollectionEntity, List<FieldError> apiValidationErrors) {
     try {
       if (schoolCollectionEntity.isEmpty()) {
         apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, sdcSchoolCollectionID, "Invalid SDC school collection ID."));

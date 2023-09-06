@@ -29,7 +29,7 @@ public class SdcFileService {
 
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
-  @Transactional(propagation = Propagation.MANDATORY)
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload, String sdcSchoolCollectionID, Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional) {
     log.debug("Uploaded file contents for school collection ID: {}", sdcSchoolCollectionID);
 
