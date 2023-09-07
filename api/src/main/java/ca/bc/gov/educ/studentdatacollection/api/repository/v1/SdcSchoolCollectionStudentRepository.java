@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FrenchHeadcountHeaderR
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FrenchHeadcountResult;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -111,5 +112,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID")
   FrenchHeadcountHeaderResult getFrenchHeadersBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
-  void deleteAllBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
+  @Modifying
+  @Query(value = "DELETE FROM SDC_SCHOOL_COLLECTION_STUDENT WHERE SDC_SCHOOL_COLLECTION_ID  = :sdcSchoolCollectionID", nativeQuery = true)
+  void deleteAllBySdcSchoolCollectionID(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 }
