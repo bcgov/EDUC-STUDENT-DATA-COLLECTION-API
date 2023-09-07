@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
-import org.springframework.data.domain.Persistable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,7 +22,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "SDC_SCHOOL_COLLECTION_STUDENT_HISTORY")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SdcSchoolCollectionStudentHistoryEntity implements Persistable<UUID> {
+public class SdcSchoolCollectionStudentHistoryEntity {
 
   @Id
   @GeneratedValue(generator = "UUID")
@@ -163,13 +162,4 @@ public class SdcSchoolCollectionStudentHistoryEntity implements Persistable<UUID
   @Column(name = "UPDATE_DATE")
   private LocalDateTime updateDate;
 
-  @Override
-  public UUID getId() {
-    return sdcSchoolCollectionStudentHistoryID;
-  }
-
-  @Override
-  public boolean isNew() {
-      return true;
-  }
 }
