@@ -170,11 +170,6 @@ public class SdcSchoolCollectionStudentEntity {
   @OneToMany(mappedBy = "sdcSchoolCollectionStudentEntity", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentEnrolledProgramEntity.class)
   Set<SdcSchoolCollectionStudentEnrolledProgramEntity> sdcStudentEnrolledProgramEntities;
 
-  @EqualsAndHashCode.Exclude
-  @ToString.Exclude
-  @OneToMany(mappedBy = "sdcSchoolCollectionStudent", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentHistoryEntity.class)
-  Set<SdcSchoolCollectionStudentHistoryEntity> sdcStudentHistoryEntities;
-
   public Set<SdcSchoolCollectionStudentValidationIssueEntity> getSDCStudentValidationIssueEntities() {
     if (this.sdcStudentValidationIssueEntities == null) {
       this.sdcStudentValidationIssueEntities = new HashSet<>();
@@ -187,13 +182,6 @@ public class SdcSchoolCollectionStudentEntity {
       this.sdcStudentEnrolledProgramEntities = new HashSet<>();
     }
     return this.sdcStudentEnrolledProgramEntities;
-  }
-
-  public Set<SdcSchoolCollectionStudentHistoryEntity> getSDCStudentHistoryEntities() {
-    if (this.sdcStudentHistoryEntities == null) {
-      this.sdcStudentHistoryEntities = new HashSet<>();
-    }
-    return this.sdcStudentHistoryEntities;
   }
 
 }

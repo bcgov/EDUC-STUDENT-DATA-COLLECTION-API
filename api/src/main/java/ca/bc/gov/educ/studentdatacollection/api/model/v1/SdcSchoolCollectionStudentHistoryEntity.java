@@ -19,7 +19,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "SDC_SCHOOL_COLLECTION_STUDENT_HISTORY")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SdcSchoolCollectionStudentHistoryEntity {
+public class SdcSchoolCollectionStudentHistoryEntity extends AbstractPersistableEntity<UUID> {
 
   @Id
   @GeneratedValue(generator = "UUID")
@@ -28,11 +28,9 @@ public class SdcSchoolCollectionStudentHistoryEntity {
   @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_HISTORY_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   UUID sdcSchoolCollectionStudentHistoryID;
 
-  @ToString.Exclude
-  @EqualsAndHashCode.Exclude
-  @ManyToOne(optional = false, targetEntity = SdcSchoolCollectionStudentEntity.class)
-  @JoinColumn(name = "SDC_SCHOOL_COLLECTION_STUDENT_ID", referencedColumnName = "SDC_SCHOOL_COLLECTION_STUDENT_ID", updatable = false)
-  private SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudent;
+  @Basic
+  @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_ID", columnDefinition = "BINARY(16)")
+  private UUID sdcSchoolCollectionStudentID;
 
   @Basic
   @Column(name = "SDC_SCHOOL_COLLECTION_ID", columnDefinition = "BINARY(16)")
@@ -161,4 +159,8 @@ public class SdcSchoolCollectionStudentHistoryEntity {
   @Column(name = "UPDATE_DATE")
   private LocalDateTime updateDate;
 
+  @Override
+  public UUID getId() {
+    return sdcSchoolCollectionStudentHistoryID;
+  }
 }
