@@ -3,6 +3,9 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.service;
 import ca.bc.gov.educ.studentdatacollection.api.batch.processor.SdcBatchFileProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentHistoryRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import lombok.Getter;
@@ -29,10 +32,17 @@ public class SdcFileService {
   private final SdcSchoolCollectionService sdcSchoolCollectionService;
 
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+  private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  private final SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
+  private final SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload, String sdcSchoolCollectionID) {
     log.debug("Uploaded file contents for school collection ID: {}", sdcSchoolCollectionID);
+    log.debug("Removing previous history, validation issues & students for sdc school collection: {}", sdcSchoolCollectionID);
+    this.sdcSchoolCollectionStudentHistoryRepository.deleteAllBySdcSchoolCollectionID(UUID.fromString(sdcSchoolCollectionID));
+    this.sdcSchoolCollectionStudentValidationIssueRepository.deleteAllBySdcSchoolCollectionID(UUID.fromString(sdcSchoolCollectionID));
+    this.sdcSchoolCollectionStudentRepository.deleteAllBySdcSchoolCollectionID(UUID.fromString(sdcSchoolCollectionID));
     Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = this.sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
 
     if (sdcSchoolCollectionOptional.isPresent() && StringUtils.isNotEmpty(sdcSchoolCollectionOptional.get().getUploadFileName())) {
@@ -40,7 +50,6 @@ public class SdcFileService {
       sdcSchoolCollection.setUploadFileName(null);
       sdcSchoolCollection.setUploadDate(null);
       sdcSchoolCollection.setUploadReportDate(null);
-      sdcSchoolCollection.getSDCSchoolStudentEntities().clear();
     }
 
     return this.getSdcBatchProcessor().processSdcBatchFile(sdcFileUpload, sdcSchoolCollectionID, sdcSchoolCollectionOptional);

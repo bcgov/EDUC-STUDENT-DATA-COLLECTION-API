@@ -11,4 +11,5 @@ import java.util.UUID;
 public interface SdcSchoolCollectionStudentHistoryRepository extends JpaRepository<SdcSchoolCollectionStudentHistoryEntity, UUID> {
     List<SdcSchoolCollectionStudentHistoryEntity> findAllBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
+    void deleteAllBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 }

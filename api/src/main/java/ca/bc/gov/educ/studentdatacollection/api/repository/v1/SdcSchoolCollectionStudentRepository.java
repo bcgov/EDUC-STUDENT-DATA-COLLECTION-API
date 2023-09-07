@@ -110,4 +110,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "JOIN s.sdcStudentEnrolledProgramEntities ep " +
           "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID")
   FrenchHeadcountHeaderResult getFrenchHeadersBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
+
+  void deleteAllBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 }

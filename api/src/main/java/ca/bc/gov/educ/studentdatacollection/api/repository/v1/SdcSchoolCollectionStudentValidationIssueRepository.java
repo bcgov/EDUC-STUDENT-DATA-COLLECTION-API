@@ -19,4 +19,9 @@ public interface SdcSchoolCollectionStudentValidationIssueRepository extends Jpa
   @Modifying
   @Query(value = "DELETE FROM SDC_SCHOOL_COLLECTION_STUDENT_VALIDATION_ISSUE where SDC_SCHOOL_COLLECTION_STUDENT_ID = :sdcStudentId", nativeQuery = true)
   void deleteSdcStudentValidationErrors(@Param("sdcStudentId") UUID sdcStudentId);
+
+  @Modifying
+  @Query(value = "DELETE FROM SDC_SCHOOL_COLLECTION_STUDENT_VALIDATION_ISSUE WHERE SDC_SCHOOL_COLLECTION_STUDENT_ID IN(" +
+          " SELECT SDC_SCHOOL_COLLECTION_STUDENT_ID FROM SDC_SCHOOL_COLLECTION_STUDENT WHERE SDC_SCHOOL_COLLECTION_ID  = :sdcSchoolCollectionID)", nativeQuery = true)
+  void deleteAllBySdcSchoolCollectionID(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 }
