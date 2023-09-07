@@ -31,7 +31,6 @@ public class SdcSchoolCollectionStudentEntity {
   @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   UUID sdcSchoolCollectionStudentID;
 
-
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   @ManyToOne(optional = false, targetEntity = SdcSchoolCollectionEntity.class)
@@ -173,7 +172,7 @@ public class SdcSchoolCollectionStudentEntity {
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  @OneToMany(mappedBy = "sdcSchoolCollectionStudentID", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentHistoryEntity.class)
+  @OneToMany(mappedBy = "sdcSchoolCollectionStudent", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentHistoryEntity.class)
   Set<SdcSchoolCollectionStudentHistoryEntity> sdcStudentHistoryEntities;
 
   public Set<SdcSchoolCollectionStudentValidationIssueEntity> getSDCStudentValidationIssueEntities() {
