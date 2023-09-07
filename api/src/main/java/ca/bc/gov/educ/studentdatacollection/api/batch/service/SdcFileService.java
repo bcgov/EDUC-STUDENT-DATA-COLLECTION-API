@@ -41,7 +41,6 @@ public class SdcFileService {
       sdcSchoolCollection.setUploadDate(null);
       sdcSchoolCollection.setUploadReportDate(null);
       sdcSchoolCollection.getSDCSchoolStudentEntities().clear();
-      sdcSchoolCollectionService.saveSdcSchoolCollection(sdcSchoolCollection);
     }
 
     return this.getSdcBatchProcessor().processSdcBatchFile(sdcFileUpload, sdcSchoolCollectionID, sdcSchoolCollectionOptional);
