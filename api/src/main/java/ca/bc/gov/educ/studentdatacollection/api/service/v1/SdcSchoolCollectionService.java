@@ -4,8 +4,10 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentSta
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentHistoryRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,15 +32,18 @@ public class SdcSchoolCollectionService {
 
   private final SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService;
 
+  private final SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
+
   private final SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService;
 
   private final CollectionRepository collectionRepository;
 
   @Autowired
-  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository) {
+  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository) {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
     this.sdcSchoolCollectionHistoryService = sdcSchoolCollectionHistoryService;
+    this.sdcSchoolCollectionStudentHistoryRepository = sdcSchoolCollectionStudentHistoryRepository;
     this.sdcSchoolCollectionStudentHistoryService = sdcSchoolCollectionStudentHistoryService;
     this.collectionRepository = collectionRepository;
   }
@@ -46,7 +52,9 @@ public class SdcSchoolCollectionService {
   public SdcSchoolCollectionEntity saveSdcSchoolCollection(SdcSchoolCollectionEntity curSDCSchoolEntity) {
     var entity = this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);
     this.sdcSchoolCollectionHistoryService.createSDCSchoolHistory(entity, curSDCSchoolEntity.getUpdateUser());
-    entity.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity -> this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser()));
+    List<SdcSchoolCollectionStudentHistoryEntity> historyEntities = new ArrayList<>();
+    entity.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity -> historyEntities.add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser())));
+    this.sdcSchoolCollectionStudentHistoryRepository.saveAll(historyEntities);
     return entity;
   }
 

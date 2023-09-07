@@ -15,15 +15,15 @@ import java.time.LocalDateTime;
 public class SdcSchoolCollectionStudentHistoryService {
 
   @Transactional(propagation = Propagation.MANDATORY)
-  public void createSDCSchoolStudentHistory(SdcSchoolCollectionStudentEntity curSdcSchoolStudentEntity, String updateUser) {
+  public SdcSchoolCollectionStudentHistoryEntity createSDCSchoolStudentHistory(SdcSchoolCollectionStudentEntity curSdcSchoolStudentEntity, String updateUser) {
     final SdcSchoolCollectionStudentHistoryEntity sdcSchoolCollectionStudentHistoryEntity = new SdcSchoolCollectionStudentHistoryEntity();
     BeanUtils.copyProperties(curSdcSchoolStudentEntity, sdcSchoolCollectionStudentHistoryEntity);
-    sdcSchoolCollectionStudentHistoryEntity.setSdcSchoolCollectionStudent(curSdcSchoolStudentEntity);
+    sdcSchoolCollectionStudentHistoryEntity.setSdcSchoolCollectionStudentID(curSdcSchoolStudentEntity.getSdcSchoolCollectionStudentID());
     sdcSchoolCollectionStudentHistoryEntity.setSdcSchoolCollectionID(curSdcSchoolStudentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID());
     sdcSchoolCollectionStudentHistoryEntity.setCreateUser(updateUser);
     sdcSchoolCollectionStudentHistoryEntity.setCreateDate(LocalDateTime.now());
     sdcSchoolCollectionStudentHistoryEntity.setUpdateUser(updateUser);
     sdcSchoolCollectionStudentHistoryEntity.setUpdateDate(LocalDateTime.now());
-    curSdcSchoolStudentEntity.getSDCStudentHistoryEntities().add(sdcSchoolCollectionStudentHistoryEntity);
+    return sdcSchoolCollectionStudentHistoryEntity;
   }
 }
