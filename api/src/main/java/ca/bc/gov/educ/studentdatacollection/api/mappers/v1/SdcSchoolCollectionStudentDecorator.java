@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.mappers.v1;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 
@@ -14,9 +15,10 @@ public abstract class SdcSchoolCollectionStudentDecorator implements SdcSchoolCo
   protected SdcSchoolCollectionStudentDecorator(SdcSchoolCollectionStudentMapper delegate) {
     this.delegate = delegate;
   }
+
   @Override
-  public SdcSchoolCollectionStudent toSdcSchoolCollectionStudentWithValidationIssues(
-      SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity) {
+  @Transactional
+  public SdcSchoolCollectionStudent toSdcSchoolCollectionStudentWithValidationIssues(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity) {
     final SdcSchoolCollectionStudent sdcSchoolCollectionStudent = this.delegate.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity);
     SdcSchoolCollectionStudentValidationIssueMapper studentValidationIssueMapper = SdcSchoolCollectionStudentValidationIssueMapper.mapper;
     SdcSchoolCollectionStudentEnrolledProgramMapper sdcSchoolCollectionStudentEnrolledProgramMapper = SdcSchoolCollectionStudentEnrolledProgramMapper.mapper;
