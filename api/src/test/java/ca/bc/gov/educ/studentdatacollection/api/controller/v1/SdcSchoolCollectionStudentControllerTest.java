@@ -680,7 +680,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
         assertThat(curStudentEntity).isPresent();
         var studentEntity = curStudentEntity.get();
-        assertThat(studentEntity.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.ERROR.toString());
+        assertThat(studentEntity.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.VERIFIED.toString());
     }
 
     @Test
@@ -715,7 +715,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
         assertThat(curStudentEntity).isPresent();
         var studentEntity = curStudentEntity.get();
-        assertThat(studentEntity.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.ERROR.toString());
+        assertThat(studentEntity.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.VERIFIED.toString());
     }
 
     @Test
@@ -751,7 +751,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
         assertThat(curStudentEntity).isPresent();
         var studentEntity = curStudentEntity.get();
-        assertThat(studentEntity.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.ERROR.toString());
+        assertThat(studentEntity.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.VERIFIED.toString());
     }
 
     @Test
