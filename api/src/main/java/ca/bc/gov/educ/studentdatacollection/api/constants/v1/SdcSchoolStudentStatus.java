@@ -8,7 +8,9 @@ import java.util.Map;
 @Getter
 public enum SdcSchoolStudentStatus {
   LOADED("LOADED"),
-  HAS_ISSUES("HASISSUES"),
+  ERROR("ERROR"),
+  INFO_WARNING("INFOWARN"),
+  FUNDING_WARNING("FUNDWARN"),
   VERIFIED("VERIFIED"),
   FIXABLE("FIXABLE"),
   DELETED("DELETED");

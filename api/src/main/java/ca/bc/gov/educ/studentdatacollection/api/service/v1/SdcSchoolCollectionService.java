@@ -35,17 +35,20 @@ public class SdcSchoolCollectionService {
 
   private final SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
 
+  private final SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository;
+
   private final SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService;
 
   private final CollectionRepository collectionRepository;
 
   @Autowired
-  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository) {
+  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository) {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
     this.sdcSchoolCollectionHistoryService = sdcSchoolCollectionHistoryService;
     this.sdcSchoolCollectionStudentValidationIssueRepository = sdcSchoolCollectionStudentValidationIssueRepository;
     this.sdcSchoolCollectionStudentHistoryRepository = sdcSchoolCollectionStudentHistoryRepository;
+    this.sdcSchoolCollectionStudentEnrolledProgramRepository = sdcSchoolCollectionStudentEnrolledProgramRepository;
     this.sdcSchoolCollectionStudentHistoryService = sdcSchoolCollectionStudentHistoryService;
     this.collectionRepository = collectionRepository;
   }
@@ -137,6 +140,7 @@ public class SdcSchoolCollectionService {
   public void deleteValidationIssuesStudentsAndHistory(UUID sdcSchoolCollectionID) {
     log.debug("Removing previous history, validation issues & students for sdc school collection: {}", sdcSchoolCollectionID);
     this.sdcSchoolCollectionStudentHistoryRepository.deleteAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
+    this.sdcSchoolCollectionStudentEnrolledProgramRepository.deleteAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
     this.sdcSchoolCollectionStudentValidationIssueRepository.deleteAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
     this.sdcSchoolCollectionStudentRepository.deleteAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
   }

@@ -121,10 +121,14 @@ public class SdcSchoolCollectionStudentService {
     var entity = studentRuleData.getSdcSchoolCollectionStudentEntity();
     entity.getSDCStudentValidationIssueEntities().clear();
     entity.getSDCStudentValidationIssueEntities().addAll(SdcHelper.populateValidationErrors(validationErrors, entity));
-    if(!validationErrors.isEmpty()) {
-      entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.HAS_ISSUES.toString());
-    }else{
-      entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.VERIFIED.toString());
+    if(validationErrors.stream().anyMatch(val -> val.getValidationIssueCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString()))){
+      entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.getCode());
+    } else if(validationErrors.stream().anyMatch(val -> val.getValidationIssueCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.FUNDING_WARNING.toString()))) {
+      entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.FUNDING_WARNING.getCode());
+    } else if(validationErrors.stream().anyMatch(val -> val.getValidationIssueCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.INFO_WARNING.toString()))) {
+      entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.INFO_WARNING.getCode());
+    } else{
+      entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.VERIFIED.getCode());
     }
     return validationErrors;
   }

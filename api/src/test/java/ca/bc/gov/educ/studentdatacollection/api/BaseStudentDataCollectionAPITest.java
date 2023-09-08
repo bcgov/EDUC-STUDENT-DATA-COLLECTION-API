@@ -211,8 +211,7 @@ public abstract class BaseStudentDataCollectionAPITest {
       .sagaName(SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA.toString())
       .status(SagaStatusEnum.IN_PROGRESS.toString())
       .sagaState(EventType.INITIATED.toString())
-      .payload(JsonUtil.getJsonStringFromObject(SdcStudentSagaData.builder()
-              .sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolCollectionStudentWithValidationIssues(student)).school(createMockSchool()).build()))
+      .payload(JsonUtil.getJsonStringFromObject(SdcStudentSagaData.builder().sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolCollectionStudentWithValidationIssues(student)).school(createMockSchool()).build()))
       .build();
   }
 
