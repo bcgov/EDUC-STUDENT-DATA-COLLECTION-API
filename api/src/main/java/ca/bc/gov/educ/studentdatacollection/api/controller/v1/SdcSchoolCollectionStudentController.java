@@ -69,7 +69,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
                 );
         return this.sdcSchoolCollectionStudentSearchService
                 .findAll(studentSpecs, pageNumber, pageSize, sorts)
-                .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.map(mapper::toSdcSchoolCollectionStudentWithValidationIssues));
+                .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.map(mapper::toSdcSchoolStudent));
     }
 
     @Override
@@ -83,7 +83,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     @Override
     public SdcSchoolCollectionStudent deleteSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID) {
         SdcSchoolCollectionStudentEntity softDeletedSdcSchoolCollectionStudent = this.sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
-        return mapper.toSdcSchoolCollectionStudentWithValidationIssues(softDeletedSdcSchoolCollectionStudent);
+        return mapper.toSdcSchoolStudent(softDeletedSdcSchoolCollectionStudent);
     }
 
     @Override
