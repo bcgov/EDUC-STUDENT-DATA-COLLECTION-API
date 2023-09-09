@@ -164,7 +164,7 @@ public class SdcSchoolCollectionStudentService {
           sdcStudentSagaData.setCollectionTypeCode(sdcSchoolCollection.get().getCollectionEntity().getCollectionTypeCode());
           sdcStudentSagaData.setSchool(school.get());
         }
-        sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolCollectionStudentWithValidationIssues(el));
+        sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(el));
         return sdcStudentSagaData;
       }).toList();
     this.publishUnprocessedStudentRecordsForProcessing(sdcStudentSagaDatas);
