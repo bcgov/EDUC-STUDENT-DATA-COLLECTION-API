@@ -18,7 +18,9 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 import java.util.UUID;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.INITIATE_SUCCESS;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.STUDENT_PROCESSED;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.INITIATED;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCESS_SDC_STUDENT;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 
@@ -35,10 +37,10 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
   @Override
   public void populateStepsToExecuteMap() {
     this.stepBuilder()
-      .end(PROCESS_SDC_STUDENT, STUDENT_PROCESSED, this::processStudentRecord);
+      .end(INITIATED, INITIATE_SUCCESS, this::processStudentRecord);
   }
 
-  private void processStudentRecord(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
+  private void processStudentRecord(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
     saga.setSagaState(PROCESS_SDC_STUDENT.toString());
     saga.setStatus(IN_PROGRESS.toString());
