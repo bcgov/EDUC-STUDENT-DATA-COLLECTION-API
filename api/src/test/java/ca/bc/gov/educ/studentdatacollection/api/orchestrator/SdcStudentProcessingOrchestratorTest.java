@@ -46,6 +46,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.PE
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.PEN_MATCH_RESULTS_PROCESSED;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCESS_PEN_MATCH;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCESS_PEN_MATCH_RESULTS;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.COMPLETED;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -108,18 +109,18 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
       .school(createMockSchool()).build();
     val event = Event.builder()
       .sagaId(saga.getSagaId())
-      .eventType(EventType.INITIATED)
-      .eventOutcome(EventOutcome.INITIATE_SUCCESS)
+      .eventType(EventType.PROCESS_SDC_STUDENT)
+      .eventOutcome(EventOutcome.STUDENT_PROCESSED)
       .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
     this.sdcStudentProcessingOrchestrator.handleEvent(event);
     val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
     assertThat(savedSagaInDB).isPresent();
-    assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
-    assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(EventType.PROCESS_SDC_STUDENT.toString());
+    assertThat(savedSagaInDB.get().getStatus()).isEqualTo(COMPLETED.toString());
+    assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(COMPLETED.toString());
     verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.sdcStudentProcessingOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
     final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
-    assertThat(newEvent.getEventType()).isEqualTo(EventType.PROCESS_SDC_STUDENT);
-    assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.STUDENT_PROCESSED);
+    assertThat(newEvent.getEventType()).isEqualTo(EventType.MARK_SAGA_COMPLETE);
+    assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.SAGA_COMPLETED);
   }
 
 }

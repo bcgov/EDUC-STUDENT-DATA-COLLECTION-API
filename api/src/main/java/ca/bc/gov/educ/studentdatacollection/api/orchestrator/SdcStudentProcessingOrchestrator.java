@@ -35,8 +35,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
   @Override
   public void populateStepsToExecuteMap() {
     this.stepBuilder()
-      .begin(PROCESS_SDC_STUDENT, this::processStudentRecord)
-      .end(PROCESS_SDC_STUDENT, STUDENT_PROCESSED, this::completeSdcStudentSagaWithError);
+      .end(PROCESS_SDC_STUDENT, STUDENT_PROCESSED, this::processStudentRecord);
   }
 
   private void processStudentRecord(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) throws JsonProcessingException {
@@ -54,10 +53,6 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     val nextEvent = eventBuilder.build();
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
     log.info("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
-  }
-
-  private void completeSdcStudentSagaWithError(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
-    //This is ok
   }
 
 }
