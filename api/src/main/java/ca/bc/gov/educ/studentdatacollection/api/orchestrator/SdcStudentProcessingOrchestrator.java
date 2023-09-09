@@ -49,8 +49,8 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     this.sdcSchoolCollectionStudentService.processStudentRecord(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), sdcStudentSagaData.getSchool(), sdcStudentSagaData.getCollectionTypeCode(), Optional.empty());
 
     final Event.EventBuilder eventBuilder = Event.builder();
-    eventBuilder.sagaId(saga.getSagaId()).eventType(PROCESS_SDC_STUDENT);
-    eventBuilder.eventOutcome(STUDENT_PROCESSED);
+    eventBuilder.sagaId(saga.getSagaId()).eventType(INITIATED);
+    eventBuilder.eventOutcome(INITIATE_SUCCESS);
 
     val nextEvent = eventBuilder.build();
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
