@@ -86,7 +86,7 @@ public class SdcSchoolCollectionStudentService {
     processStudentRecord(studentEntity.getSdcSchoolCollectionStudentID(), studentRuleData.getSchool(), studentRuleData.getCollectionTypeCode(), Optional.of(studentEntity));
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional(propagation = Propagation.SUPPORTS)
   public void processStudentRecord(final UUID sdcSchoolCollectionStudentID, School school, String collectionTypeCode, Optional<SdcSchoolCollectionStudentEntity> incomingStudentEntity) {
     var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
     if(incomingStudentEntity.isPresent() && currentStudentEntity.isPresent()) {
