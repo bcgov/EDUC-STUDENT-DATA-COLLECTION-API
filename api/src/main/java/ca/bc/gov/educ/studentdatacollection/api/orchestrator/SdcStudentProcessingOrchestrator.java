@@ -10,7 +10,6 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Component;
@@ -37,7 +36,8 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
   @Override
   public void populateStepsToExecuteMap() {
     this.stepBuilder()
-      .end(INITIATED, INITIATE_SUCCESS, this::processStudentRecord);
+      .begin(PROCESS_SDC_STUDENT, this::processStudentRecord)
+      .end(PROCESS_SDC_STUDENT, STUDENT_PROCESSED, this::completeSdcStudentSagaWithError);
   }
 
   private void processStudentRecord(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
@@ -55,6 +55,10 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     val nextEvent = eventBuilder.build();
     this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
     log.info("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
+  }
+
+  private void completeSdcStudentSagaWithError(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
+    //This is ok
   }
 
 }
