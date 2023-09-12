@@ -46,7 +46,7 @@ public class SdcStudentProcessingOrchestrator extends BaseOrchestrator<SdcStuden
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
-    this.sdcSchoolCollectionStudentService.processStudentRecord(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), sdcStudentSagaData.getSchool(), sdcStudentSagaData.getCollectionTypeCode(), Optional.empty());
+    this.sdcSchoolCollectionStudentService.processSagaRecord(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), sdcStudentSagaData.getSchool(), sdcStudentSagaData.getCollectionTypeCode());
 
     final Event.EventBuilder eventBuilder = Event.builder();
     eventBuilder.sagaId(saga.getSagaId()).eventType(PROCESS_SDC_STUDENT);

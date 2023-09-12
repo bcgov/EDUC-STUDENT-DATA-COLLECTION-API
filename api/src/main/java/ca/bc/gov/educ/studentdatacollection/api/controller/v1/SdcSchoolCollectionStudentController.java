@@ -73,11 +73,11 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
-    public ResponseEntity<Void> updateAndValidateSdcSchoolCollectionStudent(UUID collectionStudentID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+    public SdcSchoolCollectionStudent updateAndValidateSdcSchoolCollectionStudent(UUID collectionStudentID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
         ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
         RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
-        sdcSchoolCollectionStudentService.updateAndValidateSdcSchoolCollectionStudent(mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent));
-        return new ResponseEntity<>(HttpStatus.OK);
+        return mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentService.updateAndValidateSdcSchoolCollectionStudent
+                (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
     }
 
     @Override
