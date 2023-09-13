@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesServic
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SpecialEducationCategoryCode;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ import java.util.List;
  *                     the category must be a valid, non-expired SPED Category.
  */
 @Component
+@Slf4j
 @Order(160)
 public class InvalidSpecialEducationCategoryRule implements ValidationBaseRule {
     private final ValidationRulesService validationRulesService;
@@ -31,18 +33,21 @@ public class InvalidSpecialEducationCategoryRule implements ValidationBaseRule {
     }
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
+        log.debug("In shouldExecute of InvalidSpecialEducationCategoryRule-V60: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
     }
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
+        log.debug("In executeValidation of InvalidSpecialEducationCategoryRule-V60 for sdcSchoolCollectionStudentID::"+ studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         List<SpecialEducationCategoryCode> activeSpecialEducationCategoryCode = validationRulesService.getActiveSpecialEducationCategoryCodes();
 
         if(StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getSpecialEducationCategoryCode())
                 && activeSpecialEducationCategoryCode.stream().noneMatch(program -> program.getSpecialEducationCategoryCode().equals(studentRuleData.getSdcSchoolCollectionStudentEntity().getSpecialEducationCategoryCode()))) {
+            log.debug("InvalidSpecialEducationCategoryRule-V60: Special education code does not exist in DB ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSpecialEducationCategoryCode());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.SPECIAL_EDUCATION_CATEGORY_CODE, StudentValidationIssueTypeCode.SPED_ERR));
         }
-
         return errors;
     }
 

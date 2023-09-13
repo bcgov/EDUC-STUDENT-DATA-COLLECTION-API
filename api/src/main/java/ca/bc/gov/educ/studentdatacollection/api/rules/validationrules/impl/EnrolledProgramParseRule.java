@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -23,19 +24,24 @@ import java.util.List;
  *                     contain only numeric values: 0-9
  */
 @Component
+@Slf4j
 @Order(190)
 public class EnrolledProgramParseRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
+        log.debug("In shouldExecute of EnrolledProgramParseRule-V74: for collectionType {} and sdcSchoolCollectionStudentID :: {}", studentRuleData.getCollectionTypeCode(),
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent()
                 && StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
+        log.debug("In executeValidation of EnrolledProgramParseRule-V74 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         if (!StringUtils.isNumeric(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes()) || studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes().length() % 2 != 0 || studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes().contains(" ")) {
+            log.debug("EnrolledProgramParseRule-V74: Invalid enrolled program code::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_PROGRAM_CODE, StudentValidationIssueTypeCode.ENROLLED_CODE_PARSE_ERR));
         }
         return errors;
