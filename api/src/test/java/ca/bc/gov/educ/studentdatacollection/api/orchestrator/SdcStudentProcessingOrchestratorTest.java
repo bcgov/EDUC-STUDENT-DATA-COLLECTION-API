@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -67,11 +66,6 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     ObjectMapper mapper = JsonMapper.builder()
     .findAndAddModules()
     .build();
-  }
-
-  @AfterEach
-  public void after() {
-    sagaRepository.deleteAll();
   }
 
   @SneakyThrows
