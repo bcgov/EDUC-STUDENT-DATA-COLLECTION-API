@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -29,31 +30,39 @@ import java.util.List;
  *                     Birthdate cannot be blank.
  */
 @Component
+@Slf4j
 @Order(40)
 public class BirthDateRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
+        log.debug("In shouldExecute of BirthDateRule-V04: for collectionType {} and sdcSchoolCollectionStudentID :: {}" + studentRuleData.getCollectionTypeCode(),
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
+        log.debug("In executeValidation of BirthDateRule-V04");
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT);
         if (StringUtils.isEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob())) {
+            log.debug("BirthDateRule-V04: DOB is null");
             errors.add(setValidationError());
         } else {
             try {
                 LocalDate dob = LocalDate.parse(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob(), format);
                 LocalDate date = LocalDate.of(1900, Month.JANUARY, 01);
                 if (dob.isAfter(LocalDate.now()) || dob.isBefore(date)) {
+                    log.debug("BirthDateRule-V04: DOB is either before 01-01-1900 or is in the future"+ dob);
                     errors.add(setValidationError());
                 }
             } catch (DateTimeParseException ex) {
+                log.debug("BirthDateRule-V04: DOB cannot be parsed"+ studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
                 errors.add(setValidationError());
             }
         }
+        log.debug("BirthDateRule-V04 has errors::" + errors);
         return errors;
     }
 
