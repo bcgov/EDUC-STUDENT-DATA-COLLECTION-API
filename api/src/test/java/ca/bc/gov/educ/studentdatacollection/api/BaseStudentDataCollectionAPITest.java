@@ -203,7 +203,6 @@ public abstract class BaseStudentDataCollectionAPITest {
   @SneakyThrows
   protected SdcSagaEntity createMockSaga(final SdcSchoolCollectionStudentEntity student) {
     return SdcSagaEntity.builder()
-      .sagaId(UUID.randomUUID())
       .updateDate(LocalDateTime.now().minusMinutes(15))
       .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
       .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)

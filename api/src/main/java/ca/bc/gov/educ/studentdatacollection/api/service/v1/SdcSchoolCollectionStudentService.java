@@ -95,7 +95,7 @@ public class SdcSchoolCollectionStudentService {
     }
   }
 
-  @Transactional(propagation = Propagation.SUPPORTS)
+  @Transactional(propagation = Propagation.REQUIRED)
   public void processSagaRecord(final UUID sdcSchoolCollectionStudentID, School school, String collectionTypeCode) {
     var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
