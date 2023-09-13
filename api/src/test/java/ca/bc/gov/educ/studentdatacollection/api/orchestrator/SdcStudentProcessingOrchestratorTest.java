@@ -3,28 +3,19 @@ package ca.bc.gov.educ.studentdatacollection.api.orchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -34,21 +25,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
+
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.TimeoutException;
-
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.PEN_MATCH_PROCESSED;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.PEN_MATCH_RESULTS_PROCESSED;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.COMPLETED;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atMost;
@@ -88,7 +69,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
     .build();
   }
 
-  @After
+  @AfterEach
   public void after() {
     sagaRepository.deleteAll();
   }
