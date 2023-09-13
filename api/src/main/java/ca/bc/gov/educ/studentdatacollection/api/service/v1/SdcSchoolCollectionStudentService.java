@@ -81,25 +81,36 @@ public class SdcSchoolCollectionStudentService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void updateAndValidateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity) {
-    var studentRuleData = createStudentRuleDataForValidation(studentEntity);
-    processStudentRecord(studentEntity.getSdcSchoolCollectionStudentID(), studentRuleData.getSchool(), studentRuleData.getCollectionTypeCode(), Optional.of(studentEntity));
+  public SdcSchoolCollectionStudentEntity updateAndValidateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity) {
+    var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID());
+    if(currentStudentEntity.isPresent()) {
+      SdcSchoolCollectionStudentEntity getCurStudentEntity = currentStudentEntity.get();
+      getCurStudentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(getCurStudentEntity.getEnrolledProgramCodes()));
+      BeanUtils.copyProperties(studentEntity, getCurStudentEntity, "sdcSchoolCollectionStudentID, sdcSchoolCollection, sdcSchoolCollectionStudentStatusCode, createUser, createDate", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
+      TransformUtil.uppercaseFields(getCurStudentEntity);
+      var studentRuleData = createStudentRuleDataForValidation(getCurStudentEntity);
+      return processStudentRecord(studentRuleData.getSchool(), studentRuleData.getCollectionTypeCode(), getCurStudentEntity);
+    } else {
+      throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", studentEntity.getSdcSchoolCollectionStudentID().toString());
+    }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRED)
+  public void processSagaRecord(final UUID sdcSchoolCollectionStudentID, School school, String collectionTypeCode) {
+    var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
+
+    if(currentStudentEntity.isPresent()) {
+      processStudentRecord(school, collectionTypeCode, currentStudentEntity.get());
+    } else {
+      throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", sdcSchoolCollectionStudentID.toString());
+    }
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public void processStudentRecord(final UUID sdcSchoolCollectionStudentID, School school, String collectionTypeCode, Optional<SdcSchoolCollectionStudentEntity> incomingStudentEntity) {
-    var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
-    if(incomingStudentEntity.isPresent() && currentStudentEntity.isPresent()) {
-      SdcSchoolCollectionStudentEntity getCurStudentEntity = currentStudentEntity.get();
-      getCurStudentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(getCurStudentEntity.getEnrolledProgramCodes()));
-      BeanUtils.copyProperties(incomingStudentEntity, getCurStudentEntity, "sdcSchoolCollectionStudentID, sdcSchoolCollection, sdcSchoolCollectionStudentStatusCode, createUser, createDate", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
-      TransformUtil.uppercaseFields(getCurStudentEntity);
-    }else if (currentStudentEntity.isEmpty()) {
-      throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", sdcSchoolCollectionStudentID.toString());
-    }
+  public SdcSchoolCollectionStudentEntity processStudentRecord(School school, String collectionTypeCode, SdcSchoolCollectionStudentEntity incomingStudentEntity) {
 
     StudentRuleData studentRuleData = new StudentRuleData();
-    studentRuleData.setSdcSchoolCollectionStudentEntity(currentStudentEntity.get());
+    studentRuleData.setSdcSchoolCollectionStudentEntity(incomingStudentEntity);
     studentRuleData.setSchool(school);
     studentRuleData.setCollectionTypeCode(collectionTypeCode);
 
@@ -114,6 +125,7 @@ public class SdcSchoolCollectionStudentService {
     }
     var entity = this.sdcSchoolCollectionStudentRepository.save(studentRuleData.getSdcSchoolCollectionStudentEntity());
     this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, studentRuleData.getSdcSchoolCollectionStudentEntity().getUpdateUser());
+    return entity;
   }
 
   private List<SdcSchoolCollectionStudentValidationIssue> validateStudent(final StudentRuleData studentRuleData){
