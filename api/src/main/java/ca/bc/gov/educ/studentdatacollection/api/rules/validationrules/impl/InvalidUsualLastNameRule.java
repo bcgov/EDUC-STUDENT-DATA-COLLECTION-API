@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -21,19 +22,24 @@ import static ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil.conta
  *  | V12 | ERROR    | can only contain Aa-Zz, apostrophes, hyphens, and periods.      | NONE         |
  */
 @Component
+@Slf4j
 @Order(90)
 public class InvalidUsualLastNameRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
+        log.debug("In shouldExecute of InvalidUsualLastNameRule-V12: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
+        log.debug("In executeValidation of InvalidUsualLastNameRule-V12 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         if (containsInvalidChars(studentRuleData.getSdcSchoolCollectionStudentEntity().getUsualLastName())) {
+            log.debug("InvalidUsualLastNameRule-V12: Usual last name contains invalid chars for sdcSchoolCollectionStudentID::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.USUAL_LAST_NAME, StudentValidationIssueTypeCode.USUAL_LAST_NAME_CHAR_FIX));
         }
 

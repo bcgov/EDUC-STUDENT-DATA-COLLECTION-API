@@ -26,7 +26,7 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   @Size(max = 12)
   private String localID;
 
-  @Size(max = 10)
+  @Size(max = 9)
   private String studentPen;
 
   @Size(max = 255)

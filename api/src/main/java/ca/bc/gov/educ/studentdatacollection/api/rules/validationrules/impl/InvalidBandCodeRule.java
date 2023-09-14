@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesServic
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.BandCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ import java.util.List;
  *                     it must appear in the list of valid, non-expired Band Codes.
  */
 @Component
+@Slf4j
 @Order(150)
 public class InvalidBandCodeRule implements ValidationBaseRule {
     private final ValidationRulesService validationRulesService;
@@ -31,15 +33,19 @@ public class InvalidBandCodeRule implements ValidationBaseRule {
     }
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
+        log.debug("In shouldExecute of InvalidBandCodeRule-V41: for collectionType {} and sdcSchoolCollectionStudentID :: {}", studentRuleData.getCollectionTypeCode(),
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
     }
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
+        log.debug("In executeValidation of InvalidBandCodeRule-V41 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         List<BandCode> activeBandCodes = validationRulesService.getActiveBandCodes();
 
         if(StringUtils.isNotEmpty(student.getBandCode()) && activeBandCodes.stream().noneMatch(code -> code.getBandCode().equals(student.getBandCode()))) {
+            log.debug("InvalidBandCodeRule-V41: Band Code value does not exist in DB {} for sdcSchoolCollectionStudentID:: {}::" , student.getBandCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.BAND_CODE, StudentValidationIssueTypeCode.BAND_CODE_INVALID));
         }
         return errors;
