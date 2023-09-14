@@ -42,7 +42,7 @@ public class InvalidSupportBlocksRule implements ValidationBaseRule {
         final String supportBlocks = student.getSupportBlocks();
 
         if (StringUtils.isNotEmpty(supportBlocks) && OtherCoursesCodes.matchSupportBlockValue(supportBlocks).isEmpty()) {
-            log.debug("InvalidSupportBlocksRule-V67: Invalid support block value, allowed 0-8 ::" + supportBlocks);
+            log.debug("InvalidSupportBlocksRule-V67: Invalid support block value {}, allowed 0-8 for sdcSchoolCollectionStudentID::{}", supportBlocks, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.SUPPORT_BLOCKS, StudentValidationIssueTypeCode.SUPPORT_BLOCKS_INVALID));
         }
 

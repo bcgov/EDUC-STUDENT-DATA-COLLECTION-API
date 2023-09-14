@@ -36,7 +36,7 @@ public class StudentLocalIDRule implements ValidationBaseRule {
         log.debug("In executeValidation of StudentLocalIDRule-V01 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         if(StringUtils.isEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getLocalID())) {
-            log.debug("StudentLocalIDRule-V01: Local ID is null");
+            log.debug("StudentLocalIDRule-V01: Local ID is null for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.INFO_WARNING, StudentValidationFieldCode.LOCAL_ID, StudentValidationIssueTypeCode.LOCALID_BLANK));
         }
         return errors;

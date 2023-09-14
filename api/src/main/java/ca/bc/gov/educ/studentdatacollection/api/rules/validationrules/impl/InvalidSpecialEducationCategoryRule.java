@@ -45,7 +45,7 @@ public class InvalidSpecialEducationCategoryRule implements ValidationBaseRule {
 
         if(StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getSpecialEducationCategoryCode())
                 && activeSpecialEducationCategoryCode.stream().noneMatch(program -> program.getSpecialEducationCategoryCode().equals(studentRuleData.getSdcSchoolCollectionStudentEntity().getSpecialEducationCategoryCode()))) {
-            log.debug("InvalidSpecialEducationCategoryRule-V60: Special education code does not exist in DB ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSpecialEducationCategoryCode());
+            log.debug("InvalidSpecialEducationCategoryRule-V60: Special education code {} does not exist in DB for sdcSchoolCollectionStudentID:: {}" , studentRuleData.getSdcSchoolCollectionStudentEntity().getSpecialEducationCategoryCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.SPECIAL_EDUCATION_CATEGORY_CODE, StudentValidationIssueTypeCode.SPED_ERR));
         }
         return errors;

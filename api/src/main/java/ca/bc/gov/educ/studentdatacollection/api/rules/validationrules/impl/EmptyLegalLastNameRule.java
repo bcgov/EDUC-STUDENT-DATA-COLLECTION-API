@@ -27,21 +27,21 @@ public class EmptyLegalLastNameRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of EmptyLegalLastNameRule-V06: for collectionType {} and sdcSchoolCollectionStudentID :: {}" + studentRuleData.getCollectionTypeCode(),
+        log.debug("In shouldExecute of EmptyLegalLastNameRule-V06: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of EmptyLegalLastNameRule-V06");
+        log.debug("In executeValidation of EmptyLegalLastNameRule-V06 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         if (StringUtils.isEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getLegalLastName())) {
+            log.debug("EmptyLegalLastNameRule-V06: Legal last name is null for sdcSchoolCollectionStudentID::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.LEGAL_LAST_NAME, StudentValidationIssueTypeCode.LEGAL_LAST_NAME_BLANK));
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.LEGAL_FIRST_NAME, StudentValidationIssueTypeCode.LEGAL_LAST_NAME_BLANK));
         }
-        log.debug("EmptyLegalLastNameRule-V06 has errors::" + errors);
         return errors;
     }
 

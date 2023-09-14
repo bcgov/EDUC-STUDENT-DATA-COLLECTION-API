@@ -39,7 +39,7 @@ public class InvalidOtherCoursesRule implements ValidationBaseRule {
         log.debug("In executeValidation of InvalidOtherCoursesRule-V62 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         if(StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getOtherCourses()) && OtherCoursesCodes.findByValue(studentRuleData.getSdcSchoolCollectionStudentEntity().getOtherCourses()).isEmpty()) {
-            log.debug("InvalidOtherCoursesRule-V62: Invalid other courses value, allowed 0-9 ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getOtherCourses());
+            log.debug("InvalidOtherCoursesRule-V62: Invalid other courses value {}, allowed 0-9 for sdcSchoolCollectionStudentID :: {}" , studentRuleData.getSdcSchoolCollectionStudentEntity().getOtherCourses(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.OTHER_COURSES, StudentValidationIssueTypeCode.OTHER_COURSE_INVALID));
         }
         return errors;

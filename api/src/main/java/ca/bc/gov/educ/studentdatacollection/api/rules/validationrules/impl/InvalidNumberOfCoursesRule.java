@@ -27,20 +27,21 @@ public class InvalidNumberOfCoursesRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of InvalidNumberOfCoursesRule-V29: for collectionType {} and sdcSchoolCollectionStudentID :: {}" + studentRuleData.getCollectionTypeCode(),
+        log.debug("In shouldExecute of InvalidNumberOfCoursesRule-V29: for collectionType {} and sdcSchoolCollectionStudentID :: {}", studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
     }
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of InvalidNumberOfCoursesRule-V29, checking for no. of courses ::"+studentRuleData.getSdcSchoolCollectionStudentEntity().getNumberOfCourses());
+        log.debug("In executeValidation of InvalidNumberOfCoursesRule-V29 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
         if(StringUtils.isNotEmpty(student.getNumberOfCourses()) && !StringUtils.isNumeric(student.getNumberOfCourses())) {
+            log.debug("InvalidNumberOfCoursesRule-V29: No of courses value is not numeric {} for sdcSchoolCollectionStudentID:: {}", student.getNumberOfCourses(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID() );
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.NUMBER_OF_COURSES, StudentValidationIssueTypeCode.NO_OF_COURSES_INVALID));
         }
-        log.debug("InvalidNumberOfCoursesRule-V29 has errors::" + errors);
+
         return errors;
     }
 }

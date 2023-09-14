@@ -28,20 +28,21 @@ public class InvalidLegalFirstNameRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of InvalidLegalFirstNameRule-V07: for collectionType {} and sdcSchoolCollectionStudentID :: {}" + studentRuleData.getCollectionTypeCode(),
+        log.debug("In shouldExecute of InvalidLegalFirstNameRule-V07: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of InvalidLegalFirstNameRule-V07");
+        log.debug("In executeValidation of InvalidLegalFirstNameRule-V07 for sdcSchoolCollectionStudentID:: " + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         if (containsInvalidChars(studentRuleData.getSdcSchoolCollectionStudentEntity().getLegalFirstName())) {
+            log.debug("InvalidLegalFirstNameRule-V07: Legal First name contains invalid chars for sdcSchoolCollectionStudentID::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.LEGAL_FIRST_NAME, StudentValidationIssueTypeCode.LEGAL_FIRST_NAME_CHAR_FIX));
         }
-        log.debug("InvalidLegalFirstNameRule-V07 has errors::" + errors);
+
         return errors;
     }
 

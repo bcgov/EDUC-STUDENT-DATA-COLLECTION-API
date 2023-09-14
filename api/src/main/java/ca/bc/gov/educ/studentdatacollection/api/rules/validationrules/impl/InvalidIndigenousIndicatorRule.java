@@ -28,20 +28,21 @@ public class InvalidIndigenousIndicatorRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of InvalidIndigenousIndicatorRule-V27: for collectionType {} and sdcSchoolCollectionStudentID :: {}" + studentRuleData.getCollectionTypeCode(),
+        log.debug("In shouldExecute of InvalidIndigenousIndicatorRule-V27: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
     }
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of InvalidIndigenousIndicatorRule-V27, checking for native ancestry indicator::"+studentRuleData.getSdcSchoolCollectionStudentEntity().getNativeAncestryInd());
+        log.debug("In executeValidation of InvalidIndigenousIndicatorRule-V27 for sdcSchoolCollectionStudentID::"+ studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
         if(StringUtils.isEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getNativeAncestryInd()) || (!student.getNativeAncestryInd().equals("Y") && !student.getNativeAncestryInd().equals("N"))) {
+            log.debug("InvalidIndigenousIndicatorRule-V27: Invalid indigenous ancestry code {} for sdcSchoolCollectionStudentID :: {}" , studentRuleData.getSdcSchoolCollectionStudentEntity().getNativeAncestryInd(),  studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.NATIVE_ANCESTRY_IND, StudentValidationIssueTypeCode.NATIVE_IND_INVALID));
         }
-        log.debug("InvalidIndigenousIndicatorRule-V27 has errors::" + errors);
+
         return errors;
     }
 }

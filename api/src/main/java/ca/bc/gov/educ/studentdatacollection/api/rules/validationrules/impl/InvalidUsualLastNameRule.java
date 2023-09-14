@@ -28,20 +28,21 @@ public class InvalidUsualLastNameRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of InvalidUsualLastNameRule-V12: for collectionType {} and sdcSchoolCollectionStudentID :: {}" + studentRuleData.getCollectionTypeCode(),
+        log.debug("In shouldExecute of InvalidUsualLastNameRule-V12: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of InvalidUsualLastNameRule-V12");
+        log.debug("In executeValidation of InvalidUsualLastNameRule-V12 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         if (containsInvalidChars(studentRuleData.getSdcSchoolCollectionStudentEntity().getUsualLastName())) {
+            log.debug("InvalidUsualLastNameRule-V12: Usual last name contains invalid chars for sdcSchoolCollectionStudentID::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.USUAL_LAST_NAME, StudentValidationIssueTypeCode.USUAL_LAST_NAME_CHAR_FIX));
         }
-        log.debug("InvalidUsualLastNameRule-V12 has errors::" + errors);
+
         return errors;
     }
 

@@ -38,20 +38,21 @@ public class InvalidFundingCodeRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of InvalidFundingCodeRule-V26: for collectionType {} and sdcSchoolCollectionStudentID :: {}" + studentRuleData.getCollectionTypeCode(),
+        log.debug("In shouldExecute of InvalidFundingCodeRule-V26: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of InvalidFundingCodeRule-V26, checking for Funding Code::"+studentRuleData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode());
+        log.debug("In executeValidation of InvalidFundingCodeRule-V26 for checking for sdcSchoolCollectionStudentID::"+ studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         List<SchoolFundingCode> activeFundingCodes = validationRulesService.getActiveFundingCodes();
         if(StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode()) && activeFundingCodes.stream().noneMatch(code -> code.getSchoolFundingCode().equals(studentRuleData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode()))) {
+            log.debug("InvalidFundingCodeRule-V26: Invalid funding code {}, value does not exist in DB for sdcSchoolCollectionStudentID :: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.SCHOOL_FUNDING_CODE, StudentValidationIssueTypeCode.FUNDING_CODE_INVALID));
         }
-        log.debug("InvalidFundingCodeRule-V26 has errors::" + errors);
+
         return errors;
     }
 }

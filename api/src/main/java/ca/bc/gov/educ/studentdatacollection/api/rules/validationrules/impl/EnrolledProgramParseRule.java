@@ -41,7 +41,7 @@ public class EnrolledProgramParseRule implements ValidationBaseRule {
         log.debug("In executeValidation of EnrolledProgramParseRule-V74 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         if (!StringUtils.isNumeric(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes()) || studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes().length() % 2 != 0 || studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes().contains(" ")) {
-            log.debug("EnrolledProgramParseRule-V74: Invalid enrolled program code::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
+            log.debug("EnrolledProgramParseRule-V74: Invalid enrolled program code {} for sdcSchoolCollectionStudentID:: {}" , studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_PROGRAM_CODE, StudentValidationIssueTypeCode.ENROLLED_CODE_PARSE_ERR));
         }
         return errors;

@@ -33,20 +33,20 @@ public class InvalidCareerCodeRule implements ValidationBaseRule {
     }
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of InvalidCareerCodeRule-V32: for collectionType {} and sdcSchoolCollectionStudentID :: {}" + studentRuleData.getCollectionTypeCode(),
+        log.debug("In shouldExecute of InvalidCareerCodeRule-V32: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
     }
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of InvalidCareerCodeRule-V32");
+        log.debug("In executeValidation of InvalidCareerCodeRule-V32 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         List<CareerProgramCode> activeCareerPrograms = validationRulesService.getActiveCareerProgramCodes();
         if(StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getCareerProgramCode()) && activeCareerPrograms.stream().noneMatch(program -> program.getCareerProgramCode().equals(studentRuleData.getSdcSchoolCollectionStudentEntity().getCareerProgramCode()))) {
+            log.debug("InvalidCareerCodeRule-V32: Invalid career code {}, value does not exist in DB for sdcSchoolCollectionStudentID :: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getCareerProgramCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.CAREER_PROGRAM_CODE, StudentValidationIssueTypeCode.CAREER_CODE_INVALID));
         }
-        log.debug("InvalidCareerCodeRule-V32 has errors::" + errors);
         return errors;
     }
 }

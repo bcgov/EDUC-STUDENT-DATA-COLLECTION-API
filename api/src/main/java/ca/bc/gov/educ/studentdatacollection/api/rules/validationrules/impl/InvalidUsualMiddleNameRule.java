@@ -28,20 +28,21 @@ public class InvalidUsualMiddleNameRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of InvalidUsualMiddleNameRule-V11: for collectionType {} and sdcSchoolCollectionStudentID :: {}" + studentRuleData.getCollectionTypeCode(),
+        log.debug("In shouldExecute of InvalidUsualMiddleNameRule-V11: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of InvalidUsualMiddleNameRule-V11");
+        log.debug("In executeValidation of InvalidUsualMiddleNameRule-V11 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         if (containsInvalidChars(studentRuleData.getSdcSchoolCollectionStudentEntity().getUsualMiddleNames())) {
+            log.debug("InvalidUsualMiddleNameRule-V11: Usual middle name contains invalid chars for sdcSchoolCollectionStudentID::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.USUAL_MIDDLE_NAMES, StudentValidationIssueTypeCode.USUAL_MIDDLE_NAME_CHAR_FIX));
         }
-        log.debug("InvalidUsualMiddleNameRule-V11 has errors::" + errors);
+
         return errors;
     }
 

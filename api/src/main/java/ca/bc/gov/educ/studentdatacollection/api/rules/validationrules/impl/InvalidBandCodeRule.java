@@ -45,7 +45,7 @@ public class InvalidBandCodeRule implements ValidationBaseRule {
         List<BandCode> activeBandCodes = validationRulesService.getActiveBandCodes();
 
         if(StringUtils.isNotEmpty(student.getBandCode()) && activeBandCodes.stream().noneMatch(code -> code.getBandCode().equals(student.getBandCode()))) {
-            log.debug("InvalidBandCodeRule-V41: Band Code value does not exist in DB::" + student.getBandCode());
+            log.debug("InvalidBandCodeRule-V41: Band Code value does not exist in DB {} for sdcSchoolCollectionStudentID:: {}::" , student.getBandCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.BAND_CODE, StudentValidationIssueTypeCode.BAND_CODE_INVALID));
         }
         return errors;

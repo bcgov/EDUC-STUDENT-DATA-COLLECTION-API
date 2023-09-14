@@ -33,19 +33,21 @@ public class InvalidGradeCodeRule implements ValidationBaseRule {
     }
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of InvalidGradeCodeRule-V28: for collectionType {} and sdcSchoolCollectionStudentID :: {}" + studentRuleData.getCollectionTypeCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+        log.debug("In shouldExecute of InvalidGradeCodeRule-V28: for collectionType {} and sdcSchoolCollectionStudentID :: {}", studentRuleData.getCollectionTypeCode(),
+                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
     }
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of InvalidGradeCodeRule-V28");
+        log.debug("In executeValidation of InvalidGradeCodeRule-V28 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         List<EnrolledGradeCode> activeGradeCodes = validationRulesService.getActiveGradeCodes();
 
         if(StringUtils.isEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode()) || activeGradeCodes.stream().noneMatch(code -> code.getEnrolledGradeCode().equals(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode()))){
+            log.debug("InvalidGradeCodeRule-V28 has: Invalid grade code {}, value does not exist in DB for sdcSchoolCollectionStudentID :: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.INVALID_GRADE_CODE));
         }
-        log.debug("InvalidGradeCodeRule-V28 has errors::" + errors);
+
         return errors;
     }
 

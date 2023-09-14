@@ -36,20 +36,20 @@ public class HomeLanguageRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of HomeLanguageRule-V35: for collectionType {} and sdcSchoolCollectionStudentID :: {}" + studentRuleData.getCollectionTypeCode(),
+        log.debug("In shouldExecute of HomeLanguageRule-V35: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of HomeLanguageRule-V35");
+        log.debug("In executeValidation of HomeLanguageRule-V35 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         List<HomeLanguageSpokenCode> activeHomeLanguageCodes = validationRulesService.getActiveHomeLanguageSpokenCodes();
         if(StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getHomeLanguageSpokenCode()) && activeHomeLanguageCodes.stream().noneMatch(language -> language.getHomeLanguageSpokenCode().equals(studentRuleData.getSdcSchoolCollectionStudentEntity().getHomeLanguageSpokenCode()))) {
+            log.debug("HomeLanguageRule-V35: Invalid Home Language value {} for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getHomeLanguageSpokenCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.HOME_LANGUAGE_SPOKEN_CODE, StudentValidationIssueTypeCode.SPOKEN_LANG_ERR));
         }
-        log.debug("HomeLanguageRule-V35 has errors::" + errors);
         return errors;
     }
 }

@@ -35,13 +35,14 @@ public class InvalidLegalMiddleNameRule implements ValidationBaseRule {
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of InvalidLegalMiddleNameRule-V08");
+        log.debug("In executeValidation of InvalidLegalMiddleNameRule-V08 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         if (containsInvalidChars(studentRuleData.getSdcSchoolCollectionStudentEntity().getLegalMiddleNames())) {
+            log.debug("InvalidLegalMiddleNameRule-V08: Legal Middle name contains invalid chars for sdcSchoolCollectionStudentID::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.LEGAL_MIDDLE_NAMES, StudentValidationIssueTypeCode.LEGAL_MIDDLE_NAME_CHAR_FIX));
         }
-        log.debug("InvalidLegalMiddleNameRule-V08 has errors::" + errors);
+
         return errors;
     }
 

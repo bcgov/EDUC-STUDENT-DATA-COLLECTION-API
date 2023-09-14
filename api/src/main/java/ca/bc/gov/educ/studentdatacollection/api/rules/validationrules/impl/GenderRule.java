@@ -27,19 +27,20 @@ import java.util.List;
 public class GenderRule implements ValidationBaseRule {
   @Override
   public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-    log.debug("In shouldExecute of GenderRule-V05: for collectionType {} and sdcSchoolCollectionStudentID :: {}" + studentRuleData.getCollectionTypeCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+    log.debug("In shouldExecute of GenderRule-V05: for collectionType {} and sdcSchoolCollectionStudentID :: {}" + studentRuleData.getCollectionTypeCode(),
+            studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
     return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
   }
 
   @Override
   public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-    log.debug("In executeValidation of GenderRule-V05");
+    log.debug("In executeValidation of GenderRule-V05 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
     final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
     if(StringUtils.isEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getGender()) || (!studentRuleData.getSdcSchoolCollectionStudentEntity().getGender().equals("M") && !studentRuleData.getSdcSchoolCollectionStudentEntity().getGender().equals("F"))) {
+      log.debug("GenderRule-V05: Invalid Gender value {} for sdcSchoolCollectionStudentID:: {}" , studentRuleData.getSdcSchoolCollectionStudentEntity().getGender(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
       errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.GENDER_CODE, StudentValidationIssueTypeCode.GENDER_INVALID));
     }
 
-    log.debug("GenderRule-V05 has errors::" + errors);
     return errors;
   }
 }
