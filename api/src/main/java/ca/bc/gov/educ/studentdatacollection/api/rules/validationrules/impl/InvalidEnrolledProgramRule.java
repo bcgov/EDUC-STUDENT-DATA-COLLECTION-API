@@ -8,6 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ import java.util.List;
  *                     non-expired program codes
  */
 @Component
+@Slf4j
 @Order(350)
 public class InvalidEnrolledProgramRule implements ValidationBaseRule {
     private final ValidationRulesService validationRulesService;
@@ -32,6 +34,8 @@ public class InvalidEnrolledProgramRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
+        log.debug("In shouldExecute of InvalidEnrolledProgramRule-V30: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent()
                 && StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())
                 && isValidationDependencyResolved("V30", validationErrorsMap);
@@ -39,9 +43,11 @@ public class InvalidEnrolledProgramRule implements ValidationBaseRule {
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
+        log.debug("In executeValidation of InvalidEnrolledProgramRule-V30 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         if(validationRulesService.isEnrolledProgramCodeInvalid(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())) {
+            log.debug("InvalidEnrolledProgramRule-V30: Invalid enrolled program code {}, value does not exist in DB for sdcSchoolCollectionStudentID :: {}" , studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_PROGRAM_CODE, StudentValidationIssueTypeCode.ENROLLED_CODE_INVALID));
         }
         return errors;
