@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ import java.util.List;
  *                     Career Program (enrolled program).
  */
 @Component
+@Slf4j
 @Order(360)
 public class CareerProgramCountRule implements ValidationBaseRule {
     private final ValidationRulesService validationRulesService;
@@ -31,16 +33,21 @@ public class CareerProgramCountRule implements ValidationBaseRule {
     }
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
+        log.debug("In shouldExecute of CareerProgramCountRule-V59: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent()
                 && StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())
                 && isValidationDependencyResolved("V59", validationErrorsMap);
     }
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
+        log.debug("In executeValidation of CareerProgramCountRule-V59 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         final List<String> enrolledProgramCodes = validationRulesService.splitString(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
 
         if (EnrolledProgramCodes.getCareerProgramCodes().stream().filter(enrolledProgramCodes::contains).count() > 1) {
+            log.debug("CareerProgramCountRule-V59: More than one career program reported for sdcSchoolCollectionStudentID:: {}" , studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_PROGRAM_CODE, StudentValidationIssueTypeCode.CAREER_CODE_COUNT_ERR));
         }
         return errors;

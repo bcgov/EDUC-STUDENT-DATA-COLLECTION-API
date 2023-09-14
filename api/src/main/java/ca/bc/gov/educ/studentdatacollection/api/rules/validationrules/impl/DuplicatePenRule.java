@@ -8,6 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import java.util.List;
  *  | V21 | ERROR    | A PEN can only appear once in a school.                               | V02          |
  */
 @Component
+@Slf4j
 @Order(320)
 public class DuplicatePenRule implements ValidationBaseRule {
 
@@ -32,16 +34,20 @@ public class DuplicatePenRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
+        log.debug("In shouldExecute of DuplicatePenRule-V21: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent() &&
                 isValidationDependencyResolved("V21", validationErrorsMap);
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
+        log.debug("In executeValidation of DuplicatePenRule-V21 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         if(StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getStudentPen())) {
             Long penCount = validationRulesService.getDuplicatePenCount(studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getSdcSchoolCollectionID(), studentRuleData.getSdcSchoolCollectionStudentEntity().getStudentPen());
             if (penCount > 1) {
+                log.debug("DuplicatePenRule-V21: Duplicate PEN's found - count {} for PEN number, sdcSchoolCollectionStudentID  :: {}" , penCount, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.STUDENT_PEN, StudentValidationIssueTypeCode.STUDENT_PEN_DUPLICATE));
             }
         }
