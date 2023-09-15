@@ -851,10 +851,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val school = createMockSchool();
         school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
 
-        entity.setDob("19890101");
+        entity.setDob("20100101");
         val saga = createMockStudentRuleData(entity, school);
         saga.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
-        saga.getSdcSchoolCollectionStudentEntity().setIsSchoolAged(true);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
 
         PenMatchResult penMatchResult = getPenMatchResult();
@@ -874,10 +873,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val school = createMockSchool();
         school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
 
-        entity.setDob("19890101");
+        entity.setDob("20100101");
         val saga = createMockStudentRuleData(entity, school);
         saga.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
-        saga.getSdcSchoolCollectionStudentEntity().setIsSchoolAged(true);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
         saga.getSdcSchoolCollectionStudentEntity().setSupportBlocks("1");
 
