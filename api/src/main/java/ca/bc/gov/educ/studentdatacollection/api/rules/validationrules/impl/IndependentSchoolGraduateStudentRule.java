@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +36,8 @@ public class IndependentSchoolGraduateStudentRule extends BaseAdultSchoolAgeRule
                 && !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
                 && (studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) ||
                    studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))
-                && isValidationDependencyResolved("V49", validationErrorsMap);
+                && isValidationDependencyResolved("V49", validationErrorsMap)
+                && DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
     }
 
     @Override
@@ -43,9 +45,9 @@ public class IndependentSchoolGraduateStudentRule extends BaseAdultSchoolAgeRule
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
-        this.setupAgeAndGraduateValues(studentRuleData);
+        this.setupGraduateValues(studentRuleData);
 
-        if (student.getIsAdult() && student.getIsGraduated()) {
+        if (Boolean.TRUE.equals(student.getIsGraduated())) {
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.GRADUATE_STUDENT_INDEPENDENT));
         }
         return errors;
