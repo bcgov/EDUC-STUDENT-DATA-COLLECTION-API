@@ -11,14 +11,10 @@ public class BaseAdultSchoolAgeRule {
         this.validationRulesService = validationRulesService;
     }
 
-    public void setupAgeAndGraduateValues(StudentRuleData studentRuleData) {
+    public void setupGraduateValues(StudentRuleData studentRuleData) {
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         if(student.getIsGraduated() == null){
             validationRulesService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
-        }
-
-         if(student.getIsSchoolAged() == null){
-            validationRulesService.updateStudentAgeColumns(student);
         }
     }
 
