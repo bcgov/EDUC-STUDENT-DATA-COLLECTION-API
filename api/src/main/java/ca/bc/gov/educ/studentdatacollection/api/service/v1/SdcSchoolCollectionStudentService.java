@@ -114,13 +114,14 @@ public class SdcSchoolCollectionStudentService {
     studentRuleData.setSchool(school);
     studentRuleData.setCollectionTypeCode(collectionTypeCode);
 
-    // Update Student age columns
-    String studentDOB = studentRuleData.getSdcSchoolCollectionStudentEntity().getDob();
-    studentRuleData.getSdcSchoolCollectionStudentEntity().setIsAdult(DOBUtil.isAdult(studentDOB));
-    studentRuleData.getSdcSchoolCollectionStudentEntity().setIsSchoolAged(DOBUtil.isSchoolAged(studentDOB));
-
     var validationErrors = validateStudent(studentRuleData);
     if(validationErrors.stream().noneMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString()))){
+
+      // Update Student age columns
+      String studentDOB = studentRuleData.getSdcSchoolCollectionStudentEntity().getDob();
+      studentRuleData.getSdcSchoolCollectionStudentEntity().setIsAdult(DOBUtil.isAdult(studentDOB));
+      studentRuleData.getSdcSchoolCollectionStudentEntity().setIsSchoolAged(DOBUtil.isSchoolAged(studentDOB));
+      
       calculateAdditionalStudentAttributes(studentRuleData);
     }
     var entity = this.sdcSchoolCollectionStudentRepository.save(studentRuleData.getSdcSchoolCollectionStudentEntity());
