@@ -285,6 +285,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
     .save(createMockSdcSchoolCollectionEntity(collection, null, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+    schoolStudentEntity.setEnrolledProgramCodes("05");
 
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
       createMockStudentRuleData(
@@ -419,30 +420,16 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
     .save(createMockSdcSchoolCollectionEntity(collection, null, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+    schoolStudentEntity.setEnrolledProgramCodes("0540");
+    List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, createMockSchool()));
 
-    List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
-      createMockStudentRuleData(
-        schoolStudentEntity,
-        createMockSchool()
-      )
-    );
-
-    assertThat(listWithoutEnrollmentError.stream().anyMatch(e ->
-      e.equals(ProgramEligibilityIssueCode.NOT_ENROLLED_CAREER)
-    )).isFalse();
+    assertThat(listWithoutEnrollmentError.stream().anyMatch(e -> e.equals(ProgramEligibilityIssueCode.NOT_ENROLLED_CAREER))).isFalse();
 
     schoolStudentEntity.setEnrolledProgramCodes("3900000000000017");
 
-    List<ProgramEligibilityIssueCode> listWithEnrollmentError = rulesProcessor.processRules(
-      createMockStudentRuleData(
-        schoolStudentEntity,
-        createMockSchool()
-      )
-    );
+    List<ProgramEligibilityIssueCode> listWithEnrollmentError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, createMockSchool()));
 
-    assertThat(listWithEnrollmentError.stream().anyMatch(e ->
-      e.equals(ProgramEligibilityIssueCode.NOT_ENROLLED_CAREER)
-    )).isTrue();
+    assertThat(listWithEnrollmentError.stream().anyMatch(e -> e.equals(ProgramEligibilityIssueCode.NOT_ENROLLED_CAREER))).isTrue();
   }
 
   @Test

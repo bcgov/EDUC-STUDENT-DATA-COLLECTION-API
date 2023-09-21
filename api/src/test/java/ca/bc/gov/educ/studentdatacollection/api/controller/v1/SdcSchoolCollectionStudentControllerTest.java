@@ -675,12 +675,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
-                .andDo(print()).andExpect(status().isOk());
-
-        val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
-        assertThat(curStudentEntity).isPresent();
-        var studentEntity = curStudentEntity.get();
-        assertThat(studentEntity.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.ERROR.toString());
+                .andDo(print()).andExpect(status().isBadRequest());
     }
 
     @Test
