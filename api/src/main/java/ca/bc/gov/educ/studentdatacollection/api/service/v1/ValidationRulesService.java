@@ -70,7 +70,7 @@ public class ValidationRulesService {
 
     public boolean isEnrolledProgramCodeInvalid(String enrolledProgramCode) {
         final List<String> enrolledProgramCodes = splitString(enrolledProgramCode);
-        var activeEnrolledCodes = getActiveEnrolledProgramCodes().stream().map(EnrolledProgramCode::getEnrolledProgramCode).collect(Collectors.toList());
+        var activeEnrolledCodes = getActiveEnrolledProgramCodes().stream().map(EnrolledProgramCode::getEnrolledProgramCode).toList();
         return !enrolledProgramCodes.stream().allMatch(activeEnrolledCodes::contains);
     }
 
