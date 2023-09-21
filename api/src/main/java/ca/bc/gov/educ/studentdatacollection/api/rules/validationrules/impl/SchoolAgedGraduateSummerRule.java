@@ -19,8 +19,10 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V53 | ERROR    | School-aged students, reported in the                                 | V04          |
- *                     summer collection, cannot be graduated.
+ *  | V53 | ERROR    | School-aged students, reported in the                                 | V28,V04,V05  |
+ *                     summer collection, cannot be graduated.                                 V06,V07,V08
+ *                                                                                             V09,V10,V11
+ *                                                                                             V12
  */
 @Component
 @Slf4j
