@@ -21,8 +21,10 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V69 | WARNING  | Graduated school-aged students in grade 10, 11, 12, or SU,            | V04,V28,V67  |
- *                     should not be reported with support blocks.
+ *  | V69 | WARNING  | Graduated school-aged students in grade 10, 11, 12, or SU,            | V28,V04,V05  |
+ *                     should not be reported with support blocks.                             V06,V07,V08
+ *                                                                                             V09,V10,V11
+ *                                                                                             V12, V67
  */
 @Component
 @Slf4j

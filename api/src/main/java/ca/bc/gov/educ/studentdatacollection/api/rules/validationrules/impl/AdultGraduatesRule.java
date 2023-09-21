@@ -20,7 +20,10 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V48 | ERROR    | Adult graduates must be reported in grade GA.                         | V04,V28,V29  |
+ *  | V48 | ERROR    | Adult graduates must be reported in grade GA.                         | V28,V04,V05  |
+ *                                                                                             V06,V07,V08
+ *                                                                                             V09,V10,V11
+ *                                                                                             V12
  */
 @Component
 @Slf4j
