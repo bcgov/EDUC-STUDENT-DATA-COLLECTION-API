@@ -108,13 +108,10 @@ public class TransformUtil {
   }
 
   public static String sanitizeEnrolledProgramString(String enrolledProgramCode) {
-    if(StringUtils.isEmpty(enrolledProgramCode)) {
+    if(StringUtils.isEmpty(enrolledProgramCode) || Pattern.compile("^[0\\s]*$").matcher(enrolledProgramCode).matches()) {
       return null;
     }
-    
-    if(Pattern.compile("^[0\\s]*$").matcher(enrolledProgramCode).matches()) {
-      return null;
-    }
+
     if(!StringUtils.isNumeric(enrolledProgramCode.stripTrailing()) || enrolledProgramCode.stripTrailing().length() % 2 != 0 || enrolledProgramCode.stripTrailing().contains(" ")) {
       return enrolledProgramCode.stripTrailing();
     } else {

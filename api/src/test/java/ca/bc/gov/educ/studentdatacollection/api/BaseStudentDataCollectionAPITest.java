@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusPayload;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
@@ -60,7 +61,7 @@ public abstract class BaseStudentDataCollectionAPITest {
 
   @BeforeEach
   public void before() {
-    enrolledProgramCodeRepository.save(createEnrolledProgramCodeData());
+    enrolledProgramCodeRepository.save(createEnrolledProgramCode05Data());
     careerProgramCodeRepository.save(createCareerProgramCodeData());
     homeLanguageSpokenCodeRepository.save(homeLanguageSpokenCodeData());
     bandCodeRepository.save(bandCodeData());
@@ -70,10 +71,12 @@ public abstract class BaseStudentDataCollectionAPITest {
     enrolledGradeCodeRepository.save(enrolledGradeCodeHSData());
     enrolledGradeCodeRepository.save(enrolledGradeCodeEightData());
     specialEducationCategoryRepository.save(specialEducationCategoryCodeData());
+    enrolledProgramCodeRepository.save(createEnrolledProgramCode08Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode14Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode33Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode41Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode40Data());
+    enrolledProgramCodeRepository.save(createEnrolledProgramCode35ExpiredData());
     genderCodeRepository.save(createGenderCodeData());
     schoolGradeCodeRepository.save(createSchoolGradeCodeData());
     schoolFundingGroupCodeRepository.save(createSchoolFundingGroupCodeData());
@@ -170,7 +173,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setOtherCourses(null);
     sdcEntity.setSupportBlocks(null);
     sdcEntity.setEnrolledGradeCode("08");
-    sdcEntity.setEnrolledProgramCodes("4000000000000005");
+    sdcEntity.setEnrolledProgramCodes("");
     sdcEntity.setCareerProgramCode("XA");
     sdcEntity.setNumberOfCourses(null);
     sdcEntity.setBandCode("0500");
@@ -260,9 +263,15 @@ public abstract class BaseStudentDataCollectionAPITest {
     }
   }
 
-  public EnrolledProgramCodeEntity createEnrolledProgramCodeData() {
+  public EnrolledProgramCodeEntity createEnrolledProgramCode05Data() {
     return EnrolledProgramCodeEntity.builder().enrolledProgramCode("05").description("Programme Francophone")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Francophone").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public EnrolledProgramCodeEntity createEnrolledProgramCode08Data() {
+    return EnrolledProgramCodeEntity.builder().enrolledProgramCode("08").description("08")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("08").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 
@@ -275,6 +284,12 @@ public abstract class BaseStudentDataCollectionAPITest {
   public EnrolledProgramCodeEntity createEnrolledProgramCode40Data() {
     return EnrolledProgramCodeEntity.builder().enrolledProgramCode("40").description("40")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("40").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public EnrolledProgramCodeEntity createEnrolledProgramCode35ExpiredData() {
+    return EnrolledProgramCodeEntity.builder().enrolledProgramCode("35").description("35")
+            .effectiveDate(LocalDateTime.now().minusDays(10)).expiryDate(LocalDateTime.now().minusDays(1)).displayOrder(1).label("35").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 
@@ -354,6 +369,14 @@ public abstract class BaseStudentDataCollectionAPITest {
       penMatchResult.setPenStatus("AA");
       penMatchResult.setPenStatusMessage("ABC");
       return penMatchResult;
+  }
+
+  public GradStatusPayload getGradStatusResult(){
+      GradStatusPayload gradStatusPayload = new GradStatusPayload();
+      gradStatusPayload.setException(null);
+      gradStatusPayload.setProgram("ABC");
+      gradStatusPayload.setProgramCompletionDate("2023-08-09");
+      return gradStatusPayload;
   }
 
 }
