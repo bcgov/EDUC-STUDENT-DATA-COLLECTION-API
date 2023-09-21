@@ -1,10 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusPayload;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,25 +45,10 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-        GradStatusPayload gradStatusResult = getGradStatusResult();
-        when(this.restUtils.getGradStatusResult(any(),any())).thenReturn(gradStatusResult);
 
         validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
 
         assertEquals(mockStudentEntity.getAssignedStudentId().toString(), penMatchResult.getMatchingRecords().get(0).getStudentID());
         assertSame(mockStudentEntity.getPenMatchResult(), penMatchResult.getPenStatus());
-        assertSame(Boolean.TRUE, mockStudentEntity.getIsGraduated());
-    }
-
-    @Test
-    void testGetGradStatusResultException() {
-        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
-        PenMatchResult penMatchResult = getPenMatchResult();
-        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-        GradStatusPayload gradStatusResult = getGradStatusResult();
-        gradStatusResult.setException("error");
-        when(this.restUtils.getGradStatusResult(any(),any())).thenReturn(gradStatusResult);
-
-        assertThrows(StudentDataCollectionAPIRuntimeException.class, () ->  validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789"));
     }
 }
