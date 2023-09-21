@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -69,7 +70,8 @@ public class ValidationRulesService {
 
     public boolean isEnrolledProgramCodeInvalid(String enrolledProgramCode) {
         final List<String> enrolledProgramCodes = splitString(enrolledProgramCode);
-        return getActiveEnrolledProgramCodes().stream().noneMatch(programs -> enrolledProgramCodes.contains(programs.getEnrolledProgramCode()));
+        var activeEnrolledCodes = getActiveEnrolledProgramCodes().stream().map(EnrolledProgramCode::getEnrolledProgramCode).collect(Collectors.toList());
+        return !enrolledProgramCodes.stream().allMatch(activeEnrolledCodes::contains);
     }
 
     public List<String> splitString(String enrolledProgramCode) {
