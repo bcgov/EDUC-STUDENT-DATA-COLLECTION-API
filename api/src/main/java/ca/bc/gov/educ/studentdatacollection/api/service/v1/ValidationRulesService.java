@@ -8,6 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcStudentEllEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusPayload;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import lombok.Getter;
@@ -86,9 +87,11 @@ public class ValidationRulesService {
     }
 
   public void updatePenMatchAndGradStatusColumns(SdcSchoolCollectionStudentEntity student, String mincode) throws EntityNotFoundException {
-    var penMatchResult = this.restUtils.getPenMatchResult(UUID.randomUUID(), student, mincode);
+    UUID correlationID = UUID.randomUUID();
+    var penMatchResult = this.restUtils.getPenMatchResult(correlationID, student, mincode);
     val penMatchResultCode = penMatchResult.getPenStatus();
     student.setPenMatchResult(penMatchResultCode);
+    student.setIsGraduated(false);
     var validPenMatchResults = Arrays.asList("AA", "B1", "C1", "D1");
 
     if (StringUtils.isNotEmpty(penMatchResultCode) && validPenMatchResults.contains(penMatchResultCode)) {
@@ -107,15 +110,16 @@ public class ValidationRulesService {
       student.setPenMatchResult("NEW");
     }
 
-    //TODO Change me
-    if(student.getIsGraduated() == null) {
-      student.setIsGraduated(false);
-    }
-  }
+    if(!student.getPenMatchResult().equals("NEW")) {
+        GradStatusPayload gradStatusResult = this.restUtils.getGradStatusResult(correlationID, student.getAssignedStudentId().toString());
 
-  public void updateStudentAgeColumns(SdcSchoolCollectionStudentEntity studentEntity){
-    String studentDOB = studentEntity.getDob();
-    studentEntity.setIsAdult(DOBUtil.isAdult(studentDOB));
-    studentEntity.setIsSchoolAged(DOBUtil.isSchoolAged(studentDOB));
+        if(gradStatusResult.getException() != null && gradStatusResult.getException().contains("error")){
+            throw new StudentDataCollectionAPIRuntimeException("Exception occurred calling GRAD student service, contact the GRAD team for further detail.");
+        }
+
+        if(StringUtils.isNotEmpty(gradStatusResult.getProgramCompletionDate())){
+            student.setIsGraduated(true);
+        }
+    }
   }
 }

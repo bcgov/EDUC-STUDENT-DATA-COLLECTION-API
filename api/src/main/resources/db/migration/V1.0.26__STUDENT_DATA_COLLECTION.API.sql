@@ -1,9 +1,14 @@
-INSERT INTO SCHOOL_FUNDING_GROUP_CODE (LEGACY_CODE, SCHOOL_FUNDING_GROUP_CODE, LABEL, DESCRIPTION,
-                               DISPLAY_ORDER, EFFECTIVE_DATE, EXPIRY_DATE, CREATE_USER,
-                               CREATE_DATE, UPDATE_USER, UPDATE_DATE)
-VALUES ('06', 'GROUP6', 'Group 6', 'Group 6 Funding Group', 6,
-        to_date('2020-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'),
-        to_date('2021-01-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'IDIR/MVILLENE',
-        to_date('2019-12-20 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'IDIR/MVILLENE',
-        to_date('2019-12-20 00:00:00', 'YYYY-MM-DD HH24:MI:SS'));
+UPDATE SCHOOL_FUNDING_CODE
+SET LABEL = 'Education of Service Agreement',
+    DESCRIPTION = 'Education of Service Children Agreement'
+WHERE SCHOOL_FUNDING_CODE = '05';
 
+UPDATE SCHOOL_FUNDING_CODE
+SET LABEL = 'Out of Province',
+    DESCRIPTION = 'Out of Province'
+WHERE SCHOOL_FUNDING_CODE = '14';
+
+UPDATE SCHOOL_FUNDING_CODE
+SET LABEL = 'Resident on Reserve',
+    DESCRIPTION = 'Resident on Reserve'
+WHERE SCHOOL_FUNDING_CODE = '20';

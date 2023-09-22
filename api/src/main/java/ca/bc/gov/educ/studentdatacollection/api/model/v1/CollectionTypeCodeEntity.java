@@ -22,47 +22,29 @@ public class CollectionTypeCodeEntity {
   @Column(name = "COLLECTION_TYPE_CODE", unique = true, length = 10)
   private String collectionTypeCode;
 
-  /**
-   * Display label for collection
-   */
   @Column(name = "LABEL", length = 30)
   private String label;
 
-  /**
-   * Description for the collection code
-   */
   @Column(name = "DESCRIPTION")
   private String description;
 
-  /**
-   * Display order of the collection types
-   */
   @Column(name = "DISPLAY_ORDER")
   private Integer displayOrder;
 
-  /**
-   * When this collection code is effective
-   */
   @Column(name = "EFFECTIVE_DATE")
   private LocalDateTime effectiveDate;
 
-  /**
-   * When this collection code expires
-   */
   @Column(name = "EXPIRY_DATE")
   private LocalDateTime expiryDate;
 
-  /**
-   * Date the collection will open
-   */
   @Column(name = "OPEN_DATE")
   private LocalDateTime openDate;
 
-  /**
-   * Date the collection will close
-   */
   @Column(name = "CLOSE_DATE")
   private LocalDateTime closeDate;
+
+  @Column(name = "SNAPSHOT_DATE")
+  private LocalDateTime snapshotDate;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;

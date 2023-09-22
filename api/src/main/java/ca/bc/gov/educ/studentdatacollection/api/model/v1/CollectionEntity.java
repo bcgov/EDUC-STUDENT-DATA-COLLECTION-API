@@ -41,6 +41,9 @@ public class CollectionEntity {
   @Column(name = "CLOSE_DATE")
   private LocalDateTime closeDate;
 
+  @Column(name = "SNAPSHOT_DATE")
+  private LocalDateTime snapshotDate;
+
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
 

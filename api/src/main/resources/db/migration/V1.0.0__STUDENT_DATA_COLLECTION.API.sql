@@ -4,6 +4,7 @@ CREATE TABLE COLLECTION
     COLLECTION_TYPE_CODE VARCHAR(10)                    NOT NULL,
     OPEN_DATE       TIMESTAMP                           NOT NULL,
     CLOSE_DATE      TIMESTAMP                           NOT NULL,
+    SNAPSHOT_DATE   TIMESTAMP                           NOT NULL,
     CREATE_USER     VARCHAR(32)                         NOT NULL,
     CREATE_DATE     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     UPDATE_USER     VARCHAR(32)                         NOT NULL,
@@ -13,7 +14,7 @@ CREATE TABLE COLLECTION
 
 CREATE TABLE COLLECTION_TYPE_CODE
 (
-    COLLECTION_TYPE_CODE VARCHAR(10)                         NOT NULL,
+    COLLECTION_TYPE_CODE VARCHAR(10)                    NOT NULL,
     LABEL           VARCHAR(30)                         NOT NULL,
     DESCRIPTION     VARCHAR(255)                        NOT NULL,
     DISPLAY_ORDER   NUMERIC   DEFAULT 1                 NOT NULL,
@@ -21,6 +22,7 @@ CREATE TABLE COLLECTION_TYPE_CODE
     EXPIRY_DATE     TIMESTAMP                           NOT NULL,
     OPEN_DATE       TIMESTAMP                           NOT NULL,
     CLOSE_DATE      TIMESTAMP                           NOT NULL,
+    SNAPSHOT_DATE   TIMESTAMP                           NOT NULL,
     CREATE_USER     VARCHAR(32)                         NOT NULL,
     CREATE_DATE     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     UPDATE_USER     VARCHAR(32)                         NOT NULL,
