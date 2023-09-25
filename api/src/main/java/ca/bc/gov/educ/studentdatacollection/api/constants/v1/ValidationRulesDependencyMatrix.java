@@ -1,61 +1,64 @@
 package ca.bc.gov.educ.studentdatacollection.api.constants.v1;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode.*;
 import lombok.Getter;
+
 
 import java.util.Arrays;
 import java.util.Optional;
 
 public enum ValidationRulesDependencyMatrix {
-    ENTRY1("V15", new String[]{RulesConstants.LEGAL_LAST_NAME_BLANK}),
-    ENTRY2("V13", new String[]{RulesConstants.LEGAL_FIRST_NAME_CHAR_FIX}),
-    ENTRY3("V14", new String[]{RulesConstants.LEGAL_MIDDLE_NAME_CHAR_FIX}),
-    ENTRY4("V16", new String[]{RulesConstants.USUAL_FIRST_NAME_CHAR_FIX}),
-    ENTRY5("V18", new String[]{RulesConstants.USUAL_LAST_NAME_CHAR_FIX}),
-    ENTRY6("V21", new String[]{"PENCHECKDIGITERR"}),
-    ENTRY7("V64", new String[]{"MISSINGPOSTALCODE"}),
-    ENTRY8("V17", new String[]{RulesConstants.USUAL_MIDDLE_NAME_CHAR_FIX}),
-    ENTRY9("V40", new String[]{"BANDCODEINVALID", RulesConstants.FUNDING_CODE_INVALID}),
-    ENTRY10("V39", new String[]{"NATIVEINDINVALID", RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID}),
-    ENTRY11("V52", new String[]{RulesConstants.FUNDING_CODE_INVALID, RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID, RulesConstants.CAREER_CODE_INVALID}),
-    ENTRY12("V30", new String[]{RulesConstants.ENROLLED_CODE_PARSEERR}),
-    ENTRY13("V59", new String[]{RulesConstants.CAREER_CODE_INVALID, RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID}),
-    ENTRY14("V73", new String[]{RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY15("V44", new String[]{RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY16("V72", new String[]{RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY17("V37", new String[]{RulesConstants.DOB_INVALID_FORMAT}),
-    ENTRY18("V53", new String[]{RulesConstants.DOB_INVALID_FORMAT, RulesConstants.INVALID_GRADE_CODE, RulesConstants.GENDER_INVALID, RulesConstants.LEGAL_LAST_NAME_BLANK, RulesConstants.LEGAL_FIRST_NAME_CHAR_FIX, RulesConstants.LEGAL_MIDDLE_NAME_CHAR_FIX, RulesConstants.LEGAL_LAST_NAME_CHAR_FIX, RulesConstants.USUAL_FIRST_NAME_CHAR_FIX, RulesConstants.USUAL_MIDDLE_NAME_CHAR_FIX, RulesConstants.USUAL_LAST_NAME_CHAR_FIX}),
-    ENTRY19("V54", new String[]{RulesConstants.DOB_INVALID_FORMAT}),
-    ENTRY20("V36", new String[]{RulesConstants.DOB_INVALID_FORMAT}),
-    ENTRY21("V49", new String[]{RulesConstants.DOB_INVALID_FORMAT, RulesConstants.INVALID_GRADE_CODE, RulesConstants.GENDER_INVALID, RulesConstants.LEGAL_LAST_NAME_BLANK, RulesConstants.LEGAL_FIRST_NAME_CHAR_FIX, RulesConstants.LEGAL_MIDDLE_NAME_CHAR_FIX, RulesConstants.LEGAL_LAST_NAME_CHAR_FIX, RulesConstants.USUAL_FIRST_NAME_CHAR_FIX, RulesConstants.USUAL_MIDDLE_NAME_CHAR_FIX, RulesConstants.USUAL_LAST_NAME_CHAR_FIX}),
-    ENTRY22("V45", new String[]{RulesConstants.DOB_INVALID_FORMAT, RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY23("V48", new String[]{RulesConstants.DOB_INVALID_FORMAT, RulesConstants.INVALID_GRADE_CODE, RulesConstants.GENDER_INVALID, RulesConstants.LEGAL_LAST_NAME_BLANK, RulesConstants.LEGAL_FIRST_NAME_CHAR_FIX, RulesConstants.LEGAL_MIDDLE_NAME_CHAR_FIX, RulesConstants.LEGAL_LAST_NAME_CHAR_FIX, RulesConstants.USUAL_FIRST_NAME_CHAR_FIX, RulesConstants.USUAL_MIDDLE_NAME_CHAR_FIX, RulesConstants.USUAL_LAST_NAME_CHAR_FIX}),
-    ENTRY24("V57", new String[]{RulesConstants.DOB_INVALID_FORMAT, RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY25("V70", new String[]{RulesConstants.DOB_INVALID_FORMAT, RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY26("V43", new String[]{RulesConstants.DOB_INVALID_FORMAT, RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY27("V33", new String[]{RulesConstants.NO_OF_COURSES_INVALID, RulesConstants.DOB_INVALID_FORMAT, RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY28("V46", new String[]{RulesConstants.NO_OF_COURSES_INVALID, RulesConstants.DOB_INVALID_FORMAT, RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY29("V47", new String[]{RulesConstants.NO_OF_COURSES_INVALID, RulesConstants.DOB_INVALID_FORMAT, RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY30("V34", new String[]{RulesConstants.NO_OF_COURSES_INVALID, RulesConstants.DOB_INVALID_FORMAT, RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY31("V42", new String[]{RulesConstants.NO_OF_COURSES_INVALID}),
-    ENTRY32("V55", new String[]{"SPEDERR"}),
-    ENTRY33("V65", new String[]{RulesConstants.NO_OF_COURSES_INVALID, RulesConstants.INVALID_GRADE_CODE, RulesConstants.SUPPORT_BLOCKS_INVALID}),
-    ENTRY34("V68", new String[]{RulesConstants.DOB_INVALID_FORMAT, RulesConstants.SUPPORT_BLOCKS_INVALID, RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY35("V69", new String[]{RulesConstants.DOB_INVALID_FORMAT, RulesConstants.SUPPORT_BLOCKS_INVALID, RulesConstants.INVALID_GRADE_CODE, RulesConstants.GENDER_INVALID, RulesConstants.LEGAL_LAST_NAME_BLANK, RulesConstants.LEGAL_FIRST_NAME_CHAR_FIX, RulesConstants.LEGAL_MIDDLE_NAME_CHAR_FIX, RulesConstants.LEGAL_LAST_NAME_CHAR_FIX, RulesConstants.USUAL_FIRST_NAME_CHAR_FIX, RulesConstants.USUAL_MIDDLE_NAME_CHAR_FIX, RulesConstants.USUAL_LAST_NAME_CHAR_FIX}),
-    ENTRY36("V66", new String[]{RulesConstants.SUPPORT_BLOCKS_INVALID}),
-    ENTRY37("V71", new String[]{RulesConstants.SUPPORT_BLOCKS_INVALID}),
-    ENTRY38("V50", new String[]{RulesConstants.FUNDING_CODE_INVALID, RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID}),
-    ENTRY39("V51", new String[]{RulesConstants.FUNDING_CODE_INVALID, RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID}),
-    ENTRY40("V31", new String[]{RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID}),
-    ENTRY41("V19", new String[]{RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID}),
-    ENTRY42("V56", new String[]{RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID, RulesConstants.CAREER_CODE_INVALID}),
-    ENTRY43("V61", new String[]{RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID, RulesConstants.INVALID_GRADE_CODE, "CAREERCODECOUNTERR", RulesConstants.CAREER_CODE_INVALID}),
-    ENTRY44("V58", new String[]{RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID, "CAREERCODECOUNTERR", RulesConstants.CAREER_CODE_INVALID}),
-    ENTRY45("V24", new String[]{RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID, RulesConstants.CAREER_CODE_INVALID, RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY46("V22", new String[]{RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID, RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY47("V23", new String[]{RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID, RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY48("V38", new String[]{RulesConstants.ENROLLED_CODE_PARSEERR, RulesConstants.ENROLLED_CODE_INVALID, RulesConstants.INVALID_GRADE_CODE}),
-    ENTRY49("V25", new String[]{RulesConstants.INVALID_GRADE_CODE, "SPEDERR"}),
-    ENTRY50("V09", new String[]{RulesConstants.LEGAL_LAST_NAME_BLANK});
+    ENTRY1("V15", new String[]{LEGAL_LAST_NAME_BLANK.getCode()}),
+    ENTRY2("V13", new String[]{LEGAL_FIRST_NAME_CHAR_FIX.getCode()}),
+    ENTRY3("V14", new String[]{LEGAL_MIDDLE_NAME_CHAR_FIX.getCode()}),
+    ENTRY4("V16", new String[]{USUAL_FIRST_NAME_CHAR_FIX.getCode()}),
+    ENTRY5("V18", new String[]{USUAL_LAST_NAME_CHAR_FIX.getCode()}),
+    ENTRY6("V21", new String[]{PEN_CHECK_DIGIT_ERR.getCode()}),
+    ENTRY7("V64", new String[]{MISSING_POSTAL_CODE.getCode()}),
+    ENTRY8("V17", new String[]{USUAL_MIDDLE_NAME_CHAR_FIX.getCode()}),
+    ENTRY9("V40", new String[]{BAND_CODE_INVALID.getCode(), FUNDING_CODE_INVALID.getCode()}),
+    ENTRY10("V39", new String[]{NATIVE_IND_INVALID.getCode(), ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode()}),
+    ENTRY11("V52", new String[]{FUNDING_CODE_INVALID.getCode(), ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), CAREER_CODE_INVALID.getCode()}),
+    ENTRY12("V30", new String[]{ENROLLED_CODE_DUP_ERR.getCode()}),
+    ENTRY13("V59", new String[]{CAREER_CODE_INVALID.getCode(), ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode()}),
+    ENTRY14("V73", new String[]{INVALID_GRADE_CODE.getCode()}),
+    ENTRY15("V44", new String[]{INVALID_GRADE_CODE.getCode()}),
+    ENTRY16("V72", new String[]{INVALID_GRADE_CODE.getCode()}),
+    ENTRY17("V37", new String[]{DOB_INVALID_FORMAT.getCode()}),
+    ENTRY18("V53", new String[]{DOB_INVALID_FORMAT.getCode(), INVALID_GRADE_CODE.getCode(), GENDER_INVALID.getCode(), LEGAL_LAST_NAME_BLANK.getCode(), LEGAL_FIRST_NAME_CHAR_FIX.getCode(), LEGAL_MIDDLE_NAME_CHAR_FIX.getCode(), LEGAL_LAST_NAME_CHAR_FIX.getCode(), USUAL_FIRST_NAME_CHAR_FIX.getCode(), USUAL_MIDDLE_NAME_CHAR_FIX.getCode(), USUAL_LAST_NAME_CHAR_FIX.getCode()}),
+    ENTRY19("V54", new String[]{DOB_INVALID_FORMAT.getCode()}),
+    ENTRY20("V36", new String[]{DOB_INVALID_FORMAT.getCode()}),
+    ENTRY21("V49", new String[]{DOB_INVALID_FORMAT.getCode(), INVALID_GRADE_CODE.getCode(), GENDER_INVALID.getCode(), LEGAL_LAST_NAME_BLANK.getCode(), LEGAL_FIRST_NAME_CHAR_FIX.getCode(), LEGAL_MIDDLE_NAME_CHAR_FIX.getCode(), LEGAL_LAST_NAME_CHAR_FIX.getCode(), USUAL_FIRST_NAME_CHAR_FIX.getCode(), USUAL_MIDDLE_NAME_CHAR_FIX.getCode(), USUAL_LAST_NAME_CHAR_FIX.getCode()}),
+    ENTRY22("V45", new String[]{DOB_INVALID_FORMAT.getCode(), INVALID_GRADE_CODE.getCode()}),
+    ENTRY23("V48", new String[]{DOB_INVALID_FORMAT.getCode(), INVALID_GRADE_CODE.getCode(), GENDER_INVALID.getCode(), LEGAL_LAST_NAME_BLANK.getCode(), LEGAL_FIRST_NAME_CHAR_FIX.getCode(), LEGAL_MIDDLE_NAME_CHAR_FIX.getCode(), LEGAL_LAST_NAME_CHAR_FIX.getCode(), USUAL_FIRST_NAME_CHAR_FIX.getCode(), USUAL_MIDDLE_NAME_CHAR_FIX.getCode(), USUAL_LAST_NAME_CHAR_FIX.getCode()}),
+    ENTRY24("V57", new String[]{DOB_INVALID_FORMAT.getCode(), INVALID_GRADE_CODE.getCode()}),
+    ENTRY25("V70", new String[]{DOB_INVALID_FORMAT.getCode(), INVALID_GRADE_CODE.getCode()}),
+    ENTRY26("V43", new String[]{DOB_INVALID_FORMAT.getCode(), INVALID_GRADE_CODE.getCode()}),
+    ENTRY27("V33", new String[]{NO_OF_COURSES_INVALID.getCode(), DOB_INVALID_FORMAT.getCode(), INVALID_GRADE_CODE.getCode()}),
+    ENTRY28("V46", new String[]{NO_OF_COURSES_INVALID.getCode(), DOB_INVALID_FORMAT.getCode(), INVALID_GRADE_CODE.getCode()}),
+    ENTRY29("V47", new String[]{NO_OF_COURSES_INVALID.getCode(), DOB_INVALID_FORMAT.getCode(), INVALID_GRADE_CODE.getCode()}),
+    ENTRY30("V34", new String[]{NO_OF_COURSES_INVALID.getCode(), DOB_INVALID_FORMAT.getCode(), INVALID_GRADE_CODE.getCode()}),
+    ENTRY31("V42", new String[]{NO_OF_COURSES_INVALID.getCode()}),
+    ENTRY32("V55", new String[]{SPED_ERR.getCode()}),
+    ENTRY33("V65", new String[]{NO_OF_COURSES_INVALID.getCode(), INVALID_GRADE_CODE.getCode(), SUPPORT_BLOCKS_INVALID.getCode()}),
+    ENTRY34("V68", new String[]{DOB_INVALID_FORMAT.getCode(), SUPPORT_BLOCKS_INVALID.getCode(), INVALID_GRADE_CODE.getCode()}),
+    ENTRY35("V69", new String[]{DOB_INVALID_FORMAT.getCode(), SUPPORT_BLOCKS_INVALID.getCode(), INVALID_GRADE_CODE.getCode(), GENDER_INVALID.getCode(), LEGAL_LAST_NAME_BLANK.getCode(), LEGAL_FIRST_NAME_CHAR_FIX.getCode(), LEGAL_MIDDLE_NAME_CHAR_FIX.getCode(), LEGAL_LAST_NAME_CHAR_FIX.getCode(), USUAL_FIRST_NAME_CHAR_FIX.getCode(), USUAL_MIDDLE_NAME_CHAR_FIX.getCode(), USUAL_LAST_NAME_CHAR_FIX.getCode()}),
+    ENTRY36("V66", new String[]{SUPPORT_BLOCKS_INVALID.getCode()}),
+    ENTRY37("V71", new String[]{SUPPORT_BLOCKS_INVALID.getCode()}),
+    ENTRY38("V50", new String[]{FUNDING_CODE_INVALID.getCode(), ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode()}),
+    ENTRY39("V51", new String[]{FUNDING_CODE_INVALID.getCode(), ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode()}),
+    ENTRY40("V31", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode()}),
+    ENTRY41("V19", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode()}),
+    ENTRY42("V56", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), CAREER_CODE_INVALID.getCode()}),
+    ENTRY43("V61", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), INVALID_GRADE_CODE.getCode(), CAREER_CODE_COUNT_ERR.getCode(), CAREER_CODE_INVALID.getCode()}),
+    ENTRY44("V58", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), CAREER_CODE_COUNT_ERR.getCode(), CAREER_CODE_INVALID.getCode()}),
+    ENTRY45("V24", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), CAREER_CODE_INVALID.getCode(), INVALID_GRADE_CODE.getCode()}),
+    ENTRY46("V22", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), INVALID_GRADE_CODE.getCode()}),
+    ENTRY47("V23", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), INVALID_GRADE_CODE.getCode()}),
+    ENTRY48("V38", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), INVALID_GRADE_CODE.getCode()}),
+    ENTRY49("V25", new String[]{INVALID_GRADE_CODE.getCode(), SPED_ERR.getCode()}),
+    ENTRY50("V09", new String[]{LEGAL_LAST_NAME_BLANK.getCode()}),
+    ENTRY51("V75", new String[]{ENROLLED_CODE_PARSE_ERR.getCode()}),;
 
 
     @Getter
@@ -69,24 +72,5 @@ public enum ValidationRulesDependencyMatrix {
 
     public static Optional<ValidationRulesDependencyMatrix> findByValue(String ruleID) {
         return Arrays.stream(values()).filter(code -> code.ruleID.equalsIgnoreCase(ruleID)).findFirst();
-    }
-
-    private static class RulesConstants {
-        public static final String FUNDING_CODE_INVALID="FUNDINGCODEINVALID";
-        public static final String ENROLLED_CODE_INVALID="ENROLLEDCODEINVALID";
-        public static final String ENROLLED_CODE_PARSEERR="ENROLLEDCODEPARSEERR";
-        public static final String CAREER_CODE_INVALID="CAREERCODEINVALID";
-        public static final String INVALID_GRADE_CODE="INVALIDGRADECODE";
-        public static final String DOB_INVALID_FORMAT="DOBINVALIDFORMAT";
-        public static final String NO_OF_COURSES_INVALID="NOOFCOURSESINVALID";
-        public static final String SUPPORT_BLOCKS_INVALID="SUPPORTBLOCKSINVALID";
-        public static final String GENDER_INVALID="GENDERINVALID";
-        public static final String LEGAL_LAST_NAME_BLANK = "LEGALLASTNAMEBLANK";
-        public static final String LEGAL_FIRST_NAME_CHAR_FIX = "LEGALFIRSTNAMECHARFIX";
-        public static final String LEGAL_MIDDLE_NAME_CHAR_FIX = "LEGALMIDDLENAMECHARFIX";
-        public static final String LEGAL_LAST_NAME_CHAR_FIX = "LEGALLASTNAMECHARFIX";
-        public static final String USUAL_FIRST_NAME_CHAR_FIX = "USUALFIRSTNAMECHARFIX";
-        public static final String  USUAL_MIDDLE_NAME_CHAR_FIX = "USUALMIDDLENAMECHARFIX";
-        public static final String USUAL_LAST_NAME_CHAR_FIX = "USUALLASTNAMECHARFIX";
     }
 }
