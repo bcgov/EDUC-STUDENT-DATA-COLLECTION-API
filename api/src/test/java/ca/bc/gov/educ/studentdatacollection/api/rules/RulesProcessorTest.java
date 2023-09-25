@@ -361,6 +361,21 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
+    void testDuplicateEnrolledProgramRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setEnrolledGradeCode("08");
+        val school = createMockSchool();
+
+        entity.setEnrolledProgramCodes("4040");
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        assertThat(validationError.size()).isNotZero();
+        assertThat(validationError.get(0).getValidationIssueCode()).isEqualTo(StudentValidationIssueTypeCode.ENROLLED_CODE_DUP_ERR.getCode());
+    }
+
+
+    @Test
     void testDuplicatePenRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
