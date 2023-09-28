@@ -87,6 +87,7 @@ public enum StudentValidationIssueTypeCode {
   SCHOOL_AGED_GRADUATE_SUMMER("SCHLAGEDGRADSUMMER", "School-aged student has graduated and cannot be reported in Summer School. Remove the student from the submission."),
   SCHOOL_AGED_GRADUATE_SUPPORT_BLOCKS("SCHLAGEDGRADSUPPORT", "Graduated school-aged students will not receive funding for support blocks."),
   GRADUATE_STUDENT_INDEPENDENT("GRADSTUDENTINDEPEND", "Graduated adult students are not eligible for funding."),
+  ZERO_COURSES("ZEROCOURSE", "Zero courses reported.")
   ;
 
   /**
