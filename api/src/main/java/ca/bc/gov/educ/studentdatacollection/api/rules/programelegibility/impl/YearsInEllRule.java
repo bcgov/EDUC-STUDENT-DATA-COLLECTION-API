@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityI
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@Slf4j
 @Order
 public class YearsInEllRule implements ProgramEligibilityBaseRule {
   private final ValidationRulesService validationRulesService;
@@ -22,14 +24,23 @@ public class YearsInEllRule implements ProgramEligibilityBaseRule {
 
   @Override
   public boolean shouldExecute(StudentRuleData studentRuleData, List<ProgramEligibilityIssueCode> errors) {
+    log.debug("In shouldExecute of ProgramEligibilityBaseRule - YearsInEllRule: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
+            studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+
+    log.debug("In shouldExecute of ProgramEligibilityBaseRule - YearsInEllRule: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
+            hasNotViolatedBaseRules(errors),
+            studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
     return hasNotViolatedBaseRules(errors);
   }
 
   @Override
   public List<ProgramEligibilityIssueCode> executeValidation(StudentRuleData studentRuleData) {
+    log.debug("In executeValidation of ProgramEligibilityBaseRule - YearsInEllRule for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+
     List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
     var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
     List<String> studentPrograms = validationRulesService.splitString(student.getEnrolledProgramCodes());
+    log.debug("In executeValidation of ProgramEligibilityBaseRule - YearsInEllRule: Enrolled Program - {} for sdcSchoolCollectionStudentID :: {}", studentPrograms, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
     if(!studentPrograms.contains(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode())){
       errors.add(ProgramEligibilityIssueCode.NOT_ENROLLED_ELL);
@@ -40,6 +51,7 @@ public class YearsInEllRule implements ProgramEligibilityBaseRule {
       var yearsInEllEntityOptional = validationRulesService.getStudentYearsInEll(student.getAssignedStudentId().toString());
 
       if (yearsInEllEntityOptional.isPresent()) {
+        log.debug("In executeValidation of ProgramEligibilityBaseRule - YearsInEllRule: Total years in ELL - {} for sdcSchoolCollectionStudentID :: {}", yearsInEllEntityOptional.get().getYearsInEll(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         totalYearsInEll = yearsInEllEntityOptional.get().getYearsInEll();
       }
     }
