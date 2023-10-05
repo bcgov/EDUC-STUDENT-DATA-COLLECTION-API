@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
+@Slf4j
 @Order(4)
 public class InactiveOnlineAdultStudentsRule implements ProgramEligibilityBaseRule {
 
@@ -38,6 +40,9 @@ public class InactiveOnlineAdultStudentsRule implements ProgramEligibilityBaseRu
 
   @Override
   public boolean shouldExecute(StudentRuleData studentRuleData, List<ProgramEligibilityIssueCode> list) {
+    log.debug("In shouldExecute of ProgramEligibilityBaseRule - InactiveOnlineAdultStudentsRule: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
+            studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+
     String facilityType = studentRuleData.getSchool().getFacilityTypeCode();
     var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
     String gradeCode = student.getEnrolledGradeCode();
@@ -48,11 +53,17 @@ public class InactiveOnlineAdultStudentsRule implements ProgramEligibilityBaseRu
     boolean has0Courses = StringUtils.isNotEmpty(numberOfCoursesString) && Double.parseDouble(df.format(Double.valueOf(numberOfCoursesString))) == 0;
     boolean isAdult = Boolean.TRUE.equals(student.getIsAdult());
 
+    log.debug("In shouldExecute of ProgramEligibilityBaseRule - InactiveOnlineAdultStudentsRule: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
+            isOnlineSchool && isInRelevantGrade && has0Courses && isAdult,
+            studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+
     return isOnlineSchool && isInRelevantGrade && has0Courses && isAdult;
   }
 
   @Override
   public List<ProgramEligibilityIssueCode> executeValidation(StudentRuleData studentRuleData) {
+    log.debug("In executeValidation of ProgramEligibilityBaseRule - InactiveOnlineAdultStudentsRule for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+
     List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
     School school = studentRuleData.getSchool();
     var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
@@ -65,6 +76,7 @@ public class InactiveOnlineAdultStudentsRule implements ProgramEligibilityBaseRu
         startOfMonth.minusYears(2),
         startOfMonth
       );
+    log.debug("In executeValidation of ProgramEligibilityBaseRule - InactiveOnlineAdultStudentsRule: No of collections - {},  for sdcSchoolCollectionStudentID :: {}" ,lastTwoYearsOfCollections.size(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
     if (lastTwoYearsOfCollections.isEmpty()
     || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(
