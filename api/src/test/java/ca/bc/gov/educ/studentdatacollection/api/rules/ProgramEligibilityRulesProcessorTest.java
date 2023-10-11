@@ -165,6 +165,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     this.sdcSchoolCollectionRepository.save(oneYearOldSchoolCollection);
     SdcSchoolCollectionStudentEntity oneYearOldStudentEntity = createMockSchoolStudentEntity(oneYearOldSchoolCollection);
     oneYearOldStudentEntity.setAssignedStudentId(assignedStudentID);
+    oneYearOldStudentEntity.setNumberOfCourses("0");
     this.sdcSchoolCollectionStudentRepository.save(oneYearOldStudentEntity);
 
     SdcSchoolCollectionEntity twoYearOldSchoolCollection = createMockSdcSchoolCollectionEntity(
@@ -176,6 +177,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     this.sdcSchoolCollectionRepository.save(twoYearOldSchoolCollection);
     SdcSchoolCollectionStudentEntity twoYearOldStudentEntity = createMockSchoolStudentEntity(twoYearOldSchoolCollection);
     twoYearOldStudentEntity.setAssignedStudentId(assignedStudentID);
+    twoYearOldStudentEntity.setNumberOfCourses("0");
     this.sdcSchoolCollectionStudentRepository.save(twoYearOldStudentEntity);
 
     CollectionEntity currentCollection = collectionRepository.save(createMockCollectionEntity());
@@ -223,6 +225,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     this.sdcSchoolCollectionRepository.save(oneYearOldSchoolCollection);
     SdcSchoolCollectionStudentEntity oneYearOldStudentEntity = createMockSchoolStudentEntity(oneYearOldSchoolCollection);
     oneYearOldStudentEntity.setAssignedStudentId(assignedStudentID);
+    oneYearOldStudentEntity.setNumberOfCourses("0");
     this.sdcSchoolCollectionStudentRepository.save(oneYearOldStudentEntity);
 
     SdcSchoolCollectionEntity twoYearOldSchoolCollection = createMockSdcSchoolCollectionEntity(
@@ -234,6 +237,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     this.sdcSchoolCollectionRepository.save(twoYearOldSchoolCollection);
     SdcSchoolCollectionStudentEntity twoYearOldStudentEntity = createMockSchoolStudentEntity(twoYearOldSchoolCollection);
     twoYearOldStudentEntity.setAssignedStudentId(assignedStudentID);
+    twoYearOldStudentEntity.setNumberOfCourses("0");
     this.sdcSchoolCollectionStudentRepository.save(twoYearOldStudentEntity);
 
     CollectionEntity currentCollection = collectionRepository.save(createMockCollectionEntity());

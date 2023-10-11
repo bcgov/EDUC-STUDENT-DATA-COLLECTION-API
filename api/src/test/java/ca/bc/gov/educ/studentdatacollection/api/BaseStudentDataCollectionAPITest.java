@@ -28,6 +28,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
 import java.util.UUID;
 
 @SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
@@ -58,6 +60,12 @@ public abstract class BaseStudentDataCollectionAPITest {
   SchoolGradeCodeRepository schoolGradeCodeRepository;
   @Autowired
   SchoolFundingGroupCodeRepository schoolFundingGroupCodeRepository;
+  @Autowired
+  CollectionRepository collectionRepository;
+  @Autowired
+  SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+  @Autowired
+  SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
   @BeforeEach
   public void before() {
@@ -67,9 +75,10 @@ public abstract class BaseStudentDataCollectionAPITest {
     bandCodeRepository.save(bandCodeData());
     fundingCodeRepository.save(fundingCodeData());
     fundingCodeRepository.save(fundingCode20Data());
-    enrolledGradeCodeRepository.save(enrolledGradeCodeData());
+    enrolledGradeCodeRepository.save(enrolledGradeCode01Data());
     enrolledGradeCodeRepository.save(enrolledGradeCodeHSData());
-    enrolledGradeCodeRepository.save(enrolledGradeCodeEightData());
+    enrolledGradeCodeRepository.save(enrolledGradeCode08Data());
+    enrolledGradeCodeRepository.save(enrolledGradeCode10Data());
     specialEducationCategoryRepository.save(specialEducationCategoryCodeData());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode08Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode14Data());
@@ -175,7 +184,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setEnrolledGradeCode("08");
     sdcEntity.setEnrolledProgramCodes("");
     sdcEntity.setCareerProgramCode("XA");
-    sdcEntity.setNumberOfCourses(null);
+    sdcEntity.setNumberOfCourses("0400");
     sdcEntity.setBandCode("0500");
     sdcEntity.setPostalCode("V0V0V0");
     sdcEntity.setSdcSchoolCollectionStudentStatusCode("LOADED");
@@ -251,6 +260,20 @@ public abstract class BaseStudentDataCollectionAPITest {
         .schoolCategoryCode("TEST_CC").facilityTypeCode("TEST_FTC").reportingRequirementCode("TEST_RRC")
         .createUser("TEST").createDate(LocalDateTime.now())
         .updateUser("TEST").updateDate(LocalDateTime.now()).build();
+  }
+
+  public UUID createMockHistoricalCollection(int yearsAgo, UUID schoolID, UUID districtID, LocalDateTime currentCollectionCreateDate){
+    CollectionEntity historicalCollectionEntity = collectionRepository.save(createMockCollectionEntity());
+
+    SdcSchoolCollectionEntity historicalSdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(historicalCollectionEntity, schoolID, districtID);
+    historicalSdcSchoolCollectionEntity.setCreateDate(currentCollectionCreateDate.minusYears(yearsAgo));
+    historicalSdcSchoolCollectionEntity.setSchoolID(schoolID);
+    sdcSchoolCollectionRepository.save(historicalSdcSchoolCollectionEntity);
+
+    SdcSchoolCollectionStudentEntity historicalSdcSchoolCollectionStudentEntity = createMockSchoolStudentEntity(historicalSdcSchoolCollectionEntity);
+    sdcSchoolCollectionStudentRepository.save(historicalSdcSchoolCollectionStudentEntity);
+
+    return historicalSdcSchoolCollectionEntity.getSdcSchoolCollectionID();
   }
 
   public static String asJsonString(final Object obj) {
@@ -336,7 +359,7 @@ public abstract class BaseStudentDataCollectionAPITest {
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 
-  public EnrolledGradeCodeEntity enrolledGradeCodeData() {
+  public EnrolledGradeCodeEntity enrolledGradeCode01Data() {
     return EnrolledGradeCodeEntity.builder().enrolledGradeCode("01").description("Grade 1")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Grade 1").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
@@ -348,9 +371,15 @@ public abstract class BaseStudentDataCollectionAPITest {
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 
-  public EnrolledGradeCodeEntity enrolledGradeCodeEightData() {
+  public EnrolledGradeCodeEntity enrolledGradeCode08Data() {
     return EnrolledGradeCodeEntity.builder().enrolledGradeCode("08").description("Grade 8")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Grade 8").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public EnrolledGradeCodeEntity enrolledGradeCode10Data() {
+    return EnrolledGradeCodeEntity.builder().enrolledGradeCode("10").description("Grade 10")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Grade 10").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 
