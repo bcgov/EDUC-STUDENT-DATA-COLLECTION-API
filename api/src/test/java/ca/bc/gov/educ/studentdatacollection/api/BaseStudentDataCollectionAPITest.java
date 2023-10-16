@@ -262,12 +262,16 @@ public abstract class BaseStudentDataCollectionAPITest {
         .updateUser("TEST").updateDate(LocalDateTime.now()).build();
   }
 
-  public UUID createMockHistoricalCollection(int yearsAgo, UUID schoolID, UUID districtID, LocalDateTime currentCollectionCreateDate){
-    CollectionEntity historicalCollectionEntity = collectionRepository.save(createMockCollectionEntity());
+  public UUID createMockHistoricalCollection(int yearsAgo, UUID schoolID, UUID districtID, LocalDateTime currentCollectionOpenDate, String collectionTypeCode){
+    LocalDateTime historicalOpenDate = currentCollectionOpenDate.minusYears(yearsAgo);
+    CollectionEntity historicalCollectionEntity = createMockCollectionEntity();
+    historicalCollectionEntity.setOpenDate(historicalOpenDate);
+    collectionRepository.save(historicalCollectionEntity);
 
     SdcSchoolCollectionEntity historicalSdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(historicalCollectionEntity, schoolID, districtID);
-    historicalSdcSchoolCollectionEntity.setCreateDate(currentCollectionCreateDate.minusYears(yearsAgo));
+    historicalSdcSchoolCollectionEntity.setCreateDate(historicalOpenDate);
     historicalSdcSchoolCollectionEntity.setSchoolID(schoolID);
+    historicalCollectionEntity.setCollectionTypeCode(collectionTypeCode);
     sdcSchoolCollectionRepository.save(historicalSdcSchoolCollectionEntity);
 
     SdcSchoolCollectionStudentEntity historicalSdcSchoolCollectionStudentEntity = createMockSchoolStudentEntity(historicalSdcSchoolCollectionEntity);

@@ -18,6 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cglib.core.Local;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -129,13 +132,19 @@ public class ValidationRulesService {
   public boolean hasNoEnrollmentHistory(StudentRuleData studentRuleData){
       var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
       var school = studentRuleData.getSchool();
-      LocalDateTime startOfMonth;
-      if (student.getCreateDate() == null){
-          startOfMonth = student.getUpdateDate().with(TemporalAdjusters.firstDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
-      } else {
-          startOfMonth = student.getCreateDate().with(TemporalAdjusters.firstDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
+
+      var twoYearAgoCreateDate = sdcSchoolCollectionRepository.getCollectionHistoryStartDate(UUID.fromString(school.getSchoolId()), studentRuleData.getCollectionTypeCode(), student.getSdcSchoolCollection().getCollectionEntity().getOpenDate(), 2);
+      if (twoYearAgoCreateDate == null){
+          twoYearAgoCreateDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getOpenDate().minusYears(2);
       }
-      var lastTwoYearsOfCollections = sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(UUID.fromString(school.getSchoolId()), startOfMonth.minusYears(2), startOfMonth);
-      return lastTwoYearsOfCollections.isEmpty() || sdcSchoolStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(student.getAssignedStudentId(), lastTwoYearsOfCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(), "0") == 0;
+
+      var listOfNumCoursesLastTwoYears = getSdcSchoolStudentRepository().getCollectionHistory(UUID.fromString(school.getSchoolId()), student.getStudentPen(), twoYearAgoCreateDate);
+      for (String numString : listOfNumCoursesLastTwoYears){
+          if (Integer.parseInt(numString) > 0){
+              return false;
+          }
+      }
+
+      return true;
     }
 }
