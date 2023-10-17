@@ -97,6 +97,16 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "ORDER BY s.enrolledGradeCode")
   List<FrenchHeadcountResult> getFrenchHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
+  @Query(value="""
+            SELECT SSCS.numberOfCourses FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS WHERE SSC.schoolID = :schoolID
+            AND C.collectionID = SSC.collectionEntity.collectionID
+            AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
+            AND SSCS.studentPen = :pen
+            AND C.openDate < :currentOpenDate
+            AND C.openDate >= (SELECT C.openDate FROM CollectionEntity C WHERE C.collectionTypeCode = :collectionTypeCode AND EXTRACT(YEAR FROM C.openDate) = EXTRACT(YEAR FROM :currentOpenDate) - :numberOfYearsAgo)
+            """)
+  List<String> getCollectionHistory(UUID schoolID, String pen, LocalDateTime currentOpenDate, String collectionTypeCode, Integer numberOfYearsAgo);
+    
   @Query("SELECT " +
           "COUNT(CASE WHEN ep.enrolledProgramCode = '08' AND s.frenchProgramNonEligReasonCode IS NULL THEN 1 END) AS totalCoreFrench, " +
           "COUNT(CASE WHEN ep.enrolledProgramCode = '08' THEN 1 END) AS reportedCoreFrench, " +

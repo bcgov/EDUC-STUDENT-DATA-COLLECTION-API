@@ -698,8 +698,8 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
+        entity.setNumberOfCourses("0400");
         this.sdcSchoolCollectionStudentRepository.save(entity);
-
         this.mockMvc.perform(
                         put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + entity.getSdcSchoolCollectionStudentID().toString())
                                 .contentType(APPLICATION_JSON)

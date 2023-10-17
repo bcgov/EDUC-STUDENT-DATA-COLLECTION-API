@@ -4,12 +4,16 @@ import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -18,7 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -744,6 +751,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("20150101");
         school.setFacilityTypeCode("DIST_LEARN");
+        entity.setNumberOfCourses("0400");
         val validationErrorDist = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorDist.size()).isZero();
     }
@@ -830,7 +838,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("19890101");
         val saga = createMockStudentRuleData(entity, school);
-        saga.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        saga.setCollectionTypeCode(SEPTEMBER.getTypeCode());
         saga.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
 
@@ -853,7 +861,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("19890101");
         val saga = createMockStudentRuleData(entity, school);
-        saga.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        saga.setCollectionTypeCode(SEPTEMBER.getTypeCode());
         saga.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
 
@@ -876,7 +884,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("20100101");
         val saga = createMockStudentRuleData(entity, school);
-        saga.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+        saga.setCollectionTypeCode(JULY.getTypeCode());
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
 
         PenMatchResult penMatchResult = getPenMatchResult();
@@ -898,7 +906,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("20100101");
         val saga = createMockStudentRuleData(entity, school);
-        saga.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        saga.setCollectionTypeCode(SEPTEMBER.getTypeCode());
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
         saga.getSdcSchoolCollectionStudentEntity().setSupportBlocks("1");
 
@@ -1066,6 +1074,71 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationError.size()).isNotZero();
         val error = validationError.stream().noneMatch(val -> val.getValidationIssueCode().equals("KHGRADECODEINVALID"));
         assertThat(error).isTrue();
+    }
+
+    @Test
+    void testAdultOnlineZeroCourseHistory(){
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var school = createMockSchool();
+        school.setFacilityTypeCode(String.valueOf(DISTONLINE));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        UUID oneYearOldCollectionID = createMockHistoricalCollection(1, entity.getSdcSchoolCollection().getSchoolID(), entity.getSdcSchoolCollection().getDistrictID(), entity.getCreateDate(), String.valueOf(SEPTEMBER));
+        UUID twoYearOldCollectionID = createMockHistoricalCollection(2, entity.getSdcSchoolCollection().getSchoolID(), entity.getSdcSchoolCollection().getDistrictID(), entity.getCreateDate(), String.valueOf(JULY));
+
+        entity.setIsAdult(true);
+        entity.setIsSchoolAged(false);
+        entity.setDob("20040605");
+        entity.setEnrolledGradeCode("10");
+        val validationNoErrorAdultWithClasses = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        assertThat(validationNoErrorAdultWithClasses.size()).isZero();
+
+        entity.setNumberOfCourses("0000");
+        val validationNoErrorAdultWithHistory = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        assertThat(validationNoErrorAdultWithHistory.size()).isZero();
+
+        sdcSchoolCollectionRepository.deleteById(oneYearOldCollectionID);
+        sdcSchoolCollectionRepository.deleteById(twoYearOldCollectionID);
+
+        val validationErrorAdult = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        val errorAdult = validationErrorAdult.stream().anyMatch(val -> val.getValidationIssueCode().equals("ADULTZEROCOURSEH"));
+        assertThat(errorAdult).isTrue();
+    }
+
+    @Test
+    void testSchoolAgedOnlineZeroCourseHistory(){
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var school = createMockSchool();
+        school.setFacilityTypeCode(String.valueOf(DIST_LEARN));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        UUID oneYearOldCollectionID = createMockHistoricalCollection(1, entity.getSdcSchoolCollection().getSchoolID(), entity.getSdcSchoolCollection().getDistrictID(), entity.getCreateDate(), String.valueOf(SEPTEMBER));
+        UUID twoYearOldCollectionID = createMockHistoricalCollection(2, entity.getSdcSchoolCollection().getSchoolID(), entity.getSdcSchoolCollection().getDistrictID(), entity.getCreateDate(), String.valueOf(JULY));
+
+        entity.setIsAdult(false);
+        entity.setIsSchoolAged(true);
+        entity.setEnrolledGradeCode("08");
+        val validationNoErrorSchlAged = rulesProcessor.processRules((createMockStudentRuleData(entity, school)));
+        assertThat(validationNoErrorSchlAged.size()).isZero();
+
+        entity.setEnrolledGradeCode("08");
+        entity.setNumberOfCourses("0000");
+        val validationNoErrorSchlAgedWithHistory = rulesProcessor.processRules((createMockStudentRuleData(entity, school)));
+        val errorSchlAgedWithHistory = validationNoErrorSchlAgedWithHistory.stream().anyMatch(val -> val.getValidationIssueCode().equals("SCHOOLAGEDZEROCOURSEH"));
+        assertThat(errorSchlAgedWithHistory).isFalse();
+
+        sdcSchoolCollectionRepository.deleteById(oneYearOldCollectionID);
+        sdcSchoolCollectionRepository.deleteById(twoYearOldCollectionID);
+
+        val validationErrorSchlAged = rulesProcessor.processRules((createMockStudentRuleData(entity, school)));
+        val errorSchlAged = validationErrorSchlAged.stream().anyMatch(val -> val.getValidationIssueCode().equals("SCHOOLAGEDZEROCOURSEH"));
+        assertThat(errorSchlAged).isTrue();
+
+        entity.setEnrolledGradeCode("01");
+        val validationNoErrorSchlAgedYounger = rulesProcessor.processRules((createMockStudentRuleData(entity, school)));
+        assertThat(validationNoErrorSchlAgedYounger.size()).isZero();
     }
 
 }

@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -113,9 +113,23 @@ public class ValidationRulesService {
     }
   }
 
-  public void updateStudentAgeColumns(SdcSchoolCollectionStudentEntity studentEntity){
-    String studentDOB = studentEntity.getDob();
-    studentEntity.setIsAdult(DOBUtil.isAdult(studentDOB));
-    studentEntity.setIsSchoolAged(DOBUtil.isSchoolAged(studentDOB));
-  }
+  public boolean hasEnrollmentHistory(StudentRuleData studentRuleData){
+      var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
+      var school = studentRuleData.getSchool();
+
+      var listOfNumCoursesLastTwoYears = getSdcSchoolStudentRepository().getCollectionHistory(UUID.fromString(school.getSchoolId()),
+              student.getStudentPen(), student.getSdcSchoolCollection().getCollectionEntity().getOpenDate(), studentRuleData.getCollectionTypeCode(), 2 );
+
+      for (String numString : listOfNumCoursesLastTwoYears){
+          try{
+              if (Integer.parseInt(numString) > 0) {
+                  return true;
+              }
+          } catch (Exception e) {
+              //Do nothing
+          }
+      }
+
+      return false;
+    }
 }
