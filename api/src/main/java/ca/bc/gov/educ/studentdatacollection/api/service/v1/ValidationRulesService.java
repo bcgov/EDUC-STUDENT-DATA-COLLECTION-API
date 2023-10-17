@@ -10,7 +10,6 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepos
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -30,16 +29,14 @@ import static lombok.AccessLevel.PRIVATE;
 public class ValidationRulesService {
     private final CodeTableService codeTableService;
     private final SdcStudentEllRepository sdcStudentEllRepository;
-    private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     @Getter(PRIVATE)
     private final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository;
     private final RestUtils restUtils;
     private static final CodeTableMapper mapper = CodeTableMapper.mapper;
-    public ValidationRulesService(CodeTableService codeTableService, SdcStudentEllRepository sdcStudentEllRepository, SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, RestUtils restUtils) {
+    public ValidationRulesService(CodeTableService codeTableService, SdcStudentEllRepository sdcStudentEllRepository, SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, RestUtils restUtils) {
         this.codeTableService = codeTableService;
         this.sdcStudentEllRepository = sdcStudentEllRepository;
         this.sdcSchoolStudentRepository = sdcSchoolStudentRepository;
-        this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
         this.restUtils = restUtils;
     }
     public Long getDuplicatePenCount(UUID sdcSchoolID, String studentPen) {
