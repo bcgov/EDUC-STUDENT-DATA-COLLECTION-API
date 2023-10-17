@@ -24,6 +24,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -836,7 +838,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("19890101");
         val saga = createMockStudentRuleData(entity, school);
-        saga.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        saga.setCollectionTypeCode(SEPTEMBER.getTypeCode());
         saga.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
 
@@ -859,7 +861,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("19890101");
         val saga = createMockStudentRuleData(entity, school);
-        saga.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        saga.setCollectionTypeCode(SEPTEMBER.getTypeCode());
         saga.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
 
@@ -882,7 +884,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("20100101");
         val saga = createMockStudentRuleData(entity, school);
-        saga.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+        saga.setCollectionTypeCode(JULY.getTypeCode());
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
 
         PenMatchResult penMatchResult = getPenMatchResult();
@@ -904,7 +906,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("20100101");
         val saga = createMockStudentRuleData(entity, school);
-        saga.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        saga.setCollectionTypeCode(SEPTEMBER.getTypeCode());
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
         saga.getSdcSchoolCollectionStudentEntity().setSupportBlocks("1");
 
@@ -1078,12 +1080,12 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     void testAdultOnlineZeroCourseHistory(){
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = createMockSchool();
-        school.setFacilityTypeCode("DISTONLINE");
+        school.setFacilityTypeCode(String.valueOf(DISTONLINE));
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
-        UUID oneYearOldCollectionID = createMockHistoricalCollection(1, entity.getSdcSchoolCollection().getSchoolID(), entity.getSdcSchoolCollection().getDistrictID(), entity.getCreateDate(), "SEPTEMBER");
-        UUID twoYearOldCollectionID = createMockHistoricalCollection(2, entity.getSdcSchoolCollection().getSchoolID(), entity.getSdcSchoolCollection().getDistrictID(), entity.getCreateDate(), "JULY");
+        UUID oneYearOldCollectionID = createMockHistoricalCollection(1, entity.getSdcSchoolCollection().getSchoolID(), entity.getSdcSchoolCollection().getDistrictID(), entity.getCreateDate(), String.valueOf(SEPTEMBER));
+        UUID twoYearOldCollectionID = createMockHistoricalCollection(2, entity.getSdcSchoolCollection().getSchoolID(), entity.getSdcSchoolCollection().getDistrictID(), entity.getCreateDate(), String.valueOf(JULY));
 
         entity.setIsAdult(true);
         entity.setIsSchoolAged(false);
@@ -1108,12 +1110,12 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     void testSchoolAgedOnlineZeroCourseHistory(){
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = createMockSchool();
-        school.setFacilityTypeCode("DIST_LEARN");
+        school.setFacilityTypeCode(String.valueOf(DIST_LEARN));
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
-        UUID oneYearOldCollectionID = createMockHistoricalCollection(1, entity.getSdcSchoolCollection().getSchoolID(), entity.getSdcSchoolCollection().getDistrictID(), entity.getCreateDate(), "SEPTEMBER");
-        UUID twoYearOldCollectionID = createMockHistoricalCollection(2, entity.getSdcSchoolCollection().getSchoolID(), entity.getSdcSchoolCollection().getDistrictID(), entity.getCreateDate(), "JULY");
+        UUID oneYearOldCollectionID = createMockHistoricalCollection(1, entity.getSdcSchoolCollection().getSchoolID(), entity.getSdcSchoolCollection().getDistrictID(), entity.getCreateDate(), String.valueOf(SEPTEMBER));
+        UUID twoYearOldCollectionID = createMockHistoricalCollection(2, entity.getSdcSchoolCollection().getSchoolID(), entity.getSdcSchoolCollection().getDistrictID(), entity.getCreateDate(), String.valueOf(JULY));
 
         entity.setIsAdult(false);
         entity.setIsSchoolAged(true);

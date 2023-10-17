@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CodeTableMapper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcStudentEllEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
@@ -17,18 +16,12 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.cglib.core.Local;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -123,28 +116,23 @@ public class ValidationRulesService {
     }
   }
 
-  public void updateStudentAgeColumns(SdcSchoolCollectionStudentEntity studentEntity){
-    String studentDOB = studentEntity.getDob();
-    studentEntity.setIsAdult(DOBUtil.isAdult(studentDOB));
-    studentEntity.setIsSchoolAged(DOBUtil.isSchoolAged(studentDOB));
-  }
-
-  public boolean hasNoEnrollmentHistory(StudentRuleData studentRuleData){
+  public boolean hasEnrollmentHistory(StudentRuleData studentRuleData){
       var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
       var school = studentRuleData.getSchool();
 
-      var twoYearAgoCreateDate = sdcSchoolCollectionRepository.getCollectionHistoryStartDate(UUID.fromString(school.getSchoolId()), studentRuleData.getCollectionTypeCode(), student.getSdcSchoolCollection().getCollectionEntity().getOpenDate(), 2);
-      if (twoYearAgoCreateDate == null){
-          twoYearAgoCreateDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getOpenDate().minusYears(2);
-      }
+      var listOfNumCoursesLastTwoYears = getSdcSchoolStudentRepository().getCollectionHistory(UUID.fromString(school.getSchoolId()),
+              student.getStudentPen(), student.getSdcSchoolCollection().getCollectionEntity().getOpenDate(), studentRuleData.getCollectionTypeCode(), 2 );
 
-      var listOfNumCoursesLastTwoYears = getSdcSchoolStudentRepository().getCollectionHistory(UUID.fromString(school.getSchoolId()), student.getStudentPen(), twoYearAgoCreateDate);
       for (String numString : listOfNumCoursesLastTwoYears){
-          if (Integer.parseInt(numString) > 0){
-              return false;
+          try{
+              if (Integer.parseInt(numString) > 0) {
+                  return true;
+              }
+          } catch (Exception e) {
+              //Do nothing
           }
       }
 
-      return true;
+      return false;
     }
 }

@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes.*;
+
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
@@ -55,7 +57,7 @@ public class SchoolAgedOnlineZeroCourseHistoryRule implements ValidationBaseRule
 
         boolean isAdult = DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
         String schoolType = studentRuleData.getSchool().getFacilityTypeCode();
-        boolean isOnline = Objects.equals(schoolType, "DIST_LEARN") || Objects.equals(schoolType, "DISTONLINE");
+        boolean isOnline = Objects.equals(schoolType, String.valueOf(DIST_LEARN)) || Objects.equals(schoolType, String.valueOf(DISTONLINE));
 
         if(!isAdult && isOnline){
 
@@ -65,9 +67,9 @@ public class SchoolAgedOnlineZeroCourseHistoryRule implements ValidationBaseRule
             final Double courseCount = TransformUtil.parseNumberOfCourses(courseCountStr, student.getSdcSchoolCollection().getSdcSchoolCollectionID());
 
             var hasRelevantGrade = SchoolGradeCodes.get8PlusGrades().contains(student.getEnrolledGradeCode());
-            boolean hasNoCoursesInLastTwoYears = validationRulesService.hasNoEnrollmentHistory(studentRuleData);
+            boolean hasEnrollmentHistory = validationRulesService.hasEnrollmentHistory(studentRuleData);
 
-            if(courseCount <= 0 && hasRelevantGrade && hasNoCoursesInLastTwoYears){
+            if(courseCount <= 0 && hasRelevantGrade && !hasEnrollmentHistory){
                 log.debug("InvalidUsualLastNameRule-V47: Student has no courses reported within last two years for sdcSchoolCollectionStudentID::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 errors.add(createValidationIssue(
                         StudentValidationIssueSeverityCode.INFO_WARNING,

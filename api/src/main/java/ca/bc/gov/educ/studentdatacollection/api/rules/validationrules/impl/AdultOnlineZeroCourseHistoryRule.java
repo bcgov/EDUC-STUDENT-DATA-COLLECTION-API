@@ -17,6 +17,8 @@ import java.util.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes.*;
+
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
@@ -54,7 +56,7 @@ public class AdultOnlineZeroCourseHistoryRule implements ValidationBaseRule {
 
         boolean isAdult = DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
         String schoolType = studentRuleData.getSchool().getFacilityTypeCode();
-        boolean isOnline = Objects.equals(schoolType, "DIST_LEARN") || Objects.equals(schoolType, "DISTONLINE");
+        boolean isOnline = Objects.equals(schoolType, String.valueOf(DIST_LEARN)) || Objects.equals(schoolType, String.valueOf(DISTONLINE));
 
         if(isAdult && isOnline){
 
@@ -64,9 +66,9 @@ public class AdultOnlineZeroCourseHistoryRule implements ValidationBaseRule {
             final Double courseCount = TransformUtil.parseNumberOfCourses(courseCountStr, student.getSdcSchoolCollection().getSdcSchoolCollectionID());
 
             var hasRelevantGrade = SchoolGradeCodes.getAllowedAdultGrades().contains(student.getEnrolledGradeCode());
-            boolean hasNoCoursesInLastTwoYears = validationRulesService.hasNoEnrollmentHistory(studentRuleData);
+            boolean hasEnrollmentHistory = validationRulesService.hasEnrollmentHistory(studentRuleData);
 
-            if(courseCount <= 0 && hasRelevantGrade && hasNoCoursesInLastTwoYears){
+            if(courseCount <= 0 && hasRelevantGrade && !hasEnrollmentHistory){
                 log.debug("InvalidUsualLastNameRule-V34: Student has no courses reported within last two years for sdcSchoolCollectionStudentID::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 errors.add(createValidationIssue(
                         StudentValidationIssueSeverityCode.INFO_WARNING,
