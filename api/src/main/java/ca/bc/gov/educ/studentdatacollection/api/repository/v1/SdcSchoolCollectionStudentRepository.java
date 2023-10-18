@@ -41,10 +41,10 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   Long countForDuplicateStudentPENs(UUID sdcSchoolID, String studentPen);
 
   @Query(value="""
-    SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE stud.sdcSchoolCollectionStudentID 
-    NOT IN (SELECT saga.sdcSchoolCollectionStudentID FROM SdcSagaEntity saga WHERE saga.status != 'COMPLETED') 
-    AND stud.sdcSchoolCollectionStudentStatusCode = 'LOADED' 
-    order by stud.createDate 
+    SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE stud.sdcSchoolCollectionStudentID
+    NOT IN (SELECT saga.sdcSchoolCollectionStudentID FROM SdcSagaEntity saga WHERE saga.status != 'COMPLETED')
+    AND stud.sdcSchoolCollectionStudentStatusCode = 'LOADED'
+    order by stud.createDate
     LIMIT :numberOfStudentsToProcess""")
   List<SdcSchoolCollectionStudentEntity> findTopLoadedStudentForProcessing(String numberOfStudentsToProcess);
 
@@ -103,9 +103,9 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
             AND SSCS.studentPen = :pen
             AND C.openDate < :currentOpenDate
-            AND C.openDate >= (SELECT C.openDate FROM CollectionEntity C WHERE C.collectionTypeCode = :collectionTypeCode AND EXTRACT(YEAR FROM C.openDate) = EXTRACT(YEAR FROM :currentOpenDate) - :numberOfYearsAgo)
+            AND C.openDate >= (SELECT C.openDate FROM CollectionEntity C WHERE C.collectionTypeCode = :collectionTypeCode AND EXTRACT(YEAR FROM C.openDate) = :targetYear)
             """)
-  List<String> getCollectionHistory(UUID schoolID, String pen, LocalDateTime currentOpenDate, String collectionTypeCode, Integer numberOfYearsAgo);
+  List<String> getCollectionHistory(UUID schoolID, String pen, LocalDateTime currentOpenDate, String collectionTypeCode, Integer targetYear);
     
   @Query("SELECT " +
           "COUNT(CASE WHEN ep.enrolledProgramCode = '08' AND s.frenchProgramNonEligReasonCode IS NULL THEN 1 END) AS totalCoreFrench, " +
