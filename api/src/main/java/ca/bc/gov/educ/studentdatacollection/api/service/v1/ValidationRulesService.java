@@ -10,7 +10,6 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepos
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
-import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -116,9 +115,11 @@ public class ValidationRulesService {
   public boolean hasEnrollmentHistory(StudentRuleData studentRuleData){
       var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
       var school = studentRuleData.getSchool();
+      var twoYearsAgo = student.getSdcSchoolCollection().getCollectionEntity().getOpenDate().getYear() - 2;
+
 
       var listOfNumCoursesLastTwoYears = getSdcSchoolStudentRepository().getCollectionHistory(UUID.fromString(school.getSchoolId()),
-              student.getStudentPen(), student.getSdcSchoolCollection().getCollectionEntity().getOpenDate(), studentRuleData.getCollectionTypeCode(), 2 );
+              student.getStudentPen(), student.getSdcSchoolCollection().getCollectionEntity().getOpenDate(), studentRuleData.getCollectionTypeCode(), twoYearsAgo);
 
       for (String numString : listOfNumCoursesLastTwoYears){
           try{
