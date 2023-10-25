@@ -67,7 +67,7 @@ public enum StudentValidationIssueTypeCode {
   INVALID_POSTAL_CODE("INVALIDPOSTALCODE", "Missing postal code."),
   OTHER_COURSE_INVALID("OTHERCOURSEINVALID", "Number of Other Courses must be blank or a number from 0 to 9."),
   ENROLLED_CODE_PARSE_ERR("ENROLLEDCODEPARSEERR", "List of enrolled program codes could not be parsed. Select the correct program codes for the student."),
-  ENROLLED_CODE_DUP_ERR("ENROLLEDCODEDUPERR", "List of enrolled program codes has a duplicate. Select the correct program codes for the student."),
+  ENROLLED_CODE_DUP_ERR("ENROLLEDCODEDUPERR", "List of enrolled codes contains duplicate codes. Verify that the codes below are the correct codes for the student."),
   INVALID_GRADE_CODE("INVALIDGRADECODE", "Invalid grade code."),
   SPOKEN_LANG_ERR("SPOKENLANGERR", "Primary language spoken in home is invalid."),
   HS_NOT_SCHOOL_AGE("HSNOTSCHOOLAGE", "Students registered in home school must be school-aged. Student must be removed from the submission or have their birthdate adjusted."),
