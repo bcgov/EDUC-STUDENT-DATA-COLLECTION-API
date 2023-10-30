@@ -3,21 +3,21 @@ package ca.bc.gov.educ.studentdatacollection.api.constants.v1;
 import lombok.Getter;
 
 public enum ProgramEligibilityIssueCode {
-  HOMESCHOOL("HOMESCHOOL", "Home schooled students are not eligible for this program."),
-  OFFSHORE("OFFSHORE", "Offshore students are not eligible for this program."),
-  TOO_YOUNG("TOO_YOUNG", "Students that are too young are not eligible for program funding."),
-  OUT_OF_PROVINCE("OUTOFPROV", "Students who are out of province are not eligible for this program."),
-  INACTIVE_ADULT("INACTADULT", "Adult students must have been reported to have 1 or more courses in the last two years to be eligible for this program."),
-  INACTIVE_SCHOOL_AGE("INACTMINOR", "School aged students must have been reported to have 1 or more courses in the last two years to be eligible for this program."),
+  HOMESCHOOL("HOMESCHOOL", "Homeschool students are not eligible for program funding."),
+  OFFSHORE("OFFSHORE", "Offshore students are not eligible program funding."),
+  TOO_YOUNG("TOO_YOUNG", "Students that are \"too young\" are not eligible for program funding."),
+  OUT_OF_PROVINCE("OUTOFPROV", "Out of Province/International students are not eligible for program funding."),
+  INACTIVE_ADULT("INACTADULT", "Students who have not been reported as \"active\" in a new course in the last two years are not eligible for program funding."),
+  INACTIVE_SCHOOL_AGE("INACTMINOR", "Students who have not been reported as \"active\" in a new course in the last two years are not eligible for program funding."),
   NOT_ENROLLED_FRENCH("NTENRFRENC", "The student is not enrolled in french programs."),
   NOT_ENROLLED_CAREER("NTENRCAREE", "The student is not enrolled in career programs."),
   NOT_ENROLLED_INDIGENOUS("NTENRINDIG", "The student is not enrolled in indigenous programs."),
   NOT_ENROLLED_SPECIAL_ED("NTENRSPED", "The student was not reported in any special education programs."),
-  NON_ELIG_SPECIAL_EDUCATION("NELISPED", "Student must be school-aged or a non-graduated adult to be eligible for Special Education funding."),
-  INDIGENOUS_ADULT("ISADULTAGE", "Indigenous students must be school-age to be eligible for indigenous programs."),
+  NON_ELIG_SPECIAL_EDUCATION("NELISPED", "Student must be school-aged and have been reported in ELL for 5 years or less."),
+  INDIGENOUS_ADULT("ISADULTAGE", "Student must be school-aged and self-identify as having Indigenous Ancestry to be eligible for funding for Indigenous Support Programs."),
   YEARS_IN_ELL("ELL5ORLESS", "Student must be school-aged and have been reported in ELL for 5 years or less."),
   NOT_ENROLLED_ELL("NTENRELL", "The student is not enrolled in the ELL program."),
-  NO_INDIGENOUS_ANCESTRY("NOANCESTRY", "Indigenous students must be school-age to be eligible for indigenous programs.");
+  NO_INDIGENOUS_ANCESTRY("NOANCESTRY", "Student must be school-aged and self-identify as having Indigenous Ancestry to be eligible for funding for Indigenous Support Programs.");
 
   @Getter
   private final String code;
