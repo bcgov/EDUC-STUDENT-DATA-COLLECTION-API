@@ -364,7 +364,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorSpace.size()).isNotZero();
         val error1 = validationErrorSpace.stream().anyMatch(val -> val.getValidationIssueCode().equals("ENROLLEDCODEPARSEERR"));
         assertThat(error1).isTrue();
-
+        val downstreamError = validationErrorSpace.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.ENROLLED_CODE_INVALID.getCode()));
+        assertThat(downstreamError).isFalse();
     }
 
     @Test
