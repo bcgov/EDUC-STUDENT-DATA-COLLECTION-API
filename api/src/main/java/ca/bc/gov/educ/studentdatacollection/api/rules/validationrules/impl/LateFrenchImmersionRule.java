@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.EnrolledProgramCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
@@ -38,15 +37,14 @@ public class LateFrenchImmersionRule implements ValidationBaseRule {
         log.debug("In shouldExecute of LateFrenchImmersionRule-V38: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+        var shouldExecute = isValidationDependencyResolved("V38", validationErrorsMap) &&
+                StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
+
         log.debug("In shouldExecute of LateFrenchImmersionRule-V38: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent() &&
-                        isValidationDependencyResolved("V38", validationErrorsMap) &&
-                        StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes()),
+                shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent() &&
-                isValidationDependencyResolved("V38", validationErrorsMap) &&
-                StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
+        return shouldExecute;
     }
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {

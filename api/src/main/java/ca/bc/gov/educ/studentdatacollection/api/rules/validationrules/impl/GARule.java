@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
@@ -30,15 +29,13 @@ public class GARule implements ValidationBaseRule {
         log.debug("In shouldExecute of GARule-V70: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+        var shouldExecute = isValidationDependencyResolved("V70", validationErrorsMap);
+
         log.debug("In shouldExecute of GARule-V70: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                CollectionTypeCodes
-                        .findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode())
-                        .isPresent() && isValidationDependencyResolved("V70", validationErrorsMap),
+                shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        return CollectionTypeCodes
-            .findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode())
-            .isPresent() && isValidationDependencyResolved("V70", validationErrorsMap);
+        return shouldExecute;
     }
 
     @Override

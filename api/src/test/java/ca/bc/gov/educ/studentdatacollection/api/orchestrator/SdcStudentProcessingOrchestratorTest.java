@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.orchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -122,7 +123,9 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
 
     final SdcStudentSagaData sagaData = SdcStudentSagaData.builder()
             .sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity))
-            .school(createMockSchool()).build();
+            .school(createMockSchool())
+            .collectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode())
+            .build();
     val event = Event.builder()
             .sagaId(saga.getSagaId())
             .eventType(EventType.PROCESS_SDC_STUDENT)

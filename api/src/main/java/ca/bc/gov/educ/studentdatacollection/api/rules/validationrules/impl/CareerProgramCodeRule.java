@@ -3,9 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.EnrolledProgramCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolFundingCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -19,9 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID  | Severity | Rule                                                                  | Dependent On |
- *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V58 | ERROR    | Students reported with a valid non-expired Career Program (enrolled program)   |  V30,V59 |
+ *  | ID  | Severity | Rule                                                                           | Dependent On |
+ *  |-----|----------|--------------------------------------------------------------------------------|--------------|
+ *  | V58 | ERROR    | Students reported with a valid non-expired Career Program (enrolled program)   |  V30,V59     |
  *                     or Career Program Type, must be reported with both a Career
  *                     Program and Career Code.
  *
@@ -39,15 +37,14 @@ public class CareerProgramCodeRule implements ValidationBaseRule {
         log.debug("In shouldExecute of CareerProgramCodeRule-V58: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+        var shouldExecute = StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())
+                && isValidationDependencyResolved("V58", validationErrorsMap);
+
         log.debug("In shouldExecute of CareerProgramCodeRule-V58: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent()
-                        && StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())
-                        && isValidationDependencyResolved("V58", validationErrorsMap),
+                shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent()
-                && StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())
-                && isValidationDependencyResolved("V58", validationErrorsMap);
+        return shouldExecute;
     }
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {

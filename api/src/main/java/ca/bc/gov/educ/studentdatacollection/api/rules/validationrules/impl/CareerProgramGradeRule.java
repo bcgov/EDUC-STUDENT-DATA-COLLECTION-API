@@ -3,9 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.EnrolledProgramCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolFundingCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
@@ -39,15 +37,14 @@ public class CareerProgramGradeRule implements ValidationBaseRule {
         log.debug("In shouldExecute of CareerProgramGradeRule-V61: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+        var shouldExecute = StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())
+                && isValidationDependencyResolved("V61", validationErrorsMap);
+
         log.debug("In shouldExecute of CareerProgramGradeRule-V61: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent()
-                        && StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())
-                        && isValidationDependencyResolved("V61", validationErrorsMap),
+                shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent()
-                && StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())
-                && isValidationDependencyResolved("V61", validationErrorsMap);
+        return shouldExecute;
     }
 
     @Override

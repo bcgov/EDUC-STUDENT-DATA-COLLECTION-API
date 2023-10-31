@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -18,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  | ID  | Severity | Rule                                                                  | Dependent On |
- *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | ID  | Severity | Rule                                                                    | Dependent On |
+ *  |-----|----------|-------------------------------------------------------------------------|--------------|
  *  | V42 | WARNING    | For students reported in grade 8, 9, 10, 11, 12, SU, or GA , their    | V29          |
  *                     Number of Courses should be less than 15.
  */
@@ -33,14 +32,12 @@ public class MaximumNumberOfCoursesRule implements ValidationBaseRule {
         log.debug("In shouldExecute of MaximumNumberOfCoursesRule-V42: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+        var shouldExecute = isValidationDependencyResolved("V42", validationErrorsMap);
+
         log.debug("In shouldExecute of MaximumNumberOfCoursesRule-V42: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                CollectionTypeCodes
-                        .findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode())
-                        .isPresent() && isValidationDependencyResolved("V42", validationErrorsMap),
+                shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        return CollectionTypeCodes
-            .findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode())
-            .isPresent() && isValidationDependencyResolved("V42", validationErrorsMap);
+        return shouldExecute;
     }
 
     @Override
