@@ -29,11 +29,13 @@ public class GARule implements ValidationBaseRule {
         log.debug("In shouldExecute of GARule-V70: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+        var shouldExecute = isValidationDependencyResolved("V70", validationErrorsMap);
+
         log.debug("In shouldExecute of GARule-V70: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                isValidationDependencyResolved("V70", validationErrorsMap),
+                shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        return isValidationDependencyResolved("V70", validationErrorsMap);
+        return shouldExecute;
     }
 
     @Override

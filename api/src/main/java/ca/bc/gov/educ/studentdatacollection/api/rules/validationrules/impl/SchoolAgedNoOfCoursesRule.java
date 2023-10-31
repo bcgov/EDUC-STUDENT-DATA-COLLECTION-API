@@ -36,11 +36,12 @@ public class SchoolAgedNoOfCoursesRule implements ValidationBaseRule {
         log.debug("In shouldExecute of SchoolAgedNoOfCoursesRule-V46: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+        var shouldExecute = isValidationDependencyResolved("V46", validationErrorsMap);
+
         log.debug("In shouldExecute of SchoolAgedNoOfCoursesRule-V46: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-               isValidationDependencyResolved("V43", validationErrorsMap) &&
-                        studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode().equals(SchoolGradeCodes.HOMESCHOOL.getCode()),
+                shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        return isValidationDependencyResolved("V46", validationErrorsMap);
+        return shouldExecute;
     }
 
     @Override

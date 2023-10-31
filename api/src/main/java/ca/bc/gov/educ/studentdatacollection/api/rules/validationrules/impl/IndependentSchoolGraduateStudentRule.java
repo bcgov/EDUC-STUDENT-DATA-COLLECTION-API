@@ -40,19 +40,17 @@ public class IndependentSchoolGraduateStudentRule extends BaseAdultSchoolAgeRule
         log.debug("In shouldExecute of IndependentSchoolGraduateStudentRule-V49: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        log.debug("In shouldExecute of IndependentSchoolGraduateStudentRule-V49: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
-                        && (studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) ||
-                        studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))
-                        && isValidationDependencyResolved("V49", validationErrorsMap)
-                        && DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob()),
-                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-
-        return !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
+        var shouldExecute = !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
                 && (studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) ||
-                   studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))
+                studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))
                 && isValidationDependencyResolved("V49", validationErrorsMap)
                 && DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
+
+        log.debug("In shouldExecute of IndependentSchoolGraduateStudentRule-V49: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
+                shouldExecute,
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+
+        return shouldExecute;
     }
 
     @Override

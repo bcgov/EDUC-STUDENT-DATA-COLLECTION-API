@@ -32,13 +32,14 @@ public class HomeSchoolSpecialEducRule implements ValidationBaseRule {
         log.debug("In shouldExecute of HomeSchoolSpecialEducRule-V25: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+        var shouldExecute = isValidationDependencyResolved("V25", validationErrorsMap) &&
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode().equals(SchoolGradeCodes.HOMESCHOOL.getCode());
+
         log.debug("In shouldExecute of HomeSchoolSpecialEducRule-V25: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                isValidationDependencyResolved("V25", validationErrorsMap) &&
-                        studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode().equals(SchoolGradeCodes.HOMESCHOOL.getCode()),
+                shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        return isValidationDependencyResolved("V25", validationErrorsMap) &&
-                studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode().equals(SchoolGradeCodes.HOMESCHOOL.getCode());
+        return shouldExecute;
     }
 
     @Override

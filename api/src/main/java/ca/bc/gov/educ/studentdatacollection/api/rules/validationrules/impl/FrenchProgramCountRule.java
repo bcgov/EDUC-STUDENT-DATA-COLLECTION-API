@@ -36,13 +36,14 @@ public class FrenchProgramCountRule implements ValidationBaseRule {
         log.debug("In shouldExecute of FrenchProgramCountRule-V31: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+        var shouldExecute = StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes()) &&
+                isValidationDependencyResolved("V31", validationErrorsMap);
+
         log.debug("In shouldExecute of FrenchProgramCountRule-V31: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes()) &&
-                        isValidationDependencyResolved("V31", validationErrorsMap),
+                shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        return StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes()) &&
-                isValidationDependencyResolved("V31", validationErrorsMap);
+        return shouldExecute;
     }
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {

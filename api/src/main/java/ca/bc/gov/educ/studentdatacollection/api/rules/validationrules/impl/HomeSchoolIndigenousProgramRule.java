@@ -41,15 +41,15 @@ public class HomeSchoolIndigenousProgramRule implements ValidationBaseRule {
         log.debug("In shouldExecute of HomeSchoolIndigenousProgramRule-V23: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        log.debug("In shouldExecute of HomeSchoolIndigenousProgramRule-V23: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                isValidationDependencyResolved("V23", validationErrorsMap) &&
-                        studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode().equals(SchoolGradeCodes.HOMESCHOOL.getCode()) &&
-                        StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes()),
-                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-
-        return isValidationDependencyResolved("V23", validationErrorsMap) &&
+        var shouldExecute = isValidationDependencyResolved("V23", validationErrorsMap) &&
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode().equals(SchoolGradeCodes.HOMESCHOOL.getCode()) &&
                 StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
+
+        log.debug("In shouldExecute of HomeSchoolIndigenousProgramRule-V23: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
+                shouldExecute,
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+
+        return shouldExecute;
     }
 
     @Override

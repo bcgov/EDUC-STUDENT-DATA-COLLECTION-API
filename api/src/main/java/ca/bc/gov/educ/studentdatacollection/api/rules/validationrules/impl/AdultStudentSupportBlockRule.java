@@ -33,15 +33,15 @@ public class AdultStudentSupportBlockRule implements ValidationBaseRule {
         log.debug("In shouldExecute of AdultStudentSupportBlockRule-V68: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        log.debug("In shouldExecute of AdultStudentSupportBlockRule-V68: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
-                        && isValidationDependencyResolved("V68", validationErrorsMap)
-                        && DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob()),
-                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-
-        return !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
+        var shouldExecute = !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
                 && isValidationDependencyResolved("V68", validationErrorsMap)
                 && DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
+
+        log.debug("In shouldExecute of AdultStudentSupportBlockRule-V68: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
+                shouldExecute,
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+
+        return shouldExecute;
     }
 
     @Override

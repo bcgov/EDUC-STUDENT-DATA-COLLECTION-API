@@ -40,17 +40,16 @@ public class AdultGraduatesRule extends BaseAdultSchoolAgeRule implements Valida
         log.debug("In shouldExecute of AdultGraduatesRule-V48: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        log.debug("In shouldExecute of AdultGraduatesRule-V48: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode())
-                        && !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
-                        && isValidationDependencyResolved("V48", validationErrorsMap)
-                        && DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob()),
-                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-
-        return  studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode())
+        var shouldExecute = studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode())
                 && !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
                 && isValidationDependencyResolved("V48", validationErrorsMap)
                 && DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
+
+        log.debug("In shouldExecute of AdultGraduatesRule-V48: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
+                shouldExecute,
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+
+        return  shouldExecute;
     }
 
     @Override

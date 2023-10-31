@@ -37,13 +37,14 @@ public class LateFrenchImmersionRule implements ValidationBaseRule {
         log.debug("In shouldExecute of LateFrenchImmersionRule-V38: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+        var shouldExecute = isValidationDependencyResolved("V38", validationErrorsMap) &&
+                StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
+
         log.debug("In shouldExecute of LateFrenchImmersionRule-V38: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                isValidationDependencyResolved("V38", validationErrorsMap) &&
-                        StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes()),
+                shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        return isValidationDependencyResolved("V38", validationErrorsMap) &&
-                StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
+        return shouldExecute;
     }
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {

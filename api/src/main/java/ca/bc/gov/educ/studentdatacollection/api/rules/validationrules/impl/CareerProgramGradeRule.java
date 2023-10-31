@@ -37,13 +37,14 @@ public class CareerProgramGradeRule implements ValidationBaseRule {
         log.debug("In shouldExecute of CareerProgramGradeRule-V61: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+        var shouldExecute = StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())
+                && isValidationDependencyResolved("V61", validationErrorsMap);
+
         log.debug("In shouldExecute of CareerProgramGradeRule-V61: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())
-                        && isValidationDependencyResolved("V61", validationErrorsMap),
+                shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        return StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())
-                && isValidationDependencyResolved("V61", validationErrorsMap);
+        return shouldExecute;
     }
 
     @Override

@@ -42,11 +42,13 @@ public class SchoolAgedOnlineZeroCourseHistoryRule implements ValidationBaseRule
         log.debug("In shouldExecute of ZeroCoursesReportedRule-V47: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+        var shouldExecute = isValidationDependencyResolved("V47", validationErrorsMap);
+
         log.debug("In shouldExecute of ZeroCoursesReportedRule-V47: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                isValidationDependencyResolved("V47", validationErrorsMap),
+                shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        return isValidationDependencyResolved("V47", validationErrorsMap);
+        return shouldExecute;
     }
 
 

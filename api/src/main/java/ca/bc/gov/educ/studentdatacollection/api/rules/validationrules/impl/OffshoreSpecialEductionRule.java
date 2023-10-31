@@ -31,14 +31,14 @@ public class OffshoreSpecialEductionRule implements ValidationBaseRule {
         log.debug("In shouldExecute of OffshoreSpecialEductionRule-V55: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        log.debug("In shouldExecute of OffshoreSpecialEductionRule-V55: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
-                        && studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())
-                        && isValidationDependencyResolved("V55", validationErrorsMap),
-                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        return !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
+        var shouldExecute = !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
                 && studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())
                 && isValidationDependencyResolved("V55", validationErrorsMap);
+
+        log.debug("In shouldExecute of OffshoreSpecialEductionRule-V55: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
+                shouldExecute,
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+        return shouldExecute;
     }
 
     @Override

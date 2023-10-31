@@ -34,15 +34,15 @@ public class AdultOLGradeRule implements ValidationBaseRule {
         log.debug("In shouldExecute of AdultOLGradeRule-V57: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        log.debug("In shouldExecute of AdultOLGradeRule-V57: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
-                        && isValidationDependencyResolved("V57", validationErrorsMap)
-                        && DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob()),
-                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-
-        return !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
+        var shouldExecute = !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
                 && isValidationDependencyResolved("V57", validationErrorsMap)
                 && DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
+
+        log.debug("In shouldExecute of AdultOLGradeRule-V57: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
+                shouldExecute,
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+
+        return shouldExecute;
     }
 
     @Override

@@ -33,12 +33,13 @@ public class SupportBlocksOLRule implements ValidationBaseRule {
         log.debug("In shouldExecute of SupportBlocksOLRule-V66: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        log.debug("In shouldExecute of SupportBlocksOLRule-V66: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                !studentRuleData.getCollectionTypeCode().equals(CollectionTypeCodes.JULY.getTypeCode())
-                        && isValidationDependencyResolved("V66", validationErrorsMap),
-                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        return !studentRuleData.getCollectionTypeCode().equals(CollectionTypeCodes.JULY.getTypeCode())
+        var shouldExecute = !studentRuleData.getCollectionTypeCode().equals(CollectionTypeCodes.JULY.getTypeCode())
                 && isValidationDependencyResolved("V66", validationErrorsMap);
+
+        log.debug("In shouldExecute of SupportBlocksOLRule-V66: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
+                shouldExecute,
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+        return shouldExecute;
     }
 
     @Override

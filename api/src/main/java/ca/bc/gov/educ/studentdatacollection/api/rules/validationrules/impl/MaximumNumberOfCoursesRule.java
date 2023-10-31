@@ -32,10 +32,12 @@ public class MaximumNumberOfCoursesRule implements ValidationBaseRule {
         log.debug("In shouldExecute of MaximumNumberOfCoursesRule-V42: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+        var shouldExecute = isValidationDependencyResolved("V42", validationErrorsMap);
+
         log.debug("In shouldExecute of MaximumNumberOfCoursesRule-V42: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-                isValidationDependencyResolved("V42", validationErrorsMap),
+                shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        return isValidationDependencyResolved("V42", validationErrorsMap);
+        return shouldExecute;
     }
 
     @Override
