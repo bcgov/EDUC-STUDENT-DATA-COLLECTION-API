@@ -2,18 +2,13 @@ package ca.bc.gov.educ.studentdatacollection.api.rules;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -669,6 +664,16 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorInvalidDate.size()).isNotZero();
         assertThat(validationErrorInvalidDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
+        entity.setDob("19000101");
+        val validationErrorDeadPersonDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        assertThat(validationErrorDeadPersonDate.size()).isNotZero();
+        assertThat(validationErrorDeadPersonDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
+
+        entity.setDob(LocalDate.now().plusYears(2).format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+        val validationErrorFuturePersonDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        assertThat(validationErrorFuturePersonDate.size()).isNotZero();
+        assertThat(validationErrorFuturePersonDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
+
         entity.setDob("19890101");
         entity.setNumberOfCourses("0000");
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
@@ -724,6 +729,16 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationErrorInvalidDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorInvalidDate.size()).isNotZero();
         assertThat(validationErrorInvalidDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
+
+        entity.setDob("19000101");
+        val validationErrorDeadPersonDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        assertThat(validationErrorDeadPersonDate.size()).isNotZero();
+        assertThat(validationErrorDeadPersonDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
+
+        entity.setDob(LocalDate.now().plusYears(2).format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+        val validationErrorFuturePersonDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        assertThat(validationErrorFuturePersonDate.size()).isNotZero();
+        assertThat(validationErrorFuturePersonDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
         entity.setDob("20180101");
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));

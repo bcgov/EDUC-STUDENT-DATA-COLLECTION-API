@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
@@ -38,7 +37,7 @@ public class BirthDateRule implements ValidationBaseRule {
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
         log.debug("In shouldExecute of BirthDateRule-V04: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        return CollectionTypeCodes.findByValue(studentRuleData.getCollectionTypeCode(), studentRuleData.getSchool().getSchoolCategoryCode()).isPresent();
+        return true;
     }
 
     @Override
@@ -52,7 +51,7 @@ public class BirthDateRule implements ValidationBaseRule {
         } else {
             try {
                 LocalDate dob = LocalDate.parse(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob(), format);
-                LocalDate date = LocalDate.of(1900, Month.JANUARY, 01);
+                LocalDate date = LocalDate.of(1900, Month.JANUARY, 02);
                 if (dob.isAfter(LocalDate.now()) || dob.isBefore(date)) {
                     log.debug("BirthDateRule-V04: DOB - {} is either before 01-01-1900 or is in the future for sdcSchoolCollectionStudentID :: {}", dob, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                     errors.add(setValidationError());
