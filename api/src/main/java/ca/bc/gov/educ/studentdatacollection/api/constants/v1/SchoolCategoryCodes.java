@@ -12,7 +12,7 @@ public enum SchoolCategoryCodes {
     MISC("MISC"),
     PUBLIC("PUBLIC"),
     INDEPEND("INDEPEND"),
-
+    FED_BAND("FED_BAND"),
     OFFSHORE("OFFSHORE"),
     EAR_LEARN("EAR_LEARN"),
     YUKON("YUKON"),
