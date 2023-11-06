@@ -1,4 +1,4 @@
-# PEN Registry Batch API
+# EDUC-STUDENT-DATA-COLLECTION-API
 ## Build Setup
 
 ``` bash
