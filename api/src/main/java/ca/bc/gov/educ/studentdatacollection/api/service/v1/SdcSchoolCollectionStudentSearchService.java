@@ -6,6 +6,8 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionA
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.studentdatacollection.api.filter.SdcSchoolCollectionStudentFilterSpecs;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentPaginationRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Search;
@@ -44,11 +46,13 @@ public class SdcSchoolCollectionStudentSearchService {
 
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
+  private final SdcSchoolCollectionStudentPaginationRepository sdcSchoolCollectionStudentPaginationRepository;
+
   private final Executor paginatedQueryExecutor = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
 
-  public Specification<SdcSchoolCollectionStudentEntity> getSpecifications(Specification<SdcSchoolCollectionStudentEntity> schoolSpecs, int i, Search search) {
+  public Specification<SdcSchoolCollectionStudentPaginationEntity> getSpecifications(Specification<SdcSchoolCollectionStudentPaginationEntity> schoolSpecs, int i, Search search) {
     if (i == 0) {
       schoolSpecs = getSchoolCollectionStudentEntitySpecification(search.getSearchCriteriaList());
     } else {
@@ -61,8 +65,8 @@ public class SdcSchoolCollectionStudentSearchService {
     return schoolSpecs;
   }
 
-  private Specification<SdcSchoolCollectionStudentEntity> getSchoolCollectionStudentEntitySpecification(List<SearchCriteria> criteriaList) {
-    Specification<SdcSchoolCollectionStudentEntity> studentSpecs = null;
+  private Specification<SdcSchoolCollectionStudentPaginationEntity> getSchoolCollectionStudentEntitySpecification(List<SearchCriteria> criteriaList) {
+    Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs = null;
     if (!criteriaList.isEmpty()) {
       int i = 0;
       for (SearchCriteria criteria : criteriaList) {
@@ -71,7 +75,7 @@ public class SdcSchoolCollectionStudentSearchService {
           if(StringUtils.isNotBlank(criteria.getValue()) && TransformUtil.isUppercaseField(SdcSchoolCollectionStudentEntity.class, criteria.getKey())) {
             criteriaValue = criteriaValue.toUpperCase();
           }
-          Specification<SdcSchoolCollectionStudentEntity> typeSpecification = getTypeSpecification(criteria.getKey(), criteria.getOperation(), criteriaValue, criteria.getValueType());
+          Specification<SdcSchoolCollectionStudentPaginationEntity> typeSpecification = getTypeSpecification(criteria.getKey(), criteria.getOperation(), criteriaValue, criteria.getValueType());
           studentSpecs = getSpecificationPerGroup(studentSpecs, i, criteria, typeSpecification);
           i++;
         } else {
@@ -82,7 +86,7 @@ public class SdcSchoolCollectionStudentSearchService {
     return studentSpecs;
   }
 
-  private Specification<SdcSchoolCollectionStudentEntity> getSpecificationPerGroup(Specification<SdcSchoolCollectionStudentEntity> schoolEntitySpecification, int i, SearchCriteria criteria, Specification<SdcSchoolCollectionStudentEntity> typeSpecification) {
+  private Specification<SdcSchoolCollectionStudentPaginationEntity> getSpecificationPerGroup(Specification<SdcSchoolCollectionStudentPaginationEntity> schoolEntitySpecification, int i, SearchCriteria criteria, Specification<SdcSchoolCollectionStudentPaginationEntity> typeSpecification) {
     if (i == 0) {
       schoolEntitySpecification = Specification.where(typeSpecification);
     } else {
@@ -95,8 +99,8 @@ public class SdcSchoolCollectionStudentSearchService {
     return schoolEntitySpecification;
   }
 
-  private Specification<SdcSchoolCollectionStudentEntity> getTypeSpecification(String key, FilterOperation filterOperation, String value, ValueType valueType) {
-    Specification<SdcSchoolCollectionStudentEntity> schoolEntitySpecification = null;
+  private Specification<SdcSchoolCollectionStudentPaginationEntity> getTypeSpecification(String key, FilterOperation filterOperation, String value, ValueType valueType) {
+    Specification<SdcSchoolCollectionStudentPaginationEntity> schoolEntitySpecification = null;
     switch (valueType) {
       case STRING:
         schoolEntitySpecification = sdcSchoolCollectionStudentFilterSpecs.getStringTypeSpecification(key, value, filterOperation);
@@ -123,13 +127,13 @@ public class SdcSchoolCollectionStudentSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public CompletableFuture<Page<SdcSchoolCollectionStudentEntity>> findAll(Specification<SdcSchoolCollectionStudentEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
+  public CompletableFuture<Page<SdcSchoolCollectionStudentPaginationEntity>> findAll(Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
     log.trace("In find all query: {}", studentSpecs);
     return CompletableFuture.supplyAsync(() -> {
       Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sorts));
       try {
         log.trace("Running paginated query: {}", studentSpecs);
-        var results = this.sdcSchoolCollectionStudentRepository.findAll(studentSpecs, paging);
+        var results = this.sdcSchoolCollectionStudentPaginationRepository.findAll(studentSpecs, paging);
         log.trace("Paginated query returned with results: {}", results);
         return results;
       } catch (final Throwable ex) {
@@ -140,8 +144,8 @@ public class SdcSchoolCollectionStudentSearchService {
 
   }
 
-  public Specification<SdcSchoolCollectionStudentEntity> setSpecificationAndSortCriteria(String sortCriteriaJson, String searchCriteriaListJson, ObjectMapper objectMapper, List<Sort.Order> sorts) {
-    Specification<SdcSchoolCollectionStudentEntity> schoolSpecs = null;
+  public Specification<SdcSchoolCollectionStudentPaginationEntity> setSpecificationAndSortCriteria(String sortCriteriaJson, String searchCriteriaListJson, ObjectMapper objectMapper, List<Sort.Order> sorts) {
+    Specification<SdcSchoolCollectionStudentPaginationEntity> schoolSpecs = null;
     try {
       RequestUtil.getSortCriteria(sortCriteriaJson, objectMapper, sorts);
       if (StringUtils.isNotBlank(searchCriteriaListJson)) {
