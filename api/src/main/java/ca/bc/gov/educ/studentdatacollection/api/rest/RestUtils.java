@@ -135,13 +135,19 @@ public class RestUtils {
       val penMatchRequest = PenMatchSagaMapper.mapper.toPenMatchStudent(sdcSchoolStudent, mincode);
       penMatchRequest.setDob(StringUtils.replace(penMatchRequest.getDob(), "-", "")); // pen-match api expects yyyymmdd
       val penMatchRequestJson = JsonUtil.mapper.writeValueAsString(penMatchRequest);
-      final TypeReference<PenMatchResult> ref = new TypeReference<>() {
+      final TypeReference<Event> ref = new TypeReference<>() {
+      };
+      final TypeReference<PenMatchResult> refPenMatchResult = new TypeReference<>() {
       };
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.PROCESS_PEN_MATCH).eventPayload(penMatchRequestJson).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.PEN_MATCH_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
-        log.debug("PEN Match Payload is :: " + responseMessage);
-        return objectMapper.readValue(responseMessage.getData(), ref);
+        log.debug("PEN Match responseMessage is :: " + responseMessage);
+        val eventResponse = objectMapper.readValue(responseMessage.getData(), ref);
+        log.debug("PEN Match eventResponse is :: " + responseMessage);
+        val penMatchResult = objectMapper.readValue(eventResponse.getEventPayload(), refPenMatchResult);
+        log.debug("PEN Match Result is :: " + penMatchResult);
+        return penMatchResult;
       } else {
         throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
