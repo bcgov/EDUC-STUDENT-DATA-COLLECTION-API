@@ -46,8 +46,13 @@ public class YearsInEllRule implements ProgramEligibilityBaseRule {
       errors.add(ProgramEligibilityIssueCode.NOT_ENROLLED_ELL);
     }
 
+    //Ensure that PEN Match has been run for the student.
+    if (student.getIsGraduated() == null) {
+      validationRulesService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
+    }
+
     var totalYearsInEll = 0;
-    if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
+    if (student.getAssignedStudentId() != null) {
       var yearsInEllEntityOptional = validationRulesService.getStudentYearsInEll(student.getAssignedStudentId().toString());
 
       if (yearsInEllEntityOptional.isPresent()) {
