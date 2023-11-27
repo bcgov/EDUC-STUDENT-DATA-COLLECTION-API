@@ -447,27 +447,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorSped.size()).isNotZero();
         val error1 = validationErrorSped.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSSPED"));
         assertThat(error1).isTrue();
-
-        entity.setEnrolledProgramCodes("33");
-        entity.setCareerProgramCode("XA");
-        val validationErrorCarProg = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
-        assertThat(validationErrorCarProg.size()).isNotZero();
-        val error2 = validationErrorCarProg.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSCAREER"));
-        assertThat(error2).isTrue();
-
-        entity.setEnrolledProgramCodes("40");
-        entity.setSpecialEducationCategoryCode(null);
-        val validationErrorCarr = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
-        assertThat(validationErrorCarr.size()).isNotZero();
-        val error3 = validationErrorCarProg.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSCAREER") && val.getValidationIssueSeverityCode().equals("FUNDING_WARNING"));
-        assertThat(error3).isTrue();
-
-        entity.setEnrolledProgramCodes("40");
-        entity.setSpecialEducationCategoryCode(null);
-        val validationErrorCarrCodes = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
-        assertThat(validationErrorCarrCodes.size()).isNotZero();
-        val error4 = validationErrorCarProg.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSCAREER") && val.getValidationIssueSeverityCode().equals("FUNDING_WARNING"));
-        assertThat(error4).isTrue();
     }
 
     @Test
@@ -986,18 +965,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         val school = createMockSchool();
         school.setSchoolCategoryCode("OFFSHORE");
-
-        entity.setSpecialEducationCategoryCode("05");
-        val validationErrorDOB = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
-        assertThat(validationErrorDOB.size()).isNotZero();
-        val error = validationErrorDOB.stream().noneMatch(val -> val.getValidationIssueCode().equals("SPEDOFFSHOREERR"));
-        assertThat(error).isTrue();
-
-        entity.setEnrolledProgramCodes("40");
-        val validationErrorInd = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
-        assertThat(validationErrorInd.size()).isNotZero();
-        val error1 = validationErrorInd.stream().anyMatch(val -> val.getValidationIssueCode().equals("CAREEROFFSHOREERR"));
-        assertThat(error1).isTrue();
     }
 
     @Test
@@ -1034,9 +1001,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         school.setSchoolCategoryCode("OFFSHORE");
         entity.setPostalCode(null);
         val validationErrorInd = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
-        assertThat(validationErrorInd.size()).isNotZero();
-        val error1 = validationErrorInd.stream().anyMatch(val -> val.getValidationIssueCode().equals("MISSINGPOSTALCODE"));
-        assertThat(error1).isFalse();
+        assertThat(validationErrorInd.size()).isZero();
 
         entity.setPostalCode("11111");
         val validationPattern = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));

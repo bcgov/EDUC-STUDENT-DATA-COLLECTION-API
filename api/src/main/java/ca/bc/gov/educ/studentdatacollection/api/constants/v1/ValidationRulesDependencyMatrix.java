@@ -39,7 +39,6 @@ public enum ValidationRulesDependencyMatrix {
     ENTRY29("V47", new String[]{NO_OF_COURSES_INVALID.getCode(), DOB_INVALID_FORMAT.getCode(), INVALID_GRADE_CODE.getCode()}),
     ENTRY30("V34", new String[]{NO_OF_COURSES_INVALID.getCode(), DOB_INVALID_FORMAT.getCode(), INVALID_GRADE_CODE.getCode()}),
     ENTRY31("V42", new String[]{NO_OF_COURSES_INVALID.getCode()}),
-    ENTRY32("V55", new String[]{SPED_ERR.getCode()}),
     ENTRY33("V65", new String[]{NO_OF_COURSES_INVALID.getCode(), INVALID_GRADE_CODE.getCode(), SUPPORT_BLOCKS_INVALID.getCode()}),
     ENTRY34("V68", new String[]{DOB_INVALID_FORMAT.getCode(), SUPPORT_BLOCKS_INVALID.getCode(), INVALID_GRADE_CODE.getCode()}),
     ENTRY35("V69", new String[]{DOB_INVALID_FORMAT.getCode(), SUPPORT_BLOCKS_INVALID.getCode(), INVALID_GRADE_CODE.getCode(), GENDER_INVALID.getCode(), LEGAL_LAST_NAME_BLANK.getCode(), LEGAL_FIRST_NAME_CHAR_FIX.getCode(), LEGAL_MIDDLE_NAME_CHAR_FIX.getCode(), LEGAL_LAST_NAME_CHAR_FIX.getCode(), USUAL_FIRST_NAME_CHAR_FIX.getCode(), USUAL_MIDDLE_NAME_CHAR_FIX.getCode(), USUAL_LAST_NAME_CHAR_FIX.getCode()}),
@@ -49,10 +48,8 @@ public enum ValidationRulesDependencyMatrix {
     ENTRY39("V51", new String[]{FUNDING_CODE_INVALID.getCode(), ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode()}),
     ENTRY40("V31", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode()}),
     ENTRY41("V19", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode()}),
-    ENTRY42("V56", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), CAREER_CODE_INVALID.getCode()}),
     ENTRY43("V61", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), INVALID_GRADE_CODE.getCode(), CAREER_CODE_COUNT_ERR.getCode(), CAREER_CODE_INVALID.getCode()}),
     ENTRY44("V58", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), CAREER_CODE_COUNT_ERR.getCode(), CAREER_CODE_INVALID.getCode()}),
-    ENTRY45("V24", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), CAREER_CODE_INVALID.getCode(), INVALID_GRADE_CODE.getCode()}),
     ENTRY46("V22", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), INVALID_GRADE_CODE.getCode()}),
     ENTRY47("V23", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), INVALID_GRADE_CODE.getCode()}),
     ENTRY48("V38", new String[]{ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode(), INVALID_GRADE_CODE.getCode()}),
@@ -60,7 +57,7 @@ public enum ValidationRulesDependencyMatrix {
     ENTRY50("V09", new String[]{LEGAL_LAST_NAME_BLANK.getCode()}),
     ENTRY51("V75", new String[]{ENROLLED_CODE_PARSE_ERR.getCode()}),
     ENTRY52("V34", new String[]{NO_OF_COURSES_INVALID.getCode(), INVALID_GRADE_CODE.getCode(), DOB_INVALID_FORMAT.getCode()}),
-    ENTRY53("V47", new String[]{NO_OF_COURSES_INVALID.getCode(), INVALID_GRADE_CODE.getCode(), DOB_INVALID_FORMAT.getCode()});;
+    ENTRY53("V47", new String[]{NO_OF_COURSES_INVALID.getCode(), INVALID_GRADE_CODE.getCode(), DOB_INVALID_FORMAT.getCode()});
 
 
     @Getter
