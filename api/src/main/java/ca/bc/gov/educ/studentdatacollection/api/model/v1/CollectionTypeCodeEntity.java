@@ -5,6 +5,7 @@ import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -63,6 +64,9 @@ public class CollectionTypeCodeEntity {
    */
   @Column(name = "CLOSE_DATE")
   private LocalDateTime closeDate;
+
+  @Column(name = "SNAPSHOT_DATE")
+  private LocalDate snapshotDate;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;

@@ -9,6 +9,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +41,18 @@ public class CollectionEntity {
 
   @Column(name = "CLOSE_DATE")
   private LocalDateTime closeDate;
+
+  @Column(name = "SNAPSHOT_DATE")
+  private LocalDate snapshotDate;
+
+  @Column(name = "SUBMISSION_DUE_DATE")
+  private LocalDate submissionDueDate;
+
+  @Column(name = "DUPLICATION_RESOLUTION_DUE_DATE")
+  private LocalDate duplicationResolutionDueDate;
+
+  @Column(name = "SIGN_OFF_DUE_DATE")
+  private LocalDate signOffDueDate;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
