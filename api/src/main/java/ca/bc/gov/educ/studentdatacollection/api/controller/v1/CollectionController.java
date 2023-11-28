@@ -67,6 +67,11 @@ public class CollectionController implements CollectionEndpoint {
   }
 
   @Override
+  public Collection getActiveCollection(){
+    return CollectionMapper.mapper.toStructure(collectionService.getActiveCollection());
+  }
+
+  @Override
   public Collection createCollection(Collection collection) {
     validatePayload(() -> this.collectionPayloadValidator.validateCreatePayload(collection));
     RequestUtil.setAuditColumnsForCreate(collection);

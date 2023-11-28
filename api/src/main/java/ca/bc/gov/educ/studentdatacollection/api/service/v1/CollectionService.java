@@ -36,6 +36,10 @@ public class CollectionService {
     return collectionRepository.findAllByCreateUser(createUser);
   }
 
+  public CollectionEntity getActiveCollection(){
+    return collectionRepository.findActiveCollection();
+  }
+
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public CollectionEntity createCollection(Collection collection) {
     CollectionEntity collectionEntity = CollectionMapper.mapper.toModel(collection);
