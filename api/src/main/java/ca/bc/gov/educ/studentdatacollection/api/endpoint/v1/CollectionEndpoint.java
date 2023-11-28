@@ -38,6 +38,14 @@ public interface CollectionEndpoint {
   @Schema(name = "Collection", implementation = Collection.class)
   List<Collection> getCollections(@PathVariable("createUser") String createUser);
 
+  @GetMapping("/active")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @ApiResponses(value={@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "Collection Entity", description = "Endpoints for collection entity.")
+  @Schema(name = "Collection", implementation = Collection.class)
+  Collection getActiveCollection();
+
   @PostMapping()
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})

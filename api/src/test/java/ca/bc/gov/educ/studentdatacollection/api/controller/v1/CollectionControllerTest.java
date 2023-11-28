@@ -24,6 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -167,6 +168,30 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     List<CollectionEntity> collectionEntityList =  this.collectionRepository.findAll();
     assertThat(collectionEntityList).isEmpty();
+  }
+
+  @Test
+  void testGetActiveCollection_ShouldReturnStatusOkWithData() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    final CollectionEntity currentCollection = this.createMockCollectionEntity();
+    currentCollection.setOpenDate(LocalDateTime.now().minusDays(9));
+
+    final CollectionEntity closedCollection = this.createMockCollectionEntity();
+
+    closedCollection.setOpenDate(LocalDateTime.now().minusMonths(6));
+    closedCollection.setCloseDate(LocalDateTime.now().minusDays(10));
+
+    this.collectionRepository.save(currentCollection);
+    this.collectionRepository.save(closedCollection);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_COLLECTION + "/active").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk()).andExpect(
+                    MockMvcResultMatchers.jsonPath("$.collectionID",
+                            equalTo(currentCollection.getCollectionID().toString())));
+
   }
 
 }
