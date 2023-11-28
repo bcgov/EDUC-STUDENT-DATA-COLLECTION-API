@@ -37,7 +37,7 @@ public class CollectionService {
   }
 
   public CollectionEntity getActiveCollection(){
-    return collectionRepository.findActiveCollection().get();
+    return collectionRepository.findActiveCollection();
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
