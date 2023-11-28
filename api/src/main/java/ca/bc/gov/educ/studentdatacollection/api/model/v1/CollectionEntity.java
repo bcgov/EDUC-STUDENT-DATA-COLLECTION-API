@@ -41,6 +41,18 @@ public class CollectionEntity {
   @Column(name = "CLOSE_DATE")
   private LocalDateTime closeDate;
 
+  @Column(name = "SNAPSHOT_DATE")
+  private LocalDateTime snapshotDate;
+
+  @Column(name = "SUBMISSION_DUE_DATE")
+  private LocalDateTime submissionDueDate;
+
+  @Column(name = "DUPLICATION_RESOLUTION_DUE_DATE")
+  private LocalDateTime duplicationResolutionDueDate;
+
+  @Column(name = "SIGN_OFF_DUE_DATE")
+  private LocalDateTime signOffDueDate;
+
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
 
