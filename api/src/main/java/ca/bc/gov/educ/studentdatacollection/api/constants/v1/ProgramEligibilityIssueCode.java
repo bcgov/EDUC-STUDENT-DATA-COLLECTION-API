@@ -11,6 +11,7 @@ public enum ProgramEligibilityIssueCode {
   INACTIVE_SCHOOL_AGE("INACTMINOR", "Students who have not been reported as \"active\" in a new course in the last two years are not eligible for program funding."),
   NOT_ENROLLED_FRENCH("NTENRFRENC", "The student is not enrolled in french programs."),
   NOT_ENROLLED_CAREER("NTENRCAREE", "The student is not enrolled in career programs."),
+  ENROLLED_CAREER_INDY_SCHOOL("ENRCARINDY", "Students reported by Independent Schools are not eligible for Career Program funding."),
   NOT_ENROLLED_INDIGENOUS("NTENRINDIG", "The student is not enrolled in indigenous programs."),
   NOT_ENROLLED_SPECIAL_ED("NTENRSPED", "The student was not reported in any special education programs."),
   NON_ELIG_SPECIAL_EDUCATION("NELISPED", "Student must be school-aged and have been reported in ELL for 5 years or less."),

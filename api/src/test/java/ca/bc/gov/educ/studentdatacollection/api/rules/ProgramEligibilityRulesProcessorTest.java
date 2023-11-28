@@ -437,6 +437,28 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
   }
 
   @Test
+  void testCareerProgramStudentsMustNotBeIndySchool() {
+    School school = this.createMockSchool();
+    school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
+            .save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), null));
+    SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+    schoolStudentEntity.setEnrolledProgramCodes("0540");
+
+    List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, school));
+    assertThat(listWithoutEnrollmentError.stream().anyMatch(e -> e.equals(ProgramEligibilityIssueCode.ENROLLED_CAREER_INDY_SCHOOL))).isTrue();
+
+    school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+    listWithoutEnrollmentError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, school));
+    assertThat(listWithoutEnrollmentError.stream().anyMatch(e -> e.equals(ProgramEligibilityIssueCode.ENROLLED_CAREER_INDY_SCHOOL))).isFalse();
+
+    school.setSchoolCategoryCode(SchoolCategoryCodes.INDP_FNS.getCode());
+    listWithoutEnrollmentError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, school));
+    assertThat(listWithoutEnrollmentError.stream().anyMatch(e -> e.equals(ProgramEligibilityIssueCode.ENROLLED_CAREER_INDY_SCHOOL))).isTrue();
+  }
+
+  @Test
   void testNullEnrolledProgramCode() {
     CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
     SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
