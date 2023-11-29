@@ -191,7 +191,6 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
             .andDo(print()).andExpect(status().isOk()).andExpect(
                     MockMvcResultMatchers.jsonPath("$.collectionID",
                             equalTo(currentCollection.getCollectionID().toString())));
-
   }
 
 }

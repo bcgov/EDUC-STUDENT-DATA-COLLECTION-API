@@ -37,7 +37,12 @@ public class CollectionService {
   }
 
   public CollectionEntity getActiveCollection(){
-    return collectionRepository.findActiveCollection();
+    Optional<CollectionEntity> collectionEntity =  collectionRepository.findActiveCollection();
+    if(collectionEntity.isPresent()) {
+      return collectionEntity.get();
+    } else {
+      throw new EntityNotFoundException(CollectionEntity.class, "Active Collection", null);
+    }
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
