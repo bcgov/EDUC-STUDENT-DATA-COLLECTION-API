@@ -26,6 +26,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -101,6 +102,10 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setCollectionTypeCode("SEPTEMBER");
     sdcEntity.setOpenDate(LocalDateTime.now());
     sdcEntity.setCloseDate(LocalDateTime.now().plusDays(5));
+    sdcEntity.setSnapshotDate(LocalDate.of(sdcEntity.getOpenDate().getYear(), 9, 29));
+    sdcEntity.setSubmissionDueDate(sdcEntity.getSnapshotDate().plusDays(3));
+    sdcEntity.setDuplicationResolutionDueDate(sdcEntity.getSnapshotDate().plusDays(6));
+    sdcEntity.setSignOffDueDate(sdcEntity.getSnapshotDate().plusDays(9));
     sdcEntity.setCreateUser("ABC");
     sdcEntity.setCreateDate(LocalDateTime.now());
     sdcEntity.setUpdateUser("ABC");

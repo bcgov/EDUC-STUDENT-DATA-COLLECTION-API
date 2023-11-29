@@ -33,4 +33,16 @@ public class Collection extends BaseRequest implements Serializable {
   @NotNull(message = "close date cannot be null")
   private String closeDate;
 
+  @NotNull(message = "snapshot date cannot be null")
+  private String snapshotDate;
+
+  @NotNull(message = "submission due date cannot be null")
+  private String submissionDueDate;
+
+  @NotNull(message = "duplication resolution due date cannot be null")
+  private String duplicationResolutionDueDate;
+
+  @NotNull(message = "sign off due date cannot be null")
+  private String signOffDueDate;
+
 }
