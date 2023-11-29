@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -821,6 +822,26 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorCarr.size()).isNotZero();
         val error3 = validationErrorCarr.stream().anyMatch(val -> val.getValidationIssueCode().equals("ENROLLEDCODECAREERERR"));
         assertThat(error3).isTrue();
+    }
+
+    @Test
+    void testOutOfProvinceSpecialEducRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setEnrolledGradeCode("01");
+        entity.setSchoolFundingCode("14");
+        entity.setBandCode(null);
+        entity.setSpecialEducationCategoryCode("A");
+
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        assertThat(validationError.size()).isEqualTo(2);
+        val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.ENROLLED_CODE_SP_ED_ERR.getCode())
+                && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.SCHOOL_FUNDING_CODE.getCode()));
+        val error2 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.ENROLLED_CODE_SP_ED_ERR.getCode())
+                && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.SPECIAL_EDUCATION_CATEGORY_CODE.getCode()));
+        assertThat(error1).isTrue();
+        assertThat(error2).isTrue();
     }
 
     @Test
