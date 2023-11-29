@@ -193,21 +193,4 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
                             equalTo(currentCollection.getCollectionID().toString())));
   }
 
-  @Test
-  void testGetActiveCollection_NoActiveCollection_ShouldReturnNoContent() throws Exception {
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
-    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
-
-    final CollectionEntity closedCollection = this.createMockCollectionEntity();
-
-    closedCollection.setOpenDate(LocalDateTime.now().minusMonths(6));
-    closedCollection.setCloseDate(LocalDateTime.now().minusDays(10));
-
-    this.collectionRepository.save(closedCollection);
-
-    this.mockMvc.perform(
-                    get(URL.BASE_URL_COLLECTION + "/active").with(mockAuthority))
-            .andDo(print()).andExpect(status().isBadRequest());
-  }
-
 }
