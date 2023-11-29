@@ -824,6 +824,22 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
+    void testOutOfProvinceSpecialEducRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setEnrolledGradeCode("01");
+        entity.setSchoolFundingCode("14");
+        entity.setBandCode(null);
+        entity.setSpecialEducationCategoryCode("A");
+
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        assertThat(validationError.size()).isEqualTo(2);
+        val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.ENROLLED_CODE_SP_ED_ERR.getCode()));
+        assertThat(error).isTrue();
+    }
+
+    @Test
     void testAdultGraduatesRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
