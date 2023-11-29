@@ -41,7 +41,7 @@ public class CollectionService {
     if(collectionEntity.isPresent()) {
       return collectionEntity.get();
     } else {
-      throw new EntityNotFoundException(CollectionEntity.class, "Active Collection");
+      throw new EntityNotFoundException(CollectionEntity.class, "Active Collection", null);
     }
   }
 
