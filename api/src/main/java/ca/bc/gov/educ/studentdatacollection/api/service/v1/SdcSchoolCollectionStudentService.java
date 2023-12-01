@@ -121,7 +121,7 @@ public class SdcSchoolCollectionStudentService {
       String studentDOB = studentRuleData.getSdcSchoolCollectionStudentEntity().getDob();
       studentRuleData.getSdcSchoolCollectionStudentEntity().setIsAdult(DOBUtil.isAdult(studentDOB));
       studentRuleData.getSdcSchoolCollectionStudentEntity().setIsSchoolAged(DOBUtil.isSchoolAged(studentDOB));
-      
+
       calculateAdditionalStudentAttributes(studentRuleData);
     }
     var entity = this.sdcSchoolCollectionStudentRepository.save(studentRuleData.getSdcSchoolCollectionStudentEntity());
