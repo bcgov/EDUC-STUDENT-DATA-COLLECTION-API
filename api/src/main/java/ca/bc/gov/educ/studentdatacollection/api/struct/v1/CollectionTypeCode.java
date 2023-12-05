@@ -49,4 +49,7 @@ public class CollectionTypeCode extends BaseRequest implements Serializable {
   @NotNull(message = "expiryDate cannot be null")
   private String expiryDate;
 
+  @NotNull(message = "snapshotDate cannot be null")
+  private String snapshotDate;
+
 }

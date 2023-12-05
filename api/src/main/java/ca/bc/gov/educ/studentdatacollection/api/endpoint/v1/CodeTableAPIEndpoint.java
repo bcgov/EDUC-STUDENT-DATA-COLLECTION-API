@@ -103,4 +103,12 @@ public interface CodeTableAPIEndpoint {
     @Tag(name = "Collection Codes", description = "Endpoints to get collection codes.")
     @Schema(name = "ZeroFteReasonCodes", implementation = ZeroFteReasonCode.class)
     List<ZeroFteReasonCode> getZeroFteReasonCodes();
+
+    @PreAuthorize("hasAuthority('SCOPE_READ_COLLECTION_CODES')")
+    @GetMapping(URL.COLLECTION_TYPE_CODES)
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
+    @Transactional(readOnly = true)
+    @Tag(name = "Collection Codes", description = "Endpoints to get collection codes.")
+    @Schema(name = "CollectionTypeCodes", implementation = CollectionTypeCode.class)
+    List<CollectionTypeCode> getCollectionTypeCodes();
 }

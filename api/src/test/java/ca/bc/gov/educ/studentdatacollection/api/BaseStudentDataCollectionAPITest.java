@@ -67,6 +67,8 @@ public abstract class BaseStudentDataCollectionAPITest {
   SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   @Autowired
   SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  @Autowired
+  CollectionTypeCodeRepository collectionTypeCodeRepository;
 
   @BeforeEach
   public void before() {
@@ -90,6 +92,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     genderCodeRepository.save(createGenderCodeData());
     schoolGradeCodeRepository.save(createSchoolGradeCodeData());
     schoolFundingGroupCodeRepository.save(createSchoolFundingGroupCodeData());
+    collectionTypeCodeRepository.save(createCollectionTypeCodeData());
   }
 
   @AfterEach
@@ -123,6 +126,12 @@ public abstract class BaseStudentDataCollectionAPITest {
     return SchoolFundingGroupCodeEntity.builder().schoolFundingGroupCode("GROUP1").label("Group1").legacyCode("01").description("G1")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Business").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public CollectionTypeCodeEntity createCollectionTypeCodeData() {
+    return CollectionTypeCodeEntity.builder().collectionTypeCode("SEPTEMBER").label("September").description("September collection")
+            .displayOrder(10).effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).openDate(LocalDateTime.now().minusMonths(1))
+            .closeDate(LocalDateTime.now().plusMonths(1)).createUser("TEST").snapshotDate(LocalDate.now()).updateUser("TEST").build();
   }
 
   public IndependentSchoolFundingGroupEntity createMockIndependentSchoolFundingGroupEntity(UUID schoolID){
