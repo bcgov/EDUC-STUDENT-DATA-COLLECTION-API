@@ -108,7 +108,7 @@ public interface CodeTableAPIEndpoint {
     @GetMapping(URL.COLLECTION_TYPE_CODES)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
     @Transactional(readOnly = true)
-    @Tag(name = "Collection Codes", description = "Endpoints to get colleciton codes.")
+    @Tag(name = "Collection Codes", description = "Endpoints to get collection codes.")
     @Schema(name = "CollectionTypeCodes", implementation = CollectionTypeCode.class)
     List<CollectionTypeCode> getCollectionTypeCodes();
 }
