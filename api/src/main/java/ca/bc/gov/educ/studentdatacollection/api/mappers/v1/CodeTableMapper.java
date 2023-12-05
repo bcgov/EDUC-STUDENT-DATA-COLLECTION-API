@@ -20,5 +20,6 @@ public interface CodeTableMapper {
     SpecialEducationCategoryCode toStructure(SpecialEducationCategoryCodeEntity entity);
     GenderCode toStructure(GenderCodeEntity entity);
     SchoolFundingGroupCode toStructure(SchoolFundingGroupCodeEntity entity);
+    CollectionTypeCode toStructure(CollectionTypeCodeEntity entity);
 
 }
