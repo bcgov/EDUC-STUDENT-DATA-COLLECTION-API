@@ -92,4 +92,9 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
                 })
                 .toList();
     }
+
+    @Override
+    public List<CollectionTypeCode> getCollectionTypeCodes() {
+        return codeTableService.getCollectionCodeList().stream().map(mapper::toStructure).toList();
+    }
 }
