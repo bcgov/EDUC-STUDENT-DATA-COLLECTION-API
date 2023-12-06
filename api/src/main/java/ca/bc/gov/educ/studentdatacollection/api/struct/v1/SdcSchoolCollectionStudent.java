@@ -24,4 +24,6 @@ public class SdcSchoolCollectionStudent extends BaseSdcSchoolStudent implements 
 
   private List<SdcSchoolCollectionStudentEnrolledProgram> sdcSchoolCollectionStudentEnrolledPrograms;
 
+  private SdcStudentEll sdcStudentEll;
+
 }
