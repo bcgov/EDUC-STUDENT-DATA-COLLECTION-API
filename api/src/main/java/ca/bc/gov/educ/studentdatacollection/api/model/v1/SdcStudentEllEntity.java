@@ -53,7 +53,4 @@ public class SdcStudentEllEntity {
   @Column(name = "UPDATE_DATE")
   private LocalDateTime updateDate;
 
-  @OneToMany(mappedBy = "sdcStudentEllEntity")
-  private Set<SdcSchoolCollectionStudentEntity> sdcStudentCollectionEntities;
-
 }
