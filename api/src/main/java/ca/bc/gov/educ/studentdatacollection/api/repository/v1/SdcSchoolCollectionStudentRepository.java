@@ -29,7 +29,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     AND I.VALIDATION_ISSUE_SEVERITY_CODE = :validationIssueSeverityCode
     AND S.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE NOT IN ('DELETED')
     GROUP BY I.SDC_SCHOOL_COLLECTION_STUDENT_ID, I.VALIDATION_ISSUE_CODE) as SUBQUERY
-    """, nativeQuery= true)
+    """, nativeQuery = true)
   long getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID(String validationIssueSeverityCode, UUID sdcSchoolCollectionID);
 
   long countBySdcSchoolCollection_SdcSchoolCollectionID(UUID sdcSchoolCollectionID);

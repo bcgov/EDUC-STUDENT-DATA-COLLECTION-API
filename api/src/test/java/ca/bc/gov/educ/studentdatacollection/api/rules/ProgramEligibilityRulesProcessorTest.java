@@ -381,13 +381,9 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
       e.equals(ProgramEligibilityIssueCode.YEARS_IN_ELL)
     )).isFalse();
 
-    SdcStudentEllEntity entity = new SdcStudentEllEntity();
-    var studentID = UUID.randomUUID();
-    entity.setStudentID(studentID);
-    entity.setCreateDate(LocalDateTime.now());
-    entity.setCreateUser("ABC");
-    entity.setUpdateDate(LocalDateTime.now());
-    entity.setUpdateUser("ABC");
+    UUID studentID = UUID.randomUUID();
+    schoolStudentEntity.setAssignedStudentId(studentID);
+    SdcStudentEllEntity entity = createMockStudentEllEntity(schoolStudentEntity);
     entity.setYearsInEll(5);
     entity = sdcStudentEllRepository.save(entity);
     schoolStudentEntity.setAssignedStudentId(studentID);

@@ -7,6 +7,8 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcStudentEllEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -40,6 +42,8 @@ import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.OR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -67,6 +71,8 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository;
     @Autowired
     SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;
+    @Autowired
+    SdcStudentEllRepository sdcStudentEllRepository;
     @Autowired
     RestUtils restUtils;
 
@@ -99,6 +105,49 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andDo(MvcResult::getAsyncResult)
                 .andReturn();
         this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
+    }
+
+    @Test
+    void testReadSdcSchoolCollectionStudentPaginated_withSdcStudentEll_ShouldReturnStatusOkWithEll() throws Exception {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(
+            collection,
+            UUID.fromString(school.getSchoolId()),
+            UUID.fromString(school.getDistrictId())
+        );
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        SdcSchoolCollectionStudentEntity mockStudentEntity = createMockSchoolStudentEntity(sdcSchoolCollection);
+        mockStudentEntity.setAssignedStudentId(UUID.randomUUID());
+        SdcSchoolCollectionStudentEntity otherStudentEntity = createMockSchoolStudentEntity(sdcSchoolCollection);
+        otherStudentEntity.setAssignedStudentId(UUID.randomUUID());
+        SdcSchoolCollectionStudentEntity studentWithEll = sdcSchoolCollectionStudentRepository.save(mockStudentEntity);
+        sdcSchoolCollectionStudentRepository.save(otherStudentEntity);
+        SdcStudentEllEntity ellEntity = this.createMockStudentEllEntity(studentWithEll);
+        ellEntity.setYearsInEll(5);
+
+        ellEntity = this.sdcStudentEllRepository.save(ellEntity);
+
+        final MvcResult result = this.mockMvc
+            .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED+"?pageSize=2")
+                .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                .contentType(APPLICATION_JSON))
+            .andDo(print())
+            .andDo(MvcResult::getAsyncResult)
+            .andReturn();
+
+        String yearsInEll = "$.content[?(@.assignedStudentId=='"
+            + studentWithEll.getAssignedStudentId().toString()
+            + "')].sdcStudentEll.yearsInEll";
+        this.mockMvc.perform(asyncDispatch(result))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content", hasSize(2)))
+            .andExpect(jsonPath(yearsInEll).value("5"));
     }
 
     @Test

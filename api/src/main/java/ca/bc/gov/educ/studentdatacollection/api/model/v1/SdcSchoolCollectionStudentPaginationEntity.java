@@ -7,6 +7,8 @@ import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Parameter;
 
 import java.math.BigDecimal;
@@ -170,6 +172,11 @@ public class SdcSchoolCollectionStudentPaginationEntity {
   @OneToMany(mappedBy = "sdcSchoolCollectionStudentEntity", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentEnrolledProgramEntity.class)
   Set<SdcSchoolCollectionStudentEnrolledProgramEntity> sdcStudentEnrolledProgramEntities;
 
+  @ManyToOne
+  @NotFound(action = NotFoundAction.IGNORE)
+  @JoinColumn(name = "ASSIGNED_STUDENT_ID", referencedColumnName = "STUDENT_ID", insertable = false, updatable = false)
+  SdcStudentEllEntity sdcStudentEllEntity;
+
   public Set<SdcSchoolCollectionStudentValidationIssueEntity> getSDCStudentValidationIssueEntities() {
     if (this.sdcStudentValidationIssueEntities == null) {
       this.sdcStudentValidationIssueEntities = new HashSet<>();
@@ -182,6 +189,10 @@ public class SdcSchoolCollectionStudentPaginationEntity {
       this.sdcStudentEnrolledProgramEntities = new HashSet<>();
     }
     return this.sdcStudentEnrolledProgramEntities;
+  }
+
+  public SdcStudentEllEntity getSdcStudentEllEntity() {
+    return this.sdcStudentEllEntity;
   }
 
 }

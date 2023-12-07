@@ -212,6 +212,17 @@ public abstract class BaseStudentDataCollectionAPITest {
     return sdcEntity;
   }
 
+  public SdcStudentEllEntity createMockStudentEllEntity(SdcSchoolCollectionStudentEntity student) {
+    SdcStudentEllEntity entity = new SdcStudentEllEntity();
+    entity.setStudentID(student.getAssignedStudentId());
+    entity.setCreateDate(LocalDateTime.now());
+    entity.setCreateUser("ABC");
+    entity.setUpdateDate(LocalDateTime.now());
+    entity.setUpdateUser("ABC");
+    entity.setYearsInEll(0);
+    return entity;
+  }
+
   public SdcSchoolCollectionStudentValidationIssueEntity createMockSdcSchoolCollectionStudentValidationIssueEntity(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity){
     SdcSchoolCollectionStudentValidationIssueEntity sdcSchoolCollectionStudentValidationIssueEntity = new SdcSchoolCollectionStudentValidationIssueEntity();
     sdcSchoolCollectionStudentValidationIssueEntity.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentEntity);

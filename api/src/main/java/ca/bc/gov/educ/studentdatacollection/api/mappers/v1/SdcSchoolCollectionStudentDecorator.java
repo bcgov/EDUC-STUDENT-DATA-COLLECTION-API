@@ -34,6 +34,8 @@ public abstract class SdcSchoolCollectionStudentDecorator implements SdcSchoolCo
     final SdcSchoolCollectionStudent sdcSchoolCollectionStudent = this.delegate.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity);
     SdcSchoolCollectionStudentValidationIssueMapper studentValidationIssueMapper = SdcSchoolCollectionStudentValidationIssueMapper.mapper;
     SdcSchoolCollectionStudentEnrolledProgramMapper sdcSchoolCollectionStudentEnrolledProgramMapper = SdcSchoolCollectionStudentEnrolledProgramMapper.mapper;
+    SdcStudentEllMapper sdcStudentEllMapper = SdcStudentEllMapper.mapper;
+    sdcSchoolCollectionStudent.setSdcStudentEll(sdcStudentEllMapper.toStructure(sdcSchoolCollectionStudentEntity.getSdcStudentEllEntity()));
     sdcSchoolCollectionStudent.setSdcSchoolCollectionStudentEnrolledPrograms(new ArrayList<>());
     sdcSchoolCollectionStudent.setSdcSchoolCollectionStudentValidationIssues(new ArrayList<>());
     sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().stream().forEach(program -> sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentEnrolledPrograms().add(sdcSchoolCollectionStudentEnrolledProgramMapper.toStructure(program)));
