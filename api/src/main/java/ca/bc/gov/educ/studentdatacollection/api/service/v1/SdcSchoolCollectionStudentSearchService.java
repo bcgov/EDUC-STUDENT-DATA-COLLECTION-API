@@ -120,6 +120,9 @@ public class SdcSchoolCollectionStudentSearchService {
       case UUID:
         schoolEntitySpecification = sdcSchoolCollectionStudentFilterSpecs.getUUIDTypeSpecification(key, value, filterOperation);
         break;
+      case BOOLEAN:
+        schoolEntitySpecification = sdcSchoolCollectionStudentFilterSpecs.getBooleanTypeSpecification(key, value, filterOperation);
+        break;
       default:
         break;
     }
