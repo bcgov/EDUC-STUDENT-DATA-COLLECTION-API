@@ -97,7 +97,7 @@ public class FrenchHeadcountHelper extends HeadcountHelper {
   public HeadCountTableDataRow buildDataRow(FrenchHeadcountResult result, String title, String gradeCode) {
     Map<String, String> valuesMap = new HashMap<>();
 
-    if(result != null) {
+    if (result != null) {
       switch (title) {
         case CORE_FRENCH_TITLE -> {
           valuesMap.put(SCHOOL_AGED_TITLE, String.valueOf(result.getSchoolAgedCoreFrench()));
