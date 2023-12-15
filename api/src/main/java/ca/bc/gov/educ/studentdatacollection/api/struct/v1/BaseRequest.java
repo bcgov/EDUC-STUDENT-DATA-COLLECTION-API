@@ -12,9 +12,9 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public abstract class BaseRequest {
-    @Size(max = 32)
+    @Size(max = 100)
     protected String createUser;
-    @Size(max = 32)
+    @Size(max = 100)
     protected String updateUser;
     @Null(message = "createDate should be null.")
     protected String createDate;
