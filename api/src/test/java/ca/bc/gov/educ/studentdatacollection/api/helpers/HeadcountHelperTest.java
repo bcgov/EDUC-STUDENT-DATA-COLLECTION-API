@@ -2,9 +2,8 @@ package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HeadCountTableDataRow;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HeadcountHeader;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HeadcountHeaderColumn;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeaderColumn;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -69,37 +68,6 @@ class HeadcountHelperTest {
       assertEquals(column[2], modifiedColumns.get(column[0]).getComparisonValue());
       assertEquals(column[1], modifiedColumns.get(column[0]).getCurrentValue());
     }
-  }
-  @Test
-  void testCalculateSummaryRow() {
-    // Given
-    List<HeadCountTableDataRow> rows = new ArrayList<>();
-    Map<String, String> row1Values = new HashMap<>();
-    row1Values.put("FTE Total", "10.5");
-    row1Values.put("Column1", "20");
-    row1Values.put("Column2", "30");
-    HeadCountTableDataRow row1 = HeadCountTableDataRow.builder().title("Row1").columnTitleAndValueMap(row1Values).build();
-    rows.add(row1);
-
-    Map<String, String> row2Values = new HashMap<>();
-    row2Values.put("FTE Total", "8.25");
-    row2Values.put("Column1", "15");
-    row2Values.put("Column2", "25");
-    HeadCountTableDataRow row2 = HeadCountTableDataRow.builder().title("Row2").columnTitleAndValueMap(row2Values).build();
-    rows.add(row2);
-
-    String[] keys = {"Column1", "Column2", "FTE Total"};
-    String title = "Summary Row";
-
-    // When
-    HeadCountTableDataRow summaryRow = headcountHelper.calculateSummaryRow(rows, keys, title);
-
-    // Then
-    Map<String, String> summaryValues = summaryRow.getColumnTitleAndValueMap();
-    assertEquals("35", summaryValues.get("Column1"));
-    assertEquals("55", summaryValues.get("Column2"));
-    assertEquals("18.75", summaryValues.get("FTE Total"));
-    assertEquals(summaryRow.getTitle(), title);
   }
   @ParameterizedTest
   @CsvSource({
