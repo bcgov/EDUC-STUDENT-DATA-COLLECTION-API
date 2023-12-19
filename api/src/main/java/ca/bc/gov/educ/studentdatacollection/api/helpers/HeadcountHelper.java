@@ -86,13 +86,13 @@ public class HeadcountHelper<T extends HeadcountResult> {
     headcountResultsTable.setRows(new ArrayList<>());
 
     List<Map<String, String>> rows = new ArrayList<>();
-    for (String title : rowTitles.keySet()) {
+    for (Map.Entry<String, String> title : rowTitles.entrySet()) {
       Map<String, String> rowData = new LinkedHashMap<>();
-      rowData.put("title", rowTitles.get(title));
+      rowData.put("title", title.getValue());
       BigDecimal total = BigDecimal.ZERO;
 
-      Function<T, String> headcountFunction = headcountMethods.get(title);
-      String section = sectionTitles.get(title);
+      Function<T, String> headcountFunction = headcountMethods.get(title.getKey());
+      String section = sectionTitles.get(title.getKey());
       if(headcountFunction != null) {
         for (String gradeCode : gradeCodes) {
           var result = results.stream()
