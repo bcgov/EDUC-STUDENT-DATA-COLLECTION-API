@@ -1,4 +1,4 @@
-package ca.bc.gov.educ.studentdatacollection.api.struct.v1;
+package ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,9 +13,9 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class HeadCountTableDataRow implements Serializable {
+public class HeadcountHeader implements Serializable {
     private static final long serialVersionUID = 1L;
     private String title;
-    private List<String> columnHeaderOrders;
-    private Map<String, String> columnTitleAndValueMap;
+    private List<String> orderedColumnTitles;
+    private Map<String, HeadcountHeaderColumn> columns;
 }

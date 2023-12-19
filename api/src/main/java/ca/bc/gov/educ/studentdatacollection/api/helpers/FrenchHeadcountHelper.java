@@ -1,20 +1,25 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.FrenchHeadcountHeaderResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.FrenchHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeaderColumn;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Function;
 
 @Component
 @Slf4j
 @EqualsAndHashCode(callSuper = true)
-public class FrenchHeadcountHelper extends HeadcountHelper {
+public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult> {
   private static final String CORE_FRENCH_TITLE = "Core French";
   private static final String EARLY_FRENCH_TITLE = "Early French Immersion";
   private static final String LATE_FRENCH_TITLE = "Late French Immersion";
@@ -22,14 +27,32 @@ public class FrenchHeadcountHelper extends HeadcountHelper {
   private static final String TOTAL_FRENCH_TITLE = "All French Programs";
   private static final String ADULT_TITLE = "Adult";
   private static final String SCHOOL_AGED_TITLE = "School-Aged";
-  private static final String TOTAL_GRADE_TITLE = "Total";
   private static final String ELIGIBLE_TITLE = "Eligible";
   private static final String REPORTED_TITLE = "Reported";
   private static final String NOT_REPORTED_TITLE = "Not Reported";
   private static final List<String> HEADER_COLUMN_TITLES = List.of(ELIGIBLE_TITLE, REPORTED_TITLE, NOT_REPORTED_TITLE);
+  private static final String CORE_TOTAL_TITLE = "totalCoreFrench";
+  private static final String CORE_SCHOOL_AGE_TITLE = "schoolAgedCoreFrench";
+  private static final String CORE_ADULT_TITLE = "adultCoreFrench";
+  private static final String EARLY_TOTAL_TITLE = "totalEarlyFrench";
+  private static final String EARLY_SCHOOL_AGE_TITLE = "schoolAgedEarlyFrench";
+  private static final String EARLY_ADULT_TITLE = "adultEarlyFrench";
+  private static final String LATE_TOTAL_TITLE = "totalLateFrench";
+  private static final String LATE_SCHOOL_AGE_TITLE = "schoolAgedLateFrench";
+  private static final String LATE_ADULT_TITLE = "adultLateFrench";
+  private static final String FRANCO_TOTAL_TITLE = "totalFrancophone";
+  private static final String FRANCO_SCHOOL_AGE_TITLE = "schoolAgedFrancophone";
+  private static final String FRANCO_ADULT_TITLE = "adultFrancophone";
+  private static final String ALL_TOTAL_TITLE = "allTotal";
+  private static final String ALL_SCHOOL_AGE_TITLE = "allSchoolAged";
+  private static final String ALL_ADULT_TITLE = "allAdult";
 
   public FrenchHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
     super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository);
+    headcountMethods = getHeadcountMethods();
+    sectionTitles = getSelectionTitles();
+    rowTitles = getRowTitles();
+    gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
   }
 
   public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
@@ -67,73 +90,73 @@ public class FrenchHeadcountHelper extends HeadcountHelper {
           headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedFrancophone()).build());
           headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedFrancophone()))).build());
         }
+        default -> {
+          log.error("Unexpected header title.  This cannot happen::" + headerTitle);
+          throw new StudentDataCollectionAPIRuntimeException("Unexpected header title.  This cannot happen::" + headerTitle);
+        }
       }
       headcountHeaderList.add(headcountHeader);
     });
     return headcountHeaderList;
   }
 
-  public List<HeadcountTableData> convertHeadcountResults(List<FrenchHeadcountResult> results) {
-    List<HeadcountTableData> headcountTableDataList = new ArrayList<>();
-    List<String> gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
-    String[] titles = { CORE_FRENCH_TITLE, EARLY_FRENCH_TITLE, LATE_FRENCH_TITLE, FRANCO_TITLE, TOTAL_FRENCH_TITLE };
+  private Map<String, Function<FrenchHeadcountResult, String>> getHeadcountMethods() {
+    Map<String, Function<FrenchHeadcountResult, String>> headcountMethods = new HashMap<>();
 
-    for (String title : titles) {
-      List<HeadCountTableDataRow> rows = new ArrayList<>();
-      for (String gradeCode : gradeCodes) {
-        FrenchHeadcountResult result = results.stream()
-                .filter(value -> value.getEnrolledGradeCode().equals(gradeCode))
-                .findFirst()
-                .orElse(null);
-        rows.add(buildDataRow(result, title, gradeCode));
-      }
-      String[] keys = { title, SCHOOL_AGED_TITLE, ADULT_TITLE };
-      rows.add(calculateSummaryRow(rows, keys, TOTAL_GRADE_TITLE));
-      headcountTableDataList.add(buildHeadcountTableData(title, rows, List.of(keys)));
-    }
-    return headcountTableDataList;
+    headcountMethods.put(CORE_TOTAL_TITLE, FrenchHeadcountResult::getTotalCoreFrench);
+    headcountMethods.put(CORE_SCHOOL_AGE_TITLE, FrenchHeadcountResult::getSchoolAgedCoreFrench);
+    headcountMethods.put(CORE_ADULT_TITLE, FrenchHeadcountResult::getAdultCoreFrench);
+    headcountMethods.put(EARLY_TOTAL_TITLE, FrenchHeadcountResult::getTotalEarlyFrench);
+    headcountMethods.put(EARLY_SCHOOL_AGE_TITLE, FrenchHeadcountResult::getSchoolAgedEarlyFrench);
+    headcountMethods.put(EARLY_ADULT_TITLE, FrenchHeadcountResult::getAdultEarlyFrench);
+    headcountMethods.put(LATE_TOTAL_TITLE, FrenchHeadcountResult::getTotalLateFrench);
+    headcountMethods.put(LATE_SCHOOL_AGE_TITLE, FrenchHeadcountResult::getSchoolAgedLateFrench);
+    headcountMethods.put(LATE_ADULT_TITLE, FrenchHeadcountResult::getAdultLateFrench);
+    headcountMethods.put(FRANCO_TOTAL_TITLE, FrenchHeadcountResult::getTotalFrancophone);
+    headcountMethods.put(FRANCO_SCHOOL_AGE_TITLE, FrenchHeadcountResult::getSchoolAgedFrancophone);
+    headcountMethods.put(FRANCO_ADULT_TITLE, FrenchHeadcountResult::getAdultFrancophone);
+    headcountMethods.put(ALL_TOTAL_TITLE, FrenchHeadcountResult::getTotalTotals);
+    headcountMethods.put(ALL_SCHOOL_AGE_TITLE, FrenchHeadcountResult::getSchoolAgedTotals);
+    headcountMethods.put(ALL_ADULT_TITLE, FrenchHeadcountResult::getAdultTotals);
+    return headcountMethods;
   }
+  private Map<String, String> getSelectionTitles() {
+    Map<String, String> sectionTitles = new HashMap<>();
 
-  public HeadCountTableDataRow buildDataRow(FrenchHeadcountResult result, String title, String gradeCode) {
-    Map<String, String> valuesMap = new HashMap<>();
-
-    if(result != null) {
-      switch (title) {
-        case CORE_FRENCH_TITLE -> {
-          valuesMap.put(SCHOOL_AGED_TITLE, String.valueOf(result.getSchoolAgedCoreFrench()));
-          valuesMap.put(ADULT_TITLE, String.valueOf(result.getAdultCoreFrench()));
-          valuesMap.put(CORE_FRENCH_TITLE, String.valueOf(result.getTotalCoreFrench()));
-        }
-        case EARLY_FRENCH_TITLE -> {
-          valuesMap.put(SCHOOL_AGED_TITLE, String.valueOf(result.getSchoolAgedEarlyFrench()));
-          valuesMap.put(ADULT_TITLE, String.valueOf(result.getAdultEarlyFrench()));
-          valuesMap.put(EARLY_FRENCH_TITLE, String.valueOf(result.getTotalEarlyFrench()));
-        }
-        case LATE_FRENCH_TITLE -> {
-          valuesMap.put(SCHOOL_AGED_TITLE, String.valueOf(result.getSchoolAgedLateFrench()));
-          valuesMap.put(ADULT_TITLE, String.valueOf(result.getAdultLateFrench()));
-          valuesMap.put(LATE_FRENCH_TITLE, String.valueOf(result.getTotalLateFrench()));
-        }
-        case FRANCO_TITLE -> {
-          valuesMap.put(SCHOOL_AGED_TITLE, String.valueOf(result.getSchoolAgedFrancophone()));
-          valuesMap.put(ADULT_TITLE, String.valueOf(result.getAdultFrancophone()));
-          valuesMap.put(FRANCO_TITLE, String.valueOf(result.getTotalFrancophone()));
-        }
-        case TOTAL_FRENCH_TITLE -> {
-          valuesMap.put(SCHOOL_AGED_TITLE, String.valueOf(result.getSchoolAgedTotals()));
-          valuesMap.put(ADULT_TITLE, String.valueOf(result.getAdultTotals()));
-          valuesMap.put(TOTAL_FRENCH_TITLE, String.valueOf(result.getTotalTotals()));
-        }
-        default -> log.warn("Unexpected case in buildDataRow. This should not have happened.");
-      }
-    } else {
-      valuesMap.put(title, "0");
-      valuesMap.put(SCHOOL_AGED_TITLE, "0");
-      valuesMap.put(ADULT_TITLE, "0");
-    }
-    return HeadCountTableDataRow.builder()
-            .title(gradeCode)
-            .columnTitleAndValueMap(valuesMap)
-            .build();
+    sectionTitles.put(CORE_TOTAL_TITLE, CORE_FRENCH_TITLE);
+    sectionTitles.put(CORE_SCHOOL_AGE_TITLE, CORE_FRENCH_TITLE);
+    sectionTitles.put(CORE_ADULT_TITLE, CORE_FRENCH_TITLE);
+    sectionTitles.put(EARLY_TOTAL_TITLE, EARLY_FRENCH_TITLE);
+    sectionTitles.put(EARLY_SCHOOL_AGE_TITLE, EARLY_FRENCH_TITLE);
+    sectionTitles.put(EARLY_ADULT_TITLE, EARLY_FRENCH_TITLE);
+    sectionTitles.put(LATE_TOTAL_TITLE, LATE_FRENCH_TITLE);
+    sectionTitles.put(LATE_SCHOOL_AGE_TITLE, LATE_FRENCH_TITLE);
+    sectionTitles.put(LATE_ADULT_TITLE, LATE_FRENCH_TITLE);
+    sectionTitles.put(FRANCO_TOTAL_TITLE, FRANCO_TITLE);
+    sectionTitles.put(FRANCO_SCHOOL_AGE_TITLE, FRANCO_TITLE);
+    sectionTitles.put(FRANCO_ADULT_TITLE, FRANCO_TITLE);
+    sectionTitles.put(ALL_TOTAL_TITLE, TOTAL_FRENCH_TITLE);
+    sectionTitles.put(ALL_SCHOOL_AGE_TITLE, TOTAL_FRENCH_TITLE);
+    sectionTitles.put(ALL_ADULT_TITLE, TOTAL_FRENCH_TITLE);
+    return sectionTitles;
+  }
+  private Map<String, String> getRowTitles() {
+    Map<String, String> rowTitles = new LinkedHashMap<>();
+    rowTitles.put(CORE_TOTAL_TITLE, CORE_FRENCH_TITLE);
+    rowTitles.put(CORE_SCHOOL_AGE_TITLE, SCHOOL_AGED_TITLE);
+    rowTitles.put(CORE_ADULT_TITLE, ADULT_TITLE);
+    rowTitles.put(EARLY_TOTAL_TITLE, EARLY_FRENCH_TITLE);
+    rowTitles.put(EARLY_SCHOOL_AGE_TITLE, SCHOOL_AGED_TITLE);
+    rowTitles.put(EARLY_ADULT_TITLE, ADULT_TITLE);
+    rowTitles.put(LATE_TOTAL_TITLE, LATE_FRENCH_TITLE);
+    rowTitles.put(LATE_SCHOOL_AGE_TITLE, SCHOOL_AGED_TITLE);
+    rowTitles.put(LATE_ADULT_TITLE, ADULT_TITLE);
+    rowTitles.put(FRANCO_TOTAL_TITLE, FRANCO_TITLE);
+    rowTitles.put(FRANCO_SCHOOL_AGE_TITLE, SCHOOL_AGED_TITLE);
+    rowTitles.put(FRANCO_ADULT_TITLE, ADULT_TITLE);
+    rowTitles.put(ALL_TOTAL_TITLE, TOTAL_FRENCH_TITLE);
+    rowTitles.put(ALL_SCHOOL_AGE_TITLE, SCHOOL_AGED_TITLE);
+    rowTitles.put(ALL_ADULT_TITLE, ADULT_TITLE);
+    return rowTitles;
   }
 }

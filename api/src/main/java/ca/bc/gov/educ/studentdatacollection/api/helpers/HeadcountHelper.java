@@ -3,10 +3,10 @@ package ca.bc.gov.educ.studentdatacollection.api.helpers;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HeadCountTableDataRow;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HeadcountHeader;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HeadcountHeaderColumn;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HeadcountTableData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeaderColumn;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResultsTable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -17,13 +17,19 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 @Component
 @Slf4j
-public class HeadcountHelper {
+public class HeadcountHelper<T extends HeadcountResult> {
   protected final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   protected final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+
+  protected Map<String, Function<T, String>> headcountMethods;
+  protected Map<String, String> sectionTitles;
+  protected Map<String, String> rowTitles;
+  protected List<String> gradeCodes;
 
   public HeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
@@ -55,24 +61,6 @@ public class HeadcountHelper {
       return null;
     }
   }
-
-  public HeadCountTableDataRow calculateSummaryRow(List<HeadCountTableDataRow> rows, String[] keys, String rowTitle) {
-    Map<String, String> summaryMap = new HashMap<>();
-    String fteTotalTitle = "FTE Total";
-    for (String key : keys) {
-      if(key.equals(fteTotalTitle)) {
-        BigDecimal valueSum = rows.stream().map(row -> new BigDecimal(row.getColumnTitleAndValueMap().get(fteTotalTitle))).reduce(BigDecimal.ZERO, BigDecimal::add);
-        summaryMap.put(key, String.valueOf(valueSum));
-      } else {
-        Long valueSum = rows.stream().mapToLong(row -> Long.parseLong(row.getColumnTitleAndValueMap().get(key))).sum();
-        summaryMap.put(key, String.valueOf(valueSum));
-      }
-    }
-    return HeadCountTableDataRow.builder().title(rowTitle).columnTitleAndValueMap(summaryMap).build();
-  }
-  public HeadcountTableData buildHeadcountTableData(String title, List<HeadCountTableDataRow> rows, List<String> columnNames) {
-    return HeadcountTableData.builder().title(title).columnNames(columnNames).rows(rows).build();
-  }
   public void stripZeroColumns(HeadcountHeader headcountHeader) {
     Map<String, HeadcountHeaderColumn> map = headcountHeader.getColumns();
     List<String> newOrderedTitles = new ArrayList<>();
@@ -87,5 +75,43 @@ public class HeadcountHelper {
       }
     });
     headcountHeader.setOrderedColumnTitles(newOrderedTitles);
+  }
+
+  public HeadcountResultsTable convertHeadcountResults(List<T> results) {
+    HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
+    List<String> columnTitles = new ArrayList<>(gradeCodes);
+    columnTitles.add(0, "title");
+    columnTitles.add("Total");
+    headcountResultsTable.setHeaders(columnTitles);
+    headcountResultsTable.setRows(new ArrayList<>());
+
+    List<Map<String, String>> rows = new ArrayList<>();
+    for (Map.Entry<String, String> title : rowTitles.entrySet()) {
+      Map<String, String> rowData = new LinkedHashMap<>();
+      rowData.put("title", title.getValue());
+      BigDecimal total = BigDecimal.ZERO;
+
+      Function<T, String> headcountFunction = headcountMethods.get(title.getKey());
+      String section = sectionTitles.get(title.getKey());
+      if(headcountFunction != null) {
+        for (String gradeCode : gradeCodes) {
+          var result = results.stream()
+                  .filter(value -> value.getEnrolledGradeCode().equals(gradeCode))
+                  .findFirst()
+                  .orElse(null);
+            String headcount = "0";
+            if (result != null && result.getEnrolledGradeCode().equals(gradeCode)) {
+              headcount = headcountFunction.apply(result);
+            }
+            rowData.put(gradeCode, headcount);
+            total = total.add(new BigDecimal(headcount));
+        }
+        rowData.put("Total", String.valueOf(total));
+      }
+      rowData.put("section", section);
+      rows.add(rowData);
+    }
+    headcountResultsTable.setRows(rows);
+    return headcountResultsTable;
   }
 }

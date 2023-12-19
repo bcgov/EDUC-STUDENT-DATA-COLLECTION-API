@@ -4,15 +4,19 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeaderColumn;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResultsTable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Function;
 
 @Component
 @Slf4j
-public class EnrollmentHeadcountHelper extends HeadcountHelper {
+public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcountResult> {
   private static final String TOTAL_FTE_TITLE = "FTE Total";
   private static final String ELIGIBLE_FTE_TITLE = "Eligible for FTE";
   private static final String HEADCOUNT_TITLE = "Headcount";
@@ -20,9 +24,25 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper {
   private static final String ADULT_TITLE = "Adult";
   private static final String ALL_STUDENT_TITLE = "All Students";
   private static final String TOTAL_TITLE = "Total";
+  private static final String SCHOOL_AGED_KEY = "schoolAgedTitle";
+  private static final String SCHOOL_AGED_HEADCOUNT_KEY = "schoolAgedHeadcount";
+  private static final String SCHOOL_AGED_ELIGIBLEKEY = "schoolAgedEligible";
+  private static final String SCHOOL_AGED_FTE_KEY = "schoolAgedFte";
+  private static final String ADULT_AGED_KEY = "adultTitle";
+  private static final String ADULT_AGED_HEADCOUNT_KEY = "adultHeadcount";
+  private static final String ADULT_AGED_ELIGIBLEKEY = "adultEligible";
+  private static final String ADULT_AGED_FTE_KEY = "adultFte";
+  private static final String ALL_AGED_KEY = "allTitle";
+  private static final String ALL_AGED_HEADCOUNT_KEY = "allHeadcount";
+  private static final String ALL_AGED_ELIGIBLEKEY = "allEligible";
+  private static final String ALL_AGED_FTE_KEY = "allFte";
 
   public EnrollmentHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
     super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository);
+    headcountMethods = getHeadcountMethods();
+    sectionTitles = getSelectionTitles();
+    rowTitles = getRowTitles();
+    gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
   }
 
 
@@ -30,98 +50,92 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper {
     UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
 
     List<EnrollmentHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySchoolId(previousCollectionID);
-    List<HeadcountTableData> previousCollectionData = convertEnrollmentHeadcountResults(previousCollectionRawData);
+    HeadcountResultsTable previousCollectionData = convertHeadcountResults(previousCollectionRawData);
     List<HeadcountHeader> previousHeadcountHeaderList = Arrays.asList(getStudentsHeadcountTotals(previousCollectionData), getGradesHeadcountTotals(previousCollectionData));
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 
-  public HeadcountHeader getGradesHeadcountTotals(List<HeadcountTableData> headcountTableDataList) {
+  public HeadcountHeader getGradesHeadcountTotals(HeadcountResultsTable headcountResultsTable) {
     HeadcountHeader headcountTotals = new HeadcountHeader();
     headcountTotals.setTitle("Grade Headcount");
-    headcountTotals.setOrderedColumnTitles(Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList());
+    headcountTotals.setOrderedColumnTitles(gradeCodes);
     headcountTotals.setColumns(new HashMap<>());
-    for (HeadCountTableDataRow row : headcountTableDataList.get(2).getRows()) {
-      if(!row.getTitle().equals(TOTAL_TITLE)) {
-        String title = row.getTitle();
-        HeadcountHeaderColumn headcountHeaderColumn = new HeadcountHeaderColumn();
-        headcountHeaderColumn.setCurrentValue(row.getColumnTitleAndValueMap().get(HEADCOUNT_TITLE));
-        headcountTotals.getColumns().put(title, headcountHeaderColumn);
-      }
+    for(String grade : gradeCodes) {
+      HeadcountHeaderColumn headcountHeaderColumn = new HeadcountHeaderColumn();
+      headcountHeaderColumn.setCurrentValue(String.valueOf(
+        headcountResultsTable.getRows().stream()
+          .filter(row -> row.get("title").equals(HEADCOUNT_TITLE)&&row.get("section").equals(ALL_STUDENT_TITLE))
+          .mapToLong(row -> Long.parseLong(row.get(grade)))
+          .sum()));
+      headcountTotals.getColumns().put(grade, headcountHeaderColumn);
     }
     return headcountTotals;
   }
 
-  public HeadcountHeader getStudentsHeadcountTotals(List<HeadcountTableData> headcountTableDataList) {
+  public HeadcountHeader getStudentsHeadcountTotals(HeadcountResultsTable headcountResultsTable) {
     HeadcountHeader studentTotals = new HeadcountHeader();
     studentTotals.setTitle("Student Headcount");
     studentTotals.setOrderedColumnTitles(List.of(SCHOOL_AGED_TITLE, ADULT_TITLE, ALL_STUDENT_TITLE));
     studentTotals.setColumns(new HashMap<>());
-
-    for (HeadcountTableData tableData : headcountTableDataList) {
-      String title = tableData.getTitle();
+    for(String title : List.of(SCHOOL_AGED_TITLE, ADULT_TITLE, ALL_STUDENT_TITLE)) {
       HeadcountHeaderColumn headcountHeaderColumn = new HeadcountHeaderColumn();
       headcountHeaderColumn.setCurrentValue(String.valueOf(
-              tableData.getRows().stream()
-                      .filter(row -> row.getTitle().equals(TOTAL_TITLE))
-                      .mapToLong(row -> Long.parseLong(row.getColumnTitleAndValueMap().get(HEADCOUNT_TITLE)))
-                      .sum()));
+        headcountResultsTable.getRows().stream()
+          .filter(row -> row.get("title").equals(HEADCOUNT_TITLE)&&row.get("section").equals(title))
+          .mapToLong(row -> Long.parseLong(row.get(TOTAL_TITLE)))
+          .sum()));
       studentTotals.getColumns().put(title, headcountHeaderColumn);
     }
     return studentTotals;
   }
 
-  public List<HeadcountTableData> convertEnrollmentHeadcountResults(List<EnrollmentHeadcountResult> results) {
-    List<HeadcountTableData> headcountTableDataList = new ArrayList<>();
-    List<String> gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
-    List<String> columnTitles = Arrays.asList(HEADCOUNT_TITLE, ELIGIBLE_FTE_TITLE, TOTAL_FTE_TITLE);
 
-    for (String title : Arrays.asList(SCHOOL_AGED_TITLE, ADULT_TITLE, ALL_STUDENT_TITLE)) {
-      List<HeadCountTableDataRow> rows = new ArrayList<>();
-
-      for (String gradeCode : gradeCodes) {
-        EnrollmentHeadcountResult result = results.stream()
-                .filter(value -> value.getEnrolledGradeCode().equals(gradeCode))
-                .findFirst()
-                .orElse(null);
-        rows.add(buildDataRow(result, title, gradeCode));
-      }
-      String[] keys = { HEADCOUNT_TITLE, ELIGIBLE_FTE_TITLE,TOTAL_FTE_TITLE };
-      rows.add(calculateSummaryRow(rows, keys, TOTAL_TITLE));
-      headcountTableDataList.add(buildHeadcountTableData(title, rows, columnTitles));
-    }
-    return headcountTableDataList;
+  private Map<String, Function<EnrollmentHeadcountResult, String>> getHeadcountMethods() {
+    Map<String, Function<EnrollmentHeadcountResult, String>> headcountMethods = new HashMap<>();
+    headcountMethods.put(SCHOOL_AGED_KEY, null);
+    headcountMethods.put(SCHOOL_AGED_HEADCOUNT_KEY, EnrollmentHeadcountResult::getSchoolAgedHeadcount);
+    headcountMethods.put(SCHOOL_AGED_ELIGIBLEKEY, EnrollmentHeadcountResult::getSchoolAgedEligibleForFte);
+    headcountMethods.put(SCHOOL_AGED_FTE_KEY, EnrollmentHeadcountResult::getSchoolAgedFteTotal);
+    headcountMethods.put(ADULT_AGED_KEY, null);
+    headcountMethods.put(ADULT_AGED_HEADCOUNT_KEY, EnrollmentHeadcountResult::getAdultHeadcount);
+    headcountMethods.put(ADULT_AGED_ELIGIBLEKEY, EnrollmentHeadcountResult::getAdultEligibleForFte);
+    headcountMethods.put(ADULT_AGED_FTE_KEY, EnrollmentHeadcountResult::getAdultFteTotal);
+    headcountMethods.put(ALL_AGED_KEY, null);
+    headcountMethods.put(ALL_AGED_HEADCOUNT_KEY, EnrollmentHeadcountResult::getTotalHeadcount);
+    headcountMethods.put(ALL_AGED_ELIGIBLEKEY, EnrollmentHeadcountResult::getTotalEligibleForFte);
+    headcountMethods.put(ALL_AGED_FTE_KEY, EnrollmentHeadcountResult::getTotalFteTotal);
+    return headcountMethods;
   }
-
-  public HeadCountTableDataRow buildDataRow(EnrollmentHeadcountResult result, String title, String gradeCode) {
-    Map<String, String> valuesMap = new HashMap<>();
-
-    if(result != null) {
-      switch (title) {
-        case SCHOOL_AGED_TITLE -> {
-          valuesMap.put(HEADCOUNT_TITLE, String.valueOf(result.getSchoolAgedHeadcount()));
-          valuesMap.put(ELIGIBLE_FTE_TITLE, String.valueOf(result.getSchoolAgedEligibleForFte()));
-          valuesMap.put(TOTAL_FTE_TITLE, String.valueOf(result.getSchoolAgedFteTotal()));
-        }
-        case ADULT_TITLE -> {
-          valuesMap.put(HEADCOUNT_TITLE, String.valueOf(result.getAdultHeadcount()));
-          valuesMap.put(ELIGIBLE_FTE_TITLE, String.valueOf(result.getAdultEligibleForFte()));
-          valuesMap.put(TOTAL_FTE_TITLE, String.valueOf(result.getAdultFteTotal()));
-        }
-        case ALL_STUDENT_TITLE -> {
-          valuesMap.put(HEADCOUNT_TITLE, String.valueOf(result.getTotalHeadcount()));
-          valuesMap.put(ELIGIBLE_FTE_TITLE, String.valueOf(result.getTotalEligibleForFte()));
-          valuesMap.put(TOTAL_FTE_TITLE, String.valueOf(result.getTotalFteTotal()));
-        }
-        default -> log.warn("Unexpected case in buildDataRow. This should not have happened.");
-      }
-    } else {
-      valuesMap.put(HEADCOUNT_TITLE, "0");
-      valuesMap.put(ELIGIBLE_FTE_TITLE, "0");
-      valuesMap.put(TOTAL_FTE_TITLE, "0");
-    }
-    return HeadCountTableDataRow.builder()
-            .title(gradeCode)
-            .columnTitleAndValueMap(valuesMap)
-            .build();
+  private Map<String, String> getSelectionTitles() {
+    Map<String, String> sectionTitles = new HashMap<>();
+    sectionTitles.put(SCHOOL_AGED_KEY, SCHOOL_AGED_TITLE);
+    sectionTitles.put(SCHOOL_AGED_HEADCOUNT_KEY, SCHOOL_AGED_TITLE);
+    sectionTitles.put(SCHOOL_AGED_ELIGIBLEKEY, SCHOOL_AGED_TITLE);
+    sectionTitles.put(SCHOOL_AGED_FTE_KEY, SCHOOL_AGED_TITLE);
+    sectionTitles.put(ADULT_AGED_KEY, ADULT_TITLE);
+    sectionTitles.put(ADULT_AGED_HEADCOUNT_KEY, ADULT_TITLE);
+    sectionTitles.put(ADULT_AGED_ELIGIBLEKEY, ADULT_TITLE);
+    sectionTitles.put(ADULT_AGED_FTE_KEY, ADULT_TITLE);
+    sectionTitles.put(ALL_AGED_KEY, ALL_STUDENT_TITLE);
+    sectionTitles.put(ALL_AGED_HEADCOUNT_KEY, ALL_STUDENT_TITLE);
+    sectionTitles.put(ALL_AGED_ELIGIBLEKEY, ALL_STUDENT_TITLE);
+    sectionTitles.put(ALL_AGED_FTE_KEY, ALL_STUDENT_TITLE);
+    return sectionTitles;
+  }
+  private Map<String, String> getRowTitles() {
+    Map<String, String> rowTitles = new LinkedHashMap<>();
+    rowTitles.put(SCHOOL_AGED_KEY, SCHOOL_AGED_TITLE);
+    rowTitles.put(SCHOOL_AGED_HEADCOUNT_KEY, HEADCOUNT_TITLE);
+    rowTitles.put(SCHOOL_AGED_ELIGIBLEKEY, ELIGIBLE_FTE_TITLE);
+    rowTitles.put(SCHOOL_AGED_FTE_KEY, TOTAL_FTE_TITLE);
+    rowTitles.put(ADULT_AGED_KEY, ADULT_TITLE);
+    rowTitles.put(ADULT_AGED_HEADCOUNT_KEY, HEADCOUNT_TITLE);
+    rowTitles.put(ADULT_AGED_ELIGIBLEKEY, ELIGIBLE_FTE_TITLE);
+    rowTitles.put(ADULT_AGED_FTE_KEY, TOTAL_FTE_TITLE);
+    rowTitles.put(ALL_AGED_KEY, ALL_STUDENT_TITLE);
+    rowTitles.put(ALL_AGED_HEADCOUNT_KEY, HEADCOUNT_TITLE);
+    rowTitles.put(ALL_AGED_ELIGIBLEKEY, ELIGIBLE_FTE_TITLE);
+    rowTitles.put(ALL_AGED_FTE_KEY, TOTAL_FTE_TITLE);
+    return rowTitles;
   }
 }
