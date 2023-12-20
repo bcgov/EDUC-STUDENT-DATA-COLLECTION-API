@@ -31,6 +31,8 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
             if (filterCriteria.getFieldName().contains(".")) {
                 String[] splits = filterCriteria.getFieldName().split("\\.");
                 return criteriaBuilder.equal(root.join(splits[0]).get(splits[1]), filterCriteria.getConvertedSingleValue());
+            } else if(filterCriteria.getConvertedSingleValue() == null) {
+                return criteriaBuilder.isNull(root.get(filterCriteria.getFieldName()));
             }
             return criteriaBuilder.equal(root.get(filterCriteria.getFieldName()), filterCriteria.getConvertedSingleValue());
         });
@@ -39,6 +41,8 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
             if (filterCriteria.getFieldName().contains(".")) {
                 String[] splits = filterCriteria.getFieldName().split("\\.");
                 return criteriaBuilder.notEqual(root.join(splits[0]).get(splits[1]), filterCriteria.getConvertedSingleValue());
+            } else if(filterCriteria.getConvertedSingleValue() == null) {
+                return criteriaBuilder.isNotNull(root.get(filterCriteria.getFieldName()));
             }
             return criteriaBuilder.notEqual(root.get(filterCriteria.getFieldName()), filterCriteria.getConvertedSingleValue());
         });
