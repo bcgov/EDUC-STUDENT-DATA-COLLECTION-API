@@ -130,7 +130,7 @@ public abstract class BaseStudentDataCollectionAPITest {
 
   public CollectionTypeCodeEntity createCollectionTypeCodeData() {
     return CollectionTypeCodeEntity.builder().collectionTypeCode("SEPTEMBER").label("September").description("September collection")
-            .displayOrder(10).effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).openDate(LocalDateTime.now().minusMonths(1))
+            .displayOrder(10).effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.now().plusYears(10)).openDate(LocalDateTime.now().minusMonths(1))
             .closeDate(LocalDateTime.now().plusMonths(1)).createUser("TEST").snapshotDate(LocalDate.now()).updateUser("TEST").build();
   }
 
