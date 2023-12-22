@@ -1,11 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportingRequirementCodes;
-import ca.bc.gov.educ.studentdatacollection.api.helpers.CareerHeadcountHelper;
-import ca.bc.gov.educ.studentdatacollection.api.helpers.CsfFrenchHeadcountHelper;
-import ca.bc.gov.educ.studentdatacollection.api.helpers.EllHeadcountHelper;
-import ca.bc.gov.educ.studentdatacollection.api.helpers.EnrollmentHeadcountHelper;
-import ca.bc.gov.educ.studentdatacollection.api.helpers.FrenchHeadcountHelper;
+import ca.bc.gov.educ.studentdatacollection.api.helpers.*;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -45,7 +41,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
   public SdcSchoolCollectionStudentHeadcounts getFrenchHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
     var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
     var school = this.restUtils.getSchoolBySchoolID(String.valueOf(sdcSchoolCollectionEntity.getSchoolID()));
-    
+
     List<HeadcountHeader> headcountHeaderList;
     HeadcountResultsTable collectionData;
     if(school.isPresent() && school.get().getSchoolReportingRequirementCode().equals(SchoolReportingRequirementCodes.CSF.getCode())) {
