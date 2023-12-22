@@ -122,7 +122,6 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
   }
   private Map<String, String> getSelectionTitles() {
     Map<String, String> sectionTitles = new HashMap<>();
-
     sectionTitles.put(CORE_TOTAL_TITLE, CORE_FRENCH_TITLE);
     sectionTitles.put(CORE_SCHOOL_AGE_TITLE, CORE_FRENCH_TITLE);
     sectionTitles.put(CORE_ADULT_TITLE, CORE_FRENCH_TITLE);
