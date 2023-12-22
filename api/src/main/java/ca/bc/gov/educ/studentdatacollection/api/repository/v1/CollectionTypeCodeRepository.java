@@ -12,4 +12,5 @@ public interface CollectionTypeCodeRepository extends JpaRepository<CollectionTy
 
   List<CollectionTypeCodeEntity> findAllByOpenDateBeforeAndEffectiveDateLessThanAndExpiryDateGreaterThan(LocalDateTime dateTime, LocalDateTime dateTimeGreat, LocalDateTime dateTimeLess);
 
+  List<CollectionTypeCodeEntity> findAllByExpiryDateAfter(LocalDateTime now);
 }
