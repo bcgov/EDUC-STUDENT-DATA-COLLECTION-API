@@ -103,6 +103,39 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "ORDER BY s.enrolledGradeCode")
   List<CsfFrenchHeadcountResult> getCsfFrenchHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
+  @Query("SELECT " +
+          "s.enrolledGradeCode AS enrolledGradeCode, " +
+          "COUNT(CASE WHEN s.isSchoolAged AND s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' AND ell.yearsInEll < 6 THEN 1 END) AS schoolAgedOneThroughFive, " +
+          "COUNT(CASE WHEN s.isSchoolAged AND s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' AND ell.yearsInEll > 5 THEN 1 END) AS schoolAgedSixPlus, " +
+          "COUNT(CASE WHEN s.isSchoolAged AND s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' THEN 1 END) AS schoolAgedTotals, " +
+          "COUNT(CASE WHEN s.isAdult AND s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' AND ell.yearsInEll < 6 THEN 1 END) AS adultOneThroughFive, " +
+          "COUNT(CASE WHEN s.isAdult AND s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' AND ell.yearsInEll > 5 THEN 1 END) AS adultSixPlus, " +
+          "COUNT(CASE WHEN s.isAdult AND s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' THEN 1 END) AS adultTotals, " +
+          "COUNT(CASE WHEN s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' AND ell.yearsInEll < 6 THEN 1 END) AS allOneThroughFive, " +
+          "COUNT(CASE WHEN s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' AND ell.yearsInEll > 5 THEN 1 END) AS allSixPlus, " +
+          "COUNT(CASE WHEN s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' THEN 1 END) AS totalEllStudents " +
+          "FROM SdcSchoolCollectionStudentEntity s " +
+          "LEFT JOIN SdcStudentEllEntity ell " +
+          "ON s.assignedStudentId = ell.studentID " +
+          "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionId " +
+          "GROUP BY s.enrolledGradeCode " +
+          "ORDER BY s.enrolledGradeCode")
+  List<EllHeadcountResult> getEllHeadcountsBySchoolId(@Param("sdcSchoolCollectionId") UUID sdcSchoolCollectionId);
+
+  @Query("SELECT " +
+          "COUNT(CASE WHEN s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' THEN 1 END) AS eligibleStudents, " +
+          "COUNT(CASE WHEN s.ellNonEligReasonCode IS NOT NULL AND ep.enrolledProgramCode = '17' THEN 1 END) AS reportedStudents, " +
+          "COUNT(CASE WHEN ep.enrolledProgramCode = '17' AND ell.yearsInEll < 6 THEN 1 END) AS oneToFiveYears, " +
+          "COUNT(CASE WHEN ep.enrolledProgramCode = '17' AND ell.yearsInEll > 5 THEN 1 END) AS sixPlusYears, " +
+          "COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents " +
+          "FROM SdcSchoolCollectionStudentEntity s " +
+          "LEFT JOIN SdcStudentEllEntity ell " +
+          "ON s.assignedStudentId = ell.studentID " +
+          "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionId")
+  EllHeadcountHeaderResult getEllHeadersBySchoolId(@Param("sdcSchoolCollectionId") UUID sdcSchoolCollectionId);
+
   @Query(value="""
             SELECT SSCS.numberOfCourses FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS WHERE SSC.schoolID = :schoolID
             AND C.collectionID = SSC.collectionEntity.collectionID

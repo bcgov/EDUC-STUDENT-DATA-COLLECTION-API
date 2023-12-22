@@ -7,7 +7,6 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHe
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeaderColumn;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResultsTable;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +20,6 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 
 @Component
-@Slf4j
 public class HeadcountHelper<T extends HeadcountResult> {
   protected final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   protected final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
@@ -61,6 +59,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
       return null;
     }
   }
+
   public void stripZeroColumns(HeadcountHeader headcountHeader) {
     Map<String, HeadcountHeaderColumn> map = headcountHeader.getColumns();
     List<String> newOrderedTitles = new ArrayList<>();
