@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.helpers.CareerHeadcountHelper;
+import ca.bc.gov.educ.studentdatacollection.api.helpers.EllHeadcountHelper;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.EnrollmentHeadcountHelper;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.FrenchHeadcountHelper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -21,6 +22,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
   private final EnrollmentHeadcountHelper enrollmentHeadcountHelper;
   private final FrenchHeadcountHelper frenchHeadcountHelper;
   private final CareerHeadcountHelper careerHeadcountHelper;
+  private final EllHeadcountHelper ellHeadcountHelper;
 
   public SdcSchoolCollectionStudentHeadcounts getEnrollmentHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
     var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
@@ -64,13 +66,12 @@ public class SdcSchoolCollectionStudentHeadcountService {
 
     List<EllHeadcountResult> collectionRawData =
       sdcSchoolCollectionStudentRepository.getEllHeadcountsBySchoolId(sdcSchoolCollectionID);
-    List<HeadcountTableData> collectionData = ellHeadcountHelper.convertHeadcountResults(collectionRawData);
+    HeadcountResultsTable headcountResultsTable = ellHeadcountHelper.convertHeadcountResults(collectionRawData);
     List<HeadcountHeader> headcountHeaderList = ellHeadcountHelper.getHeaders(sdcSchoolCollectionID);
     if (compare) {
       ellHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
     }
 
-    return SdcSchoolCollectionStudentHeadcounts.builder()
-      .headcountHeaders(headcountHeaderList).headcountTableDataList(collectionData).build();
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
   }
 }

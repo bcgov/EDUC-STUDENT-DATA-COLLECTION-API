@@ -5,6 +5,8 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeaderColumn;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,11 +14,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Function;
 
 @Component
 @Slf4j
 @EqualsAndHashCode(callSuper = true)
-public class EllHeadcountHelper extends HeadcountHelper {
+public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
 
   // Header Titles
   private static final String ELL_TITLE = "English Language Learners";
@@ -37,11 +40,26 @@ public class EllHeadcountHelper extends HeadcountHelper {
   // Total column title in table data
   private static final String TOTAL_GRADE_TITLE = "Total";
 
+  // Hash keys
+  private static final String SCHOOL_AGED_1_5 = "schoolAgedOneThroughFive";
+  private static final String SCHOOL_AGED_6_PLUS = "schoolAgedSixPlus";
+  private static final String SCHOOL_AGED_TOTALS = "schoolAgedTotals";
+  private static final String ADULT_1_5 = "adultOneThroughFive";
+  private static final String ADULT_6_PLUS = "adultSixPlus";
+  private static final String ADULT_TOTALS = "adultTotals";
+  private static final String ALL_1_5 = "allOneThroughFive";
+  private static final String ALL_6_PLUS= "allSixPlus";
+  private static final String TOTAL_ELL_STUDENTS = "totalEllStudents";
+
   public EllHeadcountHelper(
     SdcSchoolCollectionRepository sdcSchoolCollectionRepository,
     SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository
   ) {
     super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository);
+    headcountMethods = getHeadcountMethods();
+    sectionTitles = getSelectionTitles();
+    rowTitles = getRowTitles();
+    gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
   }
 
   public void setComparisonValues(
@@ -56,7 +74,8 @@ public class EllHeadcountHelper extends HeadcountHelper {
   public List<HeadcountHeader> getHeaders(UUID sdcSchoolCollectionID) {
     EllHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository
       .getEllHeadersBySchoolId(sdcSchoolCollectionID);
-    List<String> headerColumnTitles = List.of(ELIGIBLE_TITLE, REPORTED_TITLE, NOT_REPORTED_TITLE);
+    List<String> headerColumnTitles = List.of(ELIGIBLE_TITLE, REPORTED_TITLE, NOT_REPORTED_TITLE, ONE_TO_FIVE_TITLE,
+        YEARS_IN_ELL_TITLE);
     List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
 
     Arrays.asList(ELL_TITLE, YEARS_IN_ELL_TITLE).forEach(headerTitle -> {
@@ -91,59 +110,47 @@ public class EllHeadcountHelper extends HeadcountHelper {
     return headcountHeaderList;
   }
 
-  public List<HeadcountTableData> convertHeadcountResults(List<EllHeadcountResult> results) {
-    List<HeadcountTableData> headcountTableDataList = new ArrayList<>();
-    List<String> gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
-    String[] titles = { SCHOOL_AGED_TITLE, ADULT_TITLE, ALL_STUDENTS_TITLE };
-
-    for (String title : titles) {
-      List<HeadCountTableDataRow> rows = new ArrayList<>();
-      for (String gradeCode : gradeCodes) {
-        EllHeadcountResult result = results.stream()
-          .filter(value -> value.getEnrolledGradeCode().equals(gradeCode))
-          .findFirst()
-          .orElse(null);
-        rows.add(buildDataRow(result, title, gradeCode));
-      }
-
-      String[] keys = { title, ONE_TO_FIVE_TITLE, SIX_PLUS_TITLE };
-      rows.add(calculateSummaryRow(rows, keys, TOTAL_GRADE_TITLE));
-      headcountTableDataList.add(buildHeadcountTableData(title, rows, List.of(keys)));
-    }
-    return headcountTableDataList;
+  private Map<String, Function<EllHeadcountResult, String>> getHeadcountMethods() {
+    Map<String, Function<EllHeadcountResult, String>> headcountMethods = Map.of(
+        SCHOOL_AGED_1_5, EllHeadcountResult::getSchoolAgedOneThroughFive,
+        SCHOOL_AGED_6_PLUS, EllHeadcountResult::getSchoolAgedSixPlus,
+        SCHOOL_AGED_TOTALS, EllHeadcountResult::getSchoolAgedTotals,
+        ADULT_1_5, EllHeadcountResult::getAdultOneThroughFive,
+        ADULT_6_PLUS, EllHeadcountResult::getAdultSixPlus,
+        ADULT_TOTALS, EllHeadcountResult::getAdultTotals,
+        ALL_1_5, EllHeadcountResult::getAllOneThroughFive,
+        ALL_6_PLUS, EllHeadcountResult::getAllSixPlus,
+        TOTAL_ELL_STUDENTS, EllHeadcountResult::getTotalEllStudents);
+    return headcountMethods;
   }
 
-  public HeadCountTableDataRow buildDataRow(EllHeadcountResult result, String title, String gradeCode) {
-    Map<String, String> valuesMap = new HashMap<>();
+  private Map<String, String> getSelectionTitles() {
+    Map<String, String> sectionTitles = Map.of(
+        SCHOOL_AGED_TOTALS, SCHOOL_AGED_TITLE,
+        SCHOOL_AGED_1_5, ONE_TO_FIVE_TITLE,
+        SCHOOL_AGED_6_PLUS, SIX_PLUS_TITLE,
+        ADULT_TOTALS, ADULT_TITLE,
+        ADULT_1_5, ADULT_1_5,
+        ADULT_6_PLUS, ADULT_6_PLUS,
+        TOTAL_ELL_STUDENTS, ALL_STUDENTS_TITLE,
+        ALL_1_5, ONE_TO_FIVE_TITLE,
+        ALL_6_PLUS, SIX_PLUS_TITLE);
 
-    if (result != null) {
-      switch (title) {
-        case SCHOOL_AGED_TITLE -> {
-          valuesMap.put(SCHOOL_AGED_TITLE, String.valueOf(result.getSchoolAgedTotals()));
-          valuesMap.put(ONE_TO_FIVE_TITLE, String.valueOf(result.getSchoolAgedOneThroughFive()));
-          valuesMap.put(SIX_PLUS_TITLE, String.valueOf(result.getSchoolAgedSixPlus()));
-        }
-        case ADULT_TITLE -> {
-          valuesMap.put(ADULT_TITLE, String.valueOf(result.getAdultTotals()));
-          valuesMap.put(ONE_TO_FIVE_TITLE, String.valueOf(result.getAdultOneThroughFive()));
-          valuesMap.put(SIX_PLUS_TITLE, String.valueOf(result.getAdultSixPlus()));
-        }
-        case ALL_STUDENTS_TITLE -> {
-          valuesMap.put(ALL_STUDENTS_TITLE, String.valueOf(result.getTotalEllStudents()));
-          valuesMap.put(ONE_TO_FIVE_TITLE, String.valueOf(result.getAllOneThroughFive()));
-          valuesMap.put(SIX_PLUS_TITLE, String.valueOf(result.getAllSixPlus()));
-        }
-        default -> log.warn("Unexpected case in buildDataRow. This should not have happened.");
-      }
-    } else {
-      valuesMap.put(title, "0");
-      valuesMap.put(ONE_TO_FIVE_TITLE, "0");
-      valuesMap.put(SIX_PLUS_TITLE, "0");
-    }
+    return sectionTitles;
+  }
 
-    return HeadCountTableDataRow.builder()
-      .title(gradeCode)
-      .columnTitleAndValueMap(valuesMap)
-      .build();
+  private Map<String, String> getRowTitles() {
+    Map<String, String> rowTitles = Map.of(
+        SCHOOL_AGED_TOTALS, SCHOOL_AGED_TITLE,
+        SCHOOL_AGED_1_5, ONE_TO_FIVE_TITLE,
+        SCHOOL_AGED_6_PLUS, SIX_PLUS_TITLE,
+        ADULT_TOTALS, ADULT_TITLE,
+        ADULT_1_5, ADULT_1_5,
+        ADULT_6_PLUS, ADULT_6_PLUS,
+        TOTAL_ELL_STUDENTS, ALL_STUDENTS_TITLE,
+        ALL_1_5, ONE_TO_FIVE_TITLE,
+        ALL_6_PLUS, SIX_PLUS_TITLE);
+
+    return rowTitles;
   }
 }

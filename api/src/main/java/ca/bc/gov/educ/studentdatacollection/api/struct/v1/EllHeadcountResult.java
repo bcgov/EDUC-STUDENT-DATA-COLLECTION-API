@@ -1,14 +1,15 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.v1;
 
-public interface EllHeadcountResult {
-    String getEnrolledGradeCode();
-    Long getSchoolAgedOneThroughFive();
-    Long getSchoolAgedSixPlus();
-    Long getSchoolAgedTotals();
-    Long getAdultOneThroughFive();
-    Long getAdultSixPlus();
-    Long getAdultTotals();
-    Long getAllOneThroughFive();
-    Long getAllSixPlus();
-    Long getTotalEllStudents();
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResult;
+
+public interface EllHeadcountResult extends HeadcountResult {
+    String getSchoolAgedOneThroughFive();
+    String getSchoolAgedSixPlus();
+    String getSchoolAgedTotals();
+    String getAdultOneThroughFive();
+    String getAdultSixPlus();
+    String getAdultTotals();
+    String getAllOneThroughFive();
+    String getAllSixPlus();
+    String getTotalEllStudents();
 }

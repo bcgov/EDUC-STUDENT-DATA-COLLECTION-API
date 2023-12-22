@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
@@ -19,6 +20,8 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValueType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
+
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1054,20 +1057,120 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].title", equalTo("Co-Operative Education")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Not Reported'].currentValue", equalTo("4")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("0")));
+    }
+
+    @Test
+    void testGetSdcSchoolCollectionStudentHeadcounts_ellHeadCounts() throws Exception {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        firstSchool.setUploadDate(null);
+        firstSchool.setUploadFileName(null);
+        var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        secondSchool.setUploadDate(null);
+        secondSchool.setUploadFileName(null);
+        secondSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+        sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchool, secondSchool));
+
+        final File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+            );
+        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+        });
+        var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+        var students = IntStream.range(0, models.size())
+            .mapToObj(i -> {
+                var student = models.get(i);
+                var studentId = UUID.randomUUID();
+                var ellEntity = new SdcStudentEllEntity();
+
+                student.setAssignedStudentId(studentId);
+                if (i % 2 == 0) {
+                    student.setSdcSchoolCollection(secondSchool);
+                    ellEntity.setYearsInEll(4);
+                } else {
+                    student.setSdcSchoolCollection(firstSchool);
+                }
+                if (i == 1) {
+                  ellEntity.setYearsInEll(0);
+                  student.setEnrolledProgramCodes("9876543210");
+                  student.setEllNonEligReasonCode(ProgramEligibilityIssueCode.NOT_ENROLLED_ELL.getCode());
+                }
+                if (i == 3) {
+                  student.setEnrolledProgramCodes("9876543217");
+                  student.setEllNonEligReasonCode(ProgramEligibilityIssueCode.HOMESCHOOL.getCode());
+                }
+                if (i == 5) {
+                    student.setEnrolledProgramCodes("9876543217");
+                    ellEntity.setYearsInEll(6);
+                }
+                if (i == 7) {
+                    student.setEnrolledProgramCodes("9876543217");
+                    ellEntity.setYearsInEll(4);
+                }
+
+                ellEntity.setCreateUser("ABC");
+                ellEntity.setUpdateUser("ABC");
+                ellEntity.setCreateDate(LocalDateTime.now());
+                ellEntity.setUpdateDate(LocalDateTime.now());
+                ellEntity.setStudentID(student.getAssignedStudentId());
+                sdcStudentEllRepository.save(ellEntity);
+
+                return student;
+            })
+        .toList();
+
+        var savedStudents = sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        List<SdcSchoolCollectionStudentEnrolledProgramEntity> enrolledPrograms = new ArrayList<>();
+
+        savedStudents.forEach(student -> {
+            if (!StringUtils.equals(
+                ProgramEligibilityIssueCode.NOT_ENROLLED_ELL.getCode(),
+                student.getEllNonEligReasonCode()
+            )) {
+                var enrolledProg = new SdcSchoolCollectionStudentEnrolledProgramEntity();
+                enrolledProg.setEnrolledProgramCode("17");
+                enrolledProg.setSdcSchoolCollectionStudentEntity(student);
+                enrolledProg.setCreateUser("ABC");
+                enrolledProg.setUpdateUser("ABC");
+                enrolledProg.setCreateDate(LocalDateTime.now());
+                enrolledProg.setUpdateDate(LocalDateTime.now());
+                enrolledPrograms.add(enrolledProg);
+            }
+        });
+
+        sdcSchoolCollectionStudentEnrolledProgramRepository.saveAll(enrolledPrograms);
+
+        this.mockMvc
+            .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
+                    .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                    .param("type", "ell")
+                    .param("compare", "true")
+                    .contentType(APPLICATION_JSON))
+            .andDo(print())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].title", equalTo("English Language Learners")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Reported'].currentValue", equalTo("1")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("4")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].title", equalTo("Years in ELL Headcount")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Year 1-5'].currentValue", equalTo("1")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Year 6+'].comparisonValue", equalTo("0")));
 
     }
+
     @Test
     void testGetSdcSchoolCollectionStudentHeadcounts_WithInvalidCollection() throws Exception {
         UUID collectionID = UUID.randomUUID();
         this.mockMvc
-                .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + collectionID.toString())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
-                        .param("type", "enrollment")
-                        .param("compare", "true")
-                        .contentType(APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof EntityNotFoundException))
-                .andExpect(result -> assertTrue(Objects.requireNonNull(result.getResolvedException()).getMessage().contains(collectionID.toString())));
+            .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + collectionID.toString())
+                    .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                    .param("type", "enrollment")
+                    .param("compare", "true")
+                    .contentType(APPLICATION_JSON))
+            .andExpect(status().isNotFound())
+            .andExpect(result -> assertTrue(result.getResolvedException() instanceof EntityNotFoundException))
+            .andExpect(result -> assertTrue(Objects.requireNonNull(result.getResolvedException()).getMessage().contains(collectionID.toString())));
     }
     @Test
     void testGetSdcSchoolCollectionStudentHeadcounts_WithInvalidType_ShouldReturnBadRequest() throws Exception {
@@ -1078,11 +1181,11 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         sdcSchoolCollectionRepository.save(schoolEntity);
 
         mockMvc.perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + schoolEntity.getSdcSchoolCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
-                        .param("type", "invalidType")
-                        .param("compare", "true")
-                        .contentType(APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                .param("type", "invalidType")
+                .param("compare", "true")
+                .contentType(APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
