@@ -34,8 +34,8 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
   private static final String ALL_STUDENTS_TITLE = "All English Language Learners";
 
   // Sub-row titles (used in header and table)
-  private static final String ONE_TO_FIVE_TITLE = "Year 1-5";
-  private static final String SIX_PLUS_TITLE = "Year 6+";
+  private static final String ONE_TO_FIVE_TITLE = "1-5 Years";
+  private static final String SIX_PLUS_TITLE = "6+ Years";
 
   // Total column title in table data
   private static final String TOTAL_GRADE_TITLE = "Total";
@@ -74,17 +74,17 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
   public List<HeadcountHeader> getHeaders(UUID sdcSchoolCollectionID) {
     EllHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository
       .getEllHeadersBySchoolId(sdcSchoolCollectionID);
-    List<String> headerColumnTitles = List.of(ELIGIBLE_TITLE, REPORTED_TITLE, NOT_REPORTED_TITLE, ONE_TO_FIVE_TITLE,
-        YEARS_IN_ELL_TITLE);
+    List<String> ellColumnTitles = List.of(ELIGIBLE_TITLE, REPORTED_TITLE, NOT_REPORTED_TITLE);
+    List<String> yearsInEllHeadcountTitles = List.of(ONE_TO_FIVE_TITLE, SIX_PLUS_TITLE);
     List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
 
     Arrays.asList(ELL_TITLE, YEARS_IN_ELL_TITLE).forEach(headerTitle -> {
       HeadcountHeader headcountHeader = new HeadcountHeader();
       headcountHeader.setColumns(new HashMap<>());
       headcountHeader.setTitle(headerTitle);
-      headcountHeader.setOrderedColumnTitles(headerColumnTitles);
 
       if (StringUtils.equals(headerTitle, ELL_TITLE)) {
+        headcountHeader.setOrderedColumnTitles(ellColumnTitles);
         headcountHeader.getColumns()
           .put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder()
               .currentValue(String.valueOf(result.getEligibleStudents())).build());
@@ -97,6 +97,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
                   Long.parseLong(result.getAllStudents())
                   - Long.parseLong(result.getReportedStudents()))).build());
       } else if (StringUtils.equals(headerTitle, YEARS_IN_ELL_TITLE)) {
+        headcountHeader.setOrderedColumnTitles(yearsInEllHeadcountTitles);
         headcountHeader.getColumns()
           .put(ONE_TO_FIVE_TITLE, HeadcountHeaderColumn.builder()
               .currentValue(result.getOneToFiveYears()).build());

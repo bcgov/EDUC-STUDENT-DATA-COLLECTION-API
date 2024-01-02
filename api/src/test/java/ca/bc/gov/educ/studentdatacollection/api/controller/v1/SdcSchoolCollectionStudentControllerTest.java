@@ -44,6 +44,7 @@ import java.util.stream.IntStream;
 import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.AND;
 import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.OR;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInRelativeOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -1209,17 +1210,19 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
-                    .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
-                    .param("type", "ell")
-                    .param("compare", "true")
-                    .contentType(APPLICATION_JSON))
+                .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                .param("type", "ell")
+                .param("compare", "true")
+                .contentType(APPLICATION_JSON))
             .andDo(print())
             .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].title", equalTo("English Language Learners")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].orderedColumnTitles", containsInRelativeOrder("Eligible", "Reported", "Not Reported")))
             .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Reported'].currentValue", equalTo("1")))
             .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("4")))
             .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].title", equalTo("Years in ELL Headcount")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Year 1-5'].currentValue", equalTo("1")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Year 6+'].comparisonValue", equalTo("0")));
+            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].orderedColumnTitles", containsInRelativeOrder("1-5 Years", "6+ Years")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['1-5 Years'].currentValue", equalTo("1")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['6+ Years'].comparisonValue", equalTo("0")));
 
     }
 

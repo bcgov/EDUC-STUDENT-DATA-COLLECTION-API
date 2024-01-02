@@ -52,7 +52,7 @@ class TooYoungCalculatorTest {
         // Given
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd");
-        student.setDob(format.format(LocalDateTime.now().minusYears(5)));
+        student.setDob(format.format(LocalDateTime.now().minusYears(8)));
 
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSdcSchoolCollectionStudentEntity(student);
