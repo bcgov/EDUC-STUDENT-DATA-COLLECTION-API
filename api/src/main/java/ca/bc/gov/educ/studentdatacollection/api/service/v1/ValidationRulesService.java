@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CodeTableMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcStudentEllEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
@@ -106,10 +107,9 @@ public class ValidationRulesService {
       student.setPenMatchResult("NEW");
     }
 
-    //TODO Change me
-    if(student.getIsGraduated() == null) {
-      student.setIsGraduated(false);
-    }
+    final var gradResult = this.restUtils.getGradStatusResult(UUID.randomUUID(), SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(student));
+    log.info("Grad status for SDC student {} :: is {}", student.getSdcSchoolCollectionStudentID(), gradResult);
+    student.setIsGraduated(false);
   }
 
   public boolean hasEnrollmentHistory(StudentRuleData studentRuleData){
