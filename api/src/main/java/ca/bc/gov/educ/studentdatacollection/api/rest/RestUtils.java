@@ -165,16 +165,19 @@ public class RestUtils {
       final TypeReference<GradStatusResult> ref = new TypeReference<>() {
       };
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.FETCH_GRAD_STATUS).eventPayload(gradStatusJSON).build();
+      log.info("Making Grad Status callout");
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.GRAD_STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
+      log.info("Response: " + responseMessage);
       if (responseMessage != null) {
-        log.debug("Grad status Payload is :: " + responseMessage);
+        log.info("Grad status Payload is :: " + responseMessage);
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {
+        log.info("Inside else statement");
         throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
 
     } catch (final Exception ex) {
-      log.error("Error occurred calling Grad service :: " + ex.getMessage());
+      log.error("Error occurred calling Grad service :: " + ex);
       Thread.currentThread().interrupt();
       throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
     }
