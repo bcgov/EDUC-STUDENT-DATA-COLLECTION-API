@@ -107,8 +107,10 @@ public class ValidationRulesService {
       student.setPenMatchResult("NEW");
     }
 
-    final var gradResult = this.restUtils.getGradStatusResult(UUID.randomUUID(), SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(student));
-    log.info("Grad status for SDC student {} :: is {}", student.getSdcSchoolCollectionStudentID(), gradResult);
+    if(student.getAssignedStudentId() != null) {
+        final var gradResult = this.restUtils.getGradStatusResult(UUID.randomUUID(), SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(student));
+        log.info("Grad status for SDC student {} :: is {}", student.getSdcSchoolCollectionStudentID(), gradResult);
+    }
     student.setIsGraduated(false);
   }
 
