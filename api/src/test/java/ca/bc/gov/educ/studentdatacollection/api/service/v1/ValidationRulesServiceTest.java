@@ -28,7 +28,7 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
-    void testGetPenMatchResultNewPEN() {
+    void testGetPenMatchResultMultiPEN() {
         SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.setPenStatus("DM");
@@ -38,6 +38,19 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
 
         assertNull(mockStudentEntity.getAssignedStudentId());
         assertSame("MULTI", mockStudentEntity.getPenMatchResult());
+    }
+
+    @Test
+    void testGetPenMatchResultNewPEN() {
+        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.setPenStatus("D0");
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+        validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
+
+        assertNull(mockStudentEntity.getAssignedStudentId());
+        assertSame("NEW", mockStudentEntity.getPenMatchResult());
     }
 
     @Test
