@@ -37,9 +37,6 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
   private static final String ONE_TO_FIVE_TITLE = "1-5 Years";
   private static final String SIX_PLUS_TITLE = "6+ Years";
 
-  // Total column title in table data
-  private static final String TOTAL_GRADE_TITLE = "Total";
-
   // Hash keys
   private static final String SCHOOL_AGED_1_5 = "schoolAgedOneThroughFive";
   private static final String SCHOOL_AGED_6_PLUS = "schoolAgedSixPlus";
@@ -142,7 +139,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
 
   private Map<String, String> getRowTitles() {
     Map<String, String> rowTitles = new LinkedHashMap<>();
-    rowTitles.put(SCHOOL_AGED_TOTALS, TOTAL_GRADE_TITLE);
+    rowTitles.put(SCHOOL_AGED_TOTALS, SCHOOL_AGED_TITLE);
     rowTitles.put(SCHOOL_AGED_1_5, ONE_TO_FIVE_TITLE);
     rowTitles.put(SCHOOL_AGED_6_PLUS, SIX_PLUS_TITLE);
     rowTitles.put(ADULT_TOTALS, ADULT_TITLE);
