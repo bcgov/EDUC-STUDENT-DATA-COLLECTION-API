@@ -215,7 +215,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "COUNT(CASE WHEN s.careerProgramCode = 'XF' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXF, " +
           "COUNT(CASE WHEN s.careerProgramCode = 'XG' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXG, " +
           "COUNT(CASE WHEN s.careerProgramCode = 'XH' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXH, " +
-          "COUNT(CASE WHEN s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS techYouthTotal, " +
+          "COUNT(CASE WHEN s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthTotal, " +
           "COUNT(CASE WHEN s.careerProgramCode = 'XA' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXA, " +
           "COUNT(CASE WHEN s.careerProgramCode = 'XB' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXB, " +
           "COUNT(CASE WHEN s.careerProgramCode = 'XC' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXC, " +
