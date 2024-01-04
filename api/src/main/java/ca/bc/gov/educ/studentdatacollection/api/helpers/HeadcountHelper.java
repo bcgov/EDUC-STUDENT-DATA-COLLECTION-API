@@ -11,10 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Month;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.IntStream;
@@ -48,11 +44,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
   }
 
   public UUID getPreviousSeptemberCollectionID(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
-    int previousYear = sdcSchoolCollectionEntity.getCreateDate().minusYears(1).getYear();
-    LocalDateTime startOfCollectionDate = LocalDate.of(previousYear, Month.SEPTEMBER, 1).atTime(LocalTime.MIN);
-    LocalDateTime endOfCollectionDate = LocalDate.of(previousYear, Month.SEPTEMBER, 30).atTime(LocalTime.MAX);
-
-    var septemberCollection = sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(sdcSchoolCollectionEntity.getSchoolID(), startOfCollectionDate, endOfCollectionDate);
+    var septemberCollection = sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(sdcSchoolCollectionEntity.getSchoolID(), sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
     if(!septemberCollection.isEmpty()) {
       return septemberCollection.get(0).getSdcSchoolCollectionID();
     } else {

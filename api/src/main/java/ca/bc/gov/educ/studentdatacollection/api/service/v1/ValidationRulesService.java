@@ -3,14 +3,13 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CodeTableMapper;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcStudentEllEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -90,6 +89,7 @@ public class ValidationRulesService {
     val penMatchResultCode = penMatchResult.getPenStatus();
     student.setPenMatchResult(penMatchResultCode);
     var validPenMatchResults = Arrays.asList("AA", "B1", "C1", "D1");
+    var multiPenMatchResults = Arrays.asList("BM", "CM", "DM");
 
     if (StringUtils.isNotEmpty(penMatchResultCode) && validPenMatchResults.contains(penMatchResultCode)) {
       final var penMatchRecordOptional = penMatchResult.getMatchingRecords().stream().findFirst();
@@ -103,14 +103,16 @@ public class ValidationRulesService {
         log.error("PenMatchRecord in priority queue is empty for matched status, this should not have happened.");
         throw new StudentDataCollectionAPIRuntimeException("PenMatchRecord in priority queue is empty for matched status, this should not have happened.");
       }
+    }else if (StringUtils.isNotEmpty(penMatchResultCode) && multiPenMatchResults.contains(penMatchResultCode)) {
+      student.setPenMatchResult("MULTI");
     }else{
       student.setPenMatchResult("NEW");
     }
 
-    if(student.getAssignedStudentId() != null) {
-        final var gradResult = this.restUtils.getGradStatusResult(UUID.randomUUID(), SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(student));
-        log.info("Grad status for SDC student {} :: is {}", student.getSdcSchoolCollectionStudentID(), gradResult);
-    }
+//    if(student.getAssignedStudentId() != null) {
+//        final var gradResult = this.restUtils.getGradStatusResult(UUID.randomUUID(), SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(student));
+//        log.info("Grad status for SDC student {} :: is {}", student.getSdcSchoolCollectionStudentID(), gradResult);
+//    }
     student.setIsGraduated(false);
   }
 

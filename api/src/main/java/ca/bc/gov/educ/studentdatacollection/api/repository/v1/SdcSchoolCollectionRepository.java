@@ -19,7 +19,20 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             AND C.openDate <= CURRENT_TIMESTAMP AND C.closeDate >= CURRENT_TIMESTAMP""")
     Optional<SdcSchoolCollectionEntity> findActiveCollectionBySchoolId(UUID schoolID);
 
-    List<SdcSchoolCollectionEntity> findAllBySchoolIDAndCreateDateBetween(UUID schoolId, LocalDateTime startDate, LocalDateTime endDate);
+    @Query(value = """
+            SELECT SSC.*
+            FROM sdc_school_collection SSC, collection C
+            WHERE SSC.school_id=:schoolId
+            AND C.collection_id  = ssc.collection_id
+            AND C.snapshot_date >=
+            (select (col.snapshot_date - INTERVAL '2' year - INTERVAL '10' day)
+            from collection col, sdc_school_collection ssoc
+            where col.collection_id = ssoc.collection_id
+            and ssoc.sdc_school_collection_id = :sdcCollectionID
+            )
+            AND ssc.sdc_school_collection_id != :sdcCollectionID"""
+            , nativeQuery = true)
+    List<SdcSchoolCollectionEntity> findAllCollectionsForSchoolInLastTwoYears(UUID schoolId, UUID sdcCollectionID);
 
     List<SdcSchoolCollectionEntity> findAllByDistrictIDAndCreateDateBetween(UUID schoolId, LocalDateTime startDate, LocalDateTime endDate);
 

@@ -37,7 +37,7 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
 
         assertNull(mockStudentEntity.getAssignedStudentId());
-        assertSame("NEW", mockStudentEntity.getPenMatchResult());
+        assertSame("MULTI", mockStudentEntity.getPenMatchResult());
     }
 
     @Test

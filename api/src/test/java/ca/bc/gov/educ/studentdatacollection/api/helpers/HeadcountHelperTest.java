@@ -94,7 +94,7 @@ class HeadcountHelperTest {
     List<SdcSchoolCollectionEntity> septemberCollections = new ArrayList<>();
     septemberCollections.add(schoolCollectionEntity);
 
-    when(schoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(eq(schoolId), any(LocalDateTime.class), any(LocalDateTime.class)))
+    when(schoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(eq(schoolId), any()))
             .thenReturn(septemberCollections);
 
     // When
@@ -102,11 +102,9 @@ class HeadcountHelperTest {
 
     // Then
     assertEquals(schoolCollectionId, result);
-    verify(schoolCollectionRepository).findAllBySchoolIDAndCreateDateBetween(
+    verify(schoolCollectionRepository).findAllCollectionsForSchoolInLastTwoYears(
             schoolId,
-            LocalDateTime.of(2022, Month.SEPTEMBER, 1, 0, 0),
-            LocalDateTime.of(2022, Month.SEPTEMBER, 30, 23, 59, 59, 999999999)
-    );
+            schoolCollectionEntity.getSdcSchoolCollectionID());
   }
 
   @Test
@@ -120,7 +118,7 @@ class HeadcountHelperTest {
     schoolCollectionEntity.setSchoolID(schoolId);
     schoolCollectionEntity.setCreateDate(createDate);
 
-    when(schoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(eq(schoolId), any(LocalDateTime.class), any(LocalDateTime.class)))
+    when(schoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(eq(schoolId), any()))
             .thenReturn(new ArrayList<>());
 
     // When

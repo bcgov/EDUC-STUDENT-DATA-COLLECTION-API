@@ -15,8 +15,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
-import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -66,23 +64,12 @@ public class InactiveOnlineMinorStudentsRule implements ProgramEligibilityBaseRu
     List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
     var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
     School school = studentRuleData.getSchool();
-    LocalDateTime startOfMonth = student.getCreateDate()
-      .with(TemporalAdjusters.firstDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
-    List<SdcSchoolCollectionEntity> lastTwoYearsOfCollections = sdcSchoolCollectionRepository
-      .findAllBySchoolIDAndCreateDateBetween(
-        UUID.fromString(school.getSchoolId()),
-        startOfMonth.minusYears(2),
-        startOfMonth
-      );
-    log.debug("In executeValidation of ProgramEligibilityBaseRule - InactiveOnlineMinorStudentsRule: No of collections - {},  for sdcSchoolCollectionStudentID :: {}" ,lastTwoYearsOfCollections.size(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+    List<SdcSchoolCollectionEntity> lastTwoYearsOfCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(UUID.fromString(school.getSchoolId()),student.getSdcSchoolCollection().getSdcSchoolCollectionID());
+    log.debug("In executeValidation of ProgramEligibilityBaseRule - InactiveOnlineMinorStudentsRule: No of collections - {},  for school :: {}" ,lastTwoYearsOfCollections.size(), school.getSchoolId());
 
-    if (lastTwoYearsOfCollections.isEmpty()
-    || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(
-      student.getAssignedStudentId(),
-      lastTwoYearsOfCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(),
-      "0"
-    ) == 0) {
+    if (lastTwoYearsOfCollections.isEmpty() || student.getAssignedStudentId() == null
+    || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(student.getAssignedStudentId(), lastTwoYearsOfCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(), "0") == 0) {
       errors.add(ProgramEligibilityIssueCode.INACTIVE_SCHOOL_AGE);
     }
 
