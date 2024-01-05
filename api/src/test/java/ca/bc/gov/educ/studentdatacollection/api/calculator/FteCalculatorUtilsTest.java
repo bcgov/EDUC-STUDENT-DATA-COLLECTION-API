@@ -682,7 +682,7 @@ class FteCalculatorUtilsTest {
         studentData.setSchool(school);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
-        when(sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
                 .thenReturn(lastTwoYearsOfCollections);
         when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(any(UUID.class), anyList(), any(String.class)))
                 .thenReturn(0L);
@@ -729,8 +729,9 @@ class FteCalculatorUtilsTest {
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
         studentData.setSdcSchoolCollectionStudentEntity(student);
+        student.setSdcSchoolCollection(schoolCollection1);
 
-        when(sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
                 .thenReturn(lastTwoYearsOfCollections);
         when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(any(UUID.class), anyList(), any(String.class)))
                 .thenReturn(0L);
@@ -777,8 +778,9 @@ class FteCalculatorUtilsTest {
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
         studentData.setSdcSchoolCollectionStudentEntity(student);
+        student.setSdcSchoolCollection(schoolCollection1);
 
-        when(sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
                 .thenReturn(lastTwoYearsOfCollections);
         when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(any(UUID.class), anyList(), any(String.class)))
                 .thenReturn(1L);
@@ -841,8 +843,9 @@ class FteCalculatorUtilsTest {
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
         studentData.setSdcSchoolCollectionStudentEntity(student);
+        student.setSdcSchoolCollection(schoolCollection1);
 
-        when(sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
                 .thenReturn(List.of());
         when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(any(UUID.class), anyList(), any(String.class)))
                 .thenReturn(1L);
@@ -894,8 +897,9 @@ class FteCalculatorUtilsTest {
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
         studentData.setSdcSchoolCollectionStudentEntity(student);
+        student.setSdcSchoolCollection(schoolCollection1);
 
-        when(sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
                 .thenReturn(lastTwoYearsOfCollections);
         when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(any(UUID.class), anyList(), any(String.class)))
                 .thenReturn(0L);
@@ -961,8 +965,9 @@ class FteCalculatorUtilsTest {
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
         studentData.setSdcSchoolCollectionStudentEntity(student);
+        student.setSdcSchoolCollection(schoolCollection1);
 
-        when(sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
                 .thenReturn(lastTwoYearsOfCollections);
         when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(any(UUID.class), anyList(), any(String.class)))
                 .thenReturn(0L);
@@ -1007,8 +1012,9 @@ class FteCalculatorUtilsTest {
         studentData.setSchool(school);
         studentData.setSdcSchoolCollectionStudentEntity(student);
         student.setAssignedStudentId(UUID.randomUUID());
+        student.setSdcSchoolCollection(schoolCollection1);
 
-        when(sdcSchoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
                 .thenReturn(lastTwoYearsOfCollections);
         when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(any(UUID.class), anyList(), any(String.class)))
                 .thenReturn(0L);

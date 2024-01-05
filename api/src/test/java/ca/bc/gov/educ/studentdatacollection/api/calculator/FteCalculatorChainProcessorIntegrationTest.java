@@ -166,7 +166,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         sdcSchoolCollection.getCollectionEntity().setCollectionID(collection.getCollectionID());
         sdcSchoolCollectionRepository.save(sdcSchoolCollection);
         this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
-
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollection);
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 

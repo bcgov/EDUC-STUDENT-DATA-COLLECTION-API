@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
@@ -91,10 +92,9 @@ class HeadcountHelperTest {
     schoolCollectionEntity.setSchoolID(schoolId);
     schoolCollectionEntity.setCreateDate(createDate);
 
-    List<SdcSchoolCollectionEntity> septemberCollections = new ArrayList<>();
-    septemberCollections.add(schoolCollectionEntity);
+    Optional<SdcSchoolCollectionEntity> septemberCollections = Optional.of(schoolCollectionEntity);
 
-    when(schoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(eq(schoolId), any(LocalDateTime.class), any(LocalDateTime.class)))
+    when(schoolCollectionRepository.findLastCollectionByType(eq(schoolId), any(), any()))
             .thenReturn(septemberCollections);
 
     // When
@@ -102,11 +102,10 @@ class HeadcountHelperTest {
 
     // Then
     assertEquals(schoolCollectionId, result);
-    verify(schoolCollectionRepository).findAllBySchoolIDAndCreateDateBetween(
+    verify(schoolCollectionRepository).findLastCollectionByType(
             schoolId,
-            LocalDateTime.of(2022, Month.SEPTEMBER, 1, 0, 0),
-            LocalDateTime.of(2022, Month.SEPTEMBER, 30, 23, 59, 59, 999999999)
-    );
+            CollectionTypeCodes.SEPTEMBER.getTypeCode(),
+            schoolCollectionEntity.getSdcSchoolCollectionID());
   }
 
   @Test
@@ -120,7 +119,7 @@ class HeadcountHelperTest {
     schoolCollectionEntity.setSchoolID(schoolId);
     schoolCollectionEntity.setCreateDate(createDate);
 
-    when(schoolCollectionRepository.findAllBySchoolIDAndCreateDateBetween(eq(schoolId), any(LocalDateTime.class), any(LocalDateTime.class)))
+    when(schoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(eq(schoolId), any()))
             .thenReturn(new ArrayList<>());
 
     // When
