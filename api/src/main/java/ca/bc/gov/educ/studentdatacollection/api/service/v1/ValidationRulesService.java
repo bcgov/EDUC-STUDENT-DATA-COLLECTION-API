@@ -97,9 +97,9 @@ public class ValidationRulesService {
         var multiPenMatchResults = Arrays.asList("BM", "CM", "DM");
 
         if (StringUtils.isNotEmpty(penMatchResultCode) && validPenMatchResults.contains(penMatchResultCode)) {
-            if (penMatchResult.getMatchingRecords() == null) {
-                log.error("PEN Match records list is null - this should not have happened :: ", penMatchResult);
-                throw new StudentDataCollectionAPIRuntimeException("PEN Match records list is null - this should not have happened :: ");
+            if (penMatchResult.getMatchingRecords() == null || penMatchResult.getMatchingRecords().isEmpty()) {
+                log.error("PEN Match records list is null or empty - this should not have happened :: ", penMatchResult);
+                throw new StudentDataCollectionAPIRuntimeException("PEN Match records list is null or empty - this should not have happened");
             }
             final var penMatchRecordOptional = penMatchResult.getMatchingRecords().stream().findFirst();
             if (penMatchRecordOptional.isPresent()) {
@@ -108,9 +108,6 @@ public class ValidationRulesService {
 
                 student.setAssignedStudentId(UUID.fromString(assignedStudentID));
                 student.setAssignedPen(assignedPEN);
-            } else {
-                log.error("PenMatchRecord in priority queue is empty for matched status, this should not have happened.");
-                throw new StudentDataCollectionAPIRuntimeException("PenMatchRecord in priority queue is empty for matched status, this should not have happened.");
             }
         } else if (StringUtils.isNotEmpty(penMatchResultCode) && multiPenMatchResults.contains(penMatchResultCode)) {
             student.setPenMatchResult("MULTI");
