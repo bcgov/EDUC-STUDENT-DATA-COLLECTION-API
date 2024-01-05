@@ -34,6 +34,16 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             , nativeQuery = true)
     List<SdcSchoolCollectionEntity> findAllCollectionsForSchoolInLastTwoYears(UUID schoolId, UUID sdcCollectionID);
 
+    @Query(value="""
+            SELECT SSC FROM SdcSchoolCollectionEntity SSC, CollectionEntity C 
+            WHERE SSC.schoolID=:schoolID 
+            AND C.collectionID = SSC.collectionEntity.collectionID
+            AND SSC.sdcSchoolCollectionID != :currentSdcCollectionID
+            AND C.collectionTypeCode = :collectionTypeCode
+            ORDER BY C.snapshotDate desc
+            LIMIT 1""")
+    Optional<SdcSchoolCollectionEntity> findLastCollectionByType(UUID schoolID, String collectionTypeCode, UUID currentSdcCollectionID);
+
     List<SdcSchoolCollectionEntity> findAllByDistrictIDAndCreateDateBetween(UUID schoolId, LocalDateTime startDate, LocalDateTime endDate);
 
     List<SdcSchoolCollectionEntity> findAllBySchoolIDInAndCreateDateBetween(List<UUID> schoolIds, LocalDateTime startDate, LocalDateTime endDate);

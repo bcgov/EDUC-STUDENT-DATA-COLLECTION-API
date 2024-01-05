@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
@@ -44,9 +45,9 @@ public class HeadcountHelper<T extends HeadcountResult> {
   }
 
   public UUID getPreviousSeptemberCollectionID(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
-    var septemberCollection = sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(sdcSchoolCollectionEntity.getSchoolID(), sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-    if(!septemberCollection.isEmpty()) {
-      return septemberCollection.get(0).getSdcSchoolCollectionID();
+    var septemberCollection = sdcSchoolCollectionRepository.findLastCollectionByType(sdcSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+    if(septemberCollection.isPresent()) {
+      return septemberCollection.get().getSdcSchoolCollectionID();
     } else {
       return null;
     }

@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
@@ -91,10 +92,9 @@ class HeadcountHelperTest {
     schoolCollectionEntity.setSchoolID(schoolId);
     schoolCollectionEntity.setCreateDate(createDate);
 
-    List<SdcSchoolCollectionEntity> septemberCollections = new ArrayList<>();
-    septemberCollections.add(schoolCollectionEntity);
+    Optional<SdcSchoolCollectionEntity> septemberCollections = Optional.of(schoolCollectionEntity);
 
-    when(schoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(eq(schoolId), any()))
+    when(schoolCollectionRepository.findLastCollectionByType(eq(schoolId), any(), any()))
             .thenReturn(septemberCollections);
 
     // When
@@ -102,8 +102,9 @@ class HeadcountHelperTest {
 
     // Then
     assertEquals(schoolCollectionId, result);
-    verify(schoolCollectionRepository).findAllCollectionsForSchoolInLastTwoYears(
+    verify(schoolCollectionRepository).findLastCollectionByType(
             schoolId,
+            CollectionTypeCodes.SEPTEMBER.getTypeCode(),
             schoolCollectionEntity.getSdcSchoolCollectionID());
   }
 
