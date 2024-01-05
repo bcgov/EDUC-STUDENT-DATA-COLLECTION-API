@@ -68,7 +68,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "SUM(CASE WHEN s.fte > 0 THEN 1 ELSE 0 END) AS totalEligibleForFte, " +
           "SUM(s.fte) AS totalFteTotal " +
           "FROM SdcSchoolCollectionStudentEntity s " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
   List<EnrollmentHeadcountResult> getEnrollmentHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
@@ -89,7 +89,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "COUNT(CASE WHEN ep.enrolledProgramCode IN ('05', '08', '11', '14') AND s.frenchProgramNonEligReasonCode IS NULL THEN 1 END) AS totalTotals " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
   List<FrenchHeadcountResult> getFrenchHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
@@ -100,7 +100,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "COUNT(CASE WHEN ep.enrolledProgramCode = '05' AND s.frenchProgramNonEligReasonCode IS NULL THEN 1 END) AS totalFrancophone " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
   List<CsfFrenchHeadcountResult> getCsfFrenchHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
@@ -120,7 +120,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "LEFT JOIN SdcStudentEllEntity ell " +
           "ON s.assignedStudentId = ell.studentID " +
           "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionId " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionId AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
   List<EllHeadcountResult> getEllHeadcountsBySchoolId(@Param("sdcSchoolCollectionId") UUID sdcSchoolCollectionId);
@@ -147,7 +147,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             AND C.openDate >= (SELECT C.openDate FROM CollectionEntity C WHERE C.collectionTypeCode = :collectionTypeCode AND EXTRACT(YEAR FROM C.openDate) = :targetYear)
             """)
   List<String> getCollectionHistory(UUID schoolID, String pen, LocalDateTime currentOpenDate, String collectionTypeCode, Integer targetYear);
-    
+
   @Query("SELECT " +
           "COUNT(CASE WHEN ep.enrolledProgramCode = '08' AND s.frenchProgramNonEligReasonCode IS NULL THEN 1 END) AS totalCoreFrench, " +
           "COUNT(CASE WHEN ep.enrolledProgramCode = '08' THEN 1 END) AS reportedCoreFrench, " +
@@ -180,54 +180,54 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   @Query("SELECT " +
           "s.enrolledGradeCode AS enrolledGradeCode, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XA' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXA, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XB' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXB, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XC' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXC, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XD' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXD, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XE' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXE, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XF' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXF, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XG' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXG, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XH' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXH, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationTotal, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XA' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXA, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XB' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXB, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XC' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXC, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XD' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXD, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XE' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXE, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XF' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXF, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XG' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXG, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XH' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXH, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopTotal, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XA' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXA, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XB' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXB, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XC' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXC, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XD' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXD, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XE' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXE, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XF' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXF, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XG' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXG, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XH' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXH, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeTotal, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XA' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXA, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XB' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXB, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XC' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXC, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XD' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXD, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XE' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXE, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XF' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXF, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XG' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXG, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XH' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXH, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthTotal, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XA' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXA, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XB' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXB, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XC' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXC, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XD' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXD, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XE' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXE, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XF' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXF, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XG' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXG, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramCode = 'XH' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXH, " +
-          "COUNT(CASE WHEN s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allTotal " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XA' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXA, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XB' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXB, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XC' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXC, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XD' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXD, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XE' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXE, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XF' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXF, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XG' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXG, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XH' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationXH, " +
+          "COUNT(CASE WHEN s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '40' THEN 1 END) AS preparationTotal, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XA' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXA, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XB' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXB, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XC' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXC, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XD' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXD, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XE' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXE, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XF' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXF, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XG' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXG, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XH' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopXH, " +
+          "COUNT(CASE WHEN s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '41' THEN 1 END) AS coopTotal, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XA' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXA, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XB' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXB, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XC' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXC, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XD' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXD, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XE' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXE, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XF' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXF, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XG' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXG, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XH' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeXH, " +
+          "COUNT(CASE WHEN s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '42' THEN 1 END) AS apprenticeTotal, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XA' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXA, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XB' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXB, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XC' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXC, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XD' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXD, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XE' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXE, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XF' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXF, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XG' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXG, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XH' AND s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthXH, " +
+          "COUNT(CASE WHEN s.careerProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '43' THEN 1 END) AS techYouthTotal, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XA' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXA, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XB' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXB, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XC' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXC, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XD' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXD, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XE' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXE, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XF' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXF, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XG' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXG, " +
+          "COUNT(CASE WHEN s.careerProgramCode = 'XH' AND s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allXH, " +
+          "COUNT(CASE WHEN s.careerProgramNonEligReasonCode IS NULL THEN 1 END) AS allTotal " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
   List<CareerHeadcountResult> getCareerHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
