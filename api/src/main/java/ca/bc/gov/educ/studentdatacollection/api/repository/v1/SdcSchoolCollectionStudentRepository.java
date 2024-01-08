@@ -243,7 +243,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     COUNT(DISTINCT CASE WHEN s.nativeAncestryInd = 'Y' THEN 1 END) AS studentsWithIndigenousAncestry,
     COUNT(DISTINCT CASE WHEN s.schoolFundingCode ='20' THEN 1 END) AS studentsWithFundingCode20,
     COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents
-    FROM SdcSchoolCollectionStudentEntity s JOIN s.sdcStudentEnrolledProgramEntities ep
+    FROM SdcSchoolCollectionStudentEntity s LEFT JOIN s.sdcStudentEnrolledProgramEntities ep
     WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID
     """)
   IndigenousHeadcountHeaderResult getIndigenousHeadersBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
