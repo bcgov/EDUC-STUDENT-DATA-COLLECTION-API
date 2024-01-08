@@ -23,6 +23,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
   private final CsfFrenchHeadcountHelper csfFrenchHeadcountHelper;
   private final CareerHeadcountHelper careerHeadcountHelper;
   private final EllHeadcountHelper ellHeadcountHelper;
+  private final IndigenousHeadcountHelper indigenousHeadcountHelper;
   private final RestUtils restUtils;
 
   public SdcSchoolCollectionStudentHeadcounts getEnrollmentHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
@@ -74,6 +75,16 @@ public class SdcSchoolCollectionStudentHeadcountService {
       careerHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
     }
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
+  }
+
+  public SdcSchoolCollectionStudentHeadcounts getIndigenousHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
+    var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
+
+    List<HeadcountHeader> headcountHeaderList = indigenousHeadcountHelper.getHeaders(sdcSchoolCollectionID);
+    if(compare) {
+      indigenousHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
+    }
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).build();
   }
 
   public SdcSchoolCollectionStudentHeadcounts getEllHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {

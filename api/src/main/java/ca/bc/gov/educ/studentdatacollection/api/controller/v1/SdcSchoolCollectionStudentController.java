@@ -98,6 +98,9 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
                 return sdcSchoolCollectionStudentHeadcountService.getEllHeadcounts(sdcSchoolCollectionEntity, compare);
             case "career":
                 return sdcSchoolCollectionStudentHeadcountService.getCareerHeadcounts(sdcSchoolCollectionEntity, compare);
+            case "indigenous":
+                return sdcSchoolCollectionStudentHeadcountService.getIndigenousHeadcounts(sdcSchoolCollectionEntity, compare);
+
             default:
                 log.error("Invalid type for getSdcSchoolCollectionStudentHeadcounts::" + type);
                 throw new InvalidParameterException();
