@@ -16,6 +16,7 @@ import java.util.Map;
 public class HeadcountHeader implements Serializable {
     private static final long serialVersionUID = 1L;
     private String title;
+    private HeadcountHeaderColumn headCountValue;
     private List<String> orderedColumnTitles;
     private Map<String, HeadcountHeaderColumn> columns;
 }

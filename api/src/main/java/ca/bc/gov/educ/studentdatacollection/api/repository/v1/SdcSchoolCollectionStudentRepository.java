@@ -232,6 +232,22 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "ORDER BY s.enrolledGradeCode")
   List<CareerHeadcountResult> getCareerHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
+  @Query(value = """
+    SELECT
+    COUNT(CASE WHEN ep.enrolledProgramCode = '29' AND s.indigenousSupportProgramNonEligReasonCode IS NULL THEN 1 END) AS eligIndigenousLanguage,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '29' THEN 1 END) AS reportedIndigenousLanguage,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '33' AND s.indigenousSupportProgramNonEligReasonCode IS NULL THEN 1 END) AS eligIndigenousSupport,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '33' THEN 1 END) AS reportedIndigenousSupport,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '36' AND s.indigenousSupportProgramNonEligReasonCode IS NULL THEN 1 END) AS eligOtherProgram,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '36' THEN 1 END) AS reportedOtherProgram,
+    COUNT(DISTINCT CASE WHEN s.nativeAncestryInd = 'Y' THEN 1 END) AS studentsWithIndigenousAncestry,
+    COUNT(DISTINCT CASE WHEN s.schoolFundingCode ='20' THEN 1 END) AS studentsWithFundingCode20,
+    COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents
+    FROM SdcSchoolCollectionStudentEntity s JOIN s.sdcStudentEnrolledProgramEntities ep
+    WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID
+    """)
+  IndigenousHeadcountHeaderResult getIndigenousHeadersBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
+
 
   @Modifying
   @Query(value = "DELETE FROM SDC_SCHOOL_COLLECTION_STUDENT WHERE SDC_SCHOOL_COLLECTION_ID  = :sdcSchoolCollectionID", nativeQuery = true)
