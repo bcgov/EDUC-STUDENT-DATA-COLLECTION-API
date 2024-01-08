@@ -1326,7 +1326,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
-    void testGetSdcSchoolCollectionStudentHeadcounts_indegenousHeadcounts() throws Exception {
+    void testGetSdcSchoolCollectionStudentHeadcounts_indigenousHeadcounts() throws Exception {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
@@ -1369,6 +1369,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
             enrolledProg.setCreateDate(LocalDateTime.now());
             enrolledProg.setUpdateDate(LocalDateTime.now());
             enrolledPrograms.add(enrolledProg);
+            student.setSchoolFundingCode("20");
         });
 
 
