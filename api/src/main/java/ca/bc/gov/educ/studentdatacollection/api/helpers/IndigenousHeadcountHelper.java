@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 @Component
 @Slf4j
@@ -74,5 +75,23 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
             headcountHeaderList.add(headcountHeader);
         });
         return headcountHeaderList;
+    }
+
+    @Override
+    public void setComparisonValues(List<HeadcountHeader> headcountHeaderList, List<HeadcountHeader> previousHeadcountHeaderList) {
+        IntStream.range(0, headcountHeaderList.size())
+                .forEach(i -> {
+                    HeadcountHeader currentHeader = headcountHeaderList.get(i);
+                    HeadcountHeader previousHeader = previousHeadcountHeaderList.get(i);
+
+                    currentHeader.getColumns().forEach((columnName, currentColumn) -> {
+                        HeadcountHeaderColumn previousColumn = previousHeader.getColumns().get(columnName);
+                        currentColumn.setComparisonValue(previousColumn.getCurrentValue());
+                    });
+
+                    if(currentHeader.getHeadCountValue() != null && previousHeader.getHeadCountValue() != null) {
+                        currentHeader.getHeadCountValue().setComparisonValue(previousHeader.getHeadCountValue().getCurrentValue());
+                    }
+                });
     }
 }
