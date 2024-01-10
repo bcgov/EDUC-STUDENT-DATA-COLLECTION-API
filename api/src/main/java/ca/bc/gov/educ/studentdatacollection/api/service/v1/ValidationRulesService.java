@@ -118,7 +118,10 @@ public class ValidationRulesService {
         } else {
             student.setPenMatchResult("NEW");
         }
+        setGraduationStatus(student);
+    }
 
+    private void setGraduationStatus(SdcSchoolCollectionStudentEntity student){
         student.setIsGraduated(false);
         if(student.getAssignedStudentId() != null) {
             final var gradResult = this.restUtils.getGradStatusResult(UUID.randomUUID(), SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(student));
@@ -138,7 +141,6 @@ public class ValidationRulesService {
                 }
             }
         }
-
     }
 
     public boolean hasEnrollmentHistory(StudentRuleData studentRuleData) {
