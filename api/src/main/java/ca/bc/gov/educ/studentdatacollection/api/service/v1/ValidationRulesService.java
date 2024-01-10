@@ -17,7 +17,9 @@ import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
@@ -33,6 +35,7 @@ public class ValidationRulesService {
     private final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository;
     private final RestUtils restUtils;
     private static final CodeTableMapper mapper = CodeTableMapper.mapper;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public ValidationRulesService(CodeTableService codeTableService, SdcStudentEllRepository sdcStudentEllRepository, SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, RestUtils restUtils) {
         this.codeTableService = codeTableService;
@@ -99,7 +102,7 @@ public class ValidationRulesService {
 
         if (StringUtils.isNotEmpty(penMatchResultCode) && validPenMatchResults.contains(penMatchResultCode)) {
             if (penMatchResult.getMatchingRecords() == null || penMatchResult.getMatchingRecords().isEmpty()) {
-                log.error("PEN Match records list is null or empty - this should not have happened :: ", penMatchResult);
+                log.error("PEN Match records list is null or empty - this should not have happened :: {}", penMatchResult);
                 throw new StudentDataCollectionAPIRuntimeException("PEN Match records list is null or empty - this should not have happened");
             }
             final var penMatchRecordOptional = penMatchResult.getMatchingRecords().stream().findFirst();
@@ -116,10 +119,24 @@ public class ValidationRulesService {
             student.setPenMatchResult("NEW");
         }
 
+        student.setIsGraduated(false);
         if(student.getAssignedStudentId() != null) {
             final var gradResult = this.restUtils.getGradStatusResult(UUID.randomUUID(), SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(student));
             log.info("Grad status for SDC student {} :: is {}", student.getSdcSchoolCollectionStudentID(), gradResult);
-            student.setIsGraduated(false);
+            if(StringUtils.isNotEmpty(gradResult.getException()) && gradResult.getException().equalsIgnoreCase("error")){
+                log.error("Exception occurred calling grad service for grad status - this should not have happened :: {}", gradResult);
+                throw new StudentDataCollectionAPIRuntimeException("Exception occurred calling grad service for grad status - this should not have happened");
+            }else if(StringUtils.isNotEmpty(gradResult.getProgramCompletionDate())){
+                try{
+                    LocalDate programCompletionDate = LocalDate.parse(gradResult.getProgramCompletionDate(), formatter);
+                    if(programCompletionDate.isBefore(student.getSdcSchoolCollection().getCollectionEntity().getSnapshotDate())){
+                        student.setIsGraduated(true);
+                    }
+                }catch(Exception e){
+                    log.error("Exception occurred calling trying to parse program completion date - this should not have happened :: {}", gradResult);
+                    throw new StudentDataCollectionAPIRuntimeException("Exception occurred calling trying to parse program completion date - this should not have happened");
+                }
+            }
         }
 
     }
