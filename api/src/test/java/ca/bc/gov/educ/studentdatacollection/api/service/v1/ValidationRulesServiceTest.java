@@ -120,6 +120,23 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
+    void testGetPenMatchResultFoundPENExceptionOccurredParseDate() {
+        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+        GradStatusResult gradStatusResult = getGradStatusResult();
+        gradStatusResult.setProgramCompletionDate("10-10-2011");
+        when(this.restUtils.getGradStatusResult(any(),any())).thenReturn(gradStatusResult);
+        SdcSchoolCollectionEntity schoolCollectionEntity = new SdcSchoolCollectionEntity();
+        CollectionEntity collectionEntity = new CollectionEntity();
+        collectionEntity.setSnapshotDate(LocalDate.now());
+        schoolCollectionEntity.setCollectionEntity(collectionEntity);
+        mockStudentEntity.setSdcSchoolCollection(schoolCollectionEntity);
+
+        assertThrows(StudentDataCollectionAPIRuntimeException.class, () -> validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789"));
+    }
+
+    @Test
     void testGetPenMatchResultFoundPENGradNotFound() {
         SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
         PenMatchResult penMatchResult = getPenMatchResult();
