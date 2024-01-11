@@ -116,8 +116,6 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         schoolCollectionEntity.setCollectionEntity(collectionEntity);
         mockStudentEntity.setSdcSchoolCollection(schoolCollectionEntity);
 
-        validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
-
         assertThrows(StudentDataCollectionAPIRuntimeException.class, () -> validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789"));
     }
 
