@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusPayload;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
@@ -429,12 +430,12 @@ public abstract class BaseStudentDataCollectionAPITest {
       return penMatchResult;
   }
 
-  public GradStatusPayload getGradStatusResult(){
-      GradStatusPayload gradStatusPayload = new GradStatusPayload();
-      gradStatusPayload.setException(null);
-      gradStatusPayload.setProgram("ABC");
-      gradStatusPayload.setProgramCompletionDate("2023-08-09");
-      return gradStatusPayload;
+  public GradStatusResult getGradStatusResult(){
+      GradStatusResult gradStatusResult = new GradStatusResult();
+      gradStatusResult.setException(null);
+      gradStatusResult.setProgram("ABC");
+      gradStatusResult.setProgramCompletionDate("2023-08-09");
+      return gradStatusResult;
   }
 
 }
