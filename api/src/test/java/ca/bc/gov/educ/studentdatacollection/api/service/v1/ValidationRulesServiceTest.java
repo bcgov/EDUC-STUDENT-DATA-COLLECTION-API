@@ -101,4 +101,45 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         assertEquals(mockStudentEntity.getAssignedStudentId().toString(), penMatchResult.getMatchingRecords().get(0).getStudentID());
         assertSame(mockStudentEntity.getPenMatchResult(), penMatchResult.getPenStatus());
     }
+
+    @Test
+    void testGetPenMatchResultFoundPENExceptionOccurred() {
+        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+        GradStatusResult gradStatusResult = getGradStatusResult();
+        gradStatusResult.setException("error");
+        when(this.restUtils.getGradStatusResult(any(),any())).thenReturn(gradStatusResult);
+        SdcSchoolCollectionEntity schoolCollectionEntity = new SdcSchoolCollectionEntity();
+        CollectionEntity collectionEntity = new CollectionEntity();
+        collectionEntity.setSnapshotDate(LocalDate.now());
+        schoolCollectionEntity.setCollectionEntity(collectionEntity);
+        mockStudentEntity.setSdcSchoolCollection(schoolCollectionEntity);
+
+        validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
+
+        assertThrows(StudentDataCollectionAPIRuntimeException.class, () -> validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789"));
+    }
+
+    @Test
+    void testGetPenMatchResultFoundPENGradNotFound() {
+        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+        GradStatusResult gradStatusResult = getGradStatusResult();
+        gradStatusResult.setException("not found");
+        gradStatusResult.setProgramCompletionDate(null);
+        when(this.restUtils.getGradStatusResult(any(),any())).thenReturn(gradStatusResult);
+        SdcSchoolCollectionEntity schoolCollectionEntity = new SdcSchoolCollectionEntity();
+        CollectionEntity collectionEntity = new CollectionEntity();
+        collectionEntity.setSnapshotDate(LocalDate.now());
+        schoolCollectionEntity.setCollectionEntity(collectionEntity);
+        mockStudentEntity.setSdcSchoolCollection(schoolCollectionEntity);
+
+        validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
+
+        assertEquals(mockStudentEntity.getAssignedStudentId().toString(), penMatchResult.getMatchingRecords().get(0).getStudentID());
+        assertSame(mockStudentEntity.getPenMatchResult(), penMatchResult.getPenStatus());
+        assertFalse(mockStudentEntity.getIsGraduated());
+    }
 }
