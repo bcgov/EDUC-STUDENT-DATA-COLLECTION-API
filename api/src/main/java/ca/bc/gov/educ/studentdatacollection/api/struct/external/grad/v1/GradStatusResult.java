@@ -17,6 +17,7 @@ import java.io.Serializable;
 public class GradStatusResult implements Serializable {
 
   private static final long serialVersionUID = 7900220143043919913L;
-  private String gradStatus;
-  private String studentID;
+  private String program;
+  private String programCompletionDate;
+  private String exception;
 }
