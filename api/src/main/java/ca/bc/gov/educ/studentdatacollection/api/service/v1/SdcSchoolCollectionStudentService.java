@@ -85,11 +85,19 @@ public class SdcSchoolCollectionStudentService {
     var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID());
     if(currentStudentEntity.isPresent()) {
       SdcSchoolCollectionStudentEntity getCurStudentEntity = currentStudentEntity.get();
-      getCurStudentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(getCurStudentEntity.getEnrolledProgramCodes()));
-      BeanUtils.copyProperties(studentEntity, getCurStudentEntity, "sdcSchoolCollectionStudentID, sdcSchoolCollection, sdcSchoolCollectionStudentStatusCode, createUser, createDate", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
-      TransformUtil.uppercaseFields(getCurStudentEntity);
-      var studentRuleData = createStudentRuleDataForValidation(getCurStudentEntity);
-      return processStudentRecord(studentRuleData.getSchool(), studentRuleData.getCollectionTypeCode(), getCurStudentEntity);
+      final SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = new SdcSchoolCollectionStudentEntity();
+      BeanUtils.copyProperties(studentEntity, sdcSchoolCollectionStudentEntity, "sdcSchoolCollectionStudentID, sdcSchoolCollection, sdcSchoolCollectionStudentStatusCode, createUser, createDate", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
+
+      sdcSchoolCollectionStudentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes()));
+      sdcSchoolCollectionStudentEntity.setSdcSchoolCollection(getCurStudentEntity.getSdcSchoolCollection());
+      sdcSchoolCollectionStudentEntity.getSDCStudentValidationIssueEntities().clear();
+      sdcSchoolCollectionStudentEntity.getSDCStudentValidationIssueEntities().addAll(getCurStudentEntity.getSDCStudentValidationIssueEntities());
+      sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
+      sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().addAll(getCurStudentEntity.getSdcStudentEnrolledProgramEntities());
+
+      TransformUtil.uppercaseFields(sdcSchoolCollectionStudentEntity);
+      var studentRuleData = createStudentRuleDataForValidation(sdcSchoolCollectionStudentEntity);
+      return processStudentRecord(studentRuleData.getSchool(), studentRuleData.getCollectionTypeCode(), sdcSchoolCollectionStudentEntity);
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", studentEntity.getSdcSchoolCollectionStudentID().toString());
     }
