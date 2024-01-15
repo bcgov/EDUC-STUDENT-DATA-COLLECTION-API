@@ -1,9 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeaderColumn;
@@ -42,9 +44,15 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
     headcountMethods = getHeadcountMethods();
     sectionTitles = getSelectionTitles();
     rowTitles = getRowTitles();
-    gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
   }
 
+  public void setGradeCodes(Optional<School> school) {
+    if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))) {
+      gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
+    } else {
+      gradeCodes = SchoolGradeCodes.getNonIndependentSchoolGrades();
+    }
+  }
 
   public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
     UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
