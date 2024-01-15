@@ -31,12 +31,10 @@ public class SdcSchoolCollectionStudentHeadcountService {
   public SdcSchoolCollectionStudentHeadcounts getEnrollmentHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
     var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
     Optional<School> school = this.restUtils.getSchoolBySchoolID(String.valueOf(sdcSchoolCollectionEntity.getSchoolID()));
-
+    enrollmentHeadcountHelper.setGradeCodes(school);
     List<EnrollmentHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySchoolId(sdcSchoolCollectionID);
     HeadcountResultsTable collectionData = enrollmentHeadcountHelper.convertHeadcountResults(collectionRawData);
-    if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode())))  {
-     collectionData.setHeaders(collectionData.getHeaders().stream().filter(value -> !value.equalsIgnoreCase("KH")).toList());
-    }
+
     List<HeadcountHeader> headcountHeaderList = Arrays.asList(enrollmentHeadcountHelper.getStudentsHeadcountTotals(collectionData), enrollmentHeadcountHelper.getGradesHeadcountTotals(collectionData));
     if (compare) {
       enrollmentHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
@@ -53,6 +51,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
     HeadcountResultsTable collectionData;
     if(school.isPresent() && school.get().getSchoolReportingRequirementCode().equals(SchoolReportingRequirementCodes.CSF.getCode())) {
       List<CsfFrenchHeadcountResult> collectionRawData;
+      csfFrenchHeadcountHelper.setGradeCodes(school);
       collectionRawData = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySchoolId(sdcSchoolCollectionID);
       headcountHeaderList = csfFrenchHeadcountHelper.getHeaders(sdcSchoolCollectionID);
       collectionData = csfFrenchHeadcountHelper.convertHeadcountResults(collectionRawData);
@@ -61,6 +60,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
       }
     } else {
       List<FrenchHeadcountResult> collectionRawData;
+      frenchHeadcountHelper.setGradeCodes(school);
       collectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySchoolId(sdcSchoolCollectionID);
       headcountHeaderList = frenchHeadcountHelper.getHeaders(sdcSchoolCollectionID);
       collectionData = frenchHeadcountHelper.convertHeadcountResults(collectionRawData);
@@ -68,9 +68,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
         frenchHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
       }
     }
-    if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode())))  {
-      collectionData.setHeaders(collectionData.getHeaders().stream().filter(value -> !value.equalsIgnoreCase("KH")).toList());
-    }
+
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
   }
 
@@ -98,6 +96,8 @@ public class SdcSchoolCollectionStudentHeadcountService {
 
   public SdcSchoolCollectionStudentHeadcounts getEllHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
     var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
+    Optional<School> school = this.restUtils.getSchoolBySchoolID(String.valueOf(sdcSchoolCollectionEntity.getSchoolID()));
+    ellHeadcountHelper.setGradeCodes(school);
 
     List<EllHeadcountResult> collectionRawData =
       sdcSchoolCollectionStudentRepository.getEllHeadcountsBySchoolId(sdcSchoolCollectionID);
@@ -112,6 +112,8 @@ public class SdcSchoolCollectionStudentHeadcountService {
 
   public SdcSchoolCollectionStudentHeadcounts getSpecialEdHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
     var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
+    Optional<School> school = this.restUtils.getSchoolBySchoolID(String.valueOf(sdcSchoolCollectionEntity.getSchoolID()));
+    specialEdHeadcountHelper.setGradeCodes(school);
 
     List<SpecialEdHeadcountResult> result = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySchoolId(sdcSchoolCollectionID);
     HeadcountResultsTable headcountResultsTable = specialEdHeadcountHelper.convertHeadcountResults(result);
