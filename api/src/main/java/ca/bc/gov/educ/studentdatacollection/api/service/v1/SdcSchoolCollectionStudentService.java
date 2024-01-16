@@ -1,5 +1,21 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.HOMESCHOOL;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.INACTIVE_ADULT;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.INACTIVE_SCHOOL_AGE;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.INDIGENOUS_ADULT;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.NOT_ENROLLED_CAREER;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.NOT_ENROLLED_ELL;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.NOT_ENROLLED_FRENCH;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.NOT_ENROLLED_SPECIAL_ED;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.OFFSHORE;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.OUT_OF_PROVINCE;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.TOO_YOUNG;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.YEARS_IN_ELL;
+
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorChainProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
@@ -24,10 +40,19 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -37,14 +62,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.*;
 
 @Service
 @Slf4j
@@ -97,7 +114,17 @@ public class SdcSchoolCollectionStudentService {
 
       TransformUtil.uppercaseFields(sdcSchoolCollectionStudentEntity);
       var studentRuleData = createStudentRuleDataForValidation(sdcSchoolCollectionStudentEntity);
-      return processStudentRecord(studentRuleData.getSchool(), studentRuleData.getCollectionTypeCode(), sdcSchoolCollectionStudentEntity);
+
+      var processedSdcSchoolCollectionStudent = processStudentRecord(studentRuleData.getSchool(), studentRuleData.getCollectionTypeCode(), sdcSchoolCollectionStudentEntity);
+
+      if (processedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
+        log.debug("SdcSchoolCollectionStudent was not saved to the database because it has errors :: {}", processedSdcSchoolCollectionStudent);
+        return processedSdcSchoolCollectionStudent;
+      } else {
+        var entity = this.sdcSchoolCollectionStudentRepository.save(processedSdcSchoolCollectionStudent);
+        this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, processedSdcSchoolCollectionStudent.getUpdateUser());
+        return entity;
+      }
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", studentEntity.getSdcSchoolCollectionStudentID().toString());
     }
@@ -108,7 +135,8 @@ public class SdcSchoolCollectionStudentService {
     var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
     if(currentStudentEntity.isPresent()) {
-      processStudentRecord(school, collectionTypeCode, currentStudentEntity.get());
+      var entity = this.sdcSchoolCollectionStudentRepository.save(processStudentRecord(school, collectionTypeCode, currentStudentEntity.get()));
+      this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, entity.getUpdateUser());
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", sdcSchoolCollectionStudentID.toString());
     }
@@ -132,9 +160,8 @@ public class SdcSchoolCollectionStudentService {
 
       calculateAdditionalStudentAttributes(studentRuleData);
     }
-    var entity = this.sdcSchoolCollectionStudentRepository.save(studentRuleData.getSdcSchoolCollectionStudentEntity());
-    this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, studentRuleData.getSdcSchoolCollectionStudentEntity().getUpdateUser());
-    return entity;
+
+    return studentRuleData.getSdcSchoolCollectionStudentEntity();
   }
 
   private List<SdcSchoolCollectionStudentValidationIssue> validateStudent(final StudentRuleData studentRuleData){

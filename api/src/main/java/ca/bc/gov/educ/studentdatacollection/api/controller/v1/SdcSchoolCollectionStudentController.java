@@ -75,7 +75,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     public SdcSchoolCollectionStudent updateAndValidateSdcSchoolCollectionStudent(UUID collectionStudentID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
         ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
         RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
-        return mapper.toSdcSchoolStudent(sdcSchoolCollectionStudentService.updateAndValidateSdcSchoolCollectionStudent
+        return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.updateAndValidateSdcSchoolCollectionStudent
                 (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
     }
 
