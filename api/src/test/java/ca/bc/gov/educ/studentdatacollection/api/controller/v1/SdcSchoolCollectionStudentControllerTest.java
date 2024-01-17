@@ -874,7 +874,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
         assertThat(curStudentEntity).isPresent();
         var studentEntity = curStudentEntity.get();
-        assertThat(studentEntity.getPostalCode().isEmpty());
+        assertThat(studentEntity.getPostalCode()).isEmpty();
     }
 
     @Test

@@ -125,8 +125,7 @@ public class SdcSchoolCollectionStudentService {
     }
   }
 
-  @Transactional(propagation = Propagation.SUPPORTS)
-  public SdcSchoolCollectionStudentEntity processStudentRecord(School school, String collectionTypeCode, SdcSchoolCollectionStudentEntity incomingStudentEntity) {
+  private SdcSchoolCollectionStudentEntity processStudentRecord(School school, String collectionTypeCode, SdcSchoolCollectionStudentEntity incomingStudentEntity) {
 
     StudentRuleData studentRuleData = new StudentRuleData();
     studentRuleData.setSdcSchoolCollectionStudentEntity(incomingStudentEntity);
