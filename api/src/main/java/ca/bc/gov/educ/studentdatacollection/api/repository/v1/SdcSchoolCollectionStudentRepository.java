@@ -240,8 +240,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     COUNT(CASE WHEN ep.enrolledProgramCode = '33' THEN 1 END) AS reportedIndigenousSupport,
     COUNT(CASE WHEN ep.enrolledProgramCode = '36' AND s.indigenousSupportProgramNonEligReasonCode IS NULL THEN 1 END) AS eligOtherProgram,
     COUNT(CASE WHEN ep.enrolledProgramCode = '36' THEN 1 END) AS reportedOtherProgram,
-    COUNT(DISTINCT CASE WHEN s.nativeAncestryInd = 'Y' THEN 1 END) AS studentsWithIndigenousAncestry,
-    COUNT(DISTINCT CASE WHEN s.schoolFundingCode ='20' THEN 1 END) AS studentsWithFundingCode20,
+    COUNT(CASE WHEN s.nativeAncestryInd = 'Y' THEN 1 END) AS studentsWithIndigenousAncestry,
+    COUNT(CASE WHEN s.schoolFundingCode ='20' THEN 1 END) AS studentsWithFundingCode20,
     COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents
     FROM SdcSchoolCollectionStudentEntity s LEFT JOIN s.sdcStudentEnrolledProgramEntities ep
     WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID
