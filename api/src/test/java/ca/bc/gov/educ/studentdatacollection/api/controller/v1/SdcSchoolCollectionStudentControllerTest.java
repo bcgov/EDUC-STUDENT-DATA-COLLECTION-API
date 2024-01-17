@@ -812,8 +812,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
 
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-        entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
-        entity.setUpdateDate(LocalDateTime.now());
         entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setUpdateDate(null);
@@ -854,8 +852,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
 
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-        entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
-        entity.setUpdateDate(LocalDateTime.now());
         entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setUpdateDate(null);
@@ -879,6 +875,30 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         assertThat(curStudentEntity).isPresent();
         var studentEntity = curStudentEntity.get();
         assertThat(studentEntity.getPostalCode().isEmpty());
+    }
+
+    @Test
+    void testUpdateAndValidateSdcSchoolCollectionStudent_withDifferentSdcSchoolCollectionStudentIdInPathAndBody_ShouldReturnStatusBadRequest() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+            grantedAuthority);
+
+        var school = this.createMockSchool();
+
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setUpdateDate(null);
+        entity.setCreateDate(null);
+
+        this.mockMvc.perform(
+                put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + UUID.randomUUID())
+                    .contentType(APPLICATION_JSON)
+                    .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
+                    .with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
     }
 
     @Test

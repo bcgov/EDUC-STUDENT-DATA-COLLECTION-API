@@ -11,6 +11,7 @@ import org.springframework.validation.FieldError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class SdcSchoolCollectionStudentValidator {
@@ -21,7 +22,7 @@ public class SdcSchoolCollectionStudentValidator {
         this.validationRulesService = validationRulesService;
     }
 
-    public List<FieldError> validatePayload(SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+    public List<FieldError> validatePayload(UUID sdcSchoolCollectionStudentID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
         final List<FieldError> apiValidationErrors = new ArrayList<>();
 
         if (StringUtils.isNotEmpty(sdcSchoolCollectionStudent.getStudentPen()) && !PenUtil.validCheckDigit(sdcSchoolCollectionStudent.getStudentPen())) {
@@ -30,6 +31,10 @@ public class SdcSchoolCollectionStudentValidator {
 
         if (!DOBUtil.isValidDate(sdcSchoolCollectionStudent.getDob())) {
             apiValidationErrors.add(ValidationUtil.createFieldError("dob", sdcSchoolCollectionStudent.getSpecialEducationCategoryCode(), "Invalid DOB."));
+        }
+
+        if (!sdcSchoolCollectionStudentID.toString().equals(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())) {
+            apiValidationErrors.add(ValidationUtil.createFieldError("sdcSchoolCollectionStudentID", sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID(), "sdcSchoolCollectionStudentID in path and payload mismatch"));
         }
 
         List<SpecialEducationCategoryCode> activeSpecialEducationCategoryCode = validationRulesService.getActiveSpecialEducationCategoryCodes();
