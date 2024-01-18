@@ -97,7 +97,7 @@ public class ValidationRulesService {
         var penMatchResult = this.restUtils.getPenMatchResult(UUID.randomUUID(), student, mincode);
         val penMatchResultCode = penMatchResult.getPenStatus();
         student.setPenMatchResult(penMatchResultCode);
-        var validPenMatchResults = Arrays.asList("AA", "B1", "C1", "D1");
+        var validPenMatchResults = Arrays.asList("AA", "B1", "C1", "D1", "F1");
         var multiPenMatchResults = Arrays.asList("BM", "CM", "DM");
 
         if (StringUtils.isNotEmpty(penMatchResultCode) && validPenMatchResults.contains(penMatchResultCode)) {
