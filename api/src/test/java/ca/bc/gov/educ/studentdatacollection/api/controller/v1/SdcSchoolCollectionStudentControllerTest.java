@@ -800,6 +800,108 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
+    void testUpdateAndValidateSdcSchoolCollectionStudent_updateDOBToError_ShouldReturnStudentAndNotSaveToDatabaseAndReturnWithValidationIssues() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+            grantedAuthority);
+
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateDate(null);
+        entity.setCreateDate(null);
+        entity.setNumberOfCourses("0400");
+        this.sdcSchoolCollectionStudentRepository.save(entity);
+
+        String dob = "19800101";
+        entity.setDob(dob);
+
+        this.mockMvc.perform(
+                put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + entity.getSdcSchoolCollectionStudentID().toString())
+                    .contentType(APPLICATION_JSON)
+                    .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
+                    .with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.dob", equalTo(dob)))
+            .andExpect(jsonPath("$.sdcSchoolCollectionStudentValidationIssues", hasSize(2)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionStudentStatusCode", equalTo(SdcSchoolStudentStatus.ERROR.toString())));
+
+        val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
+        assertThat(curStudentEntity).isPresent();
+        var studentEntity = curStudentEntity.get();
+        assertThat(studentEntity.getDob()).isNotEqualTo(dob); //verify that the DOB didn't get updated in the DB.
+    }
+
+    @Test
+    void testUpdateAndValidateSdcSchoolCollectionStudent_withWarning_ShouldReturnStudentAndSaveToDatabaseAndReturnStatusOk() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+            grantedAuthority);
+
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateDate(null);
+        entity.setCreateDate(null);
+        entity.setNumberOfCourses("0400");
+        this.sdcSchoolCollectionStudentRepository.save(entity);
+
+        entity.setPostalCode("");
+
+        this.mockMvc.perform(
+                put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + entity.getSdcSchoolCollectionStudentID().toString())
+                    .contentType(APPLICATION_JSON)
+                    .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
+                    .with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.sdcSchoolCollectionStudentValidationIssues", hasSize(1)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionStudentStatusCode", equalTo(SdcSchoolStudentStatus.INFO_WARNING.toString())));
+
+        val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
+        assertThat(curStudentEntity).isPresent();
+        var studentEntity = curStudentEntity.get();
+        assertThat(studentEntity.getPostalCode()).isEmpty();
+    }
+
+    @Test
+    void testUpdateAndValidateSdcSchoolCollectionStudent_withDifferentSdcSchoolCollectionStudentIdInPathAndBody_ShouldReturnStatusBadRequest() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+            grantedAuthority);
+
+        var school = this.createMockSchool();
+
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setUpdateDate(null);
+        entity.setCreateDate(null);
+
+        this.mockMvc.perform(
+                put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + UUID.randomUUID())
+                    .contentType(APPLICATION_JSON)
+                    .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
+                    .with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void testFindAll_multipleOrCriteriaAndAnAndCriteriaCombined_ShouldReturnStatusOk() throws Exception {
         final File file = new File(
                 Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()

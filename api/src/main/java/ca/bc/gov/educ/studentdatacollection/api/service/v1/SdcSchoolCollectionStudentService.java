@@ -97,25 +97,35 @@ public class SdcSchoolCollectionStudentService {
 
       TransformUtil.uppercaseFields(sdcSchoolCollectionStudentEntity);
       var studentRuleData = createStudentRuleDataForValidation(sdcSchoolCollectionStudentEntity);
-      return processStudentRecord(studentRuleData.getSchool(), studentRuleData.getCollectionTypeCode(), sdcSchoolCollectionStudentEntity);
+
+      var processedSdcSchoolCollectionStudent = processStudentRecord(studentRuleData.getSchool(), studentRuleData.getCollectionTypeCode(), sdcSchoolCollectionStudentEntity);
+
+      if (processedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
+        log.debug("SdcSchoolCollectionStudent was not saved to the database because it has errors :: {}", processedSdcSchoolCollectionStudent);
+        return processedSdcSchoolCollectionStudent;
+      } else {
+        var entity = this.sdcSchoolCollectionStudentRepository.save(processedSdcSchoolCollectionStudent);
+        this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, processedSdcSchoolCollectionStudent.getUpdateUser());
+        return entity;
+      }
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", studentEntity.getSdcSchoolCollectionStudentID().toString());
     }
   }
 
-  @Transactional(propagation = Propagation.REQUIRED)
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void processSagaRecord(final UUID sdcSchoolCollectionStudentID, School school, String collectionTypeCode) {
     var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
     if(currentStudentEntity.isPresent()) {
-      processStudentRecord(school, collectionTypeCode, currentStudentEntity.get());
+      var entity = this.sdcSchoolCollectionStudentRepository.save(processStudentRecord(school, collectionTypeCode, currentStudentEntity.get()));
+      this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, entity.getUpdateUser());
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", sdcSchoolCollectionStudentID.toString());
     }
   }
 
-  @Transactional(propagation = Propagation.SUPPORTS)
-  public SdcSchoolCollectionStudentEntity processStudentRecord(School school, String collectionTypeCode, SdcSchoolCollectionStudentEntity incomingStudentEntity) {
+  private SdcSchoolCollectionStudentEntity processStudentRecord(School school, String collectionTypeCode, SdcSchoolCollectionStudentEntity incomingStudentEntity) {
 
     StudentRuleData studentRuleData = new StudentRuleData();
     studentRuleData.setSdcSchoolCollectionStudentEntity(incomingStudentEntity);
@@ -132,9 +142,8 @@ public class SdcSchoolCollectionStudentService {
 
       calculateAdditionalStudentAttributes(studentRuleData);
     }
-    var entity = this.sdcSchoolCollectionStudentRepository.save(studentRuleData.getSdcSchoolCollectionStudentEntity());
-    this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, studentRuleData.getSdcSchoolCollectionStudentEntity().getUpdateUser());
-    return entity;
+
+    return studentRuleData.getSdcSchoolCollectionStudentEntity();
   }
 
   private List<SdcSchoolCollectionStudentValidationIssue> validateStudent(final StudentRuleData studentRuleData){
