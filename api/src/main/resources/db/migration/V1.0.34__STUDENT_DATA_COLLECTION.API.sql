@@ -25,7 +25,7 @@ WHERE ENROLLED_PROGRAM_CODE = '17';
 
 UPDATE ENROLLED_PROGRAM_CODE
 SET LABEL = 'Indigenous Language Culture',
-    DESCRIPTION = 'Indigenous Language and Culture '
+    DESCRIPTION = 'Indigenous Language and Culture'
 WHERE ENROLLED_PROGRAM_CODE = '29';
 
 UPDATE ENROLLED_PROGRAM_CODE
