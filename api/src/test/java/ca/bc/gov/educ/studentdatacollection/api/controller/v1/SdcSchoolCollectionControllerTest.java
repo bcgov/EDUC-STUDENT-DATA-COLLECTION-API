@@ -410,8 +410,8 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     SdcSchoolCollectionStudentEnrolledProgramEntity firstCode = codes.get(0);
 
     assertThat(!CollectionUtils.isEmpty(codes)).isTrue();
-    assertThat(codes.size()).isEqualTo(numberOfCodes);
-    assertThat(programCodes.contains(firstCode.getEnrolledProgramCode()));
+    assertThat(codes).hasSize(numberOfCodes);
+    assertThat(programCodes).contains(firstCode.getEnrolledProgramCode());
   }
 
   @Test
