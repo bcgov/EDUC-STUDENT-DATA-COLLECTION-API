@@ -126,8 +126,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<EllHeadcountResult> getEllHeadcountsBySchoolId(@Param("sdcSchoolCollectionId") UUID sdcSchoolCollectionId);
 
   @Query("SELECT " +
-          "COUNT(CASE WHEN s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' THEN 1 END) AS eligibleStudents, " +
-          "COUNT(CASE WHEN s.ellNonEligReasonCode IS NOT NULL AND ep.enrolledProgramCode = '17' THEN 1 END) AS reportedStudents, " +
+          "COUNT(CASE WHEN ep.enrolledProgramCode = '17' AND s.ellNonEligReasonCode IS NULL THEN 1 END) AS eligibleStudents, " +
+          "COUNT(CASE WHEN ep.enrolledProgramCode = '17' THEN 1 END) AS reportedStudents, " +
           "COUNT(CASE WHEN ep.enrolledProgramCode = '17' AND ell.yearsInEll < 6 THEN 1 END) AS oneToFiveYears, " +
           "COUNT(CASE WHEN ep.enrolledProgramCode = '17' AND ell.yearsInEll > 5 THEN 1 END) AS sixPlusYears, " +
           "COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents " +

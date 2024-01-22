@@ -1332,13 +1332,15 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
-    void testGetSdcSchoolCollectionStudentHeadcounts_ellHeadCounts() throws Exception {
+    void testGetSdcSchoolCollectionStudentHeadcountsWithComparisonToPreviousYear_ellHeadCounts() throws Exception {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        //Current year's collection for the school.
         var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
         firstSchool.setUploadDate(null);
         firstSchool.setUploadFileName(null);
+        //Second school is for the previous year's collections.
         var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
         secondSchool.setUploadDate(null);
         secondSchool.setUploadFileName(null);
@@ -1358,6 +1360,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 var ellEntity = new SdcStudentEllEntity();
 
                 student.setAssignedStudentId(studentId);
+                //Even students go to the previous year; odd students to the current year.
                 if (i % 2 == 0) {
                     student.setSdcSchoolCollection(secondSchool);
                     ellEntity.setYearsInEll(4);
@@ -1397,6 +1400,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         List<SdcSchoolCollectionStudentEnrolledProgramEntity> enrolledPrograms = new ArrayList<>();
 
+        //All of the previous year students will be reported to an ELL program.
         savedStudents.forEach(student -> {
             if (!StringUtils.equals(
                 ProgramEligibilityIssueCode.NOT_ENROLLED_ELL.getCode(),
@@ -1424,8 +1428,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
             .andDo(print())
             .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].title", equalTo("English Language Learners")))
             .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].orderedColumnTitles", containsInRelativeOrder("Eligible", "Reported", "Not Reported")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Reported'].currentValue", equalTo("1")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("4")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("2")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Reported'].currentValue", equalTo("3")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Not Reported'].currentValue", equalTo("1")))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("0")))
             .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].title", equalTo("Years in ELL Headcount")))
             .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].orderedColumnTitles", containsInRelativeOrder("1-5 Years", "6+ Years")))
             .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['1-5 Years'].currentValue", equalTo("1")))
