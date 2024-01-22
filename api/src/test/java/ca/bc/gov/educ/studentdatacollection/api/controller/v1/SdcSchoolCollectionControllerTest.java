@@ -6,10 +6,16 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentEnrolledProgramRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
+
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +24,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,15 +43,26 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
   @Autowired
   private MockMvc mockMvc;
+
   @Autowired
   SdcSchoolCollectionController sdcSchoolCollectionController;
+
   @Autowired
   CollectionRepository collectionRepository;
+
   @Autowired
   SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
+  @Autowired
+  SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository;
+
   @BeforeEach
   public void before() {
+  }
+
+  @AfterEach
+  public void after() {
+    this.collectionRepository.deleteAll();
   }
 
   @Test
@@ -359,6 +378,40 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         .with(mockAuthority))
       .andDo(print()).andExpect(status().isCreated()).andExpect(
           MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));
+  }
+
+  @Test
+  void testCreateSdcSchoolCollectionWithStudentAndProgramCodes_WithValidPayloadCollectionID_ShouldReturnStatusOkWithData() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+        grantedAuthority);
+    String programCodes = "0987654321";
+    Integer numberOfCodes = TransformUtil.splitIntoChunks(programCodes, 2).size();
+
+    CollectionEntity newCollectionEntity = collectionRepository.save(createMockCollectionEntity());
+
+    SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(
+        newCollectionEntity, UUID.randomUUID(),UUID.randomUUID());
+    sdcMockSchool.setCreateDate(null);
+    sdcMockSchool.setUpdateDate(null);
+    SdcSchoolCollectionStudentEntity student = createMockSchoolStudentEntity(null);
+    student.setEnrolledProgramCodes(programCodes);
+    sdcMockSchool.getSDCSchoolStudentEntities().add(student);
+
+    this.mockMvc.perform(
+        post(URL.BASE_URL_SCHOOL_COLLECTION + "/" + newCollectionEntity.getCollectionID()).contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON)
+        .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool)))
+        .with(mockAuthority))
+      .andDo(print()).andExpect(status().isCreated());
+
+    List<SdcSchoolCollectionStudentEnrolledProgramEntity> codes =
+      this.sdcSchoolCollectionStudentEnrolledProgramRepository.findAll();
+    SdcSchoolCollectionStudentEnrolledProgramEntity firstCode = codes.get(0);
+
+    assertThat(!CollectionUtils.isEmpty(codes)).isTrue();
+    assertThat(codes.size()).isEqualTo(numberOfCodes);
+    assertThat(programCodes.contains(firstCode.getEnrolledProgramCode()));
   }
 
   @Test
