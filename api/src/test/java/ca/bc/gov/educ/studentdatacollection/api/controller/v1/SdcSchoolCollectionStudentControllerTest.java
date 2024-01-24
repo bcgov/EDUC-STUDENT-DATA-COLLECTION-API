@@ -34,6 +34,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
@@ -1536,6 +1537,113 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .contentType(APPLICATION_JSON))
                 .andReturn();
         this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
+    }
+
+    @Test
+    void testReadSdcSchoolCollectionStudentPaginated_withFteGreaterThan_ShouldReturnStatusOk() throws Exception {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        var stud1 = createMockSchoolStudentEntity(sdcSchoolCollection);
+        stud1.setLegalFirstName("JAM");
+        stud1.setSchoolFundingCode("14");
+        stud1.setFte(BigDecimal.valueOf(1));
+        var stud2 = createMockSchoolStudentEntity(sdcSchoolCollection);
+        sdcSchoolCollectionStudentRepository.save(stud1);
+        sdcSchoolCollectionStudentRepository.save(stud2);
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("fte").operation(FilterOperation.GREATER_THAN).value("0").valueType(ValueType.INTEGER).build();
+
+        final List<SearchCriteria> criteriaList = new ArrayList<>();
+        criteriaList.add(criteria);
+
+        final List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+
+        final var objectMapper = new ObjectMapper();
+        final String criteriaJSON = objectMapper.writeValueAsString(searches);
+        final MvcResult result = this.mockMvc
+                .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("searchCriteriaList", criteriaJSON)
+                        .contentType(APPLICATION_JSON))
+                .andReturn();
+        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+    }
+
+    @Test
+    void testReadSdcSchoolCollectionStudentPaginated_withFteLessThan_ShouldReturnStatusOk() throws Exception {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        var stud1 = createMockSchoolStudentEntity(sdcSchoolCollection);
+        stud1.setLegalFirstName("JAM");
+        stud1.setSchoolFundingCode("14");
+        var stud2 = createMockSchoolStudentEntity(sdcSchoolCollection);
+        sdcSchoolCollectionStudentRepository.save(stud1);
+        sdcSchoolCollectionStudentRepository.save(stud2);
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("fte").operation(FilterOperation.LESS_THAN).value("1").valueType(ValueType.INTEGER).build();
+
+        final List<SearchCriteria> criteriaList = new ArrayList<>();
+        criteriaList.add(criteria);
+
+        final List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+
+        final var objectMapper = new ObjectMapper();
+        final String criteriaJSON = objectMapper.writeValueAsString(searches);
+        final MvcResult result = this.mockMvc
+                .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("searchCriteriaList", criteriaJSON)
+                        .contentType(APPLICATION_JSON))
+                .andReturn();
+        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(0)));
+    }
+
+    @Test
+    void testReadSdcSchoolCollectionStudentPaginated_withFteGreaterThanEqual_ShouldReturnStatusOk() throws Exception {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        var stud1 = createMockSchoolStudentEntity(sdcSchoolCollection);
+        stud1.setLegalFirstName("JAM");
+        stud1.setSchoolFundingCode("14");
+        stud1.setFte(BigDecimal.valueOf(1));
+        var stud2 = createMockSchoolStudentEntity(sdcSchoolCollection);
+        sdcSchoolCollectionStudentRepository.save(stud1);
+        sdcSchoolCollectionStudentRepository.save(stud2);
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("fte").operation(FilterOperation.GREATER_THAN_OR_EQUAL_TO).value("1").valueType(ValueType.INTEGER).build();
+
+        final List<SearchCriteria> criteriaList = new ArrayList<>();
+        criteriaList.add(criteria);
+
+        final List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+
+        final var objectMapper = new ObjectMapper();
+        final String criteriaJSON = objectMapper.writeValueAsString(searches);
+        final MvcResult result = this.mockMvc
+                .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("searchCriteriaList", criteriaJSON)
+                        .contentType(APPLICATION_JSON))
+                .andReturn();
+        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
     }
 
     @Test
