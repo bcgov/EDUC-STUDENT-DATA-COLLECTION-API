@@ -13,6 +13,7 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionSt
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHeadcounts;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcStudentEll;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
@@ -60,15 +61,15 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     public CompletableFuture<Page<SdcSchoolCollectionStudent>> findAll(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
         final List<Sort.Order> sorts = new ArrayList<>();
         Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs = sdcSchoolCollectionStudentSearchService
-                .setSpecificationAndSortCriteria(
-                        sortCriteriaJson,
-                        searchCriteriaListJson,
-                        JsonUtil.mapper,
-                        sorts
-                );
+            .setSpecificationAndSortCriteria(
+                    sortCriteriaJson,
+                    searchCriteriaListJson,
+                    JsonUtil.mapper,
+                    sorts
+                    );
         return this.sdcSchoolCollectionStudentSearchService
-                .findAll(studentSpecs, pageNumber, pageSize, sorts)
-                .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.map(mapper::toSdcSchoolCollectionStudentWithValidationIssues));
+            .findAll(studentSpecs, pageNumber, pageSize, sorts)
+            .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.map(mapper::toSdcSchoolCollectionStudentWithValidationIssues));
     }
 
     @Override
@@ -83,6 +84,11 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     public SdcSchoolCollectionStudent deleteSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID) {
         SdcSchoolCollectionStudentEntity softDeletedSdcSchoolCollectionStudent = this.sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
         return mapper.toSdcSchoolStudent(softDeletedSdcSchoolCollectionStudent);
+    }
+
+    @Override
+    public SdcStudentEll createYearsInEll(SdcStudentEll studentEll) {
+        return this.sdcSchoolCollectionStudentService.createSdcStudentEll(studentEll);
     }
 
     @Override

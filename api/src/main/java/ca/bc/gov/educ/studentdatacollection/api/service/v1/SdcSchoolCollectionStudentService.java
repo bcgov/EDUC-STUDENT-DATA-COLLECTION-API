@@ -10,14 +10,17 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentSta
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcStudentEllMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcStudentEllEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityRulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
@@ -27,6 +30,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +59,8 @@ public class SdcSchoolCollectionStudentService {
 
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
+  private final SdcStudentEllRepository sdcStudentEllRepository;
+
   private final SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService;
 
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
@@ -66,6 +72,8 @@ public class SdcSchoolCollectionStudentService {
   private final ProgramEligibilityRulesProcessor programEligibilityRulesProcessor;
 
   private final RestUtils restUtils;
+
+  private static SdcStudentEllMapper sdcStudentEllMapper = SdcStudentEllMapper.mapper;
 
   private final RulesProcessor rulesProcessor;
   private static final String SDC_SCHOOL_COLLECTION_STUDENT_ID = "sdcSchoolCollectionStudentId";
@@ -305,6 +313,13 @@ public class SdcSchoolCollectionStudentService {
     student.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.DELETED.toString());
 
     return sdcSchoolCollectionStudentRepository.save(student);
+  }
+
+  public SdcStudentEll createSdcStudentEll(SdcStudentEll studentEll) {
+    RequestUtil.setAuditColumnsForCreateIfBlank(studentEll);
+    SdcStudentEllEntity entity = sdcStudentEllMapper.toModel(studentEll);
+    SdcStudentEllEntity savedEllEntity = this.sdcStudentEllRepository.save(entity);
+    return sdcStudentEllMapper.toStructure(savedEllEntity);
   }
 
   private StudentRuleData createStudentRuleDataForValidation(SdcSchoolCollectionStudentEntity studentEntity) {
