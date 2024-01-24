@@ -1637,18 +1637,18 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin()
             .authorities(grantedAuthority);
-        String payload = asJsonString(SdcStudentEllMapper.mapper.toStructure(studentEll));
+        String payload = asJsonString(List.of(SdcStudentEllMapper.mapper.toStructure(studentEll)));
         this.mockMvc.perform(
                 post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/years-in-ell")
                 .contentType(APPLICATION_JSON)
                 .content(payload)
                 .with(mockAuthority))
             .andDo(print())
-            .andExpect(jsonPath("$.createUser", equalTo(ApplicationProperties.STUDENT_DATA_COLLECTION_API)))
-            .andExpect(jsonPath("$.updateUser", equalTo(ApplicationProperties.STUDENT_DATA_COLLECTION_API)))
-            .andExpect(jsonPath("$.studentID", equalTo(studentId.toString())))
-            .andExpect(jsonPath("$.yearsInEll", equalTo("4")))
-            .andExpect(jsonPath("$.sdcStudentEllID", is(not(emptyOrNullString()))));
+            .andExpect(jsonPath("$.[0]createUser", equalTo(ApplicationProperties.STUDENT_DATA_COLLECTION_API)))
+            .andExpect(jsonPath("$.[0]updateUser", equalTo(ApplicationProperties.STUDENT_DATA_COLLECTION_API)))
+            .andExpect(jsonPath("$.[0]studentID", equalTo(studentId.toString())))
+            .andExpect(jsonPath("$.[0]yearsInEll", equalTo("4")))
+            .andExpect(jsonPath("$.[0]sdcStudentEllID", is(not(emptyOrNullString()))));
 
     }
 

@@ -322,6 +322,10 @@ public class SdcSchoolCollectionStudentService {
     return sdcStudentEllMapper.toStructure(savedEllEntity);
   }
 
+  public List<SdcStudentEll> createSdcStudentEll(List<SdcStudentEll> studentEll) {
+    return studentEll.stream().map(this::createSdcStudentEll).toList();
+  }
+
   private StudentRuleData createStudentRuleDataForValidation(SdcSchoolCollectionStudentEntity studentEntity) {
     StudentRuleData sdcStudentSagaData = new StudentRuleData();
     Optional<SdcSchoolCollectionEntity> sdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID());

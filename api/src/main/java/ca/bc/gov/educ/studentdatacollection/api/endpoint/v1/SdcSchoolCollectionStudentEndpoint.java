@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -59,7 +60,7 @@ public interface SdcSchoolCollectionStudentEndpoint {
   @PostMapping("/years-in-ell")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
-  SdcStudentEll createYearsInEll(@RequestBody SdcStudentEll sdcStudentEll);
+  List<SdcStudentEll> createYearsInEll(@RequestBody List<SdcStudentEll> sdcStudentElls);
 
   @GetMapping(URL.HEADCOUNTS + "/{sdcSchoolCollectionID}")
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_SCHOOL_COLLECTION_STUDENT')")
