@@ -1539,6 +1539,46 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
+    void testReadSdcSchoolCollectionStudentPaginated_withEllYears_ShouldReturnStatusOk() throws Exception {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        SdcSchoolCollectionStudentEntity mockStudentEntity = createMockSchoolStudentEntity(sdcSchoolCollection);
+        mockStudentEntity.setAssignedStudentId(UUID.randomUUID());
+        SdcSchoolCollectionStudentEntity otherStudentEntity = createMockSchoolStudentEntity(sdcSchoolCollection);
+        otherStudentEntity.setAssignedStudentId(UUID.randomUUID());
+        SdcSchoolCollectionStudentEntity studentWithEll = sdcSchoolCollectionStudentRepository.save(mockStudentEntity);
+        sdcSchoolCollectionStudentRepository.save(otherStudentEntity);
+        SdcStudentEllEntity ellEntity = this.createMockStudentEllEntity(studentWithEll);
+        ellEntity.setYearsInEll(5);
+
+        this.sdcStudentEllRepository.save(ellEntity);
+
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("sdcStudentEllEntity.yearsInEll").operation(FilterOperation.GREATER_THAN).value("2").valueType(ValueType.INTEGER).build();
+
+        final List<SearchCriteria> criteriaList = new ArrayList<>();
+        criteriaList.add(criteria);
+
+        final List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+
+        final var objectMapper = new ObjectMapper();
+        final String criteriaJSON = objectMapper.writeValueAsString(searches);
+        final MvcResult result = this.mockMvc
+                .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("searchCriteriaList", criteriaJSON)
+                        .contentType(APPLICATION_JSON))
+                .andReturn();
+        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+    }
+
+    @Test
     void testGetSdcSchoolCollectionStudentHeadcounts_indigenousHeadcounts() throws Exception {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
