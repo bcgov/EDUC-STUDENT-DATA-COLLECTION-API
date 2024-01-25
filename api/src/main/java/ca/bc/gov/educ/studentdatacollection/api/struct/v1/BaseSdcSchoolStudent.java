@@ -88,6 +88,8 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   @Size(max = 4)
   private String numberOfCourses;
 
+  private BigDecimal numberOfCoursesDec;
+
   @Size(max = 4)
   private String bandCode;
 
