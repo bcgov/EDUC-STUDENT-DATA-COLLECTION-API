@@ -8,6 +8,9 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcStudentEllMapper;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcStudentEllEntity;
@@ -31,7 +34,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -287,7 +289,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
             .andDo(print()).andExpect(status().isOk()).andExpect(
-                MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionStudentValidationIssues",
+                jsonPath("$.sdcSchoolCollectionStudentValidationIssues",
                     hasSize(1)));
 
     }
@@ -319,9 +321,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .contentType(APPLICATION_JSON))
                 .andDo(print()).andExpect(status().isOk()).andExpect(
-                        MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionStudentValidationIssues",
+                        jsonPath("$.sdcSchoolCollectionStudentValidationIssues",
                                 hasSize(1))).andExpect(
-                        MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionStudentEnrolledPrograms",
+                        jsonPath("$.sdcSchoolCollectionStudentEnrolledPrograms",
                                 hasSize(1)));
 
     }
@@ -562,9 +564,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
             .andDo(print())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.error").value(0))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.infoWarning").value(0))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.fundingWarning").value(0));
+            .andExpect(jsonPath("$.error").value(0))
+            .andExpect(jsonPath("$.infoWarning").value(0))
+            .andExpect(jsonPath("$.fundingWarning").value(0));
     }
 
     @Test
@@ -583,8 +585,8 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
             .andDo(print())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.error").value(1)) //should only show 1 error since it is for the same validationIssueCode
-            .andExpect(MockMvcResultMatchers.jsonPath("$.infoWarning").value(1));
+            .andExpect(jsonPath("$.error").value(1)) //should only show 1 error since it is for the same validationIssueCode
+            .andExpect(jsonPath("$.infoWarning").value(1));
     }
 
     @Test
@@ -830,9 +832,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                     .with(mockAuthority))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.dob", equalTo(dob)))
+            .andExpect(jsonPath("$.dob", equalTo(dob)))
             .andExpect(jsonPath("$.sdcSchoolCollectionStudentValidationIssues", hasSize(2)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionStudentStatusCode", equalTo(SdcSchoolStudentStatus.ERROR.toString())));
+            .andExpect(jsonPath("$.sdcSchoolCollectionStudentStatusCode", equalTo(SdcSchoolStudentStatus.ERROR.toString())));
 
         val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
         assertThat(curStudentEntity).isPresent();
@@ -870,7 +872,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.sdcSchoolCollectionStudentValidationIssues", hasSize(1)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionStudentStatusCode", equalTo(SdcSchoolStudentStatus.INFO_WARNING.toString())));
+            .andExpect(jsonPath("$.sdcSchoolCollectionStudentStatusCode", equalTo(SdcSchoolStudentStatus.INFO_WARNING.toString())));
 
         val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
         assertThat(curStudentEntity).isPresent();
@@ -974,7 +976,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .accept(MediaType.APPLICATION_JSON)
                         .with(mockAuthority))
                 .andDo(print()).andExpect(status().isOk()).andExpect(
-                        MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionStudentStatusCode", equalTo(SdcSchoolStudentStatus.DELETED.toString()))
+                        jsonPath("$.sdcSchoolCollectionStudentStatusCode", equalTo(SdcSchoolStudentStatus.DELETED.toString()))
                 );
 
         var deletedSdcSchoolCollectionStudent = sdcSchoolCollectionStudentRepository.findById(savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID());
@@ -1023,12 +1025,12 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].title", equalTo("Student Headcount")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['All Students'].currentValue", equalTo("4")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['All Students'].comparisonValue", equalTo("4")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].title", equalTo("Grade Headcount")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.11.currentValue", equalTo("2")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.11.comparisonValue", equalTo("1")));
+                .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Student Headcount")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['All Students'].currentValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['All Students'].comparisonValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[1].title", equalTo("Grade Headcount")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.11.currentValue", equalTo("2")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.11.comparisonValue", equalTo("1")));
 
     }
 
@@ -1074,7 +1076,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountResultsTable.headers", not(hasItemInArray("KH"))));
+                .andExpect(jsonPath("$.headcountResultsTable.headers", not(hasItemInArray("KH"))));
 
     }
 
@@ -1135,12 +1137,12 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].title", equalTo("Core French")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("4")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].title", equalTo("Early French Immersion")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Not Reported'].currentValue", equalTo("4")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("0")));
+                .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Core French")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[1].title", equalTo("Early French Immersion")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Not Reported'].currentValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("0")));
     }
 
     @Test
@@ -1201,7 +1203,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountResultsTable.headers", not(hasItemInArray("KH"))));
+                .andExpect(jsonPath("$.headcountResultsTable.headers", not(hasItemInArray("KH"))));
 
     }
 
@@ -1261,9 +1263,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].title", equalTo("Programme Francophone")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("4")));
+                .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Programme Francophone")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("4")));
 
     }
 
@@ -1323,13 +1325,13 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].title", equalTo("Career Preparation")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("4")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("4")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].title", equalTo("Co-Operative Education")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Not Reported'].currentValue", equalTo("4")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("0")));
+                .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Career Preparation")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[1].title", equalTo("Co-Operative Education")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Not Reported'].currentValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("0")));
     }
 
     @Test
@@ -1427,16 +1429,16 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .param("compare", "true")
                 .contentType(APPLICATION_JSON))
             .andDo(print())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].title", equalTo("English Language Learners")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].orderedColumnTitles", containsInRelativeOrder("Eligible", "Reported", "Not Reported")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("2")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Reported'].currentValue", equalTo("3")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Not Reported'].currentValue", equalTo("1")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("0")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].title", equalTo("Years in ELL Headcount")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].orderedColumnTitles", containsInRelativeOrder("1-5 Years", "6+ Years")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['1-5 Years'].currentValue", equalTo("1")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['6+ Years'].comparisonValue", equalTo("0")));
+            .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("English Language Learners")))
+            .andExpect(jsonPath("$.headcountHeaders[0].orderedColumnTitles", containsInRelativeOrder("Eligible", "Reported", "Not Reported")))
+            .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("2")))
+            .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].currentValue", equalTo("3")))
+            .andExpect(jsonPath("$.headcountHeaders[0].columns.['Not Reported'].currentValue", equalTo("1")))
+            .andExpect(jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("0")))
+            .andExpect(jsonPath("$.headcountHeaders[1].title", equalTo("Years in ELL Headcount")))
+            .andExpect(jsonPath("$.headcountHeaders[1].orderedColumnTitles", containsInRelativeOrder("1-5 Years", "6+ Years")))
+            .andExpect(jsonPath("$.headcountHeaders[1].columns.['1-5 Years'].currentValue", equalTo("1")))
+            .andExpect(jsonPath("$.headcountHeaders[1].columns.['6+ Years'].comparisonValue", equalTo("0")));
 
     }
 
@@ -1823,22 +1825,59 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].title", equalTo("Indigenous Language and Culture")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("4")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].title", equalTo("Indigenous Support Services")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Not Reported'].currentValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("4")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Eligible'].currentValue", equalTo("4")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[2].title", equalTo("Other Approved Indigenous Programs")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[2].columns.['Not Reported'].currentValue", equalTo("4")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[2].columns.['Reported'].comparisonValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[2].columns.['Eligible'].currentValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[3].title", equalTo("Indigenous Ancestry Headcount")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[3].headCountValue.currentValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[4].title", equalTo("Ordinarily Living on Reserve Headcount")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[4].headCountValue.currentValue", equalTo("1")));
+                .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Indigenous Language and Culture")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[1].title", equalTo("Indigenous Support Services")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Not Reported'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Eligible'].currentValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[2].title", equalTo("Other Approved Indigenous Programs")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Not Reported'].currentValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[3].title", equalTo("Indigenous Ancestry Headcount")))
+                .andExpect(jsonPath("$.headcountHeaders[3].headCountValue.currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[4].title", equalTo("Ordinarily Living on Reserve Headcount")))
+                .andExpect(jsonPath("$.headcountHeaders[4].headCountValue.currentValue", equalTo("1")));
+    }
+
+    @Test
+    void testCreateYearsInEll_whenStudentExists_shouldCreateYearsInEll() throws Exception {
+        UUID schoolId = UUID.randomUUID();
+        UUID districtId = UUID.randomUUID();
+        UUID studentId = UUID.randomUUID();
+
+        CollectionEntity collection = this.collectionRepository.save(this.createMockCollectionEntity());
+        SdcSchoolCollectionEntity schoolCollection =
+            this.createMockSdcSchoolCollectionEntity(collection, schoolId, districtId);
+
+        this.sdcSchoolCollectionRepository.save(schoolCollection);
+        SdcSchoolCollectionStudentEntity studentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+        studentEntity.setAssignedStudentId(studentId);
+        this.sdcSchoolCollectionStudentRepository.save(studentEntity);
+
+        SdcStudentEllEntity studentEll = new SdcStudentEllEntity();
+        studentEll.setStudentID(studentId);
+        studentEll.setYearsInEll(4);
+
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin()
+            .authorities(grantedAuthority);
+        String payload = asJsonString(List.of(SdcStudentEllMapper.mapper.toStructure(studentEll)));
+        this.mockMvc.perform(
+                post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/years-in-ell")
+                .contentType(APPLICATION_JSON)
+                .content(payload)
+                .with(mockAuthority))
+            .andDo(print())
+            .andExpect(jsonPath("$.[0]createUser", equalTo(ApplicationProperties.STUDENT_DATA_COLLECTION_API)))
+            .andExpect(jsonPath("$.[0]updateUser", equalTo(ApplicationProperties.STUDENT_DATA_COLLECTION_API)))
+            .andExpect(jsonPath("$.[0]studentID", equalTo(studentId.toString())))
+            .andExpect(jsonPath("$.[0]yearsInEll", equalTo("4")))
+            .andExpect(jsonPath("$.[0]sdcStudentEllID", is(not(emptyOrNullString()))));
+
     }
 
     @Test
@@ -1888,35 +1927,35 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].title", equalTo("A - Physically Dependent")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].title", equalTo("B - Deafblind")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[1].columns.['Eligible'].currentValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[2].title", equalTo("C - Moderate to Profound Intellectual Disability")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[2].columns.['Reported'].comparisonValue", equalTo("1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[2].columns.['Eligible'].currentValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[3].title", equalTo("D - Physical Disability or Chronic Health Impairment")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[3].columns.['Reported'].comparisonValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[3].columns.['Eligible'].currentValue", equalTo("1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[4].title", equalTo("E - Visual Impairment")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[4].columns.['Reported'].comparisonValue", equalTo("1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[4].columns.['Eligible'].currentValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[5].title", equalTo("F - Deaf or Hard of Hearing")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[5].columns.['Eligible'].currentValue", equalTo("1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[5].columns.['Reported'].comparisonValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[6].title", equalTo("G - Autism Spectrum Disorder")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[6].columns.['Reported'].comparisonValue", equalTo("1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[6].columns.['Eligible'].currentValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[7].title", equalTo("H - Intensive Behaviour Interventions or Serious Mental Illness")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[7].columns.['Reported'].comparisonValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[7].columns.['Eligible'].currentValue", equalTo("1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[8].title", equalTo("K - Mild Intellectual Disability")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[8].columns.['Reported'].comparisonValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[8].columns.['Eligible'].currentValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[9].title", equalTo("P - Gifted")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[9].columns.['Reported'].comparisonValue", equalTo("0")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.headcountHeaders[9].columns.['Eligible'].currentValue", equalTo("0")));
+                .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("A - Physically Dependent")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[1].title", equalTo("B - Deafblind")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[2].title", equalTo("C - Moderate to Profound Intellectual Disability")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Reported'].comparisonValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[3].title", equalTo("D - Physical Disability or Chronic Health Impairment")))
+                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Eligible'].currentValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[4].title", equalTo("E - Visual Impairment")))
+                .andExpect(jsonPath("$.headcountHeaders[4].columns.['Reported'].comparisonValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[4].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[5].title", equalTo("F - Deaf or Hard of Hearing")))
+                .andExpect(jsonPath("$.headcountHeaders[5].columns.['Eligible'].currentValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[5].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[6].title", equalTo("G - Autism Spectrum Disorder")))
+                .andExpect(jsonPath("$.headcountHeaders[6].columns.['Reported'].comparisonValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[6].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[7].title", equalTo("H - Intensive Behaviour Interventions or Serious Mental Illness")))
+                .andExpect(jsonPath("$.headcountHeaders[7].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[7].columns.['Eligible'].currentValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[8].title", equalTo("K - Mild Intellectual Disability")))
+                .andExpect(jsonPath("$.headcountHeaders[8].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[8].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[9].title", equalTo("P - Gifted")))
+                .andExpect(jsonPath("$.headcountHeaders[9].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[9].columns.['Eligible'].currentValue", equalTo("0")));
     }
 }
