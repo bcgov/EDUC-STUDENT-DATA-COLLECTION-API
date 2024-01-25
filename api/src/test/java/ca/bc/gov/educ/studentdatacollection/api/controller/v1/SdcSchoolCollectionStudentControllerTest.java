@@ -820,6 +820,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
         entity.setNumberOfCourses("0400");
+        entity.setEnrolledGradeCode("01");
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         String dob = "19800101";
