@@ -38,6 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -86,7 +87,7 @@ public class SdcSchoolCollectionStudentService {
     if(currentStudentEntity.isPresent()) {
       SdcSchoolCollectionStudentEntity getCurStudentEntity = currentStudentEntity.get();
       final SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = new SdcSchoolCollectionStudentEntity();
-      BeanUtils.copyProperties(studentEntity, sdcSchoolCollectionStudentEntity, "sdcSchoolCollectionStudentID, sdcSchoolCollection, sdcSchoolCollectionStudentStatusCode, createUser, createDate", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
+      BeanUtils.copyProperties(studentEntity, sdcSchoolCollectionStudentEntity, "sdcSchoolCollectionStudentID, sdcSchoolCollection, sdcSchoolCollectionStudentStatusCode, createUser, createDate, numberOfCoursesDec", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
 
       sdcSchoolCollectionStudentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes()));
       sdcSchoolCollectionStudentEntity.setSdcSchoolCollection(getCurStudentEntity.getSdcSchoolCollection());
@@ -181,6 +182,11 @@ public class SdcSchoolCollectionStudentService {
     // Calculate Fte
     var fteResults = this.fteCalculatorChainProcessor.processFteCalculator(studentRuleData);
     updateFteColumns(fteResults, sdcSchoolCollectionStudentEntity);
+
+    // Convert number of courses string to decimal
+    if(StringUtils.isNotBlank(sdcSchoolCollectionStudentEntity.getNumberOfCourses())){
+      convertNumOfCourses(sdcSchoolCollectionStudentEntity);
+    }
   }
 
   @Async("publisherExecutor")
@@ -291,6 +297,16 @@ public class SdcSchoolCollectionStudentService {
   public void updateFteColumns(FteCalculationResult fteCalculationResult, SdcSchoolCollectionStudentEntity studentEntity) {
     studentEntity.setFte(fteCalculationResult.getFte());
     studentEntity.setFteZeroReasonCode(fteCalculationResult.getFteZeroReason());
+  }
+
+  public void convertNumOfCourses(SdcSchoolCollectionStudentEntity studentEntity) {
+    try {
+      BigDecimal numOfCoursesDec = new BigDecimal(studentEntity.getNumberOfCourses());
+      studentEntity.setNumberOfCoursesDec(numOfCoursesDec);
+    }
+    catch(Exception e) {
+      studentEntity.setNumberOfCoursesDec(BigDecimal.valueOf(00.00));
+    }
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
