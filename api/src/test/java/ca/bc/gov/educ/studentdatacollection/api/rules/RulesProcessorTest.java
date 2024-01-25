@@ -732,13 +732,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val errorContEd = validationErrorContEd.stream().anyMatch(val -> val.getValidationIssueCode().equals("CONTEDERR"));
         assertThat(errorContEd).isTrue();
 
-        entity.setDob("20150101");
-        entity.setNumberOfCourses("0000");
-        val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
-        assertThat(validationError.size()).isNotZero();
-        val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("SCHOOLAGEZEROCOURSES"));
-        assertThat(error).isTrue();
-
         entity.setDob("20220101");
         val validationErrorTooYoung = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorTooYoung.size()).isNotZero();
@@ -1159,6 +1152,40 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val errorInd = validationErrorGrade.stream().anyMatch(val -> val.getValidationIssueCode().equals("ADULTINCORRECTGRADE"));
         assertThat(errorInd).isFalse();
 
+    }
+
+    @Test
+    void testSchoolAgedWithZeroNoOfCoursesRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setEnrolledGradeCode("08");
+        val school = createMockSchool();
+        school.setFacilityTypeCode("STANDARD");
+
+        entity.setDob("20150101");
+        entity.setNumberOfCourses("0000");
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        assertThat(validationError.size()).isNotZero();
+        val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("SCHOOLAGEZEROCOURSES"));
+        assertThat(error).isTrue();
+    }
+
+    @Test
+    void testSchoolAgedWithNullNoOfCoursesRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setEnrolledGradeCode("08");
+        val school = createMockSchool();
+        school.setFacilityTypeCode("STANDARD");
+
+        entity.setDob("20150101");
+        entity.setNumberOfCourses(null);
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        assertThat(validationError.size()).isNotZero();
+        val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("SCHOOLAGEZEROCOURSES"));
+        assertThat(error).isTrue();
     }
 
 }
