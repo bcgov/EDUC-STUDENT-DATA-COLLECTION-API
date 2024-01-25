@@ -7,7 +7,7 @@ env:
   # Added this comment
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-  OPENSHIFT_NAMESPACE: ${{ secrets.INSTITUTE_NAMESPACE_NO_ENV }}-prod
+  OPENSHIFT_NAMESPACE: ${{ secrets.EDX_NAMESPACE_NO_ENV }}-prod
 
   DB_JDBC_CONNECT_STRING: ${{ secrets.DB_JDBC_CONNECT_STRING }}
   DB_PWD: ${{ secrets.DB_PWD }}
@@ -25,7 +25,7 @@ env:
   APP_NAME: 'student-data-collection-api'
   REPO_NAME: "educ-student-data-collection-api"
   BRANCH: "master"
-  NAMESPACE: ${{ secrets.INSTITUTE_NAMESPACE_NO_ENV }}
+  NAMESPACE: ${{ secrets.EDX_NAMESPACE_NO_ENV }}
   COMMON_NAMESPACE: ${{ secrets.COMMON_NAMESPACE_NO_ENV }}
   TAG: "latest"
   TARGET_ENV: "prod"
