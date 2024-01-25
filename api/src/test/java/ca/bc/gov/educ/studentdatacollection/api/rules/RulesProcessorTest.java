@@ -1143,4 +1143,22 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationNoErrorSchlAgedYounger.size()).isZero();
     }
 
+    @Test
+    void testAdultStudentGradeRule_WithGrade08() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val school = createMockSchool();
+        school.setFacilityTypeCode("DISTONLINE");
+
+        entity.setDob("19890101");
+        entity.setNumberOfCourses("0100");
+        entity.setEnrolledGradeCode("08");
+        val validationErrorGrade = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        assertThat(validationErrorGrade.size()).isNotZero();
+        val errorInd = validationErrorGrade.stream().anyMatch(val -> val.getValidationIssueCode().equals("ADULTINCORRECTGRADE"));
+        assertThat(errorInd).isFalse();
+
+    }
+
 }
