@@ -72,9 +72,13 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
             return criteriaBuilder.lessThan(root.get(filterCriteria.getFieldName()), filterCriteria.getConvertedSingleValue());
         });
 
-        map.put(FilterOperation.LESS_THAN_OR_EQUAL_TO,
-                filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.lessThanOrEqualTo(
-                        root.get(filterCriteria.getFieldName()), filterCriteria.getConvertedSingleValue()));
+        map.put(FilterOperation.LESS_THAN_OR_EQUAL_TO, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
+            if (filterCriteria.getFieldName().contains(".")) {
+                String[] splits = filterCriteria.getFieldName().split("\\.");
+                return criteriaBuilder.lessThanOrEqualTo(root.join(splits[0]).get(splits[1]), filterCriteria.getConvertedSingleValue());
+            }
+           return criteriaBuilder.lessThanOrEqualTo(root.get(filterCriteria.getFieldName()), filterCriteria.getConvertedSingleValue());
+        });
 
         map.put(FilterOperation.IN, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
             if (filterCriteria.getFieldName().contains(".")) {
