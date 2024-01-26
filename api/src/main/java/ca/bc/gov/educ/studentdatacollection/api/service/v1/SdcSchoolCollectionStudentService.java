@@ -308,13 +308,7 @@ public class SdcSchoolCollectionStudentService {
   }
 
   public void convertNumOfCourses(SdcSchoolCollectionStudentEntity studentEntity) {
-    try {
-      BigDecimal numOfCoursesDec = new BigDecimal(studentEntity.getNumberOfCourses());
-      studentEntity.setNumberOfCoursesDec(numOfCoursesDec);
-    }
-    catch(Exception e) {
-      studentEntity.setNumberOfCoursesDec(BigDecimal.valueOf(00.00));
-    }
+    studentEntity.setNumberOfCoursesDec(BigDecimal.valueOf(TransformUtil.parseNumberOfCourses(studentEntity.getNumberOfCourses(), studentEntity.getAssignedStudentId())));
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
