@@ -1988,7 +1988,8 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         studentEll.setStudentID(studentId);
         studentEll.setYearsInEll(4);
 
-        this.sdcSchoolCollectionStudentService.createSdcStudentEll(SdcStudentEllMapper.mapper.toStructure(studentEll));
+        this.sdcSchoolCollectionStudentService
+          .createOrReturnSdcStudentEll(SdcStudentEllMapper.mapper.toStructure(studentEll));
 
         final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin()

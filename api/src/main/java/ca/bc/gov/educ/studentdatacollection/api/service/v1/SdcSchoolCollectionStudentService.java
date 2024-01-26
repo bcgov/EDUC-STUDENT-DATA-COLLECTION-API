@@ -315,7 +315,7 @@ public class SdcSchoolCollectionStudentService {
     return sdcSchoolCollectionStudentRepository.save(student);
   }
 
-  public SdcStudentEll createSdcStudentEll(SdcStudentEll studentEll) {
+  public SdcStudentEll createOrReturnSdcStudentEll(SdcStudentEll studentEll) {
     Optional<SdcStudentEllEntity> existingEll = this.sdcStudentEllRepository
       .findByStudentID(UUID.fromString(studentEll.getStudentID()));
 
@@ -329,8 +329,8 @@ public class SdcSchoolCollectionStudentService {
     return sdcStudentEllMapper.toStructure(savedEllEntity);
   }
 
-  public List<SdcStudentEll> createSdcStudentEll(List<SdcStudentEll> studentEll) {
-    return studentEll.stream().map(this::createSdcStudentEll).toList();
+  public List<SdcStudentEll> createOrReturnSdcStudentEll(List<SdcStudentEll> studentEll) {
+    return studentEll.stream().map(this::createOrReturnSdcStudentEll).toList();
   }
 
   private StudentRuleData createStudentRuleDataForValidation(SdcSchoolCollectionStudentEntity studentEntity) {

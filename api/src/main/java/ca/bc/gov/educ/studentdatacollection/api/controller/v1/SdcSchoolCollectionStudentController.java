@@ -88,7 +88,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
 
     @Override
     public List<SdcStudentEll> createYearsInEll(List<SdcStudentEll> studentElls) {
-        return this.sdcSchoolCollectionStudentService.createSdcStudentEll(studentElls);
+        return this.sdcSchoolCollectionStudentService.createOrReturnSdcStudentEll(studentElls);
     }
 
     @Override
