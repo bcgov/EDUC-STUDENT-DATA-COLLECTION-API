@@ -17,6 +17,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcStudentEllEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SearchCriteria;
@@ -63,20 +64,31 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     SdcSchoolCollectionController sdcSchoolCollectionController;
+
     @Autowired
     CollectionRepository collectionRepository;
+
     @Autowired
     SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+
     @Autowired
     SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+
     @Autowired
     SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository;
+
     @Autowired
     SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;
+
+    @Autowired
+    SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+
     @Autowired
     SdcStudentEllRepository sdcStudentEllRepository;
+
     @Autowired
     RestUtils restUtils;
 
@@ -1938,6 +1950,46 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         SdcStudentEllEntity studentEll = new SdcStudentEllEntity();
         studentEll.setStudentID(studentId);
         studentEll.setYearsInEll(4);
+
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin()
+            .authorities(grantedAuthority);
+        String payload = asJsonString(List.of(SdcStudentEllMapper.mapper.toStructure(studentEll)));
+        this.mockMvc.perform(
+                post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/years-in-ell")
+                .contentType(APPLICATION_JSON)
+                .content(payload)
+                .with(mockAuthority))
+            .andDo(print())
+            .andExpect(jsonPath("$.[0]createUser", equalTo(ApplicationProperties.STUDENT_DATA_COLLECTION_API)))
+            .andExpect(jsonPath("$.[0]updateUser", equalTo(ApplicationProperties.STUDENT_DATA_COLLECTION_API)))
+            .andExpect(jsonPath("$.[0]studentID", equalTo(studentId.toString())))
+            .andExpect(jsonPath("$.[0]yearsInEll", equalTo("4")))
+            .andExpect(jsonPath("$.[0]sdcStudentEllID", is(not(emptyOrNullString()))));
+
+    }
+
+    @Test
+    void testCreateYearsInEll_whenEllAlreadyExist_shouldReturnExistingElls() throws Exception {
+        UUID schoolId = UUID.randomUUID();
+        UUID districtId = UUID.randomUUID();
+        UUID studentId = UUID.randomUUID();
+
+        CollectionEntity collection = this.collectionRepository.save(this.createMockCollectionEntity());
+        SdcSchoolCollectionEntity schoolCollection =
+            this.createMockSdcSchoolCollectionEntity(collection, schoolId, districtId);
+
+        this.sdcSchoolCollectionRepository.save(schoolCollection);
+        SdcSchoolCollectionStudentEntity studentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+        studentEntity.setAssignedStudentId(studentId);
+        this.sdcSchoolCollectionStudentRepository.save(studentEntity);
+
+        SdcStudentEllEntity studentEll = new SdcStudentEllEntity();
+        studentEll.setStudentID(studentId);
+        studentEll.setYearsInEll(4);
+
+        this.sdcSchoolCollectionStudentService
+          .createOrReturnSdcStudentEll(SdcStudentEllMapper.mapper.toStructure(studentEll));
 
         final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin()
