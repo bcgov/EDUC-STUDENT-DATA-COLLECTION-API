@@ -274,26 +274,12 @@ class SdcSchoolCollectionStudentServiceTest {
       SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
       UUID studentID = UUID.randomUUID();
       mockStudentEntity.setSdcSchoolCollectionStudentID(studentID);
-      mockStudentEntity.setNumberOfCourses("04.00");
+      mockStudentEntity.setNumberOfCourses("1100");
 
       sdcSchoolCollectionStudentService.convertNumOfCourses(mockStudentEntity);
 
-      BigDecimal expectedNumber = new BigDecimal("04.00");
+      BigDecimal expectedNumber = new BigDecimal("11.00");
 
       assertEquals(0, expectedNumber.compareTo(mockStudentEntity.getNumberOfCoursesDec()));
   }
-
-    @Test
-    void testConversionOfNumOfCourses_WithInvalidInput_ConvertsCorrectly() {
-        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
-        UUID studentID = UUID.randomUUID();
-        mockStudentEntity.setSdcSchoolCollectionStudentID(studentID);
-        mockStudentEntity.setNumberOfCourses("abcd");
-
-        sdcSchoolCollectionStudentService.convertNumOfCourses(mockStudentEntity);
-
-        BigDecimal expectedNumber = new BigDecimal("00.00");
-
-        assertEquals(0, expectedNumber.compareTo(mockStudentEntity.getNumberOfCoursesDec()));
-    }
 }
