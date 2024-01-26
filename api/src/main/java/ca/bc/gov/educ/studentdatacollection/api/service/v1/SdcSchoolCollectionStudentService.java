@@ -316,6 +316,13 @@ public class SdcSchoolCollectionStudentService {
   }
 
   public SdcStudentEll createSdcStudentEll(SdcStudentEll studentEll) {
+    Optional<SdcStudentEllEntity> existingEll = this.sdcStudentEllRepository
+      .findByStudentID(UUID.fromString(studentEll.getStudentID()));
+
+    if (existingEll.isPresent()) {
+      return sdcStudentEllMapper.toStructure(existingEll.get());
+    }
+
     RequestUtil.setAuditColumnsForCreateIfBlank(studentEll);
     SdcStudentEllEntity entity = sdcStudentEllMapper.toModel(studentEll);
     SdcStudentEllEntity savedEllEntity = this.sdcStudentEllRepository.save(entity);
