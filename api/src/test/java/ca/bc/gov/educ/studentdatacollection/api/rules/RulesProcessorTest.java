@@ -378,6 +378,21 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationError.get(0).getValidationIssueCode()).isEqualTo(StudentValidationIssueTypeCode.ENROLLED_CODE_DUP_ERR.getCode());
     }
 
+    @Test
+    void testDuplicateEnrolledProgramRuleDependencyOnV74() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setEnrolledGradeCode("08");
+        val school = createMockSchool();
+
+        entity.setEnrolledProgramCodes("40407");
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        assertThat(validationError.size()).isNotZero();
+        assertThat(validationError.get(0).getValidationIssueCode()).isNotEqualTo(StudentValidationIssueTypeCode.ENROLLED_CODE_DUP_ERR.getCode());
+        assertThat(validationError.get(0).getValidationIssueCode()).isEqualTo(StudentValidationIssueTypeCode.ENROLLED_CODE_PARSE_ERR.getCode());
+    }
+
 
     @Test
     void testDuplicatePenRule() {
