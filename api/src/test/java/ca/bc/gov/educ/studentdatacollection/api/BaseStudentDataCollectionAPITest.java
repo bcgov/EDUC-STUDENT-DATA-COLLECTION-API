@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -224,11 +225,14 @@ public abstract class BaseStudentDataCollectionAPITest {
     return entity;
   }
 
-  public SdcSchoolCollectionStudentValidationIssueEntity createMockSdcSchoolCollectionStudentValidationIssueEntity(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity){
+  public SdcSchoolCollectionStudentValidationIssueEntity createMockSdcSchoolCollectionStudentValidationIssueEntity(
+    SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity,
+    StudentValidationIssueSeverityCode issueSeverityCode
+  ){
     SdcSchoolCollectionStudentValidationIssueEntity sdcSchoolCollectionStudentValidationIssueEntity = new SdcSchoolCollectionStudentValidationIssueEntity();
     sdcSchoolCollectionStudentValidationIssueEntity.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentEntity);
 
-    sdcSchoolCollectionStudentValidationIssueEntity.setValidationIssueSeverityCode("ERROR");
+    sdcSchoolCollectionStudentValidationIssueEntity.setValidationIssueSeverityCode(issueSeverityCode.toString());
     sdcSchoolCollectionStudentValidationIssueEntity.setValidationIssueCode("LEGALFIRSTNAMECHARFIX");
     sdcSchoolCollectionStudentValidationIssueEntity.setValidationIssueFieldCode("LEGAL_FIRST_NAME");
     sdcSchoolCollectionStudentValidationIssueEntity.setCreateUser("ABC");

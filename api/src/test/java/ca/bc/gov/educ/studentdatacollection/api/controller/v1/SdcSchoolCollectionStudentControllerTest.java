@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportingRequirementCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
@@ -294,7 +295,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         var savedSdcSchoolCollectionStudent = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(sdcSchoolCollection));
 
-        sdcSchoolCollectionStudentValidationIssueRepository.save(createMockSdcSchoolCollectionStudentValidationIssueEntity(savedSdcSchoolCollectionStudent));
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+            savedSdcSchoolCollectionStudent, StudentValidationIssueSeverityCode.ERROR
+          ));
 
         this.mockMvc
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())
@@ -326,7 +330,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         enrolledProg.setCreateDate(LocalDateTime.now());
         enrolledProg.setUpdateDate(LocalDateTime.now());
         sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProg);
-        sdcSchoolCollectionStudentValidationIssueRepository.save(createMockSdcSchoolCollectionStudentValidationIssueEntity(savedSdcSchoolCollectionStudent));
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+            savedSdcSchoolCollectionStudent, StudentValidationIssueSeverityCode.ERROR
+          ));
 
         this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())
@@ -373,7 +380,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         enrolledProg2.setCreateDate(LocalDateTime.now());
         enrolledProg2.setUpdateDate(LocalDateTime.now());
         sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProg2);
-        sdcSchoolCollectionStudentValidationIssueRepository.save(createMockSdcSchoolCollectionStudentValidationIssueEntity(stud2));
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+                stud2, StudentValidationIssueSeverityCode.ERROR));
 
         final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("sdcStudentEnrolledProgramEntities.enrolledProgramCode").operation(FilterOperation.NOT_EQUAL).value("AB").valueType(ValueType.STRING).build();
 
@@ -427,7 +436,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         enrolledProg2.setCreateDate(LocalDateTime.now());
         enrolledProg2.setUpdateDate(LocalDateTime.now());
         sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProg2);
-        sdcSchoolCollectionStudentValidationIssueRepository.save(createMockSdcSchoolCollectionStudentValidationIssueEntity(stud2));
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+                stud2, StudentValidationIssueSeverityCode.ERROR));
 
         final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("sdcStudentEnrolledProgramEntities.enrolledProgramCode").operation(FilterOperation.IN).value("AB,BC").valueType(ValueType.STRING).build();
 
@@ -481,7 +492,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         enrolledProg2.setCreateDate(LocalDateTime.now());
         enrolledProg2.setUpdateDate(LocalDateTime.now());
         sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProg2);
-        sdcSchoolCollectionStudentValidationIssueRepository.save(createMockSdcSchoolCollectionStudentValidationIssueEntity(stud2));
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+                stud2, StudentValidationIssueSeverityCode.ERROR));
 
         final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("sdcStudentEnrolledProgramEntities.enrolledProgramCode").operation(FilterOperation.NOT_IN).value("CD,EF").valueType(ValueType.STRING).build();
 
@@ -537,7 +550,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         enrolledProg2.setCreateDate(LocalDateTime.now());
         enrolledProg2.setUpdateDate(LocalDateTime.now());
         sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProg2);
-        sdcSchoolCollectionStudentValidationIssueRepository.save(createMockSdcSchoolCollectionStudentValidationIssueEntity(stud2));
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+                stud2, StudentValidationIssueSeverityCode.ERROR));
 
         final SearchCriteria criteriaColl = SearchCriteria.builder().condition(AND).key("sdcSchoolCollection.sdcSchoolCollectionID").operation(FilterOperation.EQUAL).value(sdcMockSchool.getSdcSchoolCollectionID().toString()).valueType(ValueType.UUID).build();
         final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("sdcStudentEnrolledProgramEntities.enrolledProgramCode").operation(FilterOperation.NOT_IN).value("CD,EF").valueType(ValueType.STRING).build();
@@ -586,11 +601,15 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         var student = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(school));
-        sdcSchoolCollectionStudentValidationIssueRepository.save(createMockSdcSchoolCollectionStudentValidationIssueEntity(student));
-        sdcSchoolCollectionStudentValidationIssueRepository.save(createMockSdcSchoolCollectionStudentValidationIssueEntity(student));
-        var warningValidationIssue = createMockSdcSchoolCollectionStudentValidationIssueEntity(student);
-        warningValidationIssue.setValidationIssueSeverityCode("INFO_WARNING");
-        sdcSchoolCollectionStudentValidationIssueRepository.save(warningValidationIssue);
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+                student, StudentValidationIssueSeverityCode.ERROR));
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+                student, StudentValidationIssueSeverityCode.ERROR));
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+                student, StudentValidationIssueSeverityCode.INFO_WARNING));
 
         this.mockMvc
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.ERROR_WARNING_COUNT + "/" + school.getSdcSchoolCollectionID())
