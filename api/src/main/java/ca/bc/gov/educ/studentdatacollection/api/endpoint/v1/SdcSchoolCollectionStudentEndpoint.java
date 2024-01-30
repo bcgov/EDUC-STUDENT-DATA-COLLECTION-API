@@ -57,6 +57,11 @@ public interface SdcSchoolCollectionStudentEndpoint {
   @Transactional
   SdcSchoolCollectionStudent deleteSdcSchoolCollectionStudent(@PathVariable UUID sdcSchoolCollectionStudentID);
 
+  @PostMapping("/soft-delete-students")
+  @PreAuthorize("hasAuthority('SCOPE_DELETE_SDC_SCHOOL_COLLECTION_STUDENT')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
+  List<SdcSchoolCollectionStudent> softDeleteSdcSchoolCollectionStudents(@RequestBody List<UUID> sdcStudentIDs);
+
   @PostMapping("/years-in-ell")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})

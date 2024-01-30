@@ -325,6 +325,18 @@ public class SdcSchoolCollectionStudentService {
     return sdcSchoolCollectionStudentRepository.save(student);
   }
 
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public List<SdcSchoolCollectionStudentEntity> softDeleteSdcSchoolCollectionStudents(List<UUID> sdcSchoolCollectionStudentIDs) {
+    List<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntities = sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollectionStudentIDIn(sdcSchoolCollectionStudentIDs);
+
+    sdcSchoolCollectionStudentEntities.forEach(student -> {
+      this.sdcStudentValidationErrorRepository.deleteSdcStudentValidationErrors(student.getSdcSchoolCollectionStudentID());
+      student.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.DELETED.toString());
+    });
+
+    return sdcSchoolCollectionStudentRepository.saveAll(sdcSchoolCollectionStudentEntities);
+  }
+
   public SdcStudentEll createOrReturnSdcStudentEll(SdcStudentEll studentEll) {
     Optional<SdcStudentEllEntity> existingEll = this.sdcStudentEllRepository
       .findByStudentID(UUID.fromString(studentEll.getStudentID()));

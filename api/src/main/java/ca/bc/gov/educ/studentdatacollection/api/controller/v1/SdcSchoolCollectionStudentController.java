@@ -87,6 +87,11 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
+    public List<SdcSchoolCollectionStudent> softDeleteSdcSchoolCollectionStudents(List<UUID> sdcStudentIDs) {
+        return this.sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudents(sdcStudentIDs).stream().map(mapper::toSdcSchoolCollectionStudentWithValidationIssues).toList();
+    }
+
+    @Override
     public List<SdcStudentEll> createYearsInEll(List<SdcStudentEll> studentElls) {
         return this.sdcSchoolCollectionStudentService.createOrReturnSdcStudentEll(studentElls);
     }
