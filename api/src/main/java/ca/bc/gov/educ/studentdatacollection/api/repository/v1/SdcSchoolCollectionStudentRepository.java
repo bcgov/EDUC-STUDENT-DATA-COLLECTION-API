@@ -22,13 +22,12 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   long countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollection_SdcSchoolCollectionID(String sdcSchoolCollectionStudentStatusCode, UUID sdcSchoolCollectionID);
 
   @Query(value = """
-    SELECT COUNT(*) FROM (SELECT I.SDC_SCHOOL_COLLECTION_STUDENT_ID, COUNT(I.VALIDATION_ISSUE_SEVERITY_CODE), I.VALIDATION_ISSUE_CODE
+    SELECT COUNT(*)
     FROM SDC_SCHOOL_COLLECTION_STUDENT S, SDC_SCHOOL_COLLECTION_STUDENT_VALIDATION_ISSUE I
     WHERE S.SDC_SCHOOL_COLLECTION_STUDENT_ID = I.SDC_SCHOOL_COLLECTION_STUDENT_ID
     AND S.SDC_SCHOOL_COLLECTION_ID = :sdcSchoolCollectionID
     AND I.VALIDATION_ISSUE_SEVERITY_CODE = :validationIssueSeverityCode
-    AND S.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE NOT IN ('DELETED')
-    GROUP BY I.SDC_SCHOOL_COLLECTION_STUDENT_ID, I.VALIDATION_ISSUE_CODE) as SUBQUERY
+    AND S.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE != 'DELETED'
     """, nativeQuery = true)
   long getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID(String validationIssueSeverityCode, UUID sdcSchoolCollectionID);
 

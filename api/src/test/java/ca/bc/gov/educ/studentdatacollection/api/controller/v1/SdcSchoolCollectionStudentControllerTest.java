@@ -600,24 +600,55 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     void ErrorAndWarningCountBySdcSchoolCollectionID_WithErrorsAndWarnings_ShouldReturnData() throws Exception {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
-        var student = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(school));
+        var studentOne = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(school));
+        var studentTwo = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(school));
+        var studentThree = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(school));
+
+        var deletedStudent = createMockSchoolStudentEntity(school);
+        deletedStudent.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.DELETED.toString());
+        sdcSchoolCollectionStudentRepository.save(deletedStudent);
+
         sdcSchoolCollectionStudentValidationIssueRepository
           .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
-                student, StudentValidationIssueSeverityCode.ERROR));
+                studentOne, StudentValidationIssueSeverityCode.ERROR));
         sdcSchoolCollectionStudentValidationIssueRepository
           .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
-                student, StudentValidationIssueSeverityCode.ERROR));
+                studentTwo, StudentValidationIssueSeverityCode.ERROR));
         sdcSchoolCollectionStudentValidationIssueRepository
           .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
-                student, StudentValidationIssueSeverityCode.INFO_WARNING));
+                studentThree, StudentValidationIssueSeverityCode.ERROR));
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+                studentThree, StudentValidationIssueSeverityCode.ERROR));
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+                studentTwo, StudentValidationIssueSeverityCode.INFO_WARNING));
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+                studentOne, StudentValidationIssueSeverityCode.INFO_WARNING));
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+                studentOne, StudentValidationIssueSeverityCode.FUNDING_WARNING));
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+                studentThree, StudentValidationIssueSeverityCode.FUNDING_WARNING));
+
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+                deletedStudent, StudentValidationIssueSeverityCode.ERROR));
+        sdcSchoolCollectionStudentValidationIssueRepository
+          .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
+                deletedStudent, StudentValidationIssueSeverityCode.FUNDING_WARNING));
 
         this.mockMvc
-            .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.ERROR_WARNING_COUNT + "/" + school.getSdcSchoolCollectionID())
+            .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.ERROR_WARNING_COUNT + "/"
+                        + school.getSdcSchoolCollectionID())
                 .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
             .andDo(print())
-            .andExpect(jsonPath("$.error").value(1)) //should only show 1 error since it is for the same validationIssueCode
-            .andExpect(jsonPath("$.infoWarning").value(1));
+            .andExpect(jsonPath("$.error").value(4))
+            .andExpect(jsonPath("$.infoWarning").value(2))
+            .andExpect(jsonPath("$.fundingWarning").value(2));
     }
 
     @Test
