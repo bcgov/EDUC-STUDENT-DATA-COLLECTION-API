@@ -20,12 +20,12 @@ import java.util.Set;
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V75 | ERROR    | List of enrolled programs codes must                                  | NONE         |
+ *  | V75 | ERROR    | List of enrolled programs codes must                                  | V74         |
  *                     not include duplicate program (e.g. 404005)
  */
 @Component
 @Slf4j
-@Order(190)
+@Order(345)
 public class DuplicateEnrolledProgramRule implements ValidationBaseRule {
     private final ValidationRulesService validationRulesService;
     public DuplicateEnrolledProgramRule(ValidationRulesService validationRulesService) {
