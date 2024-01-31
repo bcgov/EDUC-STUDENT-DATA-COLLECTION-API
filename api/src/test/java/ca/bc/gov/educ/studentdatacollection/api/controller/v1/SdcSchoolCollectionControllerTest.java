@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
@@ -88,7 +89,6 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
   @Test
   void testUpdateCollection_ShouldReturnCollection() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
-    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
@@ -120,7 +120,6 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
   void testUpdateCollection_GivenBadStatus_ShouldReturnBadRequest() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
-
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
     collectionRepository.save(collection);
@@ -427,7 +426,8 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     sdcMockSchool.setCreateDate(null);
     sdcMockSchool.setUpdateDate(null);
     var student = createMockSchoolStudentEntity(null);
-    student.getSDCStudentValidationIssueEntities().add(createMockSdcSchoolCollectionStudentValidationIssueEntity(null));
+    student.getSDCStudentValidationIssueEntities()
+      .add(createMockSdcSchoolCollectionStudentValidationIssueEntity(null, StudentValidationIssueSeverityCode.ERROR));
     sdcMockSchool.getSDCSchoolStudentEntities().add(student);
 
     this.mockMvc.perform(

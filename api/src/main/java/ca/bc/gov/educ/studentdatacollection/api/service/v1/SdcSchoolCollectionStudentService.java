@@ -256,11 +256,14 @@ public class SdcSchoolCollectionStudentService {
   public SdcSchoolCollectionStudentValidationIssueErrorWarningCount errorAndWarningCountBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
     SdcSchoolCollectionStudentValidationIssueErrorWarningCount sdcSchoolCollectionStudentValidationIssueErrorWarningCount = new SdcSchoolCollectionStudentValidationIssueErrorWarningCount();
     sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setError(
-        sdcSchoolCollectionStudentRepository.getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID("ERROR", sdcSchoolCollectionID));
+        sdcSchoolCollectionStudentRepository.getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID(
+          StudentValidationIssueSeverityCode.ERROR.toString(), sdcSchoolCollectionID));
     sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setFundingWarning(
-        sdcSchoolCollectionStudentRepository.getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID("FUNDING_WARNING", sdcSchoolCollectionID));
+        sdcSchoolCollectionStudentRepository.getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID(
+          StudentValidationIssueSeverityCode.FUNDING_WARNING.toString(), sdcSchoolCollectionID));
     sdcSchoolCollectionStudentValidationIssueErrorWarningCount.setInfoWarning(
-            sdcSchoolCollectionStudentRepository.getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID("INFO_WARNING", sdcSchoolCollectionID));
+        sdcSchoolCollectionStudentRepository.getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID(
+          StudentValidationIssueSeverityCode.INFO_WARNING.toString(), sdcSchoolCollectionID));
 
     return sdcSchoolCollectionStudentValidationIssueErrorWarningCount;
   }
