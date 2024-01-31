@@ -21,8 +21,8 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V46 | ERROR    | School-aged student enrolled in grade 8, 9, 10, 11, 12, or        | V04,V28,V29  |
- *                     SU, not reported by a provincial or district online school must have
+ *  | V46 | ERROR    | School-aged student enrolled in grade 8, 9, 10, 11, 12, or SU,        | V04,V28,V29  |
+ *                     not reported by a provincial or district online school must have
  *                     Number of Courses > 0.
  */
 @Component
