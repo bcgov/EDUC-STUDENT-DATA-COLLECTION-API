@@ -21,8 +21,8 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V46 | ERROR    | School-aged student enrolled in grade 8, 9, 10, 11, 12, SU, or        | V04,V28,V29  |
- *                     GA, not reported by a provincial or district online school must have
+ *  | V46 | ERROR    | School-aged student enrolled in grade 8, 9, 10, 11, 12, or        | V04,V28,V29  |
+ *                     SU, not reported by a provincial or district online school must have
  *                     Number of Courses > 0.
  */
 @Component
@@ -62,7 +62,7 @@ public class SchoolAgedNoOfCoursesRule implements ValidationBaseRule {
 
     private boolean conditionPassed(StudentRuleData studentRuleData) {
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
-        return DOBUtil.isSchoolAged(student.getDob()) && SchoolGradeCodes.get8PlusGrades().contains(student.getEnrolledGradeCode()) &&
+        return DOBUtil.isSchoolAged(student.getDob()) && SchoolGradeCodes.get8PlusGradesNoGA().contains(student.getEnrolledGradeCode()) &&
                 (!studentRuleData.getSchool().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DISTONLINE.getCode())
                         && !studentRuleData.getSchool().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DIST_LEARN.getCode()));
     }
