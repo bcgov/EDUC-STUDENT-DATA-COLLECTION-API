@@ -23,8 +23,8 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityType
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V47 | WARNING  | For school-aged student enrolled in grade 8, 9, 10, 11, 12, SU, or    | V28, V04, V29 |
- *                     GA, reported by a provincial or district online school with Number of
+ *  | V47 | WARNING  | For school-aged student enrolled in grade 8, 9, 10, 11, 12, or SU,    | V28, V04, V29 |
+ *                     reported by a provincial or district online school with Number of
  *                     Courses = 0, must have been reported by the school in the last 2 years
  *                     with Number of Courses > 0.
  */
@@ -68,7 +68,7 @@ public class SchoolAgedOnlineZeroCourseHistoryRule implements ValidationBaseRule
             final String courseCountStr = student.getNumberOfCourses();
             final Double courseCount = TransformUtil.parseNumberOfCourses(courseCountStr, student.getSdcSchoolCollection().getSdcSchoolCollectionID());
 
-            var hasRelevantGrade = SchoolGradeCodes.get8PlusGrades().contains(student.getEnrolledGradeCode());
+            var hasRelevantGrade = SchoolGradeCodes.get8PlusGradesNoGA().contains(student.getEnrolledGradeCode());
             boolean hasEnrollmentHistory = validationRulesService.hasEnrollmentHistory(studentRuleData);
 
             if(courseCount <= 0 && hasRelevantGrade && !hasEnrollmentHistory){
