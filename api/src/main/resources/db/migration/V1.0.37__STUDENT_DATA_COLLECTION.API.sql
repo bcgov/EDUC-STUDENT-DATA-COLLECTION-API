@@ -1,5 +1,5 @@
 INSERT INTO EDX_ROLE (EDX_ROLE_CODE, LABEL, IS_DISTRICT_ROLE, DESCRIPTION, CREATE_USER, UPDATE_USER)
-VALUES ('SCHOOL_SDC', 'Student Data Collection', TRUE, 'Student Data Collection (1701) role for School.', 'IDIR/CMCDERMI', 'IDIR/CMCDERMI')
+VALUES ('SCHOOL_SDC', 'Student Data Collection', FALSE, 'Student Data Collection (1701) role for School.', 'IDIR/CMCDERMI', 'IDIR/CMCDERMI')
 
 INSERT INTO EDX_PERMISSION (EDX_PERMISSION_CODE, LABEL, DESCRIPTION, CREATE_USER, UPDATE_USER)
 VALUES ('SCHOOL_SDC', 'Student Data Collection', 'Student Data Collection (1701) permission for School.', 'IDIR/CMCDERMI', 'IDIR/CMCDERMI')
