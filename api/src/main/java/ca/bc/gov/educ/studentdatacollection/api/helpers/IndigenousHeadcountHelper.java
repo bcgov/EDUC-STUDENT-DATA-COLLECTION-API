@@ -1,10 +1,12 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +51,14 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
         headcountMethods = getHeadcountMethods();
         sectionTitles = getSelectionTitles();
         rowTitles = getRowTitles();
-        gradeCodes = SchoolGradeCodes.getRegularSchoolGrades();
+    }
+
+    public void setGradeCodes(Optional<School> school) {
+      if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))) {
+        gradeCodes = SchoolGradeCodes.getIndependentKtoSUGrades();
+      } else {
+        gradeCodes = SchoolGradeCodes.getNonIndependentKtoSUGrades();
+      }
     }
 
     public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {

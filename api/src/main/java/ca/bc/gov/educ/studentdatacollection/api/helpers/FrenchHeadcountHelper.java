@@ -54,9 +54,9 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
 
   public void setGradeCodes(Optional<School> school) {
     if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))) {
-      gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
+      gradeCodes = SchoolGradeCodes.getIndependentKtoGAGrades();
     } else {
-      gradeCodes = SchoolGradeCodes.getNonIndependentSchoolGrades();
+      gradeCodes = SchoolGradeCodes.getNonIndependentKtoGAGrades();
     }
   }
 
