@@ -81,6 +81,7 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
         });
 
         map.put(FilterOperation.IN, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
+            criteriaQuery.distinct(true);
             if (filterCriteria.getFieldName().contains(".")) {
                 String[] splits = filterCriteria.getFieldName().split("\\.");
                 return root.join(splits[0]).get(splits[1]).in(filterCriteria.getConvertedValues());
