@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibility.impl;
 
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
@@ -24,7 +25,7 @@ public class SpecialEducationProgramsRule implements ProgramEligibilityBaseRule 
 
   @Override
   public boolean shouldExecute(StudentRuleData studentRuleData, List<ProgramEligibilityIssueCode> errors) {
-    log.debug("In shouldExecute of ProgramEligibilityBaseRule - SpecialEducationProgramsRule: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
+    log.debug("In shouldExecute of ProgramEligibilityBaseRule - SpecialEducationProgramsRule: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
             studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
     log.debug("In shouldExecute of ProgramEligibilityBaseRule - SpecialEducationProgramsRule: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,

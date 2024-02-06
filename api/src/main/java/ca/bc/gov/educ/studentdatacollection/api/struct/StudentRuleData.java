@@ -16,6 +16,5 @@ import lombok.experimental.SuperBuilder;
 public class StudentRuleData {
   private static final long serialVersionUID = -2329245910142215178L;
   private SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity;
-  private String collectionTypeCode;
   private School school;
 }
