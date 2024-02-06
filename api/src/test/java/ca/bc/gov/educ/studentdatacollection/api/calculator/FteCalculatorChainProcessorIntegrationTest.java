@@ -1,7 +1,9 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -184,9 +186,13 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         // Given
         this.studentData.getSchool().setSchoolCategoryCode("PUBLIC");
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
-        this.studentData.setCollectionTypeCode("FEBRUARY");
         this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("08");
         this.studentData.getSdcSchoolCollectionStudentEntity().setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 5, 0, 0));
+        CollectionEntity collectionOrig = createMockCollectionEntity();
+        collectionOrig.setSnapshotDate(LocalDate.of(collectionOrig.getOpenDate().getYear(), 2, 15));
+        collectionOrig.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntityOrig = createMockSdcSchoolCollectionEntity(collectionOrig, null, null);
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollectionEntityOrig);
 
         final File file = new File(
                 Objects.requireNonNull(getClass().getClassLoader().getResource("sdc-school-collection-entity.json")).getFile()
@@ -196,7 +202,6 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         objectMapper.registerModule(new JavaTimeModule());
         SdcSchoolCollectionEntity sdcSchoolCollection = objectMapper.readValue(file, SdcSchoolCollectionEntity.class);
         var lastCollectionDate = LocalDateTime.of(LocalDateTime.now().minusYears(1).getYear(), Month.SEPTEMBER, 5, 0, 0);
-        sdcSchoolCollection.setCreateDate(lastCollectionDate);
 
         var collection = collectionRepository.save(sdcSchoolCollection.getCollectionEntity());
         sdcSchoolCollection.getCollectionEntity().setCollectionID(collection.getCollectionID());
@@ -204,9 +209,15 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
         this.studentData.getSchool().setDistrictId(String.valueOf(sdcSchoolCollection.getDistrictID()));
 
-        var oneYearAgoCollectionStudent = createMockSchoolStudentEntity(sdcSchoolCollection);
+        var oldCollection = createMockCollectionEntity();
+        var oldSnapDate = LocalDate.of(LocalDateTime.now().minusYears(1).getYear(), Month.SEPTEMBER, 29);
+        oldCollection.setSnapshotDate(oldSnapDate);
+        var oldSdcCollection = createMockSdcSchoolCollectionEntity(oldCollection, null, null);
+        collectionRepository.save(oldCollection);
+        oldSdcCollection.setDistrictID(sdcSchoolCollection.getDistrictID());
+        sdcSchoolCollectionRepository.save(oldSdcCollection);
+        var oneYearAgoCollectionStudent = createMockSchoolStudentEntity(oldSdcCollection);
         oneYearAgoCollectionStudent.setCreateDate(lastCollectionDate);
-        oneYearAgoCollectionStudent.setSdcSchoolCollection(sdcSchoolCollection);
         oneYearAgoCollectionStudent.setAssignedStudentId(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId());
         sdcSchoolCollectionStudentRepository.save(oneYearAgoCollectionStudent);
 
@@ -227,7 +238,6 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         // Given
         this.studentData.getSchool().setSchoolCategoryCode("INDEPEND");
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
-        this.studentData.setCollectionTypeCode("FEBRUARY");
         this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("08");
         this.studentData.getSdcSchoolCollectionStudentEntity().setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 5, 0, 0));
 
@@ -238,8 +248,10 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         SdcSchoolCollectionEntity sdcSchoolCollection = objectMapper.readValue(file, SdcSchoolCollectionEntity.class);
-        var lastCollectionDate = LocalDateTime.of(LocalDateTime.now().minusYears(1).getYear(), Month.SEPTEMBER, 5, 0, 0);
-        sdcSchoolCollection.setCreateDate(lastCollectionDate);
+        var snapDate = LocalDate.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 15);
+        sdcSchoolCollection.getCollectionEntity().setSnapshotDate(snapDate);
+        sdcSchoolCollection.getCollectionEntity().setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollection);
 
         var collection = collectionRepository.save(sdcSchoolCollection.getCollectionEntity());
         sdcSchoolCollection.getCollectionEntity().setCollectionID(collection.getCollectionID());
@@ -247,9 +259,14 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
         this.studentData.getSchool().setDistrictId(String.valueOf(sdcSchoolCollection.getDistrictID()));
 
-        var oneYearAgoCollectionStudent = createMockSchoolStudentEntity(sdcSchoolCollection);
-        oneYearAgoCollectionStudent.setCreateDate(lastCollectionDate);
-        oneYearAgoCollectionStudent.setSdcSchoolCollection(sdcSchoolCollection);
+        var oldCollection = createMockCollectionEntity();
+        var oldSnapDate = LocalDate.of(LocalDateTime.now().minusYears(1).getYear(), Month.SEPTEMBER, 29);
+        oldCollection.setSnapshotDate(oldSnapDate);
+        var oldSdcCollection = createMockSdcSchoolCollectionEntity(oldCollection, null, null);
+        collectionRepository.save(oldCollection);
+        oldSdcCollection.setSchoolID(sdcSchoolCollection.getSchoolID());
+        sdcSchoolCollectionRepository.save(oldSdcCollection);
+        var oneYearAgoCollectionStudent = createMockSchoolStudentEntity(oldSdcCollection);
         oneYearAgoCollectionStudent.setAssignedStudentId(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId());
         sdcSchoolCollectionStudentRepository.save(oneYearAgoCollectionStudent);
 
@@ -269,6 +286,10 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     @Test
     void testProcessFteCalculator_AdultStudent() {
         // Given
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollectionEntity);
         this.studentData.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0500");
 
@@ -283,7 +304,10 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     @Test
     void testProcessFteCalculator_CollectionAndGrade() {
         // Given
-        this.studentData.setCollectionTypeCode("JULY");
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollectionEntity);
         this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("12");
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0700");
 
@@ -301,19 +325,30 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         // Given
+        CollectionEntity collectionOrig = createMockCollectionEntity();
+        collectionOrig.setSnapshotDate(LocalDate.of(collectionOrig.getOpenDate().getYear(), 2, 15));
+        collectionOrig.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        collectionRepository.save(collectionOrig);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntityOrig = createMockSdcSchoolCollectionEntity(collectionOrig, null, null);
+        sdcSchoolCollectionEntityOrig.setSchoolID(UUID.randomUUID());
+        sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntityOrig);
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollectionEntityOrig);
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
-        this.studentData.setCollectionTypeCode("FEBRUARY");
+        this.studentData.getSchool().setSchoolId(sdcSchoolCollectionEntityOrig.getSchoolID().toString());
         this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("KH");
         this.studentData.getSdcSchoolCollectionStudentEntity().setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 5, 0, 0));
 
         var lastCollectionDate = LocalDateTime.of(LocalDateTime.now().minusYears(1).getYear(), Month.SEPTEMBER, 5, 0, 0);
 
-        var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
-
-        var oneYearAgoCollectionStudent = createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        var oldCollection = createMockCollectionEntity();
+        var oldSnapDate = LocalDate.of(LocalDateTime.now().minusYears(1).getYear(), Month.SEPTEMBER, 29);
+        oldCollection.setSnapshotDate(oldSnapDate);
+        var oldSdcCollection = createMockSdcSchoolCollectionEntity(oldCollection, null, null);
+        collectionRepository.save(oldCollection);
+        oldSdcCollection.setSchoolID(sdcSchoolCollectionEntityOrig.getSchoolID());
+        sdcSchoolCollectionRepository.save(oldSdcCollection);
+        var oneYearAgoCollectionStudent = createMockSchoolStudentEntity(oldSdcCollection);
         oneYearAgoCollectionStudent.setCreateDate(lastCollectionDate);
-        oneYearAgoCollectionStudent.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         oneYearAgoCollectionStudent.setAssignedStudentId(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId());
         oneYearAgoCollectionStudent.setEnrolledGradeCode("HS");
 
@@ -329,16 +364,17 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
 
     @Test
     void testProcessFteCalculator_AlternatePrograms() {
-        // Given
-        this.studentData.setCollectionTypeCode("SEPTEMBER");
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollectionEntity);
         this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("03");
         this.studentData.getSdcSchoolCollectionStudentEntity().setIsGraduated(false);
         this.studentData.getSchool().setFacilityTypeCode("ALT_PROGS");
 
-        // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
-        // Then
         assertEquals(BigDecimal.ONE, result.getFte());
         assertNull(result.getFteZeroReason());
     }
@@ -346,7 +382,10 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     @Test
     void testProcessFteCalculator_StudentGrade() {
         // Given
-        this.studentData.setCollectionTypeCode("SEPTEMBER");
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollectionEntity);
         this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("KH");
 
         // When
@@ -360,6 +399,10 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     @Test
     void testProcessFteCalculator_SupportBlocks() {
         // Given
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollectionEntity);
         this.studentData.getSdcSchoolCollectionStudentEntity().setSupportBlocks("0");
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0900");
 
@@ -374,6 +417,10 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     @Test
     void testProcessFteCalculator_StudentGraduated() {
         // Given
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollectionEntity);
         this.studentData.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("1100");
 

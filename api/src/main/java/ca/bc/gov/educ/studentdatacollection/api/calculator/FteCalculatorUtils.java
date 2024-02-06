@@ -14,11 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Month;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -27,8 +22,6 @@ public class FteCalculatorUtils {
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final RestUtils restUtils;
-    private static final String START_DATE_KEY = "startDate";
-    private static final String END_DATE_KEY = "endDate";
 
     @Autowired
     private FteCalculatorUtils(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
@@ -37,36 +30,16 @@ public class FteCalculatorUtils {
         this.restUtils = restUtils;
     }
 
-    /**
-     * This method returns the LocalDateTime of the first and last day of the month of the previous collection
-     * to the one of the given student
-     */
-    private Map<String, LocalDateTime> getPreviousCollectionStartAndEndDates(StudentRuleData studentRuleData) {
-        LocalDateTime startOfCollectionDate;
-        LocalDateTime endOfCollectionDate;
-        //if it's a February collection, get the previous september collection
-        if(studentRuleData.getCollectionTypeCode().equals(CollectionTypeCodes.FEBRUARY.getTypeCode())) {
-            int previousYear = studentRuleData.getSdcSchoolCollectionStudentEntity().getCreateDate().minusYears(1).getYear();
-            startOfCollectionDate = LocalDate.of(previousYear, Month.SEPTEMBER, 1).atTime(LocalTime.MIN);
-            endOfCollectionDate = LocalDate.of(previousYear, Month.SEPTEMBER, 30).atTime(LocalTime.MAX);
-        } else { //it's a May collection, so get the previous february collection
-            int currentYear = studentRuleData.getSdcSchoolCollectionStudentEntity().getCreateDate().getYear();
-            LocalDate february1st = LocalDate.of(currentYear, Month.FEBRUARY, 1);
-            startOfCollectionDate = february1st.atTime(LocalTime.MIN);
-            int daysInFebruary = february1st.lengthOfMonth();
-            endOfCollectionDate = LocalDate.of(currentYear, Month.FEBRUARY, daysInFebruary).atTime(LocalTime.MAX);
-        }
-        Map<String, LocalDateTime> startAndEndOfCollectionMap = new HashMap<>();
-        startAndEndOfCollectionMap.put(START_DATE_KEY, startOfCollectionDate);
-        startAndEndOfCollectionMap.put(END_DATE_KEY, endOfCollectionDate);
-        return startAndEndOfCollectionMap;
+    public static String getCollectionTypeCode(StudentRuleData studentRuleData){
+        return studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getCollectionTypeCode();
     }
 
     /**
      * Returns true if the collection is a February or May collection; otherwise it is false
      */
     public boolean isSpringCollection(StudentRuleData studentRuleData) {
-        return StringUtils.equals(studentRuleData.getCollectionTypeCode(), CollectionTypeCodes.FEBRUARY.getTypeCode()) || StringUtils.equals(studentRuleData.getCollectionTypeCode(), CollectionTypeCodes.MAY.getTypeCode());
+        var collectionTypeCode = getCollectionTypeCode(studentRuleData);
+        return StringUtils.equals(collectionTypeCode, CollectionTypeCodes.FEBRUARY.getTypeCode()) || StringUtils.equals(collectionTypeCode, CollectionTypeCodes.MAY.getTypeCode());
     }
 
     /**
@@ -84,10 +57,9 @@ public class FteCalculatorUtils {
         var isStudentInDistrictFundedGrade = SchoolGradeCodes.getDistrictFundingGrades().contains(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode());
 
         if(isSpringCollection(studentRuleData) && isPublicOnlineOrContEdSchool && isStudentInDistrictFundedGrade && StringUtils.isNotBlank(school.getDistrictId())) {
-            var startAndEndDateOfCollectionMap = getPreviousCollectionStartAndEndDates(studentRuleData);
-            var startOfCollectionDate = startAndEndDateOfCollectionMap.get(START_DATE_KEY);
-            var endOfCollectionDate = startAndEndDateOfCollectionMap.get(END_DATE_KEY);
-            var previousCollections = sdcSchoolCollectionRepository.findAllByDistrictIDAndCreateDateBetween(UUID.fromString(school.getDistrictId()), startOfCollectionDate, endOfCollectionDate);
+            var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
+            var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
+            var previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(UUID.fromString(school.getDistrictId()), fiscalSnapshotDate, currentSnapshotDate);
             return sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
         }
         return false;
@@ -107,13 +79,12 @@ public class FteCalculatorUtils {
         var isStudentInDistrictFundedGrade = SchoolGradeCodes.getDistrictFundingGrades().contains(student.getEnrolledGradeCode());
 
         if(isSpringCollection(studentRuleData) && isIndependentOnlineSchool && isStudentInDistrictFundedGrade) {
-            var startAndEndDateOfCollectionMap = getPreviousCollectionStartAndEndDates(studentRuleData);
-            var startOfCollectionDate = startAndEndDateOfCollectionMap.get(START_DATE_KEY);
-            var endOfCollectionDate = startAndEndDateOfCollectionMap.get(END_DATE_KEY);
             if(StringUtils.isNotBlank(school.getIndependentAuthorityId())) {
                 var schoolIDs = restUtils.getSchoolIDsByIndependentAuthorityID(school.getIndependentAuthorityId());
                 if (schoolIDs.isPresent()) {
-                    var previousCollections = sdcSchoolCollectionRepository.findAllBySchoolIDInAndCreateDateBetween(schoolIDs.get(), startOfCollectionDate, endOfCollectionDate);
+                    var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
+                    var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
+                    var previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(schoolIDs.get(), fiscalSnapshotDate, currentSnapshotDate);
                     return sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(student.getAssignedStudentId(), previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
                 }
             }
@@ -134,11 +105,11 @@ public class FteCalculatorUtils {
         var isStudentGradeKToNine = SchoolGradeCodes.getKToNineGrades().contains(student.getEnrolledGradeCode());
 
         if(isSpringCollection(studentRuleData) && studentReportedByOnlineSchool && isStudentGradeKToNine) {
-            var startAndEndDateOfPreviousCollection = getPreviousCollectionStartAndEndDates(studentRuleData);
-            var startDate = startAndEndDateOfPreviousCollection.get(START_DATE_KEY);
-            var endDate = startAndEndDateOfPreviousCollection.get(END_DATE_KEY);
-            //Check if student was in previous collection as HS student
-            var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndEnrolledGradeCodeAndCreateDateBetween(student.getAssignedStudentId(), SchoolGradeCodes.HOMESCHOOL.getCode(), startDate, endDate);
+            var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
+            var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
+            var previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolForFiscalYearToCurrentCollection(UUID.fromString(studentRuleData.getSchool().getSchoolId()), fiscalSnapshotDate, currentSnapshotDate);
+            var collectionIds = previousCollections.stream().map(collection -> collection.getSdcSchoolCollectionID()).toList();
+            var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(student.getAssignedStudentId(), SchoolGradeCodes.HOMESCHOOL.getCode(), collectionIds);
             return count > 0;
         }
         return false;
@@ -149,9 +120,6 @@ public class FteCalculatorUtils {
      * with zero courses and the student has not been reported with courses > 0 for the last two years
      */
     public boolean noCoursesForStudentInLastTwoYears(StudentRuleData studentRuleData) {
-        if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
-            return false;
-        }
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         var school = studentRuleData.getSchool();
         var isEightPlusGradeCode = SchoolGradeCodes.get8PlusGrades().contains(student.getEnrolledGradeCode());
@@ -159,9 +127,17 @@ public class FteCalculatorUtils {
         boolean isSchoolAged = Boolean.TRUE.equals(student.getIsSchoolAged());
 
         if (isSchoolAged && isEightPlusGradeCode && reportedByOnlineSchoolWithNoCourses) {
+            if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
+                return true;
+            }
+
             var lastTwoYearsOfCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(UUID.fromString(school.getSchoolId()), student.getSdcSchoolCollection().getSdcSchoolCollectionID());
             return lastTwoYearsOfCollections.isEmpty() || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(student.getAssignedStudentId(), lastTwoYearsOfCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(), "0") == 0;
         }
         return false;
+    }
+
+    private LocalDate getFiscalDateFromCurrentSnapshot(LocalDate currentSnapshotDate){
+        return currentSnapshotDate.minusYears(1).withMonth(9).withDayOfMonth(1);
     }
 }

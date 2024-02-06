@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;

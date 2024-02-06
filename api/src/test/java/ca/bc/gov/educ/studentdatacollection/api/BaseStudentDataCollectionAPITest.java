@@ -63,9 +63,9 @@ public abstract class BaseStudentDataCollectionAPITest {
   @Autowired
   SchoolFundingGroupCodeRepository schoolFundingGroupCodeRepository;
   @Autowired
-  CollectionRepository collectionRepository;
+  public CollectionRepository collectionRepository;
   @Autowired
-  SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+  public SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   @Autowired
   SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   @Autowired
@@ -268,7 +268,6 @@ public abstract class BaseStudentDataCollectionAPITest {
   public StudentRuleData createMockStudentRuleData(final SdcSchoolCollectionStudentEntity student, final School school) {
     final StudentRuleData studentRuleData = new StudentRuleData();
     studentRuleData.setSchool(school);
-    studentRuleData.setCollectionTypeCode("SEPTEMBER");
     studentRuleData.setSdcSchoolCollectionStudentEntity(student);
     return studentRuleData;
   }

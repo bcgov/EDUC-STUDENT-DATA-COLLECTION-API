@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.rules;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
@@ -147,12 +148,12 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setStudentPen(null);
         val summerSagaData = createMockStudentRuleData(entity, school);
-        summerSagaData.setCollectionTypeCode("JULY");
+        collection.setCollectionTypeCode(JULY.getTypeCode());
         val summerValidationErrorBlank = rulesProcessor.processRules(summerSagaData);
         assertThat(summerValidationErrorBlank.size()).isNotZero();
 
         val septemberSagaData = createMockStudentRuleData(entity, school);
-        septemberSagaData.setCollectionTypeCode("SEPTEMBER");
+        collection.setCollectionTypeCode(SEPTEMBER.getTypeCode());
         val septemberValidationErrorBlank = rulesProcessor.processRules(septemberSagaData);
         assertThat(septemberValidationErrorBlank.size()).isZero();
     }
@@ -171,7 +172,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setStudentPen(null);
         val sagaData = createMockStudentRuleData(entity, school);
-        sagaData.setCollectionTypeCode("JULY");
+        collection.setCollectionTypeCode(JULY.getTypeCode());
         val validationErrorBlank = rulesProcessor.processRules(sagaData);
         assertThat(validationErrorBlank.size()).isNotZero();
         assertThat(validationErrorBlank.get(0).getValidationIssueFieldCode()).isEqualTo("STUDENT_PEN");
@@ -862,7 +863,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("19890101");
         val saga = createMockStudentRuleData(entity, school);
-        saga.setCollectionTypeCode(SEPTEMBER.getTypeCode());
         saga.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
 
@@ -885,7 +885,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("19890101");
         val saga = createMockStudentRuleData(entity, school);
-        saga.setCollectionTypeCode(SEPTEMBER.getTypeCode());
         saga.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
 
@@ -908,7 +907,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("20100101");
         val saga = createMockStudentRuleData(entity, school);
-        saga.setCollectionTypeCode(JULY.getTypeCode());
+        collection.setCollectionTypeCode(JULY.getTypeCode());
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
 
         PenMatchResult penMatchResult = getPenMatchResult();
@@ -930,7 +929,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("20100101");
         val saga = createMockStudentRuleData(entity, school);
-        saga.setCollectionTypeCode(SEPTEMBER.getTypeCode());
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
         saga.getSdcSchoolCollectionStudentEntity().setSupportBlocks("1");
 
@@ -958,7 +956,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("19890101");
         val saga = createMockStudentRuleData(entity, school);
-        saga.setCollectionTypeCode("July");
+        collection.setCollectionTypeCode(JULY.getTypeCode());
 
         val validationErrorDOB = rulesProcessor.processRules(saga);
         assertThat(validationErrorDOB.size()).isNotZero();
@@ -968,7 +966,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setDob("20150101");
         entity.setSupportBlocks("1");
         val saga2 = createMockStudentRuleData(entity, school);
-        saga2.setCollectionTypeCode("July");
+        collection.setCollectionTypeCode(JULY.getTypeCode());
 
         val validationErrorSupportBlock = rulesProcessor.processRules(saga2);
         assertThat(validationErrorSupportBlock.size()).isNotZero();
@@ -979,7 +977,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setSupportBlocks("0");
         entity.setEnrolledGradeCode("HS");
         val saga3 = createMockStudentRuleData(entity, school);
-        saga3.setCollectionTypeCode("July");
+        collection.setCollectionTypeCode(JULY.getTypeCode());
 
         val validationErrorGradeErr = rulesProcessor.processRules(saga3);
         assertThat(validationErrorGradeErr.size()).isNotZero();

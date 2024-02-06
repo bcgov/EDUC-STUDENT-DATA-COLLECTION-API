@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibility.impl;
 
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.EnrolledProgramCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
@@ -24,7 +25,7 @@ public class YearsInEllRule implements ProgramEligibilityBaseRule {
 
   @Override
   public boolean shouldExecute(StudentRuleData studentRuleData, List<ProgramEligibilityIssueCode> errors) {
-    log.debug("In shouldExecute of ProgramEligibilityBaseRule - YearsInEllRule: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
+    log.debug("In shouldExecute of ProgramEligibilityBaseRule - YearsInEllRule: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
             studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
     log.debug("In shouldExecute of ProgramEligibilityBaseRule - YearsInEllRule: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
