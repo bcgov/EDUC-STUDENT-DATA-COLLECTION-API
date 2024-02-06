@@ -1,9 +1,10 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
+import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
-import ca.bc.gov.educ.studentdatacollection.api.exception.SagaRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -16,7 +17,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class CollectionAndGradeCalculatorTest {
+class CollectionAndGradeCalculatorTest extends BaseStudentDataCollectionAPITest {
 
     private FteCalculator nextCalculator;
     private CollectionAndGradeCalculator collectionAndGradeCalculator;
@@ -31,16 +32,19 @@ class CollectionAndGradeCalculatorTest {
     @Test
     void testCalculateFte_JulyCollectionWithGrade1To7_ReturnsFteCalculation() {
         // Given
-        String collectionTypeCode = "JULY";
         String enrolledGradeCode = "06";
         int numberOfCourses = 4;
 
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
+        student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setNumberOfCourses(String.valueOf(numberOfCourses));
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setCollectionTypeCode(collectionTypeCode);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
@@ -57,15 +61,18 @@ class CollectionAndGradeCalculatorTest {
     @Test
     void testCalculateFte_JulyCollectionWithGrade8To12_ReturnsFteCalculation() {
         // Given
-        String collectionTypeCode = "JULY";
         String enrolledGradeCode = "10";
+
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
+        student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setNumberOfCourses("0600");
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setCollectionTypeCode(collectionTypeCode);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
@@ -82,15 +89,17 @@ class CollectionAndGradeCalculatorTest {
     @Test
     void testCalculateFte_JulyCollectionWithInvalidGrade_ReturnsFteCalculation() {
         // Given
-        String collectionTypeCode = "JULY";
         String enrolledGradeCode = "13"; // Invalid grade code
+
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
-        student.setSdcSchoolCollection(new SdcSchoolCollectionEntity());
+        student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setCollectionTypeCode(collectionTypeCode);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When and Then
@@ -101,16 +110,20 @@ class CollectionAndGradeCalculatorTest {
     @Test
     void testCalculateFte_NonJulyCollection_CallsNextCalculator() {
         // Given
-        String collectionTypeCode = "OCTOBER"; // Non-July collection type
         String enrolledGradeCode = "10";
         int numberOfCourses = 6;
 
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+
+
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
+        student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setNumberOfCourses(String.valueOf(numberOfCourses));
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setCollectionTypeCode(collectionTypeCode);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
@@ -128,14 +141,17 @@ class CollectionAndGradeCalculatorTest {
     @Test
     void testCalculateFte_NullNumCourses_ReturnsFteCalculation() {
         // Given
-        String collectionTypeCode = "JULY";
         String enrolledGradeCode = "10";
+
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
+        student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setCollectionTypeCode(collectionTypeCode);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
@@ -155,8 +171,12 @@ class CollectionAndGradeCalculatorTest {
         String enrolledGradeCode = "10";
         int numberOfCourses = 6;
 
+        CollectionEntity collection = createMockCollectionEntity();
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
+        student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setNumberOfCourses(String.valueOf(numberOfCourses));
 
         StudentRuleData studentData = new StudentRuleData();

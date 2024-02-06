@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -28,7 +29,7 @@ public class CollectionAndGradeCalculator implements FteCalculator {
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
         log.debug("CollectionAndGradeCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         var student = studentData.getSdcSchoolCollectionStudentEntity();
-        var isJulyCollection = StringUtils.equals(studentData.getCollectionTypeCode(), CollectionTypeCodes.JULY.getTypeCode());
+        var isJulyCollection = StringUtils.equals(FteCalculatorUtils.getCollectionTypeCode(studentData), CollectionTypeCodes.JULY.getTypeCode());
         if(isJulyCollection) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             if(SchoolGradeCodes.get1To7Grades().contains(student.getEnrolledGradeCode())) {

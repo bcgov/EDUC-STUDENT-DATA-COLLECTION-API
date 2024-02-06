@@ -107,8 +107,6 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   private String isSchoolAged;
 
   @DecimalMin(value = "0")
-  @DecimalMax(value = "1")
-  @Digits(integer = 1, fraction = 4)
   private BigDecimal fte;
 
   @Size(max = 10)

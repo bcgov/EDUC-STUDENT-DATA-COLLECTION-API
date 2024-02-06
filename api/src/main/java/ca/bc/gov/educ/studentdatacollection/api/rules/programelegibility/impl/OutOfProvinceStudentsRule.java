@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibility.impl;
 
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolFundingCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
@@ -19,7 +20,7 @@ public class OutOfProvinceStudentsRule implements ProgramEligibilityBaseRule {
 
   @Override
   public boolean shouldExecute(StudentRuleData studentRuleData, List<ProgramEligibilityIssueCode> list) {
-    log.debug("In shouldExecute of ProgramEligibilityBaseRule - OutOfProvinceStudentsRule: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
+    log.debug("In shouldExecute of ProgramEligibilityBaseRule - OutOfProvinceStudentsRule: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
             studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
     String fundingCode = studentRuleData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode();

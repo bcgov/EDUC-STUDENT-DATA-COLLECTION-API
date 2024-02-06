@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibility.impl;
 
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
@@ -18,7 +19,7 @@ public class HomeschoolStudentsRule implements ProgramEligibilityBaseRule {
 
   @Override
   public boolean shouldExecute(StudentRuleData studentRuleData, List<ProgramEligibilityIssueCode> list) {
-    log.debug("In shouldExecute of ProgramEligibilityBaseRule - HomeschoolStudentsRule: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
+    log.debug("In shouldExecute of ProgramEligibilityBaseRule - HomeschoolStudentsRule: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
             studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
     log.debug("In shouldExecute of ProgramEligibilityBaseRule - HomeschoolStudentsRule: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,

@@ -1,11 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.constants.v1;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode.*;
 import lombok.Getter;
-
 
 import java.util.Arrays;
 import java.util.Optional;
+
+import static ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode.*;
 
 public enum ValidationRulesDependencyMatrix {
     ENTRY1("V15", new String[]{LEGAL_LAST_NAME_BLANK.getCode()}),

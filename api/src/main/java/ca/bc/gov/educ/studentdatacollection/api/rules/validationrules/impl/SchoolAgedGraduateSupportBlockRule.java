@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl;
 
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
@@ -37,11 +38,11 @@ public class SchoolAgedGraduateSupportBlockRule extends BaseAdultSchoolAgeRule i
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of SchoolAgedGraduateSupportBlockRule-V69: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , studentRuleData.getCollectionTypeCode(),
+        log.debug("In shouldExecute of SchoolAgedGraduateSupportBlockRule-V69: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
         var shouldExecute = SchoolGradeCodes.get8PlusGradesNoGA().contains(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode())
-                && !studentRuleData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
+                && !FteCalculatorUtils.getCollectionTypeCode(studentRuleData).equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
                 && isValidationDependencyResolved("V69", validationErrorsMap);
 
         log.debug("In shouldExecute of SchoolAgedGraduateSupportBlockRule-V69: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
