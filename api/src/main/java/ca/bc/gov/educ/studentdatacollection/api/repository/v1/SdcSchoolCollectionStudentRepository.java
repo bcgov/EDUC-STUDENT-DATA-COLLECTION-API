@@ -233,26 +233,82 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "ORDER BY s.enrolledGradeCode")
   List<CareerHeadcountResult> getCareerHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
-  @Query("SELECT " +
-          "s.enrolledGradeCode AS enrolledGradeCode, " +
-          "COUNT(CASE WHEN ep.enrolledProgramCode = '29' AND s.indigenousSupportProgramNonEligReasonCode IS NULL AND s.nativeAncestryInd = 'Y' THEN 1 END) AS indigenousLanguageWithAncestry, " +
-          "COUNT(CASE WHEN ep.enrolledProgramCode = '29' AND s.indigenousSupportProgramNonEligReasonCode IS NULL AND s.nativeAncestryInd = 'N' THEN 1 END) AS indigenousLanguageWithoutAncestry, " +
-          "COUNT(CASE WHEN ep.enrolledProgramCode = '29' AND s.indigenousSupportProgramNonEligReasonCode IS NULL THEN 1 END) AS indigenousLanguageTotal, " +
-          "COUNT(CASE WHEN ep.enrolledProgramCode = '33' AND s.indigenousSupportProgramNonEligReasonCode IS NULL AND s.nativeAncestryInd = 'Y' THEN 1 END) AS indigenousSupportWithAncestry, " +
-          "COUNT(CASE WHEN ep.enrolledProgramCode = '33' AND s.indigenousSupportProgramNonEligReasonCode IS NULL AND s.nativeAncestryInd = 'N' THEN 1 END) AS indigenousSupportWithoutAncestry, " +
-          "COUNT(CASE WHEN ep.enrolledProgramCode = '33' AND s.indigenousSupportProgramNonEligReasonCode IS NULL THEN 1 END) AS indigenousSupportTotal, " +
-          "COUNT(CASE WHEN ep.enrolledProgramCode = '36' AND s.indigenousSupportProgramNonEligReasonCode IS NULL AND s.nativeAncestryInd = 'Y' THEN 1 END) AS otherProgramWithAncestry, " +
-          "COUNT(CASE WHEN ep.enrolledProgramCode = '36' AND s.indigenousSupportProgramNonEligReasonCode IS NULL AND s.nativeAncestryInd = 'N' THEN 1 END) AS otherProgramWithoutAncestry, " +
-          "COUNT(CASE WHEN ep.enrolledProgramCode = '36' AND s.indigenousSupportProgramNonEligReasonCode IS NULL THEN 1 END) AS otherProgramTotal, " +
-          "COUNT(CASE WHEN ep.enrolledProgramCode in ('29', '33', '36') AND s.indigenousSupportProgramNonEligReasonCode IS NULL AND s.nativeAncestryInd = 'Y' THEN 1 END) AS allSupportProgamWithAncestry, " +
-          "COUNT(CASE WHEN ep.enrolledProgramCode in ('29', '33', '36') AND s.indigenousSupportProgramNonEligReasonCode IS NULL AND s.nativeAncestryInd = 'N' THEN 1 END) AS allSupportProgamWithoutAncestry, " +
-          "COUNT(CASE WHEN ep.enrolledProgramCode in ('29', '33', '36') AND s.indigenousSupportProgramNonEligReasonCode IS NULL THEN 1 END) AS allSupportProgamTotal " +
-          "FROM SdcSchoolCollectionStudentEntity s " +
-          "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' " +
-          "GROUP BY s.enrolledGradeCode " +
-          "ORDER BY s.enrolledGradeCode")
+  @Query(value = """
+    SELECT
+    s.enrolledGradeCode AS enrolledGradeCode,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '29' AND s.nativeAncestryInd = 'Y' THEN 1 END) AS indigenousLanguageWithAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '29' AND s.nativeAncestryInd = 'N' THEN 1 END) AS indigenousLanguageWithoutAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '29' THEN 1 END) AS indigenousLanguageTotal,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '33' AND s.nativeAncestryInd = 'Y' THEN 1 END) AS indigenousSupportWithAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '33' AND s.nativeAncestryInd = 'N' THEN 1 END) AS indigenousSupportWithoutAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '33' THEN 1 END) AS indigenousSupportTotal,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '36' AND s.nativeAncestryInd = 'Y' THEN 1 END) AS otherProgramWithAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '36' AND s.nativeAncestryInd = 'N' THEN 1 END) AS otherProgramWithoutAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '36' THEN 1 END) AS otherProgramTotal,
+    COUNT(CASE WHEN ep.enrolledProgramCode in ('29', '33', '36') AND s.nativeAncestryInd = 'Y' THEN 1 END) AS allSupportProgamWithAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode in ('29', '33', '36') AND s.nativeAncestryInd = 'N' THEN 1 END) AS allSupportProgamWithoutAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode in ('29', '33', '36') THEN 1 END) AS allSupportProgamTotal
+    FROM SdcSchoolCollectionStudentEntity s
+    LEFT JOIN s.sdcStudentEnrolledProgramEntities ep
+    WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID
+    AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR'
+    AND s.indigenousSupportProgramNonEligReasonCode IS NULL
+    GROUP BY s.enrolledGradeCode
+    ORDER BY s.enrolledGradeCode
+    """)
   List<IndigenousHeadcountResult> getIndigenousHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
+
+  @Query(value = """
+    SELECT
+    s.enrolledGradeCode AS enrolledGradeCode,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '29' AND s.nativeAncestryInd = 'Y' THEN 1 END) AS indigenousLanguageWithAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '29' AND s.nativeAncestryInd = 'N' THEN 1 END) AS indigenousLanguageWithoutAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '29' THEN 1 END) AS indigenousLanguageTotal,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '33' AND s.nativeAncestryInd = 'Y' THEN 1 END) AS indigenousSupportWithAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '33' AND s.nativeAncestryInd = 'N' THEN 1 END) AS indigenousSupportWithoutAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '33' THEN 1 END) AS indigenousSupportTotal,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '36' AND s.nativeAncestryInd = 'Y' THEN 1 END) AS otherProgramWithAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '36' AND s.nativeAncestryInd = 'N' THEN 1 END) AS otherProgramWithoutAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '36' THEN 1 END) AS otherProgramTotal,
+    COUNT(CASE WHEN ep.enrolledProgramCode in ('29', '33', '36') AND s.nativeAncestryInd = 'Y' THEN 1 END) AS allSupportProgamWithAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode in ('29', '33', '36') AND s.nativeAncestryInd = 'N' THEN 1 END) AS allSupportProgamWithoutAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode in ('29', '33', '36') THEN 1 END) AS allSupportProgamTotal
+    FROM SdcSchoolCollectionStudentEntity s
+    LEFT JOIN s.sdcStudentEnrolledProgramEntities ep
+    WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID
+    AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR'
+    AND s.indigenousSupportProgramNonEligReasonCode IS NULL
+    AND s.isAdult = true
+    GROUP BY s.enrolledGradeCode
+    ORDER BY s.enrolledGradeCode
+    """)
+  List<IndigenousHeadcountResult> getIndigenousAdultHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
+
+  @Query(value = """
+    SELECT
+    s.enrolledGradeCode AS enrolledGradeCode,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '29' AND s.nativeAncestryInd = 'Y' THEN 1 END) AS indigenousLanguageWithAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '29' AND s.nativeAncestryInd = 'N' THEN 1 END) AS indigenousLanguageWithoutAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '29' THEN 1 END) AS indigenousLanguageTotal,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '33' AND s.nativeAncestryInd = 'Y' THEN 1 END) AS indigenousSupportWithAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '33' AND s.nativeAncestryInd = 'N' THEN 1 END) AS indigenousSupportWithoutAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '33' THEN 1 END) AS indigenousSupportTotal,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '36' AND s.nativeAncestryInd = 'Y' THEN 1 END) AS otherProgramWithAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '36' AND s.nativeAncestryInd = 'N' THEN 1 END) AS otherProgramWithoutAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode = '36' THEN 1 END) AS otherProgramTotal,
+    COUNT(CASE WHEN ep.enrolledProgramCode in ('29', '33', '36') AND s.nativeAncestryInd = 'Y' THEN 1 END) AS allSupportProgamWithAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode in ('29', '33', '36') AND s.nativeAncestryInd = 'N' THEN 1 END) AS allSupportProgamWithoutAncestry,
+    COUNT(CASE WHEN ep.enrolledProgramCode in ('29', '33', '36') THEN 1 END) AS allSupportProgamTotal
+    FROM SdcSchoolCollectionStudentEntity s
+    LEFT JOIN s.sdcStudentEnrolledProgramEntities ep
+    WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID
+    AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR'
+    AND s.indigenousSupportProgramNonEligReasonCode IS NULL
+    AND s.isSchoolAged = true
+    GROUP BY s.enrolledGradeCode
+    ORDER BY s.enrolledGradeCode
+    """)
+  List<IndigenousHeadcountResult> getIndigenousSchoolAgedHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
   @Query(value = """
     SELECT

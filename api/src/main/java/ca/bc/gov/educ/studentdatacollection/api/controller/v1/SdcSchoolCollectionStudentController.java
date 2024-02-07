@@ -109,8 +109,10 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
                 return sdcSchoolCollectionStudentHeadcountService.getEllHeadcounts(sdcSchoolCollectionEntity, compare);
             case "career":
                 return sdcSchoolCollectionStudentHeadcountService.getCareerHeadcounts(sdcSchoolCollectionEntity, compare);
-            case "indigenous":
-                return sdcSchoolCollectionStudentHeadcountService.getIndigenousHeadcounts(sdcSchoolCollectionEntity, compare);
+            case "indigenous-uploaded":
+                return sdcSchoolCollectionStudentHeadcountService.getIndigenousUploadHeadcounts(sdcSchoolCollectionEntity, compare);
+            case "indigenous-summary":
+                return sdcSchoolCollectionStudentHeadcountService.getIndigenousSummaryHeadcounts(sdcSchoolCollectionEntity, compare);
             case "special-ed":
                 return sdcSchoolCollectionStudentHeadcountService.getSpecialEdHeadcounts(sdcSchoolCollectionEntity, compare);
             default:

@@ -37,13 +37,13 @@ public class SdcSchoolCollectionStudentHeadcountService {
     enrollmentHeadcountHelper.setGradeCodes(school);
     List<EnrollmentHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySchoolId(sdcSchoolCollectionID);
     HeadcountResultsTable collectionData = enrollmentHeadcountHelper.convertHeadcountResults(collectionRawData);
-
+    collectionData.setTitle("Grade Enrolment & Eligible FTE");
     List<HeadcountHeader> headcountHeaderList = Arrays.asList(enrollmentHeadcountHelper.getStudentsHeadcountTotals(collectionData), enrollmentHeadcountHelper.getGradesHeadcountTotals(collectionData));
     if (compare) {
       enrollmentHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
     }
     enrollmentHeadcountHelper.stripZeroColumns(headcountHeaderList.get(1));
-    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(List.of(collectionData)).build();
   }
 
   public SdcSchoolCollectionStudentHeadcounts getFrenchHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
@@ -71,8 +71,9 @@ public class SdcSchoolCollectionStudentHeadcountService {
         frenchHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
       }
     }
+    collectionData.setTitle("Eligible French Program Headcount");
 
-    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(List.of(collectionData)).build();
   }
 
   public SdcSchoolCollectionStudentHeadcounts getCareerHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
@@ -80,14 +81,15 @@ public class SdcSchoolCollectionStudentHeadcountService {
 
     List<CareerHeadcountResult> result = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySchoolId(sdcSchoolCollectionID);
     HeadcountResultsTable headcountResultsTable = careerHeadcountHelper.convertHeadcountResults(result);
+    headcountResultsTable.setTitle("Eligible Career Program Headcount");
     List<HeadcountHeader> headcountHeaderList = careerHeadcountHelper.getHeaders(sdcSchoolCollectionID);
     if(compare) {
       careerHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
     }
-    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(List.of(headcountResultsTable)).build();
   }
 
-  public SdcSchoolCollectionStudentHeadcounts getIndigenousHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
+  public SdcSchoolCollectionStudentHeadcounts getIndigenousUploadHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
     var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
 
     List<IndigenousHeadcountResult> result = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySchoolId(sdcSchoolCollectionID);
@@ -96,7 +98,25 @@ public class SdcSchoolCollectionStudentHeadcountService {
     if(compare) {
       indigenousHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
     }
-    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(List.of(headcountResultsTable)).build();
+  }
+
+  public SdcSchoolCollectionStudentHeadcounts getIndigenousSummaryHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
+    var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
+
+    List<IndigenousHeadcountResult> adultResult = sdcSchoolCollectionStudentRepository.getIndigenousAdultHeadcountsBySchoolId(sdcSchoolCollectionID);
+    List<IndigenousHeadcountResult> schoolAgedResult = sdcSchoolCollectionStudentRepository.getIndigenousSchoolAgedHeadcountsBySchoolId(sdcSchoolCollectionID);
+
+    HeadcountResultsTable adultHeadcountResultsTable = indigenousHeadcountHelper.convertHeadcountResults(adultResult);
+    adultHeadcountResultsTable.setTitle("Indigenous Support Program Adult Student Headcounts");
+    HeadcountResultsTable schoolAgedHeadcountResultsTable = indigenousHeadcountHelper.convertHeadcountResults(schoolAgedResult);
+    schoolAgedHeadcountResultsTable.setTitle("Indigenous Support Program School-Aged Student Headcounts");
+
+    List<HeadcountHeader> headcountHeaderList = indigenousHeadcountHelper.getHeaders(sdcSchoolCollectionID);
+    if(compare) {
+      indigenousHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
+    }
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(List.of(adultHeadcountResultsTable, schoolAgedHeadcountResultsTable)).build();
   }
 
   public SdcSchoolCollectionStudentHeadcounts getEllHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
@@ -107,12 +127,13 @@ public class SdcSchoolCollectionStudentHeadcountService {
     List<EllHeadcountResult> collectionRawData =
       sdcSchoolCollectionStudentRepository.getEllHeadcountsBySchoolId(sdcSchoolCollectionID);
     HeadcountResultsTable headcountResultsTable = ellHeadcountHelper.convertHeadcountResults(collectionRawData);
+    headcountResultsTable.setTitle("English Language Learning Headcount");
     List<HeadcountHeader> headcountHeaderList = ellHeadcountHelper.getHeaders(sdcSchoolCollectionID);
     if (compare) {
       ellHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
     }
 
-    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(List.of(headcountResultsTable)).build();
   }
 
   public SdcSchoolCollectionStudentHeadcounts getSpecialEdHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
@@ -122,10 +143,11 @@ public class SdcSchoolCollectionStudentHeadcountService {
 
     List<SpecialEdHeadcountResult> result = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySchoolId(sdcSchoolCollectionID);
     HeadcountResultsTable headcountResultsTable = specialEdHeadcountHelper.convertHeadcountResults(result);
+    headcountResultsTable.setTitle("Eligible Special Education Headcount");
     List<HeadcountHeader> headcountHeaderList = specialEdHeadcountHelper.getHeaders(sdcSchoolCollectionID);
     if(compare) {
       specialEdHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
     }
-    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(List.of(headcountResultsTable)).build();
   }
 }

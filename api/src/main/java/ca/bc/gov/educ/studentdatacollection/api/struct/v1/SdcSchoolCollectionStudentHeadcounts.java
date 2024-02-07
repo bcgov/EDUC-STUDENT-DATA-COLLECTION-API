@@ -17,5 +17,5 @@ import java.util.List;
 public class SdcSchoolCollectionStudentHeadcounts implements Serializable {
     private static final long serialVersionUID = 1L;
     private List<HeadcountHeader> headcountHeaders;
-    private HeadcountResultsTable headcountResultsTable;
+    private List<HeadcountResultsTable> headcountResultsTable;
 }

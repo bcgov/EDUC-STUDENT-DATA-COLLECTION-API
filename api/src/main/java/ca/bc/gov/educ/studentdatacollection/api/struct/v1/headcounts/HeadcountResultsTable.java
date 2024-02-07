@@ -13,6 +13,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Builder
 public class HeadcountResultsTable {
+  String title;
   List<String> headers;
   List<Map<String, String>> rows;
 }
