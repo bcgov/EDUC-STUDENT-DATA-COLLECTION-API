@@ -69,9 +69,9 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
 
   public void setGradeCodes(Optional<School> school) {
     if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))) {
-      gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
+      gradeCodes = SchoolGradeCodes.getIndependentKtoSUGrades();
     } else {
-      gradeCodes = SchoolGradeCodes.getNonIndependentSchoolGrades();
+      gradeCodes = SchoolGradeCodes.getNonIndependentKtoSUGrades();
     }
   }
 

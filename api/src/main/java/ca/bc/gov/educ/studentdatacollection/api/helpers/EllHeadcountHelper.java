@@ -62,9 +62,9 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
 
   public void setGradeCodes(Optional<School> school) {
     if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))) {
-      gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
+      gradeCodes = SchoolGradeCodes.getIndependentKtoSUGrades();
     } else {
-      gradeCodes = SchoolGradeCodes.getNonIndependentSchoolGrades();
+      gradeCodes = SchoolGradeCodes.getNonIndependentKtoSUGrades();
     }
   }
 
@@ -118,7 +118,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
   }
 
   private Map<String, Function<EllHeadcountResult, String>> getHeadcountMethods() {
-    Map<String, Function<EllHeadcountResult, String>> headcountMethods = Map.of(
+    return Map.of(
         SCHOOL_AGED_1_5, EllHeadcountResult::getSchoolAgedOneThroughFive,
         SCHOOL_AGED_6_PLUS, EllHeadcountResult::getSchoolAgedSixPlus,
         SCHOOL_AGED_TOTALS, EllHeadcountResult::getSchoolAgedTotals,
@@ -128,11 +128,10 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
         ALL_1_5, EllHeadcountResult::getAllOneThroughFive,
         ALL_6_PLUS, EllHeadcountResult::getAllSixPlus,
         TOTAL_ELL_STUDENTS, EllHeadcountResult::getTotalEllStudents);
-    return headcountMethods;
   }
 
   private Map<String, String> getSelectionTitles() {
-    Map<String, String> sectionTitles = Map.of(
+    return Map.of(
         SCHOOL_AGED_TOTALS, SCHOOL_AGED_TITLE,
         SCHOOL_AGED_1_5, SCHOOL_AGED_TITLE,
         SCHOOL_AGED_6_PLUS, SCHOOL_AGED_TITLE,
@@ -142,8 +141,6 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
         TOTAL_ELL_STUDENTS, ALL_STUDENTS_TITLE,
         ALL_1_5, ALL_STUDENTS_TITLE,
         ALL_6_PLUS, ALL_STUDENTS_TITLE);
-
-    return sectionTitles;
   }
 
   private Map<String, String> getRowTitles() {
