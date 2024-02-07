@@ -4,10 +4,12 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityI
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentValidationIssueEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHistory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -30,6 +32,9 @@ class SdcSchoolCollectionStudentServiceTest {
 
     @InjectMocks
     private SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+
+    @Mock
+    private SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService;
 
     @Mock
     SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;
@@ -243,6 +248,8 @@ class SdcSchoolCollectionStudentServiceTest {
 
         SdcSchoolCollectionStudentValidationIssueEntity mockValidationError = new SdcSchoolCollectionStudentValidationIssueEntity();
         when(sdcSchoolCollectionStudentValidationIssueRepository.findById(any())).thenReturn(Optional.of(mockValidationError));
+        SdcSchoolCollectionStudentHistoryEntity studentHistoryEntity = new SdcSchoolCollectionStudentHistoryEntity();
+        when(sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(any(), any())).thenReturn(studentHistoryEntity);
 
         // When
         sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
