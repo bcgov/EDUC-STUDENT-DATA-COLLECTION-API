@@ -1,8 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.EllHeadcountHeaderResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.EllHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EllHeadcountHeaderResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EllHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -108,14 +108,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   @Query("SELECT " +
           "s.enrolledGradeCode AS enrolledGradeCode, " +
-          "COUNT(CASE WHEN s.isSchoolAged AND s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' AND ell.yearsInEll < 6 THEN 1 END) AS schoolAgedOneThroughFive, " +
-          "COUNT(CASE WHEN s.isSchoolAged AND s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' AND ell.yearsInEll > 5 THEN 1 END) AS schoolAgedSixPlus, " +
-          "COUNT(CASE WHEN s.isSchoolAged AND s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' THEN 1 END) AS schoolAgedTotals, " +
-          "COUNT(CASE WHEN s.isAdult AND s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' AND ell.yearsInEll < 6 THEN 1 END) AS adultOneThroughFive, " +
-          "COUNT(CASE WHEN s.isAdult AND s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' AND ell.yearsInEll > 5 THEN 1 END) AS adultSixPlus, " +
-          "COUNT(CASE WHEN s.isAdult AND s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' THEN 1 END) AS adultTotals, " +
-          "COUNT(CASE WHEN s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' AND ell.yearsInEll < 6 THEN 1 END) AS allOneThroughFive, " +
-          "COUNT(CASE WHEN s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' AND ell.yearsInEll > 5 THEN 1 END) AS allSixPlus, " +
           "COUNT(CASE WHEN s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' THEN 1 END) AS totalEllStudents " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "LEFT JOIN SdcStudentEllEntity ell " +
@@ -312,6 +304,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'P', 'Q', 'R') THEN 1 END) AS allLevels " +
     "FROM SdcSchoolCollectionStudentEntity s " +
     "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
+    "AND s.specialEducationNonEligReasonCode IS NULL " +
     "GROUP BY s.enrolledGradeCode " +
     "ORDER BY s.enrolledGradeCode")
   List<SpecialEdHeadcountResult> getSpecialEdHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);

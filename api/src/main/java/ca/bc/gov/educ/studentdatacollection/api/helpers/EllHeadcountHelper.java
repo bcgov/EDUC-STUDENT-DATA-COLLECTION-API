@@ -5,8 +5,8 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.EllHeadcountHeaderResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.EllHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EllHeadcountHeaderResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EllHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeaderColumn;
@@ -119,41 +119,16 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
 
   private Map<String, Function<EllHeadcountResult, String>> getHeadcountMethods() {
     return Map.of(
-        SCHOOL_AGED_1_5, EllHeadcountResult::getSchoolAgedOneThroughFive,
-        SCHOOL_AGED_6_PLUS, EllHeadcountResult::getSchoolAgedSixPlus,
-        SCHOOL_AGED_TOTALS, EllHeadcountResult::getSchoolAgedTotals,
-        ADULT_1_5, EllHeadcountResult::getAdultOneThroughFive,
-        ADULT_6_PLUS, EllHeadcountResult::getAdultSixPlus,
-        ADULT_TOTALS, EllHeadcountResult::getAdultTotals,
-        ALL_1_5, EllHeadcountResult::getAllOneThroughFive,
-        ALL_6_PLUS, EllHeadcountResult::getAllSixPlus,
         TOTAL_ELL_STUDENTS, EllHeadcountResult::getTotalEllStudents);
   }
 
   private Map<String, String> getSelectionTitles() {
-    return Map.of(
-        SCHOOL_AGED_TOTALS, SCHOOL_AGED_TITLE,
-        SCHOOL_AGED_1_5, SCHOOL_AGED_TITLE,
-        SCHOOL_AGED_6_PLUS, SCHOOL_AGED_TITLE,
-        ADULT_TOTALS, ADULT_TITLE,
-        ADULT_1_5, ADULT_TITLE,
-        ADULT_6_PLUS, ADULT_TITLE,
-        TOTAL_ELL_STUDENTS, ALL_STUDENTS_TITLE,
-        ALL_1_5, ALL_STUDENTS_TITLE,
-        ALL_6_PLUS, ALL_STUDENTS_TITLE);
+    return Map.of(TOTAL_ELL_STUDENTS, ALL_STUDENTS_TITLE);
   }
 
   private Map<String, String> getRowTitles() {
     Map<String, String> rowTitles = new LinkedHashMap<>();
-    rowTitles.put(SCHOOL_AGED_TOTALS, SCHOOL_AGED_TITLE);
-    rowTitles.put(SCHOOL_AGED_1_5, ONE_TO_FIVE_TITLE);
-    rowTitles.put(SCHOOL_AGED_6_PLUS, SIX_PLUS_TITLE);
-    rowTitles.put(ADULT_TOTALS, ADULT_TITLE);
-    rowTitles.put(ADULT_1_5, ONE_TO_FIVE_TITLE);
-    rowTitles.put(ADULT_6_PLUS, SIX_PLUS_TITLE);
     rowTitles.put(TOTAL_ELL_STUDENTS, ALL_STUDENTS_TITLE);
-    rowTitles.put(ALL_1_5, ONE_TO_FIVE_TITLE);
-    rowTitles.put(ALL_6_PLUS, SIX_PLUS_TITLE);
     return rowTitles;
   }
 }
