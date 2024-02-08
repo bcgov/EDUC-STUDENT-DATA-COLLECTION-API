@@ -111,4 +111,12 @@ public interface CodeTableAPIEndpoint {
     @Tag(name = "Collection Codes", description = "Endpoints to get collection codes.")
     @Schema(name = "CollectionTypeCodes", implementation = CollectionTypeCode.class)
     List<CollectionTypeCode> getCollectionTypeCodes();
+
+    @PreAuthorize("hasAuthority('SCOPE_READ_COLLECTION_CODES')")
+    @GetMapping(URL.PROGRAM_ELIGIBILITY_ISSUE_CODES)
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
+    @Transactional(readOnly = true)
+    @Tag(name = "Collection Codes", description = "Endpoints to get collection codes.")
+    @Schema(name = "ProgramEligibilityIssueTypeCode", implementation = ProgramEligibilityIssueTypeCode.class)
+    List<ProgramEligibilityIssueTypeCode> getProgramEligibilityIssueCodes();
 }

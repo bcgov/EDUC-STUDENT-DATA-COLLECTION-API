@@ -25,5 +25,6 @@ public final class URL {
   public static final String ZERO_FTE_REASON_CODES = "/zero-fte-reason-codes";
   public static final String HEADCOUNTS = "/headcounts";
   public static final String COLLECTION_TYPE_CODES = "/collection-type-codes";
+  public static final String PROGRAM_ELIGIBILITY_ISSUE_CODES = "/program-eligibility-issue-codes";
 
 }
