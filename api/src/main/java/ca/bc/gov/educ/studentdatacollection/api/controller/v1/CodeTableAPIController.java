@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.CodeTableAPIEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CodeTableMapper;
@@ -96,5 +97,16 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
     @Override
     public List<CollectionTypeCode> getCollectionTypeCodes() {
         return codeTableService.getCollectionCodeList().stream().map(mapper::toStructure).toList();
+    }
+
+    @Override
+    public List<ProgramEligibilityIssueTypeCode> getProgramEligibilityIssueCodes() {
+        return  Arrays.stream(ProgramEligibilityIssueCode.values()).map(code -> {
+                    ProgramEligibilityIssueTypeCode issue = new ProgramEligibilityIssueTypeCode();
+                    issue.setProgramEligibilityIssueTypeCode(code.getCode());
+                    issue.setMessage(code.getMessage());
+                    return issue;
+                })
+                .toList();
     }
 }

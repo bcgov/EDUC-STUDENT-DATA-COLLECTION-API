@@ -134,4 +134,14 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].collectionTypeCode").value("SEPTEMBER"))
             .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
   }
+
+  @Test
+  void testGetProgramEligibilityIssueCodes_ShouldReturnCodes() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(get(URL.BASE_URL + URL.PROGRAM_ELIGIBILITY_ISSUE_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].programEligibilityIssueTypeCode").value("HOMESCHOOL"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
+  }
 }
