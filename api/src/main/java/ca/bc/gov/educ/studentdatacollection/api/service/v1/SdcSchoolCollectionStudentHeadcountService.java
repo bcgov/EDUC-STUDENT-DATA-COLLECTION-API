@@ -5,7 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.helpers.*;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.EllHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EllHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHeadcounts;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
@@ -89,7 +89,8 @@ public class SdcSchoolCollectionStudentHeadcountService {
 
   public SdcSchoolCollectionStudentHeadcounts getIndigenousHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
     var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
-
+    Optional<School> school = this.restUtils.getSchoolBySchoolID(String.valueOf(sdcSchoolCollectionEntity.getSchoolID()));
+    indigenousHeadcountHelper.setGradeCodes(school);
     List<IndigenousHeadcountResult> result = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySchoolId(sdcSchoolCollectionID);
     HeadcountResultsTable headcountResultsTable = indigenousHeadcountHelper.convertHeadcountResults(result);
     List<HeadcountHeader> headcountHeaderList = indigenousHeadcountHelper.getHeaders(sdcSchoolCollectionID);
