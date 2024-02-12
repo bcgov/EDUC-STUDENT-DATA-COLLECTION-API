@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.HeadcountReportTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcSchoolCollectionStudentEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
@@ -100,22 +101,21 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     public SdcSchoolCollectionStudentHeadcounts getSdcSchoolCollectionStudentHeadcounts(UUID sdcSchoolCollectionID, String type, boolean compare) {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findBySdcSchoolCollectionID(sdcSchoolCollectionID).orElseThrow(() ->
                 new EntityNotFoundException(SdcSchoolCollectionStudent.class, "sdcSchoolCollectionID", sdcSchoolCollectionID.toString()));
-        switch (type) {
-            case "enrollment":
-                return sdcSchoolCollectionStudentHeadcountService.getEnrollmentHeadcounts(sdcSchoolCollectionEntity, compare);
-            case "french":
-                return sdcSchoolCollectionStudentHeadcountService.getFrenchHeadcounts(sdcSchoolCollectionEntity, compare);
-            case "ell":
-                return sdcSchoolCollectionStudentHeadcountService.getEllHeadcounts(sdcSchoolCollectionEntity, compare);
-            case "career":
-                return sdcSchoolCollectionStudentHeadcountService.getCareerHeadcounts(sdcSchoolCollectionEntity, compare);
-            case "indigenous":
-                return sdcSchoolCollectionStudentHeadcountService.getIndigenousHeadcounts(sdcSchoolCollectionEntity, compare);
-            case "special-ed":
-                return sdcSchoolCollectionStudentHeadcountService.getSpecialEdHeadcounts(sdcSchoolCollectionEntity, compare);
-            default:
-                log.error("Invalid type for getSdcSchoolCollectionStudentHeadcounts::" + type);
-                throw new InvalidParameterException();
+        if (HeadcountReportTypeCodes.ENROLLMENT.getCode().equals(type)) {
+            return sdcSchoolCollectionStudentHeadcountService.getEnrollmentHeadcounts(sdcSchoolCollectionEntity, compare);
+        } else if (HeadcountReportTypeCodes.FRENCH.getCode().equals(type)) {
+            return sdcSchoolCollectionStudentHeadcountService.getFrenchHeadcounts(sdcSchoolCollectionEntity, compare);
+        } else if (HeadcountReportTypeCodes.ELL.getCode().equals(type)) {
+            return sdcSchoolCollectionStudentHeadcountService.getEllHeadcounts(sdcSchoolCollectionEntity, compare);
+        } else if (HeadcountReportTypeCodes.CAREER.getCode().equals(type)) {
+            return sdcSchoolCollectionStudentHeadcountService.getCareerHeadcounts(sdcSchoolCollectionEntity, compare);
+        } else if (HeadcountReportTypeCodes.INDIGENOUS.getCode().equals(type)) {
+            return sdcSchoolCollectionStudentHeadcountService.getIndigenousHeadcounts(sdcSchoolCollectionEntity, compare);
+        } else if (HeadcountReportTypeCodes.SPECIAL_ED.getCode().equals(type)) {
+            return sdcSchoolCollectionStudentHeadcountService.getSpecialEdHeadcounts(sdcSchoolCollectionEntity, compare);
+        } else {
+            log.error("Invalid type for getSdcSchoolCollectionStudentHeadcounts::" + type);
+            throw new InvalidParameterException(type);
         }
     }
 

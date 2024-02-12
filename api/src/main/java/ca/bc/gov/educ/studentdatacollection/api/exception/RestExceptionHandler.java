@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.time.LocalDateTime;
+
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -78,7 +80,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
    * @return the ApiError object
    */
   @ExceptionHandler(IllegalArgumentException.class)
-  protected ResponseEntity<Object> handleInvalidParameter(IllegalArgumentException ex) {
+  protected ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
     ApiError apiError = new ApiError(BAD_REQUEST);
     apiError.setMessage(ex.getMessage());
     log.error("{} ", apiError.getMessage(), ex);
@@ -95,6 +97,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
   protected ResponseEntity<Object> handleInvalidParameter(InvalidParameterException ex) {
     ApiError apiError = new ApiError(BAD_REQUEST);
     apiError.setMessage(ex.getMessage());
+    apiError.setTimestamp(LocalDateTime.now());
     log.error("{} ", apiError.getMessage(), ex);
     return buildResponseEntity(apiError);
   }
