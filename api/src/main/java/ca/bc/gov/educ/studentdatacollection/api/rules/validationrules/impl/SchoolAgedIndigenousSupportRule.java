@@ -34,9 +34,7 @@ public class SchoolAgedIndigenousSupportRule implements ValidationBaseRule {
         log.debug("In shouldExecute of AdultIndigenousFundingRule-V77: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        var shouldExecute = StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob()) &&
-                StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes()) &&
-                isValidationDependencyResolved("V77", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V77", validationErrorsMap);
 
         log.debug("In shouldExecute of AdultIndigenousFundingRule-V77: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
                 shouldExecute,
@@ -56,6 +54,7 @@ public class SchoolAgedIndigenousSupportRule implements ValidationBaseRule {
             log.debug("AdultIndigenousFundingRule-V77: Invalid age for Indigenous Support Programs for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_PROGRAM_CODE, StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT));
         }
 
         return errors;
