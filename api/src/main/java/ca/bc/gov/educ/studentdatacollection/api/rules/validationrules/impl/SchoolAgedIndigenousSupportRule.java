@@ -27,7 +27,7 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(680)
-public class AdultIndigenousFundingRule implements ValidationBaseRule {
+public class SchoolAgedIndigenousSupportRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
@@ -55,7 +55,7 @@ public class AdultIndigenousFundingRule implements ValidationBaseRule {
         if (BooleanUtils.isFalse(student.getIsSchoolAged())) {
             log.debug("AdultIndigenousFundingRule-V77: Invalid age for Indigenous Support Programs for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.ADULT_NO_INDIGENOUS_SUPPORT));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT));
         }
 
         return errors;
