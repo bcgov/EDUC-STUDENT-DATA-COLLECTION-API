@@ -58,7 +58,7 @@ public class SchoolAgedIndigenousSupportRule implements ValidationBaseRule {
         List<String> studentPrograms = validationRulesService.splitString(student.getEnrolledProgramCodes());
 
         log.debug("AdultIndigenousFundingRule-V77: Invalid age for Indigenous Support Programs for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        if (EnrolledProgramCodes.getIndigenousProgramCodes().stream().noneMatch(studentPrograms::contains) 
+        if (EnrolledProgramCodes.getIndigenousProgramCodes().stream().anyMatch(studentPrograms::contains) 
             && DOBUtil.isAdult(student.getDob())) {
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_PROGRAM_CODE, StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT));
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT));
