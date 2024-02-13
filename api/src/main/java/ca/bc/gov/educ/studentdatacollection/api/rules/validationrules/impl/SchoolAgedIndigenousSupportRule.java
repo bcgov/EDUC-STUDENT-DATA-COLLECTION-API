@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -50,7 +51,7 @@ public class SchoolAgedIndigenousSupportRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
-        if (BooleanUtils.isFalse(student.getIsSchoolAged())) {
+        if (DOBUtil.isAdult(student.getDob())) {
             log.debug("AdultIndigenousFundingRule-V77: Invalid age for Indigenous Support Programs for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT));
