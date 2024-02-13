@@ -854,17 +854,20 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
-    void testAdultIndigenousFundingRule() {
+    void testSchoolAgedIndigenousSupportRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-        entity.setEnrolledProgramCodes("05");
+        entity.setEnrolledProgramCodes("33");
         entity.setDob("19890101");
-        entity.setIsSchoolAged(false);
 
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
-        val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT.getCode()));
+        val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT.getCode())
+            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.ENROLLED_PROGRAM_CODE.getCode()));
+        val error2 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT.getCode())
+            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.DOB.getCode()));
         assertThat(error1).isTrue();
+        assertThat(error2).isTrue();
     }
 
     @Test
