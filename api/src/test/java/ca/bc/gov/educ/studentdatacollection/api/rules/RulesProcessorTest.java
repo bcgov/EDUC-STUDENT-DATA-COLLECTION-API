@@ -863,8 +863,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setIsSchoolAged(false);
 
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
-        val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT.getCode())
-                && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.DOB.getCode()));
+        val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT.getCode()));
         assertThat(error1).isTrue();
     }
 
