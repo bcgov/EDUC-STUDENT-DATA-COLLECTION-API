@@ -20,7 +20,7 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                                         | Dependent On |
  *  |-----|----------|------------------------------------------------------------------------------|--------------|
- *  | V77 | WARNING  |  Only school-aged students should  be reported with Indigenous Support       |  V04, V30    |
+ *  | V77 | WARNING  |  Only school-aged students should be reported with Indigenous Support        |  V04, V30    |
  *                      Programs.
  *
  */
