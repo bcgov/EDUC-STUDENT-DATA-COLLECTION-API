@@ -87,7 +87,8 @@ public enum StudentValidationIssueTypeCode {
   SCHOOL_AGED_GRADUATE_SUPPORT_BLOCKS("SCHLAGEDGRADSUPPORT", "Graduated school-aged students will not receive funding for support blocks."),
   GRADUATE_STUDENT_INDEPENDENT("GRADSTUDENTINDEPEND", "Graduated adult students are not eligible for funding."),
   ADULT_ZERO_COURSE_HISTORY("ADULTZEROCOURSEH", "Zero courses reported in last two years."),
-  SCHOOL_AGED_ZERO_COURSE_HISTORY("SCHOOLAGEDZEROCOURSEH", "Zero courses reported in last two years.")
+  SCHOOL_AGED_ZERO_COURSE_HISTORY("SCHOOLAGEDZEROCOURSEH", "Zero courses reported in last two years."),
+  SCHOOL_AGED_INDIGENOUS_SUPPORT("SCHOOLAGEDINDIGENOUSSUPPORT", "Only school-aged students will receive funding for Indigenous Support Programs."),
   ;
 
   /**
