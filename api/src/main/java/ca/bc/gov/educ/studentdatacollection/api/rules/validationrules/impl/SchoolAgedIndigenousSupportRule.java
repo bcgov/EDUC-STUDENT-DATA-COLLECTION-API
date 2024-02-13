@@ -27,7 +27,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(680)
+@Order(690)
 public class SchoolAgedIndigenousSupportRule implements ValidationBaseRule {
     private final ValidationRulesService validationRulesService;
 
@@ -37,6 +37,7 @@ public class SchoolAgedIndigenousSupportRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
+        //cant use fte calculation
         log.debug("In shouldExecute of AdultIndigenousFundingRule-V77: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
