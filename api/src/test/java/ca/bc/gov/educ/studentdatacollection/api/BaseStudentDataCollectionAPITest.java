@@ -87,6 +87,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     specialEducationCategoryRepository.save(specialEducationCategoryCodeData());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode08Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode14Data());
+    enrolledProgramCodeRepository.save(createEnrolledProgramCode17Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode33Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode41Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode40Data());
@@ -334,6 +335,12 @@ public abstract class BaseStudentDataCollectionAPITest {
   public EnrolledProgramCodeEntity createEnrolledProgramCode14Data() {
     return EnrolledProgramCodeEntity.builder().enrolledProgramCode("14").description("14")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("14").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public EnrolledProgramCodeEntity createEnrolledProgramCode17Data() {
+    return EnrolledProgramCodeEntity.builder().enrolledProgramCode("17").description("17")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("17").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 
