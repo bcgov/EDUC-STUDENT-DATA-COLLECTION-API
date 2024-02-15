@@ -59,8 +59,8 @@ public enum ValidationRulesDependencyMatrix {
     ENTRY52("V34", new String[]{NO_OF_COURSES_INVALID.getCode(), INVALID_GRADE_CODE.getCode(), DOB_INVALID_FORMAT.getCode()}),
     ENTRY53("V47", new String[]{NO_OF_COURSES_INVALID.getCode(), INVALID_GRADE_CODE.getCode(), DOB_INVALID_FORMAT.getCode()}),
     ENTRY54("V76", new String[]{SPED_ERR.getCode()}),
-    ENTRY55("V77", new String[]{DOB_INVALID_FORMAT.getCode(), ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode()});
-
+    ENTRY55("V77", new String[]{DOB_INVALID_FORMAT.getCode(), ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode()}),
+    ENTRY56("V78", new String[]{DOB_INVALID_FORMAT.getCode(), ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode()});
 
     @Getter
     private final String ruleID;

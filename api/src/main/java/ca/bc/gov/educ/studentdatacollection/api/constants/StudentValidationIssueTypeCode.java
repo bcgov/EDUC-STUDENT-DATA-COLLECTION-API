@@ -89,6 +89,7 @@ public enum StudentValidationIssueTypeCode {
   ADULT_ZERO_COURSE_HISTORY("ADULTZEROCOURSEH", "Zero courses reported in last two years."),
   SCHOOL_AGED_ZERO_COURSE_HISTORY("SCHOOLAGEDZEROCOURSEH", "Zero courses reported in last two years."),
   SCHOOL_AGED_INDIGENOUS_SUPPORT("SCHOOLAGEDINDIGENOUSSUPPORT", "Only school-aged students will receive funding for Indigenous Support Programs."),
+  SCHOOL_AGED_ELL("SCHOOLAGEDELL", "Only school-aged students will receive funding for English Language Learning."),
   ;
 
   /**

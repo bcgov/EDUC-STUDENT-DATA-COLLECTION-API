@@ -871,6 +871,23 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
+    void testSchoolAgedELLRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setEnrolledProgramCodes("17");
+        entity.setDob("19890101");
+
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_ELL.getCode())
+            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.ENROLLED_PROGRAM_CODE.getCode()));
+        val error2 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_ELL.getCode())
+            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.DOB.getCode()));
+        assertThat(error1).isTrue();
+        assertThat(error2).isTrue();
+    }
+
+    @Test
     void testAdultGraduatesRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
