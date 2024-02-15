@@ -79,4 +79,10 @@ public enum EnrolledProgramCodes {
         codes.add(OTHER_APPROVED_NATIVE.getCode());
         return codes;
     }
+
+    public static List<String> getELLCodes() {
+        List<String> codes = new ArrayList<>();
+        codes.add(ENGLISH_LANGUAGE_LEARNING.getCode());
+        return codes;
+    }
 }
