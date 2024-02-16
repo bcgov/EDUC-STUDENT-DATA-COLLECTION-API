@@ -31,12 +31,12 @@ import java.util.List;
 public class SchoolAgedSpedRule implements ValidationBaseRule {
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of SchoolAgedSPEDRule-V78: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
+        log.debug("In shouldExecute of SchoolAgedSPEDRule-V79: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V78", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V79", validationErrorsMap);
 
-        log.debug("In shouldExecute of SchoolAgedSPEDRule-V78: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
+        log.debug("In shouldExecute of SchoolAgedSPEDRule-V79: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
@@ -45,12 +45,12 @@ public class SchoolAgedSpedRule implements ValidationBaseRule {
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of SchoolAgedSpedRule-V78 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+        log.debug("In executeValidation of SchoolAgedSpedRule-V79 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
-        log.debug("SchoolAgedSpedRule-V78: Only school-aged students or non-graduated adults will receive funding for Special Education for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+        log.debug("SchoolAgedSpedRule-V79: Only school-aged students or non-graduated adults will receive funding for Special Education for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         if (StringUtils.isNotEmpty(student.getSpecialEducationCategoryCode())
             && DOBUtil.isAdult(student.getDob()) && BooleanUtils.isTrue(student.getIsGraduated())) {
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SPECIAL_EDUCATION_CATEGORY_CODE, StudentValidationIssueTypeCode.SCHOOL_AGED_SPED));
