@@ -586,9 +586,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
             .andDo(print())
-            .andExpect(jsonPath("$.error").value(0))
-            .andExpect(jsonPath("$.infoWarning").value(0))
-            .andExpect(jsonPath("$.fundingWarning").value(0));
+            .andExpect(status().isOk());
     }
 
     @Test
@@ -641,9 +639,12 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
             .andDo(print())
-            .andExpect(jsonPath("$.error").value(4))
-            .andExpect(jsonPath("$.infoWarning").value(2))
-            .andExpect(jsonPath("$.fundingWarning").value(2));
+                .andExpect(jsonPath("$.[0]severityCode", equalTo("ERROR")))
+                .andExpect(jsonPath("$.[0]total", equalTo(3)))
+                .andExpect(jsonPath("$.[1]severityCode", equalTo("FUNDING_WARNING")))
+                .andExpect(jsonPath("$.[1]total", equalTo(2)))
+                .andExpect(jsonPath("$.[2]severityCode", equalTo("INFO_WARNING")))
+                .andExpect(jsonPath("$.[2]total", equalTo(2)));
     }
 
     @Test
