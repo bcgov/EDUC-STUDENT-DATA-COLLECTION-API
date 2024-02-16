@@ -888,6 +888,36 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
+    void testSchoolAgedSpedRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val entity2 = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setSpecialEducationCategoryCode("A");
+        entity.setDob("19890101");
+        entity.setIsGraduated(true);
+        entity2.setSpecialEducationCategoryCode("A");
+        entity2.setDob("20230101");
+
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode())
+            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.SPECIAL_EDUCATION_CATEGORY_CODE.getCode()));
+        val error2 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode())
+            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.DOB.getCode()));
+        assertThat(error1).isTrue();
+        assertThat(error2).isTrue();
+
+        
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(entity2, createMockSchool()));
+        val error21 = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode())
+            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.SPECIAL_EDUCATION_CATEGORY_CODE.getCode()));
+        val error22 = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode())
+            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.DOB.getCode()));
+        assertThat(error21).isTrue();
+        assertThat(error22).isTrue();
+    }
+
+    @Test
     void testAdultGraduatesRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
