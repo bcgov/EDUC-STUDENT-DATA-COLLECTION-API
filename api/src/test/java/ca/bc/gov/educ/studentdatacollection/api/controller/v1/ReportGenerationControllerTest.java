@@ -70,4 +70,24 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
       .andDo(print()).andExpect(status().isOk());
   }
 
+  @Test
+  void testGetCollectionByID_ShouldReturnBadRequest() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_SCHOOL_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    School school = createMockSchool();
+    SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+    sdcMockSchool.setUploadDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockSchool.getSdcSchoolCollectionID() + "/ABC").with(mockAuthority))
+            .andDo(print()).andExpect(status().isBadRequest());
+  }
+
 }
