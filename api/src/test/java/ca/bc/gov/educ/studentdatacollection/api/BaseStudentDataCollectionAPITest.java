@@ -10,7 +10,6 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusPayload;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
@@ -28,11 +27,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
+import java.util.HashSet;
 import java.util.UUID;
 
 @SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
@@ -174,6 +173,8 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setCreateDate(LocalDateTime.now());
     sdcEntity.setUpdateUser("ABC");
     sdcEntity.setUpdateDate(LocalDateTime.now());
+    sdcEntity.setSdcSchoolCollectionHistoryEntities(new HashSet<>());
+    sdcEntity.setSdcSchoolStudentEntities(new HashSet<>());
 
     return sdcEntity;
   }
@@ -211,6 +212,59 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setIsSchoolAged(true);
     sdcEntity.setIsAdult(false);
     sdcEntity.setIsGraduated(false);
+    sdcEntity.setSdcStudentEnrolledProgramEntities(new HashSet<>());
+    sdcEntity.setSdcStudentValidationIssueEntities(new HashSet<>());
+    return sdcEntity;
+  }
+
+  public SdcSchoolCollectionStudentEntity createMockSchoolStudentForSagaEntity(SdcSchoolCollectionEntity sdcSchoolCollectionEntity){
+    SdcSchoolCollectionStudentEntity sdcEntity = new SdcSchoolCollectionStudentEntity();
+    sdcEntity.setSdcSchoolCollection(sdcSchoolCollectionEntity);
+    sdcEntity.setLocalID("LOCAL123");
+    sdcEntity.setStudentPen("PEN123456");
+    sdcEntity.setLegalFirstName("John");
+    sdcEntity.setLegalMiddleNames("Michael");
+    sdcEntity.setLegalLastName("Doe");
+    sdcEntity.setUsualFirstName("John");
+    sdcEntity.setUsualMiddleNames("Mike");
+    sdcEntity.setUsualLastName("Doe");
+    sdcEntity.setDob("20050515");
+    sdcEntity.setGender("M");
+    sdcEntity.setSpecialEducationCategoryCode("SPED01");
+    sdcEntity.setSchoolFundingCode("FUND02");
+    sdcEntity.setNativeAncestryInd("N");
+    sdcEntity.setHomeLanguageSpokenCode("ENG");
+    sdcEntity.setOtherCourses("0");
+    sdcEntity.setSupportBlocks("1");
+    sdcEntity.setEnrolledGradeCode("10");
+    sdcEntity.setEnrolledProgramCodes("PROG001,PROG002");
+    sdcEntity.setCareerProgramCode("CAREER001");
+    sdcEntity.setNumberOfCourses("6");
+    sdcEntity.setBandCode("");
+    sdcEntity.setPostalCode("V6G 1A1");
+    sdcEntity.setSdcSchoolCollectionStudentStatusCode("ACTIVE");
+    sdcEntity.setIsAdult(false);
+    sdcEntity.setIsSchoolAged(true);
+    sdcEntity.setIsGraduated(false);
+    sdcEntity.setAssignedStudentId(UUID.randomUUID());
+    sdcEntity.setAssignedPen("120164447");
+    sdcEntity.setIsAdult(false);
+    sdcEntity.setFte(new BigDecimal(0.875));
+    sdcEntity.setFteZeroReasonCode("REASON001");
+    sdcEntity.setFrenchProgramNonEligReasonCode("REASON002");
+    sdcEntity.setEllNonEligReasonCode("REASON003");
+    sdcEntity.setIndigenousSupportProgramNonEligReasonCode("REASON004");
+    sdcEntity.setCareerProgramNonEligReasonCode("REASON005");
+    sdcEntity.setSpecialEducationNonEligReasonCode("REASON006");
+    sdcEntity.setCreateUser("ABC");
+    sdcEntity.setCreateDate(LocalDateTime.now());
+    sdcEntity.setUpdateUser("ABC");
+    sdcEntity.setUpdateDate(LocalDateTime.now());
+    sdcEntity.setIsSchoolAged(true);
+    sdcEntity.setIsAdult(false);
+    sdcEntity.setIsGraduated(false);
+    sdcEntity.setSdcStudentEnrolledProgramEntities(new HashSet<>());
+    sdcEntity.setSdcStudentValidationIssueEntities(new HashSet<>());
     return sdcEntity;
   }
 

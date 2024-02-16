@@ -1,7 +1,7 @@
 {
   "sdcSchoolCollectionStudentEntity": {
-    "sdcSchoolCollectionStudentID": "20f024a9-43a1-4b4a-b2a7-1689cf6ad712",
-    "sdcSchoolCollectionID": "20f024b3-43a1-4b4a-b2a7-1689cf6ad712",
+    "sdcSchoolCollectionStudentID": null,
+    "sdcSchoolCollectionID": null,
     "localID": "LOCAL123",
     "studentPen": "PEN123456",
     "legalFirstName": "John",
