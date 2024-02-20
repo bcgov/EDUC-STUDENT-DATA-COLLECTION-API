@@ -12,6 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStu
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -58,8 +59,8 @@ public class SchoolAgedELLRule implements ValidationBaseRule {
         List<String> studentPrograms = validationRulesService.splitString(student.getEnrolledProgramCodes());
 
         log.debug("SchoolAgedELLRule-V78: Invalid age for English Language Learning for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        if (EnrolledProgramCodes.getELLCodes().stream().anyMatch(studentPrograms::contains) 
-            && DOBUtil.isAdult(student.getDob())) {
+        if (EnrolledProgramCodes.getELLCodes().stream().anyMatch(studentPrograms::contains) && DOBUtil.isAdult(student.getDob())
+            || (StringUtils.isNotEmpty(student.getSpecialEducationCategoryCode()) && !DOBUtil.isAdult(student.getDob()) && !DOBUtil.isSchoolAged(student.getDob()))) {
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_PROGRAM_CODE, StudentValidationIssueTypeCode.SCHOOL_AGED_ELL));
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.SCHOOL_AGED_ELL));
         }

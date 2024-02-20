@@ -858,8 +858,11 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val entity2 = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledProgramCodes("33");
         entity.setDob("19890101");
+        entity2.setEnrolledProgramCodes("33");
+        entity2.setDob("20230101");
 
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT.getCode())
@@ -868,6 +871,14 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
             && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.DOB.getCode()));
         assertThat(error1).isTrue();
         assertThat(error2).isTrue();
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(entity2, createMockSchool()));
+        val error21 = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT.getCode())
+            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.ENROLLED_PROGRAM_CODE.getCode()));
+        val error22 = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT.getCode())
+            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.DOB.getCode()));
+        assertThat(error21).isTrue();
+        assertThat(error22).isTrue();
     }
 
     @Test
@@ -875,8 +886,11 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val entity2 = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledProgramCodes("17");
         entity.setDob("19890101");
+        entity2.setEnrolledProgramCodes("17");
+        entity2.setDob("20230101");
 
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_ELL.getCode())
@@ -885,6 +899,14 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
             && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.DOB.getCode()));
         assertThat(error1).isTrue();
         assertThat(error2).isTrue();
+
+        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(entity2, createMockSchool()));
+        val error21 = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_ELL.getCode())
+            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.ENROLLED_PROGRAM_CODE.getCode()));
+        val error22 = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_ELL.getCode())
+            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.DOB.getCode()));
+        assertThat(error21).isTrue();
+        assertThat(error22).isTrue();
     }
 
     @Test
