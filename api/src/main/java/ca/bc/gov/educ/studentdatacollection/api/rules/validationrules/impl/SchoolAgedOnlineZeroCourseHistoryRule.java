@@ -76,8 +76,14 @@ public class SchoolAgedOnlineZeroCourseHistoryRule implements ValidationBaseRule
             if(courseCount <= 0 && hasRelevantGrade && !hasEnrollmentHistory){
                 log.debug("InvalidUsualLastNameRule-V47: Student has no courses reported within last two years for sdcSchoolCollectionStudentID::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 errors.add(createValidationIssue(
-                        StudentValidationIssueSeverityCode.INFO_WARNING,
+                        StudentValidationIssueSeverityCode.FUNDING_WARNING,
                         StudentValidationFieldCode.NUMBER_OF_COURSES,
+                        StudentValidationIssueTypeCode.SCHOOL_AGED_ZERO_COURSE_HISTORY
+                ));
+
+                errors.add(createValidationIssue(
+                        StudentValidationIssueSeverityCode.FUNDING_WARNING,
+                        StudentValidationFieldCode.ENROLLED_GRADE_CODE,
                         StudentValidationIssueTypeCode.SCHOOL_AGED_ZERO_COURSE_HISTORY
                 ));
             }

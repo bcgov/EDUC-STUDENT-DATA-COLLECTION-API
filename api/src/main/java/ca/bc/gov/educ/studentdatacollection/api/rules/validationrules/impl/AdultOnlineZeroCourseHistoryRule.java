@@ -78,8 +78,20 @@ public class AdultOnlineZeroCourseHistoryRule implements ValidationBaseRule {
             if(courseCount <= 0 && hasRelevantGrade && !hasEnrollmentHistory){
                 log.debug("InvalidUsualLastNameRule-V34: Student has no courses reported within last two years for sdcSchoolCollectionStudentID::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 errors.add(createValidationIssue(
-                        StudentValidationIssueSeverityCode.INFO_WARNING,
+                        StudentValidationIssueSeverityCode.FUNDING_WARNING,
                         StudentValidationFieldCode.NUMBER_OF_COURSES,
+                        StudentValidationIssueTypeCode.ADULT_ZERO_COURSE_HISTORY
+                ));
+
+                errors.add(createValidationIssue(
+                        StudentValidationIssueSeverityCode.FUNDING_WARNING,
+                        StudentValidationFieldCode.ENROLLED_GRADE_CODE,
+                        StudentValidationIssueTypeCode.ADULT_ZERO_COURSE_HISTORY
+                ));
+
+                errors.add(createValidationIssue(
+                        StudentValidationIssueSeverityCode.FUNDING_WARNING,
+                        StudentValidationFieldCode.DOB,
                         StudentValidationIssueTypeCode.ADULT_ZERO_COURSE_HISTORY
                 ));
             }
