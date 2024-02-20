@@ -12,7 +12,6 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStu
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -60,7 +59,7 @@ public class SchoolAgedIndigenousSupportRule implements ValidationBaseRule {
 
         log.debug("AdultIndigenousFundingRule-V77: Invalid age for Indigenous Support Programs for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         if (EnrolledProgramCodes.getIndigenousProgramCodes().stream().anyMatch(studentPrograms::contains) && DOBUtil.isAdult(student.getDob())
-            || (StringUtils.isNotEmpty(student.getSpecialEducationCategoryCode()) && !DOBUtil.isAdult(student.getDob()) && !DOBUtil.isSchoolAged(student.getDob()))) {
+            || (EnrolledProgramCodes.getIndigenousProgramCodes().stream().anyMatch(studentPrograms::contains) && !DOBUtil.isAdult(student.getDob()) && !DOBUtil.isSchoolAged(student.getDob()))) {
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_PROGRAM_CODE, StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT));
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT));
         }
