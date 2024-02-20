@@ -58,8 +58,8 @@ public class SchoolAgedELLRule implements ValidationBaseRule {
         List<String> studentPrograms = validationRulesService.splitString(student.getEnrolledProgramCodes());
 
         log.debug("SchoolAgedELLRule-V78: Invalid age for English Language Learning for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        if (EnrolledProgramCodes.getELLCodes().stream().anyMatch(studentPrograms::contains) 
-            && DOBUtil.isAdult(student.getDob())) {
+        if (EnrolledProgramCodes.getELLCodes().stream().anyMatch(studentPrograms::contains) && DOBUtil.isAdult(student.getDob())
+            || (EnrolledProgramCodes.getELLCodes().stream().anyMatch(studentPrograms::contains) && !DOBUtil.isAdult(student.getDob()) && !DOBUtil.isSchoolAged(student.getDob()))) {
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_PROGRAM_CODE, StudentValidationIssueTypeCode.SCHOOL_AGED_ELL));
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.SCHOOL_AGED_ELL));
         }
