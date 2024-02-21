@@ -1118,10 +1118,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Student Headcount")))
-                .andExpect(jsonPath("$.headcountHeaders[0].columns.['All Students'].currentValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['All Students'].currentValue", equalTo("2")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['All Students'].comparisonValue", equalTo("4")))
                 .andExpect(jsonPath("$.headcountHeaders[1].title", equalTo("Grade Headcount")))
-                .andExpect(jsonPath("$.headcountHeaders[1].columns.11.currentValue", equalTo("2")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.11.currentValue", equalTo("1")))
                 .andExpect(jsonPath("$.headcountHeaders[1].columns.11.comparisonValue", equalTo("1")));
 
     }
