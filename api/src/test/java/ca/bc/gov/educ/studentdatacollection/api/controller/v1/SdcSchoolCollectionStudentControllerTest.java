@@ -2005,10 +2005,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andExpect(jsonPath("$.headcountHeaders[2].columns.['Not Reported'].currentValue", equalTo("4")))
                 .andExpect(jsonPath("$.headcountHeaders[2].columns.['Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[2].columns.['Eligible'].currentValue", equalTo("0")))
-                .andExpect(jsonPath("$.headcountHeaders[3].title", equalTo("Indigenous Ancestry Headcount")))
-                .andExpect(jsonPath("$.headcountHeaders[3].headCountValue.currentValue", equalTo("0")))
-                .andExpect(jsonPath("$.headcountHeaders[4].title", equalTo("Ordinarily Living on Reserve Headcount")))
-                .andExpect(jsonPath("$.headcountHeaders[4].headCountValue.currentValue", equalTo("1")));
+                .andExpect(jsonPath("$.headcountHeaders[3].title", equalTo("Indigenous Ancestry")))
+                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Total Students'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[4].title", equalTo("Ordinarily Living on Reserve")))
+                .andExpect(jsonPath("$.headcountHeaders[4].columns.['Total Students'].currentValue", equalTo("1")));
     }
 
     @Test

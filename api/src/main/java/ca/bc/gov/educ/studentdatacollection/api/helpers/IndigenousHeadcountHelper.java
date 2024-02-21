@@ -24,13 +24,15 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
     private static final String INDIGENOUS_LANGUAGE_TITLE = "Indigenous Language and Culture";
     private static final String INDIGENOUS_SUPPORT_TITLE = "Indigenous Support Services";
     private static final String OTHER_APPROVED_TITLE = "Other Approved Indigenous Programs";
-    private static final String ANCESTRY_COUNT_TITLE = "Indigenous Ancestry Headcount";
-    private static final String LIVING_ON_RESERVE_TITLE = "Ordinarily Living on Reserve Headcount";
+    private static final String ANCESTRY_COUNT_TITLE = "Indigenous Ancestry";
+    private static final String LIVING_ON_RESERVE_TITLE = "Ordinarily Living on Reserve";
     private static final String ALL_TITLE = "All Indigenous Support Programs";
     private static final String ELIGIBLE_TITLE = "Eligible";
     private static final String REPORTED_TITLE = "Reported";
     private static final String NOT_REPORTED_TITLE = "Not Reported";
+    private static final String TOTAL_STUDENTS = "Total Students";
     private static final List<String> HEADER_COLUMN_TITLES = List.of(ELIGIBLE_TITLE, REPORTED_TITLE, NOT_REPORTED_TITLE);
+    private static final List<String> HEADER_COLUMN_TITLE = List.of(TOTAL_STUDENTS);
     private static final String LANGUAGE_TOTAL_KEY = "languageTotal";
     private static final String SUPPORT_TOTAL_KEY = "supportTotal";
     private static final String OTHER_TOTAL_KEY = "otherTotal";
@@ -83,8 +85,14 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
                     headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedOtherProgram()).build());
                     headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedOtherProgram()))).build());
                 }
-                case ANCESTRY_COUNT_TITLE -> headcountHeader.setHeadCountValue(HeadcountHeaderColumn.builder().currentValue(result.getStudentsWithIndigenousAncestry()).build());
-                case LIVING_ON_RESERVE_TITLE -> headcountHeader.setHeadCountValue(HeadcountHeaderColumn.builder().currentValue(result.getStudentsWithFundingCode20()).build());
+                case ANCESTRY_COUNT_TITLE -> {
+                    headcountHeader.setOrderedColumnTitles(HEADER_COLUMN_TITLE);
+                    headcountHeader.getColumns().put(TOTAL_STUDENTS, HeadcountHeaderColumn.builder().currentValue(result.getStudentsWithIndigenousAncestry()).build());
+                }
+                case LIVING_ON_RESERVE_TITLE -> {
+                    headcountHeader.setOrderedColumnTitles(HEADER_COLUMN_TITLE);
+                    headcountHeader.getColumns().put(TOTAL_STUDENTS, HeadcountHeaderColumn.builder().currentValue(result.getStudentsWithFundingCode20()).build());
+                }
                 default -> {
                     log.error("Unexpected header title.  This cannot happen::" + headerTitle);
                     throw new StudentDataCollectionAPIRuntimeException("Unexpected header title.  This cannot happen::" + headerTitle);
