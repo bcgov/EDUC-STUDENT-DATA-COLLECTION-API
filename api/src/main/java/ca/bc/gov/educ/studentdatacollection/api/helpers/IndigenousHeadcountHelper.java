@@ -32,6 +32,7 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
     private static final String NOT_REPORTED_TITLE = "Not Reported";
     private static final String TOTAL_STUDENTS = "Total Students";
     private static final List<String> HEADER_COLUMN_TITLES = List.of(ELIGIBLE_TITLE, REPORTED_TITLE, NOT_REPORTED_TITLE);
+    private static final List<String> HEADER_COLUMN_TITLE = List.of(TOTAL_STUDENTS);
     private static final String LANGUAGE_TOTAL_KEY = "languageTotal";
     private static final String SUPPORT_TOTAL_KEY = "supportTotal";
     private static final String OTHER_TOTAL_KEY = "otherTotal";
@@ -85,11 +86,11 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
                     headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedOtherProgram()))).build());
                 }
                 case ANCESTRY_COUNT_TITLE -> {
-                    headcountHeader.setOrderedColumnTitles(HEADER_COLUMN_TITLES);
+                    headcountHeader.setOrderedColumnTitles(HEADER_COLUMN_TITLE);
                     headcountHeader.getColumns().put(TOTAL_STUDENTS, HeadcountHeaderColumn.builder().currentValue(result.getStudentsWithIndigenousAncestry()).build());
                 }
                 case LIVING_ON_RESERVE_TITLE -> {
-                    headcountHeader.setOrderedColumnTitles(HEADER_COLUMN_TITLES);
+                    headcountHeader.setOrderedColumnTitles(HEADER_COLUMN_TITLE);
                     headcountHeader.getColumns().put(TOTAL_STUDENTS, HeadcountHeaderColumn.builder().currentValue(result.getStudentsWithFundingCode20()).build());
                 }
                 default -> {
