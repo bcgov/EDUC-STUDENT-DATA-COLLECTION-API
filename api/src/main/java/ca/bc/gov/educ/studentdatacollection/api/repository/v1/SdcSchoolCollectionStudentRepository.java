@@ -72,7 +72,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "SUM(CASE WHEN s.fte > 0 THEN 1 ELSE 0 END) AS totalEligibleForFte, " +
           "SUM(s.fte) AS totalFteTotal " +
           "FROM SdcSchoolCollectionStudentEntity s " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
+          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
   List<EnrollmentHeadcountResult> getEnrollmentHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
@@ -93,7 +94,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode IN ('08', '11', '14') AND s.frenchProgramNonEligReasonCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS totalTotals " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
+          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
   List<FrenchHeadcountResult> getFrenchHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
@@ -104,7 +106,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '05' AND s.frenchProgramNonEligReasonCode IS NULL THEN 1 END) AS totalFrancophone " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
+          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
   List<CsfFrenchHeadcountResult> getCsfFrenchHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
@@ -116,7 +119,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "LEFT JOIN SdcStudentEllEntity ell " +
           "ON s.assignedStudentId = ell.studentID " +
           "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionId AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionId " +
+          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
   List<EllHeadcountResult> getEllHeadcountsBySchoolId(@Param("sdcSchoolCollectionId") UUID sdcSchoolCollectionId);
@@ -223,7 +227,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "COUNT(DISTINCT CASE WHEN s.careerProgramCode in ('XA', 'XB', 'XC', 'XD', 'XE', 'XF', 'XG', 'XH') AND s.careerProgramNonEligReasonCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS allTotal " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
+          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
   List<CareerHeadcountResult> getCareerHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
@@ -236,7 +241,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode in ('29', '33', '36') AND s.indigenousSupportProgramNonEligReasonCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS allSupportProgramTotal " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
+          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
   List<IndigenousHeadcountResult> getIndigenousHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
@@ -306,7 +312,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     "COUNT(CASE WHEN s.specialEducationCategoryCode = 'R' THEN 1 END) AS specialEdRCodes, " +
     "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'P', 'Q', 'R') THEN 1 END) AS allLevels " +
     "FROM SdcSchoolCollectionStudentEntity s " +
-    "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' " +
+    "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
     "AND s.specialEducationNonEligReasonCode IS NULL " +
     "GROUP BY s.enrolledGradeCode " +
     "ORDER BY s.enrolledGradeCode")
