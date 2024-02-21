@@ -24,8 +24,8 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
     private static final String INDIGENOUS_LANGUAGE_TITLE = "Indigenous Language and Culture";
     private static final String INDIGENOUS_SUPPORT_TITLE = "Indigenous Support Services";
     private static final String OTHER_APPROVED_TITLE = "Other Approved Indigenous Programs";
-    private static final String ANCESTRY_COUNT_TITLE = "Indigenous Ancestry Headcount";
-    private static final String LIVING_ON_RESERVE_TITLE = "Ordinarily Living on Reserve Headcount";
+    private static final String ANCESTRY_COUNT_TITLE = "Indigenous Ancestry";
+    private static final String LIVING_ON_RESERVE_TITLE = "Ordinarily Living on Reserve";
     private static final String ALL_TITLE = "All Indigenous Support Programs";
     private static final String ELIGIBLE_TITLE = "Eligible";
     private static final String REPORTED_TITLE = "Reported";
