@@ -521,6 +521,114 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
   }
 
   @Test
+  void testIndigenousStudentsMustBeNotBeInINDEPENDSchool() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
+            .save(createMockSdcSchoolCollectionEntity(collection, null, null));
+    SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+    School school = createMockSchool();
+    school.setSchoolCategoryCode("INDEPEND");
+
+    schoolStudentEntity.setEnrolledProgramCodes("29");
+    schoolStudentEntity.setNativeAncestryInd("Y");
+    List<ProgramEligibilityIssueCode> error = rulesProcessor.processRules(
+            createMockStudentRuleData(
+                    schoolStudentEntity,
+                    school
+            )
+    );
+
+    assertThat(error.stream().anyMatch(e ->
+            e.equals(ProgramEligibilityIssueCode.INDIGENOUS_INDY_SCHOOL)
+    )).isTrue();
+  }
+
+  @Test
+  void testIndigenousStudentsMustBeNotBeInINDP_FNSSchool() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
+            .save(createMockSdcSchoolCollectionEntity(collection, null, null));
+    SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+    School school = createMockSchool();
+    school.setSchoolCategoryCode("INDP_FNS");
+
+    schoolStudentEntity.setEnrolledProgramCodes("29");
+    schoolStudentEntity.setNativeAncestryInd("Y");
+    List<ProgramEligibilityIssueCode> error = rulesProcessor.processRules(
+            createMockStudentRuleData(
+                    schoolStudentEntity,
+                    school
+            )
+    );
+
+    assertThat(error.stream().anyMatch(e ->
+            e.equals(ProgramEligibilityIssueCode.INDIGENOUS_INDY_SCHOOL)
+    )).isTrue();
+  }
+
+  @Test
+  void testEllStudentsMustBeNotBeInINDP_FNSSchool() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
+            .save(createMockSdcSchoolCollectionEntity(collection, null, null));
+    SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+    schoolStudentEntity.setEnrolledProgramCodes("4017000000000005");
+    schoolStudentEntity.setIsSchoolAged(true);
+
+    UUID studentID = UUID.randomUUID();
+    schoolStudentEntity.setAssignedStudentId(studentID);
+    SdcStudentEllEntity entity = createMockStudentEllEntity(schoolStudentEntity);
+    entity.setYearsInEll(4);
+    sdcStudentEllRepository.save(entity);
+    schoolStudentEntity.setAssignedStudentId(studentID);
+
+    School school = createMockSchool();
+    school.setSchoolCategoryCode("INDP_FNS");
+
+    List<ProgramEligibilityIssueCode> error = rulesProcessor.processRules(
+            createMockStudentRuleData(
+                    schoolStudentEntity,
+                    school
+            )
+    );
+
+    assertThat(error.stream().anyMatch(e ->
+            e.equals(ProgramEligibilityIssueCode.ELL_INDY_SCHOOL)
+    )).isTrue();
+  }
+
+  @Test
+  void testEllStudentsMustBeNotBeInINDEPENDSchool() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
+            .save(createMockSdcSchoolCollectionEntity(collection, null, null));
+    SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+    schoolStudentEntity.setEnrolledProgramCodes("4017000000000005");
+    schoolStudentEntity.setIsSchoolAged(true);
+
+    UUID studentID = UUID.randomUUID();
+    schoolStudentEntity.setAssignedStudentId(studentID);
+    SdcStudentEllEntity entity = createMockStudentEllEntity(schoolStudentEntity);
+    entity.setYearsInEll(4);
+    sdcStudentEllRepository.save(entity);
+    schoolStudentEntity.setAssignedStudentId(studentID);
+
+    School school = createMockSchool();
+    school.setSchoolCategoryCode("INDEPEND");
+
+    List<ProgramEligibilityIssueCode> error = rulesProcessor.processRules(
+            createMockStudentRuleData(
+                    schoolStudentEntity,
+                    school
+            )
+    );
+
+    assertThat(error.stream().anyMatch(e ->
+            e.equals(ProgramEligibilityIssueCode.ELL_INDY_SCHOOL)
+    )).isTrue();
+  }
+
+  @Test
   void testSpecialEdStudentsMustRequireSpecialEd() {
     CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
     SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository

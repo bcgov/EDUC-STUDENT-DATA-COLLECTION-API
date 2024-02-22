@@ -18,7 +18,9 @@ public enum ProgramEligibilityIssueCode {
   INDIGENOUS_ADULT("ISADULTAGE", "Student must be school-aged and self-identify as having Indigenous Ancestry to be eligible for funding for Indigenous Support Programs."),
   YEARS_IN_ELL("ELL5ORLESS", "Student must be school-aged and have been reported in ELL for 5 years or less."),
   NOT_ENROLLED_ELL("NTENRELL", "The student is not enrolled in the ELL program."),
-  NO_INDIGENOUS_ANCESTRY("NOANCESTRY", "Student must be school-aged and self-identify as having Indigenous Ancestry to be eligible for funding for Indigenous Support Programs.");
+  NO_INDIGENOUS_ANCESTRY("NOANCESTRY", "Student must be school-aged and self-identify as having Indigenous Ancestry to be eligible for funding for Indigenous Support Programs."),
+  ELL_INDY_SCHOOL("ELLINDYERR", "Students reported by Independent Schools are not eligible for English Language Learning funding."),
+  INDIGENOUS_INDY_SCHOOL("INDYERR", "Students reported by Independent Schools are not eligible for Indigenous Support Program funding.");
 
   @Getter
   private final String code;
