@@ -52,7 +52,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
   @Test
   void testGetCollectionByID_ShouldReturnCollection() throws Exception {
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_SCHOOL_COLLECTION";
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     CollectionEntity collection = createMockCollectionEntity();
@@ -72,7 +72,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
   @Test
   void testGetCollectionByID_ShouldReturnBadRequest() throws Exception {
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_SCHOOL_COLLECTION";
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     CollectionEntity collection = createMockCollectionEntity();

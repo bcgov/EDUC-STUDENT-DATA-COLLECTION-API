@@ -57,7 +57,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
   public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
     UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
 
-    List<EnrollmentHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySchoolId(previousCollectionID);
+    List<EnrollmentHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcSchoolCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertHeadcountResults(previousCollectionRawData);
     List<HeadcountHeader> previousHeadcountHeaderList = Arrays.asList(getStudentsHeadcountTotals(previousCollectionData), getGradesHeadcountTotals(previousCollectionData));
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
