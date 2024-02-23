@@ -7,6 +7,8 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.GradeEnrollementFTENode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.GradeEnrollementFTEReportGradesNode;
@@ -84,7 +86,7 @@ public class ReportGenerationService {
 
       JasperPrint jasperPrint = JasperFillManager.fillReport(gradeEnrollmentFTEReport, params);
       return JasperExportManager.exportReportToPdf(jasperPrint);
-    } catch (Exception e) {
+    } catch (JRException | JsonProcessingException e) {
       log.info("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
     }
@@ -94,13 +96,13 @@ public class ReportGenerationService {
     var district = restUtils.getDistrictByDistrictID(sdcSchoolCollection.getDistrictID().toString());
     if(district.isEmpty()){
       log.info("District could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getDistrictID().toString());
-      throw new StudentDataCollectionAPIRuntimeException("District could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getDistrictID().toString());
+      throw new EntityNotFoundException(District.class, "District could not be found while writing PDF report for grade enrollment :: ", sdcSchoolCollection.getDistrictID().toString());
     }
 
     var school = restUtils.getSchoolBySchoolID(sdcSchoolCollection.getSchoolID().toString());
     if(school.isEmpty()){
       log.info("School could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getSchoolID().toString());
-      throw new StudentDataCollectionAPIRuntimeException("School could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getSchoolID().toString());
+      throw new EntityNotFoundException(School.class, "School could not be found while writing PDF report for grade enrollment :: ", sdcSchoolCollection.getSchoolID().toString());
     }
 
     GradeEnrollementFTENode mainNode = new GradeEnrollementFTENode();
