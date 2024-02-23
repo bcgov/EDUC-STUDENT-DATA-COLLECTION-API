@@ -13,6 +13,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.support.StudentDataCollectionTestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
@@ -322,6 +323,16 @@ public abstract class BaseStudentDataCollectionAPITest {
     school.setSchoolReportingRequirementCode("CSF");
     school.setFacilityTypeCode("Standard");
     return school;
+  }
+
+  public District createMockDistrict() {
+    final District district = new District();
+    district.setDistrictId(UUID.randomUUID().toString());
+    district.setDisplayName("Marco's district");
+    district.setDistrictNumber("036");
+    district.setDistrictStatusCode("ACTIVE");
+    district.setPhoneNumber("123456789");
+    return district;
   }
 
   public StudentRuleData createMockStudentRuleData(final SdcSchoolCollectionStudentEntity student, final School school) {
