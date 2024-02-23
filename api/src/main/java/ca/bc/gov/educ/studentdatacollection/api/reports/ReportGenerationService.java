@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.GradeEnrollementFTENode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.GradeEnrollementFTEReportGradesNode;
@@ -18,6 +19,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.query.JsonQueryExecuterFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
@@ -34,12 +36,15 @@ public class ReportGenerationService {
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private JasperReport gradeEnrollmentFTEReport;
+  private final RestUtils restUtils;
   private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
   DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  private String doubleFormat;
 
-  public ReportGenerationService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
+  public ReportGenerationService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+    this.restUtils = restUtils;
   }
 
   @PostConstruct
@@ -74,7 +79,7 @@ public class ReportGenerationService {
       params.put(JsonQueryExecuterFactory.JSON_LOCALE, Locale.ENGLISH);
       params.put(JRParameter.REPORT_LOCALE, Locale.US);
 
-      InputStream targetStream = new ByteArrayInputStream(convertToReportJSONString(gradeEnrollmentList).getBytes());
+      InputStream targetStream = new ByteArrayInputStream(convertToReportJSONString(gradeEnrollmentList, sdcSchoolCollectionEntity).getBytes());
       params.put(JsonQueryExecuterFactory.JSON_INPUT_STREAM, targetStream);
 
       JasperPrint jasperPrint = JasperFillManager.fillReport(gradeEnrollmentFTEReport, params);
@@ -85,13 +90,25 @@ public class ReportGenerationService {
     }
   }
 
-  private String convertToReportJSONString(List<EnrollmentHeadcountResult> results) throws JsonProcessingException {
+  private String convertToReportJSONString(List<EnrollmentHeadcountResult> results, SdcSchoolCollectionEntity sdcSchoolCollection) throws JsonProcessingException {
+    var district = restUtils.getDistrictByDistrictID(sdcSchoolCollection.getDistrictID().toString());
+    if(district.isEmpty()){
+      log.info("District could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getDistrictID().toString());
+      throw new StudentDataCollectionAPIRuntimeException("District could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getDistrictID().toString());
+    }
+
+    var school = restUtils.getSchoolBySchoolID(sdcSchoolCollection.getSchoolID().toString());
+    if(school.isEmpty()){
+      log.info("School could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getSchoolID().toString());
+      throw new StudentDataCollectionAPIRuntimeException("School could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getSchoolID().toString());
+    }
+
     GradeEnrollementFTENode mainNode = new GradeEnrollementFTENode();
     GradeEnrollementFTEReportNode reportNode = new GradeEnrollementFTEReportNode();
-    reportNode.setReportGeneratedDate(LocalDate.now().format(formatter));
-    reportNode.setDistrictNumberAndName("Marco Test");
-    reportNode.setCollectionNameAndYear("September 2023 Collections");
-    reportNode.setSchoolMincodeAndName("085 - Vancouver Island");
+    reportNode.setReportGeneratedDate("Report Generated: " + LocalDate.now().format(formatter));
+    reportNode.setDistrictNumberAndName(district.get().getDistrictNumber() + " - " + district.get().getDisplayName());
+    reportNode.setCollectionNameAndYear(StringUtils.capitalize(sdcSchoolCollection.getCollectionEntity().getCollectionTypeCode().toLowerCase()) + " " + sdcSchoolCollection.getCollectionEntity().getOpenDate().getYear() + " Collection");
+    reportNode.setSchoolMincodeAndName(school.get().getMincode() + " - " + school.get().getDisplayName());
     reportNode.setGrades(new ArrayList<>());
 
     AtomicInteger totalSchoolAgedHeadcount = new AtomicInteger(0);
@@ -123,13 +140,13 @@ public class ReportGenerationService {
       grade.setTotalCountsCode("Total");
       grade.setTotalSchoolAgedHeadcount(totalSchoolAgedHeadcount.toString());
       grade.setTotalSchoolAgedEligibleForFTE(totalSchoolAgedEligibleForFTE.toString());
-      grade.setTotalSchoolAgedFTETotal(totalSchoolAgedFTETotal.toString());
+      grade.setTotalSchoolAgedFTETotal(String.format(doubleFormat, totalSchoolAgedFTETotal.doubleValue()));
       grade.setTotalAdultsHeadcount(totalAdultHeadcount.toString());
       grade.setTotalAdultsEligibleForFTE(totalAdultEligibleForFTE.toString());
-      grade.setTotalAdultsFTETotal(totalAdultFTETotal.toString());
+      grade.setTotalAdultsFTETotal(String.format(doubleFormat, totalAdultFTETotal.doubleValue()));
       grade.setTotalAllStudentsHeadcount(totalAllStudentHeadcount.toString());
       grade.setTotalAllStudentsEligibleForFTE(totalAllStudentEligibleForFTE.toString());
-      grade.setTotalAllStudentsFTETotal(totalAllStudentFTETotal.toString());
+      grade.setTotalAllStudentsFTETotal(String.format(doubleFormat, totalAllStudentFTETotal.doubleValue()));
     });
 
     mainNode.setReport(reportNode);
@@ -141,13 +158,13 @@ public class ReportGenerationService {
     grade.setCode(hcResult.getEnrolledGradeCode());
     grade.setSchoolAgedHeadcount(hcResult.getSchoolAgedHeadcount());
     grade.setSchoolAgedEligibleForFTE(hcResult.getSchoolAgedEligibleForFte());
-    grade.setSchoolAgedFTETotal(hcResult.getSchoolAgedFteTotal());
+    grade.setSchoolAgedFTETotal(String.format(doubleFormat, Double.valueOf(hcResult.getSchoolAgedFteTotal())));
     grade.setAdultHeadcount(hcResult.getAdultHeadcount());
     grade.setAdultEligibleForFTE(hcResult.getAdultEligibleForFte());
-    grade.setAdultFTETotal(hcResult.getAdultFteTotal());
+    grade.setAdultFTETotal(String.format(doubleFormat, Double.valueOf(hcResult.getAdultFteTotal())));
     grade.setAllStudentHeadcount(hcResult.getTotalHeadcount());
     grade.setAllStudentEligibleForFTE(hcResult.getTotalEligibleForFte());
-    grade.setAllStudentFTETotal(hcResult.getTotalFteTotal());
+    grade.setAllStudentFTETotal(String.format(doubleFormat, Double.valueOf(hcResult.getTotalFteTotal())));
     return grade;
   }
 

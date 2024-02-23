@@ -66,35 +66,35 @@
             <rightPen lineWidth="0.5" lineColor="#000000"/>
         </box>
     </style>
-    <style name="Table 2_TH" mode="Opaque" backcolor="rgba(0, 51, 102, 0.4117647)">
+    <style name="Table 2_TH" mode="Opaque" backcolor="#FFFFFF">
         <box>
-            <pen lineWidth="0.5" lineColor="#000000"/>
-            <topPen lineWidth="0.5" lineColor="#000000"/>
-            <leftPen lineWidth="0.5" lineColor="#000000"/>
-            <bottomPen lineWidth="0.5" lineColor="#000000"/>
-            <rightPen lineWidth="0.5" lineColor="#000000"/>
+            <pen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
+            <topPen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
+            <leftPen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
+            <bottomPen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
+            <rightPen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
         </box>
     </style>
-    <style name="Table 2_CH" mode="Opaque" backcolor="rgba(0, 51, 102, 0.4117647)">
+    <style name="Table 2_CH" mode="Opaque" backcolor="#FFFFFF">
         <box>
-            <pen lineWidth="0.5" lineColor="#000000"/>
-            <topPen lineWidth="0.5" lineColor="#000000"/>
-            <leftPen lineWidth="0.5" lineColor="#000000"/>
-            <bottomPen lineWidth="0.5" lineColor="#000000"/>
-            <rightPen lineWidth="0.5" lineColor="#000000"/>
+            <pen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
+            <topPen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
+            <leftPen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
+            <bottomPen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
+            <rightPen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
         </box>
     </style>
-    <style name="Table 2_TD" mode="Opaque" backcolor="rgba(224, 224, 224, 0.40392157)">
+    <style name="Table 2_TD" mode="Opaque" backcolor="#F0F0F0">
         <box>
-            <pen lineWidth="0.5" lineColor="#000000"/>
-            <topPen lineWidth="0.5" lineColor="#000000"/>
-            <leftPen lineWidth="0.5" lineColor="#000000"/>
-            <bottomPen lineWidth="0.5" lineColor="#000000"/>
-            <rightPen lineWidth="0.5" lineColor="#000000"/>
+            <pen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
+            <topPen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
+            <leftPen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
+            <bottomPen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
+            <rightPen lineWidth="0.5" lineColor="rgba(0, 0, 0, 0.25882354)"/>
         </box>
         <conditionalStyle>
             <conditionExpression><![CDATA[new Boolean($V{REPORT_COUNT}.intValue()%2==0)]]></conditionExpression>
-            <style backcolor="#FBFDFF"/>
+            <style backcolor="#FFFFFF"/>
         </conditionalStyle>
     </style>
     <subDataset name="ReportSet" uuid="cce38d3f-a91c-4b9a-89a9-aa5014e109ed">
@@ -247,49 +247,52 @@
     <pageHeader>
         <band height="72" splitType="Stretch">
             <staticText>
-                <reportElement x="190" y="15" width="186" height="20" forecolor="#003366" uuid="8ef7f15d-0e1e-47ce-862d-01e8577c31eb"/>
+                <reportElement x="190" y="19" width="186" height="20" forecolor="#003366" uuid="8ef7f15d-0e1e-47ce-862d-01e8577c31eb"/>
+                <textElement>
+                    <font fontName="BCSans"/>
+                </textElement>
                 <text><![CDATA[Grade Enrolment & Eligible FTE Report]]></text>
             </staticText>
             <textField>
-                <reportElement x="457" y="35" width="107" height="15" uuid="7ff4950d-6279-413e-8200-a450eb831f90">
+                <reportElement x="439" y="35" width="120" height="15" uuid="7ff4950d-6279-413e-8200-a450eb831f90">
                     <property name="com.jaspersoft.studio.unit.height" value="px"/>
                 </reportElement>
                 <textElement>
-                    <font size="8"/>
+                    <font fontName="BCSans" size="8"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{collectionNameAndYear}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement x="457" y="50" width="94" height="15" uuid="bd23ceca-07d5-4e6a-a266-8dda73c09239">
+                <reportElement x="439" y="50" width="120" height="15" uuid="bd23ceca-07d5-4e6a-a266-8dda73c09239">
                     <property name="com.jaspersoft.studio.unit.height" value="px"/>
                 </reportElement>
                 <textElement>
-                    <font size="8"/>
+                    <font fontName="BCSans" size="8"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{reportGeneratedDate}]]></textFieldExpression>
             </textField>
             <staticText>
-                <reportElement x="364" y="-14" width="200" height="17" forecolor="#B3B3B3" uuid="c7514b99-e3d3-4301-bbd8-1c9c8ce72e3e"/>
+                <reportElement x="417" y="-14" width="142" height="17" forecolor="#B3B3B3" uuid="c7514b99-e3d3-4301-bbd8-1c9c8ce72e3e"/>
                 <textElement>
-                    <font size="8"/>
+                    <font fontName="BCSans" size="8"/>
                 </textElement>
-                <text><![CDATA[Ministry of Education and Child Care - 1701 Verification]]></text>
+                <text><![CDATA[Ministry of Education and Child Care]]></text>
             </staticText>
             <textField>
-                <reportElement x="0" y="40" width="107" height="15" uuid="8650a750-21b2-4c0f-8b34-49b5a5815d49">
+                <reportElement x="0" y="40" width="280" height="15" uuid="8650a750-21b2-4c0f-8b34-49b5a5815d49">
                     <property name="com.jaspersoft.studio.unit.height" value="px"/>
                 </reportElement>
                 <textElement>
-                    <font size="8"/>
+                    <font fontName="BCSans" size="8"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{districtNumberAndName}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement x="0" y="55" width="107" height="15" uuid="5e29d86f-8976-4bf4-8822-22fadb4759de">
+                <reportElement x="0" y="55" width="280" height="15" uuid="5e29d86f-8976-4bf4-8822-22fadb4759de">
                     <property name="com.jaspersoft.studio.unit.height" value="px"/>
                 </reportElement>
                 <textElement>
-                    <font size="8"/>
+                    <font fontName="BCSans" size="8"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{schoolMincodeAndName}]]></textFieldExpression>
             </textField>
@@ -302,7 +305,7 @@
     <detail>
         <band height="220">
             <componentElement>
-                <reportElement x="10" y="10" width="530" height="200" uuid="f4a9dd19-5486-48d6-b224-82292deeed42">
+                <reportElement x="0" y="10" width="551" height="200" uuid="f4a9dd19-5486-48d6-b224-82292deeed42">
                     <property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
                     <property name="com.jaspersoft.studio.table.style.table_header" value="Table 2_TH"/>
                     <property name="com.jaspersoft.studio.table.style.column_header" value="Table 2_CH"/>
@@ -314,324 +317,330 @@
                     <datasetRun subDataset="GradesSet" uuid="6cc83e12-637e-46c7-b038-9f204da9bd0d">
                         <dataSourceExpression><![CDATA[((net.sf.jasperreports.engine.data.JsonDataSource)$P{REPORT_DATA_SOURCE}).subDataSource("grades")]]></dataSourceExpression>
                     </datasetRun>
-                    <jr:columnGroup width="190" uuid="982787d0-c53b-4594-8c5d-0a8f78b2972e">
+                    <jr:columnGroup width="191" uuid="982787d0-c53b-4594-8c5d-0a8f78b2972e">
                         <property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [4]"/>
                         <jr:tableHeader style="Table 2_TH" height="20" rowSpan="1">
                             <staticText>
-                                <reportElement x="0" y="0" width="190" height="20" uuid="dd0adae6-486c-470d-909d-820cc19e57ef"/>
-                                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                                <reportElement x="0" y="0" width="191" height="20" forecolor="#003366" uuid="dd0adae6-486c-470d-909d-820cc19e57ef"/>
+                                <textElement textAlignment="Center" verticalAlignment="Middle">
+                                    <font fontName="BCSans" size="8" isBold="true"/>
+                                </textElement>
                                 <text><![CDATA[School Aged]]></text>
                             </staticText>
                         </jr:tableHeader>
-                        <jr:column width="36" uuid="696344ff-7fad-4a01-b447-2d775933ee8a">
+                        <jr:column width="31" uuid="696344ff-7fad-4a01-b447-2d775933ee8a">
                             <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <property name="com.jaspersoft.studio.unit.width" value="pixel"/>
                             </jr:columnHeader>
-                            <jr:columnFooter style="Table 2_CH" height="30" rowSpan="1">
+                            <jr:columnFooter style="Table 2_CH" height="20" rowSpan="1">
                                 <textField>
-                                    <reportElement x="0" y="0" width="36" height="30" uuid="34753b76-58ee-4765-a129-eb48c546cd48"/>
+                                    <reportElement x="0" y="0" width="31" height="20" uuid="34753b76-58ee-4765-a129-eb48c546cd48"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8" isBold="true"/>
+                                        <font fontName="BCSans" size="8" isBold="true"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{totalCountsCode}]]></textFieldExpression>
                                 </textField>
                             </jr:columnFooter>
-                            <jr:detailCell style="Table 2_TD" height="30">
+                            <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement x="0" y="0" width="36" height="30" uuid="a4f8d194-2982-44b1-9cfd-dbe4949f03fc"/>
+                                    <reportElement x="0" y="0" width="31" height="20" forecolor="#003366" uuid="a4f8d194-2982-44b1-9cfd-dbe4949f03fc"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8"/>
+                                        <font fontName="BCSans" size="8" isBold="true"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{code}]]></textFieldExpression>
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
-                        <jr:column width="44" uuid="91f36667-bc08-4e19-866b-d83f59a65a51">
+                        <jr:column width="41" uuid="91f36667-bc08-4e19-866b-d83f59a65a51">
                             <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
-                                    <reportElement x="0" y="0" width="44" height="20" uuid="cef160dd-2481-49e5-a8a3-386be78ac5eb"/>
+                                    <reportElement x="0" y="0" width="41" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="cef160dd-2481-49e5-a8a3-386be78ac5eb"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="6"/>
+                                        <font fontName="BCSans" size="7"/>
                                     </textElement>
                                     <text><![CDATA[Headcount]]></text>
                                 </staticText>
                             </jr:columnHeader>
-                            <jr:columnFooter style="Table 2_CH" height="30" rowSpan="1">
+                            <jr:columnFooter style="Table 2_CH" height="20" rowSpan="1">
                                 <textField>
-                                    <reportElement x="0" y="0" width="44" height="30" uuid="7d2fa787-a146-44de-ab51-c2d4037e1e9a"/>
+                                    <reportElement x="0" y="0" width="41" height="20" uuid="7d2fa787-a146-44de-ab51-c2d4037e1e9a"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8" isBold="true"/>
+                                        <font fontName="BCSans" size="8" isBold="true"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{totalSchoolAgedHeadcount}]]></textFieldExpression>
                                 </textField>
                             </jr:columnFooter>
-                            <jr:detailCell style="Table 2_TD" height="30">
+                            <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement x="0" y="0" width="44" height="30" uuid="a927f5ef-4966-4259-acca-f50107c8bce8"/>
+                                    <reportElement x="0" y="0" width="41" height="20" uuid="a927f5ef-4966-4259-acca-f50107c8bce8"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8"/>
+                                        <font fontName="BCSans" size="8"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{schoolAgedHeadcount}]]></textFieldExpression>
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
-                        <jr:column width="50" uuid="3f726a64-4211-40c2-8fc4-a0a92308274e">
+                        <jr:column width="61" uuid="3f726a64-4211-40c2-8fc4-a0a92308274e">
                             <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
-                                    <reportElement x="0" y="0" width="50" height="20" uuid="133691b2-5747-4be7-95ce-e377b778b757"/>
+                                    <reportElement x="0" y="0" width="61" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="133691b2-5747-4be7-95ce-e377b778b757"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="6"/>
+                                        <font fontName="BCSans" size="7"/>
                                     </textElement>
                                     <text><![CDATA[Eligible for FTE]]></text>
                                 </staticText>
                             </jr:columnHeader>
-                            <jr:columnFooter style="Table 2_CH" height="30" rowSpan="1">
+                            <jr:columnFooter style="Table 2_CH" height="20" rowSpan="1">
                                 <textField>
-                                    <reportElement x="0" y="0" width="50" height="30" uuid="ec1b5764-bded-4926-840b-b16712e07862"/>
+                                    <reportElement x="0" y="0" width="61" height="20" uuid="ec1b5764-bded-4926-840b-b16712e07862"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8" isBold="true"/>
+                                        <font fontName="BCSans" size="8" isBold="true"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{totalSchoolAgedEligibleForFTE}]]></textFieldExpression>
                                 </textField>
                             </jr:columnFooter>
-                            <jr:detailCell style="Table 2_TD" height="30">
+                            <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement x="0" y="0" width="50" height="30" uuid="f3c6dd40-609a-429a-9a64-20ec328c908e"/>
+                                    <reportElement x="0" y="0" width="61" height="20" uuid="f3c6dd40-609a-429a-9a64-20ec328c908e"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8"/>
+                                        <font fontName="BCSans" size="8"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{schoolAgedEligibleForFTE}]]></textFieldExpression>
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
-                        <jr:column width="60" uuid="431df365-5539-4381-aa65-23e9419bb825">
+                        <jr:column width="58" uuid="431df365-5539-4381-aa65-23e9419bb825">
                             <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
-                                    <reportElement x="0" y="0" width="60" height="20" uuid="5bdb1057-c683-474a-83fa-58825bd26b52"/>
+                                    <reportElement x="0" y="0" width="58" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="5bdb1057-c683-474a-83fa-58825bd26b52"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="6"/>
+                                        <font fontName="BCSans" size="7"/>
                                     </textElement>
                                     <text><![CDATA[FTE Total]]></text>
                                 </staticText>
                             </jr:columnHeader>
-                            <jr:columnFooter style="Table 2_CH" height="30" rowSpan="1">
+                            <jr:columnFooter style="Table 2_CH" height="20" rowSpan="1">
                                 <textField>
-                                    <reportElement x="0" y="0" width="60" height="30" uuid="ded03fa7-0dec-4258-994f-705094badd2f"/>
+                                    <reportElement x="0" y="0" width="58" height="20" uuid="ded03fa7-0dec-4258-994f-705094badd2f"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8" isBold="true"/>
+                                        <font fontName="BCSans" size="8" isBold="true"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{totalSchoolAgedFTETotal}]]></textFieldExpression>
                                 </textField>
                             </jr:columnFooter>
-                            <jr:detailCell style="Table 2_TD" height="30">
+                            <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement x="0" y="0" width="60" height="30" uuid="303bdc9e-c6b7-465c-9b28-99c2c242d787"/>
+                                    <reportElement x="0" y="0" width="58" height="20" uuid="303bdc9e-c6b7-465c-9b28-99c2c242d787"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8"/>
+                                        <font fontName="BCSans" size="8"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{schoolAgedFTETotal}]]></textFieldExpression>
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
                     </jr:columnGroup>
-                    <jr:columnGroup width="170" uuid="dbb8d1e1-6143-427d-b9c7-11396c06f97f">
+                    <jr:columnGroup width="180" uuid="dbb8d1e1-6143-427d-b9c7-11396c06f97f">
                         <property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [3]"/>
                         <jr:tableHeader style="Table 2_TH" height="20" rowSpan="1">
                             <staticText>
-                                <reportElement x="0" y="0" width="170" height="20" uuid="3f8016f7-ab65-46da-909b-bfa403b49f78"/>
-                                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                                <reportElement x="0" y="0" width="180" height="20" forecolor="#003366" uuid="3f8016f7-ab65-46da-909b-bfa403b49f78"/>
+                                <textElement textAlignment="Center" verticalAlignment="Middle">
+                                    <font fontName="BCSans" size="8" isBold="true"/>
+                                </textElement>
                                 <text><![CDATA[Adult]]></text>
                             </staticText>
                         </jr:tableHeader>
-                        <jr:column width="50" uuid="191c294b-b787-41cc-a5ed-ec3b7b804ddc">
+                        <jr:column width="44" uuid="191c294b-b787-41cc-a5ed-ec3b7b804ddc">
                             <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
-                                    <reportElement x="0" y="0" width="50" height="20" uuid="76537efc-4aaa-48b2-9f9c-cf660f4485d4"/>
+                                    <reportElement x="0" y="0" width="44" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="76537efc-4aaa-48b2-9f9c-cf660f4485d4"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="6"/>
+                                        <font fontName="BCSans" size="7"/>
                                     </textElement>
                                     <text><![CDATA[Headcount]]></text>
                                 </staticText>
                             </jr:columnHeader>
-                            <jr:columnFooter style="Table 2_CH" height="30" rowSpan="1">
+                            <jr:columnFooter style="Table 2_CH" height="20" rowSpan="1">
                                 <textField>
-                                    <reportElement x="0" y="0" width="50" height="30" uuid="21684705-e179-48a2-95c5-8cd84948fc7c"/>
+                                    <reportElement x="0" y="0" width="44" height="20" uuid="21684705-e179-48a2-95c5-8cd84948fc7c"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8" isBold="true"/>
+                                        <font fontName="BCSans" size="8" isBold="true"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{totalAdultsHeadcount}]]></textFieldExpression>
                                 </textField>
                             </jr:columnFooter>
-                            <jr:detailCell style="Table 2_TD" height="30">
+                            <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement x="0" y="0" width="50" height="30" uuid="7aa37df7-a5c3-4d9f-871d-54abde163d40"/>
+                                    <reportElement x="0" y="0" width="44" height="20" uuid="7aa37df7-a5c3-4d9f-871d-54abde163d40"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8"/>
+                                        <font fontName="BCSans" size="8"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{adultHeadcount}]]></textFieldExpression>
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
-                        <jr:column width="60" uuid="2765d955-9c50-495f-a16c-7aff1f256d0f">
+                        <jr:column width="74" uuid="2765d955-9c50-495f-a16c-7aff1f256d0f">
                             <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
-                                    <reportElement x="0" y="0" width="60" height="20" uuid="cce329da-bfb2-4dc9-aaf2-c1c6253ca9a1"/>
+                                    <reportElement x="0" y="0" width="74" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="cce329da-bfb2-4dc9-aaf2-c1c6253ca9a1"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="6"/>
+                                        <font fontName="BCSans" size="7"/>
                                     </textElement>
                                     <text><![CDATA[Eligible for FTE]]></text>
                                 </staticText>
                             </jr:columnHeader>
-                            <jr:columnFooter style="Table 2_CH" height="30" rowSpan="1">
+                            <jr:columnFooter style="Table 2_CH" height="20" rowSpan="1">
                                 <textField>
-                                    <reportElement x="0" y="0" width="60" height="30" uuid="6fbe5fa3-e673-437d-8482-02041d5080ce"/>
+                                    <reportElement x="0" y="0" width="74" height="20" uuid="6fbe5fa3-e673-437d-8482-02041d5080ce"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8" isBold="true"/>
+                                        <font fontName="BCSans" size="8" isBold="true"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{totalAdultsEligibleForFTE}]]></textFieldExpression>
                                 </textField>
                             </jr:columnFooter>
-                            <jr:detailCell style="Table 2_TD" height="30">
+                            <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement x="0" y="0" width="60" height="30" uuid="4568c734-91da-4a97-999a-fb0bf462b035"/>
+                                    <reportElement x="0" y="0" width="74" height="20" uuid="4568c734-91da-4a97-999a-fb0bf462b035"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8"/>
+                                        <font fontName="BCSans" size="8"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{adultEligibleForFTE}]]></textFieldExpression>
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
-                        <jr:column width="60" uuid="cdcd0041-e1e9-4f8e-983f-87d2a6f8d756">
+                        <jr:column width="62" uuid="cdcd0041-e1e9-4f8e-983f-87d2a6f8d756">
                             <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
-                                    <reportElement x="0" y="0" width="60" height="20" uuid="b4346f30-3129-4378-b2c9-5a43d625f708"/>
+                                    <reportElement x="0" y="0" width="62" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="b4346f30-3129-4378-b2c9-5a43d625f708"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="6"/>
+                                        <font fontName="BCSans" size="7"/>
                                     </textElement>
                                     <text><![CDATA[FTE Total]]></text>
                                 </staticText>
                             </jr:columnHeader>
-                            <jr:columnFooter style="Table 2_CH" height="30" rowSpan="1">
+                            <jr:columnFooter style="Table 2_CH" height="20" rowSpan="1">
                                 <textField>
-                                    <reportElement x="0" y="0" width="60" height="30" uuid="f9242a48-6c02-46c6-8259-7862d7a3b0b8"/>
+                                    <reportElement x="0" y="0" width="62" height="20" uuid="f9242a48-6c02-46c6-8259-7862d7a3b0b8"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8" isBold="true"/>
+                                        <font fontName="BCSans" size="8" isBold="true"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{totalAdultsFTETotal}]]></textFieldExpression>
                                 </textField>
                             </jr:columnFooter>
-                            <jr:detailCell style="Table 2_TD" height="30">
+                            <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement x="0" y="0" width="60" height="30" uuid="4b0a2e31-b8a0-4eea-af0e-4419e3495c3e"/>
+                                    <reportElement x="0" y="0" width="62" height="20" uuid="4b0a2e31-b8a0-4eea-af0e-4419e3495c3e"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8"/>
+                                        <font fontName="BCSans" size="8"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{adultFTETotal}]]></textFieldExpression>
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
                     </jr:columnGroup>
-                    <jr:columnGroup width="170" uuid="3ae8d32d-ac2a-4ab9-88f4-af6bb9c1a637">
+                    <jr:columnGroup width="180" uuid="3ae8d32d-ac2a-4ab9-88f4-af6bb9c1a637">
                         <property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [3]"/>
                         <jr:tableHeader style="Table 2_TH" height="20" rowSpan="1">
                             <staticText>
-                                <reportElement x="0" y="0" width="170" height="20" uuid="656f7280-590e-4e13-a0a2-4bcce9ea3064"/>
-                                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                                <reportElement x="0" y="0" width="180" height="20" forecolor="#003366" uuid="656f7280-590e-4e13-a0a2-4bcce9ea3064"/>
+                                <textElement textAlignment="Center" verticalAlignment="Middle">
+                                    <font fontName="BCSans" size="8" isBold="true"/>
+                                </textElement>
                                 <text><![CDATA[All Students]]></text>
                             </staticText>
                         </jr:tableHeader>
-                        <jr:column width="64" uuid="c56b98e7-9821-4f33-9123-9dada60a3e25">
+                        <jr:column width="40" uuid="c56b98e7-9821-4f33-9123-9dada60a3e25">
                             <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
-                                    <reportElement x="0" y="0" width="64" height="20" uuid="abb7c288-25ca-4155-a3bb-9950f52e23bc"/>
+                                    <reportElement x="0" y="0" width="40" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="abb7c288-25ca-4155-a3bb-9950f52e23bc"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="6"/>
+                                        <font fontName="BCSans" size="7"/>
                                     </textElement>
                                     <text><![CDATA[Headcount]]></text>
                                 </staticText>
                             </jr:columnHeader>
-                            <jr:columnFooter style="Table 2_CH" height="30" rowSpan="1">
+                            <jr:columnFooter style="Table 2_CH" height="20" rowSpan="1">
                                 <textField>
-                                    <reportElement x="0" y="0" width="64" height="30" uuid="6975309f-9393-4ea0-9af5-f065d3d38ba7"/>
+                                    <reportElement x="0" y="0" width="40" height="20" uuid="6975309f-9393-4ea0-9af5-f065d3d38ba7"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8" isBold="true"/>
+                                        <font fontName="BCSans" size="8" isBold="true"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{totalAllStudentsHeadcount}]]></textFieldExpression>
                                 </textField>
                             </jr:columnFooter>
-                            <jr:detailCell style="Table 2_TD" height="30">
+                            <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement x="0" y="0" width="64" height="30" uuid="929aec74-fe91-42f2-b954-fe9baaf07dbe"/>
+                                    <reportElement x="0" y="0" width="40" height="20" uuid="929aec74-fe91-42f2-b954-fe9baaf07dbe"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8"/>
+                                        <font fontName="BCSans" size="8"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{allStudentHeadcount}]]></textFieldExpression>
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
-                        <jr:column width="61" uuid="84e8e764-3fe5-43c5-b658-8876a94dd900">
+                        <jr:column width="70" uuid="84e8e764-3fe5-43c5-b658-8876a94dd900">
                             <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
-                                    <reportElement x="0" y="0" width="61" height="20" uuid="ba3dbbfa-d6af-433c-a196-2637c6bb0503"/>
+                                    <reportElement x="0" y="0" width="70" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="ba3dbbfa-d6af-433c-a196-2637c6bb0503"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="6"/>
+                                        <font fontName="BCSans" size="7"/>
                                     </textElement>
                                     <text><![CDATA[Eligible for FTE]]></text>
                                 </staticText>
                             </jr:columnHeader>
-                            <jr:columnFooter style="Table 2_CH" height="30" rowSpan="1">
+                            <jr:columnFooter style="Table 2_CH" height="20" rowSpan="1">
                                 <textField>
-                                    <reportElement x="0" y="0" width="61" height="30" uuid="a93f7e62-8ba4-4fe8-811b-023fd7c84d39"/>
+                                    <reportElement x="0" y="0" width="70" height="20" uuid="a93f7e62-8ba4-4fe8-811b-023fd7c84d39"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8" isBold="true"/>
+                                        <font fontName="BCSans" size="8" isBold="true"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{totalAllStudentsEligibleForFTE}]]></textFieldExpression>
                                 </textField>
                             </jr:columnFooter>
-                            <jr:detailCell style="Table 2_TD" height="30">
+                            <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement x="0" y="0" width="61" height="30" uuid="38402b4b-341e-44e7-80dd-e951a3b91845"/>
+                                    <reportElement x="0" y="0" width="70" height="20" uuid="38402b4b-341e-44e7-80dd-e951a3b91845"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8"/>
+                                        <font fontName="BCSans" size="8"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{allStudentEligibleForFTE}]]></textFieldExpression>
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
-                        <jr:column width="45" uuid="53648602-875d-4fe8-a2fb-cfb4bb42414a">
+                        <jr:column width="70" uuid="53648602-875d-4fe8-a2fb-cfb4bb42414a">
                             <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column10"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
-                                    <reportElement x="0" y="0" width="45" height="20" uuid="c4b8b2b6-3a58-4ece-beef-4adb28d73053"/>
+                                    <reportElement x="0" y="0" width="70" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="c4b8b2b6-3a58-4ece-beef-4adb28d73053"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="6"/>
+                                        <font fontName="BCSans" size="7"/>
                                     </textElement>
                                     <text><![CDATA[FTE Total]]></text>
                                 </staticText>
                             </jr:columnHeader>
-                            <jr:columnFooter style="Table 2_CH" height="30" rowSpan="1">
+                            <jr:columnFooter style="Table 2_CH" height="20" rowSpan="1">
                                 <textField>
-                                    <reportElement x="0" y="0" width="45" height="30" uuid="b7a12499-cbbe-452c-8ef8-2b88b357b108"/>
+                                    <reportElement x="0" y="0" width="70" height="20" uuid="b7a12499-cbbe-452c-8ef8-2b88b357b108"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8" isBold="true"/>
+                                        <font fontName="BCSans" size="8" isBold="true"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{totalAllStudentsFTETotal}]]></textFieldExpression>
                                 </textField>
                             </jr:columnFooter>
-                            <jr:detailCell style="Table 2_TD" height="30">
+                            <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement x="0" y="0" width="45" height="30" uuid="d8d6cff1-28b3-486a-8db0-ef73c5160672"/>
+                                    <reportElement x="0" y="0" width="70" height="20" uuid="d8d6cff1-28b3-486a-8db0-ef73c5160672"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font size="8"/>
+                                        <font fontName="BCSans" size="8"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{allStudentFTETotal}]]></textFieldExpression>
                                 </textField>
