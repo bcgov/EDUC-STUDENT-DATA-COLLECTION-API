@@ -160,7 +160,7 @@
       <artifactId>local.jasperFontOverrides</artifactId>
       <version>1.0</version>
       <scope>system</scope>
-      <systemPath>${basedir}/src/main/resources/bcsans.jar</systemPath>
+      <systemPath>${pom.basedir}/src/main/resources/bcsans.jar</systemPath>
     </dependency>
     <!-- Micrometer core dependency  -->
     <dependency>
