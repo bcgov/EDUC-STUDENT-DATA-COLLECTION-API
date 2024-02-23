@@ -4,9 +4,11 @@ import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentEnrolledProgramRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import org.junit.jupiter.api.AfterEach;
@@ -17,6 +19,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,6 +44,9 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
   @Autowired
   SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+
+  @Autowired
+  SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
   @Autowired
   RestUtils restUtils;
@@ -75,7 +81,18 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
-    sdcSchoolCollectionRepository.save(sdcMockSchool);
+    sdcMockSchool = sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+    SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(sdcMockSchool);
+    student1.setIsSchoolAged(true);
+    student1.setFte(new BigDecimal(1.0));
+    sdcSchoolCollectionStudentRepository.save(student1);
+
+    SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(sdcMockSchool);
+    student1.setIsSchoolAged(false);
+    student1.setIsAdult(true);
+    student1.setFte(new BigDecimal(1.0));
+    sdcSchoolCollectionStudentRepository.save(student2);
 
     this.mockMvc.perform(
         get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockSchool.getSdcSchoolCollectionID() + "/GRADE_ENROLLMENT_FTE").with(mockAuthority))

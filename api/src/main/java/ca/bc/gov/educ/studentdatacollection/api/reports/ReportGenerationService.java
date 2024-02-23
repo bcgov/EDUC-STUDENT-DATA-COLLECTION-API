@@ -58,7 +58,7 @@ public class ReportGenerationService {
 
   private void compileJasperReports(){
     try {
-      InputStream input = getClass().getResourceAsStream("/gradeEnrollmentFTEReport.jrxml");
+      InputStream input = getClass().getResourceAsStream("/reports/gradeEnrollmentFTEReport.jrxml");
       gradeEnrollmentFTEReport = JasperCompileManager.compileReport(input);
     } catch (JRException e) {
       throw new StudentDataCollectionAPIRuntimeException("Compiling Jasper reports has failed :: " + e.getMessage());
