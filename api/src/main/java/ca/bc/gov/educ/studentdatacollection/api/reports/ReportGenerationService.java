@@ -39,7 +39,7 @@ public class ReportGenerationService {
   private final RestUtils restUtils;
   private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
   DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-  private String doubleFormat;
+  private static final String DOUBLE_FORMAT = "%,.4f";
 
   public ReportGenerationService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
@@ -140,13 +140,13 @@ public class ReportGenerationService {
       grade.setTotalCountsCode("Total");
       grade.setTotalSchoolAgedHeadcount(totalSchoolAgedHeadcount.toString());
       grade.setTotalSchoolAgedEligibleForFTE(totalSchoolAgedEligibleForFTE.toString());
-      grade.setTotalSchoolAgedFTETotal(String.format(doubleFormat, totalSchoolAgedFTETotal.doubleValue()));
+      grade.setTotalSchoolAgedFTETotal(String.format(DOUBLE_FORMAT, totalSchoolAgedFTETotal.doubleValue()));
       grade.setTotalAdultsHeadcount(totalAdultHeadcount.toString());
       grade.setTotalAdultsEligibleForFTE(totalAdultEligibleForFTE.toString());
-      grade.setTotalAdultsFTETotal(String.format(doubleFormat, totalAdultFTETotal.doubleValue()));
+      grade.setTotalAdultsFTETotal(String.format(DOUBLE_FORMAT, totalAdultFTETotal.doubleValue()));
       grade.setTotalAllStudentsHeadcount(totalAllStudentHeadcount.toString());
       grade.setTotalAllStudentsEligibleForFTE(totalAllStudentEligibleForFTE.toString());
-      grade.setTotalAllStudentsFTETotal(String.format(doubleFormat, totalAllStudentFTETotal.doubleValue()));
+      grade.setTotalAllStudentsFTETotal(String.format(DOUBLE_FORMAT, totalAllStudentFTETotal.doubleValue()));
     });
 
     mainNode.setReport(reportNode);
@@ -158,13 +158,13 @@ public class ReportGenerationService {
     grade.setCode(hcResult.getEnrolledGradeCode());
     grade.setSchoolAgedHeadcount(hcResult.getSchoolAgedHeadcount());
     grade.setSchoolAgedEligibleForFTE(hcResult.getSchoolAgedEligibleForFte());
-    grade.setSchoolAgedFTETotal(String.format(doubleFormat, Double.valueOf(hcResult.getSchoolAgedFteTotal())));
+    grade.setSchoolAgedFTETotal(String.format(DOUBLE_FORMAT, Double.valueOf(hcResult.getSchoolAgedFteTotal())));
     grade.setAdultHeadcount(hcResult.getAdultHeadcount());
     grade.setAdultEligibleForFTE(hcResult.getAdultEligibleForFte());
-    grade.setAdultFTETotal(String.format(doubleFormat, Double.valueOf(hcResult.getAdultFteTotal())));
+    grade.setAdultFTETotal(String.format(DOUBLE_FORMAT, Double.valueOf(hcResult.getAdultFteTotal())));
     grade.setAllStudentHeadcount(hcResult.getTotalHeadcount());
     grade.setAllStudentEligibleForFTE(hcResult.getTotalEligibleForFte());
-    grade.setAllStudentFTETotal(String.format(doubleFormat, Double.valueOf(hcResult.getTotalFteTotal())));
+    grade.setAllStudentFTETotal(String.format(DOUBLE_FORMAT, Double.valueOf(hcResult.getTotalFteTotal())));
     return grade;
   }
 
