@@ -67,7 +67,7 @@ public class ReportGenerationService {
     }
   }
 
-  public byte[] generateGradeEnrollementFTEReport(UUID collectionID){
+  public String generateGradeEnrollementFTEReport(UUID collectionID){
     try {
       Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional =  sdcSchoolCollectionRepository.findById(collectionID);
       SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
@@ -85,7 +85,7 @@ public class ReportGenerationService {
       params.put(JsonQueryExecuterFactory.JSON_INPUT_STREAM, targetStream);
 
       JasperPrint jasperPrint = JasperFillManager.fillReport(gradeEnrollmentFTEReport, params);
-      return JasperExportManager.exportReportToPdf(jasperPrint);
+      return Base64.getEncoder().encodeToString(JasperExportManager.exportReportToPdf(jasperPrint));
     } catch (JRException | JsonProcessingException e) {
       log.info("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());

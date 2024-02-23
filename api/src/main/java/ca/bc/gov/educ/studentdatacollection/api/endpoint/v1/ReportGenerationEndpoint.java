@@ -18,6 +18,6 @@ public interface ReportGenerationEndpoint {
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
   @Transactional(readOnly = true)
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
-  byte[] generateSDCReport(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID, @PathVariable("reportTypeCode") String reportTypeCode);
+  String generateSDCReport(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID, @PathVariable("reportTypeCode") String reportTypeCode);
 
 }

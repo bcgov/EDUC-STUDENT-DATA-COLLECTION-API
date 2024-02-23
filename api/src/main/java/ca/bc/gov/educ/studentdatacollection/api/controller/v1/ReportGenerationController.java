@@ -23,7 +23,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     private final ReportGenerationService reportGenerationService;
 
     @Override
-    public byte[] generateSDCReport(UUID collectionID, String reportTypeCode) {
+    public String generateSDCReport(UUID collectionID, String reportTypeCode) {
         Optional<ReportTypeCode> code = ReportTypeCode.findByValue(reportTypeCode);
 
         if(code.isEmpty()){
@@ -36,6 +36,6 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
                 return reportGenerationService.generateGradeEnrollementFTEReport(collectionID);
         }
 
-        return new byte[0];
+        return new String();
     }
 }
