@@ -32,10 +32,10 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
         }
 
         switch(code.get()){
-            case GRADE_ENROLLMENT_FTE:
-                return reportGenerationService.generateGradeEnrollementFTEReport(collectionID);
+            case GRADE_ENROLLMENT_HEADCOUNT:
+                return reportGenerationService.generateGradeEnrollementHeadcountReport(collectionID);
         }
 
-        return new String();
+        return "";
     }
 }

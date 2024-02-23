@@ -10,7 +10,7 @@ import java.util.Optional;
  */
 public enum ReportTypeCode {
 
-  GRADE_ENROLLMENT_FTE("GRADE_ENROLLMENT_FTE");
+  GRADE_ENROLLMENT_HEADCOUNT("GRADE_ENROLLMENT_HEADCOUNT");
 
   @Getter
   private final String code;

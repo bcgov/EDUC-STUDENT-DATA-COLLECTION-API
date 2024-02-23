@@ -67,7 +67,7 @@ public class ReportGenerationService {
     }
   }
 
-  public String generateGradeEnrollementFTEReport(UUID collectionID){
+  public String generateGradeEnrollementHeadcountReport(UUID collectionID){
     try {
       Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional =  sdcSchoolCollectionRepository.findById(collectionID);
       SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
