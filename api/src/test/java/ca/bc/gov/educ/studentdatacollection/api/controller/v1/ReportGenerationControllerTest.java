@@ -151,6 +151,8 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     var district = this.createMockDistrict();
     when(this.restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(district));
 
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.empty());
+
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
     collectionRepository.save(collection);
