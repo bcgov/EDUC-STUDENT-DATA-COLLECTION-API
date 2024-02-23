@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.rest;
 
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,6 +81,39 @@ class RestUtilsTest {
         assertEquals(2, independentAuthorityToSchoolIDMap.get("Authority 1").size());
         assertEquals(1, independentAuthorityToSchoolIDMap.get("Authority 2").size());
     }
+
+    @Test
+    void testPopulateDistrictMap_WhenApiCallSucceeds_ShouldPopulateMaps() {
+        // Given
+        val district1ID = String.valueOf(UUID.randomUUID());
+        val district2ID = String.valueOf(UUID.randomUUID());
+        val district3ID = String.valueOf(UUID.randomUUID());
+        val district1 = District.builder()
+                .districtId(district1ID)
+                .displayName("District 1")
+                .build();
+        val district2 = District.builder()
+                .districtId(district2ID)
+                .displayName("district 2")
+                .build();
+        val district3 = District.builder()
+                .districtId(district3ID)
+                .displayName("District 3")
+                .build();
+
+        doReturn(List.of(district1, district2, district3)).when(restUtils).getDistricts();
+
+        // When
+        restUtils.populateDistrictMap();
+
+        // Then verify the maps are populated
+        Map<String, District> districtMap = (Map<String, District>) ReflectionTestUtils.getField(restUtils, "districtMap");
+        assertEquals(3, districtMap.size());
+        assertEquals(district1, districtMap.get(district1ID));
+        assertEquals(district2, districtMap.get(district2ID));
+        assertEquals(district3, districtMap.get(district3ID));
+    }
+
 
     @Test
     void testPopulateSchoolMap_WhenNoIndependentAuthorityId_ShouldPopulateMapsCorrectly() {

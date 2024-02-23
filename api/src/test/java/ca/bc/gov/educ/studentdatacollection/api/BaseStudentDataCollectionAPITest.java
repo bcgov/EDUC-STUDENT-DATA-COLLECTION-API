@@ -326,7 +326,7 @@ public abstract class BaseStudentDataCollectionAPITest {
   }
 
   public District createMockDistrict() {
-    final District district = new District();
+    final District district = District.builder().build();
     district.setDistrictId(UUID.randomUUID().toString());
     district.setDisplayName("Marco's district");
     district.setDistrictNumber("036");
