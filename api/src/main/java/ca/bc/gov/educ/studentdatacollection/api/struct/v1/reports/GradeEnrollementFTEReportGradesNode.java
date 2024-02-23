@@ -35,4 +35,24 @@ public class GradeEnrollementFTEReportGradesNode implements Serializable {
 
   private String allStudentFTETotal;
 
+  private String totalCountsCode;
+
+  private String totalSchoolAgedHeadcount;
+
+  private String totalSchoolAgedEligibleForFTE;
+
+  private String totalSchoolAgedFTETotal;
+
+  private String totalAdultsHeadcount;
+
+  private String totalAdultsEligibleForFTE;
+
+  private String totalAdultsFTETotal;
+
+  private String totalAllStudentsHeadcount;
+
+  private String totalAllStudentsEligibleForFTE;
+
+  private String totalAllStudentsFTETotal;
+
 }

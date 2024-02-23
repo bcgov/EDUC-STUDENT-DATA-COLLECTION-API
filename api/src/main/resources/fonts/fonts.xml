@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fontFamilies>
+	<fontFamily name="BCSans">
+		<normal><![CDATA[fonts/BCSans/2023_01_01_BCSans-Regular_2f.ttf]]></normal>
+		<bold><![CDATA[fonts/BCSans/2023_01_01_BCSans-Bold_2f.ttf]]></bold>
+		<italic><![CDATA[fonts/BCSans/2023_01_01_BCSans-Italic_2f.ttf]]></italic>
+		<boldItalic><![CDATA[fonts/BCSans/2023_01_01_BCSans-Italic_2f.ttf]]></boldItalic>
+		<pdfEncoding><![CDATA[Cp1252]]></pdfEncoding>
+		<pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+		<exportFonts/>
+	</fontFamily>
+</fontFamilies>

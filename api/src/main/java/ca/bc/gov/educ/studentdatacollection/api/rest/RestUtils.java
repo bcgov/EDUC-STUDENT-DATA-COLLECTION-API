@@ -57,11 +57,13 @@ public class RestUtils {
   public static final String CLOSE_DATE = "closedDate";
   private static final String CONTENT_TYPE = "Content-Type";
   private final Map<String, School> schoolMap = new ConcurrentHashMap<>();
+  private final Map<String, District> districtMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
   private final WebClient webClient;
   private final MessagePublisher messagePublisher;
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock districtLock = new ReentrantReadWriteLock();
   @Getter
   private final ApplicationProperties props;
 
@@ -86,6 +88,7 @@ public class RestUtils {
 
   private void initialize() {
     this.populateSchoolMap();
+    this.populateDistrictMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
@@ -116,7 +119,7 @@ public class RestUtils {
     finally {
       writeLock.unlock();
     }
-    log.info("loaded  {} schools to memory", this.schoolMap.values().size());
+    log.info("Loaded  {} schools to memory", this.schoolMap.values().size());
   }
 
   public List<School> getSchools() {
@@ -128,6 +131,34 @@ public class RestUtils {
       .bodyToFlux(School.class)
       .collectList()
       .block();
+  }
+
+  public void populateDistrictMap() {
+    val writeLock = this.districtLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val district : this.getDistricts()) {
+        this.districtMap.put(district.getDistrictId(), district);
+      }
+    }
+    catch (Exception ex) {
+      log.error("Unable to load map cache district {}", ex);
+    }
+    finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} districts to memory", this.districtMap.values().size());
+  }
+
+  public List<District> getDistricts() {
+    log.info("Calling Institute api to load districts to memory");
+    return this.webClient.get()
+            .uri(this.props.getInstituteApiURL() + "/district")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(District.class)
+            .collectList()
+            .block();
   }
 
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
@@ -246,6 +277,14 @@ public class RestUtils {
       this.populateSchoolMap();
     }
     return Optional.ofNullable(this.schoolMap.get(schoolID));
+  }
+
+  public Optional<District> getDistrictByDistrictID(final String districtID) {
+    if (this.districtMap.isEmpty()) {
+      log.info("District map is empty reloading schools");
+      this.populateDistrictMap();
+    }
+    return Optional.ofNullable(this.districtMap.get(districtID));
   }
 
   private SearchCriteria getCriteria(final String key, final FilterOperation operation, final String value, final ValueType valueType, final Condition condition) {

@@ -294,6 +294,10 @@
       <id>central</id>
       <url>https://repo1.maven.org/maven2</url>
     </repository>
+    <repository>
+      <id>localrepository</id>
+      <url>file://${project.basedir}/src/main/resources/bcsans.jar</url>
+    </repository>
   </repositories>
   <profiles>
     <profile>
