@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
@@ -70,7 +70,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         setEnrolledProgramCode(students.get(6), "43");
         setEnrolledProgramCode(students.get(7), "43");
 
-        var headcounts = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySchoolId(schoolCollectionId);
+        var headcounts = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
         //then only the eligible career program students are included in the headcounts
         assertEquals("1", headcounts.get(0).getPreparationXA());
         assertEquals("1", headcounts.get(0).getPreparationXB());
@@ -112,7 +112,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         setEnrolledProgramCode(students.get(0), "40");
         setEnrolledProgramCode(students.get(1), "40");
 
-        var headcounts = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySchoolId(schoolCollectionId);
+        var headcounts = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
         //then only non error student in headcounts
         assertEquals("1", headcounts.get(0).getAllTotal());
     }

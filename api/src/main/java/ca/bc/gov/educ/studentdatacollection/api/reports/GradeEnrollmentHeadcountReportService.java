@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -7,46 +8,43 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.GradeEnrollementFTENode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.GradeEnrollementFTEReportGradesNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.GradeEnrollementFTEReportNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.gradeenrollmentheadcount.GradeEnrollmentHeadcountNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.gradeenrollmentheadcount.GradeEnrollmentHeadcountReportGradesNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.gradeenrollmentheadcount.GradeEnrollmentHeadcountReportNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.util.concurrent.AtomicDouble;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.query.JsonQueryExecuterFactory;
-import org.apache.commons.lang3.StringUtils;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperReport;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class ReportGenerationService {
+public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationService{
 
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
-  private JasperReport gradeEnrollmentFTEReport;
-  private final RestUtils restUtils;
+  private JasperReport gradeEnrollmentHeadcountReport;
   private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
-  DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
   private static final String DOUBLE_FORMAT = "%,.4f";
 
-  public ReportGenerationService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
+  public GradeEnrollmentHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
+    super(restUtils);
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
-    this.restUtils = restUtils;
   }
 
   @PostConstruct
@@ -60,14 +58,14 @@ public class ReportGenerationService {
 
   private void compileJasperReports(){
     try {
-      InputStream input = getClass().getResourceAsStream("/reports/gradeEnrollmentFTEReport.jrxml");
-      gradeEnrollmentFTEReport = JasperCompileManager.compileReport(input);
+      InputStream inputGradeHeadcount = getClass().getResourceAsStream("/reports/gradeEnrollmentFTEReport.jrxml");
+      gradeEnrollmentHeadcountReport = JasperCompileManager.compileReport(inputGradeHeadcount);
     } catch (JRException e) {
       throw new StudentDataCollectionAPIRuntimeException("Compiling Jasper reports has failed :: " + e.getMessage());
     }
   }
 
-  public String generateGradeEnrollementHeadcountReport(UUID collectionID){
+  public String generateGradeEnrollmentHeadcountReport(UUID collectionID){
     try {
       Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional =  sdcSchoolCollectionRepository.findById(collectionID);
       SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
@@ -75,42 +73,17 @@ public class ReportGenerationService {
 
       var gradeEnrollmentList = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
 
-      Map<String, Object> params = new HashMap<>();
-      params.put(JsonQueryExecuterFactory.JSON_DATE_PATTERN, "yyyy-MM-dd");
-      params.put(JsonQueryExecuterFactory.JSON_NUMBER_PATTERN, "#,##0.##");
-      params.put(JsonQueryExecuterFactory.JSON_LOCALE, Locale.ENGLISH);
-      params.put(JRParameter.REPORT_LOCALE, Locale.US);
-
-      InputStream targetStream = new ByteArrayInputStream(convertToReportJSONString(gradeEnrollmentList, sdcSchoolCollectionEntity).getBytes());
-      params.put(JsonQueryExecuterFactory.JSON_INPUT_STREAM, targetStream);
-
-      JasperPrint jasperPrint = JasperFillManager.fillReport(gradeEnrollmentFTEReport, params);
-      return Base64.getEncoder().encodeToString(JasperExportManager.exportReportToPdf(jasperPrint));
-    } catch (JRException | JsonProcessingException e) {
+      return generateJasperReport(convertToGradeEnrollmentReportJSONString(gradeEnrollmentList, sdcSchoolCollectionEntity), gradeEnrollmentHeadcountReport);
+    } catch (JsonProcessingException e) {
       log.info("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
     }
   }
 
-  private String convertToReportJSONString(List<EnrollmentHeadcountResult> results, SdcSchoolCollectionEntity sdcSchoolCollection) throws JsonProcessingException {
-    var district = restUtils.getDistrictByDistrictID(sdcSchoolCollection.getDistrictID().toString());
-    if(district.isEmpty()){
-      log.info("District could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getDistrictID().toString());
-      throw new EntityNotFoundException(District.class, "District could not be found while writing PDF report for grade enrollment :: ", sdcSchoolCollection.getDistrictID().toString());
-    }
-
-    var school = restUtils.getSchoolBySchoolID(sdcSchoolCollection.getSchoolID().toString());
-    if(school.isEmpty()){
-      log.info("School could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getSchoolID().toString());
-      throw new EntityNotFoundException(School.class, "School could not be found while writing PDF report for grade enrollment :: ", sdcSchoolCollection.getSchoolID().toString());
-    }
-
-    GradeEnrollementFTENode mainNode = new GradeEnrollementFTENode();
-    GradeEnrollementFTEReportNode reportNode = new GradeEnrollementFTEReportNode();
-    reportNode.setReportGeneratedDate("Report Generated: " + LocalDate.now().format(formatter));
-    reportNode.setDistrictNumberAndName(district.get().getDistrictNumber() + " - " + district.get().getDisplayName());
-    reportNode.setCollectionNameAndYear(StringUtils.capitalize(sdcSchoolCollection.getCollectionEntity().getCollectionTypeCode().toLowerCase()) + " " + sdcSchoolCollection.getCollectionEntity().getOpenDate().getYear() + " Collection");
-    reportNode.setSchoolMincodeAndName(school.get().getMincode() + " - " + school.get().getDisplayName());
+  private String convertToGradeEnrollmentReportJSONString(List<EnrollmentHeadcountResult> results, SdcSchoolCollectionEntity sdcSchoolCollection) throws JsonProcessingException {
+    GradeEnrollmentHeadcountNode mainNode = new GradeEnrollmentHeadcountNode();
+    GradeEnrollmentHeadcountReportNode reportNode = new GradeEnrollmentHeadcountReportNode();
+    setReportTombstoneValues(sdcSchoolCollection, reportNode);
     reportNode.setGrades(new ArrayList<>());
 
     AtomicInteger totalSchoolAgedHeadcount = new AtomicInteger(0);
@@ -124,7 +97,7 @@ public class ReportGenerationService {
     AtomicDouble totalAllStudentFTETotal = new AtomicDouble(0);
 
     results.forEach(hcResult -> {
-      GradeEnrollementFTEReportGradesNode grade = getGradeEnrollementFTEReportGradesNode(hcResult);
+      GradeEnrollmentHeadcountReportGradesNode grade = getGradeEnrollmentFTEReportGradesNode(hcResult);
       reportNode.getGrades().add(grade);
 
       totalSchoolAgedHeadcount.addAndGet(Integer.valueOf(grade.getSchoolAgedHeadcount()));
@@ -151,12 +124,15 @@ public class ReportGenerationService {
       grade.setTotalAllStudentsFTETotal(String.format(DOUBLE_FORMAT, totalAllStudentFTETotal.doubleValue()));
     });
 
+    var allGradeCodes = SchoolGradeCodes.getAllSchoolGrades();
+    reportNode.setGrades(reportNode.getGrades().stream().sorted((o1, o2)->Integer.compare(allGradeCodes.indexOf(o1.getCode()), allGradeCodes.indexOf(o2.getCode()))).collect(Collectors.toList()));
+
     mainNode.setReport(reportNode);
     return objectWriter.writeValueAsString(mainNode);
   }
 
-  private GradeEnrollementFTEReportGradesNode getGradeEnrollementFTEReportGradesNode(EnrollmentHeadcountResult hcResult) {
-    GradeEnrollementFTEReportGradesNode grade = new GradeEnrollementFTEReportGradesNode();
+  private GradeEnrollmentHeadcountReportGradesNode getGradeEnrollmentFTEReportGradesNode(EnrollmentHeadcountResult hcResult) {
+    GradeEnrollmentHeadcountReportGradesNode grade = new GradeEnrollmentHeadcountReportGradesNode();
     grade.setCode(hcResult.getEnrolledGradeCode());
     grade.setSchoolAgedHeadcount(hcResult.getSchoolAgedHeadcount());
     grade.setSchoolAgedEligibleForFTE(hcResult.getSchoolAgedEligibleForFte());
@@ -169,5 +145,4 @@ public class ReportGenerationService {
     grade.setAllStudentFTETotal(String.format(DOUBLE_FORMAT, Double.valueOf(hcResult.getTotalFteTotal())));
     return grade;
   }
-
 }

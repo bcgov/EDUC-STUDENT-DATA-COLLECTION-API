@@ -4,7 +4,8 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.ReportGenerationEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
-import ca.bc.gov.educ.studentdatacollection.api.reports.ReportGenerationService;
+import ca.bc.gov.educ.studentdatacollection.api.reports.CareerProgramHeadcountReportService;
+import ca.bc.gov.educ.studentdatacollection.api.reports.GradeEnrollmentHeadcountReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +21,8 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @RequiredArgsConstructor
 public class ReportGenerationController implements ReportGenerationEndpoint {
 
-    private final ReportGenerationService reportGenerationService;
+    private final GradeEnrollmentHeadcountReportService gradeEnrollmentHeadcountReportService;
+    private final CareerProgramHeadcountReportService careerProgramHeadcountReportService;
 
     @Override
     public String generateSDCReport(UUID collectionID, String reportTypeCode) {
@@ -33,9 +35,11 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
 
         switch(code.get()){
             case GRADE_ENROLLMENT_HEADCOUNT:
-                return reportGenerationService.generateGradeEnrollementHeadcountReport(collectionID);
+                return gradeEnrollmentHeadcountReportService.generateGradeEnrollmentHeadcountReport(collectionID);
+            case CAREER_HEADCOUNT:
+                return careerProgramHeadcountReportService.generateCareerProgramHeadcountReport(collectionID);
+            default:
+                return "";
         }
-
-        return "";
     }
 }
