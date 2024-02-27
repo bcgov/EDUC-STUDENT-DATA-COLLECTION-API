@@ -134,6 +134,9 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
   private GradeEnrollmentHeadcountReportGradesNode getGradeEnrollmentFTEReportGradesNode(EnrollmentHeadcountResult hcResult) {
     GradeEnrollmentHeadcountReportGradesNode grade = new GradeEnrollmentHeadcountReportGradesNode();
     grade.setCode(hcResult.getEnrolledGradeCode());
+    grade.setUnderSchoolAgedHeadcount(hcResult.getUnderSchoolAgedHeadcount());
+    grade.setUnderSchoolAgedEligibleForFTE(hcResult.getUnderSchoolAgedEligibleForFte());
+    grade.setUnderSchoolAgedFTETotal(String.format(DOUBLE_FORMAT, Double.valueOf(hcResult.getUnderSchoolAgedFteTotal())));
     grade.setSchoolAgedHeadcount(hcResult.getSchoolAgedHeadcount());
     grade.setSchoolAgedEligibleForFTE(hcResult.getSchoolAgedEligibleForFte());
     grade.setSchoolAgedFTETotal(String.format(DOUBLE_FORMAT, Double.valueOf(hcResult.getSchoolAgedFteTotal())));

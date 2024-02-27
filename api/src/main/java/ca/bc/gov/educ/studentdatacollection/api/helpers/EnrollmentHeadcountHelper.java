@@ -22,10 +22,15 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
   private static final String TOTAL_FTE_TITLE = "FTE Total";
   private static final String ELIGIBLE_FTE_TITLE = "Eligible for FTE";
   private static final String HEADCOUNT_TITLE = "Headcount";
+  private static final String UNDER_SCHOOL_AGED_TITLE = "Under School Aged";
   private static final String SCHOOL_AGED_TITLE = "School Aged";
   private static final String ADULT_TITLE = "Adult";
   private static final String ALL_STUDENT_TITLE = "All Students";
   private static final String TOTAL_TITLE = "Total";
+  private static final String UNDER_SCHOOL_AGED_KEY = "underSchoolAgedTitle";
+  private static final String UNDER_SCHOOL_AGED_HEADCOUNT_KEY = "underSchoolAgedHeadcount";
+  private static final String UNDER_SCHOOL_AGED_ELIGIBLEKEY = "underSchoolAgedEligible";
+  private static final String UNDER_SCHOOL_AGED_FTE_KEY = "underSchoolAgedFte";
   private static final String SCHOOL_AGED_KEY = "schoolAgedTitle";
   private static final String SCHOOL_AGED_HEADCOUNT_KEY = "schoolAgedHeadcount";
   private static final String SCHOOL_AGED_ELIGIBLEKEY = "schoolAgedEligible";
@@ -83,9 +88,9 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
   public HeadcountHeader getStudentsHeadcountTotals(HeadcountResultsTable headcountResultsTable) {
     HeadcountHeader studentTotals = new HeadcountHeader();
     studentTotals.setTitle("Student Headcount");
-    studentTotals.setOrderedColumnTitles(List.of(SCHOOL_AGED_TITLE, ADULT_TITLE, ALL_STUDENT_TITLE));
+    studentTotals.setOrderedColumnTitles(List.of(UNDER_SCHOOL_AGED_TITLE, SCHOOL_AGED_TITLE, ADULT_TITLE, ALL_STUDENT_TITLE));
     studentTotals.setColumns(new HashMap<>());
-    for(String title : List.of(SCHOOL_AGED_TITLE, ADULT_TITLE, ALL_STUDENT_TITLE)) {
+    for(String title : List.of(UNDER_SCHOOL_AGED_TITLE, SCHOOL_AGED_TITLE, ADULT_TITLE, ALL_STUDENT_TITLE)) {
       HeadcountHeaderColumn headcountHeaderColumn = new HeadcountHeaderColumn();
       headcountHeaderColumn.setCurrentValue(String.valueOf(
         headcountResultsTable.getRows().stream()
@@ -100,6 +105,10 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
 
   private Map<String, Function<EnrollmentHeadcountResult, String>> getHeadcountMethods() {
     Map<String, Function<EnrollmentHeadcountResult, String>> headcountMethods = new HashMap<>();
+    headcountMethods.put(UNDER_SCHOOL_AGED_KEY, null);
+    headcountMethods.put(UNDER_SCHOOL_AGED_HEADCOUNT_KEY, EnrollmentHeadcountResult::getUnderSchoolAgedHeadcount);
+    headcountMethods.put(UNDER_SCHOOL_AGED_ELIGIBLEKEY, EnrollmentHeadcountResult::getUnderSchoolAgedEligibleForFte);
+    headcountMethods.put(UNDER_SCHOOL_AGED_FTE_KEY, EnrollmentHeadcountResult::getUnderSchoolAgedFteTotal);
     headcountMethods.put(SCHOOL_AGED_KEY, null);
     headcountMethods.put(SCHOOL_AGED_HEADCOUNT_KEY, EnrollmentHeadcountResult::getSchoolAgedHeadcount);
     headcountMethods.put(SCHOOL_AGED_ELIGIBLEKEY, EnrollmentHeadcountResult::getSchoolAgedEligibleForFte);
@@ -116,6 +125,10 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
   }
   private Map<String, String> getSelectionTitles() {
     Map<String, String> sectionTitles = new HashMap<>();
+    sectionTitles.put(UNDER_SCHOOL_AGED_KEY, SCHOOL_AGED_TITLE);
+    sectionTitles.put(UNDER_SCHOOL_AGED_HEADCOUNT_KEY, SCHOOL_AGED_TITLE);
+    sectionTitles.put(UNDER_SCHOOL_AGED_ELIGIBLEKEY, SCHOOL_AGED_TITLE);
+    sectionTitles.put(UNDER_SCHOOL_AGED_FTE_KEY, SCHOOL_AGED_TITLE);
     sectionTitles.put(SCHOOL_AGED_KEY, SCHOOL_AGED_TITLE);
     sectionTitles.put(SCHOOL_AGED_HEADCOUNT_KEY, SCHOOL_AGED_TITLE);
     sectionTitles.put(SCHOOL_AGED_ELIGIBLEKEY, SCHOOL_AGED_TITLE);
@@ -132,6 +145,10 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
   }
   private Map<String, String> getRowTitles() {
     Map<String, String> rowTitles = new LinkedHashMap<>();
+    rowTitles.put(UNDER_SCHOOL_AGED_KEY, SCHOOL_AGED_TITLE);
+    rowTitles.put(UNDER_SCHOOL_AGED_HEADCOUNT_KEY, HEADCOUNT_TITLE);
+    rowTitles.put(UNDER_SCHOOL_AGED_ELIGIBLEKEY, ELIGIBLE_FTE_TITLE);
+    rowTitles.put(UNDER_SCHOOL_AGED_FTE_KEY, TOTAL_FTE_TITLE);
     rowTitles.put(SCHOOL_AGED_KEY, SCHOOL_AGED_TITLE);
     rowTitles.put(SCHOOL_AGED_HEADCOUNT_KEY, HEADCOUNT_TITLE);
     rowTitles.put(SCHOOL_AGED_ELIGIBLEKEY, ELIGIBLE_FTE_TITLE);

@@ -17,6 +17,12 @@ public class GradeEnrollmentHeadcountReportGradesNode implements Serializable {
 
   private String code;
 
+  private String underSchoolAgedHeadcount;
+
+  private String underSchoolAgedEligibleForFTE;
+
+  private String underSchoolAgedFTETotal;
+
   private String schoolAgedHeadcount;
 
   private String schoolAgedEligibleForFTE;
