@@ -125,7 +125,7 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
     });
 
     var allGradeCodes = SchoolGradeCodes.getAllSchoolGrades();
-    reportNode.setGrades(reportNode.getGrades().stream().sorted((o1, o2)->Integer.compare(allGradeCodes.indexOf(o1.getCode()), allGradeCodes.indexOf(o2.getCode()))).collect(Collectors.toList()));
+    reportNode.setGrades(reportNode.getGrades().stream().sorted((o1, o2)->Integer.compare(allGradeCodes.indexOf(o1.getCode()), allGradeCodes.indexOf(o2.getCode()))).toList());
 
     mainNode.setReport(reportNode);
     return objectWriter.writeValueAsString(mainNode);
