@@ -3,7 +3,9 @@ package ca.bc.gov.educ.studentdatacollection.api.constants.v1;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 public enum SchoolGradeCodes {
@@ -30,6 +32,10 @@ public enum SchoolGradeCodes {
     private final String code;
     SchoolGradeCodes(String code) {
         this.code = code;
+    }
+
+    public static Optional<SchoolGradeCodes> findByValue(String value) {
+        return Arrays.stream(values()).filter(e -> Arrays.asList(e.code).contains(value)).findFirst();
     }
 
     /**
@@ -163,6 +169,29 @@ public enum SchoolGradeCodes {
         codes.add(GRADE11.getCode());
         codes.add(GRADE12.getCode());
         codes.add(SECONDARY_UNGRADED.getCode());
+        return codes;
+    }
+
+    public static List<String> getAllSchoolGrades() {
+        List<String> codes = new ArrayList<>();
+        codes.add(KINDHALF.getCode());
+        codes.add(KINDFULL.getCode());
+        codes.add(GRADE01.getCode());
+        codes.add(GRADE02.getCode());
+        codes.add(GRADE03.getCode());
+        codes.add(GRADE04.getCode());
+        codes.add(GRADE05.getCode());
+        codes.add(GRADE06.getCode());
+        codes.add(GRADE07.getCode());
+        codes.add(ELEMUNGR.getCode());
+        codes.add(GRADE08.getCode());
+        codes.add(GRADE09.getCode());
+        codes.add(GRADE10.getCode());
+        codes.add(GRADE11.getCode());
+        codes.add(GRADE12.getCode());
+        codes.add(SECONDARY_UNGRADED.getCode());
+        codes.add(GRADUATED_ADULT.getCode());
+        codes.add(HOMESCHOOL.getCode());
         return codes;
     }
 
