@@ -60,9 +60,9 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   @Query("SELECT " +
           "s.enrolledGradeCode AS enrolledGradeCode, " +
-          "COUNT(CASE WHEN s.isSchoolAged = false THEN 1 END) AS underSchoolAgedHeadcount, " +
-          "SUM(CASE WHEN s.isSchoolAged = false AND s.fte > 0 THEN 1 ELSE 0 END) AS underSchoolAgedEligibleForFte, " +
-          "SUM(CASE WHEN s.isSchoolAged = false THEN s.fte ELSE 0 END) AS underSchoolAgedFteTotal, " +
+          "COUNT(CASE WHEN s.isSchoolAged = false AND s.isAdult = false THEN 1 END) AS underSchoolAgedHeadcount, " +
+          "SUM(CASE WHEN s.isSchoolAged = false AND s.isAdult = false AND  s.fte > 0 THEN 1 ELSE 0 END) AS underSchoolAgedEligibleForFte, " +
+          "SUM(CASE WHEN s.isSchoolAged = false AND s.isAdult = false THEN s.fte ELSE 0 END) AS underSchoolAgedFteTotal, " +
           "COUNT(CASE WHEN s.isSchoolAged = true THEN 1 END) AS schoolAgedHeadcount, " +
           "SUM(CASE WHEN s.isSchoolAged = true AND s.fte > 0 THEN 1 ELSE 0 END) AS schoolAgedEligibleForFte, " +
           "SUM(CASE WHEN s.isSchoolAged = true THEN s.fte ELSE 0 END) AS schoolAgedFteTotal, " +
