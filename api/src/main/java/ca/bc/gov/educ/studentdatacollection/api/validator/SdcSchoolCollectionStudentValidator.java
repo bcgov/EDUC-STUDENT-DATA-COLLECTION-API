@@ -11,7 +11,6 @@ import org.springframework.validation.FieldError;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Component
 public class SdcSchoolCollectionStudentValidator {
@@ -22,15 +21,7 @@ public class SdcSchoolCollectionStudentValidator {
         this.validationRulesService = validationRulesService;
     }
 
-    public List<FieldError> validateUpdatePayload(SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
-        return validatePayload(sdcSchoolCollectionStudent, false);
-    }
-
-    public List<FieldError> validateCreatePayload(SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
-        return validatePayload(sdcSchoolCollectionStudent, true);
-    }
-
-    public List<FieldError> validatePayload(SdcSchoolCollectionStudent sdcSchoolCollectionStudent, boolean isCreate) {
+    public List<FieldError> validatePayload(SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
         final List<FieldError> apiValidationErrors = new ArrayList<>();
 
         if (StringUtils.isNotEmpty(sdcSchoolCollectionStudent.getStudentPen()) && !PenUtil.validCheckDigit(sdcSchoolCollectionStudent.getStudentPen())) {
@@ -39,10 +30,6 @@ public class SdcSchoolCollectionStudentValidator {
 
         if (!DOBUtil.isValidDate(sdcSchoolCollectionStudent.getDob())) {
             apiValidationErrors.add(ValidationUtil.createFieldError("dob", sdcSchoolCollectionStudent.getDob(), "Invalid DOB."));
-        }
-
-        if (isCreate && sdcSchoolCollectionStudent.getSdcSchoolCollectionID() == null) {
-            apiValidationErrors.add(ValidationUtil.createFieldError("sdcSchoolCollectionID", null, "sdcSchoolCollectionID cannot be null for create"));
         }
 
         List<SpecialEducationCategoryCode> activeSpecialEducationCategoryCode = validationRulesService.getActiveSpecialEducationCategoryCodes();
