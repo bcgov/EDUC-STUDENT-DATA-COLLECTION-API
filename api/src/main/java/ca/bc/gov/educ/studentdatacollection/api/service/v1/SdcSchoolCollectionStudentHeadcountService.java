@@ -90,7 +90,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
     var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
     Optional<School> school = this.restUtils.getSchoolBySchoolID(String.valueOf(sdcSchoolCollectionEntity.getSchoolID()));
     indigenousHeadcountHelper.setGradeCodes(school);
-    List<IndigenousHeadcountResult> result = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySchoolId(sdcSchoolCollectionID);
+    List<IndigenousHeadcountResult> result = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
     HeadcountResultsTable headcountResultsTable = indigenousHeadcountHelper.convertHeadcountResults(result);
     List<HeadcountHeader> headcountHeaderList = indigenousHeadcountHelper.getHeaders(sdcSchoolCollectionID);
     if(compare) {

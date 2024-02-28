@@ -406,7 +406,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         setEnrolledProgramCode(students.get(0), "33");
         setEnrolledProgramCode(students.get(1), "36");
 
-        var headcounts = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySchoolId(schoolCollectionId);
+        var headcounts = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
 
         //then only count the eligible student
         assertEquals("0", headcounts.get(0).getIndigenousLanguageTotal());
@@ -432,7 +432,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         setEnrolledProgramCode(students.get(0), "33");
         setEnrolledProgramCode(students.get(0), "36");
 
-        var headcounts = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySchoolId(schoolCollectionId);
+        var headcounts = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
 
         //then have one count for each program type, but all support programs should only count the one student (this might change)
         assertEquals("1", headcounts.get(0).getIndigenousLanguageTotal());
@@ -459,7 +459,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         setEnrolledProgramCode(students.get(0), "33");
         setEnrolledProgramCode(students.get(1), "36");
 
-        var headcounts = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySchoolId(schoolCollectionId);
+        var headcounts = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
         //then only non error student in headcounts
         assertEquals("1", headcounts.get(0).getAllSupportProgramTotal());
     }
