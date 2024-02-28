@@ -75,7 +75,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
-    public SdcSchoolCollectionStudent updateAndValidateSdcSchoolCollectionStudent(SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+    public SdcSchoolCollectionStudent createAndUpdateSdcSchoolCollectionStudent(SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
         ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
          if(StringUtils.isNotBlank(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())) {
              RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);

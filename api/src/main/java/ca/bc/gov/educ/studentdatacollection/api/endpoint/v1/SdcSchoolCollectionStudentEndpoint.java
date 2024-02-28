@@ -49,7 +49,7 @@ public interface SdcSchoolCollectionStudentEndpoint {
   @Transactional
   @Tag(name = "Sdc School Collection Student", description = "Endpoints to create and update school collection student entity.")
   @Schema(name = "SdcSchoolCollectionStudent", implementation = SdcSchoolCollectionStudent.class)
-  SdcSchoolCollectionStudent updateAndValidateSdcSchoolCollectionStudent(@Validated @RequestBody SdcSchoolCollectionStudent sdcSchoolCollectionStudent);
+  SdcSchoolCollectionStudent createAndUpdateSdcSchoolCollectionStudent(@Validated @RequestBody SdcSchoolCollectionStudent sdcSchoolCollectionStudent);
 
   @DeleteMapping("/{sdcSchoolCollectionStudentID}")
   @PreAuthorize("hasAuthority('SCOPE_DELETE_SDC_SCHOOL_COLLECTION_STUDENT')")
