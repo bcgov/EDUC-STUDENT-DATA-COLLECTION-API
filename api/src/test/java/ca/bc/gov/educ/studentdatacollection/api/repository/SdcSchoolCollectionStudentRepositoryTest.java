@@ -223,7 +223,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         setEnrolledProgramCode(students.get(1), "41");
         setEnrolledProgramCode(students.get(2), "05");
 
-        var headcounts = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySchoolId(schoolCollectionId);
+        var headcounts = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
         //then only the one eligible csf french student is included in the headcounts
         assertEquals("1", headcounts.get(0).getSchoolAgedFrancophone());
         assertEquals("0", headcounts.get(0).getAdultFrancophone());
@@ -246,7 +246,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         setEnrolledProgramCode(students.get(0), "05");
 
-        var headcounts = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySchoolId(schoolCollectionId);
+        var headcounts = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
         //then headcount is only included in the total column
         assertEquals("0", headcounts.get(0).getSchoolAgedFrancophone());
         assertEquals("0", headcounts.get(0).getAdultFrancophone());
@@ -270,7 +270,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         setEnrolledProgramCode(students.get(0), "05");
         setEnrolledProgramCode(students.get(1), "05");
 
-        var headcounts = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySchoolId(schoolCollectionId);
+        var headcounts = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
         //then only non error student in headcounts
         assertEquals("1", headcounts.get(0).getTotalFrancophone());
     }

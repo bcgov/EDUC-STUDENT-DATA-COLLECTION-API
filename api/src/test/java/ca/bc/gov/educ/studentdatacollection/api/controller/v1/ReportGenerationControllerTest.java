@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportingRequirementCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -14,6 +15,8 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -63,8 +66,13 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     this.collectionRepository.deleteAll();
   }
 
-  @Test
-  void testGetGradeEnrollmentHeadcountReport_ShouldReturnCollection() throws Exception {
+  @ParameterizedTest
+  @CsvSource({
+          "GRADE_ENROLLMENT_HEADCOUNT",
+          "CAREER_HEADCOUNT",
+          "FRENCH_HEADCOUNT"
+  })
+  void testGetGradeEnrollmentHeadcountReport_ShouldReturnCollection(String reportTypeCode) throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
@@ -95,54 +103,19 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     sdcSchoolCollectionStudentRepository.save(student2);
 
     this.mockMvc.perform(
-        get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockSchool.getSdcSchoolCollectionID() + "/GRADE_ENROLLMENT_HEADCOUNT").with(mockAuthority))
+        get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockSchool.getSdcSchoolCollectionID() + "/" + reportTypeCode).with(mockAuthority))
       .andDo(print()).andExpect(status().isOk());
   }
 
   @Test
-  void testGetCareerProgramHeadcountReport_ShouldReturnCollection() throws Exception {
+  void testGetFrenchProgramHeadcountReportCSF_ShouldReturnCollection() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     var district = this.createMockDistrict();
     when(this.restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(district));
     var schoolMock = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolMock));
-
-    CollectionEntity collection = createMockCollectionEntity();
-    collection.setCloseDate(LocalDateTime.now().plusDays(2));
-    collectionRepository.save(collection);
-
-    School school = createMockSchool();
-    SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
-    sdcMockSchool.setUploadDate(null);
-    sdcMockSchool.setUploadFileName(null);
-    sdcMockSchool = sdcSchoolCollectionRepository.save(sdcMockSchool);
-
-    SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(sdcMockSchool);
-    student1.setIsSchoolAged(true);
-    student1.setFte(new BigDecimal(1.0));
-    sdcSchoolCollectionStudentRepository.save(student1);
-
-    SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(sdcMockSchool);
-    student1.setIsSchoolAged(false);
-    student1.setIsAdult(true);
-    student1.setFte(new BigDecimal(1.0));
-    sdcSchoolCollectionStudentRepository.save(student2);
-
-    this.mockMvc.perform(
-                    get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockSchool.getSdcSchoolCollectionID() + "/CAREER_HEADCOUNT").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
-  }
-
-  @Test
-  void testGetFrenchProgramHeadcountReport_ShouldReturnCollection() throws Exception {
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
-    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
-
-    var district = this.createMockDistrict();
-    when(this.restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(district));
-    var schoolMock = this.createMockSchool();
+    schoolMock.setSchoolReportingRequirementCode(SchoolReportingRequirementCodes.CSF.getCode());
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolMock));
 
     CollectionEntity collection = createMockCollectionEntity();
