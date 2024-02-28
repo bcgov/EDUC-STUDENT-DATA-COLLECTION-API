@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportingRequirementCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -8,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.CsfFrenchHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.FrenchHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.frenchprogramheadcount.FrenchProgramHeadcountFrenchProgramNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.frenchprogramheadcount.FrenchProgramHeadcountNode;
@@ -27,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -35,6 +36,7 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
 
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  private final RestUtils restUtils;
   private JasperReport frenchProgramHeadcountReport;
   private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
@@ -42,6 +44,7 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     super(restUtils);
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+    this.restUtils = restUtils;
   }
 
   @PostConstruct
@@ -68,12 +71,33 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
       SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
               new EntityNotFoundException(SdcSchoolCollectionEntity.class, "Collection by Id", collectionID.toString()));
 
-      var frenchProgramList = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-      return generateJasperReport(convertToFrenchProgramReportJSONString(frenchProgramList, sdcSchoolCollectionEntity), frenchProgramHeadcountReport);
+      var school = restUtils.getSchoolBySchoolID(sdcSchoolCollectionEntity.getSchoolID().toString());
+
+      if(school.get().getSchoolReportingRequirementCode().equalsIgnoreCase(SchoolReportingRequirementCodes.CSF.getCode())){
+        var frenchProgramList = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+        return generateJasperReport(convertToCSFFrenchProgramReportJSONString(frenchProgramList, sdcSchoolCollectionEntity), frenchProgramHeadcountReport);
+      }else{
+        var frenchProgramList = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+        return generateJasperReport(convertToFrenchProgramReportJSONString(frenchProgramList, sdcSchoolCollectionEntity), frenchProgramHeadcountReport);
+      }
     } catch (JsonProcessingException e) {
       log.info("Exception occurred while writing PDF report for french programs :: " + e.getMessage());
       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for french programs :: " + e.getMessage());
     }
+  }
+
+  private String convertToCSFFrenchProgramReportJSONString(List<CsfFrenchHeadcountResult> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection) throws JsonProcessingException {
+    FrenchProgramHeadcountNode mainNode = new FrenchProgramHeadcountNode();
+    FrenchProgramHeadcountReportNode reportNode = new FrenchProgramHeadcountReportNode();
+    setReportTombstoneValues(sdcSchoolCollection, reportNode);
+
+    var nodeMap = generateNodeMapForCSF();
+
+    mappedResults.forEach(frenchHeadcountResult -> setValueForGrade(nodeMap, frenchHeadcountResult));
+
+    reportNode.setFrenchPrograms(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
+    mainNode.setReport(reportNode);
+    return objectWriter.writeValueAsString(mainNode);
   }
 
   private String convertToFrenchProgramReportJSONString(List<FrenchHeadcountResult> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection) throws JsonProcessingException {
@@ -88,6 +112,13 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     reportNode.setFrenchPrograms(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
     mainNode.setReport(reportNode);
     return objectWriter.writeValueAsString(mainNode);
+  }
+
+  private HashMap<String, FrenchProgramHeadcountFrenchProgramNode> generateNodeMapForCSF(){
+    HashMap<String, FrenchProgramHeadcountFrenchProgramNode> nodeMap = new HashMap<>();
+    addValuesForSectionToMap(nodeMap, "csf", "Francophone", "00");
+
+    return nodeMap;
   }
 
   private HashMap<String, FrenchProgramHeadcountFrenchProgramNode> generateNodeMap(){
@@ -126,6 +157,16 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     nodeMap.get("allFrenchProgramsHeading").setValueForGrade(code, frenchHeadcountResult.getTotalTotals());
     nodeMap.get("allFrenchProgramsSchoolAged").setValueForGrade(code, frenchHeadcountResult.getSchoolAgedTotals());
     nodeMap.get("allFrenchProgramsAdult").setValueForGrade(code, frenchHeadcountResult.getAdultTotals());
+  }
+
+  private void setValueForGrade(HashMap<String, FrenchProgramHeadcountFrenchProgramNode> nodeMap, CsfFrenchHeadcountResult frenchHeadcountResult){
+    Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(frenchHeadcountResult.getEnrolledGradeCode());
+    var code = optionalCode.orElseThrow(() ->
+            new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", frenchHeadcountResult.getEnrolledGradeCode()));
+
+    nodeMap.get("csfHeading").setValueForGrade(code, frenchHeadcountResult.getTotalFrancophone());
+    nodeMap.get("csfSchoolAged").setValueForGrade(code, frenchHeadcountResult.getSchoolAgedFrancophone());
+    nodeMap.get("csfAdult").setValueForGrade(code, frenchHeadcountResult.getAdultFrancophone());
   }
 
 }

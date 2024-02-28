@@ -54,7 +54,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
     if(school.isPresent() && school.get().getSchoolReportingRequirementCode().equals(SchoolReportingRequirementCodes.CSF.getCode())) {
       List<CsfFrenchHeadcountResult> collectionRawData;
       csfFrenchHeadcountHelper.setGradeCodes(school);
-      collectionRawData = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySchoolId(sdcSchoolCollectionID);
+      collectionRawData = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
       headcountHeaderList = csfFrenchHeadcountHelper.getHeaders(sdcSchoolCollectionID);
       collectionData = csfFrenchHeadcountHelper.convertHeadcountResults(collectionRawData);
       if(compare) {
