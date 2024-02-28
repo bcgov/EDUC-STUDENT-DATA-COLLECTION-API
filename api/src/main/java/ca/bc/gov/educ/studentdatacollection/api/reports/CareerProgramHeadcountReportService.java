@@ -9,7 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.CareerHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.careerprogramheadcount.CareerProgramHeadcountCareerProgramNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.BaseChildNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.careerprogramheadcount.CareerProgramHeadcountNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.careerprogramheadcount.CareerProgramHeadcountReportNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -90,8 +89,8 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
     return objectWriter.writeValueAsString(mainNode);
   }
 
-  private HashMap<String, CareerProgramHeadcountCareerProgramNode> generateNodeMap(){
-    HashMap<String, CareerProgramHeadcountCareerProgramNode> nodeMap = new HashMap<>();
+  private HashMap<String, BaseChildNode> generateNodeMap(){
+    HashMap<String, BaseChildNode> nodeMap = new HashMap<>();
     addValuesForSectionToMap(nodeMap, "careerPrep", "Career Preparation", "00");
     addValuesForSectionToMap(nodeMap, "coop", "Co-operative Education", "10");
     addValuesForSectionToMap(nodeMap, "techYouth", "Career Technical or youth Train in Trades", "20");
@@ -101,19 +100,19 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
     return nodeMap;
   }
 
-  private void addValuesForSectionToMap(HashMap<String, CareerProgramHeadcountCareerProgramNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-    nodeMap.put(sectionPrefix + "Heading", new CareerProgramHeadcountCareerProgramNode(sectionTitle, "true", sequencePrefix + "0"));
-    nodeMap.put(sectionPrefix + "XA", new CareerProgramHeadcountCareerProgramNode("XA - Business & Applied Business", FALSE, sequencePrefix + "1"));
-    nodeMap.put(sectionPrefix + "XB", new CareerProgramHeadcountCareerProgramNode("XB - Fine Arts, Design & Media", FALSE, sequencePrefix + "2"));
-    nodeMap.put(sectionPrefix + "XC", new CareerProgramHeadcountCareerProgramNode("XC - Fitness & Recreation", FALSE, sequencePrefix + "3"));
-    nodeMap.put(sectionPrefix + "XD", new CareerProgramHeadcountCareerProgramNode("XD - Health & Human Services", FALSE, sequencePrefix + "4"));
-    nodeMap.put(sectionPrefix + "XE", new CareerProgramHeadcountCareerProgramNode("XE - Liberal Arts & Humanities", FALSE, sequencePrefix + "5"));
-    nodeMap.put(sectionPrefix + "XF", new CareerProgramHeadcountCareerProgramNode("XF - Science & Applied Science", FALSE, sequencePrefix + "6"));
-    nodeMap.put(sectionPrefix + "XG", new CareerProgramHeadcountCareerProgramNode("XG - Tourism, Hospitality & Foods", FALSE, sequencePrefix + "7"));
-    nodeMap.put(sectionPrefix + "XH", new CareerProgramHeadcountCareerProgramNode("XH - Trades & Technology", FALSE, sequencePrefix + "8"));
+  private void addValuesForSectionToMap(HashMap<String, BaseChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
+    nodeMap.put(sectionPrefix + "Heading", new BaseChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+    nodeMap.put(sectionPrefix + "XA", new BaseChildNode("XA - Business & Applied Business", FALSE, sequencePrefix + "1", false));
+    nodeMap.put(sectionPrefix + "XB", new BaseChildNode("XB - Fine Arts, Design & Media", FALSE, sequencePrefix + "2", false));
+    nodeMap.put(sectionPrefix + "XC", new BaseChildNode("XC - Fitness & Recreation", FALSE, sequencePrefix + "3", false));
+    nodeMap.put(sectionPrefix + "XD", new BaseChildNode("XD - Health & Human Services", FALSE, sequencePrefix + "4", false));
+    nodeMap.put(sectionPrefix + "XE", new BaseChildNode("XE - Liberal Arts & Humanities", FALSE, sequencePrefix + "5", false));
+    nodeMap.put(sectionPrefix + "XF", new BaseChildNode("XF - Science & Applied Science", FALSE, sequencePrefix + "6", false));
+    nodeMap.put(sectionPrefix + "XG", new BaseChildNode("XG - Tourism, Hospitality & Foods", FALSE, sequencePrefix + "7", false));
+    nodeMap.put(sectionPrefix + "XH", new BaseChildNode("XH - Trades & Technology", FALSE, sequencePrefix + "8", false));
   }
 
-  private void setValueForGrade(HashMap<String, CareerProgramHeadcountCareerProgramNode> nodeMap, CareerHeadcountResult gradeResult){
+  private void setValueForGrade(HashMap<String, BaseChildNode> nodeMap, CareerHeadcountResult gradeResult){
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
     var code = optionalCode.orElseThrow(() ->
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
