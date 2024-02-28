@@ -71,8 +71,8 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
       var careerProgramList = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
       return generateJasperReport(convertToCareerProgramReportJSONString(careerProgramList, sdcSchoolCollectionEntity), careerProgramHeadcountReport);
     } catch (JsonProcessingException e) {
-      log.info("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
-      throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
+      log.info("Exception occurred while writing PDF report for career programs :: " + e.getMessage());
+      throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for career programs :: " + e.getMessage());
     }
   }
 
@@ -85,7 +85,7 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
 
     mappedResults.forEach(careerHeadcountResult -> setValueForGrade(nodeMap, careerHeadcountResult));
 
-    reportNode.setCareerPrograms(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).collect(Collectors.toList()));
+    reportNode.setCareerPrograms(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
     mainNode.setReport(reportNode);
     return objectWriter.writeValueAsString(mainNode);
   }
