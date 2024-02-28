@@ -99,7 +99,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
-  List<FrenchHeadcountResult> getFrenchHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
+  List<FrenchHeadcountResult> getFrenchHeadcountsBySdcSchoolCollectionId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
   @Query("SELECT " +
           "s.enrolledGradeCode AS enrolledGradeCode, " +
           "COUNT(DISTINCT CASE WHEN s.isSchoolAged = true AND s.frenchProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '05' THEN s.sdcSchoolCollectionStudentID END) AS schoolAgedFrancophone, " +
