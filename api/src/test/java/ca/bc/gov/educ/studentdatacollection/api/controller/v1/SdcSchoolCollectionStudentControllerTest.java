@@ -673,7 +673,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         MvcResult apiResponse = this.mockMvc.perform(
-                        put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + entity.getSdcSchoolCollectionStudentID().toString())
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
@@ -723,7 +723,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         MvcResult apiResponse = this.mockMvc.perform(
-                        put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + entity.getSdcSchoolCollectionStudentID().toString())
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
@@ -756,7 +756,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
-    void testUpdateAndValidateSdcSchoolCollectionStudent_StudentWithValidationErr_ShouldUpdateStatusToERRORAndReturnStatusOk() throws Exception {
+    void testUpdateAndValidateSdcSchoolCollectionStudent_StudentWithValidationErr_ShouldUpdateStatusToERRORAndReturnBadRequest() throws Exception {
         final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
                 grantedAuthority);
@@ -782,7 +782,64 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
-                        put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + entity.getSdcSchoolCollectionStudentID().toString())
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
+                                .contentType(APPLICATION_JSON)
+                                .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
+                                .with(mockAuthority))
+                .andDo(print()).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testCreateStudent_StudentWithCollectionId_ShouldReturnStatusOk() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+                grantedAuthority);
+
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
+
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        entity.setUpdateDate(LocalDateTime.now());
+        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.toString());
+        entity.setCareerProgramCode(null);
+        entity.setUpdateDate(null);
+        entity.setCreateDate(null);
+        entity.setPostalCode(null);
+
+        this.mockMvc.perform(
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
+                                .contentType(APPLICATION_JSON)
+                                .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
+                                .with(mockAuthority))
+                .andDo(print()).andExpect(status().isOk());
+    }
+
+    @Test
+    void testCreateStudent_StudentWithNoCollectionId_ShouldReturnBadRequest() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+                grantedAuthority);
+
+        val entity = this.createMockSchoolStudentEntity(null);
+        entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        entity.setUpdateDate(LocalDateTime.now());
+        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.toString());
+        entity.setCareerProgramCode(null);
+        entity.setUpdateDate(null);
+        entity.setCreateDate(null);
+        entity.setPostalCode(null);
+
+        this.mockMvc.perform(
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
@@ -812,7 +869,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setNumberOfCourses("0400");
         this.sdcSchoolCollectionStudentRepository.save(entity);
         this.mockMvc.perform(
-                        put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + entity.getSdcSchoolCollectionStudentID().toString())
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
@@ -848,7 +905,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
-                        put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + entity.getSdcSchoolCollectionStudentID().toString())
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
@@ -885,7 +942,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setDob(dob);
 
         this.mockMvc.perform(
-                put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + entity.getSdcSchoolCollectionStudentID().toString())
+                post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
                     .contentType(APPLICATION_JSON)
                     .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                     .with(mockAuthority))
@@ -924,7 +981,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setPostalCode("");
 
         this.mockMvc.perform(
-                put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + entity.getSdcSchoolCollectionStudentID().toString())
+                post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT )
                     .contentType(APPLICATION_JSON)
                     .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                     .with(mockAuthority))
@@ -937,30 +994,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         assertThat(curStudentEntity).isPresent();
         var studentEntity = curStudentEntity.get();
         assertThat(studentEntity.getPostalCode()).isEmpty();
-    }
-
-    @Test
-    void testUpdateAndValidateSdcSchoolCollectionStudent_withDifferentSdcSchoolCollectionStudentIdInPathAndBody_ShouldReturnStatusBadRequest() throws Exception {
-        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
-        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
-            grantedAuthority);
-
-        var school = this.createMockSchool();
-
-        var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
-
-        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-        entity.setUpdateDate(null);
-        entity.setCreateDate(null);
-
-        this.mockMvc.perform(
-                put(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + UUID.randomUUID())
-                    .contentType(APPLICATION_JSON)
-                    .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
-                    .with(mockAuthority))
-            .andDo(print())
-            .andExpect(status().isBadRequest());
     }
 
     @Test
