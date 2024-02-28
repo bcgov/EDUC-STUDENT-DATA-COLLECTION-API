@@ -11,7 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.CsfFrenchHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.FrenchHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.frenchprogramheadcount.FrenchProgramHeadcountFrenchProgramNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.BaseChildNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.frenchprogramheadcount.FrenchProgramHeadcountNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.frenchprogramheadcount.FrenchProgramHeadcountReportNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -114,15 +114,15 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     return objectWriter.writeValueAsString(mainNode);
   }
 
-  private HashMap<String, FrenchProgramHeadcountFrenchProgramNode> generateNodeMapForCSF(){
-    HashMap<String, FrenchProgramHeadcountFrenchProgramNode> nodeMap = new HashMap<>();
+  private HashMap<String, BaseChildNode> generateNodeMapForCSF(){
+    HashMap<String, BaseChildNode> nodeMap = new HashMap<>();
     addValuesForSectionToMap(nodeMap, "csf", "Francophone", "00");
 
     return nodeMap;
   }
 
-  private HashMap<String, FrenchProgramHeadcountFrenchProgramNode> generateNodeMap(){
-    HashMap<String, FrenchProgramHeadcountFrenchProgramNode> nodeMap = new HashMap<>();
+  private HashMap<String, BaseChildNode> generateNodeMap(){
+    HashMap<String, BaseChildNode> nodeMap = new HashMap<>();
     addValuesForSectionToMap(nodeMap, "coreFrench", "Core French", "00");
     addValuesForSectionToMap(nodeMap, "earlyFrenchImmersion", "Early French Immersion", "10");
     addValuesForSectionToMap(nodeMap, "lateFrenchImmersion", "Late French Immersion", "20");
@@ -131,13 +131,13 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     return nodeMap;
   }
 
-  private void addValuesForSectionToMap(HashMap<String, FrenchProgramHeadcountFrenchProgramNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-    nodeMap.put(sectionPrefix + "Heading", new FrenchProgramHeadcountFrenchProgramNode(sectionTitle, "true", sequencePrefix + "0"));
-    nodeMap.put(sectionPrefix + "SchoolAged", new FrenchProgramHeadcountFrenchProgramNode("School-Aged", FALSE, sequencePrefix + "1"));
-    nodeMap.put(sectionPrefix + "Adult", new FrenchProgramHeadcountFrenchProgramNode("Adult", FALSE, sequencePrefix + "2"));
+  private void addValuesForSectionToMap(HashMap<String, BaseChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
+    nodeMap.put(sectionPrefix + "Heading", new BaseChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+    nodeMap.put(sectionPrefix + "SchoolAged", new BaseChildNode("School-Aged", FALSE, sequencePrefix + "1", false));
+    nodeMap.put(sectionPrefix + "Adult", new BaseChildNode("Adult", FALSE, sequencePrefix + "2", false));
   }
 
-  private void setValueForGrade(HashMap<String, FrenchProgramHeadcountFrenchProgramNode> nodeMap, FrenchHeadcountResult frenchHeadcountResult){
+  private void setValueForGrade(HashMap<String, BaseChildNode> nodeMap, FrenchHeadcountResult frenchHeadcountResult){
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(frenchHeadcountResult.getEnrolledGradeCode());
     var code = optionalCode.orElseThrow(() ->
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", frenchHeadcountResult.getEnrolledGradeCode()));
@@ -159,7 +159,7 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     nodeMap.get("allFrenchProgramsAdult").setValueForGrade(code, frenchHeadcountResult.getAdultTotals());
   }
 
-  private void setValueForGrade(HashMap<String, FrenchProgramHeadcountFrenchProgramNode> nodeMap, CsfFrenchHeadcountResult frenchHeadcountResult){
+  private void setValueForGrade(HashMap<String, BaseChildNode> nodeMap, CsfFrenchHeadcountResult frenchHeadcountResult){
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(frenchHeadcountResult.getEnrolledGradeCode());
     var code = optionalCode.orElseThrow(() ->
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", frenchHeadcountResult.getEnrolledGradeCode()));

@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.careerprogramheadcount;
 
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.BaseChildNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.BaseReportNode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +18,6 @@ import java.util.List;
 public class CareerProgramHeadcountReportNode extends BaseReportNode implements Serializable {
   private static final long serialVersionUID = 6118916290604876032L;
 
-  private List<CareerProgramHeadcountCareerProgramNode> careerPrograms;
+  private List<BaseChildNode> careerPrograms;
 
 }
