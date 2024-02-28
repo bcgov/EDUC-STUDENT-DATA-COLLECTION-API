@@ -21,6 +21,7 @@ import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionStudentValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -74,11 +75,18 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
-    public SdcSchoolCollectionStudent updateAndValidateSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
-        ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudentID, sdcSchoolCollectionStudent));
-        RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
-        return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.updateAndValidateSdcSchoolCollectionStudent
-                (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
+    public SdcSchoolCollectionStudent createAndUpdateSdcSchoolCollectionStudent(SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+        ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
+         if(StringUtils.isNotBlank(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())) {
+             RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
+            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent
+                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
+        } else {
+             RequestUtil.setAuditColumnsForCreate(sdcSchoolCollectionStudent);
+            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.createSdcSchoolCollectionStudent
+                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
+        }
+
     }
 
     @Override
