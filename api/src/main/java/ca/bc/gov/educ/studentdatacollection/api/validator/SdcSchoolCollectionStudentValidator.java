@@ -41,16 +41,8 @@ public class SdcSchoolCollectionStudentValidator {
             apiValidationErrors.add(ValidationUtil.createFieldError("dob", sdcSchoolCollectionStudent.getDob(), "Invalid DOB."));
         }
 
-        if (isCreate && sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID() != null) {
-            apiValidationErrors.add(ValidationUtil.createFieldError("sdcSchoolCollectionStudentID", sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID(), "sdcSchoolCollectionStudentID should be null for create"));
-        }
-
         if (isCreate && sdcSchoolCollectionStudent.getSdcSchoolCollectionID() == null) {
             apiValidationErrors.add(ValidationUtil.createFieldError("sdcSchoolCollectionID", null, "sdcSchoolCollectionID cannot be null for create"));
-        }
-
-        if (!isCreate && sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID() == null) {
-            apiValidationErrors.add(ValidationUtil.createFieldError("sdcSchoolCollectionStudentID", null, "sdcSchoolCollectionStudentID cannot be null for update"));
         }
 
         List<SpecialEducationCategoryCode> activeSpecialEducationCategoryCode = validationRulesService.getActiveSpecialEducationCategoryCodes();
