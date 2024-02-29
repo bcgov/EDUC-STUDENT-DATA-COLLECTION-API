@@ -66,7 +66,7 @@ public class FilterCriteria<T extends Comparable<T>> {
 
     String[] operationValues;
 
-    if (filterOperation == FilterOperation.BETWEEN || filterOperation == FilterOperation.IN || filterOperation == FilterOperation.NOT_IN) {
+    if (filterOperation == FilterOperation.BETWEEN || filterOperation == FilterOperation.IN || filterOperation == FilterOperation.NOT_IN || filterOperation == FilterOperation.IN_LEFT_JOIN) {
       if (fieldValue != null) {
         // Split the fieldValue value as comma separated.
         operationValues = StringUtils.split(fieldValue, ",");
@@ -111,7 +111,7 @@ public class FilterCriteria<T extends Comparable<T>> {
       }
 
       //For 'in' or 'nin' operation
-    } else if (FilterOperation.IN == operation || FilterOperation.NOT_IN == operation) {
+    } else if (FilterOperation.IN == operation || FilterOperation.NOT_IN == operation || FilterOperation.IN_LEFT_JOIN == operation) {
       convertedValues.addAll(originalValues.stream().map(converterFunction).toList());
     } else {
       //All other operation

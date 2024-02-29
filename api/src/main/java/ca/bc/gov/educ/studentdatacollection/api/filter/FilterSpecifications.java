@@ -108,5 +108,14 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
         map.put(FilterOperation.CONTAINS_IGNORE_CASE, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder
                 .like(criteriaBuilder.lower(root.get(filterCriteria.getFieldName())), "%" + filterCriteria.getConvertedSingleValue().toString().toLowerCase() + "%"));
 
+        map.put(FilterOperation.IN_LEFT_JOIN, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
+            criteriaQuery.distinct(true);
+            if (filterCriteria.getFieldName().contains(".")) {
+                String[] splits = filterCriteria.getFieldName().split("\\.");
+                return criteriaBuilder.or(root.join(splits[0], JoinType.LEFT).get(splits[1]).in(filterCriteria.getConvertedValues()), criteriaBuilder.isNotEmpty(root.get(splits[0])));
+            }
+            return root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues());
+        });
+
     }
 }
