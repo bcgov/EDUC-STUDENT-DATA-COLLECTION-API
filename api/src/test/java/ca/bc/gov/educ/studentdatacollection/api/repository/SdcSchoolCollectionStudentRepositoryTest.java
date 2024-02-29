@@ -294,7 +294,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         setEnrolledProgramCode(students.get(1), "14");
         setEnrolledProgramCode(students.get(2), "14");
 
-        var headcounts = sdcSchoolCollectionStudentRepository.getEllHeadcountsBySchoolId(schoolCollectionId);
+        var headcounts = sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
         //then only the eligible ell student is included in headcounts
         assertEquals("1", headcounts.get(0).getTotalEllStudents());
     }
@@ -316,7 +316,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         setEnrolledProgramCode(students.get(0), "17");
         setEnrolledProgramCode(students.get(1), "17");
 
-        var headcounts = sdcSchoolCollectionStudentRepository.getEllHeadcountsBySchoolId(schoolCollectionId);
+        var headcounts = sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
         //then only non error student in headcounts
         assertEquals("1", headcounts.get(0).getTotalEllStudents());
     }
@@ -347,7 +347,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         students.get(12).setSpecialEducationCategoryCode(null);
 
         sdcSchoolCollectionStudentRepository.saveAll(students);
-        var headcounts = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySchoolId(schoolCollectionId);
+        var headcounts = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
         //then only eligible special ed students included in headcounts
         assertEquals("1", headcounts.get(0).getLevelOnes());
         assertEquals("0", headcounts.get(0).getSpecialEdACodes());
@@ -383,7 +383,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         students.get(1).setSpecialEducationCategoryCode("A");
 
         sdcSchoolCollectionStudentRepository.saveAll(students);
-        var headcounts = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySchoolId(schoolCollectionId);
+        var headcounts = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
         //then only non error student in headcounts
         assertEquals("1", headcounts.get(0).getAllLevels());
     }

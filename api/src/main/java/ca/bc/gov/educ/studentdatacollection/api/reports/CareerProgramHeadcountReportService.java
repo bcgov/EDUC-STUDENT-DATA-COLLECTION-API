@@ -9,9 +9,9 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.CareerHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.BaseChildNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.careerprogramheadcount.CareerProgramHeadcountNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.careerprogramheadcount.CareerProgramHeadcountReportNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountReportNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -30,12 +30,11 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-public class CareerProgramHeadcountReportService extends BaseReportGenerationService{
+public class CareerProgramHeadcountReportService extends BaseReportGenerationService<CareerHeadcountResult>{
 
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private JasperReport careerProgramHeadcountReport;
-  private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
   public CareerProgramHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
     super(restUtils);
@@ -68,29 +67,15 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
               new EntityNotFoundException(SdcSchoolCollectionEntity.class, "Collection by Id", collectionID.toString()));
 
       var careerProgramList = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-      return generateJasperReport(convertToCareerProgramReportJSONString(careerProgramList, sdcSchoolCollectionEntity), careerProgramHeadcountReport);
+      return generateJasperReport(convertToReportJSONString(careerProgramList, sdcSchoolCollectionEntity), careerProgramHeadcountReport);
     } catch (JsonProcessingException e) {
       log.info("Exception occurred while writing PDF report for career programs :: " + e.getMessage());
       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for career programs :: " + e.getMessage());
     }
   }
 
-  private String convertToCareerProgramReportJSONString(List<CareerHeadcountResult> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection) throws JsonProcessingException {
-    CareerProgramHeadcountNode mainNode = new CareerProgramHeadcountNode();
-    CareerProgramHeadcountReportNode reportNode = new CareerProgramHeadcountReportNode();
-    setReportTombstoneValues(sdcSchoolCollection, reportNode);
-
-    var nodeMap = generateNodeMap();
-
-    mappedResults.forEach(careerHeadcountResult -> setValueForGrade(nodeMap, careerHeadcountResult));
-
-    reportNode.setCareerPrograms(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
-    mainNode.setReport(reportNode);
-    return objectWriter.writeValueAsString(mainNode);
-  }
-
-  private HashMap<String, BaseChildNode> generateNodeMap(){
-    HashMap<String, BaseChildNode> nodeMap = new HashMap<>();
+  public HashMap<String, HeadcountChildNode> generateNodeMap(){
+    HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
     addValuesForSectionToMap(nodeMap, "careerPrep", "Career Preparation", "00");
     addValuesForSectionToMap(nodeMap, "coop", "Co-operative Education", "10");
     addValuesForSectionToMap(nodeMap, "techYouth", "Career Technical or youth Train in Trades", "20");
@@ -100,19 +85,19 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
     return nodeMap;
   }
 
-  private void addValuesForSectionToMap(HashMap<String, BaseChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-    nodeMap.put(sectionPrefix + "Heading", new BaseChildNode(sectionTitle, "true", sequencePrefix + "0", false));
-    nodeMap.put(sectionPrefix + "XA", new BaseChildNode("XA - Business & Applied Business", FALSE, sequencePrefix + "1", false));
-    nodeMap.put(sectionPrefix + "XB", new BaseChildNode("XB - Fine Arts, Design & Media", FALSE, sequencePrefix + "2", false));
-    nodeMap.put(sectionPrefix + "XC", new BaseChildNode("XC - Fitness & Recreation", FALSE, sequencePrefix + "3", false));
-    nodeMap.put(sectionPrefix + "XD", new BaseChildNode("XD - Health & Human Services", FALSE, sequencePrefix + "4", false));
-    nodeMap.put(sectionPrefix + "XE", new BaseChildNode("XE - Liberal Arts & Humanities", FALSE, sequencePrefix + "5", false));
-    nodeMap.put(sectionPrefix + "XF", new BaseChildNode("XF - Science & Applied Science", FALSE, sequencePrefix + "6", false));
-    nodeMap.put(sectionPrefix + "XG", new BaseChildNode("XG - Tourism, Hospitality & Foods", FALSE, sequencePrefix + "7", false));
-    nodeMap.put(sectionPrefix + "XH", new BaseChildNode("XH - Trades & Technology", FALSE, sequencePrefix + "8", false));
+  private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
+    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+    nodeMap.put(sectionPrefix + "XA", new HeadcountChildNode("XA - Business & Applied Business", FALSE, sequencePrefix + "1", false));
+    nodeMap.put(sectionPrefix + "XB", new HeadcountChildNode("XB - Fine Arts, Design & Media", FALSE, sequencePrefix + "2", false));
+    nodeMap.put(sectionPrefix + "XC", new HeadcountChildNode("XC - Fitness & Recreation", FALSE, sequencePrefix + "3", false));
+    nodeMap.put(sectionPrefix + "XD", new HeadcountChildNode("XD - Health & Human Services", FALSE, sequencePrefix + "4", false));
+    nodeMap.put(sectionPrefix + "XE", new HeadcountChildNode("XE - Liberal Arts & Humanities", FALSE, sequencePrefix + "5", false));
+    nodeMap.put(sectionPrefix + "XF", new HeadcountChildNode("XF - Science & Applied Science", FALSE, sequencePrefix + "6", false));
+    nodeMap.put(sectionPrefix + "XG", new HeadcountChildNode("XG - Tourism, Hospitality & Foods", FALSE, sequencePrefix + "7", false));
+    nodeMap.put(sectionPrefix + "XH", new HeadcountChildNode("XH - Trades & Technology", FALSE, sequencePrefix + "8", false));
   }
 
-  private void setValueForGrade(HashMap<String, BaseChildNode> nodeMap, CareerHeadcountResult gradeResult){
+  public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, CareerHeadcountResult gradeResult){
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
     var code = optionalCode.orElseThrow(() ->
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));

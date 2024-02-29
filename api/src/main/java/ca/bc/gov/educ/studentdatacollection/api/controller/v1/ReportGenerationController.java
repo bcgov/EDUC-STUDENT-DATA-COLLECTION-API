@@ -4,10 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.ReportGenerationEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
-import ca.bc.gov.educ.studentdatacollection.api.reports.CareerProgramHeadcountReportService;
-import ca.bc.gov.educ.studentdatacollection.api.reports.FrenchProgramHeadcountReportService;
-import ca.bc.gov.educ.studentdatacollection.api.reports.GradeEnrollmentHeadcountReportService;
-import ca.bc.gov.educ.studentdatacollection.api.reports.IndigenousHeadcountReportService;
+import ca.bc.gov.educ.studentdatacollection.api.reports.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +24,8 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     private final CareerProgramHeadcountReportService careerProgramHeadcountReportService;
     private final FrenchProgramHeadcountReportService frenchProgramHeadcountReportService;
     private final IndigenousHeadcountReportService indigenousHeadcountReportService;
+    private final EllHeadcountReportService ellHeadcountReportService;
+    private final SpecialEdHeadcountReportService specialEdHeadcountReportService;
 
     @Override
     public String generateSDCReport(UUID collectionID, String reportTypeCode) {
@@ -46,6 +45,10 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
                 return frenchProgramHeadcountReportService.generateFrenchProgramHeadcountReport(collectionID);
             case INDIGENOUS_HEADCOUNT:
                 return indigenousHeadcountReportService.generateIndigenousHeadcountReport(collectionID);
+            case ELL_HEADCOUNT:
+                return ellHeadcountReportService.generateEllHeadcountReport(collectionID);
+            case SPECIAL_EDUCATION_HEADCOUNT:
+                return specialEdHeadcountReportService.generateSpecialEdHeadcountReport(collectionID);
             default:
                 return "";
         }

@@ -1,4 +1,4 @@
-package ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.frenchprogramheadcount;
+package ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,9 +12,9 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 @SuppressWarnings("squid:S1700")
-public class FrenchProgramHeadcountNode implements Serializable {
+public class HeadcountNode implements Serializable {
   private static final long serialVersionUID = 6118916290604876032L;
 
-  private FrenchProgramHeadcountReportNode report;
+  private HeadcountReportNode report;
 
 }

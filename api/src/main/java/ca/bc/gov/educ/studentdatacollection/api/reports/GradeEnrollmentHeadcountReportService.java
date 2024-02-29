@@ -9,9 +9,9 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.BaseChildNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.gradeenrollmentheadcount.GradeEnrollmentHeadcountNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.gradeenrollmentheadcount.GradeEnrollmentHeadcountReportNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountReportNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -30,7 +30,7 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationService{
+public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationService<EnrollmentHeadcountResult>{
 
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
@@ -77,8 +77,8 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
   }
 
   private String convertToGradeEnrollmentReportJSONString(List<EnrollmentHeadcountResult> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection) throws JsonProcessingException {
-    GradeEnrollmentHeadcountNode mainNode = new GradeEnrollmentHeadcountNode();
-    GradeEnrollmentHeadcountReportNode reportNode = new GradeEnrollmentHeadcountReportNode();
+    HeadcountNode mainNode = new HeadcountNode();
+    HeadcountReportNode reportNode = new HeadcountReportNode();
     setReportTombstoneValues(sdcSchoolCollection, reportNode);
 
     var nodeMap = generateNodeMap();
@@ -90,13 +90,13 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
     nodeMap.get("adultHeading").setAllValuesToNull();
     nodeMap.get("allHeading").setAllValuesToNull();
 
-    reportNode.setGradeEnrollment(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
+    reportNode.setPrograms(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
     mainNode.setReport(reportNode);
     return objectWriter.writeValueAsString(mainNode);
   }
 
-  private HashMap<String, BaseChildNode> generateNodeMap(){
-    HashMap<String, BaseChildNode> nodeMap = new HashMap<>();
+  public HashMap<String, HeadcountChildNode> generateNodeMap(){
+    HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
     addValuesForSectionToMap(nodeMap, "underSchoolAged", "Under School-Aged", "00");
     addValuesForSectionToMap(nodeMap, "schoolAged", "School-Aged", "10");
     addValuesForSectionToMap(nodeMap, "adult", "Adult", "20");
@@ -105,14 +105,14 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
     return nodeMap;
   }
 
-  private void addValuesForSectionToMap(HashMap<String, BaseChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-    nodeMap.put(sectionPrefix + "Heading", new BaseChildNode(sectionTitle, "true", sequencePrefix + "0", false));
-    nodeMap.put(sectionPrefix + "Headcount", new BaseChildNode("Headcount", FALSE, sequencePrefix + "1", false));
-    nodeMap.put(sectionPrefix + "EligibleForFTE", new BaseChildNode("Eligible For FTE", FALSE, sequencePrefix + "2", false));
-    nodeMap.put(sectionPrefix + "FTETotal", new BaseChildNode("FTE Total", FALSE, sequencePrefix + "3", true));
+  private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
+    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+    nodeMap.put(sectionPrefix + "Headcount", new HeadcountChildNode("Headcount", FALSE, sequencePrefix + "1", false));
+    nodeMap.put(sectionPrefix + "EligibleForFTE", new HeadcountChildNode("Eligible For FTE", FALSE, sequencePrefix + "2", false));
+    nodeMap.put(sectionPrefix + "FTETotal", new HeadcountChildNode("FTE Total", FALSE, sequencePrefix + "3", true));
   }
 
-  private void setValueForGrade(HashMap<String, BaseChildNode> nodeMap, EnrollmentHeadcountResult gradeResult){
+  public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, EnrollmentHeadcountResult gradeResult){
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
     var code = optionalCode.orElseThrow(() ->
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));

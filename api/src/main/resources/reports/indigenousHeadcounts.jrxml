@@ -129,81 +129,81 @@
 		<queryString language="JSON">
 			<![CDATA[report]]>
 		</queryString>
-		<field name="indigenousPrograms" class="java.lang.String">
-			<property name="net.sf.jasperreports.json.field.expression" value="indigenousPrograms"/>
-			<fieldDescription><![CDATA[indigenousPrograms]]></fieldDescription>
+		<field name="programs" class="java.lang.String">
+			<property name="net.sf.jasperreports.json.field.expression" value="programs"/>
+			<fieldDescription><![CDATA[programs]]></fieldDescription>
 		</field>
 		<field name="typeOfProgram" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="typeOfProgram"/>
-			<fieldDescription><![CDATA[indigenousPrograms.typeOfProgram]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.typeOfProgram]]></fieldDescription>
 		</field>
 		<field name="valueGradeKF" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGradeKF"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGradeKF]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGradeKF]]></fieldDescription>
 		</field>
 		<field name="valueGrade01" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade01"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGrade01]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade01]]></fieldDescription>
 		</field>
 		<field name="valueGrade02" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade02"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGrade02]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade02]]></fieldDescription>
 		</field>
 		<field name="valueGrade03" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade03"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGrade03]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade03]]></fieldDescription>
 		</field>
 		<field name="valueGrade04" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade04"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGrade04]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade04]]></fieldDescription>
 		</field>
 		<field name="valueGrade05" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade05"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGrade05]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade05]]></fieldDescription>
 		</field>
 		<field name="valueGrade06" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade06"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGrade06]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade06]]></fieldDescription>
 		</field>
 		<field name="valueGrade07" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade07"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGrade07]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade07]]></fieldDescription>
 		</field>
 		<field name="valueGradeEU" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade08"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGradeEU]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGradeEU]]></fieldDescription>
 		</field>
 		<field name="valueGrade08" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade08"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGrade08]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade08]]></fieldDescription>
 		</field>
 		<field name="valueGrade09" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade09"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGrade09]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade09]]></fieldDescription>
 		</field>
 		<field name="valueGrade10" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade10"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGrade10]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade10]]></fieldDescription>
 		</field>
 		<field name="valueGrade11" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade11"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGrade11]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade11]]></fieldDescription>
 		</field>
 		<field name="valueGrade12" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade12"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGrade12]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade12]]></fieldDescription>
 		</field>
 		<field name="valueGradeSU" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGradeSU"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueGradeSU]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGradeSU]]></fieldDescription>
 		</field>
 		<field name="valueTotal" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueTotal"/>
-			<fieldDescription><![CDATA[indigenousPrograms.valueTotal]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueTotal]]></fieldDescription>
 		</field>
 		<field name="isHeading" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="isHeading"/>
-			<fieldDescription><![CDATA[indigenousPrograms.isHeading]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.isHeading]]></fieldDescription>
 		</field>
 	</subDataset>
 	<queryString language="JSON">
@@ -229,10 +229,10 @@
 		<property name="net.sf.jasperreports.jsonql.field.expression" value="schoolMincodeAndName"/>
 		<fieldDescription><![CDATA[schoolMincodeAndName]]></fieldDescription>
 	</field>
-	<field name="indigenousPrograms" class="java.lang.String">
-		<property name="net.sf.jasperreports.json.field.expression" value="indigenousPrograms"/>
-		<property name="net.sf.jasperreports.jsonql.field.expression" value="indigenousPrograms"/>
-		<fieldDescription><![CDATA[indigenousPrograms]]></fieldDescription>
+	<field name="programs" class="java.lang.String">
+		<property name="net.sf.jasperreports.json.field.expression" value="programs"/>
+		<property name="net.sf.jasperreports.jsonql.field.expression" value="programs"/>
+		<fieldDescription><![CDATA[programs]]></fieldDescription>
 	</field>
 	<background>
 		<band splitType="Stretch"/>
@@ -308,7 +308,7 @@
 				</reportElement>
 				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" whenNoDataType="AllSectionsNoDetail">
 					<datasetRun subDataset="IndigenousSet" uuid="6cc83e12-637e-46c7-b038-9f204da9bd0d">
-						<dataSourceExpression><![CDATA[((net.sf.jasperreports.engine.data.JsonDataSource)$P{REPORT_DATA_SOURCE}).subDataSource("indigenousPrograms")]]></dataSourceExpression>
+						<dataSourceExpression><![CDATA[((net.sf.jasperreports.engine.data.JsonDataSource)$P{REPORT_DATA_SOURCE}).subDataSource("programs")]]></dataSourceExpression>
 					</datasetRun>
 					<jr:columnGroup width="500" uuid="982787d0-c53b-4594-8c5d-0a8f78b2972e">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [4]"/>
