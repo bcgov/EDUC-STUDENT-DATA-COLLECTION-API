@@ -8,7 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndigenousHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EllHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountReportNode;
@@ -30,13 +30,13 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-public class IndigenousHeadcountReportService extends BaseReportGenerationService<IndigenousHeadcountResult>{
+public class EllHeadcountReportService extends BaseReportGenerationService<EllHeadcountResult>{
 
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
-  private JasperReport indigenousHeadcountReport;
+  private JasperReport ellHeadcountReport;
 
-  public IndigenousHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
+  public EllHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
     super(restUtils);
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
@@ -53,33 +53,30 @@ public class IndigenousHeadcountReportService extends BaseReportGenerationServic
 
   private void compileJasperReports(){
     try {
-      InputStream inputHeadcount = getClass().getResourceAsStream("/reports/indigenousHeadcounts.jrxml");
-      indigenousHeadcountReport = JasperCompileManager.compileReport(inputHeadcount);
+      InputStream inputHeadcount = getClass().getResourceAsStream("/reports/ellHeadcounts.jrxml");
+      ellHeadcountReport = JasperCompileManager.compileReport(inputHeadcount);
     } catch (JRException e) {
       throw new StudentDataCollectionAPIRuntimeException("Compiling Jasper reports has failed :: " + e.getMessage());
     }
   }
 
-  public String generateIndigenousHeadcountReport(UUID collectionID){
+  public String generateEllHeadcountReport(UUID collectionID){
     try {
       Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional =  sdcSchoolCollectionRepository.findById(collectionID);
       SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
               new EntityNotFoundException(SdcSchoolCollectionEntity.class, "Collection by Id", collectionID.toString()));
 
-      var headcountsList = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-      return generateJasperReport(convertToReportJSONString(headcountsList, sdcSchoolCollectionEntity), indigenousHeadcountReport);
+      var headcountsList = sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+      return generateJasperReport(convertToReportJSONString(headcountsList, sdcSchoolCollectionEntity), ellHeadcountReport);
     } catch (JsonProcessingException e) {
-      log.info("Exception occurred while writing PDF report for indigenous programs :: " + e.getMessage());
-      throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for indigenous programs :: " + e.getMessage());
+      log.info("Exception occurred while writing PDF report for ell programs :: " + e.getMessage());
+      throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for ell programs :: " + e.getMessage());
     }
   }
 
   public HashMap<String, HeadcountChildNode> generateNodeMap(){
     HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
-    addValuesForSectionToMap(nodeMap, "indigenousLanguage", "Indigenous Language & Culture", "00");
-    addValuesForSectionToMap(nodeMap, "indigenousSupport", "Indigenous Support Services", "10");
-    addValuesForSectionToMap(nodeMap, "otherApproved", "Other Approved Indigenous Programs", "20");
-    addValuesForSectionToMap(nodeMap, "all", "All Indigenous Support Programs", "30");
+    addValuesForSectionToMap(nodeMap, "ell", "English Language Learners", "00");
 
     return nodeMap;
   }
@@ -88,15 +85,12 @@ public class IndigenousHeadcountReportService extends BaseReportGenerationServic
     nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
   }
 
-  public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, IndigenousHeadcountResult gradeResult){
+  public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, EllHeadcountResult gradeResult){
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
     var code = optionalCode.orElseThrow(() ->
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
 
-    nodeMap.get("indigenousLanguageHeading").setValueForGrade(code, gradeResult.getIndigenousLanguageTotal());
-    nodeMap.get("indigenousSupportHeading").setValueForGrade(code, gradeResult.getIndigenousSupportTotal());
-    nodeMap.get("otherApprovedHeading").setValueForGrade(code, gradeResult.getOtherProgramTotal());
-    nodeMap.get("allHeading").setValueForGrade(code, gradeResult.getAllSupportProgramTotal());
+    nodeMap.get("ellHeading").setValueForGrade(code, gradeResult.getTotalEllStudents());
   }
 
 }

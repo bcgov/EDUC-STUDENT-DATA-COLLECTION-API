@@ -14,10 +14,10 @@ import java.io.Serializable;
 @NoArgsConstructor
 @SuperBuilder
 @SuppressWarnings("squid:S1700")
-public class BaseChildNode implements Serializable {
+public class HeadcountChildNode implements Serializable {
   private static final long serialVersionUID = 6118916290604876032L;
 
-  public BaseChildNode(String typeOfProgram, String isHeading, String sequence, boolean isDoubleRow) {
+  public HeadcountChildNode(String typeOfProgram, String isHeading, String sequence, boolean isDoubleRow) {
     this.typeOfProgram = typeOfProgram;
     this.isHeading = isHeading;
     this.sequence = sequence;

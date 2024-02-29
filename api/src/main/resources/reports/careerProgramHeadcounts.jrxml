@@ -120,45 +120,45 @@
 		<queryString language="JSON">
 			<![CDATA[report]]>
 		</queryString>
-		<field name="careerPrograms" class="java.lang.String">
-			<property name="net.sf.jasperreports.json.field.expression" value="careerPrograms"/>
-			<fieldDescription><![CDATA[careerPrograms]]></fieldDescription>
+		<field name="programs" class="java.lang.String">
+			<property name="net.sf.jasperreports.json.field.expression" value="programs"/>
+			<fieldDescription><![CDATA[programs]]></fieldDescription>
 		</field>
 		<field name="typeOfProgram" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="typeOfProgram"/>
-			<fieldDescription><![CDATA[careerPrograms.typeOfProgram]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.typeOfProgram]]></fieldDescription>
 		</field>
 		<field name="valueGrade08" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade08"/>
-			<fieldDescription><![CDATA[careerPrograms.valueGrade08]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade08]]></fieldDescription>
 		</field>
 		<field name="valueGrade09" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade09"/>
-			<fieldDescription><![CDATA[careerPrograms.valueGrade09]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade09]]></fieldDescription>
 		</field>
 		<field name="valueGrade10" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade10"/>
-			<fieldDescription><![CDATA[careerPrograms.valueGrade10]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade10]]></fieldDescription>
 		</field>
 		<field name="valueGrade11" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade11"/>
-			<fieldDescription><![CDATA[careerPrograms.valueGrade11]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade11]]></fieldDescription>
 		</field>
 		<field name="valueGrade12" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade12"/>
-			<fieldDescription><![CDATA[careerPrograms.valueGrade12]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGrade12]]></fieldDescription>
 		</field>
 		<field name="valueGradeSU" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGradeSU"/>
-			<fieldDescription><![CDATA[careerPrograms.valueGradeSU]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueGradeSU]]></fieldDescription>
 		</field>
 		<field name="valueTotal" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueTotal"/>
-			<fieldDescription><![CDATA[careerPrograms.valueTotal]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.valueTotal]]></fieldDescription>
 		</field>
 		<field name="isHeading" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="isHeading"/>
-			<fieldDescription><![CDATA[careerPrograms.isHeading]]></fieldDescription>
+			<fieldDescription><![CDATA[programs.isHeading]]></fieldDescription>
 		</field>
 	</subDataset>
 	<queryString language="JSON">
@@ -184,10 +184,10 @@
 		<property name="net.sf.jasperreports.jsonql.field.expression" value="schoolMincodeAndName"/>
 		<fieldDescription><![CDATA[schoolMincodeAndName]]></fieldDescription>
 	</field>
-	<field name="careerPrograms" class="java.lang.String">
-		<property name="net.sf.jasperreports.json.field.expression" value="careerPrograms"/>
-		<property name="net.sf.jasperreports.jsonql.field.expression" value="careerPrograms"/>
-		<fieldDescription><![CDATA[careerPrograms]]></fieldDescription>
+	<field name="programs" class="java.lang.String">
+		<property name="net.sf.jasperreports.json.field.expression" value="programs"/>
+		<property name="net.sf.jasperreports.jsonql.field.expression" value="programs"/>
+		<fieldDescription><![CDATA[programs]]></fieldDescription>
 	</field>
 	<background>
 		<band splitType="Stretch"/>
@@ -263,7 +263,7 @@
 				</reportElement>
 				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" whenNoDataType="AllSectionsNoDetail">
 					<datasetRun subDataset="CareerSet" uuid="6cc83e12-637e-46c7-b038-9f204da9bd0d">
-						<dataSourceExpression><![CDATA[((net.sf.jasperreports.engine.data.JsonDataSource)$P{REPORT_DATA_SOURCE}).subDataSource("careerPrograms")]]></dataSourceExpression>
+						<dataSourceExpression><![CDATA[((net.sf.jasperreports.engine.data.JsonDataSource)$P{REPORT_DATA_SOURCE}).subDataSource("programs")]]></dataSourceExpression>
 					</datasetRun>
 					<jr:columnGroup width="352" uuid="982787d0-c53b-4594-8c5d-0a8f78b2972e">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [4]"/>

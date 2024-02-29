@@ -124,7 +124,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
-  List<EllHeadcountResult> getEllHeadcountsBySchoolId(@Param("sdcSchoolCollectionId") UUID sdcSchoolCollectionId);
+  List<EllHeadcountResult> getEllHeadcountsBySdcSchoolCollectionId(@Param("sdcSchoolCollectionId") UUID sdcSchoolCollectionId);
 
   @Query("SELECT " +
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '17' AND s.ellNonEligReasonCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS eligibleStudents, " +
@@ -317,7 +317,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     "AND s.specialEducationNonEligReasonCode IS NULL " +
     "GROUP BY s.enrolledGradeCode " +
     "ORDER BY s.enrolledGradeCode")
-  List<SpecialEdHeadcountResult> getSpecialEdHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
+  List<SpecialEdHeadcountResult> getSpecialEdHeadcountsBySdcSchoolCollectionId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
   @Modifying
   @Query(value = "DELETE FROM SDC_SCHOOL_COLLECTION_STUDENT WHERE SDC_SCHOOL_COLLECTION_ID  = :sdcSchoolCollectionID", nativeQuery = true)

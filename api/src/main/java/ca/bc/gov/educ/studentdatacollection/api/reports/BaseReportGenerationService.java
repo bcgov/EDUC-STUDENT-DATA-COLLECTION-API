@@ -6,7 +6,14 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.BaseReportNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpecialEdHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountReportNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.query.JsonQueryExecuterFactory;
@@ -17,20 +24,20 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
-public class BaseReportGenerationService {
+public abstract class BaseReportGenerationService<T> {
 
   private final RestUtils restUtils;
   DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
   protected static final String FALSE = "false";
 
-  public BaseReportGenerationService(RestUtils restUtils) {
+  private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+
+  protected BaseReportGenerationService(RestUtils restUtils) {
     this.restUtils = restUtils;
   }
 
@@ -46,6 +53,24 @@ public class BaseReportGenerationService {
        log.info("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
     }
+  }
+
+  protected abstract HashMap<String, HeadcountChildNode> generateNodeMap();
+
+  protected abstract void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, T gradeResult);
+
+  protected String convertToReportJSONString(List<T> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection) throws JsonProcessingException {
+    HeadcountNode mainNode = new HeadcountNode();
+    HeadcountReportNode reportNode = new HeadcountReportNode();
+    setReportTombstoneValues(sdcSchoolCollection, reportNode);
+
+    var nodeMap = generateNodeMap();
+
+    mappedResults.forEach(headcountResult -> setValueForGrade(nodeMap, headcountResult));
+
+    reportNode.setPrograms(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
+    mainNode.setReport(reportNode);
+    return objectWriter.writeValueAsString(mainNode);
   }
 
   protected District validateAndReturnDistrict(SdcSchoolCollectionEntity sdcSchoolCollection){
@@ -68,7 +93,7 @@ public class BaseReportGenerationService {
     return school.get();
   }
 
-  protected void setReportTombstoneValues(SdcSchoolCollectionEntity sdcSchoolCollection, BaseReportNode reportNode){
+  protected void setReportTombstoneValues(SdcSchoolCollectionEntity sdcSchoolCollection, HeadcountReportNode reportNode){
     var district = validateAndReturnDistrict(sdcSchoolCollection);
     var school = validateAndReturnSchool(sdcSchoolCollection);
 
