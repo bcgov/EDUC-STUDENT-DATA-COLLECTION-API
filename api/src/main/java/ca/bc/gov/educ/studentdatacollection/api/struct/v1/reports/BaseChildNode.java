@@ -22,6 +22,9 @@ public class BaseChildNode implements Serializable {
     this.isHeading = isHeading;
     this.sequence = sequence;
     this.isDoubleRow = isDoubleRow;
+    if(isDoubleRow){
+      setStringValuesForAll("0.0000");
+    }
   }
 
   private static final String DOUBLE_FORMAT = "%,.4f";
@@ -66,7 +69,29 @@ public class BaseChildNode implements Serializable {
 
   private String sequence;
 
+  private void setStringValuesForAll(String value){
+    valueGradeKF = value;
+    valueGrade01 = value;
+    valueGrade02 = value;
+    valueGrade03 = value;
+    valueGrade04 = value;
+    valueGrade05 = value;
+    valueGrade06 = value;
+    valueGrade07 = value;
+    valueGradeEU = value;
+    valueGrade08 = value;
+    valueGrade09 = value;
+    valueGrade10 = value;
+    valueGrade11 = value;
+    valueGrade12 = value;
+    valueGradeSU = value;
+    valueTotal = value;
+  }
+
   public String getValueTotal() {
+    if(valueTotal == null){
+      return null;
+    }
     if(!isDoubleRow) {
       int total = 0;
       total = addIntValueIfPresent(total, valueGradeKF);
@@ -123,22 +148,7 @@ public class BaseChildNode implements Serializable {
   }
 
   public void setAllValuesToNull(){
-    valueGradeKF = null;
-    valueGrade01 = null;
-    valueGrade02 = null;
-    valueGrade03 = null;
-    valueGrade04 = null;
-    valueGrade05 = null;
-    valueGrade06 = null;
-    valueGrade07 = null;
-    valueGradeEU = null;
-    valueGrade08 = null;
-    valueGrade09 = null;
-    valueGrade10 = null;
-    valueGrade11 = null;
-    valueGrade12 = null;
-    valueGradeSU = null;
-    valueTotal = null;
+    setStringValuesForAll(null);
   }
 
   public void setValueForGrade(SchoolGradeCodes gradeCode, String value){
