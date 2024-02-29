@@ -70,7 +70,8 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
   @CsvSource({
           "GRADE_ENROLLMENT_HEADCOUNT",
           "CAREER_HEADCOUNT",
-          "FRENCH_HEADCOUNT"
+          "FRENCH_HEADCOUNT",
+          "INDIGENOUS_HEADCOUNT"
   })
   void testGetGradeEnrollmentHeadcountReport_ShouldReturnCollection(String reportTypeCode) throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";

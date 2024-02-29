@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.reports.CareerProgramHeadcountReportService;
 import ca.bc.gov.educ.studentdatacollection.api.reports.FrenchProgramHeadcountReportService;
 import ca.bc.gov.educ.studentdatacollection.api.reports.GradeEnrollmentHeadcountReportService;
+import ca.bc.gov.educ.studentdatacollection.api.reports.IndigenousHeadcountReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +26,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     private final GradeEnrollmentHeadcountReportService gradeEnrollmentHeadcountReportService;
     private final CareerProgramHeadcountReportService careerProgramHeadcountReportService;
     private final FrenchProgramHeadcountReportService frenchProgramHeadcountReportService;
+    private final IndigenousHeadcountReportService indigenousHeadcountReportService;
 
     @Override
     public String generateSDCReport(UUID collectionID, String reportTypeCode) {
@@ -42,6 +44,8 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
                 return careerProgramHeadcountReportService.generateCareerProgramHeadcountReport(collectionID);
             case FRENCH_HEADCOUNT:
                 return frenchProgramHeadcountReportService.generateFrenchProgramHeadcountReport(collectionID);
+            case INDIGENOUS_HEADCOUNT:
+                return indigenousHeadcountReportService.generateIndigenousHeadcountReport(collectionID);
             default:
                 return "";
         }
