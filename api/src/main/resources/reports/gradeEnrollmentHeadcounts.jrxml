@@ -387,7 +387,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -419,7 +419,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -451,7 +451,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -483,7 +483,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -515,7 +515,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -547,7 +547,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -579,7 +579,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -611,7 +611,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -643,7 +643,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -675,7 +675,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="f3c6dd40-609a-429a-9a64-20ec328c908e">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#F5F5F5" uuid="f3c6dd40-609a-429a-9a64-20ec328c908e">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -707,7 +707,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="303bdc9e-c6b7-465c-9b28-99c2c242d787">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#F5F5F5" uuid="303bdc9e-c6b7-465c-9b28-99c2c242d787">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -742,7 +742,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="7aa37df7-a5c3-4d9f-871d-54abde163d40">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#F5F5F5" uuid="7aa37df7-a5c3-4d9f-871d-54abde163d40">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -774,7 +774,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="4568c734-91da-4a97-999a-fb0bf462b035">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#F5F5F5" uuid="4568c734-91da-4a97-999a-fb0bf462b035">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -806,7 +806,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="4b0a2e31-b8a0-4eea-af0e-4419e3495c3e">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#F5F5F5" uuid="4b0a2e31-b8a0-4eea-af0e-4419e3495c3e">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -841,7 +841,7 @@
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
 								<textField isBlankWhenNull="true">
-									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="39" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="929aec74-fe91-42f2-b954-fe9baaf07dbe">
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="39" height="20" backcolor="#F5F5F5" uuid="929aec74-fe91-42f2-b954-fe9baaf07dbe">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle">

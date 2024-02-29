@@ -85,6 +85,11 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
 
     mappedResults.forEach(careerHeadcountResult -> setValueForGrade(nodeMap, careerHeadcountResult));
 
+    nodeMap.get("underSchoolAgedHeading").setAllValuesToNull();
+    nodeMap.get("schoolAgedHeading").setAllValuesToNull();
+    nodeMap.get("adultHeading").setAllValuesToNull();
+    nodeMap.get("allHeading").setAllValuesToNull();
+
     reportNode.setGradeEnrollment(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
     mainNode.setReport(reportNode);
     return objectWriter.writeValueAsString(mainNode);
@@ -112,22 +117,18 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
     var code = optionalCode.orElseThrow(() ->
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
 
-    nodeMap.get("underSchoolAgedHeading").setValueForGrade(code, null);
     nodeMap.get("underSchoolAgedHeadcount").setValueForGrade(code, gradeResult.getUnderSchoolAgedHeadcount());
     nodeMap.get("underSchoolAgedEligibleForFTE").setValueForGrade(code, gradeResult.getUnderSchoolAgedEligibleForFte());
     nodeMap.get("underSchoolAgedFTETotal").setValueForGrade(code, String.format(DOUBLE_FORMAT, Double.valueOf(gradeResult.getUnderSchoolAgedFteTotal())));
 
-    nodeMap.get("schoolAgedHeading").setValueForGrade(code, null);
     nodeMap.get("schoolAgedHeadcount").setValueForGrade(code, gradeResult.getSchoolAgedHeadcount());
     nodeMap.get("schoolAgedEligibleForFTE").setValueForGrade(code, gradeResult.getSchoolAgedEligibleForFte());
     nodeMap.get("schoolAgedFTETotal").setValueForGrade(code, String.format(DOUBLE_FORMAT, Double.valueOf(gradeResult.getSchoolAgedFteTotal())));
 
-    nodeMap.get("adultHeading").setValueForGrade(code, null);
     nodeMap.get("adultHeadcount").setValueForGrade(code, gradeResult.getAdultHeadcount());
     nodeMap.get("adultEligibleForFTE").setValueForGrade(code, gradeResult.getAdultEligibleForFte());
     nodeMap.get("adultFTETotal").setValueForGrade(code, String.format(DOUBLE_FORMAT, Double.valueOf(gradeResult.getAdultFteTotal())));
 
-    nodeMap.get("allHeading").setValueForGrade(code, null);
     nodeMap.get("allHeadcount").setValueForGrade(code, gradeResult.getTotalHeadcount());
     nodeMap.get("allEligibleForFTE").setValueForGrade(code, gradeResult.getTotalEligibleForFte());
     nodeMap.get("allFTETotal").setValueForGrade(code, String.format(DOUBLE_FORMAT, Double.valueOf(gradeResult.getTotalFteTotal())));

@@ -122,6 +122,25 @@ public class BaseChildNode implements Serializable {
     return total;
   }
 
+  public void setAllValuesToNull(){
+    valueGradeKF = null;
+    valueGrade01 = null;
+    valueGrade02 = null;
+    valueGrade03 = null;
+    valueGrade04 = null;
+    valueGrade05 = null;
+    valueGrade06 = null;
+    valueGrade07 = null;
+    valueGradeEU = null;
+    valueGrade08 = null;
+    valueGrade09 = null;
+    valueGrade10 = null;
+    valueGrade11 = null;
+    valueGrade12 = null;
+    valueGradeSU = null;
+    valueTotal = null;
+  }
+
   public void setValueForGrade(SchoolGradeCodes gradeCode, String value){
     switch (gradeCode){
       case KINDFULL:
