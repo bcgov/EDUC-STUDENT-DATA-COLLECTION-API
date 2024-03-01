@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.ReportGenerationEndp
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.reports.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,7 +29,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     private final SpecialEdHeadcountReportService specialEdHeadcountReportService;
 
     @Override
-    public String generateSDCReport(UUID collectionID, String reportTypeCode) {
+    public DownloadableReportResponse generateSDCReport(UUID collectionID, String reportTypeCode) {
         Optional<ReportTypeCode> code = ReportTypeCode.findByValue(reportTypeCode);
 
         if(code.isEmpty()){
@@ -50,7 +51,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case SPECIAL_EDUCATION_HEADCOUNT:
                 return specialEdHeadcountReportService.generateSpecialEdHeadcountReport(collectionID);
             default:
-                return "";
+                return new DownloadableReportResponse();
         }
     }
 }

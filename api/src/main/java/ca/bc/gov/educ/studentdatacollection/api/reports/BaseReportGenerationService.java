@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -8,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpecialEdHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountReportNode;
@@ -41,14 +43,17 @@ public abstract class BaseReportGenerationService<T> {
     this.restUtils = restUtils;
   }
 
-  protected String generateJasperReport(String reportJSON, JasperReport jasperReport){
+  protected DownloadableReportResponse generateJasperReport(String reportJSON, JasperReport jasperReport, ReportTypeCode reportTypeCode){
     try{
       var params = getJasperParams();
       InputStream targetStream = new ByteArrayInputStream(reportJSON.getBytes());
       params.put(JsonQueryExecuterFactory.JSON_INPUT_STREAM, targetStream);
 
       JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, params);
-      return Base64.getEncoder().encodeToString(JasperExportManager.exportReportToPdf(jasperPrint));
+      var downloadableReport = new DownloadableReportResponse();
+      downloadableReport.setReportType(reportTypeCode.getCode());
+      downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(JasperExportManager.exportReportToPdf(jasperPrint)));
+      return downloadableReport;
     } catch (JRException e) {
        log.info("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
