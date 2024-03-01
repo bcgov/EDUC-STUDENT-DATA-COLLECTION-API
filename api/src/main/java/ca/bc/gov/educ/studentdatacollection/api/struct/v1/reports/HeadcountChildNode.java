@@ -17,12 +17,13 @@ import java.io.Serializable;
 public class HeadcountChildNode implements Serializable {
   private static final long serialVersionUID = 6118916290604876032L;
 
-  public HeadcountChildNode(String typeOfProgram, String isHeading, String sequence, boolean isDoubleRow, boolean includeGA) {
+  public HeadcountChildNode(String typeOfProgram, String isHeading, String sequence, boolean isDoubleRow, boolean includeGA, boolean includeHS) {
     this.typeOfProgram = typeOfProgram;
     this.isHeading = isHeading;
     this.sequence = sequence;
     this.isDoubleRow = isDoubleRow;
     this.includeGA = includeGA;
+    this.includeHS = includeHS;
     if(isDoubleRow){
       setStringValuesForAll("0.0000");
     }
@@ -74,6 +75,8 @@ public class HeadcountChildNode implements Serializable {
 
   private String valueGradeGA = "0";
 
+  private String valueGradeHS = "0";
+
   private String valueTotal = "0";
 
   private String isHeading;
@@ -81,6 +84,8 @@ public class HeadcountChildNode implements Serializable {
   private boolean isDoubleRow = false;
 
   private boolean includeGA = false;
+
+  private boolean includeHS = false;
 
   private String sequence;
 
@@ -103,6 +108,9 @@ public class HeadcountChildNode implements Serializable {
     valueTotal = value;
     if(includeGA) {
       valueGradeGA = value;
+    }
+    if(includeHS) {
+      valueGradeHS = value;
     }
   }
 
@@ -130,6 +138,9 @@ public class HeadcountChildNode implements Serializable {
       if(includeGA) {
         total = addIntValueIfPresent(total, valueGradeGA);
       }
+      if(includeHS) {
+        total = addIntValueIfPresent(total, valueGradeHS);
+      }
       valueTotal = Integer.toString(total);
     }else{
       double total = 0;
@@ -150,6 +161,9 @@ public class HeadcountChildNode implements Serializable {
       total = addDoubleValueIfPresent(total, valueGradeSU);
       if(includeGA) {
         total = addDoubleValueIfPresent(total, valueGradeGA);
+      }
+      if(includeHS) {
+        total = addDoubleValueIfPresent(total, valueGradeHS);
       }
       valueTotal = String.format(DOUBLE_FORMAT, Double.valueOf(total));
     }
@@ -221,6 +235,9 @@ public class HeadcountChildNode implements Serializable {
         break;
       case GRADUATED_ADULT:
         setValueGradeGA(value);
+        break;
+      case HOMESCHOOL:
+        setValueGradeHS(value);
         break;
       case SECONDARY_UNGRADED:
         setValueGradeSU(value);

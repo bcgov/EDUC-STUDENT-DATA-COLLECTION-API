@@ -108,10 +108,10 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
   }
 
   private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
-    nodeMap.put(sectionPrefix + "Headcount", new HeadcountChildNode("Headcount", FALSE, sequencePrefix + "1", false));
-    nodeMap.put(sectionPrefix + "EligibleForFTE", new HeadcountChildNode("Eligible For FTE", FALSE, sequencePrefix + "2", false));
-    nodeMap.put(sectionPrefix + "FTETotal", new HeadcountChildNode("FTE Total", FALSE, sequencePrefix + "3", true));
+    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, true));
+    nodeMap.put(sectionPrefix + "Headcount", new HeadcountChildNode("Headcount", FALSE, sequencePrefix + "1", false, true, true));
+    nodeMap.put(sectionPrefix + "EligibleForFTE", new HeadcountChildNode("Eligible For FTE", FALSE, sequencePrefix + "2", false, true, true));
+    nodeMap.put(sectionPrefix + "FTETotal", new HeadcountChildNode("FTE Total", FALSE, sequencePrefix + "3", true, true, true));
   }
 
   public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, EnrollmentHeadcountResult gradeResult){
