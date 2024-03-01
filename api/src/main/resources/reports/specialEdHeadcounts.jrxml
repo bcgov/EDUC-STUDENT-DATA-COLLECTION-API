@@ -170,7 +170,7 @@
 			<fieldDescription><![CDATA[programs.valueGrade07]]></fieldDescription>
 		</field>
 		<field name="valueGradeEU" class="java.lang.String">
-			<property name="net.sf.jasperreports.json.field.expression" value="valueGrade08"/>
+			<property name="net.sf.jasperreports.json.field.expression" value="valueGradeEU"/>
 			<fieldDescription><![CDATA[programs.valueGradeEU]]></fieldDescription>
 		</field>
 		<field name="valueGrade08" class="java.lang.String">
