@@ -17,6 +17,17 @@ import java.io.Serializable;
 public class HeadcountChildNode implements Serializable {
   private static final long serialVersionUID = 6118916290604876032L;
 
+  public HeadcountChildNode(String typeOfProgram, String isHeading, String sequence, boolean isDoubleRow, boolean includeGA) {
+    this.typeOfProgram = typeOfProgram;
+    this.isHeading = isHeading;
+    this.sequence = sequence;
+    this.isDoubleRow = isDoubleRow;
+    this.includeGA = includeGA;
+    if(isDoubleRow){
+      setStringValuesForAll("0.0000");
+    }
+  }
+
   public HeadcountChildNode(String typeOfProgram, String isHeading, String sequence, boolean isDoubleRow) {
     this.typeOfProgram = typeOfProgram;
     this.isHeading = isHeading;
@@ -69,6 +80,8 @@ public class HeadcountChildNode implements Serializable {
 
   private boolean isDoubleRow = false;
 
+  private boolean includeGA = false;
+
   private String sequence;
 
   private void setStringValuesForAll(String value){
@@ -87,8 +100,10 @@ public class HeadcountChildNode implements Serializable {
     valueGrade11 = value;
     valueGrade12 = value;
     valueGradeSU = value;
-    valueGradeGA = value;
     valueTotal = value;
+    if(includeGA) {
+      valueGradeGA = value;
+    }
   }
 
   public String getValueTotal() {
@@ -111,8 +126,10 @@ public class HeadcountChildNode implements Serializable {
       total = addIntValueIfPresent(total, valueGrade10);
       total = addIntValueIfPresent(total, valueGrade11);
       total = addIntValueIfPresent(total, valueGrade12);
-      total = addIntValueIfPresent(total, valueGradeGA);
       total = addIntValueIfPresent(total, valueGradeSU);
+      if(includeGA) {
+        total = addIntValueIfPresent(total, valueGradeGA);
+      }
       valueTotal = Integer.toString(total);
     }else{
       double total = 0;
@@ -130,8 +147,10 @@ public class HeadcountChildNode implements Serializable {
       total = addDoubleValueIfPresent(total, valueGrade10);
       total = addDoubleValueIfPresent(total, valueGrade11);
       total = addDoubleValueIfPresent(total, valueGrade12);
-      total = addDoubleValueIfPresent(total, valueGradeGA);
       total = addDoubleValueIfPresent(total, valueGradeSU);
+      if(includeGA) {
+        total = addDoubleValueIfPresent(total, valueGradeGA);
+      }
       valueTotal = String.format(DOUBLE_FORMAT, Double.valueOf(total));
     }
 

@@ -134,9 +134,9 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
   }
 
   private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
-    nodeMap.put(sectionPrefix + "SchoolAged", new HeadcountChildNode("School-Aged", FALSE, sequencePrefix + "1", false));
-    nodeMap.put(sectionPrefix + "Adult", new HeadcountChildNode("Adult", FALSE, sequencePrefix + "2", false));
+    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true));
+    nodeMap.put(sectionPrefix + "SchoolAged", new HeadcountChildNode("School-Aged", FALSE, sequencePrefix + "1", false, true));
+    nodeMap.put(sectionPrefix + "Adult", new HeadcountChildNode("Adult", FALSE, sequencePrefix + "2", false, true));
   }
 
   public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, FrenchHeadcountResult frenchHeadcountResult){
