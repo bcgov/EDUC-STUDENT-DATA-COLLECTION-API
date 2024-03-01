@@ -188,6 +188,10 @@
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGradeSU"/>
 			<fieldDescription><![CDATA[programs.valueGradeSU]]></fieldDescription>
 		</field>
+		<field name="valueGradeGA" class="java.lang.String">
+			<property name="net.sf.jasperreports.json.field.expression" value="valueGradeGA"/>
+			<fieldDescription><![CDATA[programs.valueGradeGA]]></fieldDescription>
+		</field>
 		<field name="valueTotal" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueTotal"/>
 			<fieldDescription><![CDATA[programs.valueTotal]]></fieldDescription>
@@ -289,7 +293,7 @@
 	<detail>
 		<band height="220">
 			<componentElement>
-				<reportElement x="16" y="10" width="551" height="200" uuid="f4a9dd19-5486-48d6-b224-82292deeed42">
+				<reportElement x="6" y="10" width="551" height="200" uuid="f4a9dd19-5486-48d6-b224-82292deeed42">
 					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
 					<property name="com.jaspersoft.studio.table.style.table_header" value="Table 2_TH"/>
 					<property name="com.jaspersoft.studio.table.style.column_header" value="Table 2_CH"/>
@@ -718,7 +722,7 @@
 							</jr:detailCell>
 						</jr:column>
 					</jr:columnGroup>
-					<jr:columnGroup width="75" uuid="dbb8d1e1-6143-427d-b9c7-11396c06f97f">
+					<jr:columnGroup width="100" uuid="dbb8d1e1-6143-427d-b9c7-11396c06f97f">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [3]"/>
 						<jr:column width="25" uuid="191c294b-b787-41cc-a5ed-ec3b7b804ddc">
 							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
@@ -813,6 +817,38 @@
 										<font fontName="BCSans" size="8"/>
 									</textElement>
 									<textFieldExpression><![CDATA[$F{valueGradeSU}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="25" uuid="cdcd0041-e1e9-4f8e-983f-87d2a6f8d756">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+							<jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="25" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="b4346f30-3129-4378-b2c9-5a43d625f708"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font fontName="BCSans" size="7"/>
+									</textElement>
+									<text><![CDATA[GA]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table 2_TD" height="20">
+								<textField>
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="25" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="4b0a2e31-b8a0-4eea-af0e-4419e3495c3e">
+										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
+									</reportElement>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font fontName="BCSans" size="8" isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{valueGradeGA}]]></textFieldExpression>
+								</textField>
+								<textField>
+									<reportElement stretchType="ContainerHeight" x="0" y="0" width="25" height="20" isRemoveLineWhenBlank="true" uuid="190f3f92-9f30-45d0-b150-d4d9026289e8">
+										<printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
+									</reportElement>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font fontName="BCSans" size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{valueGradeGA}]]></textFieldExpression>
 								</textField>
 							</jr:detailCell>
 						</jr:column>

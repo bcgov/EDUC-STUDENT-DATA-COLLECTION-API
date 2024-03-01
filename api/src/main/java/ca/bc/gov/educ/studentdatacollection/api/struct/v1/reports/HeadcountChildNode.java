@@ -61,6 +61,8 @@ public class HeadcountChildNode implements Serializable {
 
   private String valueGradeSU = "0";
 
+  private String valueGradeGA = "0";
+
   private String valueTotal = "0";
 
   private String isHeading;
@@ -85,6 +87,7 @@ public class HeadcountChildNode implements Serializable {
     valueGrade11 = value;
     valueGrade12 = value;
     valueGradeSU = value;
+    valueGradeGA = value;
     valueTotal = value;
   }
 
@@ -108,6 +111,7 @@ public class HeadcountChildNode implements Serializable {
       total = addIntValueIfPresent(total, valueGrade10);
       total = addIntValueIfPresent(total, valueGrade11);
       total = addIntValueIfPresent(total, valueGrade12);
+      total = addIntValueIfPresent(total, valueGradeGA);
       total = addIntValueIfPresent(total, valueGradeSU);
       valueTotal = Integer.toString(total);
     }else{
@@ -126,6 +130,7 @@ public class HeadcountChildNode implements Serializable {
       total = addDoubleValueIfPresent(total, valueGrade10);
       total = addDoubleValueIfPresent(total, valueGrade11);
       total = addDoubleValueIfPresent(total, valueGrade12);
+      total = addDoubleValueIfPresent(total, valueGradeGA);
       total = addDoubleValueIfPresent(total, valueGradeSU);
       valueTotal = String.format(DOUBLE_FORMAT, Double.valueOf(total));
     }
@@ -194,6 +199,9 @@ public class HeadcountChildNode implements Serializable {
         break;
       case GRADE12:
         setValueGrade12(value);
+        break;
+      case GRADUATED_ADULT:
+        setValueGradeGA(value);
         break;
       case SECONDARY_UNGRADED:
         setValueGradeSU(value);
