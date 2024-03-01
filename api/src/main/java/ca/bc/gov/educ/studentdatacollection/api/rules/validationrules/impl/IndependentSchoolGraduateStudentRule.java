@@ -64,7 +64,7 @@ public class IndependentSchoolGraduateStudentRule extends BaseAdultSchoolAgeRule
 
         if (Boolean.TRUE.equals(student.getIsGraduated())) {
             log.debug("IndependentSchoolGraduateStudentRule-V49: Incorrect graduated value for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.GRADUATE_STUDENT_INDEPENDENT));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.GRADUATE_STUDENT_INDEPENDENT));
         }
         return errors;
     }
