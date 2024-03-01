@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -10,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.CareerHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpecialEdHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountReportNode;
@@ -61,14 +63,14 @@ public class SpecialEdHeadcountReportService extends BaseReportGenerationService
     }
   }
 
-  public String generateSpecialEdHeadcountReport(UUID collectionID){
+  public DownloadableReportResponse generateSpecialEdHeadcountReport(UUID collectionID){
     try {
       Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional =  sdcSchoolCollectionRepository.findById(collectionID);
       SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
               new EntityNotFoundException(SdcSchoolCollectionEntity.class, "Collection by Id", collectionID.toString()));
 
       var programList = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-      return generateJasperReport(convertToReportJSONString(programList, sdcSchoolCollectionEntity), specialEdHeadcountReport);
+      return generateJasperReport(convertToReportJSONString(programList, sdcSchoolCollectionEntity), specialEdHeadcountReport, ReportTypeCode.SPECIAL_EDUCATION_HEADCOUNT);
     } catch (JsonProcessingException e) {
       log.info("Exception occurred while writing PDF report for special education programs :: " + e.getMessage());
       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for special education programs :: " + e.getMessage());

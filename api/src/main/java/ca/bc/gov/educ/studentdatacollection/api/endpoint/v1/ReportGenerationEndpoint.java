@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +19,6 @@ public interface ReportGenerationEndpoint {
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
   @Transactional(readOnly = true)
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
-  String generateSDCReport(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID, @PathVariable("reportTypeCode") String reportTypeCode);
+  DownloadableReportResponse generateSDCReport(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID, @PathVariable("reportTypeCode") String reportTypeCode);
 
 }
