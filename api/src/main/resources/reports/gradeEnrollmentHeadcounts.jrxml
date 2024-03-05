@@ -361,6 +361,7 @@
 						</jr:column>
 						<jr:column width="32" uuid="91f36667-bc08-4e19-866b-d83f59a65a51">
 							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<printWhenExpression><![CDATA[$F{showKH}.equals("true") ? Boolean.TRUE :Boolean.FALSE]]></printWhenExpression>
 							<jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
 								<staticText>
 									<reportElement x="0" y="0" width="32" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="cef160dd-2481-49e5-a8a3-386be78ac5eb"/>
