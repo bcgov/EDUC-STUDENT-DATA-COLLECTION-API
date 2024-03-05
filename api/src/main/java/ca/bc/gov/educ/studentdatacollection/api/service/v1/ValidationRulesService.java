@@ -97,7 +97,6 @@ public class ValidationRulesService {
     public void updatePenMatchAndGradStatusColumns(SdcSchoolCollectionStudentEntity student, String mincode) throws EntityNotFoundException {
         var penMatchResult = this.restUtils.getPenMatchResult(UUID.randomUUID(), student, mincode);
         val penMatchResultCode = penMatchResult.getPenStatus();
-        student.setPenMatchResult(penMatchResultCode);
         var validPenMatchResults = Arrays.asList("AA", "B1", "C1", "D1", "F1");
         var multiPenMatchResults = Arrays.asList("BM", "CM", "DM");
 
@@ -110,7 +109,7 @@ public class ValidationRulesService {
             if (penMatchRecordOptional.isPresent()) {
                 var assignedPEN = penMatchRecordOptional.get().getMatchingPEN();
                 var assignedStudentID = penMatchRecordOptional.get().getStudentID();
-
+                student.setPenMatchResult("MATCH");
                 student.setAssignedStudentId(UUID.fromString(assignedStudentID));
                 student.setAssignedPen(assignedPEN);
             }
