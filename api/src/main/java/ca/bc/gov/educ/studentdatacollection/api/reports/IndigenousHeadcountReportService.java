@@ -76,18 +76,18 @@ public class IndigenousHeadcountReportService extends BaseReportGenerationServic
     }
   }
 
-  public HashMap<String, HeadcountChildNode> generateNodeMap(){
+  public HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH){
     HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
-    addValuesForSectionToMap(nodeMap, "indigenousLanguage", "Indigenous Language & Culture", "00");
-    addValuesForSectionToMap(nodeMap, "indigenousSupport", "Indigenous Support Services", "10");
-    addValuesForSectionToMap(nodeMap, "otherApproved", "Other Approved Indigenous Programs", "20");
-    addValuesForSectionToMap(nodeMap, "all", "All Indigenous Support Programs", "30");
+    addValuesForSectionToMap(nodeMap, "indigenousLanguage", "Indigenous Language & Culture", "00", includeKH);
+    addValuesForSectionToMap(nodeMap, "indigenousSupport", "Indigenous Support Services", "10", includeKH);
+    addValuesForSectionToMap(nodeMap, "otherApproved", "Other Approved Indigenous Programs", "20", includeKH);
+    addValuesForSectionToMap(nodeMap, "all", "All Indigenous Support Programs", "30", includeKH);
 
     return nodeMap;
   }
 
-  private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+  private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix, boolean includeKH){
+    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, includeKH));
   }
 
   public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, IndigenousHeadcountResult gradeResult){

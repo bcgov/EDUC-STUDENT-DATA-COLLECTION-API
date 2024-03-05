@@ -77,29 +77,29 @@ public class SpecialEdHeadcountReportService extends BaseReportGenerationService
     }
   }
 
-  public HashMap<String, HeadcountChildNode> generateNodeMap(){
+  public HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH){
     HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
-    nodeMap.put("level1Heading", new HeadcountChildNode("Level 1", "true", "00", false));
-    nodeMap.put("level1A", new HeadcountChildNode("A - Physically Dependent", FALSE, "01", false));
-    nodeMap.put("level1B", new HeadcountChildNode("B - Deafblind", FALSE, "02", false));
+    nodeMap.put("level1Heading", new HeadcountChildNode("Level 1", "true", "00", false, false, false, includeKH));
+    nodeMap.put("level1A", new HeadcountChildNode("A - Physically Dependent", FALSE, "01", false, false, false, includeKH));
+    nodeMap.put("level1B", new HeadcountChildNode("B - Deafblind", FALSE, "02", false, false, false, includeKH));
 
-    nodeMap.put("level2Heading", new HeadcountChildNode("Level 2", "true", "10", false));
-    nodeMap.put("level2C", new HeadcountChildNode("C - Moderate to Profound Intellectual Disability", FALSE, "11", false));
-    nodeMap.put("level2D", new HeadcountChildNode("D - Physical Disability or Chronic Health Impairment", FALSE, "12", false));
-    nodeMap.put("level2E", new HeadcountChildNode("E - Visual Impairment", FALSE, "13", false));
-    nodeMap.put("level2F", new HeadcountChildNode("F - Deaf or Hard of Hearing", FALSE, "14", false));
-    nodeMap.put("level2G", new HeadcountChildNode("G - Autism Spectrum Disorder", FALSE, "15", false));
+    nodeMap.put("level2Heading", new HeadcountChildNode("Level 2", "true", "10", false, false, false, includeKH));
+    nodeMap.put("level2C", new HeadcountChildNode("C - Moderate to Profound Intellectual Disability", FALSE, "11", false, false, false, includeKH));
+    nodeMap.put("level2D", new HeadcountChildNode("D - Physical Disability or Chronic Health Impairment", FALSE, "12", false, false, false, includeKH));
+    nodeMap.put("level2E", new HeadcountChildNode("E - Visual Impairment", FALSE, "13", false, false, false, includeKH));
+    nodeMap.put("level2F", new HeadcountChildNode("F - Deaf or Hard of Hearing", FALSE, "14", false, false, false, includeKH));
+    nodeMap.put("level2G", new HeadcountChildNode("G - Autism Spectrum Disorder", FALSE, "15", false, false, false, includeKH));
 
-    nodeMap.put("level3Heading", new HeadcountChildNode("Level 3", "true", "20", false));
-    nodeMap.put("level3H", new HeadcountChildNode("H - Intensive Behaviour Interventions or Serious Mental Illness", FALSE, "21", false));
+    nodeMap.put("level3Heading", new HeadcountChildNode("Level 3", "true", "20", false, false, false, includeKH));
+    nodeMap.put("level3H", new HeadcountChildNode("H - Intensive Behaviour Interventions or Serious Mental Illness", FALSE, "21", false, false, false, includeKH));
 
-    nodeMap.put("otherHeading", new HeadcountChildNode("Other", "true", "30", false));
-    nodeMap.put("otherK", new HeadcountChildNode("K - Mild Intellectual Disability", FALSE, "31", false));
-    nodeMap.put("otherP", new HeadcountChildNode("P - Gifted", FALSE, "32", false));
-    nodeMap.put("otherQ", new HeadcountChildNode("Q - Learning Disability", FALSE, "33", false));
-    nodeMap.put("otherR", new HeadcountChildNode("R - Moderate Behaviour Support/Mental Illness", FALSE, "34", false));
+    nodeMap.put("otherHeading", new HeadcountChildNode("Other", "true", "30", false, false, false, includeKH));
+    nodeMap.put("otherK", new HeadcountChildNode("K - Mild Intellectual Disability", FALSE, "31", false, false, false, includeKH));
+    nodeMap.put("otherP", new HeadcountChildNode("P - Gifted", FALSE, "32", false, false, false, includeKH));
+    nodeMap.put("otherQ", new HeadcountChildNode("Q - Learning Disability", FALSE, "33", false, false, false, includeKH));
+    nodeMap.put("otherR", new HeadcountChildNode("R - Moderate Behaviour Support/Mental Illness", FALSE, "34", false, false, false, includeKH));
 
-    nodeMap.put("allHeading", new HeadcountChildNode("All Levels & Categories", "true", "40", false));
+    nodeMap.put("allHeading", new HeadcountChildNode("All Levels & Categories", "true", "40", false, false, false, includeKH));
     return nodeMap;
   }
 

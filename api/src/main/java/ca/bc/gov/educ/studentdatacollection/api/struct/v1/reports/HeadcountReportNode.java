@@ -24,6 +24,8 @@ public class HeadcountReportNode implements Serializable {
 
   private String schoolMincodeAndName;
 
+  private String showKH = "false";
+
   private List<HeadcountChildNode> programs;
 
 }

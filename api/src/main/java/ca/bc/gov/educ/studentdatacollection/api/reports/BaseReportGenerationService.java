@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -60,16 +61,16 @@ public abstract class BaseReportGenerationService<T> {
     }
   }
 
-  protected abstract HashMap<String, HeadcountChildNode> generateNodeMap();
+  protected abstract HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH);
 
   protected abstract void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, T gradeResult);
 
   protected String convertToReportJSONString(List<T> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection) throws JsonProcessingException {
     HeadcountNode mainNode = new HeadcountNode();
     HeadcountReportNode reportNode = new HeadcountReportNode();
-    setReportTombstoneValues(sdcSchoolCollection, reportNode);
+    var school = setReportTombstoneValues(sdcSchoolCollection, reportNode);
 
-    var nodeMap = generateNodeMap();
+    var nodeMap = generateNodeMap(isIndependentSchool(school));
 
     mappedResults.forEach(headcountResult -> setValueForGrade(nodeMap, headcountResult));
 
@@ -98,7 +99,7 @@ public abstract class BaseReportGenerationService<T> {
     return school.get();
   }
 
-  protected void setReportTombstoneValues(SdcSchoolCollectionEntity sdcSchoolCollection, HeadcountReportNode reportNode){
+  protected School setReportTombstoneValues(SdcSchoolCollectionEntity sdcSchoolCollection, HeadcountReportNode reportNode){
     var district = validateAndReturnDistrict(sdcSchoolCollection);
     var school = validateAndReturnSchool(sdcSchoolCollection);
 
@@ -106,6 +107,15 @@ public abstract class BaseReportGenerationService<T> {
     reportNode.setDistrictNumberAndName(district.getDistrictNumber() + " - " + district.getDisplayName());
     reportNode.setCollectionNameAndYear(StringUtils.capitalize(sdcSchoolCollection.getCollectionEntity().getCollectionTypeCode().toLowerCase()) + " " + sdcSchoolCollection.getCollectionEntity().getOpenDate().getYear() + " Collection");
     reportNode.setSchoolMincodeAndName(school.getMincode() + " - " + school.getDisplayName());
+
+    if(isIndependentSchool(school)){
+      reportNode.setShowKH("true");
+    }
+    return school;
+  }
+
+  protected boolean isIndependentSchool(School school){
+    return school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode());
   }
 
   protected Map<String, Object> getJasperParams(){

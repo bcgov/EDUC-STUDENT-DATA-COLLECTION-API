@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.CsfFrenchHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.FrenchHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
@@ -77,10 +78,10 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
 
       if(school.get().getSchoolReportingRequirementCode().equalsIgnoreCase(SchoolReportingRequirementCodes.CSF.getCode())){
         var frenchProgramList = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-        return generateJasperReport(convertToCSFFrenchProgramReportJSONString(frenchProgramList, sdcSchoolCollectionEntity), frenchProgramHeadcountReport, ReportTypeCode.FRENCH_HEADCOUNT);
+        return generateJasperReport(convertToCSFFrenchProgramReportJSONString(frenchProgramList, sdcSchoolCollectionEntity, school.get()), frenchProgramHeadcountReport, ReportTypeCode.FRENCH_HEADCOUNT);
       }else{
         var frenchProgramList = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-        return generateJasperReport(convertToFrenchProgramReportJSONString(frenchProgramList, sdcSchoolCollectionEntity), frenchProgramHeadcountReport, ReportTypeCode.FRENCH_HEADCOUNT);
+        return generateJasperReport(convertToFrenchProgramReportJSONString(frenchProgramList, sdcSchoolCollectionEntity, school.get()), frenchProgramHeadcountReport, ReportTypeCode.FRENCH_HEADCOUNT);
       }
     } catch (JsonProcessingException e) {
       log.info("Exception occurred while writing PDF report for french programs :: " + e.getMessage());
@@ -88,12 +89,12 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     }
   }
 
-  private String convertToCSFFrenchProgramReportJSONString(List<CsfFrenchHeadcountResult> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection) throws JsonProcessingException {
+  private String convertToCSFFrenchProgramReportJSONString(List<CsfFrenchHeadcountResult> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection, School school) throws JsonProcessingException {
     HeadcountNode mainNode = new HeadcountNode();
     HeadcountReportNode reportNode = new HeadcountReportNode();
     setReportTombstoneValues(sdcSchoolCollection, reportNode);
 
-    var nodeMap = generateNodeMapForCSF();
+    var nodeMap = generateNodeMapForCSF(isIndependentSchool(school));
 
     mappedResults.forEach(frenchHeadcountResult -> setValueForGrade(nodeMap, frenchHeadcountResult));
 
@@ -102,12 +103,12 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     return objectWriter.writeValueAsString(mainNode);
   }
 
-  private String convertToFrenchProgramReportJSONString(List<FrenchHeadcountResult> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection) throws JsonProcessingException {
+  private String convertToFrenchProgramReportJSONString(List<FrenchHeadcountResult> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection, School school) throws JsonProcessingException {
     HeadcountNode mainNode = new HeadcountNode();
     HeadcountReportNode reportNode = new HeadcountReportNode();
     setReportTombstoneValues(sdcSchoolCollection, reportNode);
 
-    var nodeMap = generateNodeMap();
+    var nodeMap = generateNodeMap(isIndependentSchool(school));
 
     mappedResults.forEach(frenchHeadcountResult -> setValueForGrade(nodeMap, frenchHeadcountResult));
 
@@ -116,27 +117,27 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     return objectWriter.writeValueAsString(mainNode);
   }
 
-  private HashMap<String, HeadcountChildNode> generateNodeMapForCSF(){
+  private HashMap<String, HeadcountChildNode> generateNodeMapForCSF(boolean includeKH){
     HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
-    addValuesForSectionToMap(nodeMap, "csf", "Francophone", "00");
+    addValuesForSectionToMap(nodeMap, "csf", "Francophone", "00", includeKH);
 
     return nodeMap;
   }
 
-  public HashMap<String, HeadcountChildNode> generateNodeMap(){
+  public HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH){
     HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
-    addValuesForSectionToMap(nodeMap, "coreFrench", "Core French", "00");
-    addValuesForSectionToMap(nodeMap, "earlyFrenchImmersion", "Early French Immersion", "10");
-    addValuesForSectionToMap(nodeMap, "lateFrenchImmersion", "Late French Immersion", "20");
-    addValuesForSectionToMap(nodeMap, "allFrenchPrograms", "All French Programs", "30");
+    addValuesForSectionToMap(nodeMap, "coreFrench", "Core French", "00", includeKH);
+    addValuesForSectionToMap(nodeMap, "earlyFrenchImmersion", "Early French Immersion", "10", includeKH);
+    addValuesForSectionToMap(nodeMap, "lateFrenchImmersion", "Late French Immersion", "20", includeKH);
+    addValuesForSectionToMap(nodeMap, "allFrenchPrograms", "All French Programs", "30", includeKH);
 
     return nodeMap;
   }
 
-  private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, false));
-    nodeMap.put(sectionPrefix + "SchoolAged", new HeadcountChildNode("School-Aged", FALSE, sequencePrefix + "1", false, true, false));
-    nodeMap.put(sectionPrefix + "Adult", new HeadcountChildNode("Adult", FALSE, sequencePrefix + "2", false, true, false));
+  private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix, boolean includeKH){
+    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, false, includeKH));
+    nodeMap.put(sectionPrefix + "SchoolAged", new HeadcountChildNode("School-Aged", FALSE, sequencePrefix + "1", false, true, false, includeKH));
+    nodeMap.put(sectionPrefix + "Adult", new HeadcountChildNode("Adult", FALSE, sequencePrefix + "2", false, true, false, includeKH));
   }
 
   public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, FrenchHeadcountResult frenchHeadcountResult){

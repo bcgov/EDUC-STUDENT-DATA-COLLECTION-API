@@ -81,9 +81,9 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
   private String convertToGradeEnrollmentReportJSONString(List<EnrollmentHeadcountResult> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection) throws JsonProcessingException {
     HeadcountNode mainNode = new HeadcountNode();
     HeadcountReportNode reportNode = new HeadcountReportNode();
-    setReportTombstoneValues(sdcSchoolCollection, reportNode);
+    var school = setReportTombstoneValues(sdcSchoolCollection, reportNode);
 
-    var nodeMap = generateNodeMap();
+    var nodeMap = generateNodeMap(isIndependentSchool(school));
 
     mappedResults.forEach(careerHeadcountResult -> setValueForGrade(nodeMap, careerHeadcountResult));
 
@@ -97,21 +97,21 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
     return objectWriter.writeValueAsString(mainNode);
   }
 
-  public HashMap<String, HeadcountChildNode> generateNodeMap(){
+  public HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH){
     HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
-    addValuesForSectionToMap(nodeMap, "underSchoolAged", "Under School-Aged", "00");
-    addValuesForSectionToMap(nodeMap, "schoolAged", "School-Aged", "10");
-    addValuesForSectionToMap(nodeMap, "adult", "Adult", "20");
-    addValuesForSectionToMap(nodeMap, "all", "All Students", "30");
+    addValuesForSectionToMap(nodeMap, "underSchoolAged", "Under School-Aged", "00", includeKH);
+    addValuesForSectionToMap(nodeMap, "schoolAged", "School-Aged", "10", includeKH);
+    addValuesForSectionToMap(nodeMap, "adult", "Adult", "20", includeKH);
+    addValuesForSectionToMap(nodeMap, "all", "All Students", "30", includeKH);
 
     return nodeMap;
   }
 
-  private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, true));
-    nodeMap.put(sectionPrefix + "Headcount", new HeadcountChildNode("Headcount", FALSE, sequencePrefix + "1", false, true, true));
-    nodeMap.put(sectionPrefix + "EligibleForFTE", new HeadcountChildNode("Eligible For FTE", FALSE, sequencePrefix + "2", false, true, true));
-    nodeMap.put(sectionPrefix + "FTETotal", new HeadcountChildNode("FTE Total", FALSE, sequencePrefix + "3", true, true, true));
+  private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix, boolean includeKH){
+    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, true, includeKH));
+    nodeMap.put(sectionPrefix + "Headcount", new HeadcountChildNode("Headcount", FALSE, sequencePrefix + "1", false, true, true, includeKH));
+    nodeMap.put(sectionPrefix + "EligibleForFTE", new HeadcountChildNode("Eligible For FTE", FALSE, sequencePrefix + "2", false, true, true, includeKH));
+    nodeMap.put(sectionPrefix + "FTETotal", new HeadcountChildNode("FTE Total", FALSE, sequencePrefix + "3", true, true, true, includeKH));
   }
 
   public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, EnrollmentHeadcountResult gradeResult){

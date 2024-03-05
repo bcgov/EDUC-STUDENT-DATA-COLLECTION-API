@@ -17,13 +17,14 @@ import java.io.Serializable;
 public class HeadcountChildNode implements Serializable {
   private static final long serialVersionUID = 6118916290604876032L;
 
-  public HeadcountChildNode(String typeOfProgram, String isHeading, String sequence, boolean isDoubleRow, boolean includeGA, boolean includeHS) {
+  public HeadcountChildNode(String typeOfProgram, String isHeading, String sequence, boolean isDoubleRow, boolean includeGA, boolean includeHS, boolean includeKH) {
     this.typeOfProgram = typeOfProgram;
     this.isHeading = isHeading;
     this.sequence = sequence;
     this.isDoubleRow = isDoubleRow;
     this.includeGA = includeGA;
     this.includeHS = includeHS;
+    this.includeKH = includeKH;
     if(isDoubleRow){
       setStringValuesForAll("0.0000");
     }
@@ -42,6 +43,8 @@ public class HeadcountChildNode implements Serializable {
   private static final String DOUBLE_FORMAT = "%,.4f";
 
   private String typeOfProgram;
+
+  private String valueGradeKH = "0";
 
   private String valueGradeKF = "0";
 
@@ -87,6 +90,8 @@ public class HeadcountChildNode implements Serializable {
 
   private boolean includeHS = false;
 
+  private boolean includeKH = false;
+
   private String sequence;
 
   private void setStringValuesForAll(String value){
@@ -106,6 +111,9 @@ public class HeadcountChildNode implements Serializable {
     valueGrade12 = value;
     valueGradeSU = value;
     valueTotal = value;
+    if(includeKH) {
+      valueGradeKH = value;
+    }
     if(includeGA) {
       valueGradeGA = value;
     }
@@ -141,6 +149,9 @@ public class HeadcountChildNode implements Serializable {
       if(includeHS) {
         total = addIntValueIfPresent(total, valueGradeHS);
       }
+      if(includeKH) {
+        total = addIntValueIfPresent(total, valueGradeKH);
+      }
       valueTotal = Integer.toString(total);
     }else{
       double total = 0;
@@ -164,6 +175,9 @@ public class HeadcountChildNode implements Serializable {
       }
       if(includeHS) {
         total = addDoubleValueIfPresent(total, valueGradeHS);
+      }
+      if(includeKH) {
+        total = addDoubleValueIfPresent(total, valueGradeKH);
       }
       valueTotal = String.format(DOUBLE_FORMAT, Double.valueOf(total));
     }
@@ -191,6 +205,9 @@ public class HeadcountChildNode implements Serializable {
 
   public void setValueForGrade(SchoolGradeCodes gradeCode, String value){
     switch (gradeCode){
+      case KINDHALF:
+        setValueGradeKH(value);
+        break;
       case KINDFULL:
         setValueGradeKF(value);
         break;
