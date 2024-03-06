@@ -9,7 +9,6 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.BandResidenceHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResultsTable;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,8 +41,6 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
     @BeforeEach
     void setUp() {
 
-        bandCodeRepository.saveAll(createBandCodeEntityList());
-
         CollectionEntity collectionEntity = createMockCollectionEntity();
         collectionRepository.save(collectionEntity);
         UUID schoolID = UUID.randomUUID();
@@ -53,17 +49,17 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
         SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(schoolCollection);
         student1.setBandCode("0704");
-        student1.setFte(BigDecimal.valueOf(.41));
+        student1.setFte(new BigDecimal("0.4100"));
         studentRepository.save(student1);
 
         SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(schoolCollection);
         student2.setBandCode("2411");
-        student2.setFte(BigDecimal.valueOf(.5));
+        student2.setFte(new BigDecimal("0.5000"));
         studentRepository.save(student2);
 
         SdcSchoolCollectionStudentEntity student3 = createMockSchoolStudentEntity(schoolCollection);
         student3.setBandCode("0704");
-        student3.setFte(BigDecimal.valueOf(1));
+        student3.setFte(new BigDecimal("1.0000"));
         studentRepository.save(student3);
 
         helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService);
@@ -119,18 +115,6 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         HeadcountResultsTable expectedResultsTable = new HeadcountResultsTable(headers, expectedRows);
 
         assertEquals(expectedResultsTable, actualResultsTable);
-    }
-
-    public List<BandCodeEntity> createBandCodeEntityList(){
-        List<BandCodeEntity> bandCodeList = new ArrayList<>();
-        bandCodeList.add(BandCodeEntity.builder().bandCode("0704").description("KANAKA BAR")
-                .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("KANAKA BAR").createDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build());
-        bandCodeList.add(BandCodeEntity.builder().bandCode("2411").description("ANSPAYAXW")
-                .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(2).label("ANSPAYAXW").createDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build());
-
-        return bandCodeList;
     }
 
 }

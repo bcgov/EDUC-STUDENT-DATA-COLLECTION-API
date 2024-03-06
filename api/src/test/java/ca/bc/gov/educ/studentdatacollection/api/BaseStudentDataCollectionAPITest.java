@@ -31,9 +31,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.UUID;
+import java.util.*;
 
 @SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
 @ActiveProfiles("test")
@@ -77,7 +75,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     enrolledProgramCodeRepository.save(createEnrolledProgramCode05Data());
     careerProgramCodeRepository.save(createCareerProgramCodeData());
     homeLanguageSpokenCodeRepository.save(homeLanguageSpokenCodeData());
-    bandCodeRepository.save(bandCodeData());
+    bandCodeRepository.saveAll(bandCodeData());
     fundingCodeRepository.save(fundingCodeData());
     fundingCodeRepository.save(fundingCode20Data());
     enrolledGradeCodeRepository.save(enrolledGradeCode01Data());
@@ -447,10 +445,19 @@ public abstract class BaseStudentDataCollectionAPITest {
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Portuguese").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
-  public BandCodeEntity bandCodeData() {
-    return BandCodeEntity.builder().bandCode("0500").description("KWANLIN DUN")
+  public List<BandCodeEntity> bandCodeData() {
+    List<BandCodeEntity> bandCodeList = new ArrayList<>();
+    bandCodeList.add(BandCodeEntity.builder().bandCode("0704").description("KANAKA BAR")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("KANAKA BAR").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build());
+    bandCodeList.add(BandCodeEntity.builder().bandCode("2411").description("ANSPAYAXW")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(2).label("ANSPAYAXW").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build());
+    bandCodeList.add(BandCodeEntity.builder().bandCode("0500").description("KWANLIN DUN")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("KWANLIN DUN").createDate(LocalDateTime.now())
-            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build());
+
+    return bandCodeList;
   }
   public SchoolFundingCodeEntity fundingCodeData() {
     return SchoolFundingCodeEntity.builder().schoolFundingCode("14").description("OUT-OF-PROVINCE/INTERNATIONAL")

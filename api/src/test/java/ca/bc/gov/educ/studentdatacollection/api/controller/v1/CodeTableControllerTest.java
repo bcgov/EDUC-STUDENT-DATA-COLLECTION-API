@@ -66,7 +66,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     this.mockMvc.perform(get(URL.BASE_URL + URL.BAND_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].bandCode").value("0500"));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].bandCode").value("0500"));
   }
 
   @Test
