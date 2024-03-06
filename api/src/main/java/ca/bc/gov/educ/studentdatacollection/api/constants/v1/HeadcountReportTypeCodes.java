@@ -12,7 +12,8 @@ public enum HeadcountReportTypeCodes {
     ELL("ell"),
     CAREER("career"),
     INDIGENOUS("indigenous"),
-    SPECIAL_ED("special-ed");
+    SPECIAL_ED("special-ed"),
+    BAND_CODES("band-codes");
 
     private final String code;
     HeadcountReportTypeCodes(String code) { this.code = code; }
