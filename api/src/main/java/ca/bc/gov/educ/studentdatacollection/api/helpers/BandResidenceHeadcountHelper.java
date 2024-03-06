@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-@EqualsAndHashCode(callSuper = true)
 public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceHeadcountResult>{
     private final CodeTableService codeTableService;
     private static final String BAND_TITLE = "Indigenous Language and Culture";

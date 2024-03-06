@@ -47,23 +47,6 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         schoolCollection = createMockSdcSchoolCollectionEntity(collectionEntity, schoolID, UUID.randomUUID());
         schoolCollectionRepository.save(schoolCollection);
 
-        SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(schoolCollection);
-        student1.setBandCode("0704");
-        student1.setFte(new BigDecimal("0.4100"));
-        studentRepository.save(student1);
-
-        SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(schoolCollection);
-        student2.setBandCode("2411");
-        student2.setFte(new BigDecimal("0.5000"));
-        studentRepository.save(student2);
-
-        SdcSchoolCollectionStudentEntity student3 = createMockSchoolStudentEntity(schoolCollection);
-        student3.setBandCode("0704");
-        student3.setFte(new BigDecimal("1.0000"));
-        studentRepository.save(student3);
-
-        helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService);
-
     }
 
     @AfterEach
@@ -77,13 +60,35 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testGetBandCodeTitlesFromCollection_ShouldCorrectlySetRowTitles() {
 
+        saveStudentsWithBandCodes();
+        helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService);
+
+
         List<String> expectedTitles = Arrays.asList("0704 - KANAKA BAR", "2411 - ANSPAYAXW");
         helper.getBandTitles(schoolCollection.getSdcSchoolCollectionID());
         assertEquals(expectedTitles, new ArrayList<>(helper.getBandRowTitles().values()));
     }
 
     @Test
+    void testBandCodeTitlesFromCollection_ShouldNotSetAnyRowTitles() {
+
+        SdcSchoolCollectionStudentEntity student = createMockSchoolStudentEntity(schoolCollection);
+        student.setFte(new BigDecimal("1.0000"));
+        student.setBandCode(null);
+        studentRepository.save(student);
+        helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService);
+
+        helper.getBandTitles(schoolCollection.getSdcSchoolCollectionID());
+        List<String> actualRowTitles = new ArrayList<>(helper.getBandRowTitles().values());
+        assertEquals(0, actualRowTitles.size());
+
+    }
+
+    @Test
     void testGetHeadcountHeaders_ShouldReturnListOfHeaders() {
+
+        saveStudentsWithBandCodes();
+        helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService);
 
         List<HeadcountHeader> expectedHeadcountHeaderList = new ArrayList<>();
         HeadcountHeader header1 = new HeadcountHeader("0704 - KANAKA BAR", null, List.of("Indigenous Language and Culture", "Headcount", "FTE"), new HashMap<>());
@@ -98,6 +103,9 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
     @Test
     void testConvertHeadcountResults_ShouldReturnTableContents(){
+
+        saveStudentsWithBandCodes();
+        helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService);
 
         helper.getBandTitles(schoolCollection.getSdcSchoolCollectionID());
 
@@ -115,6 +123,23 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         HeadcountResultsTable expectedResultsTable = new HeadcountResultsTable(headers, expectedRows);
 
         assertEquals(expectedResultsTable, actualResultsTable);
+    }
+
+    void saveStudentsWithBandCodes(){
+        SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(schoolCollection);
+        student1.setBandCode("0704");
+        student1.setFte(new BigDecimal("0.4100"));
+        studentRepository.save(student1);
+
+        SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(schoolCollection);
+        student2.setBandCode("2411");
+        student2.setFte(new BigDecimal("0.5000"));
+        studentRepository.save(student2);
+
+        SdcSchoolCollectionStudentEntity student3 = createMockSchoolStudentEntity(schoolCollection);
+        student3.setBandCode("0704");
+        student3.setFte(new BigDecimal("1.0000"));
+        studentRepository.save(student3);
     }
 
 }
