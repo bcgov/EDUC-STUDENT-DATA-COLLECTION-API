@@ -99,7 +99,7 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
 
         assertEquals(mockStudentEntity.getAssignedStudentId().toString(), penMatchResult.getMatchingRecords().get(0).getStudentID());
-        assertSame(mockStudentEntity.getPenMatchResult(), penMatchResult.getPenStatus());
+        assertSame("MATCH", mockStudentEntity.getPenMatchResult());
     }
 
     @Test
@@ -154,7 +154,7 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
 
         assertEquals(mockStudentEntity.getAssignedStudentId().toString(), penMatchResult.getMatchingRecords().get(0).getStudentID());
-        assertSame(mockStudentEntity.getPenMatchResult(), penMatchResult.getPenStatus());
+        assertSame("MATCH", mockStudentEntity.getPenMatchResult());
         assertFalse(mockStudentEntity.getIsGraduated());
     }
 }

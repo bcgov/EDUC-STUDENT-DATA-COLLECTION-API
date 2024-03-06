@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.v1;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -11,6 +12,7 @@ import java.io.Serializable;
 
 @Data
 @SuperBuilder
+@AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ToString(callSuper = true)
@@ -20,10 +22,7 @@ public class SdcSchoolCollectionStudentValidationIssueErrorWarningCount implemen
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private long error = 0;
-
-  private long infoWarning = 0;
-
-  private long fundingWarning = 0;
+  String severityCode;
+  long total;
 
 }

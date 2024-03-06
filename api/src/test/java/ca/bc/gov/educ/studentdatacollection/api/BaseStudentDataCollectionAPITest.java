@@ -10,10 +10,10 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusPayload;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.support.StudentDataCollectionTestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
@@ -28,11 +28,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
+import java.util.HashSet;
 import java.util.UUID;
 
 @SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
@@ -87,6 +87,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     specialEducationCategoryRepository.save(specialEducationCategoryCodeData());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode08Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode14Data());
+    enrolledProgramCodeRepository.save(createEnrolledProgramCode17Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode33Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode41Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode40Data());
@@ -174,6 +175,8 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setCreateDate(LocalDateTime.now());
     sdcEntity.setUpdateUser("ABC");
     sdcEntity.setUpdateDate(LocalDateTime.now());
+    sdcEntity.setSdcSchoolCollectionHistoryEntities(new HashSet<>());
+    sdcEntity.setSdcSchoolStudentEntities(new HashSet<>());
 
     return sdcEntity;
   }
@@ -211,6 +214,59 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setIsSchoolAged(true);
     sdcEntity.setIsAdult(false);
     sdcEntity.setIsGraduated(false);
+    sdcEntity.setSdcStudentEnrolledProgramEntities(new HashSet<>());
+    sdcEntity.setSdcStudentValidationIssueEntities(new HashSet<>());
+    return sdcEntity;
+  }
+
+  public SdcSchoolCollectionStudentEntity createMockSchoolStudentForSagaEntity(SdcSchoolCollectionEntity sdcSchoolCollectionEntity){
+    SdcSchoolCollectionStudentEntity sdcEntity = new SdcSchoolCollectionStudentEntity();
+    sdcEntity.setSdcSchoolCollection(sdcSchoolCollectionEntity);
+    sdcEntity.setLocalID("LOCAL123");
+    sdcEntity.setStudentPen("PEN123456");
+    sdcEntity.setLegalFirstName("John");
+    sdcEntity.setLegalMiddleNames("Michael");
+    sdcEntity.setLegalLastName("Doe");
+    sdcEntity.setUsualFirstName("John");
+    sdcEntity.setUsualMiddleNames("Mike");
+    sdcEntity.setUsualLastName("Doe");
+    sdcEntity.setDob("20050515");
+    sdcEntity.setGender("M");
+    sdcEntity.setSpecialEducationCategoryCode("SPED01");
+    sdcEntity.setSchoolFundingCode("FUND02");
+    sdcEntity.setNativeAncestryInd("N");
+    sdcEntity.setHomeLanguageSpokenCode("ENG");
+    sdcEntity.setOtherCourses("0");
+    sdcEntity.setSupportBlocks("1");
+    sdcEntity.setEnrolledGradeCode("10");
+    sdcEntity.setEnrolledProgramCodes("PROG001,PROG002");
+    sdcEntity.setCareerProgramCode("CAREER001");
+    sdcEntity.setNumberOfCourses("6");
+    sdcEntity.setBandCode("");
+    sdcEntity.setPostalCode("V6G 1A1");
+    sdcEntity.setSdcSchoolCollectionStudentStatusCode("ACTIVE");
+    sdcEntity.setIsAdult(false);
+    sdcEntity.setIsSchoolAged(true);
+    sdcEntity.setIsGraduated(false);
+    sdcEntity.setAssignedStudentId(UUID.randomUUID());
+    sdcEntity.setAssignedPen("120164447");
+    sdcEntity.setIsAdult(false);
+    sdcEntity.setFte(new BigDecimal(0.875));
+    sdcEntity.setFteZeroReasonCode("REASON001");
+    sdcEntity.setFrenchProgramNonEligReasonCode("REASON002");
+    sdcEntity.setEllNonEligReasonCode("REASON003");
+    sdcEntity.setIndigenousSupportProgramNonEligReasonCode("REASON004");
+    sdcEntity.setCareerProgramNonEligReasonCode("REASON005");
+    sdcEntity.setSpecialEducationNonEligReasonCode("REASON006");
+    sdcEntity.setCreateUser("ABC");
+    sdcEntity.setCreateDate(LocalDateTime.now());
+    sdcEntity.setUpdateUser("ABC");
+    sdcEntity.setUpdateDate(LocalDateTime.now());
+    sdcEntity.setIsSchoolAged(true);
+    sdcEntity.setIsAdult(false);
+    sdcEntity.setIsGraduated(false);
+    sdcEntity.setSdcStudentEnrolledProgramEntities(new HashSet<>());
+    sdcEntity.setSdcStudentValidationIssueEntities(new HashSet<>());
     return sdcEntity;
   }
 
@@ -267,6 +323,16 @@ public abstract class BaseStudentDataCollectionAPITest {
     school.setSchoolReportingRequirementCode("CSF");
     school.setFacilityTypeCode("Standard");
     return school;
+  }
+
+  public District createMockDistrict() {
+    final District district = District.builder().build();
+    district.setDistrictId(UUID.randomUUID().toString());
+    district.setDisplayName("Marco's district");
+    district.setDistrictNumber("036");
+    district.setDistrictStatusCode("ACTIVE");
+    district.setPhoneNumber("123456789");
+    return district;
   }
 
   public StudentRuleData createMockStudentRuleData(final SdcSchoolCollectionStudentEntity student, final School school) {
@@ -334,6 +400,12 @@ public abstract class BaseStudentDataCollectionAPITest {
   public EnrolledProgramCodeEntity createEnrolledProgramCode14Data() {
     return EnrolledProgramCodeEntity.builder().enrolledProgramCode("14").description("14")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("14").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public EnrolledProgramCodeEntity createEnrolledProgramCode17Data() {
+    return EnrolledProgramCodeEntity.builder().enrolledProgramCode("17").description("17")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("17").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 

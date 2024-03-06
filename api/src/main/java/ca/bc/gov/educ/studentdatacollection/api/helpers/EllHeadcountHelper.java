@@ -31,23 +31,13 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
   private static final String NOT_REPORTED_TITLE = "Not Reported";
 
   // Table Row Titles
-  private static final String SCHOOL_AGED_TITLE = "School Aged English Language Learners";
-  private static final String ADULT_TITLE = "Adult English Language Learners";
-  private static final String ALL_STUDENTS_TITLE = "All English Language Learners";
+  private static final String ALL_STUDENTS_TITLE = "English Language Learners";
 
   // Sub-row titles (used in header and table)
   private static final String ONE_TO_FIVE_TITLE = "1-5 Years";
   private static final String SIX_PLUS_TITLE = "6+ Years";
 
   // Hash keys
-  private static final String SCHOOL_AGED_1_5 = "schoolAgedOneThroughFive";
-  private static final String SCHOOL_AGED_6_PLUS = "schoolAgedSixPlus";
-  private static final String SCHOOL_AGED_TOTALS = "schoolAgedTotals";
-  private static final String ADULT_1_5 = "adultOneThroughFive";
-  private static final String ADULT_6_PLUS = "adultSixPlus";
-  private static final String ADULT_TOTALS = "adultTotals";
-  private static final String ALL_1_5 = "allOneThroughFive";
-  private static final String ALL_6_PLUS= "allSixPlus";
   private static final String TOTAL_ELL_STUDENTS = "totalEllStudents";
 
   public EllHeadcountHelper(

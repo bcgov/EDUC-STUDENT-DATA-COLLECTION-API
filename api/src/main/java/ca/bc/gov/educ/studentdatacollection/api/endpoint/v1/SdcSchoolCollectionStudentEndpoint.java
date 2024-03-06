@@ -32,7 +32,7 @@ public interface SdcSchoolCollectionStudentEndpoint {
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_SCHOOL_COLLECTION_STUDENT')")
   @Transactional(readOnly = true)
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
-  SdcSchoolCollectionStudentValidationIssueErrorWarningCount getErrorAndWarningCountBySdcSchoolCollectionID(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
+  List<SdcSchoolCollectionStudentValidationIssueErrorWarningCount> getErrorAndWarningCountBySdcSchoolCollectionID(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
   @GetMapping(URL.PAGINATED)
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_SCHOOL_COLLECTION_STUDENT')")
@@ -43,13 +43,13 @@ public interface SdcSchoolCollectionStudentEndpoint {
                                                               @RequestParam(name = "sort", defaultValue = "") String sortCriteriaJson,
                                                               @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson);
 
-  @PutMapping("/{sdcSchoolCollectionStudentID}")
+  @PostMapping
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional
-  @Tag(name = "Sdc School Collection Student", description = "Endpoints to update school collection student entity.")
+  @Tag(name = "Sdc School Collection Student", description = "Endpoints to create and update school collection student entity.")
   @Schema(name = "SdcSchoolCollectionStudent", implementation = SdcSchoolCollectionStudent.class)
-  SdcSchoolCollectionStudent updateAndValidateSdcSchoolCollectionStudent(@PathVariable("sdcSchoolCollectionStudentID") UUID collectionStudentID, @Validated @RequestBody SdcSchoolCollectionStudent sdcSchoolCollectionStudent);
+  SdcSchoolCollectionStudent createAndUpdateSdcSchoolCollectionStudent(@Validated @RequestBody SdcSchoolCollectionStudent sdcSchoolCollectionStudent);
 
   @DeleteMapping("/{sdcSchoolCollectionStudentID}")
   @PreAuthorize("hasAuthority('SCOPE_DELETE_SDC_SCHOOL_COLLECTION_STUDENT')")

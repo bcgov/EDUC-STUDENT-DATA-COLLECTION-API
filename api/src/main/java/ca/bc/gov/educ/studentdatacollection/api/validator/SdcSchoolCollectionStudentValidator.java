@@ -11,7 +11,6 @@ import org.springframework.validation.FieldError;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Component
 public class SdcSchoolCollectionStudentValidator {
@@ -22,19 +21,15 @@ public class SdcSchoolCollectionStudentValidator {
         this.validationRulesService = validationRulesService;
     }
 
-    public List<FieldError> validatePayload(UUID sdcSchoolCollectionStudentID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+    public List<FieldError> validatePayload(SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
         final List<FieldError> apiValidationErrors = new ArrayList<>();
 
         if (StringUtils.isNotEmpty(sdcSchoolCollectionStudent.getStudentPen()) && !PenUtil.validCheckDigit(sdcSchoolCollectionStudent.getStudentPen())) {
-            apiValidationErrors.add(ValidationUtil.createFieldError("studentPen", sdcSchoolCollectionStudent.getSpecialEducationCategoryCode(), "Invalid Student Pen."));
+            apiValidationErrors.add(ValidationUtil.createFieldError("studentPen", sdcSchoolCollectionStudent.getStudentPen(), "Invalid Student Pen."));
         }
 
         if (!DOBUtil.isValidDate(sdcSchoolCollectionStudent.getDob())) {
-            apiValidationErrors.add(ValidationUtil.createFieldError("dob", sdcSchoolCollectionStudent.getSpecialEducationCategoryCode(), "Invalid DOB."));
-        }
-
-        if (!sdcSchoolCollectionStudentID.toString().equals(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())) {
-            apiValidationErrors.add(ValidationUtil.createFieldError("sdcSchoolCollectionStudentID", sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID(), "sdcSchoolCollectionStudentID in path and payload mismatch"));
+            apiValidationErrors.add(ValidationUtil.createFieldError("dob", sdcSchoolCollectionStudent.getDob(), "Invalid DOB."));
         }
 
         List<SpecialEducationCategoryCode> activeSpecialEducationCategoryCode = validationRulesService.getActiveSpecialEducationCategoryCodes();
@@ -68,7 +63,7 @@ public class SdcSchoolCollectionStudentValidator {
 
         List<BandCode> activeBandCodes = validationRulesService.getActiveBandCodes();
         if (StringUtils.isNotEmpty(sdcSchoolCollectionStudent.getBandCode()) && activeBandCodes.stream().noneMatch(code -> code.getBandCode().equals(sdcSchoolCollectionStudent.getBandCode()))) {
-            apiValidationErrors.add(ValidationUtil.createFieldError("bandCode", sdcSchoolCollectionStudent.getSpecialEducationCategoryCode(), "Invalid Band Code."));
+            apiValidationErrors.add(ValidationUtil.createFieldError("bandCode", sdcSchoolCollectionStudent.getBandCode(), "Invalid Band Code."));
         }
 
         return apiValidationErrors;

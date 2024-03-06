@@ -5,7 +5,6 @@ import ca.bc.gov.educ.studentdatacollection.api.helpers.*;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EllHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHeadcounts;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
@@ -36,7 +35,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
     var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
     Optional<School> school = this.restUtils.getSchoolBySchoolID(String.valueOf(sdcSchoolCollectionEntity.getSchoolID()));
     enrollmentHeadcountHelper.setGradeCodes(school);
-    List<EnrollmentHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySchoolId(sdcSchoolCollectionID);
+    List<EnrollmentHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
     HeadcountResultsTable collectionData = enrollmentHeadcountHelper.convertHeadcountResults(collectionRawData);
 
     List<HeadcountHeader> headcountHeaderList = Arrays.asList(enrollmentHeadcountHelper.getStudentsHeadcountTotals(collectionData), enrollmentHeadcountHelper.getGradesHeadcountTotals(collectionData));
@@ -56,7 +55,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
     if(school.isPresent() && school.get().getSchoolReportingRequirementCode().equals(SchoolReportingRequirementCodes.CSF.getCode())) {
       List<CsfFrenchHeadcountResult> collectionRawData;
       csfFrenchHeadcountHelper.setGradeCodes(school);
-      collectionRawData = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySchoolId(sdcSchoolCollectionID);
+      collectionRawData = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
       headcountHeaderList = csfFrenchHeadcountHelper.getHeaders(sdcSchoolCollectionID);
       collectionData = csfFrenchHeadcountHelper.convertHeadcountResults(collectionRawData);
       if(compare) {
@@ -65,7 +64,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
     } else {
       List<FrenchHeadcountResult> collectionRawData;
       frenchHeadcountHelper.setGradeCodes(school);
-      collectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySchoolId(sdcSchoolCollectionID);
+      collectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
       headcountHeaderList = frenchHeadcountHelper.getHeaders(sdcSchoolCollectionID);
       collectionData = frenchHeadcountHelper.convertHeadcountResults(collectionRawData);
       if(compare) {
@@ -79,7 +78,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
   public SdcSchoolCollectionStudentHeadcounts getCareerHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
     var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
 
-    List<CareerHeadcountResult> result = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySchoolId(sdcSchoolCollectionID);
+    List<CareerHeadcountResult> result = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
     HeadcountResultsTable headcountResultsTable = careerHeadcountHelper.convertHeadcountResults(result);
     List<HeadcountHeader> headcountHeaderList = careerHeadcountHelper.getHeaders(sdcSchoolCollectionID);
     if(compare) {
@@ -92,7 +91,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
     var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
     Optional<School> school = this.restUtils.getSchoolBySchoolID(String.valueOf(sdcSchoolCollectionEntity.getSchoolID()));
     indigenousHeadcountHelper.setGradeCodes(school);
-    List<IndigenousHeadcountResult> result = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySchoolId(sdcSchoolCollectionID);
+    List<IndigenousHeadcountResult> result = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
     HeadcountResultsTable headcountResultsTable = indigenousHeadcountHelper.convertHeadcountResults(result);
     List<HeadcountHeader> headcountHeaderList = indigenousHeadcountHelper.getHeaders(sdcSchoolCollectionID);
     if(compare) {
@@ -107,7 +106,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
     ellHeadcountHelper.setGradeCodes(school);
 
     List<EllHeadcountResult> collectionRawData =
-      sdcSchoolCollectionStudentRepository.getEllHeadcountsBySchoolId(sdcSchoolCollectionID);
+      sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
     HeadcountResultsTable headcountResultsTable = ellHeadcountHelper.convertHeadcountResults(collectionRawData);
     List<HeadcountHeader> headcountHeaderList = ellHeadcountHelper.getHeaders(sdcSchoolCollectionID);
     if (compare) {
@@ -122,7 +121,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
     Optional<School> school = this.restUtils.getSchoolBySchoolID(String.valueOf(sdcSchoolCollectionEntity.getSchoolID()));
     specialEdHeadcountHelper.setGradeCodes(school);
 
-    List<SpecialEdHeadcountResult> result = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySchoolId(sdcSchoolCollectionID);
+    List<SpecialEdHeadcountResult> result = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
     HeadcountResultsTable headcountResultsTable = specialEdHeadcountHelper.convertHeadcountResults(result);
     List<HeadcountHeader> headcountHeaderList = specialEdHeadcountHelper.getHeaders(sdcSchoolCollectionID);
     if(compare) {

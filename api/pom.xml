@@ -142,6 +142,16 @@
       <artifactId>micrometer-registry-prometheus</artifactId>
     </dependency>
     <dependency>
+      <groupId>net.sf.jasperreports</groupId>
+      <artifactId>jasperreports</artifactId>
+      <version>6.21.0</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.jasperreports</groupId>
+      <artifactId>jasperreports-fonts</artifactId>
+      <version>6.21.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
@@ -283,6 +293,10 @@
     <repository>
       <id>central</id>
       <url>https://repo1.maven.org/maven2</url>
+    </repository>
+    <repository>
+      <id>localrepository</id>
+      <url>file://${project.basedir}/src/main/resources/bcsans.jar</url>
     </repository>
   </repositories>
   <profiles>
