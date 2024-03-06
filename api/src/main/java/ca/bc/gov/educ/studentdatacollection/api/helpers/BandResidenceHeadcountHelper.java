@@ -30,6 +30,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
 
     protected List<BandCodeEntity> bandCodes;
 
+    @lombok.Setter
     @Getter
     private static Map<String, String> bandRowTitles = new HashMap<>();
 
@@ -103,10 +104,6 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
 
         headcountResultsTable.setRows(rows);
         return headcountResultsTable;
-    }
-
-    public void setBandRowTitles(Map<String, String> rowTitles) {
-        this.bandRowTitles = rowTitles;
     }
 
     private Map<String, Function<BandResidenceHeadcountResult, String>> getHeadcountMethods() {

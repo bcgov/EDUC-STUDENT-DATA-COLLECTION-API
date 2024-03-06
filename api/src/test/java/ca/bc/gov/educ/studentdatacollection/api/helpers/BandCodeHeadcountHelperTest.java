@@ -66,7 +66,7 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
         List<String> expectedTitles = Arrays.asList("0704 - KANAKA BAR", "2411 - ANSPAYAXW");
         helper.getBandTitles(schoolCollection.getSdcSchoolCollectionID());
-        assertEquals(expectedTitles, new ArrayList<>(helper.getBandRowTitles().values()));
+        assertEquals(expectedTitles, new ArrayList<>(BandResidenceHeadcountHelper.getBandRowTitles().values()));
     }
 
     @Test
@@ -79,7 +79,7 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService);
 
         helper.getBandTitles(schoolCollection.getSdcSchoolCollectionID());
-        List<String> actualRowTitles = new ArrayList<>(helper.getBandRowTitles().values());
+        List<String> actualRowTitles = new ArrayList<>(BandResidenceHeadcountHelper.getBandRowTitles().values());
         assertEquals(0, actualRowTitles.size());
 
     }
