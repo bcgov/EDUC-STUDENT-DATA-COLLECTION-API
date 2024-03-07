@@ -2308,7 +2308,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         stud2, StudentValidationIssueSeverityCode.ERROR));
 
         final SearchCriteria criteriaColl = SearchCriteria.builder().condition(AND).key("sdcSchoolCollection.sdcSchoolCollectionID").operation(FilterOperation.EQUAL).value(sdcMockSchool.getSdcSchoolCollectionID().toString()).valueType(ValueType.UUID).build();
-        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("sdcStudentEnrolledProgramEntities.enrolledProgramCode").operation(FilterOperation.NOT_IN).value("CD,EF").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("sdcStudentEnrolledProgramEntities.enrolledProgramCode").operation(FilterOperation.NONE_IN).value("CD,EF").valueType(ValueType.STRING).build();
 
         final List<SearchCriteria> criteriaList = new ArrayList<>();
         criteriaList.add(criteriaColl);
