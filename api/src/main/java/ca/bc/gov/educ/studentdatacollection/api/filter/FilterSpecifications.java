@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.filter;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -96,6 +96,24 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
             }
             return criteriaBuilder.not(root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues()));
         });
+
+        map.put(FilterOperation.NONE_IN,
+            filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
+                if (filterCriteria.getFieldName().contains(".")) {
+                    String[] splits = filterCriteria.getFieldName().split("\\.");
+                    Subquery<String> subquery = criteriaQuery.subquery(String.class);
+                    Root<E> subRoot = subquery.from(root.getModel().getJavaType());
+
+                    Join<E, ?> childJoin = subRoot.join(splits[0], JoinType.LEFT);
+                    Predicate childPredicate = childJoin.get(splits[1]).in(filterCriteria.getConvertedValues());
+
+                    subquery.select(subRoot.get("sdcSchoolCollectionStudentID"))
+                            .where(childPredicate);
+                    return criteriaBuilder.not(root.get("sdcSchoolCollectionStudentID").in(subquery));
+                } else {
+                    return criteriaBuilder.not(root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues()));
+                }
+            });
 
         map.put(FilterOperation.BETWEEN,
                 filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.between(

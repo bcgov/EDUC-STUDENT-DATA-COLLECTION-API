@@ -35,6 +35,10 @@ public enum FilterOperation {
    */
   IN("in"),
   /**
+   * Filter to return when none of the child records includes the values
+   */
+  NONE_IN("none_in"),
+  /**
    * Not in filter operation.
    */
   NOT_IN("nin"),
