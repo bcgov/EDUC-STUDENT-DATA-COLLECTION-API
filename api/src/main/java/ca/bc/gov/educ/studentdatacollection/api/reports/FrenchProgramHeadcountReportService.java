@@ -119,7 +119,7 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
 
   private HashMap<String, HeadcountChildNode> generateNodeMapForCSF(boolean includeKH){
     HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
-    addValuesForSectionToMap(nodeMap, "csf", "Francophone", "00", includeKH);
+    addValuesForSectionToMap(nodeMap, "csf", "Programme Francophone", "00", includeKH);
 
     return nodeMap;
   }
