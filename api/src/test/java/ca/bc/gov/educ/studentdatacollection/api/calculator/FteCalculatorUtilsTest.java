@@ -116,7 +116,7 @@ class FteCalculatorUtilsTest {
         student.setAssignedStudentId(UUID.randomUUID());
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(List.of());
+        when(sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(List.of());
 
         // When
         var result = fteCalculatorUtils.studentPreviouslyReportedInDistrict(studentRuleData);
@@ -145,7 +145,7 @@ class FteCalculatorUtilsTest {
         student.setAssignedStudentId(UUID.randomUUID());
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
+        when(sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
         when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(UUID.class), anyList())).thenReturn(0L);
 
         // When
@@ -173,7 +173,7 @@ class FteCalculatorUtilsTest {
         student.setAssignedStudentId(UUID.randomUUID());
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
+        when(sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
         when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(UUID.class), anyList())).thenReturn(1L);
 
         // When
@@ -202,7 +202,7 @@ class FteCalculatorUtilsTest {
         student.setAssignedStudentId(UUID.randomUUID());
         sdcStudentSagaData.setSdcSchoolCollectionStudentEntity(student);
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
+        when(sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
         when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(UUID.class), anyList())).thenReturn(1L);
 
 
@@ -252,7 +252,7 @@ class FteCalculatorUtilsTest {
         student.setAssignedStudentId(UUID.randomUUID());
         sdcStudentSagaData.setSdcSchoolCollectionStudentEntity(student);
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
+        when(sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
         when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(UUID.class), anyList())).thenReturn(1L);
 
         // When
@@ -292,7 +292,7 @@ class FteCalculatorUtilsTest {
         student.setAssignedStudentId(UUID.randomUUID());
         sdcStudentSagaData.setSdcSchoolCollectionStudentEntity(student);
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
+        when(sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
         when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(UUID.class), anyList())).thenReturn(1L);
 
         // When
