@@ -43,7 +43,7 @@ public class CsfFrenchHeadcountHelper extends HeadcountHelper<CsfFrenchHeadcount
     if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))) {
       gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
     } else {
-      gradeCodes = SchoolGradeCodes.getNonIndependentSchoolGrades();
+      gradeCodes = SchoolGradeCodes.getNonIndependentKtoGAGrades();
     }
   }
   public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
