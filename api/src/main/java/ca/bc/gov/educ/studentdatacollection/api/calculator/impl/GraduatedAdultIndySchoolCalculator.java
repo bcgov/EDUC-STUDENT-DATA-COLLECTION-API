@@ -26,8 +26,9 @@ public class GraduatedAdultIndySchoolCalculator implements FteCalculator {
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
         log.debug("GraduatedAdultIndySchoolCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        var isIndependentSchool = studentData.getSchool() != null && StringUtils.equals(studentData.getSchool().getSchoolCategoryCode(), SchoolCategoryCodes.INDEPEND.getCode());
-        var isGraduatedAdultStudent = StringUtils.equals(studentData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode(), SchoolGradeCodes.GRADUATED_ADULT.getCode());
+        var isIndependentSchool = studentData.getSchool() != null && (StringUtils.equals(studentData.getSchool().getSchoolCategoryCode(), SchoolCategoryCodes.INDEPEND.getCode()) || StringUtils.equals(studentData.getSchool().getSchoolCategoryCode(), SchoolCategoryCodes.INDP_FNS.getCode()));
+        var isGraduatedAdultStudent = StringUtils.equals(studentData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode(), SchoolGradeCodes.GRADUATED_ADULT.getCode()) ||
+                (studentData.getSdcSchoolCollectionStudentEntity().getIsGraduated() && studentData.getSdcSchoolCollectionStudentEntity().getIsAdult());
         if(isGraduatedAdultStudent && isIndependentSchool) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);

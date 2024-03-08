@@ -42,7 +42,7 @@
   "school": {
     "schoolId": "20f024a9-43a1-4b4c-b2a7-1689cf6ad712",
     "schoolName": "Sample School",
-    "schoolCategoryCode": "ONLINE",
+    "schoolCategoryCode": "PUBLIC",
     "facilityTypeCode": "DIST_LEARN",
     "districtId": "20f024b9-43a1-4b4a-b2a7-1689cf6ad712",
     "independentAuthorityId": "20f024a9-43b1-4b4a-b2a7-1689cf6ad712"

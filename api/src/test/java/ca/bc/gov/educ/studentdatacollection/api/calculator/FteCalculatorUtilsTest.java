@@ -1,12 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator;
 
-import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -117,7 +116,7 @@ class FteCalculatorUtilsTest {
         student.setAssignedStudentId(UUID.randomUUID());
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(List.of());
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(List.of());
 
         // When
         var result = fteCalculatorUtils.studentPreviouslyReportedInDistrict(studentRuleData);
@@ -146,7 +145,7 @@ class FteCalculatorUtilsTest {
         student.setAssignedStudentId(UUID.randomUUID());
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
         when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(UUID.class), anyList())).thenReturn(0L);
 
         // When
@@ -174,7 +173,7 @@ class FteCalculatorUtilsTest {
         student.setAssignedStudentId(UUID.randomUUID());
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
         when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(UUID.class), anyList())).thenReturn(1L);
 
         // When
@@ -203,7 +202,7 @@ class FteCalculatorUtilsTest {
         student.setAssignedStudentId(UUID.randomUUID());
         sdcStudentSagaData.setSdcSchoolCollectionStudentEntity(student);
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
         when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(UUID.class), anyList())).thenReturn(1L);
 
 
@@ -253,7 +252,7 @@ class FteCalculatorUtilsTest {
         student.setAssignedStudentId(UUID.randomUUID());
         sdcStudentSagaData.setSdcSchoolCollectionStudentEntity(student);
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
         when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(UUID.class), anyList())).thenReturn(1L);
 
         // When
@@ -293,7 +292,7 @@ class FteCalculatorUtilsTest {
         student.setAssignedStudentId(UUID.randomUUID());
         sdcStudentSagaData.setSdcSchoolCollectionStudentEntity(student);
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolForFiscalYearToCurrentCollection(any(UUID.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
         when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(UUID.class), anyList())).thenReturn(1L);
 
         // When
@@ -779,7 +778,7 @@ class FteCalculatorUtilsTest {
         LocalDateTime studentCreateDate = LocalDateTime.now();
         String enrolledGradeCode = "10";
         String facilityTypeCode = "DIST_LEARN";
-        String numberOfCourses = "0";
+        String numberOfCourses = "0000";
 
         School school = new School();
         school.setSchoolId(UUID.randomUUID().toString());
@@ -828,7 +827,7 @@ class FteCalculatorUtilsTest {
         LocalDateTime studentCreateDate = LocalDateTime.now();
         String enrolledGradeCode = "10";
         String facilityTypeCode = "DIST_LEARN";
-        String numberOfCourses = "0";
+        String numberOfCourses = "0000";
 
         School school = new School();
         school.setSchoolId(schoolId.toString());
@@ -894,7 +893,7 @@ class FteCalculatorUtilsTest {
         LocalDateTime studentCreateDate = LocalDateTime.now();
         String enrolledGradeCode = "10";
         String facilityTypeCode = "DIST_LEARN";
-        String numberOfCourses = "0";
+        String numberOfCourses = "0000";
 
         School school = new School();
         school.setSchoolId(schoolId.toString());
@@ -936,12 +935,12 @@ class FteCalculatorUtilsTest {
 
     @ParameterizedTest
     @CsvSource({
-            "DIST_LEARN, 0, true",
-            "DISTONLINE, 0, true",
-            "DIST_LEARN, 3, false",
-            "DISTONLINE, 1, false",
-            "STANDARD, 0, false",
-            "STANDARD, 3, false",
+            "DIST_LEARN, 0000, true",
+            "DISTONLINE, 0000, true",
+            "DIST_LEARN, 0300, false",
+            "DISTONLINE, 0100, false",
+            "STANDARD, 0000, false",
+            "STANDARD, 0300, false",
     })
     void noCoursesForStudentInLastTwoYears_GivenDifferentFacilityTypesAndNumCourses_ShouldReturnTrue(String facilityTypeCode, String numberOfCourses, boolean expectedResult) {
         // Given
@@ -1014,7 +1013,7 @@ class FteCalculatorUtilsTest {
         UUID schoolId = UUID.randomUUID();
         LocalDateTime studentCreateDate = LocalDateTime.now();
         String facilityTypeCode = "DIST_LEARN";
-        String numberOfCourses = "0";
+        String numberOfCourses = "0000";
 
         School school = new School();
         school.setSchoolId(UUID.randomUUID().toString());
