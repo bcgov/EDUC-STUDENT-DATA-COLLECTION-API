@@ -151,7 +151,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     void testProcessFteCalculator_NoCoursesInLastTwoYears() throws IOException {
         // Given
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
-        this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0000");
         this.studentData.getSdcSchoolCollectionStudentEntity().setIsSchoolAged(true);
         this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("10");
         this.studentData.getSdcSchoolCollectionStudentEntity().setCreateDate(LocalDateTime.now());

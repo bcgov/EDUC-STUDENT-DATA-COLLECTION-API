@@ -58,6 +58,8 @@ class GraduatedAdultIndySchoolCalculatorTest {
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode("12");
+        student.setIsGraduated(false);
+        student.setIsAdult(false);
 
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(school);
@@ -73,6 +75,30 @@ class GraduatedAdultIndySchoolCalculatorTest {
         // Then
         assertEquals(expectedResult, result);
         verify(nextCalculator).calculateFte(studentData);
+    }
+
+    @Test
+    void testCalculateFte_NonGAisGraduatedAdultIndySchool() {
+        // Given
+        School school = new School();
+        school.setSchoolCategoryCode("INDEPEND");
+
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setEnrolledGradeCode("12");
+        student.setIsGraduated(true);
+        student.setIsAdult(true);
+
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSchool(school);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
+
+        // When
+        FteCalculationResult result = graduatedAdultIndySchoolCalculator.calculateFte(studentData);
+
+        // Then
+        assertEquals(BigDecimal.ZERO, result.getFte());
+        assertEquals(ZeroFteReasonCodes.GRADUATED_ADULT_IND_AUTH.getCode(), result.getFteZeroReason());
+        verify(nextCalculator, never()).calculateFte(any());
     }
 
     @Test
