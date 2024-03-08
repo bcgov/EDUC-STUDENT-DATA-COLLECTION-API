@@ -6,10 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeaderColumn;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResultsTable;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -59,13 +56,14 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
     }
   }
 
-  public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
+  public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
     UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
 
     List<EnrollmentHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcSchoolCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertHeadcountResults(previousCollectionRawData);
     List<HeadcountHeader> previousHeadcountHeaderList = Arrays.asList(getStudentsHeadcountTotals(previousCollectionData), getGradesHeadcountTotals(previousCollectionData));
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
+    setResultsTableComparisonValues(collectionData, previousCollectionData);
   }
 
   public HeadcountHeader getGradesHeadcountTotals(HeadcountResultsTable headcountResultsTable) {
@@ -77,8 +75,8 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
       HeadcountHeaderColumn headcountHeaderColumn = new HeadcountHeaderColumn();
       headcountHeaderColumn.setCurrentValue(String.valueOf(
         headcountResultsTable.getRows().stream()
-          .filter(row -> row.get("title").equals(HEADCOUNT_TITLE)&&row.get("section").equals(ALL_STUDENT_TITLE))
-          .mapToLong(row -> Long.parseLong(row.get(grade)))
+          .filter(row -> row.get("title").getCurrentValue().equals(HEADCOUNT_TITLE)&& row.get("section").getCurrentValue().equals(ALL_STUDENT_TITLE))
+          .mapToLong(row -> Long.parseLong(row.get(grade).getCurrentValue()))
           .sum()));
       headcountTotals.getColumns().put(grade, headcountHeaderColumn);
     }
@@ -94,8 +92,8 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
       HeadcountHeaderColumn headcountHeaderColumn = new HeadcountHeaderColumn();
       headcountHeaderColumn.setCurrentValue(String.valueOf(
         headcountResultsTable.getRows().stream()
-          .filter(row -> row.get("title").equals(HEADCOUNT_TITLE)&&row.get("section").equals(title))
-          .mapToLong(row -> Long.parseLong(row.get(TOTAL_TITLE)))
+          .filter(row -> row.get("title").getCurrentValue().equals(HEADCOUNT_TITLE)&& row.get("section").getCurrentValue().equals(title))
+          .mapToLong(row -> Long.parseLong(row.get(TOTAL_TITLE).getCurrentValue()))
           .sum()));
       studentTotals.getColumns().put(title, headcountHeaderColumn);
     }

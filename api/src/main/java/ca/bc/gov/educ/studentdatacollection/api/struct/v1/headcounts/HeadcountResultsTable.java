@@ -14,5 +14,5 @@ import java.util.Map;
 @Builder
 public class HeadcountResultsTable {
   List<String> headers;
-  List<Map<String, String>> rows;
+  List<Map<String, HeadcountHeaderColumn>> rows;
 }

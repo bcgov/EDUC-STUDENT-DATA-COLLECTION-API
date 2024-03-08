@@ -78,28 +78,28 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         Double fteTotal = 0.0;
         Integer headcountTotal = 0;
 
-        List <Map<String, String>> rows = new ArrayList<>();
+        List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
         for(Map.Entry<String, String> title : bandRowTitles.entrySet()){
-            Map<String, String> rowData = new LinkedHashMap<>();
-            rowData.put("title", title.getValue());
+            Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
+            rowData.put("title", HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
 
             var result = results.stream()
                 .filter(value -> value.getBandCode().equals(title.getKey()))
                     .findFirst()
                     .orElse(null);
             assert result != null;
-            rowData.put(FTE_TITLE.toLowerCase(), result.getFteTotal());
+            rowData.put(FTE_TITLE.toLowerCase(), HeadcountHeaderColumn.builder().currentValue(result.getFteTotal()).build());
             fteTotal += Double.parseDouble(result.getFteTotal());
-            rowData.put(HEADCOUNT_TITLE.toLowerCase(), result.getHeadcount());
+            rowData.put(HEADCOUNT_TITLE.toLowerCase(), HeadcountHeaderColumn.builder().currentValue(result.getHeadcount()).build());
             headcountTotal += Integer.parseInt(result.getHeadcount());
 
             rows.add(rowData);
         }
 
-        Map<String, String> totalRowData = new LinkedHashMap<>();
-        totalRowData.put("title", ALL_TITLE);
-        totalRowData.put(FTE_TITLE.toLowerCase(), fteTotal.toString());
-        totalRowData.put(HEADCOUNT_TITLE.toLowerCase(), headcountTotal.toString());
+        Map<String, HeadcountHeaderColumn> totalRowData = new LinkedHashMap<>();
+        totalRowData.put("title", HeadcountHeaderColumn.builder().currentValue(ALL_TITLE).build());
+        totalRowData.put(FTE_TITLE.toLowerCase(), HeadcountHeaderColumn.builder().currentValue(fteTotal.toString()).build());
+        totalRowData.put(HEADCOUNT_TITLE.toLowerCase(), HeadcountHeaderColumn.builder().currentValue(headcountTotal.toString()).build());
         rows.add(totalRowData);
 
         headcountResultsTable.setRows(rows);

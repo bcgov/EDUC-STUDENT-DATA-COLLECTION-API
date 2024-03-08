@@ -44,6 +44,20 @@ public class HeadcountHelper<T extends HeadcountResult> {
             });
   }
 
+  public void setResultsTableComparisonValues(HeadcountResultsTable collectionData, HeadcountResultsTable previousCollectionData) {
+    List<Map<String, HeadcountHeaderColumn>> rows = collectionData.getRows();
+    IntStream.range(0, rows.size())
+            .forEach(i -> {
+              var  currentData = collectionData.getRows().get(i);
+              var previousData = previousCollectionData.getRows().get(i);
+
+              currentData.forEach((rowName, currentRow) -> {
+                HeadcountHeaderColumn previousColumn = previousData.get(rowName);
+                currentRow.setComparisonValue(previousColumn.getCurrentValue());
+              });
+            });
+  }
+
   public UUID getPreviousSeptemberCollectionID(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
     var septemberCollection = sdcSchoolCollectionRepository.findLastCollectionByType(sdcSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
     if(septemberCollection.isPresent()) {
@@ -77,10 +91,11 @@ public class HeadcountHelper<T extends HeadcountResult> {
     headcountResultsTable.setHeaders(columnTitles);
     headcountResultsTable.setRows(new ArrayList<>());
 
-    List<Map<String, String>> rows = new ArrayList<>();
+    List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
     for (Map.Entry<String, String> title : rowTitles.entrySet()) {
-      Map<String, String> rowData = new LinkedHashMap<>();
-      rowData.put("title", title.getValue());
+      Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
+
+      rowData.put("title", HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
       BigDecimal total = BigDecimal.ZERO;
 
       Function<T, String> headcountFunction = headcountMethods.get(title.getKey());
@@ -95,12 +110,12 @@ public class HeadcountHelper<T extends HeadcountResult> {
             if (result != null && result.getEnrolledGradeCode().equals(gradeCode)) {
               headcount = headcountFunction.apply(result);
             }
-            rowData.put(gradeCode, headcount);
+            rowData.put(gradeCode, HeadcountHeaderColumn.builder().currentValue(headcount).build());
             total = total.add(new BigDecimal(headcount));
         }
-        rowData.put("Total", String.valueOf(total));
+        rowData.put("Total", HeadcountHeaderColumn.builder().currentValue(String.valueOf(total)).build());
       }
-      rowData.put("section", section);
+      rowData.put("section", HeadcountHeaderColumn.builder().currentValue(section).build());
       rows.add(rowData);
     }
     headcountResultsTable.setRows(rows);
