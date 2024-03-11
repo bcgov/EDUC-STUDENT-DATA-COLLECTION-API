@@ -51,7 +51,7 @@ public class CsfFrenchHeadcountHelper extends HeadcountHelper<CsfFrenchHeadcount
 
   public void setResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable collectionData) {
     UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
-    List<CsfFrenchHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySdcSchoolCollectionId(previousCollectionID);;
+    List<CsfFrenchHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySdcSchoolCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
     setResultsTableComparisonValues(collectionData, previousCollectionData);
   }

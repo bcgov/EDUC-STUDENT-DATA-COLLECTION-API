@@ -61,7 +61,7 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
 
     public void setResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable collectionData) {
         UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
-        List<IndigenousHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcSchoolCollectionId(previousCollectionID);;
+        List<IndigenousHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcSchoolCollectionId(previousCollectionID);
         HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
         setResultsTableComparisonValues(collectionData, previousCollectionData);
     }
