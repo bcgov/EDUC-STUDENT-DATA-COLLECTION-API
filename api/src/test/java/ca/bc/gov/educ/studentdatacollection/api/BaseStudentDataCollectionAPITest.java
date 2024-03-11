@@ -66,7 +66,7 @@ public abstract class BaseStudentDataCollectionAPITest {
   @Autowired
   public SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   @Autowired
-  SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  public SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   @Autowired
   CollectionTypeCodeRepository collectionTypeCodeRepository;
 

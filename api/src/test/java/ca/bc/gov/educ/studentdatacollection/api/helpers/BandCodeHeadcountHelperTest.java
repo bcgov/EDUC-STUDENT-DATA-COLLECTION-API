@@ -115,7 +115,6 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         List<BandResidenceHeadcountResult> result = studentRepository.getBandResidenceHeadcountsBySchoolId(schoolCollection.getSdcSchoolCollectionID());
         HeadcountResultsTable actualResultsTable = helper.convertBandHeadcountResults(result);
 
-        System.out.println(actualResultsTable);
         assertTrue(actualResultsTable.getHeaders().contains("Indigenous Language and Culture"));
         assertTrue(actualResultsTable.getHeaders().contains("Headcount"));
         assertTrue(actualResultsTable.getHeaders().contains("FTE"));
