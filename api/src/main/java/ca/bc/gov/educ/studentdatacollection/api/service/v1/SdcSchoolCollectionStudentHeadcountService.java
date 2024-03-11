@@ -40,7 +40,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
 
     List<HeadcountHeader> headcountHeaderList = Arrays.asList(enrollmentHeadcountHelper.getStudentsHeadcountTotals(collectionData), enrollmentHeadcountHelper.getGradesHeadcountTotals(collectionData));
     if (compare) {
-      enrollmentHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
+      enrollmentHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList, collectionData);
     }
     enrollmentHeadcountHelper.stripZeroColumns(headcountHeaderList.get(1));
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
@@ -60,6 +60,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
       collectionData = csfFrenchHeadcountHelper.convertHeadcountResults(collectionRawData);
       if(compare) {
         csfFrenchHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
+        csfFrenchHeadcountHelper.setResultsTableComparisonValues(sdcSchoolCollectionEntity, collectionData);
       }
     } else {
       List<FrenchHeadcountResult> collectionRawData;
@@ -69,6 +70,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
       collectionData = frenchHeadcountHelper.convertHeadcountResults(collectionRawData);
       if(compare) {
         frenchHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
+        frenchHeadcountHelper.setResultsTableComparisonValues(sdcSchoolCollectionEntity, collectionData);
       }
     }
 
@@ -83,6 +85,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
     List<HeadcountHeader> headcountHeaderList = careerHeadcountHelper.getHeaders(sdcSchoolCollectionID);
     if(compare) {
       careerHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
+      careerHeadcountHelper.setResultsTableComparisonValues(sdcSchoolCollectionEntity, headcountResultsTable);
     }
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
   }
@@ -96,6 +99,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
     List<HeadcountHeader> headcountHeaderList = indigenousHeadcountHelper.getHeaders(sdcSchoolCollectionID);
     if(compare) {
       indigenousHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
+      indigenousHeadcountHelper.setResultsTableComparisonValues(sdcSchoolCollectionEntity, headcountResultsTable);
     }
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
   }
@@ -111,6 +115,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
     List<HeadcountHeader> headcountHeaderList = ellHeadcountHelper.getHeaders(sdcSchoolCollectionID);
     if (compare) {
       ellHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
+      ellHeadcountHelper.setResultsTableComparisonValues(sdcSchoolCollectionEntity, headcountResultsTable);
     }
 
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
@@ -126,6 +131,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
     List<HeadcountHeader> headcountHeaderList = specialEdHeadcountHelper.getHeaders(sdcSchoolCollectionID);
     if(compare) {
       specialEdHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
+      specialEdHeadcountHelper.setResultsTableComparisonValues(sdcSchoolCollectionEntity, headcountResultsTable);
     }
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
   }
