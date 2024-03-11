@@ -164,6 +164,7 @@ public class SdcSchoolCollectionStudentService {
     studentRuleData.setSdcSchoolCollectionStudentEntity(incomingStudentEntity);
     studentRuleData.setSchool(school);
 
+    clearCalculatedFields(incomingStudentEntity);
     var validationErrors = validateStudent(studentRuleData);
     if(validationErrors.stream().noneMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString()))){
 
@@ -176,6 +177,23 @@ public class SdcSchoolCollectionStudentService {
     }
 
     return studentRuleData.getSdcSchoolCollectionStudentEntity();
+  }
+
+  private void clearCalculatedFields(SdcSchoolCollectionStudentEntity incomingStudentEntity){
+    incomingStudentEntity.setAssignedStudentId(null);
+    incomingStudentEntity.setAssignedPen(null);
+    incomingStudentEntity.setFte(null);
+    incomingStudentEntity.setIsGraduated(false);
+    incomingStudentEntity.setIsSchoolAged(false);
+    incomingStudentEntity.setIsAdult(false);
+    incomingStudentEntity.setPenMatchResult(null);
+    incomingStudentEntity.setNumberOfCoursesDec(null);
+    incomingStudentEntity.setFteZeroReasonCode(null);
+    incomingStudentEntity.setCareerProgramNonEligReasonCode(null);
+    incomingStudentEntity.setSpecialEducationNonEligReasonCode(null);
+    incomingStudentEntity.setEllNonEligReasonCode(null);
+    incomingStudentEntity.setIndigenousSupportProgramNonEligReasonCode(null);
+    incomingStudentEntity.setFrenchProgramNonEligReasonCode(null);
   }
 
   private List<SdcSchoolCollectionStudentValidationIssue> validateStudent(final StudentRuleData studentRuleData){
@@ -278,7 +296,7 @@ public class SdcSchoolCollectionStudentService {
 
   public List<SdcSchoolCollectionStudentValidationIssueErrorWarningCount> errorAndWarningCountBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
     List<ICountValidationIssuesBySeverityCode> issues = sdcSchoolCollectionStudentRepository.getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID(sdcSchoolCollectionID);
-    return issues.stream().map(issue -> new SdcSchoolCollectionStudentValidationIssueErrorWarningCount(issue.getSeverityCode(), issue.getTotal())).collect(Collectors.toList());
+    return issues.stream().map(issue -> new SdcSchoolCollectionStudentValidationIssueErrorWarningCount(issue.getSeverityCode(), issue.getTotal())).toList();
   }
 
   public void updateProgramEligibilityColumns(List<ProgramEligibilityIssueCode> errors, SdcSchoolCollectionStudentEntity student) {
