@@ -53,9 +53,10 @@ public class CareerProgramCodeRule implements ValidationBaseRule {
 
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         final List<String> enrolledProgramCodes = validationRulesService.splitString(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
+        boolean isProgramCodesEmpty = enrolledProgramCodes.isEmpty() || enrolledProgramCodes.stream().allMatch(String::isEmpty);
 
         if((StringUtils.isEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getCareerProgramCode()) && EnrolledProgramCodes.getCareerProgramCodes().stream().anyMatch(enrolledProgramCodes::contains))
-                || (StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getCareerProgramCode()) && EnrolledProgramCodes.getCareerProgramCodes().stream().noneMatch(enrolledProgramCodes::contains))) {
+                || (StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getCareerProgramCode()) && (isProgramCodesEmpty || EnrolledProgramCodes.getCareerProgramCodes().stream().noneMatch(enrolledProgramCodes::contains)))) {
             log.debug("CareerProgramCodeRule-V58: Both enrolled career program and career code are required for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.CAREER_PROGRAM_CODE, StudentValidationIssueTypeCode.CAREER_CODE_PROG_ERR));
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_PROGRAM_CODE, StudentValidationIssueTypeCode.CAREER_CODE_PROG_ERR));
