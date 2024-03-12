@@ -24,7 +24,6 @@ public enum EnrolledProgramCodes {
     OTHER_APPROVED_NATIVE("36"),
     CAREER_PREPARATION("40"),
     COOP("41"),
-
     APPRENTICESHIP("42"),
     CAREER_TECHNICAL_CENTER("43"),
     ADVANCED_PLACEMENT("AD"),
