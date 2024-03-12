@@ -45,7 +45,7 @@ public class DuplicatePenRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         if(StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getStudentPen())) {
             Long penCount = validationRulesService.getDuplicatePenCount(studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getSdcSchoolCollectionID(), studentRuleData.getSdcSchoolCollectionStudentEntity().getStudentPen());
-            if (penCount > 1) {
+            if (penCount >= 1) {
                 log.debug("DuplicatePenRule-V21: Duplicate PEN's found - count {} for PEN number, sdcSchoolCollectionStudentID  :: {}" , penCount, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.STUDENT_PEN, StudentValidationIssueTypeCode.STUDENT_PEN_DUPLICATE));
             }
