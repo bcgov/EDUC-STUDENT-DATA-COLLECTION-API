@@ -94,7 +94,7 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
                 String[] splits = filterCriteria.getFieldName().split("\\.");
                 return criteriaBuilder.or(criteriaBuilder.not(root.join(splits[0], JoinType.LEFT).get(splits[1]).in(filterCriteria.getConvertedValues())), criteriaBuilder.isEmpty(root.get(splits[0])));
             }
-            return criteriaBuilder.not(root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues()));
+            return criteriaBuilder.or(criteriaBuilder.not(root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues())), criteriaBuilder.isNull(root.get(filterCriteria.getFieldName())));
         });
 
         map.put(FilterOperation.NONE_IN,
@@ -111,7 +111,7 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
                             .where(childPredicate);
                     return criteriaBuilder.not(root.get("sdcSchoolCollectionStudentID").in(subquery));
                 } else {
-                    return criteriaBuilder.not(root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues()));
+                    return criteriaBuilder.or(criteriaBuilder.not(root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues())), criteriaBuilder.isNull(root.get(filterCriteria.getFieldName())));
                 }
             });
 
