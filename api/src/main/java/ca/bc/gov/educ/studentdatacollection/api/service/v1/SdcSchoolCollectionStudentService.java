@@ -183,9 +183,9 @@ public class SdcSchoolCollectionStudentService {
     incomingStudentEntity.setAssignedStudentId(null);
     incomingStudentEntity.setAssignedPen(null);
     incomingStudentEntity.setFte(null);
-    incomingStudentEntity.setIsGraduated(false);
-    incomingStudentEntity.setIsSchoolAged(false);
-    incomingStudentEntity.setIsAdult(false);
+    incomingStudentEntity.setIsGraduated(null);
+    incomingStudentEntity.setIsSchoolAged(null);
+    incomingStudentEntity.setIsAdult(null);
     incomingStudentEntity.setPenMatchResult(null);
     incomingStudentEntity.setNumberOfCoursesDec(null);
     incomingStudentEntity.setFteZeroReasonCode(null);
