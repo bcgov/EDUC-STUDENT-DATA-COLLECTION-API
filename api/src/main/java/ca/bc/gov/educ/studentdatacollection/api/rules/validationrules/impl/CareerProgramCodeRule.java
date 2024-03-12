@@ -38,7 +38,8 @@ public class CareerProgramCodeRule implements ValidationBaseRule {
         log.debug("In shouldExecute of CareerProgramCodeRule-V58: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V58", validationErrorsMap);
+        var shouldExecute = (StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes()) || StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getCareerProgramCode()))
+            && isValidationDependencyResolved("V58", validationErrorsMap);
 
         log.debug("In shouldExecute of CareerProgramCodeRule-V58: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
                 shouldExecute,
