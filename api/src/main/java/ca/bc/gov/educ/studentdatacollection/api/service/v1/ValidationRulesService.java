@@ -45,8 +45,12 @@ public class ValidationRulesService {
         this.restUtils = restUtils;
     }
 
-    public Long getDuplicatePenCount(UUID sdcSchoolID, String studentPen) {
-        return sdcSchoolStudentRepository.countForDuplicateStudentPENs(sdcSchoolID, studentPen);
+    public boolean isPenDuplicate(UUID sdcSchoolCollectionID, String studentPen, UUID sdcSchoolCollectionStudentID) {
+        Optional<List<SdcSchoolCollectionStudentEntity>> existingStudentWithPEN = sdcSchoolStudentRepository.findStudentWithPEN(sdcSchoolCollectionID, studentPen);
+        if(existingStudentWithPEN.isPresent() && !existingStudentWithPEN.get().isEmpty()) {
+            return sdcSchoolCollectionStudentID == null || existingStudentWithPEN.get().stream().noneMatch(existingStudent -> existingStudent.getSdcSchoolCollectionStudentID().toString().equalsIgnoreCase(sdcSchoolCollectionStudentID.toString()));
+        }
+        return false;
     }
 
     public List<EnrolledProgramCode> getActiveEnrolledProgramCodes() {

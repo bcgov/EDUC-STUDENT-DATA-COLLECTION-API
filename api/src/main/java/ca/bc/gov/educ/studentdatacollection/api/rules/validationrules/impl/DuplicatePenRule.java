@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
@@ -44,9 +46,9 @@ public class DuplicatePenRule implements ValidationBaseRule {
         log.debug("In executeValidation of DuplicatePenRule-V21 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         if(StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getStudentPen())) {
-            Long penCount = validationRulesService.getDuplicatePenCount(studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getSdcSchoolCollectionID(), studentRuleData.getSdcSchoolCollectionStudentEntity().getStudentPen());
-            if (penCount >= 1) {
-                log.debug("DuplicatePenRule-V21: Duplicate PEN's found - count {} for PEN number, sdcSchoolCollectionStudentID  :: {}" , penCount, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+            boolean isPenDuplicate = validationRulesService.isPenDuplicate(studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getSdcSchoolCollectionID(), studentRuleData.getSdcSchoolCollectionStudentEntity().getStudentPen(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+            if (isPenDuplicate) {
+                log.debug("DuplicatePenRule-V21: Duplicate PEN's found - PEN number, sdcSchoolCollectionStudentID  :: {}" , studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.STUDENT_PEN, StudentValidationIssueTypeCode.STUDENT_PEN_DUPLICATE));
             }
         }

@@ -422,8 +422,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val savedEntityTwo = sdcSchoolCollectionStudentRepository.findById(entity2.getSdcSchoolCollectionStudentID());
         assertThat(savedEntityTwo).isPresent();
 
-        val dupePenCount = sdcSchoolCollectionStudentRepository.countForDuplicateStudentPENs(entity.getSdcSchoolCollection().getSdcSchoolCollectionID(), entity.getStudentPen());
-        assertThat(dupePenCount).isEqualTo(2);
+        val dupePen = sdcSchoolCollectionStudentRepository.findStudentWithPEN(entity.getSdcSchoolCollection().getSdcSchoolCollectionID(), entity.getStudentPen());
+        assertThat(dupePen).isPresent();
 
         entity.setStudentPen("523456789");
         val validationErrorDupe = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));

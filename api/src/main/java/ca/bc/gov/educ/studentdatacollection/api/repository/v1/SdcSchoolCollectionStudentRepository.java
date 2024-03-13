@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -36,11 +37,11 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   long countBySdcSchoolCollection_SdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
-  @Query(value = """
-    SELECT COUNT(*) FROM SDC_SCHOOL_COLLECTION_STUDENT SSCS 
-    WHERE SSCS.sdc_school_collection_id = :sdcSchoolID 
-    AND SSCS.STUDENT_PEN=:studentPen""", nativeQuery = true)
-  Long countForDuplicateStudentPENs(UUID sdcSchoolID, String studentPen);
+  @Query(value="""
+    SELECT s FROM SdcSchoolCollectionStudentEntity s 
+    WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID
+    AND s.studentPen=:studentPen""")
+  Optional<List<SdcSchoolCollectionStudentEntity>> findStudentWithPEN(UUID sdcSchoolCollectionID, String studentPen);
 
   @Query(value="""
     SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE stud.sdcSchoolCollectionStudentID
