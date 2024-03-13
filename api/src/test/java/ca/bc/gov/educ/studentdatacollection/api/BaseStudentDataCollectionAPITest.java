@@ -447,11 +447,11 @@ public abstract class BaseStudentDataCollectionAPITest {
   }
   public List<BandCodeEntity> bandCodeData() {
     List<BandCodeEntity> bandCodeList = new ArrayList<>();
-    bandCodeList.add(BandCodeEntity.builder().bandCode("0704").description("KANAKA BAR")
-            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("KANAKA BAR").createDate(LocalDateTime.now())
+    bandCodeList.add(BandCodeEntity.builder().bandCode("0600").description("SPLATSIN")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("SPLATSIN").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build());
-    bandCodeList.add(BandCodeEntity.builder().bandCode("2411").description("ANSPAYAXW")
-            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(2).label("ANSPAYAXW").createDate(LocalDateTime.now())
+    bandCodeList.add(BandCodeEntity.builder().bandCode("0700").description("BOOTHROYD")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("BOOTHROYD - AFA").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build());
     bandCodeList.add(BandCodeEntity.builder().bandCode("0500").description("KWANLIN DUN")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("KWANLIN DUN").createDate(LocalDateTime.now())

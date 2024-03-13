@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.helpers.EnrollmentHeadcountHelper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
@@ -9,9 +8,6 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStud
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentEnrolledProgramRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.BandResidenceHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeaderColumn;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResultsTable;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -21,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
@@ -144,7 +139,6 @@ class SdcSchoolCollectionStudentHeadcountServiceTest extends BaseStudentDataColl
         sdcSchoolCollectionStudentEnrolledProgramRepository.saveAll(enrolledPrograms);
 
         var resultsTableWithoutCompare = service.getIndigenousHeadcounts(firstSchoolCollection, false);
-        System.out.println(resultsTableWithoutCompare);
         var allStudentsSection =   resultsTableWithoutCompare.getHeadcountResultsTable().getRows().stream().filter(val -> val.get("section").getCurrentValue().equals("All Indigenous Support Programs") && val.get("title").getCurrentValue().equals("All Indigenous Support Programs")).findAny();
         assertEquals("2", allStudentsSection.get().get("Total").getCurrentValue());
         assertNull(allStudentsSection.get().get("Total").getComparisonValue());
@@ -153,6 +147,23 @@ class SdcSchoolCollectionStudentHeadcountServiceTest extends BaseStudentDataColl
         var allStudentsWithCompareSection =   resultsTableWithCompare.getHeadcountResultsTable().getRows().stream().filter(val -> val.get("section").getCurrentValue().equals("All Indigenous Support Programs") && val.get("title").getCurrentValue().equals("All Indigenous Support Programs")).findAny();
         assertEquals("2", allStudentsWithCompareSection.get().get("Total").getCurrentValue());
         assertEquals("4", allStudentsWithCompareSection.get().get("Total").getComparisonValue());
+    }
+
+    @Test
+    void testGetBandOfResidenceValues_WhenCompareIsTrue(){
+        var resultsTableWithoutCompare = service.getBandResidenceHeadcounts(firstSchoolCollection, false);
+        assertEquals(3, resultsTableWithoutCompare.getHeadcountResultsTable().getRows().size());
+        var allStudentsWithoutCompareRow = resultsTableWithoutCompare.getHeadcountResultsTable().getRows().stream().filter(val -> val.get("title").getCurrentValue().equals("All Bands & Students")).findAny();
+        assertEquals("2.46", allStudentsWithoutCompareRow.get().get("FTE").getCurrentValue());
+        assertEquals("2", allStudentsWithoutCompareRow.get().get("Headcount").getCurrentValue());
+
+        var resultsTableWithCompare = service.getBandResidenceHeadcounts(firstSchoolCollection, true);
+        var allStudentsWithCompareRow = resultsTableWithCompare.getHeadcountResultsTable().getRows().stream().filter(val -> val.get("title").getCurrentValue().equals("All Bands & Students")).findAny();
+        assertEquals(4, resultsTableWithCompare.getHeadcountResultsTable().getRows().size());
+        assertEquals("2.46", allStudentsWithCompareRow.get().get("FTE").getCurrentValue());
+        assertEquals("2", allStudentsWithCompareRow.get().get("Headcount").getCurrentValue());
+        assertEquals("1.14", allStudentsWithCompareRow.get().get("FTE").getComparisonValue());
+        assertEquals("2", allStudentsWithCompareRow.get().get("Headcount").getComparisonValue());
     }
 
 }
