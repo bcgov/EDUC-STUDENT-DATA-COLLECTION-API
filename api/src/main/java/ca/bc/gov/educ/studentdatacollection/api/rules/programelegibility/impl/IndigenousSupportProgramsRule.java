@@ -47,16 +47,18 @@ public class IndigenousSupportProgramsRule implements ProgramEligibilityBaseRule
     String ancestryData = student.getNativeAncestryInd();
 
     log.debug("ProgramEligibilityBaseRule - IndigenousSupportProgramsRule: Enrolled Programs - {} - school -{} for sdcSchoolCollectionStudentID :: {}", studentPrograms, studentRuleData.getSchool(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+    log.debug("ProgramEligibilityBaseRule - IndigenousSupportProgramsRule: INDEPEND - {} ", studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()));
+    log.debug("ProgramEligibilityBaseRule - IndigenousSupportProgramsRule: else if condition - {} ", studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()));
     if (EnrolledProgramCodes.getIndigenousProgramCodes().stream().noneMatch(studentPrograms::contains)) {
       errors.add(ProgramEligibilityIssueCode.NOT_ENROLLED_INDIGENOUS);
-    }else if (Boolean.FALSE.equals(student.getIsSchoolAged())) {
+    } else if (Boolean.FALSE.equals(student.getIsSchoolAged())) {
       errors.add(ProgramEligibilityIssueCode.INDIGENOUS_ADULT);
     } else if (StringUtils.isEmpty(ancestryData) || ancestryData.equalsIgnoreCase("N")) {
       errors.add(ProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY);
     } else if (studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode())) {
       errors.add(ProgramEligibilityIssueCode.INDIGENOUS_INDY_SCHOOL);
     }
-
+    log.debug("ProgramEligibilityBaseRule - IndigenousSupportProgramsRule: Errors - {} ", errors);
     return errors;
   }
 
