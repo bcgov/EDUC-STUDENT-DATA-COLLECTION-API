@@ -19,13 +19,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceHeadcountResult>{
     private final CodeTableService codeTableService;
-    private static final String BAND_TITLE = "Indigenous Language and Culture";
+    private static final String TITLE = "title";
     private static final String HEADCOUNT_TITLE = "Headcount";
 
     private static final String FTE_TITLE = "FTE";
 
     private static final String BAND_CODE = "bandCode";
-    private static final List<String> HEADER_COLUMN_TITLES = List.of(BAND_TITLE, HEADCOUNT_TITLE, FTE_TITLE);
+    private static final List<String> HEADER_COLUMN_TITLES = List.of(HEADCOUNT_TITLE, FTE_TITLE);
+    private static final List<String> TABLE_COLUMN_TITLES = List.of(TITLE, HEADCOUNT_TITLE, FTE_TITLE);
 
     private static final String ALL_TITLE = "All Bands & Students";
 
@@ -73,7 +74,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
 
     public HeadcountResultsTable convertBandHeadcountResults(List<BandResidenceHeadcountResult> results){
         HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
-        headcountResultsTable.setHeaders(HEADER_COLUMN_TITLES);
+        headcountResultsTable.setHeaders(TABLE_COLUMN_TITLES);
         headcountResultsTable.setRows(new ArrayList<>());
 
         Double fteTotal = 0.0;
@@ -82,7 +83,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
         for(Map.Entry<String, String> title : getBandRowTitles().entrySet()){
             Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
-            rowData.put("title", HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
+            rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
 
             var result = results.stream()
                 .filter(value -> value.getBandCode().equals(title.getKey()))
@@ -102,7 +103,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         }
 
         Map<String, HeadcountHeaderColumn> totalRowData = new LinkedHashMap<>();
-        totalRowData.put("title", HeadcountHeaderColumn.builder().currentValue(ALL_TITLE).build());
+        totalRowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ALL_TITLE).build());
         totalRowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue(fteTotal.toString()).build());
         totalRowData.put(HEADCOUNT_TITLE, HeadcountHeaderColumn.builder().currentValue(headcountTotal.toString()).build());
         rows.add(totalRowData);

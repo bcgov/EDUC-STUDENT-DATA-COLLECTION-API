@@ -89,8 +89,8 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService);
 
         List<HeadcountHeader> expectedHeadcountHeaderList = new ArrayList<>();
-        HeadcountHeader header1 = new HeadcountHeader("0600 - SPLATSIN", null, List.of("Indigenous Language and Culture", "Headcount", "FTE"), new HashMap<>());
-        HeadcountHeader header2 = new HeadcountHeader("0700 - BOOTHROYD - AFA", null, List.of("Indigenous Language and Culture", "Headcount", "FTE"), new HashMap<>());
+        HeadcountHeader header1 = new HeadcountHeader("0600 - SPLATSIN", null, List.of("Headcount", "FTE"), new HashMap<>());
+        HeadcountHeader header2 = new HeadcountHeader("0700 - BOOTHROYD - AFA", null, List.of("Headcount", "FTE"), new HashMap<>());
         expectedHeadcountHeaderList.add(header1);
         expectedHeadcountHeaderList.add(header2);
 
@@ -110,7 +110,6 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         List<BandResidenceHeadcountResult> result = studentRepository.getBandResidenceHeadcountsBySchoolId(schoolCollection.getSdcSchoolCollectionID());
         HeadcountResultsTable actualResultsTable = helper.convertBandHeadcountResults(result);
 
-        assertTrue(actualResultsTable.getHeaders().contains("Indigenous Language and Culture"));
         assertTrue(actualResultsTable.getHeaders().contains("Headcount"));
         assertTrue(actualResultsTable.getHeaders().contains("FTE"));
 
