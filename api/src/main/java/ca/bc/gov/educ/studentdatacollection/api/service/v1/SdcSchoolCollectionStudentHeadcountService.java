@@ -12,9 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -136,13 +134,23 @@ public class SdcSchoolCollectionStudentHeadcountService {
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
   }
 
-  public SdcSchoolCollectionStudentHeadcounts getBandResidenceHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
-    var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
+  public SdcSchoolCollectionStudentHeadcounts getBandResidenceHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
+    UUID sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
+    List<UUID> sdcSchoolCollectionIDs = new ArrayList<>();
+    sdcSchoolCollectionIDs.add(sdcSchoolCollectionID);
+    if (compare) {
+        sdcSchoolCollectionIDs.add(bandResidenceHeadcountHelper.getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity));
+    }
+
+    List<HeadcountHeader> headcountHeaderList = bandResidenceHeadcountHelper.getHeadcountHeaders(sdcSchoolCollectionIDs);
 
     List<BandResidenceHeadcountResult> result = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySchoolId(sdcSchoolCollectionID);
     HeadcountResultsTable headcountResultsTable = bandResidenceHeadcountHelper.convertBandHeadcountResults(result);
-    List<HeadcountHeader> headcountHeaders = bandResidenceHeadcountHelper.getHeadcountHeaders(sdcSchoolCollectionID);
 
-    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaders).headcountResultsTable(headcountResultsTable).build();
+    if(compare) {
+      bandResidenceHeadcountHelper.setBandResultsTableComparisonValues(sdcSchoolCollectionEntity, headcountResultsTable);
+    }
+
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
   }
 }

@@ -1,11 +1,12 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.BandCodeEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
-import lombok.EqualsAndHashCode;
+import lombok.Setter;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -28,9 +29,8 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
 
     private static final String ALL_TITLE = "All Bands & Students";
 
-    protected List<BandCodeEntity> bandCodes;
 
-    @lombok.Setter
+    @Setter
     @Getter
     private static Map<String, String> bandRowTitles = new HashMap<>();
 
@@ -41,9 +41,10 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         headcountMethods = getHeadcountMethods();
     }
 
-    public List<HeadcountHeader> getHeadcountHeaders(UUID collectionID){
+    public List<HeadcountHeader> getHeadcountHeaders(List<UUID> collectionIDs){
         List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
-        getBandTitles(collectionID);
+        collectionIDs.forEach(collectionID -> bandRowTitles.putAll(getBandTitles(collectionID)));
+
         List<String> bandTitles = getBandRowTitles().values().stream().toList();
         bandTitles.forEach(headerTitle ->{
             HeadcountHeader headcountHeader = new HeadcountHeader();
@@ -55,7 +56,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         return headcountHeaderList;
     }
 
-    public void getBandTitles(UUID collectionID) {
+    public Map<String, String> getBandTitles(UUID collectionID) {
         List<String> bandCodesInCollection = sdcSchoolCollectionStudentRepository.getBandResidenceCodesByCollectionId(UUID.fromString(String.valueOf(collectionID)));
         List<BandCodeEntity> allActiveBandCodes = codeTableService.getAllBandCodes();
         Map<String, String> rowTitleMap = new LinkedHashMap<>();
@@ -67,7 +68,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
                 rowTitleMap.put(code, code + " - " + entity.getLabel());
             }
         });
-        setBandRowTitles(rowTitleMap);
+        return rowTitleMap;
     }
 
     public HeadcountResultsTable convertBandHeadcountResults(List<BandResidenceHeadcountResult> results){
@@ -79,7 +80,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         Integer headcountTotal = 0;
 
         List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
-        for(Map.Entry<String, String> title : bandRowTitles.entrySet()){
+        for(Map.Entry<String, String> title : getBandRowTitles().entrySet()){
             Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
             rowData.put("title", HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
 
@@ -87,24 +88,36 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
                 .filter(value -> value.getBandCode().equals(title.getKey()))
                     .findFirst()
                     .orElse(null);
-            assert result != null;
-            rowData.put(FTE_TITLE.toLowerCase(), HeadcountHeaderColumn.builder().currentValue(result.getFteTotal()).build());
-            fteTotal += Double.parseDouble(result.getFteTotal());
-            rowData.put(HEADCOUNT_TITLE.toLowerCase(), HeadcountHeaderColumn.builder().currentValue(result.getHeadcount()).build());
-            headcountTotal += Integer.parseInt(result.getHeadcount());
+            if(result != null) {
+                rowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getFteTotal()).build());
+                fteTotal += Double.parseDouble(result.getFteTotal());
+                rowData.put(HEADCOUNT_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getHeadcount()).build());
+                headcountTotal += Integer.parseInt(result.getHeadcount());
+            } else {
+                rowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue("0").build());
+                rowData.put(HEADCOUNT_TITLE, HeadcountHeaderColumn.builder().currentValue("0").build());
+            }
 
             rows.add(rowData);
         }
 
         Map<String, HeadcountHeaderColumn> totalRowData = new LinkedHashMap<>();
         totalRowData.put("title", HeadcountHeaderColumn.builder().currentValue(ALL_TITLE).build());
-        totalRowData.put(FTE_TITLE.toLowerCase(), HeadcountHeaderColumn.builder().currentValue(fteTotal.toString()).build());
-        totalRowData.put(HEADCOUNT_TITLE.toLowerCase(), HeadcountHeaderColumn.builder().currentValue(headcountTotal.toString()).build());
+        totalRowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue(fteTotal.toString()).build());
+        totalRowData.put(HEADCOUNT_TITLE, HeadcountHeaderColumn.builder().currentValue(headcountTotal.toString()).build());
         rows.add(totalRowData);
 
         headcountResultsTable.setRows(rows);
         return headcountResultsTable;
     }
+
+    public void setBandResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable currentCollectionData) {
+        UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
+        List<BandResidenceHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySchoolId(previousCollectionID);
+        HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData);
+        setResultsTableComparisonValues(currentCollectionData, previousCollectionData);
+    }
+
 
     private Map<String, Function<BandResidenceHeadcountResult, String>> getHeadcountMethods() {
         Map<String, Function<BandResidenceHeadcountResult, String>> headcountMethods = new HashMap<>();
