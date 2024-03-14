@@ -41,13 +41,12 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
     @BeforeEach
     void setUp() {
-
+        helper.setBandRowTitles(new HashMap<>());
         CollectionEntity collectionEntity = createMockCollectionEntity();
         collectionRepository.save(collectionEntity);
         UUID schoolID = UUID.randomUUID();
         schoolCollection = createMockSdcSchoolCollectionEntity(collectionEntity, schoolID, UUID.randomUUID());
         schoolCollectionRepository.save(schoolCollection);
-
     }
 
     @AfterEach
@@ -106,7 +105,7 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         saveStudentsWithBandCodes();
         helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService);
 
-        helper.getBandTitles(schoolCollection.getSdcSchoolCollectionID());
+        helper.setBandRowTitles(helper.getBandTitles(schoolCollection.getSdcSchoolCollectionID()));
 
         List<BandResidenceHeadcountResult> result = studentRepository.getBandResidenceHeadcountsBySchoolId(schoolCollection.getSdcSchoolCollectionID());
         HeadcountResultsTable actualResultsTable = helper.convertBandHeadcountResults(result);

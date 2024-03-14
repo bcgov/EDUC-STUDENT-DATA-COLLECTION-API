@@ -76,6 +76,9 @@ class SdcSchoolCollectionStudentHeadcountServiceTest extends BaseStudentDataColl
 
     @AfterEach
     void cleanup(){
+        collectionRepository.deleteAll();
+        sdcSchoolCollectionRepository.deleteAll();
+        sdcSchoolCollectionStudentRepository.deleteAll();
     }
 
     @Test

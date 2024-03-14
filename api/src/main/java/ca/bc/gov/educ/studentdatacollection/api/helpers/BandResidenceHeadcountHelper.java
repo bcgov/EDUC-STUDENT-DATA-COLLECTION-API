@@ -80,7 +80,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         Integer headcountTotal = 0;
 
         List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
-        for(Map.Entry<String, String> title : bandRowTitles.entrySet()){
+        for(Map.Entry<String, String> title : getBandRowTitles().entrySet()){
             Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
             rowData.put("title", HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
 
