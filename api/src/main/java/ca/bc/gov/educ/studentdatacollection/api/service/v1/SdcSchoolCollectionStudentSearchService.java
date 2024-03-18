@@ -147,6 +147,23 @@ public class SdcSchoolCollectionStudentSearchService {
 
   }
 
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public CompletableFuture<List<SdcSchoolCollectionStudentPaginationEntity>> findAllNonPaginated(Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs, final List<Sort.Order> sorts) {
+    log.trace("In find all non-paginated query: {}", studentSpecs);
+    return CompletableFuture.supplyAsync(() -> {
+      try {
+        log.trace("Running non-paginated query: {}", studentSpecs);
+        var results = this.sdcSchoolCollectionStudentPaginationRepository.findAll(studentSpecs, Sort.by(sorts));
+        log.trace("Non-paginated query returned with results: {}", results.size());
+        return results;
+      } catch (final Throwable ex) {
+        log.error("Failure querying for non-paginated SDC school students: {}", ex.getMessage());
+        throw new CompletionException(ex);
+      }
+    }, paginatedQueryExecutor);
+  }
+
+
   public Specification<SdcSchoolCollectionStudentPaginationEntity> setSpecificationAndSortCriteria(String sortCriteriaJson, String searchCriteriaListJson, ObjectMapper objectMapper, List<Sort.Order> sorts) {
     Specification<SdcSchoolCollectionStudentPaginationEntity> schoolSpecs = null;
     try {

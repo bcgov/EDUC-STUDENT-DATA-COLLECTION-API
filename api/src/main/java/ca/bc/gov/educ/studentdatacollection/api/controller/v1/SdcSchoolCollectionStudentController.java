@@ -21,13 +21,23 @@ import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionStudentValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -72,6 +82,66 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
         return this.sdcSchoolCollectionStudentSearchService
             .findAll(studentSpecs, pageNumber, pageSize, sorts)
             .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.map(mapper::toSdcSchoolCollectionStudentWithValidationIssues));
+    }
+
+    @Override
+    public CompletableFuture<ResponseEntity<byte[]>> findAllNonPaginated(String sortCriteriaJson, String searchCriteriaListJson) {
+        final List<Sort.Order> sorts = new ArrayList<>();
+        Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs = sdcSchoolCollectionStudentSearchService
+                .setSpecificationAndSortCriteria(
+                        sortCriteriaJson,
+                        searchCriteriaListJson,
+                        JsonUtil.mapper,
+                        sorts
+                );
+        return this.sdcSchoolCollectionStudentSearchService
+                .findAllNonPaginated(studentSpecs, sorts)
+                .thenApplyAsync(entities -> {
+                    try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                         CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(baos), CSVFormat.DEFAULT
+                                 .withHeader("School Code", "School Name", "P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer", "Refugee",
+                                         "Native Ancestry", "Native Status", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses"))) {
+
+                        for (SdcSchoolCollectionStudentPaginationEntity student : entities) {
+                            List<? extends Serializable> csvRow = Arrays.asList(
+                                    student.getSdcSchoolCollectionStudentID(),
+                                    student.getSdcSchoolCollectionStudentID(),
+                                    student.getStudentPen(),
+                                    student.getLegalFirstName() + " " + student.getLegalLastName(),
+                                    student.getUsualFirstName() + " " + student.getUsualLastName(),
+                                    student.getDob(),
+                                    student.getGender(),
+                                    student.getPostalCode(),
+                                    student.getLocalID(),
+                                    student.getEnrolledGradeCode(),
+                                    student.getFte(),
+                                    student.getIsAdult(),
+                                    student.getIsGraduated(),
+                                    student.getIsGraduated(),
+                                    student.getIsGraduated(),
+                                    student.getNativeAncestryInd(),
+                                    student.getNativeAncestryInd(),
+                                    student.getSdcSchoolCollectionStudentStatusCode(),
+                                    student.getBandCode(),
+                                    student.getHomeLanguageSpokenCode(),
+                                    student.getNumberOfCourses(),
+                                    student.getSupportBlocks(),
+                                    student.getOtherCourses()
+                            );
+                            csvPrinter.printRecord(csvRow);
+                        }
+
+                        csvPrinter.flush();
+
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=sdcSchoolCollectionStudents.csv");
+                        headers.add(HttpHeaders.CONTENT_TYPE, "text/csv");
+
+                        return new ResponseEntity<>(baos.toByteArray(), headers, HttpStatus.OK);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to generate CSV", e);
+                    }
+                });
     }
 
     @Override
