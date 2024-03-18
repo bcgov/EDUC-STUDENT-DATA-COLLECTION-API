@@ -122,7 +122,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
         } else if (HeadcountReportTypeCodes.SPECIAL_ED.getCode().equals(type)) {
             return sdcSchoolCollectionStudentHeadcountService.getSpecialEdHeadcounts(sdcSchoolCollectionEntity, compare);
         } else if (HeadcountReportTypeCodes.BAND_CODES.getCode().equals(type)) {
-            return sdcSchoolCollectionStudentHeadcountService.getBandResidenceHeadcounts(sdcSchoolCollectionEntity);
+            return sdcSchoolCollectionStudentHeadcountService.getBandResidenceHeadcounts(sdcSchoolCollectionEntity, compare);
         } else {
             log.error("Invalid type for getSdcSchoolCollectionStudentHeadcounts::" + type);
             throw new InvalidParameterException(type);

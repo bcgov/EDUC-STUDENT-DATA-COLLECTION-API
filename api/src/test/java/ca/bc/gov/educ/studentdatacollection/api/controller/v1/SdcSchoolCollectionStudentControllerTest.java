@@ -2340,4 +2340,47 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andReturn();
         this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
     }
+
+    @Test
+    void testCreateStudentInINDEPENDSchool_WithEnrolledIndigenousProg_ShouldReturnStudentWithProgramEligibleNo() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+                grantedAuthority);
+
+        var school = this.createMockSchool();
+        school.setSchoolCategoryCode("INDEPEND");
+        school.setFacilityTypeCode("STANDARD");
+        school.setSchoolReportingRequirementCode("REGULAR");
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
+        when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
+
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+        sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
+
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setCreateDate(null);
+        entity.setUpdateDate(null);
+        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.toString());
+        entity.setDob("20040701");
+        entity.setSchoolFundingCode("20");
+        entity.setNativeAncestryInd("Y");
+        entity.setEnrolledGradeCode("01");
+        entity.setEnrolledProgramCodes("3317");
+        entity.setCareerProgramCode(null);
+        entity.setBandCode("0600");
+        entity.setIsSchoolAged(true);
+        entity.setIsAdult(false);
+
+        this.mockMvc.perform(
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
+                                .contentType(APPLICATION_JSON)
+                                .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
+                                .with(mockAuthority))
+                .andDo(print()).andExpect(status().isOk())
+                .andExpect(jsonPath("indigenousSupportProgramNonEligReasonCode", equalTo("INDYERR")));
+    }
 }

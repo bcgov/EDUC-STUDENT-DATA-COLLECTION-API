@@ -132,7 +132,8 @@ public class ValidationRulesService {
             }else if(StringUtils.isNotEmpty(gradResult.getProgramCompletionDate())){
                 try{
                     LocalDate programCompletionDate = LocalDate.parse(gradResult.getProgramCompletionDate(), formatter);
-                    if(programCompletionDate.isBefore(student.getSdcSchoolCollection().getCollectionEntity().getSnapshotDate())){
+                    if(programCompletionDate.isBefore(student.getSdcSchoolCollection().getCollectionEntity().getSnapshotDate()) ||
+                            programCompletionDate.isEqual(student.getSdcSchoolCollection().getCollectionEntity().getSnapshotDate())){
                         student.setIsGraduated(true);
                     }
                 }catch(Exception e){

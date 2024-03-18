@@ -45,8 +45,7 @@ public class CSFProgramRule implements ValidationBaseRule {
         log.debug("In shouldExecute of CSFProgramRule-V19, V20: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        var shouldExecute = studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode())
-                && StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())
+        var shouldExecute = StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())
                 && isValidationDependencyResolved("V19", validationErrorsMap);
 
         log.debug("In shouldExecute of CSFProgramRule-V19, V20: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,

@@ -322,7 +322,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   @Query("SELECT " +
           "DISTINCT s.bandCode AS bandCode " +
           "FROM SdcSchoolCollectionStudentEntity s " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           "ORDER BY s.bandCode")
   List<String> getBandResidenceCodesByCollectionId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
@@ -331,7 +331,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "SUM(s.fte) AS fteTotal, " +
           "COUNT(*) AS headcount " +
           "FROM SdcSchoolCollectionStudentEntity s " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode != 'ERROR' AND s.bandCode IS NOT NULL " +
+          "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') AND s.bandCode IS NOT NULL " +
           "GROUP BY s.bandCode " +
           "ORDER BY s.bandCode")
   List<BandResidenceHeadcountResult> getBandResidenceHeadcountsBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
