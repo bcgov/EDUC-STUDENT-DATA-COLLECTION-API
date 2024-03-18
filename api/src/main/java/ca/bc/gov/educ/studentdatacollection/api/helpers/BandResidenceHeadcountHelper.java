@@ -89,13 +89,18 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
                 .filter(value -> value.getBandCode().equals(title.getKey()))
                     .findFirst()
                     .orElse(null);
-            if(result != null) {
+
+            if (result != null && result.getFteTotal() != null) {
                 rowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getFteTotal()).build());
                 fteTotal += Double.parseDouble(result.getFteTotal());
+            } else {
+                rowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue("0.00").build());
+            }
+
+            if (result != null && result.getHeadcount() != null) {
                 rowData.put(HEADCOUNT_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getHeadcount()).build());
                 headcountTotal += Integer.parseInt(result.getHeadcount());
             } else {
-                rowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue("0").build());
                 rowData.put(HEADCOUNT_TITLE, HeadcountHeaderColumn.builder().currentValue("0").build());
             }
 
@@ -119,6 +124,9 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         setResultsTableComparisonValues(currentCollectionData, previousCollectionData);
     }
 
+    public void clearBandTitles(){
+        setBandRowTitles(new HashMap<>());
+    }
 
     private Map<String, Function<BandResidenceHeadcountResult, String>> getHeadcountMethods() {
         Map<String, Function<BandResidenceHeadcountResult, String>> headcountMethods = new HashMap<>();
