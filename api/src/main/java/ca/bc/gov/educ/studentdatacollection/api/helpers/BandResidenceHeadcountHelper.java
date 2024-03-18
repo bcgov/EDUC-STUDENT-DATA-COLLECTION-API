@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceHeadcountResult>{
     private final CodeTableService codeTableService;
     private static final String TITLE = "title";
+    private static final String SECTION = "section";
     private static final String HEADCOUNT_TITLE = "Headcount";
 
     private static final String FTE_TITLE = "FTE";
@@ -77,13 +78,14 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         headcountResultsTable.setHeaders(TABLE_COLUMN_TITLES);
         headcountResultsTable.setRows(new ArrayList<>());
 
-        Double fteTotal = 0.0;
+        Double fteTotal = 0.0000;
         Integer headcountTotal = 0;
 
         List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
         for(Map.Entry<String, String> title : getBandRowTitles().entrySet()){
             Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
             rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
+            rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
 
             var result = results.stream()
                 .filter(value -> value.getBandCode().equals(title.getKey()))
@@ -94,7 +96,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
                 rowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getFteTotal()).build());
                 fteTotal += Double.parseDouble(result.getFteTotal());
             } else {
-                rowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue("0.00").build());
+                rowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue("0.0000").build());
             }
 
             if (result != null && result.getHeadcount() != null) {
@@ -109,6 +111,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
 
         Map<String, HeadcountHeaderColumn> totalRowData = new LinkedHashMap<>();
         totalRowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ALL_TITLE).build());
+        totalRowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_TITLE).build());
         totalRowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue(fteTotal.toString()).build());
         totalRowData.put(HEADCOUNT_TITLE, HeadcountHeaderColumn.builder().currentValue(headcountTotal.toString()).build());
         rows.add(totalRowData);
