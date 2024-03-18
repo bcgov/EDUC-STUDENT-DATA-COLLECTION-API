@@ -65,12 +65,34 @@ public interface SdcSchoolCollectionStudentEndpoint {
             .thenApplyAsync(page -> {
               try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
                    CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(baos), CSVFormat.DEFAULT
-                           .withHeader("P.E.N.", "Legal Name"))) {
+                           .withHeader("School Code", "School Name", "P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer", "Refugee",
+                                   "Native Ancestry", "Native Status", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses"))) {
 
                 for (SdcSchoolCollectionStudent student : page.getContent()) {
                   List<? extends Serializable> csvRow = Arrays.asList(
+                          student.getSdcSchoolCollectionID(),
+                          student.getSdcSchoolCollectionID(),
                           student.getStudentPen(),
-                          student.getLegalFirstName() + " " + student.getLegalLastName()
+                          student.getLegalFirstName() + " " + student.getLegalLastName(),
+                          student.getUsualFirstName() + " " + student.getUsualLastName(),
+                          student.getDob(),
+                          student.getGender(),
+                          student.getPostalCode(),
+                          student.getLocalID(),
+                          student.getEnrolledGradeCode(),
+                          student.getFte(),
+                          student.getIsAdult(),
+                          student.getIsGraduated(),
+                          student.getIsGraduated(),
+                          student.getIsGraduated(),
+                          student.getNativeAncestryInd(),
+                          student.getNativeAncestryInd(),
+                          student.getSdcSchoolCollectionStudentStatusCode(),
+                          student.getBandCode(),
+                          student.getHomeLanguageSpokenCode(),
+                          student.getNumberOfCourses(),
+                          student.getSupportBlocks(),
+                          student.getOtherCourses()
                   );
                   csvPrinter.printRecord(csvRow);
                 }
