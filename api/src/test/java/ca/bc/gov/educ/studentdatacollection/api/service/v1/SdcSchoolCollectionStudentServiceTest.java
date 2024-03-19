@@ -248,7 +248,7 @@ class SdcSchoolCollectionStudentServiceTest {
         sdcColl.setCollectionEntity(collection);
         SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
         mockStudentEntity.setSdcSchoolCollection(sdcColl);
-        mockStudentEntity.setSdcSchoolCollectionHistoryEntities(new HashSet<>());
+        mockStudentEntity.setSdcSchoolCollectionStudentHistoryEntities(new HashSet<>());
         mockStudentEntity.setSdcSchoolCollectionStudentID(UUID.randomUUID());
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
@@ -264,7 +264,7 @@ class SdcSchoolCollectionStudentServiceTest {
 
         // Then
         // Verify that the save method is called once with the correct entity
-        verify(sdcSchoolCollectionStudentRepository, times(2)).save(mockStudentEntity);
+        verify(sdcSchoolCollectionStudentRepository, times(1)).save(mockStudentEntity);
 
         // Assert that the status has been updated to DELETED
         assertSame(mockStudentEntity.getSdcSchoolCollectionStudentStatusCode(), SdcSchoolStudentStatus.DELETED.toString());

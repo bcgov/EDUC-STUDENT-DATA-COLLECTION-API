@@ -52,12 +52,9 @@ public class SdcService {
       .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
       .updateDate(LocalDateTime.now()).build();
 
-    CollectionEntity savedCollection = this.collectionRepository.save(collectionEntity);
-    log.info("Collection created and saved");
-
     Set<SdcSchoolCollectionEntity> sdcSchoolEntityList = new HashSet<>();
     for(School school : listOfSchools) {
-      SdcSchoolCollectionEntity sdcSchoolEntity = SdcSchoolCollectionEntity.builder().collectionEntity(savedCollection)
+      SdcSchoolCollectionEntity sdcSchoolEntity = SdcSchoolCollectionEntity.builder().collectionEntity(collectionEntity)
         .schoolID(UUID.fromString(school.getSchoolId()))
         .districtID(UUID.fromString(school.getDistrictId()))
         .sdcSchoolCollectionStatusCode("NEW")
@@ -68,16 +65,16 @@ public class SdcService {
       sdcSchoolEntityList.add(sdcSchoolEntity);
     }
 
-    savedCollection.setSdcSchoolCollectionEntities(sdcSchoolEntityList);
+    collectionEntity.setSdcSchoolCollectionEntities(sdcSchoolEntityList);
 
-    CollectionEntity savedCollectionWithSchoolEntities = this.collectionRepository.save(savedCollection);
-    log.info("Collection saved with sdc school entities");
-
-    if(!savedCollectionWithSchoolEntities.getSDCSchoolEntities().isEmpty()) {
-      for (SdcSchoolCollectionEntity sdcSchoolEntity : savedCollectionWithSchoolEntities.getSDCSchoolEntities() ) {
-        this.sdcSchoolHistoryService.createSDCSchoolHistory(sdcSchoolEntity, ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+    if(!collectionEntity.getSDCSchoolEntities().isEmpty()) {
+      for (SdcSchoolCollectionEntity sdcSchoolEntity : collectionEntity.getSDCSchoolEntities() ) {
+        sdcSchoolEntity.getSdcSchoolCollectionHistoryEntities().add(this.sdcSchoolHistoryService.createSDCSchoolHistory(sdcSchoolEntity, ApplicationProperties.STUDENT_DATA_COLLECTION_API));
       }
     }
+
+    this.collectionRepository.save(collectionEntity);
+    log.info("Collection saved with entities");
 
     collectionCode.setOpenDate(collectionCode.getOpenDate().plusYears(1));
     collectionCode.setCloseDate(collectionCode.getCloseDate().plusYears(1));

@@ -178,7 +178,7 @@ public class SdcSchoolCollectionStudentEntity {
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   @OneToMany(mappedBy = "sdcSchoolCollectionStudentEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentHistoryEntity.class)
-  private Set<SdcSchoolCollectionStudentHistoryEntity> sdcSchoolCollectionHistoryEntities;
+  private Set<SdcSchoolCollectionStudentHistoryEntity> sdcSchoolCollectionStudentHistoryEntities;
 
   @ManyToOne
   @NotFound(action = NotFoundAction.IGNORE)
@@ -203,11 +203,11 @@ public class SdcSchoolCollectionStudentEntity {
     return this.sdcStudentEnrolledProgramEntities;
   }
 
-  public Set<SdcSchoolCollectionStudentHistoryEntity> getSdcSchoolCollectionHistoryEntities() {
-    if (this.sdcSchoolCollectionHistoryEntities == null) {
-      this.sdcSchoolCollectionHistoryEntities = new HashSet<>();
+  public Set<SdcSchoolCollectionStudentHistoryEntity> getSdcSchoolCollectionStudentHistoryEntities() {
+    if (this.sdcSchoolCollectionStudentHistoryEntities == null) {
+      this.sdcSchoolCollectionStudentHistoryEntities = new HashSet<>();
     }
-    return this.sdcSchoolCollectionHistoryEntities;
+    return this.sdcSchoolCollectionStudentHistoryEntities;
   }
 
   public int getUniqueObjectHash() {

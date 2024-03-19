@@ -135,15 +135,13 @@ public class SdcSchoolCollectionStudentService {
   }
 
   public SdcSchoolCollectionStudentEntity saveSdcStudentWithHistory(SdcSchoolCollectionStudentEntity studentEntity) {
-    var entity = this.sdcSchoolCollectionStudentRepository.save(studentEntity);
-    entity.getSdcSchoolCollectionHistoryEntities().add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, studentEntity.getUpdateUser()));
-    return this.sdcSchoolCollectionStudentRepository.save(entity);
+    studentEntity.getSdcSchoolCollectionStudentHistoryEntities().add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(studentEntity, studentEntity.getUpdateUser()));
+    return this.sdcSchoolCollectionStudentRepository.save(studentEntity);
   }
 
   public List<SdcSchoolCollectionStudentEntity> saveAllSdcStudentWithHistory(List<SdcSchoolCollectionStudentEntity> studentEntities) {
-    var entities = this.sdcSchoolCollectionStudentRepository.saveAll(studentEntities);
-    entities.forEach(entity -> entity.getSdcSchoolCollectionHistoryEntities().add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, entity.getUpdateUser())));
-    return this.sdcSchoolCollectionStudentRepository.saveAll(entities);
+    studentEntities.forEach(entity -> entity.getSdcSchoolCollectionStudentHistoryEntities().add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, entity.getUpdateUser())));
+    return this.sdcSchoolCollectionStudentRepository.saveAll(studentEntities);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)

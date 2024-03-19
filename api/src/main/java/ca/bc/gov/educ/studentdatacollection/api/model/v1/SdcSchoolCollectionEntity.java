@@ -78,7 +78,7 @@ public class SdcSchoolCollectionEntity {
 
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
-  @OneToMany(mappedBy = "sdcSchoolCollectionID", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolCollectionHistoryEntity.class)
+  @OneToMany(mappedBy = "sdcSchoolCollection", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolCollectionHistoryEntity.class)
   private Set<SdcSchoolCollectionHistoryEntity> sdcSchoolCollectionHistoryEntities;
 
   public Set<SdcSchoolCollectionStudentEntity> getSDCSchoolStudentEntities() {
@@ -86,6 +86,13 @@ public class SdcSchoolCollectionEntity {
       this.sdcSchoolStudentEntities = new HashSet<>();
     }
     return this.sdcSchoolStudentEntities;
+  }
+
+  public Set<SdcSchoolCollectionHistoryEntity> getSdcSchoolCollectionHistoryEntities() {
+    if (this.sdcSchoolCollectionHistoryEntities == null) {
+      this.sdcSchoolCollectionHistoryEntities = new HashSet<>();
+    }
+    return this.sdcSchoolCollectionHistoryEntities;
   }
 
 }

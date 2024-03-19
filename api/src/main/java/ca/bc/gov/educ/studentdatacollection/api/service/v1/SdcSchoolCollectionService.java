@@ -52,11 +52,10 @@ public class SdcSchoolCollectionService {
   public SdcSchoolCollectionEntity saveSdcSchoolCollection(SdcSchoolCollectionEntity curSDCSchoolEntity, List<SdcSchoolCollectionStudentEntity> finalStudents) {
     curSDCSchoolEntity.getSDCSchoolStudentEntities().clear();
     curSDCSchoolEntity.getSDCSchoolStudentEntities().addAll(finalStudents);
-    var entity = this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);
-    this.sdcSchoolCollectionHistoryService.createSDCSchoolHistory(entity, curSDCSchoolEntity.getUpdateUser());
+    curSDCSchoolEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(curSDCSchoolEntity, curSDCSchoolEntity.getUpdateUser()));
     curSDCSchoolEntity.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity -> {
-      if(sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionHistoryEntities().isEmpty()) {
-        sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionHistoryEntities().add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser()));
+      if(sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentHistoryEntities().isEmpty()) {
+        sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentHistoryEntities().add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser()));
       }
     });
     return this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);

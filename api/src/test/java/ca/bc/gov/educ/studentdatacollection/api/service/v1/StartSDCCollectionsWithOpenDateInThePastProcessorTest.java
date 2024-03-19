@@ -65,7 +65,7 @@ class StartSDCCollectionsWithOpenDateInThePastProcessorTest extends
     assertEquals(collect.getCloseDate().plusYears(1).getYear(), nextCollectionCodeEntity.getCloseDate().getYear());
     assertEquals(collect.getCloseDate().getMonth(), nextCollectionCodeEntity.getCloseDate().getMonth());
 
-    assertEquals(sdcSchoolEntities.get(0).getSdcSchoolCollectionID(), sdcSchoolHistoryEntities.get(0).getSdcSchoolCollectionID());
+    assertEquals(sdcSchoolEntities.get(0).getSdcSchoolCollectionID(), sdcSchoolHistoryEntities.get(0).getSdcSchoolCollection().getSdcSchoolCollectionID());
   }
 
 }
