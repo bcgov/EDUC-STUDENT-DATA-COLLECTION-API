@@ -3,8 +3,10 @@ package ca.bc.gov.educ.studentdatacollection.api.mappers.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.mappers.UUIDMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentLight;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -27,7 +29,10 @@ public interface SdcSchoolCollectionStudentMapper {
 
   @Mapping(target = "sdcSchoolCollectionID", source = "sdcSchoolCollection.sdcSchoolCollectionID")
   SdcSchoolCollectionStudent toSdcSchoolCollectionStudentWithValidationIssues(SdcSchoolCollectionStudentPaginationEntity sdcSchoolStudentEntity);
-
+  @Mapping(target = "sdcSchoolCollectionID", source = "sdcSchoolCollection.sdcSchoolCollectionID")
+  SdcSchoolCollectionStudentLight  toSdcSchoolCollectionStudentLightIssues(SdcSchoolCollectionStudentEntity  sdcSchoolStudentEntity);
+  @Mapping(target = "sdcSchoolCollection.sdcSchoolCollectionID", source = "sdcSchoolCollectionID")
+  SdcSchoolCollectionStudentLightEntity toSdcSchoolStudentLightEntity(SdcSchoolCollectionStudentLight sdcSchoolStudent);
   @Mapping(target = "sdcSchoolCollection.sdcSchoolCollectionID", source = "sdcSchoolCollectionID")
   SdcSchoolCollectionStudentEntity toSdcSchoolStudentEntity(SdcSchoolCollectionStudent sdcSchoolStudent);
 

@@ -1,10 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHeadcounts;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcStudentEll;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -44,15 +41,18 @@ public interface SdcSchoolCollectionStudentEndpoint {
                                                               @RequestParam(name = "sort", defaultValue = "") String sortCriteriaJson,
                                                               @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson);
 
-  CompletableFuture<ResponseEntity<byte[]>> findAllNonPaginated(String sortCriteriaJson, String searchCriteriaListJson);
+  @GetMapping(URL.NOT_PAGINATED)
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_SCHOOL_COLLECTION_STUDENT')")
+  @Transactional(readOnly = true)
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
+  CompletableFuture<List<SdcSchoolCollectionStudentLight>> findAllNotPaginated();
+
   @GetMapping(URL.PAGINATED_CSV)
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_SCHOOL_COLLECTION_STUDENT')")
   @Transactional(readOnly = true)
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
-  default CompletableFuture<ResponseEntity<byte[]>> findAllCsv(@RequestParam(name = "sort", defaultValue = "") String sortCriteriaJson, @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson) {
-    return this.findAllNonPaginated(sortCriteriaJson, searchCriteriaListJson);
-  }
-
+  CompletableFuture<ResponseEntity<byte[]>> findAllNonPaginated(@RequestParam(name = "sort", defaultValue = "") String sortCriteriaJson,
+                                                                @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson);
 
   @PostMapping
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT')")

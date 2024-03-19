@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionA
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.studentdatacollection.api.filter.SdcSchoolCollectionStudentFilterSpecs;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentPaginationRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
@@ -51,6 +53,13 @@ public class SdcSchoolCollectionStudentSearchService {
   private final Executor paginatedQueryExecutor = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
+
+  private final Executor heavyLoadQueryExecutor = new EnhancedQueueExecutor.Builder()
+          .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-heavy-load-query-executor-%d").build())
+          .setCorePoolSize(10)
+          .setMaximumPoolSize(50)
+          .setKeepAliveTime(Duration.ofMinutes(10))
+          .build();
 
   public Specification<SdcSchoolCollectionStudentPaginationEntity> getSpecifications(Specification<SdcSchoolCollectionStudentPaginationEntity> schoolSpecs, int i, Search search) {
     if (i == 0) {
@@ -131,6 +140,7 @@ public class SdcSchoolCollectionStudentSearchService {
 
   @Transactional(propagation = Propagation.SUPPORTS)
   public CompletableFuture<Page<SdcSchoolCollectionStudentPaginationEntity>> findAll(Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
+    log.info("Starting findAll");
     log.trace("In find all query: {}", studentSpecs);
     return CompletableFuture.supplyAsync(() -> {
       Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sorts));
@@ -138,6 +148,7 @@ public class SdcSchoolCollectionStudentSearchService {
         log.trace("Running paginated query: {}", studentSpecs);
         var results = this.sdcSchoolCollectionStudentPaginationRepository.findAll(studentSpecs, paging);
         log.trace("Paginated query returned with results: {}", results);
+        log.info("Finish find all");
         return results;
       } catch (final Throwable ex) {
         log.error("Failure querying for paginated SDC school students: {}", ex.getMessage());
@@ -148,13 +159,32 @@ public class SdcSchoolCollectionStudentSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
+  public CompletableFuture<List<SdcSchoolCollectionStudentEntity>> findAllNotPaginated() {
+    log.info("Starting findAll");
+    return CompletableFuture.supplyAsync(() -> {
+      try {
+        var results = this.sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(UUID.fromString("4df122da-2bb8-0860-e68d-ac6507254355"));
+        log.info("Finish find all");
+        log.info(String.valueOf((long) results.size()));
+        return results;
+      } catch (final Throwable ex) {
+        log.error("Failure querying for paginated SDC school students: {}", ex.getMessage());
+        throw new CompletionException(ex);
+      }
+    }, heavyLoadQueryExecutor);
+
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
   public CompletableFuture<List<SdcSchoolCollectionStudentPaginationEntity>> findAllNonPaginated(Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs, final List<Sort.Order> sorts) {
     log.trace("In find all non-paginated query: {}", studentSpecs);
     return CompletableFuture.supplyAsync(() -> {
       try {
+        log.info("Starting find all no pagination DB call");
         log.trace("Running non-paginated query: {}", studentSpecs);
-        var results = this.sdcSchoolCollectionStudentPaginationRepository.findAll(studentSpecs, Sort.by(sorts));
+        var results = this.sdcSchoolCollectionStudentPaginationRepository.findAll(studentSpecs);
         log.trace("Non-paginated query returned with results: {}", results.size());
+        log.info("returning no pagination DB results");
         return results;
       } catch (final Throwable ex) {
         log.error("Failure querying for non-paginated SDC school students: {}", ex.getMessage());

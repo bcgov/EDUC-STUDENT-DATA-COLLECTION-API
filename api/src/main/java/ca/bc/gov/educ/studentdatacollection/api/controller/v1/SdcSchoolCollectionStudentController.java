@@ -11,10 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentHeadcountService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHeadcounts;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcStudentEll;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
@@ -85,6 +82,15 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
+    public CompletableFuture<List<SdcSchoolCollectionStudentLight>> findAllNotPaginated() {
+        return this.sdcSchoolCollectionStudentSearchService
+                .findAllNotPaginated()
+                .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.stream()
+                        .map(mapper::toSdcSchoolCollectionStudentLightIssues)
+                        .toList());
+    }
+
+    @Override
     public CompletableFuture<ResponseEntity<byte[]>> findAllNonPaginated(String sortCriteriaJson, String searchCriteriaListJson) {
         final List<Sort.Order> sorts = new ArrayList<>();
         Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs = sdcSchoolCollectionStudentSearchService
@@ -95,8 +101,10 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
                         sorts
                 );
         return this.sdcSchoolCollectionStudentSearchService
-                .findAllNonPaginated(studentSpecs, sorts)
+                //.findAllNonPaginated(studentSpecs, sorts)
+                .findAll(studentSpecs, 0, 400, sorts)
                 .thenApplyAsync(entities -> {
+                    log.info("Start create CSV");
                     try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
                          CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(baos), CSVFormat.DEFAULT
                                  .withHeader("School Code", "School Name", "P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer", "Refugee",
@@ -137,6 +145,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
                         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=sdcSchoolCollectionStudents.csv");
                         headers.add(HttpHeaders.CONTENT_TYPE, "text/csv");
 
+                        log.info("Finish create CSV");
                         return new ResponseEntity<>(baos.toByteArray(), headers, HttpStatus.OK);
                     } catch (IOException e) {
                         throw new RuntimeException("Failed to generate CSV", e);
