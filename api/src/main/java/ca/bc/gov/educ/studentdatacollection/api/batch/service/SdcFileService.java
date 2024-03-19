@@ -33,7 +33,6 @@ public class SdcFileService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload, String sdcSchoolCollectionID) {
     log.debug("Uploaded file contents for school collection ID: {}", sdcSchoolCollectionID);
-    this.sdcSchoolCollectionService.deleteValidationIssuesStudentsAndHistory(UUID.fromString(sdcSchoolCollectionID));
     Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = this.sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
 
     if (sdcSchoolCollectionOptional.isPresent() && StringUtils.isNotEmpty(sdcSchoolCollectionOptional.get().getUploadFileName())) {

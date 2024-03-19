@@ -13,6 +13,7 @@ import org.hibernate.annotations.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -174,6 +175,11 @@ public class SdcSchoolCollectionStudentEntity {
   @OneToMany(mappedBy = "sdcSchoolCollectionStudentEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentEnrolledProgramEntity.class)
   Set<SdcSchoolCollectionStudentEnrolledProgramEntity> sdcStudentEnrolledProgramEntities;
 
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  @OneToMany(mappedBy = "sdcSchoolCollectionStudentEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentHistoryEntity.class)
+  private Set<SdcSchoolCollectionStudentHistoryEntity> sdcSchoolCollectionStudentHistoryEntities;
+
   @ManyToOne
   @NotFound(action = NotFoundAction.IGNORE)
   @JoinColumn(name = "ASSIGNED_STUDENT_ID", referencedColumnName = "STUDENT_ID", insertable = false, updatable = false)
@@ -197,4 +203,14 @@ public class SdcSchoolCollectionStudentEntity {
     return this.sdcStudentEnrolledProgramEntities;
   }
 
+  public Set<SdcSchoolCollectionStudentHistoryEntity> getSdcSchoolCollectionStudentHistoryEntities() {
+    if (this.sdcSchoolCollectionStudentHistoryEntities == null) {
+      this.sdcSchoolCollectionStudentHistoryEntities = new HashSet<>();
+    }
+    return this.sdcSchoolCollectionStudentHistoryEntities;
+  }
+
+  public int getUniqueObjectHash() {
+    return Objects.hash(localID, studentPen, legalFirstName, legalMiddleNames, legalLastName, usualFirstName, usualMiddleNames, usualLastName, dob, gender, specialEducationCategoryCode, schoolFundingCode, nativeAncestryInd, homeLanguageSpokenCode, otherCourses, supportBlocks, enrolledGradeCode, enrolledProgramCodes, careerProgramCode, numberOfCourses, bandCode, postalCode);
+  }
 }

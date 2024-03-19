@@ -214,6 +214,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setIsGraduated(false);
     sdcEntity.setSdcStudentEnrolledProgramEntities(new HashSet<>());
     sdcEntity.setSdcStudentValidationIssueEntities(new HashSet<>());
+    sdcEntity.setSdcSchoolCollectionStudentHistoryEntities(new HashSet<>());
     return sdcEntity;
   }
 

@@ -48,7 +48,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.*;
 
@@ -136,16 +135,13 @@ public class SdcSchoolCollectionStudentService {
   }
 
   public SdcSchoolCollectionStudentEntity saveSdcStudentWithHistory(SdcSchoolCollectionStudentEntity studentEntity) {
-    var entity = this.sdcSchoolCollectionStudentRepository.save(studentEntity);
-    this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, studentEntity.getUpdateUser());
-    return entity;
+    studentEntity.getSdcSchoolCollectionStudentHistoryEntities().add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(studentEntity, studentEntity.getUpdateUser()));
+    return this.sdcSchoolCollectionStudentRepository.save(studentEntity);
   }
 
   public List<SdcSchoolCollectionStudentEntity> saveAllSdcStudentWithHistory(List<SdcSchoolCollectionStudentEntity> studentEntities) {
-    var entities = this.sdcSchoolCollectionStudentRepository.saveAll(studentEntities);
-    entities.forEach(entity -> this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, entity.getUpdateUser()));
-
-    return entities;
+    studentEntities.forEach(entity -> entity.getSdcSchoolCollectionStudentHistoryEntities().add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, entity.getUpdateUser())));
+    return this.sdcSchoolCollectionStudentRepository.saveAll(studentEntities);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)

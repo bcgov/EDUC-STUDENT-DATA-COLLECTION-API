@@ -3,13 +3,10 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentValidationIssueEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHistory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -243,7 +241,15 @@ class SdcSchoolCollectionStudentServiceTest {
         UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
 
         // Create a mock SdcSchoolCollectionStudentEntity
+        CollectionEntity collection = new CollectionEntity();
+        collection.setCollectionID(UUID.randomUUID());
+        SdcSchoolCollectionEntity sdcColl = new SdcSchoolCollectionEntity();
+        sdcColl.setSdcSchoolCollectionID(UUID.randomUUID());
+        sdcColl.setCollectionEntity(collection);
         SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        mockStudentEntity.setSdcSchoolCollection(sdcColl);
+        mockStudentEntity.setSdcSchoolCollectionStudentHistoryEntities(new HashSet<>());
+        mockStudentEntity.setSdcSchoolCollectionStudentID(UUID.randomUUID());
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
         SdcSchoolCollectionStudentValidationIssueEntity mockValidationError = new SdcSchoolCollectionStudentValidationIssueEntity();
@@ -251,8 +257,10 @@ class SdcSchoolCollectionStudentServiceTest {
         SdcSchoolCollectionStudentHistoryEntity studentHistoryEntity = new SdcSchoolCollectionStudentHistoryEntity();
         when(sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(any(), any())).thenReturn(studentHistoryEntity);
 
+        when(sdcSchoolCollectionStudentRepository.save(any())).thenReturn(mockStudentEntity);
+
         // When
-        sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
+        sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(mockStudentEntity.getSdcSchoolCollectionStudentID());
 
         // Then
         // Verify that the save method is called once with the correct entity
