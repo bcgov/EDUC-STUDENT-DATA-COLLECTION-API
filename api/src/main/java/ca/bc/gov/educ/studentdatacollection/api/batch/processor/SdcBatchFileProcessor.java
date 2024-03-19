@@ -44,6 +44,7 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileError.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchFileConstants.*;
@@ -193,6 +194,8 @@ public class SdcBatchFileProcessor {
     Map<Integer, SdcSchoolCollectionStudentEntity> finalStudentsMap = new HashMap<>();
     currentCollection.getSDCSchoolStudentEntities().forEach(student -> currentStudentsHashCodes.put(student.getUniqueObjectHash(), student));
     incomingCollection.getSDCSchoolStudentEntities().forEach(student -> incomingStudentsHashCodes.put(student.getUniqueObjectHash(), student));
+    log.info("Found {} current students for collection", currentStudentsHashCodes.size());
+    log.info("Found {} incoming students for collection", incomingStudentsHashCodes.size());
 
     currentStudentsHashCodes.keySet().forEach(currentStudentHash -> {
       if(incomingStudentsHashCodes.containsKey(currentStudentHash)){
@@ -200,13 +203,16 @@ public class SdcBatchFileProcessor {
       }
     });
 
+    AtomicInteger newStudCount = new AtomicInteger();
     incomingStudentsHashCodes.keySet().forEach(incomingStudentHash -> {
       if(!finalStudentsMap.containsKey(incomingStudentHash)){
+        newStudCount.getAndIncrement();
         finalStudentsMap.put(incomingStudentHash, incomingStudentsHashCodes.get(incomingStudentHash));
       }
     });
 
     finalStudentsMap.values().forEach(finalStudent -> finalStudent.setSdcSchoolCollection(currentCollection));
+    log.info("Found {} new students for collection {}", newStudCount, currentCollection.getSdcSchoolCollectionID());
     return finalStudentsMap.values().stream().toList();
   }
 
