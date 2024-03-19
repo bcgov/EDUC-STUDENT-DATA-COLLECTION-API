@@ -119,10 +119,6 @@ public class SdcSchoolCollectionService {
 
     TransformUtil.uppercaseFields(sdcSchoolCollectionEntity);
     sdcSchoolCollectionEntity.setCollectionEntity(collectionEntity);
-    SdcSchoolCollectionEntity savedSdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
-
-    sdcSchoolCollectionHistoryService.createSDCSchoolHistory(savedSdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser());
-
     // Write Enrolled Program Codes
     for (SdcSchoolCollectionStudentEntity student : sdcSchoolCollectionEntity.getSDCSchoolStudentEntities()) {
       if (StringUtils.isNotBlank(student.getEnrolledProgramCodes())) {
@@ -130,8 +126,8 @@ public class SdcSchoolCollectionService {
         this.sdcSchoolCollectionStudentService.writeEnrolledProgramCodes(student, enrolledProgramList);
       }
     }
-
-    return savedSdcSchoolCollectionEntity;
+    sdcSchoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser()));
+    return sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
