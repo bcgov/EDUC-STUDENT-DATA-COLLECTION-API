@@ -30,13 +30,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -82,9 +77,57 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
-    public CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>> findAllNotPaginated() {
+    public CompletableFuture<ResponseEntity<byte[]>> findAllNotPaginated() {
         return this.sdcSchoolCollectionStudentSearchService
-                .findAllNotPaginated();
+                .findAllNotPaginated()
+                .thenApplyAsync(entities -> {
+                    log.info("Start create CSV");
+                    try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                         CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(baos), CSVFormat.DEFAULT
+                                 .withHeader("School Code", "School Name", "P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer", "Refugee",
+                                         "Native Ancestry", "Native Status", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses"))) {
+
+                        for (SdcSchoolCollectionStudentLightEntity student : entities) {
+                            List<? extends Serializable> csvRow = Arrays.asList(
+                                    student.getSdcSchoolCollectionStudentID(),
+                                    student.getSdcSchoolCollectionStudentID(),
+                                    student.getStudentPen(),
+                                    student.getLegalFirstName() + " " + student.getLegalLastName(),
+                                    student.getUsualFirstName() + " " + student.getUsualLastName(),
+                                    student.getDob(),
+                                    student.getGender(),
+                                    student.getPostalCode(),
+                                    student.getLocalID(),
+                                    student.getEnrolledGradeCode(),
+                                    student.getFte(),
+                                    student.getIsAdult(),
+                                    student.getIsGraduated(),
+                                    student.getIsGraduated(),
+                                    student.getIsGraduated(),
+                                    student.getNativeAncestryInd(),
+                                    student.getNativeAncestryInd(),
+                                    student.getSdcSchoolCollectionStudentStatusCode(),
+                                    student.getBandCode(),
+                                    student.getHomeLanguageSpokenCode(),
+                                    student.getNumberOfCourses(),
+                                    student.getSupportBlocks(),
+                                    student.getOtherCourses()
+                            );
+                            csvPrinter.printRecord(csvRow);
+                        }
+
+                        csvPrinter.flush();
+
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=sdcSchoolCollectionStudents.csv");
+                        headers.add(HttpHeaders.CONTENT_TYPE, "text/csv");
+
+                        log.info("Finish create CSV");
+                        return new ResponseEntity<>(baos.toByteArray(), headers, HttpStatus.OK);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to generate CSV", e);
+                    }
+                });
     }
 
     @Override

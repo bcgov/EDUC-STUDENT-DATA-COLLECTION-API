@@ -46,7 +46,7 @@ public interface SdcSchoolCollectionStudentEndpoint {
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_SCHOOL_COLLECTION_STUDENT')")
   @Transactional(readOnly = true)
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
-  CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>> findAllNotPaginated();
+  CompletableFuture<ResponseEntity<byte[]>> findAllNotPaginated();
 
   @GetMapping(URL.PAGINATED_CSV)
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_SCHOOL_COLLECTION_STUDENT')")
