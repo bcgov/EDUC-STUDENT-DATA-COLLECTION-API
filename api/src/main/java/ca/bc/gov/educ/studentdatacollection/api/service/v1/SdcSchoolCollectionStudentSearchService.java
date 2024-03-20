@@ -155,23 +155,6 @@ public class SdcSchoolCollectionStudentSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>> findAllNotPaginated() {
-    log.info("Starting findAll CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>>");
-    return CompletableFuture.supplyAsync(() -> {
-      try {
-        var results = this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(UUID.fromString("4df122da-2bb8-0860-e68d-ac6507254355"));
-        log.info("Finish find all CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>>");
-        log.info(String.valueOf((long) results.size()));
-        return results;
-      } catch (final Throwable ex) {
-        log.error("Failure querying for paginated SDC school students: {}", ex.getMessage());
-        throw new CompletionException(ex);
-      }
-    }, heavyLoadQueryExecutor);
-
-  }
-
-  @Transactional(propagation = Propagation.SUPPORTS)
   public List<SdcSchoolCollectionStudentLightEntity> findAllSync(UUID collectionID) {
   log.info("Starting findAll CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>>");
     try {
@@ -184,25 +167,6 @@ public class SdcSchoolCollectionStudentSearchService {
       throw new CompletionException(ex);
     }
   }
-
-  @Transactional(propagation = Propagation.SUPPORTS)
-  public CompletableFuture<List<SdcSchoolCollectionStudentPaginationEntity>> findAllNonPaginated(Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs, final List<Sort.Order> sorts) {
-    log.trace("In find all non-paginated query: {}", studentSpecs);
-    return CompletableFuture.supplyAsync(() -> {
-      try {
-        log.info("Starting find all no pagination DB call");
-        log.trace("Running non-paginated query: {}", studentSpecs);
-        var results = this.sdcSchoolCollectionStudentPaginationRepository.findAll(studentSpecs);
-        log.trace("Non-paginated query returned with results: {}", results.size());
-        log.info("returning no pagination DB results");
-        return results;
-      } catch (final Throwable ex) {
-        log.error("Failure querying for non-paginated SDC school students: {}", ex.getMessage());
-        throw new CompletionException(ex);
-      }
-    }, paginatedQueryExecutor);
-  }
-
 
   public Specification<SdcSchoolCollectionStudentPaginationEntity> setSpecificationAndSortCriteria(String sortCriteriaJson, String searchCriteriaListJson, ObjectMapper objectMapper, List<Sort.Order> sorts) {
     Specification<SdcSchoolCollectionStudentPaginationEntity> schoolSpecs = null;

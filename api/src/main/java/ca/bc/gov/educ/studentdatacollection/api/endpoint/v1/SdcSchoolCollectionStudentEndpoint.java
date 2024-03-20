@@ -40,19 +40,6 @@ public interface SdcSchoolCollectionStudentEndpoint {
                                                               @RequestParam(name = "sort", defaultValue = "") String sortCriteriaJson,
                                                               @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson);
 
-  @GetMapping(URL.NOT_PAGINATED)
-  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_SCHOOL_COLLECTION_STUDENT')")
-  @Transactional(readOnly = true)
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
-  CompletableFuture<ResponseEntity<byte[]>> findAllNotPaginated();
-
-  @GetMapping(URL.PAGINATED_CSV)
-  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_SCHOOL_COLLECTION_STUDENT')")
-  @Transactional(readOnly = true)
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
-  CompletableFuture<ResponseEntity<byte[]>> findAllNonPaginated(@RequestParam(name = "sort", defaultValue = "") String sortCriteriaJson,
-                                                                @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson);
-
   @PostMapping
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})

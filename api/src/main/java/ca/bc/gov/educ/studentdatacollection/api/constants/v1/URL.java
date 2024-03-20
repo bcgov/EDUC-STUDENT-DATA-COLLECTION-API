@@ -18,8 +18,6 @@ public final class URL {
   public static final String FUNDING_CODES="/funding-codes";
   public static final String GRADE_CODES="/grade-codes";
   public static final String PAGINATED = "/paginated";
-  public static final String NOT_PAGINATED = "/not-paginated";
-  public static final String PAGINATED_CSV = "/paginated-csv";
   public static final String SPED_CODES="/specialEducation-codes";
   public static final String GENDER_CODES="/gender-codes";
   public static final String VALIDATION_ISSUE_TYPE_CODES = "/validation-issue-type-codes";
