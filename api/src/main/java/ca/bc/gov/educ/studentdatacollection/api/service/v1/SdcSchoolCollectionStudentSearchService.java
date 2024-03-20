@@ -8,6 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.filter.SdcSchoolCollectionStuden
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentLightRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentPaginationRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition;
@@ -49,6 +50,8 @@ public class SdcSchoolCollectionStudentSearchService {
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
   private final SdcSchoolCollectionStudentPaginationRepository sdcSchoolCollectionStudentPaginationRepository;
+
+  private final SdcSchoolCollectionStudentLightRepository sdcSchoolCollectionStudentLightRepository;
 
   private final Executor paginatedQueryExecutor = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
@@ -159,12 +162,12 @@ public class SdcSchoolCollectionStudentSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public CompletableFuture<List<SdcSchoolCollectionStudentEntity>> findAllNotPaginated() {
-    log.info("Starting findAll");
+  public CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>> findAllNotPaginated() {
+    log.info("Starting findAll CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>>");
     return CompletableFuture.supplyAsync(() -> {
       try {
-        var results = this.sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(UUID.fromString("4df122da-2bb8-0860-e68d-ac6507254355"));
-        log.info("Finish find all");
+        var results = this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(UUID.fromString("4df122da-2bb8-0860-e68d-ac6507254355"));
+        log.info("Finish find all CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>>");
         log.info(String.valueOf((long) results.size()));
         return results;
       } catch (final Throwable ex) {

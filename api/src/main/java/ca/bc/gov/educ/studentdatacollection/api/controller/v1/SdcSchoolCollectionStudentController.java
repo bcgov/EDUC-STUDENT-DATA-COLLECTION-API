@@ -82,12 +82,9 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
-    public CompletableFuture<List<SdcSchoolCollectionStudentLight>> findAllNotPaginated() {
+    public CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>> findAllNotPaginated() {
         return this.sdcSchoolCollectionStudentSearchService
-                .findAllNotPaginated()
-                .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.stream()
-                        .map(mapper::toSdcSchoolCollectionStudentLightIssues)
-                        .toList());
+                .findAllNotPaginated();
     }
 
     @Override

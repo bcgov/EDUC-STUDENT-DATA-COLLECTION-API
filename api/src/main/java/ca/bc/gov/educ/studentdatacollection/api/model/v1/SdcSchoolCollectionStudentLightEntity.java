@@ -2,7 +2,6 @@ package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.util.UpperCase;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Table;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.PastOrPresent;
@@ -12,8 +11,6 @@ import org.hibernate.annotations.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -32,11 +29,8 @@ public class SdcSchoolCollectionStudentLightEntity {
     @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
     UUID sdcSchoolCollectionStudentID;
 
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    @ManyToOne(optional = false, targetEntity = SdcSchoolCollectionEntity.class)
-    @JoinColumn(name = "SDC_SCHOOL_COLLECTION_ID", referencedColumnName = "SDC_SCHOOL_COLLECTION_ID", updatable = false)
-    private SdcSchoolCollectionEntity sdcSchoolCollection;
+    @Column(name = "SDC_SCHOOL_COLLECTION_ID")
+    private UUID sdcSchoolCollectionID;
 
     @Column(name = "LOCAL_ID")
     private String localID;
