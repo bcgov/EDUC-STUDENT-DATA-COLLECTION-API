@@ -16,10 +16,7 @@ import java.util.UUID;
 
 @Repository
 public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcSchoolCollectionStudentEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionStudentEntity> {
-//  @Query(value = """
-//          SELECT * FROM SDC_SCHOOL_COLLECTION_STUDENT SSCS
-//          WHERE SSCS.sdc_school_collection_id = :sdcSchoolCollectionID
-//          """, nativeQuery = true)
+
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_SdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollectionStudentIDIn(List<UUID> sdcSchoolCollectionStudentIDs);

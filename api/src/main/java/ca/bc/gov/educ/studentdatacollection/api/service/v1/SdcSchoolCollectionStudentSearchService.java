@@ -57,13 +57,6 @@ public class SdcSchoolCollectionStudentSearchService {
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
 
-  private final Executor heavyLoadQueryExecutor = new EnhancedQueueExecutor.Builder()
-          .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-heavy-load-query-executor-%d").build())
-          .setCorePoolSize(10)
-          .setMaximumPoolSize(50)
-          .setKeepAliveTime(Duration.ofMinutes(10))
-          .build();
-
   public Specification<SdcSchoolCollectionStudentPaginationEntity> getSpecifications(Specification<SdcSchoolCollectionStudentPaginationEntity> schoolSpecs, int i, Search search) {
     if (i == 0) {
       schoolSpecs = getSchoolCollectionStudentEntitySpecification(search.getSearchCriteriaList());
