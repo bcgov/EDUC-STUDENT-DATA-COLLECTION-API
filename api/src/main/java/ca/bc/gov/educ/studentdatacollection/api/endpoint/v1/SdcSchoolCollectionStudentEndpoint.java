@@ -1,7 +1,10 @@
 package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHeadcounts;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcStudentEll;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
