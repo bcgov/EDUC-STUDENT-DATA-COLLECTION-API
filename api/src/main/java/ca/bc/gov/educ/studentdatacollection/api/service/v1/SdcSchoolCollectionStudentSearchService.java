@@ -179,6 +179,20 @@ public class SdcSchoolCollectionStudentSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
+  public List<SdcSchoolCollectionStudentLightEntity> findAllSync() {
+  log.info("Starting findAll CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>>");
+    try {
+      var results = this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(UUID.fromString("4df122da-2bb8-0860-e68d-ac6507254355"));
+      log.info("Finish find all CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>>");
+      log.info(String.valueOf((long) results.size()));
+      return results;
+    } catch (final Throwable ex) {
+      log.error("Failure querying for paginated SDC school students: {}", ex.getMessage());
+      throw new CompletionException(ex);
+    }
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
   public CompletableFuture<List<SdcSchoolCollectionStudentPaginationEntity>> findAllNonPaginated(Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs, final List<Sort.Order> sorts) {
     log.trace("In find all non-paginated query: {}", studentSpecs);
     return CompletableFuture.supplyAsync(() -> {
