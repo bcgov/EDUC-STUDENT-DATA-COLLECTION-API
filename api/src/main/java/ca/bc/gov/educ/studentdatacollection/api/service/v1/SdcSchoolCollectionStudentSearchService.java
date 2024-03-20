@@ -179,10 +179,10 @@ public class SdcSchoolCollectionStudentSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public List<SdcSchoolCollectionStudentLightEntity> findAllSync() {
+  public List<SdcSchoolCollectionStudentLightEntity> findAllSync(UUID collectionID) {
   log.info("Starting findAll CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>>");
     try {
-      var results = this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(UUID.fromString("4df122da-2bb8-0860-e68d-ac6507254355"));
+      var results = this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(collectionID);
       log.info("Finish find all CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>>");
       log.info(String.valueOf((long) results.size()));
       return results;
