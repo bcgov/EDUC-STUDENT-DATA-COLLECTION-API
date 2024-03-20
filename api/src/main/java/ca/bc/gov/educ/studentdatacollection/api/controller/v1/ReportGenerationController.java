@@ -63,16 +63,17 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
                 log.info("Start create CSV");
                 try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
                      CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(baos), CSVFormat.DEFAULT
-                             .withHeader("School Code", "School Name", "P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer", "Refugee",
-                                     "Native Ancestry", "Native Status", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses"))) {
+                             .withHeader("P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate",
+                                     "Native Ancestry", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses"))) {
 
                     for (SdcSchoolCollectionStudentLightEntity student : entities) {
+                        String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
+                        String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());
+
                         List<? extends Serializable> csvRow = Arrays.asList(
-                                student.getSdcSchoolCollectionStudentID(),
-                                student.getSdcSchoolCollectionStudentID(),
                                 student.getStudentPen(),
-                                student.getLegalFirstName() + " " + student.getLegalLastName(),
-                                student.getUsualFirstName() + " " + student.getUsualLastName(),
+                                legalFullName,
+                                usualFullName,
                                 student.getDob(),
                                 student.getGender(),
                                 student.getPostalCode(),
@@ -81,11 +82,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
                                 student.getFte(),
                                 student.getIsAdult(),
                                 student.getIsGraduated(),
-                                student.getIsGraduated(),
-                                student.getIsGraduated(),
                                 student.getNativeAncestryInd(),
-                                student.getNativeAncestryInd(),
-                                student.getSdcSchoolCollectionStudentStatusCode(),
                                 student.getBandCode(),
                                 student.getHomeLanguageSpokenCode(),
                                 student.getNumberOfCourses(),
@@ -111,5 +108,29 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             default:
                 return new DownloadableReportResponse();
         }
+    }
+
+    private String formatFullName(String firstName, String middleNames, String lastName) {
+        StringBuilder fullName = new StringBuilder();
+
+        if (firstName != null && !firstName.isBlank()) {
+            fullName.append(firstName);
+        }
+
+        if (middleNames != null && !middleNames.isBlank()) {
+            if (!fullName.isEmpty()) {
+                fullName.append(" ");
+            }
+            fullName.append(middleNames);
+        }
+
+        if (lastName != null && !lastName.isBlank()) {
+            if (!fullName.isEmpty()) {
+                fullName.append(" ");
+            }
+            fullName.append(lastName);
+        }
+
+        return fullName.toString().trim();
     }
 }
