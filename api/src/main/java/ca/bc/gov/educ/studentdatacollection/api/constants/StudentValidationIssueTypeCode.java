@@ -58,7 +58,7 @@ public enum StudentValidationIssueTypeCode {
   ENROLLED_CODE_CAREER_ERR("ENROLLEDCODECAREERERR", "Out-of-Province/International students will not be funded any reported career programs."),
   ENROLLED_CODE_SP_ED_ERR("ENROLLEDCODESPEDERR", "Out-of-Province/International students will not be funded any reported special education programs."),
   SUMMER_GRADE_CODE("SUMMERGRADECODE", "Students in summer school must enrolled in grade 1-12."),
-  STUDENT_ADULT_ERR("STUDENTADULTERR", "Student cannot be an adult."),
+  STUDENT_ADULT_ERR("STUDENTADULTERR", "Adult students cannot be reported in Summer School."),
   KH_GRADE_CODE_INVALID("KHGRADECODEINVALID", "Student can only be registered in Kindergarten Halftime if they are in an Independent School."),
   SUPPORT_BLOCKS_NA("SUMMERSUPPORTBLOCKSNA", "Support blocks cannot be reported for summer learners."),
   SUPPORT_BLOCKS_INVALID("SUPPORTBLOCKSINVALID", "Number of Support Blocks must be a value from 0 to 8."),
