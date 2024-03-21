@@ -59,7 +59,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case SPECIAL_EDUCATION_HEADCOUNT:
                 return specialEdHeadcountReportService.generateSpecialEdHeadcountReport(collectionID);
             case ALL_STUDENT_CSV:
-                List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllSync(collectionID);
+                List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightSynchronous(collectionID);
                 log.info("Start create CSV");
                 try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
                      CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(baos), CSVFormat.DEFAULT

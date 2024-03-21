@@ -136,7 +136,6 @@ public class SdcSchoolCollectionStudentSearchService {
 
   @Transactional(propagation = Propagation.SUPPORTS)
   public CompletableFuture<Page<SdcSchoolCollectionStudentPaginationEntity>> findAll(Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
-    log.info("Starting findAll");
     log.trace("In find all query: {}", studentSpecs);
     return CompletableFuture.supplyAsync(() -> {
       Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sorts));
@@ -144,7 +143,6 @@ public class SdcSchoolCollectionStudentSearchService {
         log.trace("Running paginated query: {}", studentSpecs);
         var results = this.sdcSchoolCollectionStudentPaginationRepository.findAll(studentSpecs, paging);
         log.trace("Paginated query returned with results: {}", results);
-        log.info("Finish find all");
         return results;
       } catch (final Throwable ex) {
         log.error("Failure querying for paginated SDC school students: {}", ex.getMessage());
@@ -155,7 +153,7 @@ public class SdcSchoolCollectionStudentSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public List<SdcSchoolCollectionStudentLightEntity> findAllSync(UUID collectionID) {
+  public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightSynchronous(UUID collectionID) {
   log.info("Starting findAll CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>>");
     try {
       var results = this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(collectionID);
