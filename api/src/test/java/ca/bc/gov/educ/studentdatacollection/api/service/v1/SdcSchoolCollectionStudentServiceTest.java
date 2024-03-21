@@ -248,7 +248,6 @@ class SdcSchoolCollectionStudentServiceTest {
         sdcColl.setCollectionEntity(collection);
         SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
         mockStudentEntity.setSdcSchoolCollection(sdcColl);
-        mockStudentEntity.setSdcSchoolCollectionStudentHistoryEntities(new HashSet<>());
         mockStudentEntity.setSdcSchoolCollectionStudentID(UUID.randomUUID());
         when(sdcSchoolCollectionStudentRepository.findById(any())).thenReturn(Optional.of(mockStudentEntity));
 
