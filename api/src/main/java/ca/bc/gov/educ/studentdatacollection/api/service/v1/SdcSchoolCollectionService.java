@@ -53,11 +53,11 @@ public class SdcSchoolCollectionService {
     curSDCSchoolEntity.getSDCSchoolStudentEntities().clear();
     curSDCSchoolEntity.getSDCSchoolStudentEntities().addAll(finalStudents);
     curSDCSchoolEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(curSDCSchoolEntity, curSDCSchoolEntity.getUpdateUser()));
-//    curSDCSchoolEntity.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity -> {
-//      if(sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentHistoryEntities().isEmpty()) {
-//        sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentHistoryEntities().add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser()));
-//      }
-//    });
+    curSDCSchoolEntity.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity -> {
+      if(sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentHistoryEntities().isEmpty()) {
+        sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentHistoryEntities().add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser()));
+      }
+    });
     return this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);
   }
 
