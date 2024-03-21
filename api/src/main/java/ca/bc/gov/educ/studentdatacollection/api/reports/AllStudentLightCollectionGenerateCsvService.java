@@ -1,8 +1,9 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.EnrolledProgramCodes;
+import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -75,19 +76,19 @@ public class AllStudentLightCollectionGenerateCsvService {
                         student.getNumberOfCourses(),
                         student.getSupportBlocks(),
                         student.getOtherCourses(),
-                        enrolledProgramCodesSet.contains(ProgramCode.PROGRAMME_FRANCOPHONE.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(ProgramCode.CORE_FRENCH.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(ProgramCode.EARLY_IMMERSION.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(ProgramCode.LATE_IMMERSION.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(ProgramCode.ELL.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(ProgramCode.INDIGENOUS_CULTURE_LANG.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(ProgramCode.INDIGENOUS_SUPPORT.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(ProgramCode.INDIGENOUS_OTHER.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.CORE_FRENCH.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_LANGUAGE.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_SUPPORT.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode()) ? "Y" : "N",
                         student.getCareerProgramCode(),
-                        enrolledProgramCodesSet.contains(ProgramCode.CAREER_PREP.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(ProgramCode.COOP.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(ProgramCode.APPRENTICE.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(ProgramCode.CTC_CAREER_TECHNICAL_C.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_PREPARATION.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.COOP.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.APPRENTICESHIP.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()) ? "Y" : "N",
                         student.getSpecialEducationCategoryCode()
                 );
                 csvPrinter.printRecord(csvRow);
@@ -100,7 +101,7 @@ public class AllStudentLightCollectionGenerateCsvService {
 
             return downloadableReport;
         } catch (IOException e) {
-            throw new AllStudentLightCollectionGenerateCsvService.CsvGenerationException("Failed to generate CSV", e);
+            throw new StudentDataCollectionAPIRuntimeException(e);
         }
     }
 
@@ -126,34 +127,5 @@ public class AllStudentLightCollectionGenerateCsvService {
         }
 
         return fullName.toString().trim();
-    }
-
-    public static class CsvGenerationException extends RuntimeException {
-        public CsvGenerationException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
-
-    @Getter
-    public enum ProgramCode {
-        PROGRAMME_FRANCOPHONE("05"),
-        CORE_FRENCH("08"),
-        EARLY_IMMERSION("11"),
-        LATE_IMMERSION("14"),
-        ELL("17"),
-        INDIGENOUS_CULTURE_LANG("29"),
-        INDIGENOUS_SUPPORT("33"),
-        INDIGENOUS_OTHER("36"),
-        CAREER_PREP("40"),
-        COOP("41"),
-        APPRENTICE("42"),
-        CTC_CAREER_TECHNICAL_C("43");
-
-        private final String code;
-
-        ProgramCode(String code) {
-            this.code = code;
-        }
-
     }
 }
