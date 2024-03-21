@@ -128,8 +128,9 @@ public class SdcSchoolCollectionStudentService {
   }
 
   public SdcSchoolCollectionStudentEntity saveSdcStudentWithHistory(SdcSchoolCollectionStudentEntity studentEntity) {
-    sdcSchoolCollectionStudentHistoryRepository.save(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(studentEntity, studentEntity.getUpdateUser()));
-    return this.sdcSchoolCollectionStudentRepository.save(studentEntity);
+    var savedEntity = this.sdcSchoolCollectionStudentRepository.save(studentEntity);
+    sdcSchoolCollectionStudentHistoryRepository.save(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(savedEntity, studentEntity.getUpdateUser()));
+    return savedEntity;
   }
 
   public List<SdcSchoolCollectionStudentEntity> saveAllSdcStudentWithHistory(List<SdcSchoolCollectionStudentEntity> studentEntities) {
