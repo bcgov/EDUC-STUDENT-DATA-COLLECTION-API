@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedWriter;
@@ -77,18 +78,18 @@ public class AllStudentLightCollectionGenerateCsvService {
     private String formatFullName(String firstName, String middleNames, String lastName) {
         StringBuilder fullName = new StringBuilder();
 
-        if (firstName != null && !firstName.isBlank()) {
+        if (StringUtils.isNotBlank(firstName)) {
             fullName.append(firstName);
         }
 
-        if (middleNames != null && !middleNames.isBlank()) {
+        if (StringUtils.isNotBlank(middleNames)) {
             if (!fullName.isEmpty()) {
                 fullName.append(" ");
             }
             fullName.append(middleNames);
         }
 
-        if (lastName != null && !lastName.isBlank()) {
+        if (StringUtils.isNotBlank(lastName)) {
             if (!fullName.isEmpty()) {
                 fullName.append(" ");
             }
