@@ -154,12 +154,8 @@ public class SdcSchoolCollectionStudentSearchService {
 
   @Transactional(propagation = Propagation.SUPPORTS)
   public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightSynchronous(UUID collectionID) {
-  log.info("Starting findAll CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>>");
     try {
-      var results = this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(collectionID);
-      log.info("Finish find all CompletableFuture<List<SdcSchoolCollectionStudentLightEntity>>");
-      log.info(String.valueOf((long) results.size()));
-      return results;
+      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(collectionID);
     } catch (final Throwable ex) {
       log.error("Failure querying for paginated SDC school students: {}", ex.getMessage());
       throw new CompletionException(ex);
