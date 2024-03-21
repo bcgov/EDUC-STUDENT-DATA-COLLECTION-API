@@ -15,9 +15,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Serializable;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -61,10 +59,13 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case ALL_STUDENT_CSV:
                 List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightSynchronous(collectionID);
                 log.info("Start create CSV");
+                CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                        .setHeader("P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate",
+                                "Native Ancestry", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses")
+                        .build();
                 try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                     CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(baos), CSVFormat.DEFAULT
-                             .withHeader("P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate",
-                                     "Native Ancestry", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses"))) {
+                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(baos));
+                     CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
 
                     for (SdcSchoolCollectionStudentLightEntity student : entities) {
                         String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
@@ -102,7 +103,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
 
                     return downloadableReport;
                 } catch (IOException e) {
-                    throw new RuntimeException("Failed to generate CSV", e);
+                    throw new CsvGenerationException("Failed to generate CSV", e);
                 }
 
             default:
@@ -132,5 +133,11 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
         }
 
         return fullName.toString().trim();
+    }
+
+    public static class CsvGenerationException extends RuntimeException {
+        public CsvGenerationException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 }
