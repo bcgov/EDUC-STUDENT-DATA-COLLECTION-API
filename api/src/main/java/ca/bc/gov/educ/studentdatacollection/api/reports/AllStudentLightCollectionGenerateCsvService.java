@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.reports;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -13,10 +14,9 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 @Service
@@ -31,8 +31,10 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generate(UUID collectionID) {
         List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightSynchronous(collectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate",
-                        "Native Ancestry", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses")
+                .setHeader("P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer",
+                        "Refugee", "Indigenous  Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses",
+                        "Programme Francophone", "Core French", "Early Immersion", "Late Immersion", "Indigenous Culture/Lang", "Indigenous Support", "Indigenous Other",
+                        "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC - Career Technical C.", "Special Ed Category")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -41,6 +43,16 @@ public class AllStudentLightCollectionGenerateCsvService {
             for (SdcSchoolCollectionStudentLightEntity student : entities) {
                 String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
                 String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());
+                String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "Y" : "N";
+                String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "Y" : "N";
+                String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "Y" : "N";
+
+                String enrolledProgramCodes = student.getEnrolledProgramCodes();
+                Set<String> enrolledProgramCodesSet = (enrolledProgramCodes != null && !enrolledProgramCodes.isEmpty())
+                        ? IntStream.iterate(0, i -> i < enrolledProgramCodes.length(), i -> i + 2)
+                        .mapToObj(i -> enrolledProgramCodes.substring(i, Math.min(i + 2, enrolledProgramCodes.length())))
+                        .collect(Collectors.toSet())
+                        : Collections.emptySet();
 
                 List<? extends Serializable> csvRow = Arrays.asList(
                         student.getStudentPen(),
@@ -54,12 +66,28 @@ public class AllStudentLightCollectionGenerateCsvService {
                         student.getFte(),
                         student.getIsAdult(),
                         student.getIsGraduated(),
+                        feePayer,
+                        refugee,
                         student.getNativeAncestryInd(),
+                        ordinarilyResidentOnReserve,
                         student.getBandCode(),
                         student.getHomeLanguageSpokenCode(),
                         student.getNumberOfCourses(),
                         student.getSupportBlocks(),
-                        student.getOtherCourses()
+                        student.getOtherCourses(),
+                        enrolledProgramCodesSet.contains(ProgramCode.PROGRAMME_FRANCOPHONE.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(ProgramCode.CORE_FRENCH.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(ProgramCode.EARLY_IMMERSION.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(ProgramCode.LATE_IMMERSION.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(ProgramCode.INDIGENOUS_CULTURE_LANG.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(ProgramCode.INDIGENOUS_SUPPORT.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(ProgramCode.INDIGENOUS_OTHER.getCode()) ? "Y" : "N",
+                        student.getCareerProgramCode(),
+                        enrolledProgramCodesSet.contains(ProgramCode.CAREER_PREP.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(ProgramCode.COOP.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(ProgramCode.APPRENTICE.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(ProgramCode.CTC_CAREER_TECHNICAL_C.getCode()) ? "Y" : "N",
+                        student.getSpecialEducationCategoryCode()
                 );
                 csvPrinter.printRecord(csvRow);
             }
@@ -103,5 +131,27 @@ public class AllStudentLightCollectionGenerateCsvService {
         public CsvGenerationException(String message, Throwable cause) {
             super(message, cause);
         }
+    }
+
+    @Getter
+    public enum ProgramCode {
+        PROGRAMME_FRANCOPHONE("05"),
+        CORE_FRENCH("08"),
+        EARLY_IMMERSION("11"),
+        LATE_IMMERSION("14"),
+        INDIGENOUS_CULTURE_LANG("29"),
+        INDIGENOUS_SUPPORT("33"),
+        INDIGENOUS_OTHER("36"),
+        CAREER_PREP("40"),
+        COOP("41"),
+        APPRENTICE("42"),
+        CTC_CAREER_TECHNICAL_C("43");
+
+        private final String code;
+
+        ProgramCode(String code) {
+            this.code = code;
+        }
+
     }
 }
