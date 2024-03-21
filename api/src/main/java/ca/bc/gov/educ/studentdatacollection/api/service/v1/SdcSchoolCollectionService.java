@@ -61,9 +61,8 @@ public class SdcSchoolCollectionService {
     curSDCSchoolEntity.getSDCSchoolStudentEntities().addAll(finalStudents);
     curSDCSchoolEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(curSDCSchoolEntity, curSDCSchoolEntity.getUpdateUser()));
     List<SdcSchoolCollectionStudentHistoryEntity> newHistoryEntities = new ArrayList<>();
-    log.info("Removing the following students by ID: {}", removedStudents);
+    log.info("Removing the following student history records by sdcSchoolCollectionStudentIDs: {}", removedStudents);
     this.sdcSchoolCollectionStudentHistoryRepository.deleteBySdcSchoolCollectionStudentIDs(removedStudents);
-    this.sdcSchoolCollectionStudentHistoryRepository.flush();
     log.info("About to save school file data for collection: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
     var returnedEntities = this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);
     log.info("About to persist history records for students: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
