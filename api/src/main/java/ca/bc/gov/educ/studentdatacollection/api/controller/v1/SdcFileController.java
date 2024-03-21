@@ -39,6 +39,7 @@ public class SdcFileController implements SdcFileEndpoint {
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcFileService.runFileLoad(fileUpload, sdcSchoolCollectionID);
     log.info("File data committed for file: " + fileUpload.getFileName());
     var mapped = SdcSchoolCollectionMapper.mapper.toStructure(sdcSchoolCollectionEntity);
+    log.info("Mapping data complete");
     return ResponseEntity.ok(mapped);
   }
 
