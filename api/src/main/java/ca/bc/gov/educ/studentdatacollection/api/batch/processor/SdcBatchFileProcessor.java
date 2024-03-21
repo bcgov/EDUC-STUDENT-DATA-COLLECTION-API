@@ -25,6 +25,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import com.google.common.base.Stopwatch;
+import com.nimbusds.jose.util.Pair;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -175,23 +176,24 @@ public class SdcBatchFileProcessor {
     var schoolCollection = sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
     if(schoolCollection.isPresent()) {
       var coll = schoolCollection.get();
-      var finalStudentList = compareAndShoreUpStudentList(schoolCollection.get(), sdcSchoolCollectionEntity);
+      var pairStudentList = compareAndShoreUpStudentList(schoolCollection.get(), sdcSchoolCollectionEntity);
       coll.setUploadDate(sdcSchoolCollectionEntity.getUploadDate());
       coll.setUploadFileName(sdcSchoolCollectionEntity.getUploadFileName());
       coll.setUploadReportDate(sdcSchoolCollectionEntity.getUploadReportDate());
       coll.setUpdateUser(sdcSchoolCollectionEntity.getUpdateUser());
       coll.setUpdateDate(LocalDateTime.now());
       coll.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.NEW));
-      return sdcSchoolCollectionService.saveSdcSchoolCollection(coll, finalStudentList);
+      return sdcSchoolCollectionService.saveSdcSchoolCollection(coll, pairStudentList.getLeft(), pairStudentList.getRight());
     }else{
       throw new StudentDataCollectionAPIRuntimeException("SDC School Collection ID provided :: " + sdcSchoolCollectionID + " :: is not valid");
     }
   }
 
-  private List<SdcSchoolCollectionStudentEntity> compareAndShoreUpStudentList(SdcSchoolCollectionEntity currentCollection, SdcSchoolCollectionEntity incomingCollection){
+  private Pair<List<SdcSchoolCollectionStudentEntity>, List<UUID>> compareAndShoreUpStudentList(SdcSchoolCollectionEntity currentCollection, SdcSchoolCollectionEntity incomingCollection){
     Map<Integer, SdcSchoolCollectionStudentEntity> currentStudentsHashCodes = new HashMap<>();
     Map<Integer, SdcSchoolCollectionStudentEntity> incomingStudentsHashCodes = new HashMap<>();
     Map<Integer, SdcSchoolCollectionStudentEntity> finalStudentsMap = new HashMap<>();
+    List<UUID> removedStudents = new ArrayList<>();
     currentCollection.getSDCSchoolStudentEntities().forEach(student -> currentStudentsHashCodes.put(student.getUniqueObjectHash(), student));
     incomingCollection.getSDCSchoolStudentEntities().forEach(student -> incomingStudentsHashCodes.put(student.getUniqueObjectHash(), student));
     log.info("Found {} current students for collection", currentStudentsHashCodes.size());
@@ -200,6 +202,8 @@ public class SdcBatchFileProcessor {
     currentStudentsHashCodes.keySet().forEach(currentStudentHash -> {
       if(incomingStudentsHashCodes.containsKey(currentStudentHash)){
         finalStudentsMap.put(currentStudentHash, currentStudentsHashCodes.get(currentStudentHash));
+      }else{
+        removedStudents.add(currentStudentsHashCodes.get(currentStudentHash).getSdcSchoolCollectionStudentID());
       }
     });
 
@@ -213,7 +217,7 @@ public class SdcBatchFileProcessor {
 
     finalStudentsMap.values().forEach(finalStudent -> finalStudent.setSdcSchoolCollection(currentCollection));
     log.info("Found {} new students for collection {}", newStudCount, currentCollection.getSdcSchoolCollectionID());
-    return finalStudentsMap.values().stream().toList();
+    return Pair.of(finalStudentsMap.values().stream().toList(), removedStudents);
   }
 
   /**

@@ -5,8 +5,10 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentHistoryRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,6 +35,8 @@ public class SdcSchoolCollectionService {
 
   private final SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService;
 
+  private final SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
+
   private final SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService;
 
   private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
@@ -39,26 +44,26 @@ public class SdcSchoolCollectionService {
   private final CollectionRepository collectionRepository;
 
   @Autowired
-  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
+  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
     this.sdcSchoolCollectionHistoryService = sdcSchoolCollectionHistoryService;
+    this.sdcSchoolCollectionStudentHistoryRepository = sdcSchoolCollectionStudentHistoryRepository;
     this.sdcSchoolCollectionStudentHistoryService = sdcSchoolCollectionStudentHistoryService;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
     this.collectionRepository = collectionRepository;
   }
 
   @Transactional(propagation = Propagation.MANDATORY)
-  public SdcSchoolCollectionEntity saveSdcSchoolCollection(SdcSchoolCollectionEntity curSDCSchoolEntity, List<SdcSchoolCollectionStudentEntity> finalStudents) {
+  public SdcSchoolCollectionEntity saveSdcSchoolCollection(SdcSchoolCollectionEntity curSDCSchoolEntity, List<SdcSchoolCollectionStudentEntity> finalStudents, List<UUID> removedStudents) {
     curSDCSchoolEntity.getSDCSchoolStudentEntities().clear();
     curSDCSchoolEntity.getSDCSchoolStudentEntities().addAll(finalStudents);
     curSDCSchoolEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(curSDCSchoolEntity, curSDCSchoolEntity.getUpdateUser()));
+    List<SdcSchoolCollectionStudentHistoryEntity> newHistoryEntities = new ArrayList<>();
     log.info("About to persist history records for students: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
-    curSDCSchoolEntity.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity -> {
-      if(sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentHistoryEntities().isEmpty()) {
-        sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentHistoryEntities().add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser()));
-      }
-    });
+    curSDCSchoolEntity.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity ->  newHistoryEntities.add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser())));
+    this.sdcSchoolCollectionStudentHistoryRepository.deleteBySdcSchoolCollectionStudentIDs(removedStudents);
+    this.sdcSchoolCollectionStudentHistoryRepository.saveAll(newHistoryEntities);
     log.info("About to save school file data for collection: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
     return this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);
   }
