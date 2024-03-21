@@ -58,6 +58,7 @@ public class SdcSchoolCollectionService {
         sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentHistoryEntities().add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser()));
       }
     });
+    log.info("About to save school file data for collection: {}", curSDCSchoolEntity);
     return this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);
   }
 

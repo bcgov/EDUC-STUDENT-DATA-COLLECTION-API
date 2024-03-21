@@ -26,13 +26,11 @@ public class SdcFileService {
   @Getter(PRIVATE)
   private final SdcBatchFileProcessor sdcBatchProcessor;
 
-  private final SdcSchoolCollectionService sdcSchoolCollectionService;
-
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload, String sdcSchoolCollectionID) {
-    log.debug("Uploaded file contents for school collection ID: {}", sdcSchoolCollectionID);
+    log.info("Uploaded file contents for school collection ID: {}", sdcSchoolCollectionID);
     Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = this.sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
 
     if (sdcSchoolCollectionOptional.isPresent() && StringUtils.isNotEmpty(sdcSchoolCollectionOptional.get().getUploadFileName())) {
