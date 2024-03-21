@@ -58,7 +58,6 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
                 return specialEdHeadcountReportService.generateSpecialEdHeadcountReport(collectionID);
             case ALL_STUDENT_CSV:
                 List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightSynchronous(collectionID);
-                log.info("Start create CSV");
                 CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                         .setHeader("P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate",
                                 "Native Ancestry", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses")
@@ -92,10 +91,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
                         );
                         csvPrinter.printRecord(csvRow);
                     }
-
                     csvPrinter.flush();
-
-                    log.info("Finish create CSV");
 
                     var downloadableReport = new DownloadableReportResponse();
                     downloadableReport.setReportType(reportTypeCode);
