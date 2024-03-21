@@ -53,12 +53,13 @@ public class SdcSchoolCollectionService {
     curSDCSchoolEntity.getSDCSchoolStudentEntities().clear();
     curSDCSchoolEntity.getSDCSchoolStudentEntities().addAll(finalStudents);
     curSDCSchoolEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(curSDCSchoolEntity, curSDCSchoolEntity.getUpdateUser()));
+    log.info("About to persist history records for students: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
     curSDCSchoolEntity.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity -> {
       if(sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentHistoryEntities().isEmpty()) {
         sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentHistoryEntities().add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser()));
       }
     });
-    log.info("About to save school file data for collection: {}", curSDCSchoolEntity);
+    log.info("About to save school file data for collection: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
     return this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);
   }
 
