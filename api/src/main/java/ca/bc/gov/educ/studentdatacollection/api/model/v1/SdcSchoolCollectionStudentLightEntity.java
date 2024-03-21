@@ -4,13 +4,11 @@ import ca.bc.gov.educ.studentdatacollection.api.util.UpperCase;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Table;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -135,26 +133,6 @@ public class SdcSchoolCollectionStudentLightEntity {
     @Column(name = "IS_GRADUATED")
     private Boolean isGraduated;
 
-    @Column(name = "ASSIGNED_STUDENT_ID", columnDefinition = "BINARY(16)")
-    private UUID assignedStudentId;
-
     @Column(name = "ASSIGNED_PEN")
     private String assignedPen;
-
-    @Column(name = "PEN_MATCH_RESULT")
-    private String penMatchResult;
-
-    @Column(name = "CREATE_USER", updatable = false , length = 32)
-    private String createUser;
-
-    @PastOrPresent
-    @Column(name = "CREATE_DATE", updatable = false)
-    private LocalDateTime createDate;
-
-    @Column(name = "UPDATE_USER", length = 32)
-    private String updateUser;
-
-    @PastOrPresent
-    @Column(name = "UPDATE_DATE")
-    private LocalDateTime updateDate;
 }
