@@ -18,7 +18,7 @@ public class SdcSchoolCollectionStudentHistoryService {
   public SdcSchoolCollectionStudentHistoryEntity createSDCSchoolStudentHistory(SdcSchoolCollectionStudentEntity curSdcSchoolStudentEntity, String updateUser) {
     final SdcSchoolCollectionStudentHistoryEntity sdcSchoolCollectionStudentHistoryEntity = new SdcSchoolCollectionStudentHistoryEntity();
     BeanUtils.copyProperties(curSdcSchoolStudentEntity, sdcSchoolCollectionStudentHistoryEntity);
-    sdcSchoolCollectionStudentHistoryEntity.setSdcSchoolCollectionStudentEntity(curSdcSchoolStudentEntity);
+    sdcSchoolCollectionStudentHistoryEntity.setSdcSchoolCollectionStudentID(curSdcSchoolStudentEntity.getSdcSchoolCollectionStudentID());
     sdcSchoolCollectionStudentHistoryEntity.setSdcSchoolCollectionID(curSdcSchoolStudentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID());
     sdcSchoolCollectionStudentHistoryEntity.setCreateUser(updateUser);
     sdcSchoolCollectionStudentHistoryEntity.setCreateDate(LocalDateTime.now());

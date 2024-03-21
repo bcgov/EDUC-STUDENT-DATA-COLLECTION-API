@@ -28,11 +28,9 @@ public class SdcSchoolCollectionStudentHistoryEntity extends AbstractPersistable
   @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_HISTORY_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   UUID sdcSchoolCollectionStudentHistoryID;
 
-  @ToString.Exclude
-  @EqualsAndHashCode.Exclude
-  @ManyToOne(optional = false, targetEntity = SdcSchoolCollectionStudentEntity.class)
-  @JoinColumn(name = "SDC_SCHOOL_COLLECTION_STUDENT_ID", referencedColumnName = "SDC_SCHOOL_COLLECTION_STUDENT_ID", updatable = false)
-  SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity;
+  @Basic
+  @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_ID", columnDefinition = "BINARY(16)")
+  private UUID sdcSchoolCollectionStudentID;
 
   @Basic
   @Column(name = "SDC_SCHOOL_COLLECTION_ID", columnDefinition = "BINARY(16)")

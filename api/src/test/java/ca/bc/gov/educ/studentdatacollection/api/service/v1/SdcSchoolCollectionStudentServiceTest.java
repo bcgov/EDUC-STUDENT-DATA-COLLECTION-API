@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityI
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentHistoryRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
@@ -33,6 +34,9 @@ class SdcSchoolCollectionStudentServiceTest {
 
     @Mock
     private SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService;
+
+    @Mock
+    SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
 
     @Mock
     SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;

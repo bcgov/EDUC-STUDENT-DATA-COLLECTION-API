@@ -56,16 +56,19 @@ public class SdcSchoolCollectionService {
 
   @Transactional(propagation = Propagation.MANDATORY)
   public SdcSchoolCollectionEntity saveSdcSchoolCollection(SdcSchoolCollectionEntity curSDCSchoolEntity, List<SdcSchoolCollectionStudentEntity> finalStudents, List<UUID> removedStudents) {
+    List<SdcSchoolCollectionStudentEntity> newStudents = finalStudents.stream().filter(sdcSchoolCollectionStudentEntity -> sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID() == null).toList();
     curSDCSchoolEntity.getSDCSchoolStudentEntities().clear();
     curSDCSchoolEntity.getSDCSchoolStudentEntities().addAll(finalStudents);
     curSDCSchoolEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(curSDCSchoolEntity, curSDCSchoolEntity.getUpdateUser()));
     List<SdcSchoolCollectionStudentHistoryEntity> newHistoryEntities = new ArrayList<>();
-    log.info("About to persist history records for students: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
-    curSDCSchoolEntity.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity ->  newHistoryEntities.add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser())));
     this.sdcSchoolCollectionStudentHistoryRepository.deleteBySdcSchoolCollectionStudentIDs(removedStudents);
-    this.sdcSchoolCollectionStudentHistoryRepository.saveAll(newHistoryEntities);
     log.info("About to save school file data for collection: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
-    return this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);
+    var returnedEntities = this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);
+    log.info("About to persist history records for students: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
+    newStudents.stream().forEach(sdcSchoolCollectionStudentEntity -> newHistoryEntities.add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser())));
+    this.sdcSchoolCollectionStudentHistoryRepository.saveAll(newHistoryEntities);
+
+    return returnedEntities;
   }
 
   public SdcSchoolCollectionEntity getActiveSdcSchoolCollectionBySchoolID(UUID schoolID) {
