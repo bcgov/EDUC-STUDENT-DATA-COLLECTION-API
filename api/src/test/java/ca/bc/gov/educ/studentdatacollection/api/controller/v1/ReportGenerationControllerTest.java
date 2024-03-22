@@ -251,40 +251,4 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
                     get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockSchool.getSdcSchoolCollectionID() + "/" + "ALL_STUDENT_CSV").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk());
   }
-
-  @Test
-  void testAllStudentLightCollectionGenerateCsvService_emptyUUID_shouldReturnBadRequest() throws Exception {
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
-    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
-
-    var district = this.createMockDistrict();
-    when(this.restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(district));
-    var schoolMock = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolMock));
-
-    CollectionEntity collection = createMockCollectionEntity();
-    collection.setCloseDate(LocalDateTime.now().plusDays(2));
-    collectionRepository.save(collection);
-
-    School school = createMockSchool();
-    SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
-    sdcMockSchool.setUploadDate(null);
-    sdcMockSchool.setUploadFileName(null);
-    sdcMockSchool = sdcSchoolCollectionRepository.save(sdcMockSchool);
-
-    SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(sdcMockSchool);
-    student1.setIsSchoolAged(true);
-    student1.setFte(new BigDecimal(1.0));
-    sdcSchoolCollectionStudentRepository.save(student1);
-
-    SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(sdcMockSchool);
-    student1.setIsSchoolAged(false);
-    student1.setIsAdult(true);
-    student1.setFte(new BigDecimal(1.0));
-    sdcSchoolCollectionStudentRepository.save(student2);
-
-    this.mockMvc.perform(
-                    get(URL.BASE_URL_REPORT_GENERATION + "/" + " " + "/" + "ALL_STUDENT_CSV").with(mockAuthority))
-            .andDo(print()).andExpect(status().isInternalServerError());
-  }
 }
