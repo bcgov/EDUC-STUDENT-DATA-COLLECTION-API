@@ -13,6 +13,7 @@ import org.hibernate.annotations.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -197,4 +198,7 @@ public class SdcSchoolCollectionStudentEntity {
     return this.sdcStudentEnrolledProgramEntities;
   }
 
+  public int getUniqueObjectHash() {
+    return Objects.hash(localID, studentPen, legalFirstName, legalMiddleNames, legalLastName, usualFirstName, usualMiddleNames, usualLastName, dob, gender, specialEducationCategoryCode, schoolFundingCode, nativeAncestryInd, homeLanguageSpokenCode, otherCourses, supportBlocks, enrolledGradeCode, enrolledProgramCodes, careerProgramCode, numberOfCourses, bandCode, postalCode);
+  }
 }

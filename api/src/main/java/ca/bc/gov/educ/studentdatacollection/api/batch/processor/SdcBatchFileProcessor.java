@@ -15,6 +15,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionA
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -24,6 +25,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import com.google.common.base.Stopwatch;
+import com.nimbusds.jose.util.Pair;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +45,7 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileError.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SdcBatchFileConstants.*;
@@ -92,8 +95,7 @@ public class SdcBatchFileProcessor {
   }
 
   @Transactional(propagation = Propagation.MANDATORY)
-  public SdcSchoolCollectionEntity
-  processSdcBatchFile(@NonNull final SdcFileUpload fileUpload, String sdcSchoolCollectionID, Optional<SdcSchoolCollectionEntity> sdcSchoolCollection) {
+  public SdcSchoolCollectionEntity processSdcBatchFile(@NonNull final SdcFileUpload fileUpload, String sdcSchoolCollectionID, Optional<SdcSchoolCollectionEntity> sdcSchoolCollection) {
     val stopwatch = Stopwatch.createStarted();
     final var guid = UUID.randomUUID().toString(); // this guid will be used throughout the logs for easy tracking.
     log.info("Started processing SDC file with school collection ID :: {} and correlation guid :: {}", sdcSchoolCollectionID, guid);
@@ -158,36 +160,65 @@ public class SdcBatchFileProcessor {
    * @param guid             the guid
    * @param batchFile        the batch file
    */
-  private SdcSchoolCollectionEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final SdcBatchFile batchFile, @NonNull final SdcFileUpload fileUpload, @NonNull final String sdcSchoolCollectionID) {
+  public SdcSchoolCollectionEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final SdcBatchFile batchFile, @NonNull final SdcFileUpload fileUpload, @NonNull final String sdcSchoolCollectionID) {
     log.info("Going to persist data for batch :: {}", guid);
     final SdcSchoolCollectionEntity entity = mapper.toSdcBatchEntityLoaded(batchFile, fileUpload, sdcSchoolCollectionID); // batch file can be processed further and persisted.
     for (final var student : batchFile.getStudentDetails()) { // set the object so that PK/FK relationship will be auto established by hibernate.
       final var sdcBatchStudentEntity = mapper.toSdcSchoolStudentEntity(student, entity);
       entity.getSDCSchoolStudentEntities().add(sdcBatchStudentEntity);
     }
-    return markInitialLoadComplete(entity, sdcSchoolCollectionID);
+
+    return craftStudentSetAndMarkInitialLoadComplete(entity, sdcSchoolCollectionID);
   }
 
-  @Transactional(propagation = Propagation.MANDATORY)
   @Retryable(maxAttempts = 10, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public SdcSchoolCollectionEntity markInitialLoadComplete(@NonNull final SdcSchoolCollectionEntity sdcSchoolCollectionEntity, @NonNull final String sdcSchoolCollectionID) {
+  public SdcSchoolCollectionEntity craftStudentSetAndMarkInitialLoadComplete(@NonNull final SdcSchoolCollectionEntity sdcSchoolCollectionEntity, @NonNull final String sdcSchoolCollectionID) {
     var schoolCollection = sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
     if(schoolCollection.isPresent()) {
       var coll = schoolCollection.get();
-      coll.getSDCSchoolStudentEntities().clear();
-      coll.getSDCSchoolStudentEntities().addAll(sdcSchoolCollectionEntity.getSDCSchoolStudentEntities());
+      var pairStudentList = compareAndShoreUpStudentList(schoolCollection.get(), sdcSchoolCollectionEntity);
       coll.setUploadDate(sdcSchoolCollectionEntity.getUploadDate());
       coll.setUploadFileName(sdcSchoolCollectionEntity.getUploadFileName());
       coll.setUploadReportDate(sdcSchoolCollectionEntity.getUploadReportDate());
       coll.setUpdateUser(sdcSchoolCollectionEntity.getUpdateUser());
       coll.setUpdateDate(LocalDateTime.now());
       coll.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.NEW));
-      return sdcSchoolCollectionService.saveSdcSchoolCollection(coll);
+      return sdcSchoolCollectionService.saveSdcSchoolCollection(coll, pairStudentList.getLeft(), pairStudentList.getRight());
     }else{
       throw new StudentDataCollectionAPIRuntimeException("SDC School Collection ID provided :: " + sdcSchoolCollectionID + " :: is not valid");
     }
   }
 
+  private Pair<List<SdcSchoolCollectionStudentEntity>, List<UUID>> compareAndShoreUpStudentList(SdcSchoolCollectionEntity currentCollection, SdcSchoolCollectionEntity incomingCollection){
+    Map<Integer, SdcSchoolCollectionStudentEntity> currentStudentsHashCodes = new HashMap<>();
+    Map<Integer, SdcSchoolCollectionStudentEntity> incomingStudentsHashCodes = new HashMap<>();
+    Map<Integer, SdcSchoolCollectionStudentEntity> finalStudentsMap = new HashMap<>();
+    List<UUID> removedStudents = new ArrayList<>();
+    currentCollection.getSDCSchoolStudentEntities().forEach(student -> currentStudentsHashCodes.put(student.getUniqueObjectHash(), student));
+    incomingCollection.getSDCSchoolStudentEntities().forEach(student -> incomingStudentsHashCodes.put(student.getUniqueObjectHash(), student));
+    log.info("Found {} current students for collection", currentStudentsHashCodes.size());
+    log.info("Found {} incoming students for collection", incomingStudentsHashCodes.size());
+
+    currentStudentsHashCodes.keySet().forEach(currentStudentHash -> {
+      if(incomingStudentsHashCodes.containsKey(currentStudentHash)){
+        finalStudentsMap.put(currentStudentHash, currentStudentsHashCodes.get(currentStudentHash));
+      }else{
+        removedStudents.add(currentStudentsHashCodes.get(currentStudentHash).getSdcSchoolCollectionStudentID());
+      }
+    });
+
+    AtomicInteger newStudCount = new AtomicInteger();
+    incomingStudentsHashCodes.keySet().forEach(incomingStudentHash -> {
+      if(!finalStudentsMap.containsKey(incomingStudentHash)){
+        newStudCount.getAndIncrement();
+        finalStudentsMap.put(incomingStudentHash, incomingStudentsHashCodes.get(incomingStudentHash));
+      }
+    });
+
+    finalStudentsMap.values().forEach(finalStudent -> finalStudent.setSdcSchoolCollection(currentCollection));
+    log.info("Found {} new students for collection {}", newStudCount, currentCollection.getSdcSchoolCollectionID());
+    return Pair.of(finalStudentsMap.values().stream().toList(), removedStudents);
+  }
 
   /**
    * Populate batch file.

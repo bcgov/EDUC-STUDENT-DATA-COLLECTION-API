@@ -167,6 +167,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
 
         var collection = collectionRepository.save(sdcSchoolCollection.getCollectionEntity());
         sdcSchoolCollection.getCollectionEntity().setCollectionID(collection.getCollectionID());
+        sdcSchoolCollection.getSdcSchoolCollectionHistoryEntities().forEach(hist -> hist.setSdcSchoolCollection(sdcSchoolCollection));
         sdcSchoolCollectionRepository.save(sdcSchoolCollection);
         this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
         this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollection);

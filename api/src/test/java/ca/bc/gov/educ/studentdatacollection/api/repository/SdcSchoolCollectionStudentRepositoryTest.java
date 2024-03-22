@@ -72,7 +72,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var headcounts = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
         //then only the eligible career program students are included in the headcounts
-        assertEquals("1", headcounts.get(0).getPreparationXA());
+        assertEquals("0", headcounts.get(0).getPreparationXA());
         assertEquals("1", headcounts.get(0).getPreparationXB());
         assertEquals("1", headcounts.get(0).getCoopXC());
         assertEquals("1", headcounts.get(0).getCoopXD());
@@ -80,7 +80,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         assertEquals("1", headcounts.get(0).getApprenticeXF());
         assertEquals("1", headcounts.get(0).getTechYouthXG());
         assertEquals("1", headcounts.get(0).getTechYouthXH());
-        assertEquals("1", headcounts.get(0).getAllXA());
+        assertEquals("0", headcounts.get(0).getAllXA());
         assertEquals("1", headcounts.get(0).getAllXB());
         assertEquals("1", headcounts.get(0).getAllXC());
         assertEquals("1", headcounts.get(0).getAllXC());
@@ -88,11 +88,11 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         assertEquals("1", headcounts.get(0).getAllXC());
         assertEquals("1", headcounts.get(0).getAllXC());
         assertEquals("1", headcounts.get(0).getAllXC());
-        assertEquals("2", headcounts.get(0).getPreparationTotal());
+        assertEquals("1", headcounts.get(0).getPreparationTotal());
         assertEquals("2", headcounts.get(0).getCoopTotal());
         assertEquals("2", headcounts.get(0).getApprenticeTotal());
         assertEquals("2", headcounts.get(0).getTechYouthTotal());
-        assertEquals("8", headcounts.get(0).getAllTotal());
+        assertEquals("7", headcounts.get(0).getAllTotal());
     }
 
     @Test
@@ -114,7 +114,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var headcounts = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
         //then only non error student in headcounts
-        assertEquals("1", headcounts.get(0).getAllTotal());
+        assertEquals("0", headcounts.get(0).getAllTotal());
     }
 
     @Test

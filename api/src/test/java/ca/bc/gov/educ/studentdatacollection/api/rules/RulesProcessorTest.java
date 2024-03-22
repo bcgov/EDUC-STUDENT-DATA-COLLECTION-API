@@ -339,6 +339,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(error1).isTrue();
 
         entity.setEnrolledProgramCodes("4005");
+        entity.setCareerProgramCode("XA");
         val noValidationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(noValidationError.size()).isZero();
     }
@@ -621,6 +622,14 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
+
+        entity.setEnrolledProgramCodes(null);
+        entity.setCareerProgramCode("XA");
+        entity.setEnrolledGradeCode("09");
+        val validateNoCareerProgramCodeAndCareerCode = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        assertThat(validateNoCareerProgramCodeAndCareerCode.size()).isNotZero();
+        val errorNoCareerProgramCode = validateNoCareerProgramCodeAndCareerCode.stream().anyMatch(val -> val.getValidationIssueCode().equals("CAREERCODEPROGERR"));
+        assertThat(errorNoCareerProgramCode).isTrue();
 
         entity.setEnrolledProgramCodes("05");
         entity.setCareerProgramCode("XA");

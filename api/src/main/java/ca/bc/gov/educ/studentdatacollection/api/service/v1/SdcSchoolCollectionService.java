@@ -6,7 +6,10 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentHistoryRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -32,11 +35,7 @@ public class SdcSchoolCollectionService {
 
   private final SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService;
 
-  private final SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;
-
   private final SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
-
-  private final SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository;
 
   private final SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService;
 
@@ -45,26 +44,32 @@ public class SdcSchoolCollectionService {
   private final CollectionRepository collectionRepository;
 
   @Autowired
-  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
+  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
     this.sdcSchoolCollectionHistoryService = sdcSchoolCollectionHistoryService;
-    this.sdcSchoolCollectionStudentValidationIssueRepository = sdcSchoolCollectionStudentValidationIssueRepository;
     this.sdcSchoolCollectionStudentHistoryRepository = sdcSchoolCollectionStudentHistoryRepository;
-    this.sdcSchoolCollectionStudentEnrolledProgramRepository = sdcSchoolCollectionStudentEnrolledProgramRepository;
     this.sdcSchoolCollectionStudentHistoryService = sdcSchoolCollectionStudentHistoryService;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
     this.collectionRepository = collectionRepository;
   }
 
   @Transactional(propagation = Propagation.MANDATORY)
-  public SdcSchoolCollectionEntity saveSdcSchoolCollection(SdcSchoolCollectionEntity curSDCSchoolEntity) {
-    var entity = this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);
-    this.sdcSchoolCollectionHistoryService.createSDCSchoolHistory(entity, curSDCSchoolEntity.getUpdateUser());
-    List<SdcSchoolCollectionStudentHistoryEntity> historyEntities = new ArrayList<>();
-    entity.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity -> historyEntities.add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser())));
-    this.sdcSchoolCollectionStudentHistoryRepository.saveAll(historyEntities);
-    return entity;
+  public SdcSchoolCollectionEntity saveSdcSchoolCollection(SdcSchoolCollectionEntity curSDCSchoolEntity, List<SdcSchoolCollectionStudentEntity> finalStudents, List<UUID> removedStudents) {
+    List<SdcSchoolCollectionStudentEntity> newStudents = finalStudents.stream().filter(sdcSchoolCollectionStudentEntity -> sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID() == null).toList();
+    curSDCSchoolEntity.getSDCSchoolStudentEntities().clear();
+    curSDCSchoolEntity.getSDCSchoolStudentEntities().addAll(finalStudents);
+    curSDCSchoolEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(curSDCSchoolEntity, curSDCSchoolEntity.getUpdateUser()));
+    List<SdcSchoolCollectionStudentHistoryEntity> newHistoryEntities = new ArrayList<>();
+    log.info("Removing the following student history records by sdcSchoolCollectionStudentIDs: {}", removedStudents);
+    this.sdcSchoolCollectionStudentHistoryRepository.deleteBySdcSchoolCollectionStudentIDs(removedStudents);
+    log.info("About to save school file data for collection: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
+    var returnedEntities = this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);
+    log.info("About to persist history records for students: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
+    newStudents.stream().forEach(sdcSchoolCollectionStudentEntity -> newHistoryEntities.add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser())));
+    this.sdcSchoolCollectionStudentHistoryRepository.saveAll(newHistoryEntities);
+
+    return returnedEntities;
   }
 
   public SdcSchoolCollectionEntity getActiveSdcSchoolCollectionBySchoolID(UUID schoolID) {
@@ -125,10 +130,6 @@ public class SdcSchoolCollectionService {
 
     TransformUtil.uppercaseFields(sdcSchoolCollectionEntity);
     sdcSchoolCollectionEntity.setCollectionEntity(collectionEntity);
-    SdcSchoolCollectionEntity savedSdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
-
-    sdcSchoolCollectionHistoryService.createSDCSchoolHistory(savedSdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser());
-
     // Write Enrolled Program Codes
     for (SdcSchoolCollectionStudentEntity student : sdcSchoolCollectionEntity.getSDCSchoolStudentEntities()) {
       if (StringUtils.isNotBlank(student.getEnrolledProgramCodes())) {
@@ -136,24 +137,15 @@ public class SdcSchoolCollectionService {
         this.sdcSchoolCollectionStudentService.writeEnrolledProgramCodes(student, enrolledProgramList);
       }
     }
-
-    return savedSdcSchoolCollectionEntity;
+    sdcSchoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser()));
+    return sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void deleteSdcCollection(UUID sdcSchoolCollectionID) {
-    this.deleteValidationIssuesStudentsAndHistory(sdcSchoolCollectionID);
     Optional<SdcSchoolCollectionEntity> entityOptional = sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID);
     SdcSchoolCollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionID", sdcSchoolCollectionID.toString()));
     sdcSchoolCollectionRepository.delete(entity);
   }
 
-  @Transactional(propagation = Propagation.MANDATORY)
-  public void deleteValidationIssuesStudentsAndHistory(UUID sdcSchoolCollectionID) {
-    log.debug("Removing previous history, validation issues & students for sdc school collection: {}", sdcSchoolCollectionID);
-    this.sdcSchoolCollectionStudentHistoryRepository.deleteAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
-    this.sdcSchoolCollectionStudentEnrolledProgramRepository.deleteAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
-    this.sdcSchoolCollectionStudentValidationIssueRepository.deleteAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
-    this.sdcSchoolCollectionStudentRepository.deleteAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
-  }
 }

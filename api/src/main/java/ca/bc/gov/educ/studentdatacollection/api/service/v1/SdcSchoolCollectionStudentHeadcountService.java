@@ -139,7 +139,10 @@ public class SdcSchoolCollectionStudentHeadcountService {
     List<UUID> sdcSchoolCollectionIDs = new ArrayList<>();
     sdcSchoolCollectionIDs.add(sdcSchoolCollectionID);
     if (compare) {
-        sdcSchoolCollectionIDs.add(bandResidenceHeadcountHelper.getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity));
+      UUID sdcPreviousSchoolCollectionID = bandResidenceHeadcountHelper.getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
+      if(sdcPreviousSchoolCollectionID != null) {
+        sdcSchoolCollectionIDs.add(sdcPreviousSchoolCollectionID);
+      }
     }
 
     List<HeadcountHeader> headcountHeaderList = bandResidenceHeadcountHelper.getHeadcountHeaders(sdcSchoolCollectionIDs);
@@ -150,6 +153,8 @@ public class SdcSchoolCollectionStudentHeadcountService {
     if(compare) {
       bandResidenceHeadcountHelper.setBandResultsTableComparisonValues(sdcSchoolCollectionEntity, headcountResultsTable);
     }
+
+    bandResidenceHeadcountHelper.clearBandTitles();
 
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
   }

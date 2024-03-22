@@ -200,7 +200,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setSupportBlocks(null);
     sdcEntity.setEnrolledGradeCode("08");
     sdcEntity.setEnrolledProgramCodes("");
-    sdcEntity.setCareerProgramCode("XA");
+    sdcEntity.setCareerProgramCode("");
     sdcEntity.setNumberOfCourses("0400");
     sdcEntity.setBandCode("0500");
     sdcEntity.setPostalCode("V0V0V0");

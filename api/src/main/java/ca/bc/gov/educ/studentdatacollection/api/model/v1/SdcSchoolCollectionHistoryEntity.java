@@ -3,9 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.PastOrPresent;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
@@ -29,8 +27,11 @@ public class SdcSchoolCollectionHistoryEntity {
   @Column(name = "SDC_SCHOOL_COLLECTION_HISTORY_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   private UUID sdcSchoolCollectionHistoryID;
 
-  @Column(name = "SDC_SCHOOL_COLLECTION_ID", columnDefinition = "BINARY(16)")
-  private UUID sdcSchoolCollectionID;
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  @ManyToOne(optional = false, targetEntity = SdcSchoolCollectionEntity.class)
+  @JoinColumn(name = "SDC_SCHOOL_COLLECTION_ID", referencedColumnName = "SDC_SCHOOL_COLLECTION_ID", updatable = false)
+  private SdcSchoolCollectionEntity sdcSchoolCollection;
 
   @Column(name = "COLLECTION_ID", columnDefinition = "BINARY(16)")
   private UUID collectionID;
