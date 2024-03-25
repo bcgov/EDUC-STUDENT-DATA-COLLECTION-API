@@ -11,8 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -27,6 +26,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     private final IndigenousHeadcountReportService indigenousHeadcountReportService;
     private final EllHeadcountReportService ellHeadcountReportService;
     private final SpecialEdHeadcountReportService specialEdHeadcountReportService;
+    private final AllStudentLightCollectionGenerateCsvService allStudentLightCollectionGenerateCsvService;
 
     @Override
     public DownloadableReportResponse generateSDCReport(UUID collectionID, String reportTypeCode) {
@@ -37,21 +37,17 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             throw new InvalidPayloadException(error);
         }
 
-        switch(code.get()){
-            case GRADE_ENROLLMENT_HEADCOUNT:
-                return gradeEnrollmentHeadcountReportService.generateGradeEnrollmentHeadcountReport(collectionID);
-            case CAREER_HEADCOUNT:
-                return careerProgramHeadcountReportService.generateCareerProgramHeadcountReport(collectionID);
-            case FRENCH_HEADCOUNT:
-                return frenchProgramHeadcountReportService.generateFrenchProgramHeadcountReport(collectionID);
-            case INDIGENOUS_HEADCOUNT:
-                return indigenousHeadcountReportService.generateIndigenousHeadcountReport(collectionID);
-            case ELL_HEADCOUNT:
-                return ellHeadcountReportService.generateEllHeadcountReport(collectionID);
-            case SPECIAL_EDUCATION_HEADCOUNT:
-                return specialEdHeadcountReportService.generateSpecialEdHeadcountReport(collectionID);
-            default:
-                return new DownloadableReportResponse();
-        }
+        return switch (code.get()) {
+            case GRADE_ENROLLMENT_HEADCOUNT -> gradeEnrollmentHeadcountReportService.generateGradeEnrollmentHeadcountReport(collectionID);
+            case CAREER_HEADCOUNT -> careerProgramHeadcountReportService.generateCareerProgramHeadcountReport(collectionID);
+            case FRENCH_HEADCOUNT -> frenchProgramHeadcountReportService.generateFrenchProgramHeadcountReport(collectionID);
+            case INDIGENOUS_HEADCOUNT -> indigenousHeadcountReportService.generateIndigenousHeadcountReport(collectionID);
+            case ELL_HEADCOUNT -> ellHeadcountReportService.generateEllHeadcountReport(collectionID);
+            case SPECIAL_EDUCATION_HEADCOUNT -> specialEdHeadcountReportService.generateSpecialEdHeadcountReport(collectionID);
+            case ALL_STUDENT_CSV -> allStudentLightCollectionGenerateCsvService.generate(collectionID);
+            default -> new DownloadableReportResponse();
+        };
     }
+
+
 }

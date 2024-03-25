@@ -6,7 +6,9 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionA
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.studentdatacollection.api.filter.SdcSchoolCollectionStudentFilterSpecs;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentLightRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentPaginationRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition;
@@ -34,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
@@ -47,6 +50,8 @@ public class SdcSchoolCollectionStudentSearchService {
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
   private final SdcSchoolCollectionStudentPaginationRepository sdcSchoolCollectionStudentPaginationRepository;
+
+  private final SdcSchoolCollectionStudentLightRepository sdcSchoolCollectionStudentLightRepository;
 
   private final Executor paginatedQueryExecutor = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
@@ -145,6 +150,16 @@ public class SdcSchoolCollectionStudentSearchService {
       }
     }, paginatedQueryExecutor);
 
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightSynchronous(UUID collectionID) {
+    try {
+      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(collectionID);
+    } catch (final Throwable ex) {
+      log.error("Failure querying for paginated SDC school students: {}", ex.getMessage());
+      throw new CompletionException(ex);
+    }
   }
 
   public Specification<SdcSchoolCollectionStudentPaginationEntity> setSpecificationAndSortCriteria(String sortCriteriaJson, String searchCriteriaListJson, ObjectMapper objectMapper, List<Sort.Order> sorts) {
