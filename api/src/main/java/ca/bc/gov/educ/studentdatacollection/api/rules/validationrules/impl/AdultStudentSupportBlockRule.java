@@ -50,9 +50,10 @@ public class AdultStudentSupportBlockRule implements ValidationBaseRule {
         log.debug("In executeValidation of AdultStudentSupportBlockRule-V68 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
+        var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
-        if(SchoolGradeCodes.getAllowedAdultGradesNonGraduate().contains(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode())
-                && StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getSupportBlocks())) {
+        if(SchoolGradeCodes.getAllowedAdultGradesNonGraduate().contains(student.getEnrolledGradeCode())
+                && (StringUtils.isNotEmpty(student.getSupportBlocks()) && !student.getSupportBlocks().equals("0"))) {
             log.debug("AdultStudentSupportBlockRule-V68: Invalid enrolled grade {} and support block value {} for sdcSchoolCollectionStudentID:: {}",studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSupportBlocks(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SUPPORT_BLOCKS, StudentValidationIssueTypeCode.ADULT_SUPPORT_ERR));

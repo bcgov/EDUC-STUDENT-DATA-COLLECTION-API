@@ -1023,6 +1023,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
 
         entity.setDob("20100101");
+        entity.setEnrolledGradeCode("10");
         val saga = createMockStudentRuleData(entity, school);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
         saga.getSdcSchoolCollectionStudentEntity().setSupportBlocks("1");
@@ -1034,6 +1035,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationGradRule.size()).isNotZero();
         val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_GRADUATE_SUPPORT_BLOCKS.getCode()));
         assertThat(error).isTrue();
+
+        saga.getSdcSchoolCollectionStudentEntity().setSupportBlocks("0");
+        val validationRuleWithZeroSupportBlock = rulesProcessor.processRules(saga);
+        assertThat(validationRuleWithZeroSupportBlock.size()).isZero();
 
         saga.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("07");
         val validationGradRule2 = rulesProcessor.processRules(saga);
