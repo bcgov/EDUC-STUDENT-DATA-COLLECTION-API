@@ -1301,4 +1301,31 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(error).isTrue();
     }
 
+    @Test
+    void testAdultStudentSupportBlockRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val school = createMockSchool();
+        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+
+        entity.setDob("20020101");
+        entity.setEnrolledGradeCode("10");
+        val saga = createMockStudentRuleData(entity, school);
+        saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(false);
+        saga.getSdcSchoolCollectionStudentEntity().setSupportBlocks("1");
+
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+        val validationGradRule = rulesProcessor.processRules(saga);
+        assertThat(validationGradRule.size()).isNotZero();
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.ADULT_SUPPORT_ERR.getCode()));
+        assertThat(error).isTrue();
+
+        saga.getSdcSchoolCollectionStudentEntity().setSupportBlocks("0");
+        val validationRuleWithZeroSupportBlock = rulesProcessor.processRules(saga);
+        assertThat(validationRuleWithZeroSupportBlock.size()).isZero();
+    }
+
 }
