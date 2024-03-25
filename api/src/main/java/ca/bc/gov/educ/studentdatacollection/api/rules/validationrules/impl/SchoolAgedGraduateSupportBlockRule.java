@@ -41,7 +41,7 @@ public class SchoolAgedGraduateSupportBlockRule extends BaseAdultSchoolAgeRule i
         log.debug("In shouldExecute of SchoolAgedGraduateSupportBlockRule-V69: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        var shouldExecute = SchoolGradeCodes.get8PlusGradesNoGA().contains(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode())
+        var shouldExecute = SchoolGradeCodes.getGrades10toSU().contains(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode())
                 && !FteCalculatorUtils.getCollectionTypeCode(studentRuleData).equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
                 && isValidationDependencyResolved("V69", validationErrorsMap);
 
@@ -60,7 +60,8 @@ public class SchoolAgedGraduateSupportBlockRule extends BaseAdultSchoolAgeRule i
 
         this.setupGraduateValues(studentRuleData);
 
-        if (DOBUtil.isSchoolAged(student.getDob()) && Boolean.TRUE.equals(student.getIsGraduated()) && StringUtils.isNotEmpty(student.getSupportBlocks())) {
+        if (DOBUtil.isSchoolAged(student.getDob()) && Boolean.TRUE.equals(student.getIsGraduated())
+                && (StringUtils.isNotEmpty(student.getSupportBlocks()) && !student.getSupportBlocks().equals("0"))) {
             log.debug("SchoolAgedGraduateSupportBlockRule-V69: Incorrect values for sdcSchoolCollectionStudentID::{}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SUPPORT_BLOCKS, StudentValidationIssueTypeCode.SCHOOL_AGED_GRADUATE_SUPPORT_BLOCKS));
         }
