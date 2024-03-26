@@ -19,6 +19,6 @@ public interface SdcDistrictCollectionEndpoint {
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional(readOnly = true)
   @Tag(name = "Sdc District Collection", description = "Endpoints to get active district collection entity by district id.")
-  SdcDistrictCollection getAllActiveDistrictCollectionsByDistrictId(@PathVariable("districtID") UUID districtID);
+  SdcDistrictCollection getActiveDistrictCollectionByDistrictId(@PathVariable("districtID") UUID districtID);
 
 }

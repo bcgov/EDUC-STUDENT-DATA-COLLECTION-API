@@ -2,7 +2,6 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcDistrictCollectionEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDistrictCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDistrictCollection;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,8 +19,7 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   }
 
   @Override
-  public SdcDistrictCollection getAllActiveDistrictCollectionsByDistrictId(UUID districtID) {
-    SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionService.getAllActiveSdcDistrictCollectionByDistrictID(districtID);
-    return mapper.toStructure(sdcDistrictCollectionEntity);
+  public SdcDistrictCollection getActiveDistrictCollectionByDistrictId(UUID districtID) {
+    return mapper.toStructure(sdcDistrictCollectionService.getActiveSdcDistrictCollectionByDistrictID(districtID));
   }
 }

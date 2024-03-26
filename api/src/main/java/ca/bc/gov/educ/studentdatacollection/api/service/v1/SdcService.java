@@ -8,7 +8,6 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Executor;
 
 
@@ -44,7 +40,7 @@ public class SdcService {
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void startSDCCollection(CollectionTypeCodeEntity collectionCode, List<School> listOfSchools, List<District> listOfDistricts) {
+  public void startSDCCollection(CollectionTypeCodeEntity collectionCode, List<School> listOfSchools) {
     CollectionEntity collectionEntity = CollectionEntity.builder()
       .collectionTypeCode(collectionCode.getCollectionTypeCode())
       .openDate(collectionCode.getOpenDate())
@@ -55,7 +51,8 @@ public class SdcService {
       .updateDate(LocalDateTime.now()).build();
 
     Set<SdcSchoolCollectionEntity> sdcSchoolEntityList = new HashSet<>();
-    for(School school : listOfSchools) {
+    var sdcDistrictEntityList = new HashMap<UUID, SdcDistrictCollectionEntity>();
+    listOfSchools.forEach(school -> {
       SdcSchoolCollectionEntity sdcSchoolEntity = SdcSchoolCollectionEntity.builder().collectionEntity(collectionEntity)
         .schoolID(UUID.fromString(school.getSchoolId()))
         .districtID(UUID.fromString(school.getDistrictId()))
@@ -65,22 +62,18 @@ public class SdcService {
         .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
         .updateDate(LocalDateTime.now()).build();
       sdcSchoolEntityList.add(sdcSchoolEntity);
-    }
+      SdcDistrictCollectionEntity sdcDistrictEntity = SdcDistrictCollectionEntity.builder().collectionEntity(collectionEntity)
+        .districtID(UUID.fromString(school.getDistrictId()))
+        .sdcDistrictCollectionStatusCode("NEW")
+        .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+        .createDate(LocalDateTime.now())
+        .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+        .updateDate(LocalDateTime.now()).build();
+      sdcDistrictEntityList.put(sdcDistrictEntity.getDistrictID(), sdcDistrictEntity);
+    });
 
     collectionEntity.setSdcSchoolCollectionEntities(sdcSchoolEntityList);
-
-    Set<SdcDistrictCollectionEntity> sdcDistrictEntityList = new HashSet<>();
-    for(District district : listOfDistricts) {
-      SdcDistrictCollectionEntity sdcDistrictEntity = SdcDistrictCollectionEntity.builder().collectionEntity(collectionEntity)
-              .districtID(UUID.fromString(district.getDistrictId()))
-              .sdcDistrictCollectionStatusCode("NEW")
-              .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
-              .createDate(LocalDateTime.now())
-              .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
-              .updateDate(LocalDateTime.now()).build();
-      sdcDistrictEntityList.add(sdcDistrictEntity);
-    }
-    collectionEntity.setSdcDistrictCollectionEntities(sdcDistrictEntityList);
+    collectionEntity.setSdcDistrictCollectionEntities(new HashSet<>(sdcDistrictEntityList.values()));
 
     if(!collectionEntity.getSDCSchoolEntities().isEmpty()) {
       for (SdcSchoolCollectionEntity sdcSchoolEntity : collectionEntity.getSDCSchoolEntities() ) {

@@ -41,13 +41,11 @@ class StartSDCCollectionsWithOpenDateInThePastProcessorTest extends
     List<School> listOfSchools = new ArrayList<>();
     var school = createMockSchool();
     listOfSchools.add(school);
-    List<District> listOfDistrict = new ArrayList<>();
     var district = createMockDistrict();
-    listOfDistrict.add(district);
     school.setDistrictId(district.getDistrictId());
     CollectionTypeCodeEntity collectionTypeCode = this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntity());
 
-    this.sdcService.startSDCCollection(collectionTypeCode, listOfSchools, listOfDistrict);
+    this.sdcService.startSDCCollection(collectionTypeCode, listOfSchools);
 
     List<CollectionEntity> collectionEntities = this.collectionRepository.findAll();
     List<SdcSchoolCollectionEntity> sdcSchoolEntities = this.sdcSchoolRepository.findAll();
