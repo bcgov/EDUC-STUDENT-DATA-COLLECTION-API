@@ -64,7 +64,7 @@ public enum StudentValidationIssueTypeCode {
   SUPPORT_BLOCKS_INVALID("SUPPORTBLOCKSINVALID", "Number of Support Blocks must be a value from 0 to 8."),
   SUPPORT_FACILITY_NA("SUPPORTFACILITYNA", "Support blocks are not valid for students in Online Learning schools."),
   MISSING_POSTAL_CODE("MISSINGPOSTALCODE", "Missing postal code."),
-  INVALID_POSTAL_CODE("INVALIDPOSTALCODE", "Missing postal code."),
+  INVALID_POSTAL_CODE("INVALIDPOSTALCODE", "Invalid postal code."),
   OTHER_COURSE_INVALID("OTHERCOURSEINVALID", "Number of Other Courses must be blank or a number from 0 to 9."),
   ENROLLED_CODE_PARSE_ERR("ENROLLEDCODEPARSEERR", "List of enrolled program codes could not be parsed. Select the correct program codes for the student."),
   ENROLLED_CODE_DUP_ERR("ENROLLEDCODEDUPERR", "List of enrolled codes contained duplicate codes. Duplicate codes have been removed. Verify that the codes below are the correct codes for the student."),
