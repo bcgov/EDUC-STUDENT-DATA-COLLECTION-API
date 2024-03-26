@@ -7,6 +7,7 @@ public final class URL {
 
   public static final String BASE_URL="/api/v1/student-data-collection";
   public static final String BASE_URL_COLLECTION="/api/v1/student-data-collection/collection";
+  public static final String BASE_URL_DISTRICT_COLLECTION="/api/v1/student-data-collection/sdcDistrictCollection";
   public static final String BASE_URL_SCHOOL_COLLECTION="/api/v1/student-data-collection/sdcSchoolCollection";
   public static final String BASE_URL_SCHOOL_COLLECTION_STUDENT="/api/v1/student-data-collection/sdcSchoolCollectionStudent";
   public static final String BASE_URL_REPORT_GENERATION="/api/v1/student-data-collection/reportGeneration";

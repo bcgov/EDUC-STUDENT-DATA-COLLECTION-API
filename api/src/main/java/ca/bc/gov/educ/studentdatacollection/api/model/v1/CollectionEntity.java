@@ -80,4 +80,9 @@ public class CollectionEntity {
     return this.sdcSchoolCollectionEntities;
   }
 
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  @OneToMany(mappedBy = "collectionEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcDistrictCollectionEntity.class)
+  Set<SdcDistrictCollectionEntity> sdcDistrictCollectionEntities;
+
 }
