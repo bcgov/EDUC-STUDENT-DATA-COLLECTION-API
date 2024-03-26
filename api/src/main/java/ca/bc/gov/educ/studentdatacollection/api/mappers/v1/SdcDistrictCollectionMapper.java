@@ -18,5 +18,6 @@ public interface SdcDistrictCollectionMapper {
 
   @Mapping(target = "collectionID", source = "sdcDistrictCollectionEntity.collectionEntity.collectionID")
   @Mapping(target = "collectionTypeCode", source = "sdcDistrictCollectionEntity.collectionEntity.collectionTypeCode")
+  @Mapping(target = "collectionOpenDate", source = "sdcDistrictCollectionEntity.collectionEntity.openDate")
   SdcDistrictCollection toStructure(SdcDistrictCollectionEntity sdcDistrictCollectionEntity);
 }

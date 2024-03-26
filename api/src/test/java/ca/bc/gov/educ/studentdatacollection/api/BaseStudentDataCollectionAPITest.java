@@ -163,6 +163,7 @@ public abstract class BaseStudentDataCollectionAPITest {
   public SdcDistrictCollectionEntity createMockSdcDistrictCollectionEntity(CollectionEntity entity, UUID districtID){
     SdcDistrictCollectionEntity sdcEntity = new SdcDistrictCollectionEntity();
     sdcEntity.setCollectionEntity(entity);
+    sdcEntity.setSdcDistrictCollectionStatusCode("NEW");
     sdcEntity.setDistrictID(districtID == null ? UUID.randomUUID() : districtID);
     sdcEntity.setCreateUser("ABC");
     sdcEntity.setCreateDate(LocalDateTime.now());

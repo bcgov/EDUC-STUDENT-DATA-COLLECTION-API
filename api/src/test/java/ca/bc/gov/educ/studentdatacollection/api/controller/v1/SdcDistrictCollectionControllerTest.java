@@ -78,6 +78,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     District district = createMockDistrict();
     SdcDistrictCollectionEntity sdcPastMockDistrict = createMockSdcDistrictCollectionEntity(pastCollection, UUID.fromString(district.getDistrictId()));
+    sdcPastMockDistrict.setSdcDistrictCollectionStatusCode("COMPLETED");
     sdcDistrictCollectionRepository.save(sdcPastMockDistrict);
 
     CollectionEntity collection = createMockCollectionEntity();

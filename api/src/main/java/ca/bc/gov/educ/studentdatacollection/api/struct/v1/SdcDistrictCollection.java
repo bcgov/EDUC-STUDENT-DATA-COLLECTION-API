@@ -32,4 +32,6 @@ public class SdcDistrictCollection extends BaseRequest {
   @NotNull(message = "sdcDistrictCollectionStatusCode cannot be null")
   private String sdcDistrictCollectionStatusCode;
 
+  private String collectionOpenDate;
+
 }
