@@ -20,10 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Executor;
 
 
@@ -54,7 +51,7 @@ public class SdcService {
       .updateDate(LocalDateTime.now()).build();
 
     Set<SdcSchoolCollectionEntity> sdcSchoolEntityList = new HashSet<>();
-    Set<SdcDistrictCollectionEntity> sdcDistrictEntityList = new HashSet<>();
+    var sdcDistrictEntityList = new HashMap<UUID, SdcDistrictCollectionEntity>();
     listOfSchools.forEach(school -> {
       SdcSchoolCollectionEntity sdcSchoolEntity = SdcSchoolCollectionEntity.builder().collectionEntity(collectionEntity)
         .schoolID(UUID.fromString(school.getSchoolId()))
@@ -72,11 +69,11 @@ public class SdcService {
         .createDate(LocalDateTime.now())
         .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
         .updateDate(LocalDateTime.now()).build();
-      sdcDistrictEntityList.add(sdcDistrictEntity);
+      sdcDistrictEntityList.put(sdcDistrictEntity.getDistrictID(), sdcDistrictEntity);
     });
 
     collectionEntity.setSdcSchoolCollectionEntities(sdcSchoolEntityList);
-    collectionEntity.setSdcDistrictCollectionEntities(sdcDistrictEntityList);
+    collectionEntity.setSdcDistrictCollectionEntities(new HashSet<>(sdcDistrictEntityList.values()));
 
     if(!collectionEntity.getSDCSchoolEntities().isEmpty()) {
       for (SdcSchoolCollectionEntity sdcSchoolEntity : collectionEntity.getSDCSchoolEntities() ) {

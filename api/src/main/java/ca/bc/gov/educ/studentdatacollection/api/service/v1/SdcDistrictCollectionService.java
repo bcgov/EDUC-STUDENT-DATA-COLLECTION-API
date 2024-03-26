@@ -21,7 +21,7 @@ public class SdcDistrictCollectionService {
     this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
   }
 
-  public SdcDistrictCollectionEntity getAllActiveSdcDistrictCollectionByDistrictID(UUID districtID) {
+  public SdcDistrictCollectionEntity getActiveSdcDistrictCollectionByDistrictID(UUID districtID) {
     return sdcDistrictCollectionRepository.findByDistrictIDAndSdcDistrictCollectionStatusCodeNotIgnoreCase(districtID, SdcDistrictCollectionStatus.COMPLETED.getCode()).orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection for district Id", districtID.toString()));
   }
 }
