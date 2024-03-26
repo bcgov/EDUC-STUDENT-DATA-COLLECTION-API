@@ -49,25 +49,28 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
   }
 
   @Test
-  void testGetAllActiveDistrictCollectionsByDistrictId_GivenNoDistrictsInOpenCollection_ShouldReturnStatusNotFound() throws Exception {
+  void testGetActiveDistrictCollectionByDistrictId_GivenNoSdcDistrictCollectionForDistrict_ShouldReturnStatusNotFound() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     CollectionEntity collection = createMockCollectionEntity();
-    collection.setOpenDate(LocalDateTime.now().minusDays(5));
-    collection.setCloseDate(LocalDateTime.now().minusDays(2));
     collectionRepository.save(collection);
 
     District district = createMockDistrict();
-    var sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
-    sdcDistrictCollectionRepository.save(sdcMockDistrict);
+    var mockCompletedSdcDistrictInSameDistrict = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+    mockCompletedSdcDistrictInSameDistrict.setSdcDistrictCollectionStatusCode("COMPLETED");
+    sdcDistrictCollectionRepository.save(mockCompletedSdcDistrictInSameDistrict);
+
+    District district2 = createMockDistrict();
+    var mockNewSdcDistrictInDifferentDistrict = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district2.getDistrictId()));
+    sdcDistrictCollectionRepository.save(mockNewSdcDistrictInDifferentDistrict);
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/search/" + district.getDistrictId()).with(mockAuthority))
             .andDo(print()).andExpect(status().isNotFound());
   }
   @Test
-  void testGetAllActiveDistrictCollectionsByDistrictId_withSameDistrictInPastCollection_ShouldReturnOneDistrictCollection() throws Exception {
+  void testGetActiveDistrictCollectionByDistrictId_withSameDistrictInPastCollection_ShouldReturnOneDistrictCollection() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
@@ -96,7 +99,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
   }
 
   @Test
-  void testGetAllActiveDistrictCollectionsByDistrictId_WithWrongScope_ShouldReturnStatusForbidden() throws Exception {
+  void testGetActiveDistrictCollectionByDistrictId_WithWrongScope_ShouldReturnStatusForbidden() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
