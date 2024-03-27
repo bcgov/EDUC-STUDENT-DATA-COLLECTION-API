@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -19,6 +20,15 @@ public class SdcDistrictCollectionService {
   @Autowired
   public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
     this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
+  }
+
+  public SdcDistrictCollectionEntity getSdcDistrictCollection(UUID sdcDistrictCollectionID) {
+    Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntity =  sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
+    if(sdcDistrictCollectionEntity.isPresent()) {
+      return sdcDistrictCollectionEntity.get();
+    } else {
+      throw new EntityNotFoundException(SdcDistrictCollectionEntity.class, "SdcDistrictCollection for sdcDistrictCollectionID", sdcDistrictCollectionID.toString());
+    }
   }
 
   public SdcDistrictCollectionEntity getActiveSdcDistrictCollectionByDistrictID(UUID districtID) {
