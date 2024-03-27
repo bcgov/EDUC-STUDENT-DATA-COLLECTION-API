@@ -19,6 +19,11 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   }
 
   @Override
+  public SdcDistrictCollection getDistrictCollection(UUID sdcDistrictCollectionID) {
+    return mapper.toStructure(sdcDistrictCollectionService.getSdcDistrictCollection(sdcDistrictCollectionID));
+  }
+
+  @Override
   public SdcDistrictCollection getActiveDistrictCollectionByDistrictId(UUID districtID) {
     return mapper.toStructure(sdcDistrictCollectionService.getActiveSdcDistrictCollectionByDistrictID(districtID));
   }
