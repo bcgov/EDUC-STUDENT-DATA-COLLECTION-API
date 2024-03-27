@@ -50,6 +50,13 @@ curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scope
   -d "{\"description\": \"Read Student Data Collection Collection Data\",\"id\": \"READ_SDC_COLLECTION\",\"name\": \"READ_SDC_COLLECTION\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
 
 echo
+echo Writing scope READ_SDC_DISTRICT_COLLECTION
+curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TKN" \
+  -d "{\"description\": \"Read Student Data Collection District Collection Data\",\"id\": \"READ_SDC_DISTRICT_COLLECTION\",\"name\": \"READ_SDC_DISTRICT_COLLECTION\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
+
+echo
 echo Writing scope WRITE_SDC_COLLECTION
 curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
   -H "Content-Type: application/json" \
