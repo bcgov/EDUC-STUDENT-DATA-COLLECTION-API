@@ -45,6 +45,6 @@ public class AsyncConfiguration {
   public Executor publisherExecutor() {
     return new EnhancedQueueExecutor.Builder()
       .setThreadFactory(new com.google.common.util.concurrent.ThreadFactoryBuilder().setNameFormat("message-publisher-%d").build())
-      .setCorePoolSize(2).setMaximumPoolSize(2).setKeepAliveTime(Duration.ofSeconds(60)).build();
+      .setCorePoolSize(4).setMaximumPoolSize(4).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
 }
