@@ -1169,6 +1169,14 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationCourses.size()).isNotZero();
         val errorCourses = validationCourses.stream().anyMatch(val -> val.getValidationIssueCode().equals("SUPPORTBLOCKSNOTCOUNT"));
         assertThat(errorCourses).isFalse();
+
+        entity.setNumberOfCourses("0800");
+        entity.setSupportBlocks("0");
+        entity.setEnrolledGradeCode("10");
+        val validationSupportBlocks = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        assertThat(validationSupportBlocks.size()).isZero();
+        val errorSupport = validationCourses.stream().anyMatch(val -> val.getValidationIssueCode().equals("SUPPORTBLOCKSNOTCOUNT"));
+        assertThat(errorSupport).isFalse();
     }
 
     @Test
