@@ -89,8 +89,8 @@ public class EventTaskSchedulerAsyncService {
   @Async("taskExecutor")
   public void findAndPublishLoadedStudentRecordsForProcessing() {
     log.info("Querying for loaded students to process");
-    if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 60) { // at max there will be 40 parallel sagas.
-      log.debug("Saga count is greater than 60, so not processing student records");
+    if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 100) { // at max there will be 40 parallel sagas.
+      log.debug("Saga count is greater than 100, so not processing student records");
       return;
     }
     final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTopLoadedStudentForProcessing(numberOfStudentsToProcess);
