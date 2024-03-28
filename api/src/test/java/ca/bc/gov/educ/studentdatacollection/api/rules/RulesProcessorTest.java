@@ -448,6 +448,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("HS");
         entity.setEnrolledProgramCodes("05");
+        entity.setBandCode(null);
 
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isNotZero();
@@ -465,6 +466,14 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorSped.size()).isNotZero();
         val error1 = validationErrorSped.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSSPED"));
         assertThat(error1).isTrue();
+
+        entity.setEnrolledProgramCodes(null);
+        entity.setSpecialEducationCategoryCode("A");
+        entity.setSchoolFundingCode("14");
+        val validationErrorFunding = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        assertThat(validationErrorFunding.size()).isNotZero();
+        val fundingError = validationErrorFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSSPED"));
+        assertThat(fundingError).isTrue();
     }
 
     @Test

@@ -26,7 +26,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-@Order(670)
+@Order(680)
 public class OutOfProvinceSpecialEducRule implements ValidationBaseRule {
 
     @Override
