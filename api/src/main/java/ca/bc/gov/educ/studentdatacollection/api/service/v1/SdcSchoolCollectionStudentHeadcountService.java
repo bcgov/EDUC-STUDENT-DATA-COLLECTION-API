@@ -136,26 +136,15 @@ public class SdcSchoolCollectionStudentHeadcountService {
 
   public SdcSchoolCollectionStudentHeadcounts getBandResidenceHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
     UUID sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
-    List<UUID> sdcSchoolCollectionIDs = new ArrayList<>();
-    sdcSchoolCollectionIDs.add(sdcSchoolCollectionID);
-    if (compare) {
-      UUID sdcPreviousSchoolCollectionID = bandResidenceHeadcountHelper.getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
-      if(sdcPreviousSchoolCollectionID != null) {
-        sdcSchoolCollectionIDs.add(sdcPreviousSchoolCollectionID);
-      }
-    }
+    List<BandResidenceHeadcountResult> result = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
+    bandResidenceHeadcountHelper.setBandTitles(result);
 
-    List<HeadcountHeader> headcountHeaderList = bandResidenceHeadcountHelper.getHeadcountHeaders(sdcSchoolCollectionIDs);
-
-    List<BandResidenceHeadcountResult> result = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySchoolId(sdcSchoolCollectionID);
+    List<HeadcountHeader> headcountHeaderList = indigenousHeadcountHelper.getHeaders(sdcSchoolCollectionID);
     HeadcountResultsTable headcountResultsTable = bandResidenceHeadcountHelper.convertBandHeadcountResults(result);
-
     if(compare) {
+      indigenousHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
       bandResidenceHeadcountHelper.setBandResultsTableComparisonValues(sdcSchoolCollectionEntity, headcountResultsTable);
     }
-
-    bandResidenceHeadcountHelper.clearBandTitles();
-
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
   }
 }

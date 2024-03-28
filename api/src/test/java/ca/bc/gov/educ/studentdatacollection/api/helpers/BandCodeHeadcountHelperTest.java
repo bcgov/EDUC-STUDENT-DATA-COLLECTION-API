@@ -1,3 +1,4 @@
+
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplication;
@@ -41,7 +42,6 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
     @BeforeEach
     void setUp() {
-        helper.setBandRowTitles(new HashMap<>());
         CollectionEntity collectionEntity = createMockCollectionEntity();
         collectionRepository.save(collectionEntity);
         UUID schoolID = UUID.randomUUID();
@@ -58,56 +58,13 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
-    void testGetBandCodeTitlesFromCollection_ShouldCorrectlySetRowTitles() {
-
-        saveStudentsWithBandCodes();
-        helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService);
-
-        Map<String, String> bandRowTitlesMap = helper.getBandTitles(schoolCollection.getSdcSchoolCollectionID());
-        assertEquals(2, bandRowTitlesMap.size());
-        assertEquals("0700 - BOOTHROYD - AFA", bandRowTitlesMap.get("0700"));
-        assertEquals("0600 - SPLATSIN", bandRowTitlesMap.get("0600"));
-    }
-
-    @Test
-    void testBandCodeTitlesFromCollection_ShouldNotSetAnyRowTitles() {
-
-        SdcSchoolCollectionStudentEntity student = createMockSchoolStudentEntity(schoolCollection);
-        student.setFte(new BigDecimal("1.0000"));
-        student.setBandCode(null);
-        studentRepository.save(student);
-        helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService);
-
-        Map<String, String> bandRowTitlesMap = helper.getBandTitles(schoolCollection.getSdcSchoolCollectionID());
-        assertEquals(0, bandRowTitlesMap.size());
-    }
-
-    @Test
-    void testGetHeadcountHeaders_ShouldReturnListOfHeaders() {
-
-        saveStudentsWithBandCodes();
-        helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService);
-
-        List<HeadcountHeader> expectedHeadcountHeaderList = new ArrayList<>();
-        HeadcountHeader header1 = new HeadcountHeader("0600 - SPLATSIN", null, List.of("Headcount", "FTE"), new HashMap<>());
-        HeadcountHeader header2 = new HeadcountHeader("0700 - BOOTHROYD - AFA", null, List.of("Headcount", "FTE"), new HashMap<>());
-        expectedHeadcountHeaderList.add(header1);
-        expectedHeadcountHeaderList.add(header2);
-
-        List<HeadcountHeader> returnedList = helper.getHeadcountHeaders(new ArrayList<>(List.of(schoolCollection.getSdcSchoolCollectionID())));
-
-        assertEquals(expectedHeadcountHeaderList, returnedList);
-    }
-
-    @Test
     void testConvertHeadcountResults_ShouldReturnTableContents(){
 
         saveStudentsWithBandCodes();
         helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService);
 
-        helper.setBandRowTitles(helper.getBandTitles(schoolCollection.getSdcSchoolCollectionID()));
-
-        List<BandResidenceHeadcountResult> result = studentRepository.getBandResidenceHeadcountsBySchoolId(schoolCollection.getSdcSchoolCollectionID());
+        List<BandResidenceHeadcountResult> result = studentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(schoolCollection.getSdcSchoolCollectionID());
+        helper.setBandTitles(result);
         HeadcountResultsTable actualResultsTable = helper.convertBandHeadcountResults(result);
 
         assertTrue(actualResultsTable.getHeaders().contains("Headcount"));
