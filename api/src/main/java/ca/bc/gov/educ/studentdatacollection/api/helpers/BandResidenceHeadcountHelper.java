@@ -6,8 +6,6 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
-import lombok.Setter;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -15,7 +13,6 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Component
@@ -23,13 +20,11 @@ import java.util.stream.IntStream;
 public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceHeadcountResult>{
     private final CodeTableService codeTableService;
     private static final String TITLE = "title";
-    private static final String SECTION = "section";
     private static final String HEADCOUNT_TITLE = "Headcount";
 
     private static final String FTE_TITLE = "FTE";
 
     private static final String BAND_CODE = "bandCode";
-    private static final List<String> HEADER_COLUMN_TITLES = List.of(HEADCOUNT_TITLE, FTE_TITLE);
     private static final List<String> TABLE_COLUMN_TITLES = List.of(TITLE, HEADCOUNT_TITLE, FTE_TITLE);
 
     private static final String ALL_TITLE = "All Bands & Students";
