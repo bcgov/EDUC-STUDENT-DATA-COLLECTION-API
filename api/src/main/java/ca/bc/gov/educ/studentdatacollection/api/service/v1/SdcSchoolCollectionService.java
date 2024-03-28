@@ -145,6 +145,10 @@ public class SdcSchoolCollectionService {
   public void deleteSdcCollection(UUID sdcSchoolCollectionID) {
     Optional<SdcSchoolCollectionEntity> entityOptional = sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID);
     SdcSchoolCollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionID", sdcSchoolCollectionID.toString()));
+    List<SdcSchoolCollectionStudentHistoryEntity> schoolHistoryEntities = sdcSchoolCollectionStudentHistoryRepository.findAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
+    if(!schoolHistoryEntities.isEmpty()) {
+      sdcSchoolCollectionStudentHistoryRepository.deleteAll(schoolHistoryEntities);
+    }
     sdcSchoolCollectionRepository.delete(entity);
   }
 
