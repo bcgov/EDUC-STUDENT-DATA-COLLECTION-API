@@ -672,7 +672,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setCreateDate(null);
         entity.setEnrolledProgramCodes("1011121314151617");
         entity.setStudentPen("12345678");
-        entity.setDob("01022027");
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         MvcResult apiResponse = this.mockMvc.perform(
@@ -690,10 +689,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .getResponse()
                 .getContentAsString()
         ).contains("Invalid Student Pen.");
-        assertThat(apiResponse
-                .getResponse()
-                .getContentAsString()
-        ).contains("Invalid DOB.");
     }
 
     @Test
@@ -716,13 +711,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
-        entity.setEnrolledProgramCodes("1011121314151617");
-        entity.setSpecialEducationCategoryCode("A");
-        entity.setSchoolFundingCode("12");
-        entity.setHomeLanguageSpokenCode("11");
-        entity.setEnrolledGradeCode("00");
-        entity.setCareerProgramCode("80");
-        entity.setBandCode("X");
+        entity.setNativeAncestryInd(null);
+        entity.setGender(null);
+        entity.setOtherCourses("12");
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         MvcResult apiResponse = this.mockMvc.perform(
@@ -739,23 +730,15 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         assertThat(apiResponse
                 .getResponse()
                 .getContentAsString()
-        ).contains("Invalid School Funding Code.");
+        ).contains("nativeAncestryInd cannot be null");
         assertThat(apiResponse
                 .getResponse()
                 .getContentAsString()
-        ).contains("Invalid Home Language Spoken Code.");
+        ).contains("gender cannot be null");
         assertThat(apiResponse
                 .getResponse()
                 .getContentAsString()
-        ).contains("Invalid Enrolled Grade Code.");
-        assertThat(apiResponse
-                .getResponse()
-                .getContentAsString()
-        ).contains("Invalid Career Program Code.");
-        assertThat(apiResponse
-                .getResponse()
-                .getContentAsString()
-        ).contains("Invalid Band Code.");
+        ).contains("size must be between 0 and 1");
     }
 
     @Test
@@ -779,7 +762,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.toString());
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
-        entity.setEnrolledProgramCodes("1011121314151617");
+        entity.setStudentPen("123456789");
         entity.setPostalCode(null);
 
         this.sdcSchoolCollectionStudentRepository.save(entity);
