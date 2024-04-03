@@ -4,7 +4,6 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.processor;
 import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileError;
 import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.studentdatacollection.api.batch.mappers.SdcBatchFileMapper;
-import ca.bc.gov.educ.studentdatacollection.api.batch.service.SdcFileService;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFileHeader;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFileTrailer;
@@ -81,9 +80,6 @@ public class SdcBatchFileProcessor {
   private final SdcSchoolCollectionService sdcSchoolCollectionService;
 
   @Getter(PRIVATE)
-  private final SdcFileService sdcFileService;
-
-  @Getter(PRIVATE)
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
   @Getter(PRIVATE)
@@ -93,13 +89,12 @@ public class SdcBatchFileProcessor {
   private final CollectionRepository sdcRepository;
 
   @Autowired
-  public SdcBatchFileProcessor(final SdcBatchFileStudentRecordsProcessor sdcBatchStudentRecordsProcessor, final ApplicationProperties applicationProperties, final RestUtils restUtils, SdcFileValidator sdcFileValidator, SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, CollectionRepository sdcRepository, SdcFileService sdcFileService) {
+  public SdcBatchFileProcessor(final SdcBatchFileStudentRecordsProcessor sdcBatchStudentRecordsProcessor, final ApplicationProperties applicationProperties, final RestUtils restUtils, SdcFileValidator sdcFileValidator, SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, CollectionRepository sdcRepository) {
     this.sdcBatchStudentRecordsProcessor = sdcBatchStudentRecordsProcessor;
     this.applicationProperties = applicationProperties;
     this.sdcFileValidator = sdcFileValidator;
     this.restUtils = restUtils;
     this.sdcSchoolCollectionService = sdcSchoolCollectionService;
-    this.sdcFileService = sdcFileService;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
     this.sdcRepository = sdcRepository;
@@ -167,7 +162,7 @@ public class SdcBatchFileProcessor {
 
       var sdcSchoolCollection = this.sdcSchoolCollectionRepository.findActiveCollectionBySchoolId(UUID.fromString(school.get().getSchoolId()));
       var sdcSchoolCollectionID = sdcSchoolCollection.get().getSchoolID();
-      this.sdcFileService.resetFileUploadMetadata(String.valueOf(sdcSchoolCollectionID));
+      this.resetFileUploadMetadata(String.valueOf(sdcSchoolCollectionID));
       this.sdcFileValidator.validateFileHasCorrectExtension(String.valueOf(sdcSchoolCollectionID), fileUpload);
       this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
       this.sdcFileValidator.validateFileHasCorrectMincode(guid, ds, sdcSchoolCollection, this.restUtils);
@@ -392,6 +387,19 @@ public class SdcBatchFileProcessor {
         .vendorName(ds.getString(VENDOR_NAME.getName()))
         .build());
     }
+  }
+
+  public Optional<SdcSchoolCollectionEntity> resetFileUploadMetadata(String sdcSchoolCollectionID){
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = this.sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
+
+    if (sdcSchoolCollectionOptional.isPresent() && StringUtils.isNotEmpty(sdcSchoolCollectionOptional.get().getUploadFileName())) {
+      SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionOptional.get();
+      sdcSchoolCollection.setUploadFileName(null);
+      sdcSchoolCollection.setUploadDate(null);
+      sdcSchoolCollection.setUploadReportDate(null);
+    }
+
+    return sdcSchoolCollectionOptional;
   }
 }
 
