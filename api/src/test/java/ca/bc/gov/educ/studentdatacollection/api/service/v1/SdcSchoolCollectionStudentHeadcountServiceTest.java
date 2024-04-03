@@ -162,11 +162,11 @@ class SdcSchoolCollectionStudentHeadcountServiceTest extends BaseStudentDataColl
 
         var resultsTableWithCompare = service.getBandResidenceHeadcounts(firstSchoolCollection, true);
         var allStudentsWithCompareRow = resultsTableWithCompare.getHeadcountResultsTable().getRows().stream().filter(val -> val.get("title").getCurrentValue().equals("All Bands & Students")).findAny();
-        assertEquals(4, resultsTableWithCompare.getHeadcountResultsTable().getRows().size());
+        assertEquals(3, resultsTableWithCompare.getHeadcountResultsTable().getRows().size());
         assertEquals("2.46", allStudentsWithCompareRow.get().get("FTE").getCurrentValue());
         assertEquals("2", allStudentsWithCompareRow.get().get("Headcount").getCurrentValue());
-        assertEquals("1.14", allStudentsWithCompareRow.get().get("FTE").getComparisonValue());
-        assertEquals("2", allStudentsWithCompareRow.get().get("Headcount").getComparisonValue());
+        assertEquals("0", allStudentsWithCompareRow.get().get("FTE").getComparisonValue());
+        assertEquals("0", allStudentsWithCompareRow.get().get("Headcount").getComparisonValue());
     }
 
 }

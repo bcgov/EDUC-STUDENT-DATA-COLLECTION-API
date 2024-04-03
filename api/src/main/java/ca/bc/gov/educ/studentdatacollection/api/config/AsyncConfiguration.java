@@ -38,13 +38,13 @@ public class AsyncConfiguration {
   public Executor controllerTaskExecutor() {
     return new EnhancedQueueExecutor.Builder()
       .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-executor-%d").get())
-      .setCorePoolSize(4).setMaximumPoolSize(8).setKeepAliveTime(Duration.ofSeconds(60)).build();
+      .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
 
   @Bean(name = "publisherExecutor")
   public Executor publisherExecutor() {
     return new EnhancedQueueExecutor.Builder()
       .setThreadFactory(new com.google.common.util.concurrent.ThreadFactoryBuilder().setNameFormat("message-publisher-%d").build())
-      .setCorePoolSize(2).setMaximumPoolSize(2).setKeepAliveTime(Duration.ofSeconds(60)).build();
+      .setCorePoolSize(10).setMaximumPoolSize(20).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
 }

@@ -448,6 +448,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("HS");
         entity.setEnrolledProgramCodes("05");
+        entity.setBandCode(null);
 
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isNotZero();
@@ -465,6 +466,14 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorSped.size()).isNotZero();
         val error1 = validationErrorSped.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSSPED"));
         assertThat(error1).isTrue();
+
+        entity.setEnrolledProgramCodes(null);
+        entity.setSpecialEducationCategoryCode("A");
+        entity.setSchoolFundingCode("14");
+        val validationErrorFunding = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        assertThat(validationErrorFunding.size()).isNotZero();
+        val fundingError = validationErrorFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals("PROGRAMCODEHSSPED"));
+        assertThat(fundingError).isTrue();
     }
 
     @Test
@@ -1169,6 +1178,14 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationCourses.size()).isNotZero();
         val errorCourses = validationCourses.stream().anyMatch(val -> val.getValidationIssueCode().equals("SUPPORTBLOCKSNOTCOUNT"));
         assertThat(errorCourses).isFalse();
+
+        entity.setNumberOfCourses("0800");
+        entity.setSupportBlocks("0");
+        entity.setEnrolledGradeCode("10");
+        val validationSupportBlocks = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        assertThat(validationSupportBlocks.size()).isZero();
+        val errorSupport = validationCourses.stream().anyMatch(val -> val.getValidationIssueCode().equals("SUPPORTBLOCKSNOTCOUNT"));
+        assertThat(errorSupport).isFalse();
     }
 
     @Test

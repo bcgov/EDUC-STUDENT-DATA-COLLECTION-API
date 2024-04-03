@@ -50,6 +50,13 @@ curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scope
   -d "{\"description\": \"Read Student Data Collection Collection Data\",\"id\": \"READ_SDC_COLLECTION\",\"name\": \"READ_SDC_COLLECTION\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
 
 echo
+echo Writing scope READ_SDC_DISTRICT_COLLECTION
+curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TKN" \
+  -d "{\"description\": \"Read Student Data Collection District Collection Data\",\"id\": \"READ_SDC_DISTRICT_COLLECTION\",\"name\": \"READ_SDC_DISTRICT_COLLECTION\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
+
+echo
 echo Writing scope WRITE_SDC_COLLECTION
 curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
   -H "Content-Type: application/json" \
@@ -195,8 +202,8 @@ PARSER_CONFIG="
     Format      json
 "
 
-THREADS_MIN_SUBSCRIBER=4
-THREADS_MAX_SUBSCRIBER=8
+THREADS_MIN_SUBSCRIBER=8
+THREADS_MAX_SUBSCRIBER=12
 SAGAS_MAX_PENDING=150
 SAGAS_MAX_PARALLEL=150
 SCHEDULED_JOBS_EXTRACT_UNCOMPLETED_SAGAS_CRON="0 0/2 * * * *"
@@ -205,9 +212,9 @@ SCHEDULED_JOBS_EXTRACT_UNCOMPLETED_SAGAS_CRON_LOCK_AT_MOST_FOR="PT4M"
 SCHEDULED_JOBS_PROCESS_LOADED_SDC_STUDENTS_CRON="0/2 * * * * *"
 SCHEDULED_JOBS_PROCESS_LOADED_SDC_STUDENTS_CRON_LOCK_AT_LEAST_FOR="1700ms"
 SCHEDULED_JOBS_PROCESS_LOADED_SDC_STUDENTS_CRON_LOCK_AT_MOST_FOR="1900ms"
-MAXIMUM_DB_POOL_SIZE=10
-MINIMUM_IDLE_DB_POOL_SIZE=10
-NUMBER_OF_STUDENTS_TO_PROCESS_SAGA=50
+MAXIMUM_DB_POOL_SIZE=25
+MINIMUM_IDLE_DB_POOL_SIZE=15
+NUMBER_OF_STUDENTS_TO_PROCESS_SAGA=500
 
 echo
 echo Creating config map "$APP_NAME"-config-map

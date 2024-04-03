@@ -19,4 +19,5 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
 
   @Query(value= "SELECT SSC.districtID FROM SdcDistrictCollectionEntity SSC WHERE SSC.sdcDistrictCollectionID=:sdcDistrictCollectionID")
   Optional<SdcDistrictCollectionEntity> findDistrictIDByDistrictCollectionId(UUID sdcDistrictCollectionID);
+  Optional<SdcDistrictCollectionEntity> findByDistrictIDAndSdcDistrictCollectionStatusCodeNotIgnoreCase(UUID districtID, String sdcDistrictCollectionStatusCode);
 }

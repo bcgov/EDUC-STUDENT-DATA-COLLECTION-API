@@ -14,11 +14,18 @@ import java.util.UUID;
 @RequestMapping(URL.BASE_URL_DISTRICT_COLLECTION)
 public interface SdcDistrictCollectionEndpoint {
 
+  @GetMapping("/{sdcDistrictCollectionID}")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_DISTRICT_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "Sdc District Collection", description = "Endpoints to get district collection entity.")
+  SdcDistrictCollection getDistrictCollection(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
+
   @GetMapping("/search/{districtID}")
-  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_DISTRICT_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional(readOnly = true)
   @Tag(name = "Sdc District Collection", description = "Endpoints to get active district collection entity by district id.")
-  SdcDistrictCollection getAllActiveDistrictCollectionsByDistrictId(@PathVariable("districtID") UUID districtID);
+  SdcDistrictCollection getActiveDistrictCollectionByDistrictId(@PathVariable("districtID") UUID districtID);
 
 }
