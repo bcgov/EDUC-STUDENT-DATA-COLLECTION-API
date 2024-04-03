@@ -4,6 +4,7 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.processor;
 import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileError;
 import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.studentdatacollection.api.batch.mappers.SdcBatchFileMapper;
+import ca.bc.gov.educ.studentdatacollection.api.batch.service.SdcFileService;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFileHeader;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFileTrailer;
@@ -18,6 +19,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
@@ -63,6 +65,8 @@ public class SdcBatchFileProcessor {
   @Getter(PRIVATE)
   private final SdcBatchFileStudentRecordsProcessor sdcBatchStudentRecordsProcessor;
   public static final String TRANSACTION_CODE_STUDENT_DETAILS_RECORD = "SRM";
+  public static final String SDC_FILE_UPLOAD = "sdcFileUpload";
+  public static final String INVALID_PAYLOAD_MSG = "Payload contains invalid data.";
 
   @Getter
   private final ApplicationProperties applicationProperties;
@@ -76,21 +80,28 @@ public class SdcBatchFileProcessor {
   @Getter(PRIVATE)
   private final SdcSchoolCollectionService sdcSchoolCollectionService;
 
+  @Getter(PRIVATE)
+  private final SdcFileService sdcFileService;
 
   @Getter(PRIVATE)
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
   @Getter(PRIVATE)
+  private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
+
+  @Getter(PRIVATE)
   private final CollectionRepository sdcRepository;
 
   @Autowired
-  public SdcBatchFileProcessor(final SdcBatchFileStudentRecordsProcessor sdcBatchStudentRecordsProcessor, final ApplicationProperties applicationProperties, final RestUtils restUtils, SdcFileValidator sdcFileValidator, SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository sdcRepository) {
+  public SdcBatchFileProcessor(final SdcBatchFileStudentRecordsProcessor sdcBatchStudentRecordsProcessor, final ApplicationProperties applicationProperties, final RestUtils restUtils, SdcFileValidator sdcFileValidator, SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, CollectionRepository sdcRepository, SdcFileService sdcFileService) {
     this.sdcBatchStudentRecordsProcessor = sdcBatchStudentRecordsProcessor;
     this.applicationProperties = applicationProperties;
     this.sdcFileValidator = sdcFileValidator;
     this.restUtils = restUtils;
     this.sdcSchoolCollectionService = sdcSchoolCollectionService;
+    this.sdcFileService = sdcFileService;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
+    this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
     this.sdcRepository = sdcRepository;
   }
 
@@ -115,16 +126,16 @@ public class SdcBatchFileProcessor {
       return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, sdcSchoolCollectionID);
     } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
       log.error("File could not be processed exception :: {}", fileUnProcessableException);
-      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid data.").status(BAD_REQUEST).build();
-      var validationError = ValidationUtil.createFieldError("sdcFileUpload", sdcSchoolCollectionID, fileUnProcessableException.getFileError() + " :: " + fileUnProcessableException.getReason());
+      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
+      var validationError = ValidationUtil.createFieldError(SDC_FILE_UPLOAD, sdcSchoolCollectionID, fileUnProcessableException.getFileError() + " :: " + fileUnProcessableException.getReason());
       List<FieldError> fieldErrorList = new ArrayList<>();
       fieldErrorList.add(validationError);
       error.addValidationErrors(fieldErrorList);
       throw new InvalidPayloadException(error);
     } catch (final Exception e) { // need to check what to do in case of general exception.
       log.error("Exception while processing the file with guid :: {} :: Exception :: {}", guid, e);
-      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid data.").status(BAD_REQUEST).build();
-      var validationError = ValidationUtil.createFieldError("sdcFileUpload", sdcSchoolCollectionID, FileError.GENERIC_ERROR_MESSAGE.getMessage());
+      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
+      var validationError = ValidationUtil.createFieldError(SDC_FILE_UPLOAD, sdcSchoolCollectionID, FileError.GENERIC_ERROR_MESSAGE.getMessage());
       List<FieldError> fieldErrorList = new ArrayList<>();
       fieldErrorList.add(validationError);
       error.addValidationErrors(fieldErrorList);
@@ -135,6 +146,59 @@ public class SdcBatchFileProcessor {
       log.info("Time taken for batch processed is :: {} milli seconds", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
   }
+
+  @Transactional(propagation = Propagation.MANDATORY)
+  public SdcSchoolCollectionEntity processDistrictSdcBatchFile(@NonNull final SdcFileUpload fileUpload, String sdcDistrictCollectionID) {
+
+    val stopwatch = Stopwatch.createStarted();
+    final var guid = UUID.randomUUID().toString(); // this guid will be used throughout the logs for easy tracking.
+    log.info("Started processing SDC file with district collection ID :: {} and correlation guid :: {}", sdcDistrictCollectionID, guid);
+    val batchFile = new SdcBatchFile();
+    Optional<Reader> batchFileReaderOptional = Optional.empty();
+    try (final Reader mapperReader = new FileReader(Objects.requireNonNull(this.getClass().getClassLoader().getResource("mapper.xml")).getFile())) {
+      var byteArrayOutputStream = new ByteArrayInputStream(Base64.getDecoder().decode(fileUpload.getFileContents()));
+      batchFileReaderOptional = Optional.of(new InputStreamReader(byteArrayOutputStream));
+      final DataSet ds = DefaultParserFactory.getInstance().newFixedLengthParser(mapperReader, batchFileReaderOptional.get()).setStoreRawDataToDataError(true).setStoreRawDataToDataSet(true).setNullEmptyStrings(true).parse();
+
+      var school = this.sdcFileValidator.getSchoolUsingMincode(guid, ds, this.restUtils);
+
+      var districtID = this.sdcDistrictCollectionRepository.findDistrictIDByDistrictCollectionId(UUID.fromString(sdcDistrictCollectionID));
+      this.sdcFileValidator.validateSchoolBelongsToDistrict(guid, school, String.valueOf(districtID));
+
+      var sdcSchoolCollection = this.sdcSchoolCollectionRepository.findActiveCollectionBySchoolId(UUID.fromString(school.get().getSchoolId()));
+      var sdcSchoolCollectionID = sdcSchoolCollection.get().getSchoolID();
+      this.sdcFileService.resetFileUploadMetadata(String.valueOf(sdcSchoolCollectionID));
+      this.sdcFileValidator.validateFileHasCorrectExtension(String.valueOf(sdcSchoolCollectionID), fileUpload);
+      this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
+      this.sdcFileValidator.validateFileHasCorrectMincode(guid, ds, sdcSchoolCollection, this.restUtils);
+
+      this.populateBatchFile(guid, ds, batchFile);
+      this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
+
+      return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, String.valueOf(sdcSchoolCollectionID));
+    } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
+      log.error("File could not be processed exception :: {}", fileUnProcessableException);
+      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
+      var validationError = ValidationUtil.createFieldError(SDC_FILE_UPLOAD, sdcDistrictCollectionID, fileUnProcessableException.getFileError() + " :: " + fileUnProcessableException.getReason());
+      List<FieldError> fieldErrorList = new ArrayList<>();
+      fieldErrorList.add(validationError);
+      error.addValidationErrors(fieldErrorList);
+      throw new InvalidPayloadException(error);
+    } catch (final Exception e) { // need to check what to do in case of general exception.
+      log.error("Exception while processing the file with guid :: {} :: Exception :: {}", guid, e);
+      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
+      var validationError = ValidationUtil.createFieldError(SDC_FILE_UPLOAD, sdcDistrictCollectionID, FileError.GENERIC_ERROR_MESSAGE.getMessage());
+      List<FieldError> fieldErrorList = new ArrayList<>();
+      fieldErrorList.add(validationError);
+      error.addValidationErrors(fieldErrorList);
+      throw new InvalidPayloadException(error);
+    } finally {
+      batchFileReaderOptional.ifPresent(this::closeBatchFileReader);
+      stopwatch.stop();
+      log.info("Time taken for batch processed is :: {} milli seconds", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    }
+  }
+
 
   /**
    * Close batch file reader.

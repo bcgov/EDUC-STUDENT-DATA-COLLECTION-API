@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.service;
 import ca.bc.gov.educ.studentdatacollection.api.batch.processor.SdcBatchFileProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +30,19 @@ public class SdcFileService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload, String sdcSchoolCollectionID) {
     log.info("Uploaded file contents for school collection ID: {}", sdcSchoolCollectionID);
+
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = this.resetFileUploadMetadata(sdcSchoolCollectionID);
+
+    return this.getSdcBatchProcessor().processSdcBatchFile(sdcFileUpload, sdcSchoolCollectionID, sdcSchoolCollectionOptional);
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public SdcSchoolCollectionEntity runDistrictFileLoad(SdcFileUpload sdcFileUpload, String sdcDistrictCollectionID) {
+
+    return this.getSdcBatchProcessor().processDistrictSdcBatchFile(sdcFileUpload, sdcDistrictCollectionID);
+  }
+
+  public Optional<SdcSchoolCollectionEntity> resetFileUploadMetadata(String sdcSchoolCollectionID){
     Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = this.sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
 
     if (sdcSchoolCollectionOptional.isPresent() && StringUtils.isNotEmpty(sdcSchoolCollectionOptional.get().getUploadFileName())) {
@@ -40,6 +52,7 @@ public class SdcFileService {
       sdcSchoolCollection.setUploadReportDate(null);
     }
 
-    return this.getSdcBatchProcessor().processSdcBatchFile(sdcFileUpload, sdcSchoolCollectionID, sdcSchoolCollectionOptional);
+    return sdcSchoolCollectionOptional;
   }
+
 }
