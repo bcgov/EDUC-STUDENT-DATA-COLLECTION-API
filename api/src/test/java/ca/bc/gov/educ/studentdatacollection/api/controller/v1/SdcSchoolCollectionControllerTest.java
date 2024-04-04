@@ -32,11 +32,13 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest {
@@ -242,7 +244,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     this.mockMvc.perform(
                     get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcSchoolCollectionEntity.getSdcSchoolCollectionID()
                             + "/duplicates").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
   }
 
   @Test
