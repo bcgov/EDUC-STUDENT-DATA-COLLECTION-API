@@ -51,6 +51,9 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
   @Autowired
+  SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
+
+  @Autowired
   SdcSchoolCollectionStudentRepository schoolStudentRepository;
 
   @Autowired
@@ -77,6 +80,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     this.schoolStudentRepository.deleteAll();
     this.sdcSchoolCollectionRepository.deleteAll();
     this.sdcRepository.deleteAll();
+    this.sdcDistrictCollectionRepository.deleteAll();
   }
 
   @Test
@@ -581,6 +585,36 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
       .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testProcessDistrictSdcFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    var districtCollection = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, UUID.fromString(school.getDistrictId())));
+    sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    assertThat(fileContents).isNotEmpty();
+    val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
+
+    this.mockMvc.perform(post(BASE_URL + "/district/" + districtCollection.getSdcDistrictCollectionID() + "/file")
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(body))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+    final var result = this.sdcSchoolCollectionRepository.findAll();
+    assertThat(result).hasSize(1);
+    final var entity = result.get(0);
+    assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+    final var students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    assertThat(students).isNotNull();
   }
 
 }
