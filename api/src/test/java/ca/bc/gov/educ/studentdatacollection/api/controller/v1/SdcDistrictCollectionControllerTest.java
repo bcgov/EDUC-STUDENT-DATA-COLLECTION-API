@@ -219,6 +219,28 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
   }
 
   @Test
+  void testCreateSdcDistrictCollection_WithInvalidStatusCode_ShouldReturnStatusBadRequest() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_DISTRICT_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity newCollectionEntity = collectionRepository.save(createMockCollectionEntity());
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(newCollectionEntity, UUID.randomUUID());
+    sdcMockDistrict.setSdcDistrictCollectionStatusCode("INVALID");
+    sdcMockDistrict.setCreateDate(null);
+    sdcMockDistrict.setUpdateDate(null);
+
+    this.mockMvc.perform(
+                    post(URL.BASE_URL_DISTRICT_COLLECTION + "/" + UUID.randomUUID()).contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .content(asJsonString(SdcDistrictCollectionMapper.mapper.toStructure(sdcMockDistrict)))
+                            .with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isBadRequest())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("Invalid SDC district collection status code."));
+  }
+
+  @Test
   void testCreateSdcDistrictCollection_WithBadId_ShouldReturnStatusNotFound() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_DELETE_SDC_DISTRICT_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
