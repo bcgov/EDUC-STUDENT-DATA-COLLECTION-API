@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -27,6 +28,13 @@ public interface SdcSchoolCollectionEndpoint {
   @Transactional(readOnly = true)
   @Tag(name = "Sdc School Collection", description = "Endpoints to get school collection entity.")
   SdcSchoolCollection getSchoolCollection(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
+
+  @GetMapping("/{sdcSchoolCollectionID}/duplicates")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "Sdc School Collection", description = "Endpoints to get school collection duplicates.")
+  List<SdcSchoolCollectionStudent>  getSchoolCollectionDuplicates(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
   @PutMapping("/{sdcSchoolCollectionID}")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")

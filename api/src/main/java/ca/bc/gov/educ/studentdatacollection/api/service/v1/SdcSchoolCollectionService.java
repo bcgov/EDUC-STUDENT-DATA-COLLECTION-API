@@ -85,6 +85,10 @@ public class SdcSchoolCollectionService {
     return sdcSchoolCollectionRepository.findAllBySchoolID(schoolID);
   }
 
+  public List<SdcSchoolCollectionStudentEntity> getAllSchoolCollectionDuplicates(UUID sdcSchoolCollectionID) {
+    return sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsInSdcSchoolCollection(sdcSchoolCollectionID);
+  }
+
   public SdcSchoolCollectionEntity getSdcSchoolCollection(UUID sdcSchoolCollectionID) {
     Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity =  sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID);
     if(sdcSchoolCollectionEntity.isPresent()) {
