@@ -161,7 +161,7 @@ public class SdcBatchFileProcessor {
       this.sdcFileValidator.validateSchoolBelongsToDistrict(guid, school, String.valueOf(districtID));
 
       var sdcSchoolCollection = this.sdcSchoolCollectionRepository.findActiveCollectionBySchoolId(UUID.fromString(school.get().getSchoolId()));
-      var sdcSchoolCollectionID = sdcSchoolCollection.get().getSchoolID();
+      var sdcSchoolCollectionID = sdcSchoolCollection.get().getSdcSchoolCollectionID();
       this.resetFileUploadMetadata(String.valueOf(sdcSchoolCollectionID));
       this.sdcFileValidator.validateFileHasCorrectExtension(String.valueOf(sdcSchoolCollectionID), fileUpload);
       this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
