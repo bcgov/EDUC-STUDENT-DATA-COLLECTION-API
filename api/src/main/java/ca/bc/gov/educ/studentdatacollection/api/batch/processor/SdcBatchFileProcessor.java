@@ -165,7 +165,6 @@ public class SdcBatchFileProcessor {
       this.resetFileUploadMetadata(String.valueOf(sdcSchoolCollectionID));
       this.sdcFileValidator.validateFileHasCorrectExtension(String.valueOf(sdcSchoolCollectionID), fileUpload);
       this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
-      this.sdcFileValidator.validateFileHasCorrectMincode(guid, ds, sdcSchoolCollection, this.restUtils);
 
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
