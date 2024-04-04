@@ -74,11 +74,6 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             LIMIT 1""")
     Optional<SdcSchoolCollectionEntity> findLastCollectionByType(UUID schoolID, String collectionTypeCode, UUID currentSdcCollectionID);
 
-    @Query(value="""
-            SELECT SSC FROM SdcSchoolCollectionEntity SSC
-            WHERE SSC.sdcSchoolCollectionDistrictCollectionID=:districtCollectionID
-            """)
-    List<SdcSchoolCollectionEntity> findAllCollectionByDistrictCollectionID(UUID districtCollectionID);
 
     List<SdcSchoolCollectionEntity> findAllBySchoolID(UUID schoolID);
     Optional<SdcSchoolCollectionEntity> findBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);

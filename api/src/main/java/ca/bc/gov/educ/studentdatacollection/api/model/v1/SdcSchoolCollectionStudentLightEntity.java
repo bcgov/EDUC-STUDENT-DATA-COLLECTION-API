@@ -30,6 +30,9 @@ public class SdcSchoolCollectionStudentLightEntity {
     @Column(name = "SDC_SCHOOL_COLLECTION_ID")
     private UUID sdcSchoolCollectionID;
 
+    @Transient
+    private UUID schoolID;
+
     @Column(name = "LOCAL_ID")
     private String localID;
 

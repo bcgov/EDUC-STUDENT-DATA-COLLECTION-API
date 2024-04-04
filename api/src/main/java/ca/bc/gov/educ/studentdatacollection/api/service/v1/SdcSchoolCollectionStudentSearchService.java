@@ -162,6 +162,16 @@ public class SdcSchoolCollectionStudentSearchService {
     }
   }
 
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightByDistrictCollectionId(UUID collectionID) {
+    try {
+      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcDistrictCollectionID(collectionID);
+    } catch (final Throwable ex) {
+      log.error("Failure querying for paginated SDC school students: {}", ex.getMessage());
+      throw new CompletionException(ex);
+    }
+  }
+
   public Specification<SdcSchoolCollectionStudentPaginationEntity> setSpecificationAndSortCriteria(String sortCriteriaJson, String searchCriteriaListJson, ObjectMapper objectMapper, List<Sort.Order> sorts) {
     Specification<SdcSchoolCollectionStudentPaginationEntity> schoolSpecs = null;
     try {
