@@ -11,14 +11,13 @@ import java.util.UUID;
 public interface SdcSchoolCollectionStudentLightRepository extends JpaRepository<SdcSchoolCollectionStudentLightEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionStudentLightEntity> {
     List<SdcSchoolCollectionStudentLightEntity> findAllBySdcSchoolCollectionID(UUID sdcSchoolCollectionUUID);
 
+    // TODO make query jpa
     @Query(value="""
             select sscs.*, sdc.school_id
             from sdc_school_collection sdc, sdc_district_collection disCol, sdc_school_collection_student sscs
             where sdc.sdc_district_collection_id = discol.sdc_district_collection_id
             and sdc.sdc_school_collection_id = sscs.sdc_school_collection_id
-            and disCol.sdc_district_collection_id = '0a613f05-8b2a-12e7-818b-2cfc89040157'
+            and disCol.sdc_district_collection_id = :districtCollectionID
             """, nativeQuery = true)
     List<SdcSchoolCollectionStudentLightEntity> findAllBySdcDistrictCollectionID(UUID districtCollectionID);
-
-    // TODO             and disCol.sdc_district_collection_id = :districtCollectionID
 }
