@@ -29,8 +29,8 @@ public class AllStudentLightCollectionGenerateCsvService {
         this.sdcSchoolCollectionStudentSearchService = sdcSchoolCollectionStudentSearchService;
     }
 
-    public DownloadableReportResponse generateSchool(UUID collectionID) {
-        List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightSynchronous(collectionID);
+    public DownloadableReportResponse generateFromSdcSchoolCollectionID(UUID sdcSchoolcollectionID) {
+        List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightBySchoolCollectionID(sdcSchoolcollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                 .setHeader("P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer",
                         "Refugee", "Indigenous  Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses",
@@ -96,7 +96,7 @@ public class AllStudentLightCollectionGenerateCsvService {
             csvPrinter.flush();
 
             var downloadableReport = new DownloadableReportResponse();
-            downloadableReport.setReportType("ALL_STUDENT_CSV");
+            downloadableReport.setReportType("ALL_STUDENT_SCHOOL_CSV");
             downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
 
             return downloadableReport;
@@ -105,8 +105,8 @@ public class AllStudentLightCollectionGenerateCsvService {
         }
     }
 
-    public DownloadableReportResponse generateDistrict(UUID collectionID) {
-        List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightByDistrictCollectionId(collectionID);
+    public DownloadableReportResponse generateFromSdcDistrictCollectionID(UUID sdcDistrictcollectionID) {
+        List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightByDistrictCollectionId(sdcDistrictcollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                 .setHeader("School ID", "P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer",
                         "Refugee", "Indigenous  Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses",

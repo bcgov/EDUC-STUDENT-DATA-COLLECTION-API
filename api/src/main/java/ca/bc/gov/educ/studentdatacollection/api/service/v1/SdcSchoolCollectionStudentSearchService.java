@@ -153,7 +153,7 @@ public class SdcSchoolCollectionStudentSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightSynchronous(UUID collectionID) {
+  public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightBySchoolCollectionID(UUID collectionID) {
     try {
       return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(collectionID);
     } catch (final Throwable ex) {
