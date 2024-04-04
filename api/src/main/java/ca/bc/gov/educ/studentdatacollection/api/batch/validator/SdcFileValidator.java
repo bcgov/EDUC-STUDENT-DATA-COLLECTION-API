@@ -100,7 +100,7 @@ public class SdcFileValidator {
 
     String schoolDistrictID = school.get().getDistrictId();
 
-    if(StringUtils.equals(schoolDistrictID, districtID)) {
+    if(StringUtils.compare(schoolDistrictID, districtID) != 0) {
       throw new AccessDeniedException(null, null, SCHOOL_OUTSIDE_OF_DISTRICT);
     }
 

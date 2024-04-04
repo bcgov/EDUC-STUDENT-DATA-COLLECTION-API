@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.batch.processor;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
@@ -21,6 +22,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -329,7 +332,7 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
     var districtCollection = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, UUID.fromString(school.getDistrictId())));
-    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+    sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
     when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
@@ -356,5 +359,24 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     assertThat(students).isNotNull();
   }
 
+  @Test
+  @Transactional
+  void testProcessDistrictSdcBatchFileFromTSW_GivenSchoolOutsideDistrict_ShouldReturnError() throws IOException {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    var districtID = UUID.randomUUID();
+    sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+    sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.std").build();
+
+    String stringDistrictID = String.valueOf(districtID);
+
+    assertThrows(InvalidPayloadException.class, () -> this.sdcBatchProcessor.processDistrictSdcBatchFile(fileUpload, stringDistrictID));
+  }
 
 }
