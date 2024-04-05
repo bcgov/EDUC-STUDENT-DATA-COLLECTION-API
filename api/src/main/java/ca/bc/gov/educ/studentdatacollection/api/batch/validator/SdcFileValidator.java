@@ -35,6 +35,12 @@ public class SdcFileValidator {
   public static final String TRAILER_STARTS_WITH = "BTR";
   public static final String TOO_LONG = "TOO LONG";
 
+  private final RestUtils restUtils;
+
+  public SdcFileValidator(RestUtils restUtils) {
+    this.restUtils = restUtils;
+  }
+
   public void validateFileForFormatAndLength(@NonNull final String guid, @NonNull final DataSet ds) throws FileUnProcessableException {
     if (ds.getErrors() != null && !ds.getErrors().isEmpty()) {
       this.validateHeaderWhenFileHasLengthErrors(guid, ds);
@@ -60,7 +66,7 @@ public class SdcFileValidator {
     }
   }
 
-  public void validateFileHasCorrectMincode(@NonNull final String guid, @NonNull final DataSet ds, final Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity, final RestUtils restUtils) throws FileUnProcessableException {
+  public void validateFileHasCorrectMincode(@NonNull final String guid, @NonNull final DataSet ds, final Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity) throws FileUnProcessableException {
     if (sdcSchoolCollectionEntity.isPresent()) {
       String schoolID = sdcSchoolCollectionEntity.get().getSchoolID().toString();
       Optional<School> school = restUtils.getSchoolBySchoolID(schoolID);
@@ -106,7 +112,7 @@ public class SdcFileValidator {
 
   }
 
-  public Optional<School> getSchoolUsingMincode(final String guid, @NonNull final DataSet ds, final RestUtils restUtils) throws FileUnProcessableException{
+  public Optional<School> getSchoolUsingMincode(final String guid, @NonNull final DataSet ds) throws FileUnProcessableException{
     ds.goTop();
     ds.next();
     Optional<Record> dsHeader = ds.getRecord();

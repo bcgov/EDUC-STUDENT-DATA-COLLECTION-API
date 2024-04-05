@@ -114,7 +114,7 @@ public class SdcBatchFileProcessor {
 
       this.sdcFileValidator.validateFileHasCorrectExtension(sdcSchoolCollectionID, fileUpload);
       this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
-      this.sdcFileValidator.validateFileHasCorrectMincode(guid, ds, sdcSchoolCollection, this.restUtils);
+      this.sdcFileValidator.validateFileHasCorrectMincode(guid, ds, sdcSchoolCollection);
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
 
@@ -155,10 +155,10 @@ public class SdcBatchFileProcessor {
       batchFileReaderOptional = Optional.of(new InputStreamReader(byteArrayOutputStream));
       final DataSet ds = DefaultParserFactory.getInstance().newFixedLengthParser(mapperReader, batchFileReaderOptional.get()).setStoreRawDataToDataError(true).setStoreRawDataToDataSet(true).setNullEmptyStrings(true).parse();
 
-      var school = this.sdcFileValidator.getSchoolUsingMincode(guid, ds, this.restUtils);
+      var school = this.sdcFileValidator.getSchoolUsingMincode(guid, ds);
 
-      var districtID = this.sdcDistrictCollectionRepository.findDistrictIDByDistrictCollectionId(UUID.fromString(sdcDistrictCollectionID));
-      this.sdcFileValidator.validateSchoolBelongsToDistrict(guid, school, String.valueOf(districtID));
+      var districtCollection = this.sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(UUID.fromString(sdcDistrictCollectionID));
+      this.sdcFileValidator.validateSchoolBelongsToDistrict(guid, school, String.valueOf(districtCollection.get().getDistrictID()));
 
       var sdcSchoolCollection = this.sdcSchoolCollectionRepository.findActiveCollectionBySchoolId(UUID.fromString(school.get().getSchoolId()));
       var sdcSchoolCollectionID = sdcSchoolCollection.get().getSdcSchoolCollectionID();
