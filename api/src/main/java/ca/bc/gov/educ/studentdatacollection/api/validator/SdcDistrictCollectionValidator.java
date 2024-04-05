@@ -22,6 +22,7 @@ public class SdcDistrictCollectionValidator {
 
   public static final String DISTRICT_COLLECTION_ID = "sdcDistrictCollectionID";
   public static final String DISTRICT_COLLECTION_STATUS_CODE = "sdcDistrictCollectionStatusCode";
+  private static final String DISTRICT_COLLECTION_OBJECT_NAME = "sdcDistrictCollection";
 
   @Getter(AccessLevel.PRIVATE)
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
@@ -35,19 +36,19 @@ public class SdcDistrictCollectionValidator {
     final List<FieldError> apiValidationErrors = new ArrayList<>();
     try {
       if(isCreateOperation && sdcDistrictCollection.getSdcDistrictCollectionID() != null) {
-        apiValidationErrors.add(ValidationUtil.createFieldError(DISTRICT_COLLECTION_ID, sdcDistrictCollection.getSdcDistrictCollectionID(), "sdcDistrictCollectionID should be null for post operation."));
+        apiValidationErrors.add(ValidationUtil.createFieldError(DISTRICT_COLLECTION_OBJECT_NAME, DISTRICT_COLLECTION_ID, sdcDistrictCollection.getSdcDistrictCollectionID(), "sdcDistrictCollectionID should be null for post operation."));
       }
       if(!isCreateOperation) {
         Optional<SdcDistrictCollectionEntity> districtCollectionEntity = this.sdcDistrictCollectionRepository.findById(UUID.fromString(sdcDistrictCollection.getSdcDistrictCollectionID()));
         if (districtCollectionEntity.isEmpty()) {
-          apiValidationErrors.add(ValidationUtil.createFieldError(DISTRICT_COLLECTION_ID, sdcDistrictCollection.getSdcDistrictCollectionID(), "Invalid SDC district collection ID."));
+          apiValidationErrors.add(ValidationUtil.createFieldError(DISTRICT_COLLECTION_OBJECT_NAME, DISTRICT_COLLECTION_ID, sdcDistrictCollection.getSdcDistrictCollectionID(), "Invalid SDC district collection ID."));
         }
       }
       if (!EnumUtils.isValidEnum(SdcDistrictCollectionStatus.class, sdcDistrictCollection.getSdcDistrictCollectionStatusCode())) {
-        apiValidationErrors.add(ValidationUtil.createFieldError(DISTRICT_COLLECTION_STATUS_CODE, sdcDistrictCollection.getSdcDistrictCollectionStatusCode(), "Invalid SDC district collection status code."));
+        apiValidationErrors.add(ValidationUtil.createFieldError(DISTRICT_COLLECTION_OBJECT_NAME, DISTRICT_COLLECTION_STATUS_CODE, sdcDistrictCollection.getSdcDistrictCollectionStatusCode(), "Invalid SDC district collection status code."));
       }
     }catch(Exception e){
-      apiValidationErrors.add(ValidationUtil.createFieldError(DISTRICT_COLLECTION_STATUS_CODE, sdcDistrictCollection.getSdcDistrictCollectionStatusCode(), "Invalid SDC district collection status code."));
+      apiValidationErrors.add(ValidationUtil.createFieldError(DISTRICT_COLLECTION_OBJECT_NAME, DISTRICT_COLLECTION_STATUS_CODE, sdcDistrictCollection.getSdcDistrictCollectionStatusCode(), "Invalid SDC district collection status code."));
     }
     return apiValidationErrors;
   }
