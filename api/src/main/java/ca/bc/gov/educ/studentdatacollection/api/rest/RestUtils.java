@@ -57,6 +57,8 @@ public class RestUtils {
   public static final String CLOSE_DATE = "closedDate";
   private static final String CONTENT_TYPE = "Content-Type";
   private final Map<String, School> schoolMap = new ConcurrentHashMap<>();
+  private final Map<String, School> schoolMincodeMap = new ConcurrentHashMap<>();
+
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
   private final WebClient webClient;
@@ -88,6 +90,7 @@ public class RestUtils {
 
   private void initialize() {
     this.populateSchoolMap();
+    this.populateSchoolMincodeMap();
     this.populateDistrictMap();
   }
 
@@ -120,6 +123,26 @@ public class RestUtils {
       writeLock.unlock();
     }
     log.info("Loaded  {} schools to memory", this.schoolMap.values().size());
+  }
+
+  public void populateSchoolMincodeMap() {
+    val writeLock = this.schoolLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val school : this.getSchools()) {
+        this.schoolMincodeMap.put(school.getMincode(), school);
+        if(StringUtils.isNotBlank(school.getIndependentAuthorityId())) {
+          this.independentAuthorityToSchoolIDMap.computeIfAbsent(school.getIndependentAuthorityId(), k -> new ArrayList<>()).add(UUID.fromString(school.getSchoolId()));
+        }
+      }
+    }
+    catch (Exception ex) {
+      log.error("Unable to load map cache school mincodes {}", ex);
+    }
+    finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} school mincodes to memory", this.schoolMincodeMap.values().size());
   }
 
   public List<School> getSchools() {
@@ -277,6 +300,14 @@ public class RestUtils {
       this.populateSchoolMap();
     }
     return Optional.ofNullable(this.schoolMap.get(schoolID));
+  }
+
+  public Optional<School> getSchoolByMincode(final String mincode) {
+    if (this.schoolMincodeMap.isEmpty()) {
+      log.info("School mincode map is empty reloading schools");
+      this.populateSchoolMincodeMap();
+    }
+    return Optional.ofNullable(this.schoolMincodeMap.get(mincode));
   }
 
   public Optional<District> getDistrictByDistrictID(final String districtID) {

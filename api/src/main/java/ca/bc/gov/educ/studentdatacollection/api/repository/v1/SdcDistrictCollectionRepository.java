@@ -9,5 +9,8 @@ import java.util.UUID;
 
 @Repository
 public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistrictCollectionEntity, UUID> {
+
   Optional<SdcDistrictCollectionEntity> findByDistrictIDAndSdcDistrictCollectionStatusCodeNotIgnoreCase(UUID districtID, String sdcDistrictCollectionStatusCode);
+
+  Optional<SdcDistrictCollectionEntity> findBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
 }

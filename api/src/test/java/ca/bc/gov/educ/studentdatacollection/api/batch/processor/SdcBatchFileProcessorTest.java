@@ -1,8 +1,10 @@
 package ca.bc.gov.educ.studentdatacollection.api.batch.processor;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -20,6 +22,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -32,6 +36,8 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
   private CollectionRepository sdcRepository;
   @Autowired
   private SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+  @Autowired
+  private SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   @Autowired
   private SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository;
   @Autowired
@@ -320,5 +326,75 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     assertThat(students).isNotNull();
   }
 
+  @Test
+  @Transactional
+  void testProcessDistrictSdcBatchFileFromTSW_Given1RowValidFile_ShouldCreateRecordsInDB() throws IOException {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    var districtCollection = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, UUID.fromString(school.getDistrictId())));
+    sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.std").build();
+
+    var response = this.sdcBatchProcessor.processDistrictSdcBatchFile(
+            fileUpload,
+            districtCollection.getSdcDistrictCollectionID().toString()
+    );
+    assertThat(response).isNotNull();
+
+    final var result = this.sdcSchoolCollectionRepository.findAll();
+    assertThat(result).hasSize(1);
+
+    final var entity = result.get(0);
+    assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+
+    final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    assertThat(students).isNotNull();
+  }
+
+  @Test
+  @Transactional
+  void testProcessDistrictSdcBatchFileFromTSW_GivenSchoolOutsideDistrict_ShouldThrowInvalidPayloadException() throws IOException {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    var districtID = UUID.randomUUID();
+    var districtCollection = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+    sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.std").build();
+
+    String stringDistrictCollectionID = String.valueOf(districtCollection.getSdcDistrictCollectionID());
+
+    assertThrows(InvalidPayloadException.class, () -> this.sdcBatchProcessor.processDistrictSdcBatchFile(fileUpload, stringDistrictCollectionID));
+  }
+
+  @Test
+  @Transactional
+  void testProcessDistrictSdcBatchFileFromTSW_GivenEmptySchool_ShouldThrowInvalidPayloadException() throws IOException {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    var districtCollection = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, UUID.fromString(school.getDistrictId())));
+    sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId())));
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.std").build();
+
+    String stringDistrictCollectionID = String.valueOf(districtCollection.getSdcDistrictCollectionID());
+
+    assertThrows(InvalidPayloadException.class, () -> this.sdcBatchProcessor.processDistrictSdcBatchFile(fileUpload, stringDistrictCollectionID));
+  }
 
 }
