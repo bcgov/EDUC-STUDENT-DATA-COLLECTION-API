@@ -5,11 +5,16 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDistrictCollection;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 @RequestMapping(URL.BASE_URL_DISTRICT_COLLECTION)
 public interface SdcDistrictCollectionEndpoint {
@@ -28,4 +33,16 @@ public interface SdcDistrictCollectionEndpoint {
   @Tag(name = "Sdc District Collection", description = "Endpoints to get active district collection entity by district id.")
   SdcDistrictCollection getActiveDistrictCollectionByDistrictId(@PathVariable("districtID") UUID districtID);
 
+  @PostMapping("/{collectionID}")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_DISTRICT_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Tag(name = "Sdc District Collection", description = "Endpoint to create sdc district collection entity.")
+  @ResponseStatus(CREATED)
+  SdcDistrictCollection createSdcDistrictCollectionByCollectionID(@Validated @RequestBody SdcDistrictCollection sdcDistrictCollection, @PathVariable("collectionID") UUID collectionID);
+
+  @DeleteMapping("/{sdcDistrictCollectionID}")
+  @PreAuthorize("hasAuthority('SCOPE_DELETE_SDC_DISTRICT_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "NO CONTENT"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @ResponseStatus(NO_CONTENT)
+  ResponseEntity<Void> deleteSdcDistrictCollection(@PathVariable UUID sdcDistrictCollectionID);
 }
