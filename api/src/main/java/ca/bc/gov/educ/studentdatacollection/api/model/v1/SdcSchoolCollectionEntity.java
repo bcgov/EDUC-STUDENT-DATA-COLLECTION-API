@@ -58,7 +58,7 @@ public class SdcSchoolCollectionEntity {
   private String sdcSchoolCollectionStatusCode;
 
   @Column(name = "SDC_DISTRICT_COLLECTION_ID")
-  private String sdcSchoolCollectionDistrictCollectionID;
+  private UUID sdcSchoolCollectionDistrictCollectionID;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
