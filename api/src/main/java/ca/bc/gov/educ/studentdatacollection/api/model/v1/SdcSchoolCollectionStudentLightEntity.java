@@ -136,7 +136,7 @@ public class SdcSchoolCollectionStudentLightEntity {
     @Column(name = "ASSIGNED_PEN")
     private String assignedPen;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "SDC_SCHOOL_COLLECTION_ID", insertable = false, updatable = false)
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity;
