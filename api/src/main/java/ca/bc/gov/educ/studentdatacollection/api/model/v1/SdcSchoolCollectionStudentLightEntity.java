@@ -30,9 +30,6 @@ public class SdcSchoolCollectionStudentLightEntity {
     @Column(name = "SDC_SCHOOL_COLLECTION_ID")
     private UUID sdcSchoolCollectionID;
 
-    @Transient
-    private UUID schoolID;
-
     @Column(name = "LOCAL_ID")
     private String localID;
 
@@ -138,4 +135,13 @@ public class SdcSchoolCollectionStudentLightEntity {
 
     @Column(name = "ASSIGNED_PEN")
     private String assignedPen;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "SDC_SCHOOL_COLLECTION_ID", insertable = false, updatable = false)
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity;
+
+    public UUID getSdcSchoolCollectionEntitySchoolID() {
+        return this.sdcSchoolCollectionEntity != null ? this.sdcSchoolCollectionEntity.getSchoolID() : null;
+    }
 }

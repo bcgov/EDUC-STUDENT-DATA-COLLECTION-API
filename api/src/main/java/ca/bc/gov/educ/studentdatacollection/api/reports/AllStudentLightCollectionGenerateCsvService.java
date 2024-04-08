@@ -132,7 +132,7 @@ public class AllStudentLightCollectionGenerateCsvService {
                         : Collections.emptySet();
 
                 List<? extends Serializable> csvRow = Arrays.asList(
-                        student.getSchoolID(),
+                        student.getSdcSchoolCollectionEntitySchoolID(),
                         student.getStudentPen(),
                         legalFullName,
                         usualFullName,
