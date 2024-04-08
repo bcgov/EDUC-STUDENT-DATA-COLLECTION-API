@@ -2,7 +2,9 @@ package ca.bc.gov.educ.studentdatacollection.api.reports;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.EnrolledProgramCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
+import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -24,9 +26,11 @@ import java.util.stream.IntStream;
 @Slf4j
 public class AllStudentLightCollectionGenerateCsvService {
     private final SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService;
+    private final RestUtils restUtils;
 
-    public AllStudentLightCollectionGenerateCsvService(SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService) {
+    public AllStudentLightCollectionGenerateCsvService(SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService, RestUtils restUtils) {
         this.sdcSchoolCollectionStudentSearchService = sdcSchoolCollectionStudentSearchService;
+        this.restUtils = restUtils;
     }
 
     public DownloadableReportResponse generateFromSdcSchoolCollectionID(UUID sdcSchoolcollectionID) {
@@ -118,6 +122,9 @@ public class AllStudentLightCollectionGenerateCsvService {
              CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
 
             for (SdcSchoolCollectionStudentLightEntity student : entities) {
+                UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
+                Optional<School> school = restUtils.getSchoolBySchoolID(schoolID.toString());
+                String schoolName = school.map(School::getDisplayName).orElse("No School Name Found");
                 String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
                 String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());
                 String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "Y" : "N";
@@ -132,8 +139,8 @@ public class AllStudentLightCollectionGenerateCsvService {
                         : Collections.emptySet();
 
                 List<? extends Serializable> csvRow = Arrays.asList(
-                        student.getSdcSchoolCollectionEntitySchoolID(),
-                        "TODO get school name from api utils",
+                        schoolID,
+                        schoolName,
                         student.getStudentPen(),
                         legalFullName,
                         usualFullName,
