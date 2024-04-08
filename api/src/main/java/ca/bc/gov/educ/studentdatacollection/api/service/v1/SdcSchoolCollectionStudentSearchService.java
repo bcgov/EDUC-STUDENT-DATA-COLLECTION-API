@@ -157,7 +157,7 @@ public class SdcSchoolCollectionStudentSearchService {
     try {
       return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(collectionID);
     } catch (final Throwable ex) {
-      log.error("Failure querying for paginated SDC school students: {}", ex.getMessage());
+      log.error("Failure querying for all light SDC school students by School Collection ID: {}", ex.getMessage());
       throw new CompletionException(ex);
     }
   }
@@ -167,7 +167,7 @@ public class SdcSchoolCollectionStudentSearchService {
     try {
       return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcDistrictCollectionID(collectionID);
     } catch (final Throwable ex) {
-      log.error("Failure querying for paginated SDC school students: {}", ex.getMessage());
+      log.error("Failure querying for light SDC school students by District Collection ID: {}", ex.getMessage());
       throw new CompletionException(ex);
     }
   }
