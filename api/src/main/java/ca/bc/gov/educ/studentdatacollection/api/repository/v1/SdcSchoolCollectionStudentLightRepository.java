@@ -12,7 +12,7 @@ import java.util.UUID;
 public interface SdcSchoolCollectionStudentLightRepository extends JpaRepository<SdcSchoolCollectionStudentLightEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionStudentLightEntity> {
     List<SdcSchoolCollectionStudentLightEntity> findAllBySdcSchoolCollectionID(UUID sdcSchoolCollectionUUID);
 
-    /* TODO make query jpa, need to get sdc.school_id into the light student entity
+    /*
     @Query(value="""
             select sscs.*, sdc.school_id
             from sdc_school_collection sdc, sdc_district_collection disCol, sdc_school_collection_student sscs
