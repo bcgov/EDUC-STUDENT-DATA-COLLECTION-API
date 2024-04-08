@@ -12,23 +12,10 @@ import java.util.UUID;
 public interface SdcSchoolCollectionStudentLightRepository extends JpaRepository<SdcSchoolCollectionStudentLightEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionStudentLightEntity> {
     List<SdcSchoolCollectionStudentLightEntity> findAllBySdcSchoolCollectionID(UUID sdcSchoolCollectionUUID);
 
-    /*
-    @Query(value="""
-            select sscs.*, sdc.school_id
-            from sdc_school_collection sdc, sdc_district_collection disCol, sdc_school_collection_student sscs
-            where sdc.sdc_district_collection_id = discol.sdc_district_collection_id
-            and sdc.sdc_school_collection_id = sscs.sdc_school_collection_id
-            and disCol.sdc_district_collection_id = :districtCollectionID
-            """, nativeQuery = true)
-    List<SdcSchoolCollectionStudentLightEntity> findAllBySdcDistrictCollectionID(UUID districtCollectionID);
-    */
-
     @Query(value = """
             SELECT sscs FROM SdcSchoolCollectionStudentLightEntity sscs
             JOIN sscs.sdcSchoolCollectionEntity sdc
-            JOIN sdc.collectionEntity c
-            JOIN c.sdcDistrictCollectionEntities dc
-            WHERE dc.sdcDistrictCollectionID = :districtCollectionID
+            WHERE sdc.sdcSchoolCollectionDistrictCollectionID = :districtCollectionID
             """)
     List<SdcSchoolCollectionStudentLightEntity> findAllBySdcDistrictCollectionID(@Param("districtCollectionID") UUID districtCollectionID);
 
