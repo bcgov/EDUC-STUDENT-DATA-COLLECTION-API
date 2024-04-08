@@ -48,5 +48,15 @@ public class SdcFileController implements SdcFileEndpoint {
     return ResponseEntity.ok(sdcSchoolCollectionService.isSdcSchoolCollectionBeingProcessed(UUID.fromString(sdcSchoolCollectionID)));
   }
 
+  @Override
+  public ResponseEntity<SdcSchoolCollection> processDistrictSdcBatchFile(SdcFileUpload fileUpload, String sdcDistrictCollectionID, String correlationID) {
+    log.info("Running file load for file: " + fileUpload.getFileName());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcFileService.runDistrictFileLoad(fileUpload, sdcDistrictCollectionID);
+    log.info("File data committed for file: " + fileUpload.getFileName());
+    var mapped = SdcSchoolCollectionMapper.mapper.toStructure(sdcSchoolCollectionEntity);
+    log.info("Mapping data complete");
+    return ResponseEntity.ok(mapped);
+  }
+
 
 }

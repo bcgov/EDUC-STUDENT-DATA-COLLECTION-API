@@ -32,4 +32,11 @@ public interface SdcFileEndpoint {
   @Tag(name = "Endpoint to check if provided SDC file is already in progress", description = "Endpoint to check if provided SDC file is in progress")
   ResponseEntity<SdcFileSummary> isBeingProcessed(@PathVariable(name = "sdcSchoolCollectionID") String sdcSchoolCollectionID);
 
+  @PostMapping("/district/{sdcDistrictCollectionID}/file")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")
+  @Tag(name = "Endpoint for district to Upload an SDC file and convert to json structure.", description = "Endpoint for district to Upload an SDC file and convert to json structure")
+  @Schema(name = "FileUpload", implementation = SdcFileUpload.class)
+  ResponseEntity<SdcSchoolCollection> processDistrictSdcBatchFile(@Validated @RequestBody SdcFileUpload fileUpload, @PathVariable(name = "sdcDistrictCollectionID") String sdcDistrictCollectionID, @RequestHeader(name = "correlationID") String correlationID);
+
+
 }

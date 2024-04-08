@@ -203,4 +203,73 @@ class RestUtilsTest {
         assertFalse(result.isPresent());
         verify(restUtils).populateSchoolMap();
     }
+
+    @Test
+    void testPopulateSchoolMincodeMap_WhenApiCallSucceeds_ShouldPopulateMap() {
+        // Given
+        val school1Mincode = "97083";
+        val school2Mincode = "97084";
+        val school3Mincode = "97085";
+        val school1 = School.builder()
+                .schoolId(String.valueOf(UUID.randomUUID()))
+                .displayName("School 1")
+                .independentAuthorityId("Authority 1")
+                .mincode(school1Mincode)
+                .build();
+        val school2 = School.builder()
+                .schoolId(String.valueOf(UUID.randomUUID()))
+                .displayName("School 2")
+                .mincode(school2Mincode)
+                .build();
+        val school3 = School.builder()
+                .schoolId(String.valueOf(UUID.randomUUID()))
+                .displayName("School 3")
+                .mincode(school3Mincode)
+                .build();
+
+        doReturn(List.of(school1, school2, school3)).when(restUtils).getSchools();
+
+        // When
+        restUtils.populateSchoolMincodeMap();
+
+        // Then verify the maps are populated
+        Map<String, School> schoolMincodeMap = (Map<String, School>) ReflectionTestUtils.getField(restUtils, "schoolMincodeMap");
+        assertEquals(3, schoolMincodeMap.size());
+        assertEquals(school1, schoolMincodeMap.get(school1Mincode));
+        assertEquals(school2, schoolMincodeMap.get(school2Mincode));
+        assertEquals(school3, schoolMincodeMap.get(school3Mincode));
+
+    }
+
+    @Test
+    void testGetSchoolFromMincodeMap_WhenApiCallSucceeds_ShouldReturnSchool() {
+        // Given
+        val school1Mincode = "97083";
+        val school2Mincode = "97084";
+        val school3Mincode = "97085";
+        val school1 = School.builder()
+                .schoolId(String.valueOf(UUID.randomUUID()))
+                .displayName("School 1")
+                .independentAuthorityId("Authority 1")
+                .mincode(school1Mincode)
+                .build();
+        val school2 = School.builder()
+                .schoolId(String.valueOf(UUID.randomUUID()))
+                .displayName("School 2")
+                .mincode(school2Mincode)
+                .build();
+        val school3 = School.builder()
+                .schoolId(String.valueOf(UUID.randomUUID()))
+                .displayName("School 3")
+                .mincode(school3Mincode)
+                .build();
+
+        doReturn(List.of(school1, school2, school3)).when(restUtils).getSchools();
+
+        // When
+        var result = restUtils.getSchoolByMincode(school1Mincode);
+        assertEquals(school1, result.get());
+
+    }
+
 }
