@@ -108,7 +108,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateFromSdcDistrictCollectionID(UUID sdcDistrictcollectionID) {
         List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightByDistrictCollectionId(sdcDistrictcollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("School ID", "P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer",
+                .setHeader("School ID", "School Name", "P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer",
                         "Refugee", "Indigenous  Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses",
                         "Programme Francophone", "Core French", "Early Immersion", "Late Immersion", "ELL", "Indigenous Culture/Lang", "Indigenous Support", "Indigenous Other",
                         "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC - Career Technical C.", "Special Ed Category")
@@ -133,6 +133,7 @@ public class AllStudentLightCollectionGenerateCsvService {
 
                 List<? extends Serializable> csvRow = Arrays.asList(
                         student.getSdcSchoolCollectionEntitySchoolID(),
+                        "TODO get school name from api utils",
                         student.getStudentPen(),
                         legalFullName,
                         usualFullName,
