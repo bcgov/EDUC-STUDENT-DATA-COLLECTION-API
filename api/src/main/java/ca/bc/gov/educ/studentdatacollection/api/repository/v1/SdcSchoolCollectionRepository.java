@@ -50,9 +50,23 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             WHERE SSC.school_id in :schoolIds
             AND C.collection_id  = ssc.collection_id
             AND C.snapshot_date >= :fiscalSnapshotDate
-            AND C.snapshot_date < :currentSnapshotDate"""
+            AND C.snapshot_date < :currentSnapshotDate
+            AND C.snapshot_type_code = 'SEPTEMBER'
+            """
             , nativeQuery = true)
-    List<SdcSchoolCollectionEntity> findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(List<UUID> schoolIds, LocalDate fiscalSnapshotDate, LocalDate currentSnapshotDate);
+    List<SdcSchoolCollectionEntity> findSeptemberCollectionsForSchoolsForFiscalYearToCurrentCollection(List<UUID> schoolIds, LocalDate fiscalSnapshotDate, LocalDate currentSnapshotDate);
+
+    @Query(value = """
+            SELECT SSC.*
+            FROM sdc_school_collection SSC, collection C
+            WHERE SSC.school_id in :schoolIds
+            AND C.collection_id  = ssc.collection_id
+            AND C.snapshot_date >= :fiscalSnapshotDate
+            AND C.snapshot_date < :currentSnapshotDate
+            AND C.snapshot_type_code = 'FEBRUARY'
+            """
+            , nativeQuery = true)
+    List<SdcSchoolCollectionEntity> findFebruaryCollectionsForSchoolsForFiscalYearToCurrentCollection(List<UUID> schoolIds, LocalDate fiscalSnapshotDate, LocalDate currentSnapshotDate);
 
     @Query(value = """
             SELECT SSC.*

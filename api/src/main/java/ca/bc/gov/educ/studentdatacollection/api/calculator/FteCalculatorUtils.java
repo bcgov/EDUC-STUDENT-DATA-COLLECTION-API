@@ -43,7 +43,7 @@ public class FteCalculatorUtils {
     }
 
     /**
-     * Returns both studentPreviouslyReportedInDistrictSeptemberCollection and studentPreviouslyReportedInDistrictFebruaryCollection
+     * Returns both studentPreviouslyReportedInDistrictSeptemberCollection or studentPreviouslyReportedInDistrictFebruaryCollection
      */
     public boolean studentPreviouslyReportedInDistrict(StudentRuleData studentRuleData) {
         Boolean studentPreviouslyReportedInDistrictSeptemberCollection = studentPreviouslyReportedInDistrictSeptemberCollection(studentRuleData);
@@ -69,7 +69,7 @@ public class FteCalculatorUtils {
             var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
             var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
             var previousSeptemberCollections = sdcSchoolCollectionRepository.findSeptemberCollectionsForDistrictForFiscalYearToCurrentCollection(UUID.fromString(school.getDistrictId()), fiscalSnapshotDate, currentSnapshotDate);
-            // need to check for prev collection in hs?
+            // TODO need to check for prev collection in hs?
             return sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), previousSeptemberCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
         }
         return false;
@@ -93,17 +93,26 @@ public class FteCalculatorUtils {
             var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
             var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
             var previousSeptemberCollections = sdcSchoolCollectionRepository.findFebruaryCollectionsForDistrictForFiscalYearToCurrentCollection(UUID.fromString(school.getDistrictId()), fiscalSnapshotDate, currentSnapshotDate);
-            // need to check for prev collection in hs and received non-zero fte
+            // TODO need to check for prev collection in hs and received non-zero fte
             return sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), previousSeptemberCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
         }
         return false;
     }
 
     /**
-     * Returns true if the given student of a spring collection is an independent online learning school
-     * (of a certain grade) was reported in the previous collection for the same authority
+     * Returns both studentPreviouslyReportedInIndependentAuthoritySeptemberCollection or studentPreviouslyReportedInDistrictFebruaryCollection
      */
     public boolean studentPreviouslyReportedInIndependentAuthority(StudentRuleData studentRuleData) {
+        Boolean studentPreviouslyReportedInIndependentAuthoritySeptemberCollection = studentPreviouslyReportedInIndependentAuthoritySeptemberCollection(studentRuleData);
+        Boolean studentPreviouslyReportedInIndependentAuthorityFebruaryCollection = studentPreviouslyReportedInIndependentAuthorityFebruaryCollection(studentRuleData);
+        return studentPreviouslyReportedInIndependentAuthoritySeptemberCollection || studentPreviouslyReportedInIndependentAuthorityFebruaryCollection;
+    }
+
+    /**
+     * Returns true if the given student of a spring collection is an independent online learning school
+     * (of a certain grade) was reported in the previous September collection for the same authority, not in HS
+     */
+    public boolean studentPreviouslyReportedInIndependentAuthoritySeptemberCollection(StudentRuleData studentRuleData) {
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
             return false;
         }
@@ -117,7 +126,35 @@ public class FteCalculatorUtils {
             if (schoolIDs.isPresent()) {
                 var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
                 var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
-                var previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(schoolIDs.get(), fiscalSnapshotDate, currentSnapshotDate);
+                var previousCollections = sdcSchoolCollectionRepository.findSeptemberCollectionsForSchoolsForFiscalYearToCurrentCollection(schoolIDs.get(), fiscalSnapshotDate, currentSnapshotDate);
+                // TODO need to check for prev collection in hs?
+                return sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(student.getAssignedStudentId(), previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
+            }
+
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the given student of a May collection is an independent online learning school
+     * (of a certain grade) was reported in the previous February collection for the same authority, not in HS, and received a non-zero FTE
+     */
+    public boolean studentPreviouslyReportedInIndependentAuthorityFebruaryCollection(StudentRuleData studentRuleData) {
+        if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
+            return false;
+        }
+        var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
+        var school = studentRuleData.getSchool();
+        var isIndependentOnlineSchool = school != null && StringUtils.equals(school.getSchoolCategoryCode(), SchoolCategoryCodes.INDEPEND.getCode()) && StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode());
+        var isStudentInDistrictFundedGrade = SchoolGradeCodes.getDistrictFundingGrades().contains(student.getEnrolledGradeCode());
+
+        if(isSpringCollection(studentRuleData) && isIndependentOnlineSchool && isStudentInDistrictFundedGrade && (StringUtils.isNotBlank(school.getIndependentAuthorityId()))) {
+            var schoolIDs = restUtils.getSchoolIDsByIndependentAuthorityID(school.getIndependentAuthorityId());
+            if (schoolIDs.isPresent()) {
+                var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
+                var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
+                var previousCollections = sdcSchoolCollectionRepository.findFebruaryCollectionsForSchoolsForFiscalYearToCurrentCollection(schoolIDs.get(), fiscalSnapshotDate, currentSnapshotDate);
+                // TODO need to check for prev collection in hs and received non-zero fte
                 return sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(student.getAssignedStudentId(), previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
             }
 
