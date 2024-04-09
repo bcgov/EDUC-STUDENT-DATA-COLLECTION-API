@@ -46,7 +46,7 @@ public class FteCalculatorUtils {
      * Returns true if the given student of a spring collection is a public online learning or continuing ed school
      * (of a certain grade) was reported in the previous September collection for the same district, not in HS
      */
-    public boolean studentPreviouslyReportedInDistrict(StudentRuleData studentRuleData) {
+    public boolean studentPreviouslyReportedInDistrictSeptemberCollection(StudentRuleData studentRuleData) {
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
             return false;
         }
@@ -71,7 +71,7 @@ public class FteCalculatorUtils {
      * Returns true if the given student of a May collection is a public online learning or continuing ed school
      * (of a certain grade) was reported in the previous February collection for the same district, not in HS, and received a non zero-FTE
      */
-    public boolean xx(StudentRuleData studentRuleData) {
+    public boolean studentPreviouslyReportedInDistrictFebruaryCollection(StudentRuleData studentRuleData) {
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
             return false;
         }
