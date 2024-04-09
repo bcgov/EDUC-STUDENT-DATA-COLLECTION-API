@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -46,56 +45,8 @@ public class AllStudentLightCollectionGenerateCsvService {
              CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
 
             for (SdcSchoolCollectionStudentLightEntity student : entities) {
-                String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
-                String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());
-                String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "Y" : "N";
-                String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "Y" : "N";
-                String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "Y" : "N";
-
-                String enrolledProgramCodes = student.getEnrolledProgramCodes();
-                Set<String> enrolledProgramCodesSet = (enrolledProgramCodes != null && !enrolledProgramCodes.isEmpty())
-                        ? IntStream.iterate(0, i -> i < enrolledProgramCodes.length(), i -> i + 2)
-                        .mapToObj(i -> enrolledProgramCodes.substring(i, Math.min(i + 2, enrolledProgramCodes.length())))
-                        .collect(Collectors.toSet())
-                        : Collections.emptySet();
-
-                List<? extends Serializable> csvRow = Arrays.asList(
-                        student.getStudentPen(),
-                        legalFullName,
-                        usualFullName,
-                        student.getDob(),
-                        student.getGender(),
-                        student.getPostalCode(),
-                        student.getLocalID(),
-                        student.getEnrolledGradeCode(),
-                        student.getFte(),
-                        student.getIsAdult(),
-                        student.getIsGraduated(),
-                        feePayer,
-                        refugee,
-                        student.getNativeAncestryInd(),
-                        ordinarilyResidentOnReserve,
-                        student.getBandCode(),
-                        student.getHomeLanguageSpokenCode(),
-                        student.getNumberOfCourses(),
-                        student.getSupportBlocks(),
-                        student.getOtherCourses(),
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.CORE_FRENCH.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_LANGUAGE.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_SUPPORT.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode()) ? "Y" : "N",
-                        student.getCareerProgramCode(),
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_PREPARATION.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.COOP.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.APPRENTICESHIP.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()) ? "Y" : "N",
-                        student.getSpecialEducationCategoryCode()
-                );
-                csvPrinter.printRecord(csvRow);
+                List<Object> csvRowData = prepareStudentDataForCsv(student, false);
+                csvPrinter.printRecord(csvRowData);
             }
             csvPrinter.flush();
 
@@ -122,61 +73,8 @@ public class AllStudentLightCollectionGenerateCsvService {
              CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
 
             for (SdcSchoolCollectionStudentLightEntity student : entities) {
-                UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
-                Optional<School> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-                String schoolName = school.map(School::getDisplayName).orElse("No School Name Found");
-                String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
-                String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());
-                String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "Y" : "N";
-                String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "Y" : "N";
-                String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "Y" : "N";
-
-                String enrolledProgramCodes = student.getEnrolledProgramCodes();
-                Set<String> enrolledProgramCodesSet = (enrolledProgramCodes != null && !enrolledProgramCodes.isEmpty())
-                        ? IntStream.iterate(0, i -> i < enrolledProgramCodes.length(), i -> i + 2)
-                        .mapToObj(i -> enrolledProgramCodes.substring(i, Math.min(i + 2, enrolledProgramCodes.length())))
-                        .collect(Collectors.toSet())
-                        : Collections.emptySet();
-
-                List<? extends Serializable> csvRow = Arrays.asList(
-                        schoolID,
-                        schoolName,
-                        student.getStudentPen(),
-                        legalFullName,
-                        usualFullName,
-                        student.getDob(),
-                        student.getGender(),
-                        student.getPostalCode(),
-                        student.getLocalID(),
-                        student.getEnrolledGradeCode(),
-                        student.getFte(),
-                        student.getIsAdult(),
-                        student.getIsGraduated(),
-                        feePayer,
-                        refugee,
-                        student.getNativeAncestryInd(),
-                        ordinarilyResidentOnReserve,
-                        student.getBandCode(),
-                        student.getHomeLanguageSpokenCode(),
-                        student.getNumberOfCourses(),
-                        student.getSupportBlocks(),
-                        student.getOtherCourses(),
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.CORE_FRENCH.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_LANGUAGE.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_SUPPORT.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode()) ? "Y" : "N",
-                        student.getCareerProgramCode(),
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_PREPARATION.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.COOP.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.APPRENTICESHIP.getCode()) ? "Y" : "N",
-                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()) ? "Y" : "N",
-                        student.getSpecialEducationCategoryCode()
-                );
-                csvPrinter.printRecord(csvRow);
+                List<Object> csvRowData = prepareStudentDataForCsv(student, true);
+                csvPrinter.printRecord(csvRowData);
             }
             csvPrinter.flush();
 
@@ -188,6 +86,61 @@ public class AllStudentLightCollectionGenerateCsvService {
         } catch (IOException e) {
             throw new StudentDataCollectionAPIRuntimeException(e);
         }
+    }
+
+    private List<Object> prepareStudentDataForCsv(SdcSchoolCollectionStudentLightEntity student, Boolean isDistrict) {
+        List<Object> csvRowData = new ArrayList<>();
+        if (Boolean.TRUE.equals(isDistrict)) {
+            UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
+            Optional<School> school = restUtils.getSchoolBySchoolID(schoolID.toString());
+            String schoolName = school.map(School::getDisplayName).orElse("No School Name Found");
+            csvRowData.add(schoolID);
+            csvRowData.add(schoolName);
+        }
+        String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
+        String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());
+        String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "Y" : "N";
+        String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "Y" : "N";
+        String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "Y" : "N";
+        Set<String> enrolledProgramCodesSet = parseEnrolledProgramCodes(student.getEnrolledProgramCodes());
+
+        csvRowData.addAll(Arrays.asList(
+                student.getStudentPen(),
+                legalFullName,
+                usualFullName,
+                student.getDob(),
+                student.getGender(),
+                student.getPostalCode(),
+                student.getLocalID(),
+                student.getEnrolledGradeCode(),
+                student.getFte(),
+                student.getIsAdult(),
+                student.getIsGraduated(),
+                feePayer,
+                refugee,
+                student.getNativeAncestryInd(),
+                ordinarilyResidentOnReserve,
+                student.getBandCode(),
+                student.getHomeLanguageSpokenCode(),
+                student.getNumberOfCourses(),
+                student.getSupportBlocks(),
+                student.getOtherCourses(),
+                enrolledProgramCodesSet.contains(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode()) ? "Y" : "N",
+                enrolledProgramCodesSet.contains(EnrolledProgramCodes.CORE_FRENCH.getCode()) ? "Y" : "N",
+                enrolledProgramCodesSet.contains(EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode()) ? "Y" : "N",
+                enrolledProgramCodesSet.contains(EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode()) ? "Y" : "N",
+                enrolledProgramCodesSet.contains(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode()) ? "Y" : "N",
+                enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_LANGUAGE.getCode()) ? "Y" : "N",
+                enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_SUPPORT.getCode()) ? "Y" : "N",
+                enrolledProgramCodesSet.contains(EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode()) ? "Y" : "N",
+                student.getCareerProgramCode(),
+                enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_PREPARATION.getCode()) ? "Y" : "N",
+                enrolledProgramCodesSet.contains(EnrolledProgramCodes.COOP.getCode()) ? "Y" : "N",
+                enrolledProgramCodesSet.contains(EnrolledProgramCodes.APPRENTICESHIP.getCode()) ? "Y" : "N",
+                enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()) ? "Y" : "N",
+                student.getSpecialEducationCategoryCode()
+        ));
+        return csvRowData;
     }
 
     private String formatFullName(String firstName, String middleNames, String lastName) {
@@ -212,5 +165,14 @@ public class AllStudentLightCollectionGenerateCsvService {
         }
 
         return fullName.toString().trim();
+    }
+
+    private Set<String> parseEnrolledProgramCodes(String enrolledProgramCodes) {
+        if (StringUtils.isEmpty(enrolledProgramCodes)) {
+            return Collections.emptySet();
+        }
+        return IntStream.iterate(0, i -> i < enrolledProgramCodes.length(), i -> i + 2)
+                .mapToObj(i -> enrolledProgramCodes.substring(i, Math.min(i + 2, enrolledProgramCodes.length())))
+                .collect(Collectors.toSet());
     }
 }
