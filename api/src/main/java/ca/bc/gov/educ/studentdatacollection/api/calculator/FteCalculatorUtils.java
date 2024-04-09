@@ -43,6 +43,15 @@ public class FteCalculatorUtils {
     }
 
     /**
+     * Returns true if the collection is a May collection; otherwise it is false
+     */
+    public boolean isMayCollection(StudentRuleData studentRuleData) {
+        var collectionTypeCode = getCollectionTypeCode(studentRuleData);
+        return StringUtils.equals(collectionTypeCode, CollectionTypeCodes.MAY.getTypeCode());
+    }
+
+
+    /**
      * Returns both studentPreviouslyReportedInDistrictSeptemberCollection or studentPreviouslyReportedInDistrictFebruaryCollection
      */
     public boolean studentPreviouslyReportedInDistrict(StudentRuleData studentRuleData) {
@@ -89,7 +98,7 @@ public class FteCalculatorUtils {
                 school.getFacilityTypeCode().equals(FacilityTypeCodes.CONT_ED.getCode());
         var isStudentInDistrictFundedGrade = SchoolGradeCodes.getDistrictFundingGrades().contains(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode());
 
-        if(isSpringCollection(studentRuleData) && isPublicOnlineOrContEdSchool && isStudentInDistrictFundedGrade && StringUtils.isNotBlank(school.getDistrictId())) {
+        if(isMayCollection(studentRuleData) && isPublicOnlineOrContEdSchool && isStudentInDistrictFundedGrade && StringUtils.isNotBlank(school.getDistrictId())) {
             var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
             var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
             var previousSeptemberCollections = sdcSchoolCollectionRepository.findFebruaryCollectionsForDistrictForFiscalYearToCurrentCollection(UUID.fromString(school.getDistrictId()), fiscalSnapshotDate, currentSnapshotDate);
@@ -148,7 +157,7 @@ public class FteCalculatorUtils {
         var isIndependentOnlineSchool = school != null && StringUtils.equals(school.getSchoolCategoryCode(), SchoolCategoryCodes.INDEPEND.getCode()) && StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode());
         var isStudentInDistrictFundedGrade = SchoolGradeCodes.getDistrictFundingGrades().contains(student.getEnrolledGradeCode());
 
-        if(isSpringCollection(studentRuleData) && isIndependentOnlineSchool && isStudentInDistrictFundedGrade && (StringUtils.isNotBlank(school.getIndependentAuthorityId()))) {
+        if(isMayCollection(studentRuleData) && isIndependentOnlineSchool && isStudentInDistrictFundedGrade && (StringUtils.isNotBlank(school.getIndependentAuthorityId()))) {
             var schoolIDs = restUtils.getSchoolIDsByIndependentAuthorityID(school.getIndependentAuthorityId());
             if (schoolIDs.isPresent()) {
                 var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
