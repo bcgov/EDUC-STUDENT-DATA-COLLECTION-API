@@ -28,7 +28,7 @@ public class DistrictDoubleReportedCalculator implements FteCalculator {
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
         log.debug("DistrictDoubleReportedCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        if(fteCalculatorUtils.studentPreviouslyReportedInDistrictSeptemberCollection(studentData) || fteCalculatorUtils.studentPreviouslyReportedInDistrictFebruaryCollection(studentData)) {
+        if(fteCalculatorUtils.studentPreviouslyReportedInDistrict(studentData)) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
             fteCalculationResult.setFteZeroReason(DISTRICT_DUPLICATE_FUNDING.getCode());

@@ -43,6 +43,15 @@ public class FteCalculatorUtils {
     }
 
     /**
+     * Returns both studentPreviouslyReportedInDistrictSeptemberCollection and studentPreviouslyReportedInDistrictFebruaryCollection
+     */
+    public boolean studentPreviouslyReportedInDistrict(StudentRuleData studentRuleData) {
+        Boolean studentPreviouslyReportedInDistrictSeptemberCollection = studentPreviouslyReportedInDistrictSeptemberCollection(studentRuleData);
+        Boolean studentPreviouslyReportedInDistrictFebruaryCollection = studentPreviouslyReportedInDistrictFebruaryCollection(studentRuleData);
+        return studentPreviouslyReportedInDistrictSeptemberCollection || studentPreviouslyReportedInDistrictFebruaryCollection;
+    }
+
+    /**
      * Returns true if the given student of a spring collection is a public online learning or continuing ed school
      * (of a certain grade) was reported in the previous September collection for the same district, not in HS
      */
@@ -59,7 +68,6 @@ public class FteCalculatorUtils {
         if(isSpringCollection(studentRuleData) && isPublicOnlineOrContEdSchool && isStudentInDistrictFundedGrade && StringUtils.isNotBlank(school.getDistrictId())) {
             var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
             var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
-            // just find the previous sept collection
             var previousSeptemberCollections = sdcSchoolCollectionRepository.findSeptemberCollectionsForDistrictForFiscalYearToCurrentCollection(UUID.fromString(school.getDistrictId()), fiscalSnapshotDate, currentSnapshotDate);
             // need to check for prev collection in hs?
             return sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), previousSeptemberCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
@@ -84,7 +92,6 @@ public class FteCalculatorUtils {
         if(isSpringCollection(studentRuleData) && isPublicOnlineOrContEdSchool && isStudentInDistrictFundedGrade && StringUtils.isNotBlank(school.getDistrictId())) {
             var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
             var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
-            // just find the previous FEB collection
             var previousSeptemberCollections = sdcSchoolCollectionRepository.findFebruaryCollectionsForDistrictForFiscalYearToCurrentCollection(UUID.fromString(school.getDistrictId()), fiscalSnapshotDate, currentSnapshotDate);
             // need to check for prev collection in hs and received non-zero fte
             return sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), previousSeptemberCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
