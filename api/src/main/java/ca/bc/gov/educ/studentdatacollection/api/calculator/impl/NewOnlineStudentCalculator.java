@@ -43,6 +43,7 @@ public class NewOnlineStudentCalculator implements FteCalculator {
                 BigDecimal largestFte = new BigDecimal("0.9529");
                 var fte = (numCourses.multiply(fteMultiplier).add(new BigDecimal("0.5"))).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros();
                 fteCalculationResult.setFte(fte.compareTo(largestFte) > 0 ? largestFte : fte);
+                // TODO new else if for if they are HS return FTE 0
             } else {
                 log.debug("NewOnlineStudentCalculator: calculating for all other grades with student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 fteCalculationResult.setFte(new BigDecimal("0.9529"));
