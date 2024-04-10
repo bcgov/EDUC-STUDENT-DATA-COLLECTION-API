@@ -139,7 +139,7 @@ public class FteCalculatorUtils {
         var isStudentGradeKToNine = SchoolGradeCodes.getKToNineGrades().contains(student.getEnrolledGradeCode());
         // TODO needs to also return HS students
 
-        // TODO NEED TO ALSO WORK FOR DIS - confirm does this mean we need to use a similar setup as above with spring -> sept / may -> C
+        // TODO NEED TO ALSO WORK FOR DIS - confirm does this mean we need to use a similar setup as above with spring -> sept / may -> feb
         if(isSpringCollection(studentRuleData) && studentReportedByOnlineSchool && isStudentGradeKToNine) {
             var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
             var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
