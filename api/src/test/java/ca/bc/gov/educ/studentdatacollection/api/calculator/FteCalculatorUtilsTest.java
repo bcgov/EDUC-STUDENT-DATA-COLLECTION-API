@@ -602,7 +602,7 @@ class FteCalculatorUtilsTest {
 
     @ParameterizedTest
     @CsvSource({
-            "HS, false",
+            "HS, true",
             "KH, true",
             "KF, true",
             "01, true",
