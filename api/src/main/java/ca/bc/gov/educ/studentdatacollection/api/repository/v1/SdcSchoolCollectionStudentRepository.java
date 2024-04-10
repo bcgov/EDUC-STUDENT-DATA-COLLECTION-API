@@ -66,8 +66,29 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   long countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(UUID assignedStudentId, List<UUID> sdcSchoolCollectionID, String numberOfCourses);
 
   long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(UUID assignedStudentId, List<UUID> sdcSchoolCollectionID);
-  // TODO change this to not include hs students
-  // TODO create another one that is the same but also received a non zero FTE
+
+  @Query("""
+       SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
+       WHERE s.assignedStudentId = :assignedStudentId
+       AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
+       AND s.enrolledGradeCode <> 'HS'
+       """)
+  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInExcludingHomeschool(
+          @Param("assignedStudentId") UUID assignedStudentId,
+          @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
+
+  @Query("""
+       SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
+       WHERE s.assignedStudentId = :assignedStudentId
+       AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
+       AND s.enrolledGradeCode <> 'HS'
+       AND s.fte > 0
+       """)
+  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInExcludingHomeschoolWithNonZeroFTE(
+          @Param("assignedStudentId") UUID assignedStudentId,
+          @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
+
+
 
   long countAllByAssignedStudentIdAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(UUID assignedStudentId, String enrolledGradeCode, List<UUID> sdcSchoolCollectionID);
 
