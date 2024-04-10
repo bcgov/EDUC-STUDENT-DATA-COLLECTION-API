@@ -65,8 +65,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   long countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(UUID assignedStudentId, List<UUID> sdcSchoolCollectionID, String numberOfCourses);
 
-  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(UUID assignedStudentId, List<UUID> sdcSchoolCollectionID);
-
   @Query("""
        SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
        WHERE s.assignedStudentId = :assignedStudentId
@@ -87,7 +85,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInExcludingHomeschoolWithNonZeroFTE(
           @Param("assignedStudentId") UUID assignedStudentId,
           @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
-  
+
   long countAllByAssignedStudentIdAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(UUID assignedStudentId, String enrolledGradeCode, List<UUID> sdcSchoolCollectionID);
 
   @Query("SELECT " +
