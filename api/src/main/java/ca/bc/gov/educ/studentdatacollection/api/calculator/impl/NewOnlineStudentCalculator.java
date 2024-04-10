@@ -45,7 +45,7 @@ public class NewOnlineStudentCalculator implements FteCalculator {
                 fteCalculationResult.setFte(fte.compareTo(largestFte) > 0 ? largestFte : fte);
             } else if (student.getEnrolledGradeCode().equals(SchoolGradeCodes.HOMESCHOOL.getCode())) {
                 log.debug("NewOnlineStudentCalculator: calculating for a homeschool student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-                fteCalculationResult.setFte(new BigDecimal("0"));
+                fteCalculationResult.setFte(BigDecimal.ZERO);
             } else {
                 log.debug("NewOnlineStudentCalculator: calculating for all other grades with student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 fteCalculationResult.setFte(new BigDecimal("0.9529"));
