@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -128,25 +129,34 @@ public class FteCalculatorUtils {
 
     /**
      * Returns true if the given student (in a correct grade) is part of a spring (Feb or May) collection reported
-     * by an online school and the student was reported as an HS student in the previous collection
+     * by an online school and the student was reported as an HS student in the previous September collection
      */
-    public boolean homeSchoolStudentIsNowOnlineKto9Student(StudentRuleData studentRuleData) {
+    public boolean homeSchoolStudentIsNowOnlineKto9StudentOrHs(StudentRuleData studentRuleData) {
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
             return false;
         }
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         var studentReportedByOnlineSchool = studentRuleData.getSchool().getFacilityTypeCode().equals(FacilityTypeCodes.DIST_LEARN.getCode()) || studentRuleData.getSchool().getFacilityTypeCode().equals(FacilityTypeCodes.DISTONLINE.getCode());
-        var isStudentGradeKToNine = SchoolGradeCodes.getKToNineGrades().contains(student.getEnrolledGradeCode());
-        // TODO needs to also return HS students
+        var isStudentGradeKToNineOrHs = SchoolGradeCodes.getDistrictFundingGrades().contains(student.getEnrolledGradeCode());
 
-        // TODO NEED TO ALSO WORK FOR DIS - confirm does this mean we need to use a similar setup as above with spring -> sept / may -> feb
-        if(isSpringCollection(studentRuleData) && studentReportedByOnlineSchool && isStudentGradeKToNine) {
+        if(isSpringCollection(studentRuleData) && studentReportedByOnlineSchool && isStudentGradeKToNineOrHs) {
             var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
             var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
-            var previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolForFiscalYearToCurrentCollection(UUID.fromString(studentRuleData.getSchool().getSchoolId()), fiscalSnapshotDate, currentSnapshotDate);
-            var collectionIds = previousCollections.stream().map(collection -> collection.getSdcSchoolCollectionID()).toList();
-            var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(student.getAssignedStudentId(), SchoolGradeCodes.HOMESCHOOL.getCode(), collectionIds);
-            return count > 0;
+            List<SdcSchoolCollectionEntity> previousCollections = null;
+
+            if(StringUtils.equals(studentRuleData.getSchool().getSchoolCategoryCode(), SchoolCategoryCodes.INDEPEND.getCode())) {
+                var schoolIds = restUtils.getSchoolIDsByIndependentAuthorityID(studentRuleData.getSchool().getIndependentAuthorityId());
+                if(schoolIds.isPresent()) {
+                    previousCollections = sdcSchoolCollectionRepository.findSeptemberCollectionsForSchoolsForFiscalYearToCurrentCollection(schoolIds.get(), fiscalSnapshotDate, currentSnapshotDate);
+                }
+            } else {
+                previousCollections = sdcSchoolCollectionRepository.findSeptemberCollectionsForDistrictForFiscalYearToCurrentCollection(UUID.fromString(studentRuleData.getSchool().getDistrictId()), fiscalSnapshotDate, currentSnapshotDate);
+            }
+            if(previousCollections != null) {
+                var collectionIds = previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList();
+                var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(student.getAssignedStudentId(), SchoolGradeCodes.HOMESCHOOL.getCode(), collectionIds);
+                return count > 0;
+            }
         }
         return false;
     }

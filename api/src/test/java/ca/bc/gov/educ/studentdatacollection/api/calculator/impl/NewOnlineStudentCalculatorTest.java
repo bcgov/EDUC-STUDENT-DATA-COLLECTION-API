@@ -48,7 +48,7 @@ class NewOnlineStudentCalculatorTest {
             "09, 0200, 0.75",
             "08, 1200, 0.9529"
     })
-    void testCalculateFte_homeSchoolStudentIsNowOnlineKto9Student_ShouldCalculateFteCorrectly(String enrolledGradeCode, String numberOfCourses, String expectedResult) {
+    void testCalculateFte_homeSchoolStudentIsNowOnlineKto9StudentOrHs_ShouldCalculateFteCorrectly(String enrolledGradeCode, String numberOfCourses, String expectedResult) {
         // Given
         SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudent = new SdcSchoolCollectionStudentEntity();
         sdcSchoolCollectionStudent.setEnrolledGradeCode(enrolledGradeCode);
@@ -56,7 +56,7 @@ class NewOnlineStudentCalculatorTest {
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudent);
 
-        when(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(studentData)).thenReturn(true);
+        when(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9StudentOrHs(studentData)).thenReturn(true);
 
         // When
         FteCalculationResult result = newOnlineStudentCalculator.calculateFte(studentData);
@@ -75,7 +75,7 @@ class NewOnlineStudentCalculatorTest {
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudent);
 
-        when(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(studentData)).thenReturn(true);
+        when(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9StudentOrHs(studentData)).thenReturn(true);
 
         // When
         FteCalculationResult result = newOnlineStudentCalculator.calculateFte(studentData);
@@ -87,12 +87,12 @@ class NewOnlineStudentCalculatorTest {
     }
 
     @Test
-    void testCalculateFte_homeSchoolStudentIsNotOnlineKto9Student() {
+    void testCalculateFte_homeSchoolStudentIsNotOnlineKto9StudentOrHs() {
         // Given
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSdcSchoolCollectionStudentEntity(new SdcSchoolCollectionStudentEntity());
 
-        when(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(studentData)).thenReturn(false);
+        when(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9StudentOrHs(studentData)).thenReturn(false);
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();

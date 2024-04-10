@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -622,7 +621,7 @@ class FteCalculatorUtilsTest {
             "SU, false",
             "GA, false"
     })
-    void testHomeSchoolStudentIsNowOnlineKto9Student_GivenDifferentGrades_ReturnExpectedResult(String enrolledGradeCode, boolean expectedResult) {
+    void testHomeSchoolStudentIsNowOnlineKto9StudentOrHs_GivenDifferentGrades_ReturnExpectedResult(String enrolledGradeCode, boolean expectedResult) {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
         School school = new School();
@@ -642,7 +641,7 @@ class FteCalculatorUtilsTest {
         when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(UUID.class), any(String.class), any())).thenReturn(1L);
 
         // When
-        var result = fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(sdcStudentSagaData);
+        var result = fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9StudentOrHs(sdcStudentSagaData);
 
         // Then
         assertEquals(expectedResult, result);
@@ -663,7 +662,7 @@ class FteCalculatorUtilsTest {
             "JULY, STANDARD, false",
             "JULY, DISTONLINE, false",
     })
-    void testHomeSchoolStudentIsNowOnlineKto9Student_GivenDifferentSchoolCategoriesAndFacilities_ReturnExpectedResult(String collectionType, String facilityType, boolean expectedResult) {
+    void testHomeSchoolStudentIsNowOnlineKto9StudentOrHs_GivenDifferentSchoolCategoriesAndFacilities_ReturnExpectedResult(String collectionType, String facilityType, boolean expectedResult) {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
         School school = new School();
@@ -683,13 +682,13 @@ class FteCalculatorUtilsTest {
         when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(UUID.class), any(String.class), any())).thenReturn(1L);
 
         // When
-        var result = fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(sdcStudentSagaData);
+        var result = fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9StudentOrHs(sdcStudentSagaData);
 
         // Then
         assertEquals(expectedResult, result);
     }
     @Test
-    void testHomeSchoolStudentIsNowOnlineKto9Student_GivenNoAssignedStudentId_ReturnsFalse() {
+    void testHomeSchoolStudentIsNowOnlineKto9StudentOrHs_GivenNoAssignedStudentId_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
         School school = new School();
@@ -706,13 +705,13 @@ class FteCalculatorUtilsTest {
         sdcStudentSagaData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
-        var result = fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(sdcStudentSagaData);
+        var result = fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9StudentOrHs(sdcStudentSagaData);
 
         // Then
         assertFalse(result);
     }
     @Test
-    void testHomeSchoolStudentIsNowOnlineKto9Student_GivenNoPreviousCollectionForStudent_ReturnsFalse() {
+    void testHomeSchoolStudentIsNowOnlineKto9StudentOrHs_GivenNoPreviousCollectionForStudent_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
         School school = new School();
@@ -732,7 +731,7 @@ class FteCalculatorUtilsTest {
         when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(UUID.class), any(String.class), any())).thenReturn(0L);
 
         // When
-        var result = fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(sdcStudentSagaData);
+        var result = fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9StudentOrHs(sdcStudentSagaData);
 
         // Then
         assertFalse(result);

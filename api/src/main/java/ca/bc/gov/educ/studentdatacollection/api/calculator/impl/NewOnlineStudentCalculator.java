@@ -30,7 +30,7 @@ public class NewOnlineStudentCalculator implements FteCalculator {
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
         log.debug("NewOnlineStudentCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        if(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9Student(studentData)) {
+        if(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9StudentOrHs(studentData)) {
             var student = studentData.getSdcSchoolCollectionStudentEntity();
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             if(student.getEnrolledGradeCode().equals(SchoolGradeCodes.KINDHALF.getCode())) {
