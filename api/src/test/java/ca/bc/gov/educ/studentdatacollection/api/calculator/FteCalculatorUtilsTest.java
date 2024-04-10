@@ -627,6 +627,7 @@ class FteCalculatorUtilsTest {
         School school = new School();
         school.setFacilityTypeCode("DIST_LEARN");
         school.setSchoolId(UUID.randomUUID().toString());
+        school.setDistrictId(UUID.randomUUID().toString());
         sdcStudentSagaData.setSchool(school);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
@@ -668,6 +669,7 @@ class FteCalculatorUtilsTest {
         School school = new School();
         school.setFacilityTypeCode(facilityType);
         school.setSchoolId(UUID.randomUUID().toString());
+        school.setDistrictId(UUID.randomUUID().toString());
         sdcStudentSagaData.setSchool(school);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
@@ -716,6 +718,7 @@ class FteCalculatorUtilsTest {
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
         School school = new School();
         school.setSchoolId(UUID.randomUUID().toString());
+        school.setDistrictId(UUID.randomUUID().toString());
         school.setFacilityTypeCode("DIST_LEARN");
         sdcStudentSagaData.setSchool(school);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
