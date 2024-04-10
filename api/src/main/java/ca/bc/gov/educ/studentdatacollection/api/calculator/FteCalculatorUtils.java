@@ -128,7 +128,7 @@ public class FteCalculatorUtils {
 
     /**
      * Returns true if the given student (in a correct grade) is part of a spring (Feb or May) collection reported
-     * by an online school and the student was reported as an HS student in the previous September collection
+     * by an online school and the student was reported as an HS student in the previous collection
      */
     public boolean homeSchoolStudentIsNowOnlineKto9StudentOrHs(StudentRuleData studentRuleData) {
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
