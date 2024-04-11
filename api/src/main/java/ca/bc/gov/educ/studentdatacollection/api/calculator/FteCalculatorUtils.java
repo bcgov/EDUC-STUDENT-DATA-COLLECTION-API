@@ -129,7 +129,7 @@ public class FteCalculatorUtils {
 
     /**
      * Returns true if the given student (in a correct grade) is part of a spring (Feb or May) collection reported
-     * by an online school and the student was reported as an HS student in the previous September collection
+     * by an online school and the student was reported as an HS student in the previous collection
      */
     public boolean homeSchoolStudentIsNowOnlineKto9StudentOrHs(StudentRuleData studentRuleData) {
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
@@ -147,10 +147,10 @@ public class FteCalculatorUtils {
             if (StringUtils.equals(studentRuleData.getSchool().getSchoolCategoryCode(), SchoolCategoryCodes.INDEPEND.getCode())) {
                 var schoolIds = restUtils.getSchoolIDsByIndependentAuthorityID(studentRuleData.getSchool().getIndependentAuthorityId());
                 if (schoolIds.isPresent()) {
-                    previousCollections = sdcSchoolCollectionRepository.findSeptemberCollectionsForSchoolsForFiscalYearToCurrentCollection(schoolIds.get(), fiscalSnapshotDate, currentSnapshotDate);
+                    previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(schoolIds.get(), fiscalSnapshotDate, currentSnapshotDate);
                 }
             } else {
-                previousCollections = sdcSchoolCollectionRepository.findSeptemberCollectionsForDistrictForFiscalYearToCurrentCollection(UUID.fromString(studentRuleData.getSchool().getDistrictId()), fiscalSnapshotDate, currentSnapshotDate);
+                previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(UUID.fromString(studentRuleData.getSchool().getDistrictId()), fiscalSnapshotDate, currentSnapshotDate);
             }
             if (previousCollections != null) {
                 var collectionIds = previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList();
