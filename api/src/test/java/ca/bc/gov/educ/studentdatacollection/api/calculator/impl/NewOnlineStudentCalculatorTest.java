@@ -46,6 +46,7 @@ class NewOnlineStudentCalculatorTest {
             "EU, 0200, 0.9529",
             "08, 0200, 0.75",
             "09, 0200, 0.75",
+            "HS, 0200, 0",
             "08, 1200, 0.9529"
     })
     void testCalculateFte_homeSchoolStudentIsNowOnlineKto9StudentOrHs_ShouldCalculateFteCorrectly(String enrolledGradeCode, String numberOfCourses, String expectedResult) {
