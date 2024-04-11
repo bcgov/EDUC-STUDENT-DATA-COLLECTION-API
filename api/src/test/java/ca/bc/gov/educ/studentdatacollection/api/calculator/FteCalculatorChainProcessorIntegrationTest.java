@@ -320,18 +320,20 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     @Transactional(rollbackFor = Exception.class)
     void testProcessFteCalculator_NewOnlineStudent() {
         var school = this.createMockSchool();
+        var district = this.createMockDistrict();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        when(this.restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(district));
         // Given
         CollectionEntity collectionOrig = createMockCollectionEntity();
         collectionOrig.setSnapshotDate(LocalDate.of(collectionOrig.getOpenDate().getYear(), 2, 15));
         collectionOrig.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         collectionRepository.save(collectionOrig);
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntityOrig = createMockSdcSchoolCollectionEntity(collectionOrig, null, null);
-        sdcSchoolCollectionEntityOrig.setSchoolID(UUID.randomUUID());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntityOrig = createMockSdcSchoolCollectionEntity(collectionOrig, UUID.fromString(school.getSchoolId()), UUID.fromString(district.getDistrictId()));
         sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntityOrig);
         this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollectionEntityOrig);
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
         this.studentData.getSchool().setSchoolId(sdcSchoolCollectionEntityOrig.getSchoolID().toString());
+        this.studentData.getSchool().setDistrictId(sdcSchoolCollectionEntityOrig.getDistrictID().toString());
 
         SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = createMockSchoolStudentForSagaEntity(sdcSchoolCollectionEntityOrig);
         sdcSchoolCollectionStudentEntity.setEnrolledGradeCode("KH");
@@ -349,6 +351,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         var oldSdcCollection = createMockSdcSchoolCollectionEntity(oldCollection, null, null);
         collectionRepository.save(oldCollection);
         oldSdcCollection.setSchoolID(sdcSchoolCollectionEntityOrig.getSchoolID());
+        oldSdcCollection.setDistrictID(sdcSchoolCollectionEntityOrig.getDistrictID());
         sdcSchoolCollectionRepository.save(oldSdcCollection);
         var oneYearAgoCollectionStudent = createMockSchoolStudentEntity(oldSdcCollection);
         oneYearAgoCollectionStudent.setCreateDate(lastCollectionDate);
