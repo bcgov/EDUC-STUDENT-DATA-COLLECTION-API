@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
@@ -16,6 +17,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.IND_AUTH_DUPLICATE_FUNDING;
 
 @Component
 @Slf4j
@@ -48,7 +50,11 @@ public class NewOnlineStudentCalculator implements FteCalculator {
             } else if (student.getEnrolledGradeCode().equals(SchoolGradeCodes.HOMESCHOOL.getCode())) {
                 log.debug("NewOnlineStudentCalculator: Fte result {} calculated with zero reason '{}' for student :: {}", fteCalculationResult.getFte(), fteCalculationResult.getFteZeroReason(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 fteCalculationResult.setFte(BigDecimal.ZERO);
-                fteCalculationResult.setFteZeroReason(DISTRICT_DUPLICATE_FUNDING.getCode());
+                if (studentData.getSchool().getSchoolCategoryCode().equals(SchoolCategoryCodes.INDEPEND.getCode())) {
+                    fteCalculationResult.setFteZeroReason(IND_AUTH_DUPLICATE_FUNDING.getCode());
+                } else {
+                    fteCalculationResult.setFteZeroReason(DISTRICT_DUPLICATE_FUNDING.getCode());
+                }
                 return fteCalculationResult;
             } else {
                 log.debug("NewOnlineStudentCalculator: calculating for all other grades with student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
