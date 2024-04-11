@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcDistrictCollectio
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDistrictCollectionService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionsResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDistrictCollection;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
@@ -47,5 +48,10 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   public ResponseEntity<Void> deleteSdcDistrictCollection(UUID sdcDistrictCollectionID) {
     this.sdcDistrictCollectionService.deleteSdcDistrictCollection(sdcDistrictCollectionID);
     return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  public MonitorSdcSchoolCollectionsResponse getMonitorSdcSchoolCollectionResponse(UUID sdcDistrictCollectionId) {
+    return this.sdcDistrictCollectionService.getMonitorSdcSchoolCollectionResponse(sdcDistrictCollectionId);
   }
 }

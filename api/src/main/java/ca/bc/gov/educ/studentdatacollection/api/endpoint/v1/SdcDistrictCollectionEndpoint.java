@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionsResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDistrictCollection;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -45,4 +46,11 @@ public interface SdcDistrictCollectionEndpoint {
   @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "NO CONTENT"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @ResponseStatus(NO_CONTENT)
   ResponseEntity<Void> deleteSdcDistrictCollection(@PathVariable UUID sdcDistrictCollectionID);
+
+  @GetMapping("/{sdcDistrictCollectionID}/monitorSdcSchoolCollections")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_DISTRICT_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "Sdc District Collection", description = "Endpoint to get monitoring objects for all sdc school collections in the sdc district collection.")
+  MonitorSdcSchoolCollectionsResponse getMonitorSdcSchoolCollectionResponse(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 }
