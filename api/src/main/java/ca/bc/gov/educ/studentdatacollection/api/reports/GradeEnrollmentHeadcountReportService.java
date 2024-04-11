@@ -99,8 +99,8 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
 
   public HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH){
     HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
-    addValuesForSectionToMap(nodeMap, "underSchoolAged", "Under School-Aged", "00", includeKH);
-    addValuesForSectionToMap(nodeMap, "schoolAged", "School-Aged", "10", includeKH);
+    addValuesForSectionToMap(nodeMap, "underSchoolAged", "Preschool Aged", "00", includeKH);
+    addValuesForSectionToMap(nodeMap, "schoolAged", "School Aged", "10", includeKH);
     addValuesForSectionToMap(nodeMap, "adult", "Adult", "20", includeKH);
     addValuesForSectionToMap(nodeMap, "all", "All Students", "30", includeKH);
 
