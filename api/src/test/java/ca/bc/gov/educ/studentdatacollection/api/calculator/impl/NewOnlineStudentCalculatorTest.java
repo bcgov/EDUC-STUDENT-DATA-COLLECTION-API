@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
@@ -12,6 +13,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import java.math.BigDecimal;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -64,7 +66,11 @@ class NewOnlineStudentCalculatorTest {
 
         // Then
         assertEquals(new BigDecimal(expectedResult), result.getFte());
-        assertNull(result.getFteZeroReason());
+        if (sdcSchoolCollectionStudent.getEnrolledGradeCode().equals(SchoolGradeCodes.HOMESCHOOL.getCode())) {
+            assertEquals(result.getFteZeroReason(), DISTRICT_DUPLICATE_FUNDING.getCode());
+        } else {
+            assertNull(result.getFteZeroReason());
+        }
         verify(nextCalculator, never()).calculateFte(any());
     }
 

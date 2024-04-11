@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING;
+
 @Component
 @Slf4j
 @Order(11)
@@ -44,8 +46,10 @@ public class NewOnlineStudentCalculator implements FteCalculator {
                 var fte = (numCourses.multiply(fteMultiplier).add(new BigDecimal("0.5"))).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros();
                 fteCalculationResult.setFte(fte.compareTo(largestFte) > 0 ? largestFte : fte);
             } else if (student.getEnrolledGradeCode().equals(SchoolGradeCodes.HOMESCHOOL.getCode())) {
-                log.debug("NewOnlineStudentCalculator: calculating for a homeschool student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+                log.debug("NewOnlineStudentCalculator: Fte result {} calculated with zero reason '{}' for student :: {}", fteCalculationResult.getFte(), fteCalculationResult.getFteZeroReason(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 fteCalculationResult.setFte(BigDecimal.ZERO);
+                fteCalculationResult.setFteZeroReason(DISTRICT_DUPLICATE_FUNDING.getCode());
+                return fteCalculationResult;
             } else {
                 log.debug("NewOnlineStudentCalculator: calculating for all other grades with student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 fteCalculationResult.setFte(new BigDecimal("0.9529"));
