@@ -65,8 +65,8 @@ public class AllStudentLightCollectionGenerateCsvService {
                         student.getLocalID(),
                         student.getEnrolledGradeCode(),
                         student.getFte(),
-                        student.getIsAdult(),
-                        student.getIsGraduated(),
+                        Boolean.TRUE.equals(student.getIsAdult()) ? "Y" : "N",
+                        Boolean.TRUE.equals(student.getIsGraduated()) ? "Y" : "N",
                         feePayer,
                         refugee,
                         student.getNativeAncestryInd(),
@@ -108,22 +108,26 @@ public class AllStudentLightCollectionGenerateCsvService {
     private String formatFullName(String firstName, String middleNames, String lastName) {
         StringBuilder fullName = new StringBuilder();
 
+        if (StringUtils.isNotBlank(lastName)) {
+            fullName.append(lastName);
+        }
+
         if (StringUtils.isNotBlank(firstName)) {
+            if (!fullName.isEmpty()) {
+                fullName.append(", ");
+            }
             fullName.append(firstName);
         }
 
         if (StringUtils.isNotBlank(middleNames)) {
             if (!fullName.isEmpty()) {
-                fullName.append(" ");
+                if (StringUtils.isNotBlank(firstName)) {
+                    fullName.append(" ");
+                } else {
+                    fullName.append(", ");
+                }
             }
             fullName.append(middleNames);
-        }
-
-        if (StringUtils.isNotBlank(lastName)) {
-            if (!fullName.isEmpty()) {
-                fullName.append(" ");
-            }
-            fullName.append(lastName);
         }
 
         return fullName.toString().trim();
