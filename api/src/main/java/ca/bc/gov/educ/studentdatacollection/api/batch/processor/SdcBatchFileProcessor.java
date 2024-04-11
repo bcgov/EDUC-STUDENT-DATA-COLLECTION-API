@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFileTrailer
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcStudentDetails;
 import ca.bc.gov.educ.studentdatacollection.api.batch.validator.SdcFileValidator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
@@ -258,7 +259,7 @@ public class SdcBatchFileProcessor {
     log.info("Found {} incoming students for collection", incomingStudentsHashCodes.size());
 
     currentStudentsHashCodes.keySet().forEach(currentStudentHash -> {
-      if(incomingStudentsHashCodes.containsKey(currentStudentHash)){
+      if(incomingStudentsHashCodes.containsKey(currentStudentHash)  && !currentStudentsHashCodes.get(currentStudentHash).getSdcSchoolCollectionStudentStatusCode().equals(SdcSchoolStudentStatus.DELETED.toString())){
         finalStudentsMap.put(currentStudentHash, currentStudentsHashCodes.get(currentStudentHash));
       }else{
         removedStudents.add(currentStudentsHashCodes.get(currentStudentHash).getSdcSchoolCollectionStudentID());
