@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionQueryResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -125,4 +126,21 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     List<SdcSchoolCollectionEntity> findAllBySchoolID(UUID schoolID);
     Optional<SdcSchoolCollectionEntity> findBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
+    @Query("""
+            SELECT
+                s.sdcSchoolCollectionID as sdcSchoolCollectionId,
+                s.schoolID as schoolId,
+                s.sdcSchoolCollectionStatusCode as sdcSchoolCollectionStatusCode,
+                s.uploadDate as uploadDate,
+                SUM(CASE WHEN i.validationIssueSeverityCode = 'ERROR' THEN 1 ELSE 0 END) as errors,
+                SUM(CASE WHEN i.validationIssueSeverityCode = 'FUNDING_WARNING' THEN 1 ELSE 0 END) as fundingWarnings,
+                SUM(CASE WHEN i.validationIssueSeverityCode = 'INFO_WARNING' THEN 1 ELSE 0 END) as infoWarnings
+            FROM SdcSchoolCollectionEntity s
+                     LEFT JOIN s.sdcSchoolStudentEntities stu
+                     LEFT JOIN stu.sdcStudentValidationIssueEntities i
+            WHERE stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+              AND s.sdcDistrictCollectionID = :sdcDistrictCollectionId
+            GROUP BY s.sdcSchoolCollectionID
+            """)
+    List<MonitorSdcSchoolCollectionQueryResponse> findAllSdcSchoolCollectionMonitoringBySdcDistrictCollectionId(UUID sdcDistrictCollectionId);
 }
