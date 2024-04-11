@@ -19,7 +19,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
   private static final String TOTAL_FTE_TITLE = "FTE Total";
   private static final String ELIGIBLE_FTE_TITLE = "Eligible for FTE";
   private static final String HEADCOUNT_TITLE = "Headcount";
-  private static final String UNDER_SCHOOL_AGED_TITLE = "Under School Aged";
+  private static final String UNDER_SCHOOL_AGED_TITLE = "Preschool Aged";
   private static final String SCHOOL_AGED_TITLE = "School Aged";
   private static final String ADULT_TITLE = "Adult";
   private static final String ALL_STUDENT_TITLE = "All Students";
