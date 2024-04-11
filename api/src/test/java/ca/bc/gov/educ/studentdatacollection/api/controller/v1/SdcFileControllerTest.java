@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentValidationIssueEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
@@ -67,6 +68,9 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
   @Autowired
   private MockMvc mockMvc;
+
+  @Autowired
+  private SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
 
   protected final static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
@@ -395,6 +399,64 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
     var historyStuds2 = this.sdcSchoolCollectionStudentHistoryRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(historyStuds2).isNotNull().hasSize(2);
+  }
+
+  @Test
+  void testProcessSdcFileReUploadCompare_WithDeletedStudents_givenValidPayload_ShouldReturnStatusOk() throws Exception {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
+    sdcMockSchool.setUploadDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setUploadReportDate(null);
+    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-2-student.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    assertThat(fileContents).isNotEmpty();
+    val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
+    this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(body))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+    final var result = this.sdcSchoolCollectionRepository.findAll();
+    assertThat(result).hasSize(1);
+    var entity = result.get(0);
+    assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+
+    var students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    assertThat(students).isNotNull().hasSize(2);
+
+    sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(students.get(0).getSdcSchoolCollectionStudentID());
+
+    var studentsAfterDelete = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    var deletedStudent = studentsAfterDelete.stream().filter(student -> student.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase("DELETED"));
+    assertThat(deletedStudent).isNotNull().hasSize(1);
+
+    final FileInputStream fis2 = new FileInputStream("src/test/resources/sample-2-student.txt");
+    final String fileContents2 = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis2));
+    assertThat(fileContents2).isNotEmpty();
+    val body2 = SdcFileUpload.builder().fileContents(fileContents2).createUser("ABC").fileName("SampleUpload.std").build();
+
+    this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(body2))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+    assertThat(result).hasSize(1);
+    entity = result.get(0);
+    assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+    students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    var reUploadedStudents = students.stream().filter(student -> student.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase("DELETED"));
+    assertThat(reUploadedStudents).isNotNull().hasSize(0);
+
   }
 
   @Test
