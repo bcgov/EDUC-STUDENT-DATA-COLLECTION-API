@@ -14,10 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Base64;
-import java.util.UUID;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 class AllStudentLightCollectionGenerateCsvServiceTest {
 
@@ -73,6 +70,63 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         verify(mockSearchService).findAllStudentsLightByDistrictCollectionId(districtCollectionId);
         String decodedData = new String(Base64.getDecoder().decode(response.getDocumentData()));
         assertTrue(decodedData.contains("School ID"));
+    }
+
+    @Test
+    void testFormatFullName_AllNamesPresent() {
+        String result = service.formatFullName("John", "Quincy", "Adams");
+        assertEquals("Adams, John Quincy", result);
+    }
+
+    @Test
+    void testFormatFullName_MissingMiddleName() {
+        String result = service.formatFullName("John", "", "Adams");
+        assertEquals("Adams, John", result);
+    }
+
+    @Test
+    void testFormatFullName_MissingFirstAndMiddleNames() {
+        String result = service.formatFullName("", "", "Adams");
+        assertEquals("Adams", result);
+    }
+
+    @Test
+    void testFormatFullName_MissingLastName() {
+        String result = service.formatFullName("John", "Quincy", "");
+        assertEquals("John Quincy", result);
+    }
+
+    @Test
+    void testFormatFullName_AllNamesEmpty() {
+        String result = service.formatFullName("", "", "");
+        assertEquals("", result);
+    }
+
+    @Test
+    void testParseEnrolledProgramCodes_Standard() {
+        Set<String> result = service.parseEnrolledProgramCodes("ABCD");
+        assertTrue(result.contains("AB") && result.contains("CD"));
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void testParseEnrolledProgramCodes_EmptyString() {
+        Set<String> result = service.parseEnrolledProgramCodes("");
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testParseEnrolledProgramCodes_OddCharacters() {
+        Set<String> result = service.parseEnrolledProgramCodes("ABC");
+        assertTrue(result.contains("AB"));
+        assertTrue(result.contains("C"));
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void testParseEnrolledProgramCodes_NullInput() {
+        Set<String> result = service.parseEnrolledProgramCodes(null);
+        assertTrue(result.isEmpty());
     }
 
     private SdcSchoolCollectionStudentLightEntity createMockStudent() {

@@ -144,7 +144,7 @@ public class AllStudentLightCollectionGenerateCsvService {
         return csvRowData;
     }
 
-    private String formatFullName(String firstName, String middleNames, String lastName) {
+    public String formatFullName(String firstName, String middleNames, String lastName) {
         StringBuilder fullName = new StringBuilder();
 
         if (StringUtils.isNotBlank(lastName)) {
@@ -172,7 +172,7 @@ public class AllStudentLightCollectionGenerateCsvService {
         return fullName.toString().trim();
     }
 
-    private Set<String> parseEnrolledProgramCodes(String enrolledProgramCodes) {
+    public Set<String> parseEnrolledProgramCodes(String enrolledProgramCodes) {
         if (StringUtils.isEmpty(enrolledProgramCodes)) {
             return Collections.emptySet();
         }
