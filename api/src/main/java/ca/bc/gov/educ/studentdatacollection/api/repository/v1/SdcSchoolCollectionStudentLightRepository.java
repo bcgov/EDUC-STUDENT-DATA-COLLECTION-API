@@ -15,7 +15,7 @@ public interface SdcSchoolCollectionStudentLightRepository extends JpaRepository
     @Query(value = """
             SELECT sscs FROM SdcSchoolCollectionStudentLightEntity sscs
             JOIN sscs.sdcSchoolCollectionEntity sdc
-            WHERE sdc.sdcSchoolCollectionDistrictCollectionID = :districtCollectionID
+            WHERE sdc.sdcDistrictCollectionID = :districtCollectionID
             """)
     List<SdcSchoolCollectionStudentLightEntity> findAllBySdcDistrictCollectionID(@Param("districtCollectionID") UUID districtCollectionID);
 }
