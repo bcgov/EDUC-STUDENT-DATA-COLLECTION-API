@@ -104,64 +104,69 @@ public class AllStudentLightCollectionGenerateCsvService {
         String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "Y" : "N";
         Set<String> enrolledProgramCodesSet = parseEnrolledProgramCodes(student.getEnrolledProgramCodes());
 
+
         csvRowData.addAll(Arrays.asList(
-                student.getStudentPen(),
-                legalFullName,
-                usualFullName,
-                student.getDob(),
-                student.getGender(),
-                student.getPostalCode(),
-                student.getLocalID(),
-                student.getEnrolledGradeCode(),
-                student.getFte(),
-                student.getIsAdult(),
-                student.getIsGraduated(),
-                feePayer,
-                refugee,
-                student.getNativeAncestryInd(),
-                ordinarilyResidentOnReserve,
-                student.getBandCode(),
-                student.getHomeLanguageSpokenCode(),
-                student.getNumberOfCourses(),
-                student.getSupportBlocks(),
-                student.getOtherCourses(),
-                enrolledProgramCodesSet.contains(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode()) ? "Y" : "N",
-                enrolledProgramCodesSet.contains(EnrolledProgramCodes.CORE_FRENCH.getCode()) ? "Y" : "N",
-                enrolledProgramCodesSet.contains(EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode()) ? "Y" : "N",
-                enrolledProgramCodesSet.contains(EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode()) ? "Y" : "N",
-                enrolledProgramCodesSet.contains(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode()) ? "Y" : "N",
-                enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_LANGUAGE.getCode()) ? "Y" : "N",
-                enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_SUPPORT.getCode()) ? "Y" : "N",
-                enrolledProgramCodesSet.contains(EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode()) ? "Y" : "N",
-                student.getCareerProgramCode(),
-                enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_PREPARATION.getCode()) ? "Y" : "N",
-                enrolledProgramCodesSet.contains(EnrolledProgramCodes.COOP.getCode()) ? "Y" : "N",
-                enrolledProgramCodesSet.contains(EnrolledProgramCodes.APPRENTICESHIP.getCode()) ? "Y" : "N",
-                enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()) ? "Y" : "N",
-                student.getSpecialEducationCategoryCode()
-        ));
-        return csvRowData;
-    }
+                        student.getStudentPen(),
+                        legalFullName,
+                        usualFullName,
+                        student.getDob(),
+                        student.getGender(),
+                        student.getPostalCode(),
+                        student.getLocalID(),
+                        student.getEnrolledGradeCode(),
+                        student.getFte(),
+                        Boolean.TRUE.equals(student.getIsAdult()) ? "Y" : "N",
+                        Boolean.TRUE.equals(student.getIsGraduated()) ? "Y" : "N",
+                        feePayer,
+                        refugee,
+                        student.getNativeAncestryInd(),
+                        ordinarilyResidentOnReserve,
+                        student.getBandCode(),
+                        student.getHomeLanguageSpokenCode(),
+                        student.getNumberOfCourses(),
+                        student.getSupportBlocks(),
+                        student.getOtherCourses(),
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.CORE_FRENCH.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_LANGUAGE.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_SUPPORT.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode()) ? "Y" : "N",
+                        student.getCareerProgramCode(),
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_PREPARATION.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.COOP.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.APPRENTICESHIP.getCode()) ? "Y" : "N",
+                        enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()) ? "Y" : "N",
+                        student.getSpecialEducationCategoryCode()
+                ));
+                return csvRowData;
+            }
 
     private String formatFullName(String firstName, String middleNames, String lastName) {
         StringBuilder fullName = new StringBuilder();
 
+        if (StringUtils.isNotBlank(lastName)) {
+            fullName.append(lastName);
+        }
+
         if (StringUtils.isNotBlank(firstName)) {
+            if (!fullName.isEmpty()) {
+                fullName.append(", ");
+            }
             fullName.append(firstName);
         }
 
         if (StringUtils.isNotBlank(middleNames)) {
             if (!fullName.isEmpty()) {
-                fullName.append(" ");
+                if (StringUtils.isNotBlank(firstName)) {
+                    fullName.append(" ");
+                } else {
+                    fullName.append(", ");
+                }
             }
             fullName.append(middleNames);
-        }
-
-        if (StringUtils.isNotBlank(lastName)) {
-            if (!fullName.isEmpty()) {
-                fullName.append(" ");
-            }
-            fullName.append(lastName);
         }
 
         return fullName.toString().trim();

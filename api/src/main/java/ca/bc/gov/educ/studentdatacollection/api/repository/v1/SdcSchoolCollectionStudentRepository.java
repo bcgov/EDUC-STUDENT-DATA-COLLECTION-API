@@ -26,6 +26,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
                 FROM SdcSchoolCollectionStudentEntity
                 where sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID
                 and assignedStudentId is not null
+                and sdcSchoolCollectionStudentStatusCode != 'DELETED'
                 GROUP BY assignedStudentId
                 HAVING COUNT(assignedStudentId) > 1)
     and sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID
@@ -65,7 +66,26 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   long countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(UUID assignedStudentId, List<UUID> sdcSchoolCollectionID, String numberOfCourses);
 
-  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(UUID assignedStudentId, List<UUID> sdcSchoolCollectionID);
+  @Query("""
+       SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
+       WHERE s.assignedStudentId = :assignedStudentId
+       AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
+       AND s.enrolledGradeCode <> 'HS'
+       """)
+  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInExcludingHomeschool(
+          @Param("assignedStudentId") UUID assignedStudentId,
+          @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
+
+  @Query("""
+       SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
+       WHERE s.assignedStudentId = :assignedStudentId
+       AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
+       AND s.enrolledGradeCode <> 'HS'
+       AND s.fte > 0
+       """)
+  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInExcludingHomeschoolWithNonZeroFTE(
+          @Param("assignedStudentId") UUID assignedStudentId,
+          @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
 
   long countAllByAssignedStudentIdAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(UUID assignedStudentId, String enrolledGradeCode, List<UUID> sdcSchoolCollectionID);
 

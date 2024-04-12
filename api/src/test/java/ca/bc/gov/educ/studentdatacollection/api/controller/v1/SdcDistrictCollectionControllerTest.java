@@ -1,14 +1,14 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,10 +21,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -36,13 +40,16 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
   private MockMvc mockMvc;
 
   @Autowired
-  SdcSchoolCollectionController sdcSchoolCollectionController;
+  SdcDistrictCollectionController sdcDistrictCollectionController;
 
   @Autowired
   CollectionRepository collectionRepository;
 
   @Autowired
   SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
+
+  @Autowired
+  RestUtils restUtils;
 
   @BeforeEach
   public void before() {
@@ -282,5 +289,95 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     var deletedEntity = sdcDistrictCollectionRepository.findById(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
     assertThat(deletedEntity).isEmpty();
+  }
+
+  @Test
+  void testGetMonitorSdcSchoolCollectionResponse_WithInValidId_ReturnsNotFound() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_DISTRICT_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + UUID.randomUUID() + "/monitorSdcSchoolCollections").with(mockAuthority)).andDo(print()).andExpect(status().isNotFound());
+  }
+
+  @Test
+  void testGetMonitorSdcSchoolCollectionResponse_WithValidPayload_ReturnsCorrectResponse() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_DISTRICT_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, UUID.randomUUID()));
+
+    var school1 = createMockSchool();
+    school1.setDisplayName("School1");
+    school1.setMincode("0000001");
+    var school2 = createMockSchool();
+    school2.setDisplayName("School2");
+    school2.setMincode("0000002");
+
+    var sdcSchoolCollection1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()), mockDistrictCollectionEntity.getDistrictID());
+    sdcSchoolCollection1.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+    sdcSchoolCollection1.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.COMPLETED.getCode());
+    var sdcSchoolCollection2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()), mockDistrictCollectionEntity.getDistrictID());
+    sdcSchoolCollection2.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+    sdcSchoolCollection2.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SCH_C_VRFD.getCode());
+    sdcSchoolCollectionRepository.saveAll(List.of(sdcSchoolCollection1, sdcSchoolCollection2));
+
+
+
+
+    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+
+    this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID() + "/monitorSdcSchoolCollections").with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].sdcSchoolCollectionId").value(sdcSchoolCollection1.getSdcSchoolCollectionID().toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].schoolTitle").value("0000001 - School1"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].errors").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].fundingWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].infoWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].detailsConfirmed").value(true))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].contactsConfirmed").value(true))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].submittedToDistrict").value(true))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].sdcSchoolCollectionId").value(sdcSchoolCollection2.getSdcSchoolCollectionID().toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].schoolTitle").value("0000002 - School2"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].errors").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].fundingWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].infoWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].detailsConfirmed").value(true))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].contactsConfirmed").value(false))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].submittedToDistrict").value(false))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsWithData").value(2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalErrors").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalFundingWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalInfoWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsDetailsConfirmed").value(2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsContactsConfirmed").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsSubmitted").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalSchools").value(2));
+  }
+
+  @Test
+  void testGetMonitorSdcSchoolCollectionResponse_WithValidDistrictCollectionIdNoSchoolCollections_ReturnsCorrectResponse() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_DISTRICT_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, UUID.randomUUID()));
+
+
+    this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID() + "/monitorSdcSchoolCollections").with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections").isArray())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections", hasSize(0)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsWithData").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalErrors").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalFundingWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalInfoWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsDetailsConfirmed").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsContactsConfirmed").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsSubmitted").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalSchools").value(0));
   }
 }
