@@ -99,6 +99,9 @@ public class SdcSchoolCollectionStudentHistoryEntity extends AbstractPersistable
   @Column(name = "BAND_CODE")
   private String bandCode;
 
+  @Column(name = "YEARS_IN_ELL")
+  private Integer yearsInEll;
+
   @Column(name = "POSTAL_CODE")
   @UpperCase
   private String postalCode;

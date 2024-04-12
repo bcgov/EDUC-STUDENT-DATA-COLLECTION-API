@@ -179,6 +179,7 @@ public class SdcSchoolCollectionStudentService {
     incomingStudentEntity.setIsSchoolAged(null);
     incomingStudentEntity.setIsAdult(null);
     incomingStudentEntity.setPenMatchResult(null);
+    incomingStudentEntity.setYearsInEll(null);
     incomingStudentEntity.setNumberOfCoursesDec(null);
     incomingStudentEntity.setFteZeroReasonCode(null);
     incomingStudentEntity.setCareerProgramNonEligReasonCode(null);

@@ -90,8 +90,8 @@ public class ValidationRulesService {
         return Pattern.compile(".{1,2}").matcher(enrolledProgramCode).results().map(MatchResult::group).toList();
     }
 
-    public Optional<SdcStudentEllEntity> getStudentYearsInEll(String studentID) {
-        return sdcStudentEllRepository.findByStudentID(UUID.fromString(studentID));
+    public Optional<SdcStudentEllEntity> getStudentYearsInEll(UUID studentID) {
+        return sdcStudentEllRepository.findByStudentID(studentID);
     }
 
     public void updatePenMatchAndGradStatusColumns(SdcSchoolCollectionStudentEntity student, String mincode) throws EntityNotFoundException {
@@ -119,6 +119,18 @@ public class ValidationRulesService {
             student.setPenMatchResult("NEW");
         }
         setGraduationStatus(student);
+        setStudentYearsInEll(student);
+    }
+
+    private void setStudentYearsInEll(SdcSchoolCollectionStudentEntity student){
+        student.setYearsInEll(null);
+        if(student.getAssignedStudentId() != null) {
+            final var yearsInEll = this.getStudentYearsInEll(student.getSdcSchoolCollectionStudentID());
+            log.info("Student years in ELL found for SDC student {} :: is {}", student.getSdcSchoolCollectionStudentID(), yearsInEll);
+            if(yearsInEll.isPresent()){
+                student.setYearsInEll(yearsInEll.get().getYearsInEll());
+            }
+        }
     }
 
     private void setGraduationStatus(SdcSchoolCollectionStudentEntity student){

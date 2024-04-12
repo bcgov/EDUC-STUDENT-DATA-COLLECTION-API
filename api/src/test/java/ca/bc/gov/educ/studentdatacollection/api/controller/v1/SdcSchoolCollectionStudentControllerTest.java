@@ -140,12 +140,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         mockStudentEntity.setAssignedStudentId(UUID.randomUUID());
         SdcSchoolCollectionStudentEntity otherStudentEntity = createMockSchoolStudentEntity(sdcSchoolCollection);
         otherStudentEntity.setAssignedStudentId(UUID.randomUUID());
-        SdcSchoolCollectionStudentEntity studentWithEll = sdcSchoolCollectionStudentRepository.save(mockStudentEntity);
+        mockStudentEntity.setYearsInEll(5);
+        sdcSchoolCollectionStudentRepository.save(mockStudentEntity);
         sdcSchoolCollectionStudentRepository.save(otherStudentEntity);
-        SdcStudentEllEntity ellEntity = this.createMockStudentEllEntity(studentWithEll);
-        ellEntity.setYearsInEll(5);
-
-        ellEntity = this.sdcStudentEllRepository.save(ellEntity);
 
         final MvcResult result = this.mockMvc
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED+"?pageSize=2")
@@ -156,8 +153,8 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
             .andReturn();
 
         String yearsInEll = "$.content[?(@.assignedStudentId=='"
-            + studentWithEll.getAssignedStudentId().toString()
-            + "')].sdcStudentEll.yearsInEll";
+            + mockStudentEntity.getAssignedStudentId().toString()
+            + "')].yearsInELL";
         this.mockMvc.perform(asyncDispatch(result))
             .andDo(print())
             .andExpect(status().isOk())
@@ -1822,14 +1819,11 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         mockStudentEntity.setAssignedStudentId(UUID.randomUUID());
         SdcSchoolCollectionStudentEntity otherStudentEntity = createMockSchoolStudentEntity(sdcSchoolCollection);
         otherStudentEntity.setAssignedStudentId(UUID.randomUUID());
-        SdcSchoolCollectionStudentEntity studentWithEll = sdcSchoolCollectionStudentRepository.save(mockStudentEntity);
+        mockStudentEntity.setYearsInEll(5);
+        sdcSchoolCollectionStudentRepository.save(mockStudentEntity);
         sdcSchoolCollectionStudentRepository.save(otherStudentEntity);
-        SdcStudentEllEntity ellEntity = this.createMockStudentEllEntity(studentWithEll);
-        ellEntity.setYearsInEll(5);
 
-        this.sdcStudentEllRepository.save(ellEntity);
-
-        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("sdcStudentEllEntity.yearsInEll").operation(FilterOperation.GREATER_THAN).value("2").valueType(ValueType.INTEGER).build();
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("yearsInEll").operation(FilterOperation.GREATER_THAN).value("2").valueType(ValueType.INTEGER).build();
 
         final List<SearchCriteria> criteriaList = new ArrayList<>();
         criteriaList.add(criteria);
@@ -1862,14 +1856,11 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         mockStudentEntity.setAssignedStudentId(UUID.randomUUID());
         SdcSchoolCollectionStudentEntity otherStudentEntity = createMockSchoolStudentEntity(sdcSchoolCollection);
         otherStudentEntity.setAssignedStudentId(UUID.randomUUID());
-        SdcSchoolCollectionStudentEntity studentWithEll = sdcSchoolCollectionStudentRepository.save(mockStudentEntity);
+        mockStudentEntity.setYearsInEll(5);
+        sdcSchoolCollectionStudentRepository.save(mockStudentEntity);
         sdcSchoolCollectionStudentRepository.save(otherStudentEntity);
-        SdcStudentEllEntity ellEntity = this.createMockStudentEllEntity(studentWithEll);
-        ellEntity.setYearsInEll(5);
 
-        this.sdcStudentEllRepository.save(ellEntity);
-
-        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("sdcStudentEllEntity.yearsInEll").operation(FilterOperation.LESS_THAN_OR_EQUAL_TO).value("5").valueType(ValueType.INTEGER).build();
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("yearsInEll").operation(FilterOperation.LESS_THAN_OR_EQUAL_TO).value("5").valueType(ValueType.INTEGER).build();
 
         final List<SearchCriteria> criteriaList = new ArrayList<>();
         criteriaList.add(criteria);
@@ -1909,7 +1900,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.sdcStudentEllRepository.save(ellEntity);
 
-        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("sdcStudentEllEntity.yearsInEll").operation(FilterOperation.LESS_THAN).value("1").valueType(ValueType.INTEGER).build();
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("yearsInEll").operation(FilterOperation.LESS_THAN).value("1").valueType(ValueType.INTEGER).build();
 
         final List<SearchCriteria> criteriaList = new ArrayList<>();
         criteriaList.add(criteria);
@@ -1942,14 +1933,11 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         mockStudentEntity.setAssignedStudentId(UUID.randomUUID());
         SdcSchoolCollectionStudentEntity otherStudentEntity = createMockSchoolStudentEntity(sdcSchoolCollection);
         otherStudentEntity.setAssignedStudentId(UUID.randomUUID());
-        SdcSchoolCollectionStudentEntity studentWithEll = sdcSchoolCollectionStudentRepository.save(mockStudentEntity);
+        mockStudentEntity.setYearsInEll(5);
+        sdcSchoolCollectionStudentRepository.save(mockStudentEntity);
         sdcSchoolCollectionStudentRepository.save(otherStudentEntity);
-        SdcStudentEllEntity ellEntity = this.createMockStudentEllEntity(studentWithEll);
-        ellEntity.setYearsInEll(5);
 
-        this.sdcStudentEllRepository.save(ellEntity);
-
-        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("sdcStudentEllEntity.yearsInEll").operation(FilterOperation.GREATER_THAN_OR_EQUAL_TO).value("4").valueType(ValueType.INTEGER).build();
+        final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("yearsInEll").operation(FilterOperation.GREATER_THAN_OR_EQUAL_TO).value("4").valueType(ValueType.INTEGER).build();
 
         final List<SearchCriteria> criteriaList = new ArrayList<>();
         criteriaList.add(criteria);

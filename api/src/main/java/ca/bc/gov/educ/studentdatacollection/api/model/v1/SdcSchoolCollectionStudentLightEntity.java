@@ -136,6 +136,9 @@ public class SdcSchoolCollectionStudentLightEntity {
     @Column(name = "ASSIGNED_PEN")
     private String assignedPen;
 
+    @Column(name = "YEARS_IN_ELL")
+    private Integer yearsInEll;
+
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "SDC_SCHOOL_COLLECTION_ID", insertable = false, updatable = false)

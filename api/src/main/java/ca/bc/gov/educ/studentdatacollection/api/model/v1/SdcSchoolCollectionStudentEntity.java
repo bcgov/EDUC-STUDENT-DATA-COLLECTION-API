@@ -151,6 +151,9 @@ public class SdcSchoolCollectionStudentEntity {
   @Column(name = "PEN_MATCH_RESULT")
   private String penMatchResult;
 
+  @Column(name = "YEARS_IN_ELL")
+  private Integer yearsInEll;
+
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
 
@@ -174,15 +177,6 @@ public class SdcSchoolCollectionStudentEntity {
   @ToString.Exclude
   @OneToMany(mappedBy = "sdcSchoolCollectionStudentEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcSchoolCollectionStudentEnrolledProgramEntity.class)
   Set<SdcSchoolCollectionStudentEnrolledProgramEntity> sdcStudentEnrolledProgramEntities;
-
-  @ManyToOne
-  @NotFound(action = NotFoundAction.IGNORE)
-  @JoinColumn(name = "ASSIGNED_STUDENT_ID", referencedColumnName = "STUDENT_ID", insertable = false, updatable = false)
-  SdcStudentEllEntity sdcStudentEllEntity;
-
-  public SdcStudentEllEntity getSdcStudentEllEntity() {
-    return this.sdcStudentEllEntity;
-  }
 
   public Set<SdcSchoolCollectionStudentValidationIssueEntity> getSDCStudentValidationIssueEntities() {
     if (this.sdcStudentValidationIssueEntities == null) {

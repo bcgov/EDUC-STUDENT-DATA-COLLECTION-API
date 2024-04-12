@@ -355,6 +355,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
     .save(createMockSdcSchoolCollectionEntity(collection, null, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+    schoolStudentEntity.setYearsInEll(4);
     schoolStudentEntity.setEnrolledProgramCodes("4017000000000005");
     schoolStudentEntity.setIsSchoolAged(false);
 
@@ -387,6 +388,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     entity.setYearsInEll(5);
     entity = sdcStudentEllRepository.save(entity);
     schoolStudentEntity.setAssignedStudentId(studentID);
+    schoolStudentEntity.setYearsInEll(5);
 
     listWithoutEnrollmentError = rulesProcessor.processRules(
       createMockStudentRuleData(
@@ -399,7 +401,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
       e.equals(ProgramEligibilityIssueCode.YEARS_IN_ELL)
     )).isTrue();
 
-    entity.setYearsInEll(4);
+    schoolStudentEntity.setYearsInEll(4);
     sdcStudentEllRepository.save(entity);
 
     listWithoutEnrollmentError = rulesProcessor.processRules(

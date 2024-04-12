@@ -19,6 +19,7 @@ public abstract class SdcSchoolCollectionStudentDecorator implements SdcSchoolCo
   @Override
   public SdcSchoolCollectionStudent toSdcSchoolCollectionStudentWithValidationIssues(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity) {
     final SdcSchoolCollectionStudent sdcSchoolCollectionStudent = this.delegate.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity);
+    sdcSchoolCollectionStudent.setYearsInELL(sdcSchoolCollectionStudentEntity.getYearsInEll() != null ? sdcSchoolCollectionStudentEntity.getYearsInEll().toString(): null);
     SdcSchoolCollectionStudentValidationIssueMapper studentValidationIssueMapper = SdcSchoolCollectionStudentValidationIssueMapper.mapper;
     SdcSchoolCollectionStudentEnrolledProgramMapper sdcSchoolCollectionStudentEnrolledProgramMapper = SdcSchoolCollectionStudentEnrolledProgramMapper.mapper;
     sdcSchoolCollectionStudent.setSdcSchoolCollectionStudentEnrolledPrograms(new ArrayList<>());
@@ -31,14 +32,14 @@ public abstract class SdcSchoolCollectionStudentDecorator implements SdcSchoolCo
   @Override
   public SdcSchoolCollectionStudent toSdcSchoolCollectionStudentWithValidationIssues(SdcSchoolCollectionStudentPaginationEntity sdcSchoolCollectionStudentEntity) {
     final SdcSchoolCollectionStudent sdcSchoolCollectionStudent = this.delegate.toSdcSchoolStudent(sdcSchoolCollectionStudentEntity);
+    sdcSchoolCollectionStudent.setYearsInELL(sdcSchoolCollectionStudentEntity.getYearsInEll() != null ? sdcSchoolCollectionStudentEntity.getYearsInEll().toString(): null);
     SdcSchoolCollectionStudentValidationIssueMapper studentValidationIssueMapper = SdcSchoolCollectionStudentValidationIssueMapper.mapper;
     SdcSchoolCollectionStudentEnrolledProgramMapper sdcSchoolCollectionStudentEnrolledProgramMapper = SdcSchoolCollectionStudentEnrolledProgramMapper.mapper;
-    SdcStudentEllMapper sdcStudentEllMapper = SdcStudentEllMapper.mapper;
-    sdcSchoolCollectionStudent.setSdcStudentEll(sdcStudentEllMapper.toStructure(sdcSchoolCollectionStudentEntity.getSdcStudentEllEntity()));
     sdcSchoolCollectionStudent.setSdcSchoolCollectionStudentEnrolledPrograms(new ArrayList<>());
     sdcSchoolCollectionStudent.setSdcSchoolCollectionStudentValidationIssues(new ArrayList<>());
     sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().stream().forEach(program -> sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentEnrolledPrograms().add(sdcSchoolCollectionStudentEnrolledProgramMapper.toStructure(program)));
     sdcSchoolCollectionStudentEntity.getSDCStudentValidationIssueEntities().stream().forEach(issue -> sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentValidationIssues().add(studentValidationIssueMapper.toStructure(issue)));
     return sdcSchoolCollectionStudent;
   }
+
 }
