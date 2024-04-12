@@ -218,7 +218,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  void testAllStudentLightFromStudentCollectionIdGenerateCsvService_ShouldReturnCollection() throws Exception {
+  void testAllStudentLightFromStudentCollectionIdGenerateCsvService_ShouldReturnOk() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
@@ -253,7 +253,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  void testAllStudentLightFromDistrictCollectionIdGenerateCsvService_ShouldReturnCollection() throws Exception {
+  void testAllStudentLightFromDistrictCollectionIdGenerateCsvService_ShouldReturnOk() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
@@ -287,5 +287,25 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "ALL_STUDENT_DIS_CSV").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk());
+  }
+
+  @Test
+  void testAllStudentLightFromStudentCollectionIdGenerateCsvService_misformattedUUID_ShouldReturn4xx() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_REPORT_GENERATION + "/" + "0000" + "/" + "ALL_STUDENT_SCHOOL_CSV").with(mockAuthority))
+            .andDo(print()).andExpect(status().is4xxClientError());
+  }
+
+  @Test
+  void testAllStudentLightFromDistrictCollectionIdGenerateCsvService_misformattedUUID_ShouldReturn4xx() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_REPORT_GENERATION + "/" + "0000" + "/" + "ALL_STUDENT_DIS_CSV").with(mockAuthority))
+            .andDo(print()).andExpect(status().is4xxClientError());
   }
 }
