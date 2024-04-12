@@ -153,11 +153,21 @@ public class SdcSchoolCollectionStudentSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightSynchronous(UUID collectionID) {
+  public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightBySchoolCollectionID(UUID collectionID) {
     try {
       return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(collectionID);
     } catch (final Throwable ex) {
-      log.error("Failure querying for paginated SDC school students: {}", ex.getMessage());
+      log.error("Failure querying for all light SDC school students by School Collection ID: {}", ex.getMessage());
+      throw new CompletionException(ex);
+    }
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightByDistrictCollectionId(UUID collectionID) {
+    try {
+      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcDistrictCollectionID(collectionID);
+    } catch (final Throwable ex) {
+      log.error("Failure querying for light SDC school students by District Collection ID: {}", ex.getMessage());
       throw new CompletionException(ex);
     }
   }
