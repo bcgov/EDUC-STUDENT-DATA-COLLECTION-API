@@ -1332,6 +1332,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     void testGetSdcSchoolCollectionStudentHeadcounts_csfFrenchHeadcounts() throws Exception {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
+        school.setSchoolReportingRequirementCode("CSF");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()), UUID.fromString(school.getDistrictId()));
         firstSchool.setUploadDate(null);
