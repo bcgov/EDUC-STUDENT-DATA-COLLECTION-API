@@ -70,6 +70,7 @@ public class SdcSchoolCollectionStudentService {
 
   private final RulesProcessor rulesProcessor;
   private static final String SDC_SCHOOL_COLLECTION_STUDENT_ID = "sdcSchoolCollectionStudentId";
+  private static final String IN_REVIEW = "INREVIEW";
 
   public SdcSchoolCollectionStudentEntity getSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID) {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
@@ -99,7 +100,7 @@ public class SdcSchoolCollectionStudentService {
     if(currentStudentEntity.isPresent()) {
       SdcSchoolCollectionStudentEntity getCurStudentEntity = currentStudentEntity.get();
       final SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = new SdcSchoolCollectionStudentEntity();
-      BeanUtils.copyProperties(studentEntity, sdcSchoolCollectionStudentEntity, "sdcSchoolCollectionStudentID, sdcSchoolCollection, sdcSchoolCollectionStudentStatusCode, createUser, createDate, numberOfCoursesDec", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
+      BeanUtils.copyProperties(studentEntity, sdcSchoolCollectionStudentEntity, "sdcSchoolCollection", "createUser", "createDate", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
 
       sdcSchoolCollectionStudentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes()));
       sdcSchoolCollectionStudentEntity.setSdcSchoolCollection(getCurStudentEntity.getSdcSchoolCollection());
@@ -380,6 +381,27 @@ public class SdcSchoolCollectionStudentService {
 
   public List<SdcStudentEll> createOrReturnSdcStudentEll(List<SdcStudentEll> studentEll) {
     return studentEll.stream().map(this::createOrReturnSdcStudentEll).toList();
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void markPENForReview(SdcSchoolCollectionStudentEntity studentEntity) {
+    var curStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
+            new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", studentEntity.getSdcSchoolCollectionStudentID().toString()));
+
+    final SdcSchoolCollectionStudentEntity schoolCollectionStudentEntity = new SdcSchoolCollectionStudentEntity();
+    BeanUtils.copyProperties(studentEntity, schoolCollectionStudentEntity, "sdcSchoolCollection", "createUser", "createDate", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
+
+    schoolCollectionStudentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(schoolCollectionStudentEntity.getEnrolledProgramCodes()));
+    schoolCollectionStudentEntity.setSdcSchoolCollection(curStudentEntity.getSdcSchoolCollection());
+    schoolCollectionStudentEntity.getSDCStudentValidationIssueEntities().clear();
+    schoolCollectionStudentEntity.getSDCStudentValidationIssueEntities().addAll(curStudentEntity.getSDCStudentValidationIssueEntities());
+    schoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
+    schoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().addAll(curStudentEntity.getSdcStudentEnrolledProgramEntities());
+
+    schoolCollectionStudentEntity.setPenMatchResult(IN_REVIEW);
+
+    TransformUtil.uppercaseFields(schoolCollectionStudentEntity);
+    saveSdcStudentWithHistory(schoolCollectionStudentEntity);
   }
 
   private StudentRuleData createStudentRuleDataForValidation(SdcSchoolCollectionStudentEntity studentEntity) {

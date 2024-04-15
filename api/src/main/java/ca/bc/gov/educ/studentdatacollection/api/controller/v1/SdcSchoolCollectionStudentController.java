@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -127,6 +129,14 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
             log.error("Invalid type for getSdcSchoolCollectionStudentHeadcounts::" + type);
             throw new InvalidParameterException(type);
         }
+    }
+
+    @Override
+    public ResponseEntity<Void> markPENForReview(SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+        ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
+        RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
+        sdcSchoolCollectionStudentService.markPENForReview(mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }
