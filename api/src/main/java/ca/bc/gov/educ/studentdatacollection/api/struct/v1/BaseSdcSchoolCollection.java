@@ -30,6 +30,8 @@ public class BaseSdcSchoolCollection extends BaseRequest {
   @NotNull(message = "districtID cannot be null")
   private String districtID;
 
+  private String sdcDistrictCollectionID;
+
   private String uploadDate;
 
   @Size(max = 255)

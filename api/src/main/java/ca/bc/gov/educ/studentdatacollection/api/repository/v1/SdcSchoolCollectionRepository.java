@@ -138,7 +138,7 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             FROM SdcSchoolCollectionEntity s
                      LEFT JOIN s.sdcSchoolStudentEntities stu
                      LEFT JOIN stu.sdcStudentValidationIssueEntities i
-            WHERE stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+            WHERE (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED')
               AND s.sdcDistrictCollectionID = :sdcDistrictCollectionId
             GROUP BY s.sdcSchoolCollectionID
             """)
