@@ -12,7 +12,6 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesServic
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +23,6 @@ import java.util.List;
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
  *  | V19 | ERROR    | If the student is reported by a CSF school, one of the program     |  V30      |
  *                     codes reported for the student must be Programme francophone.
- *
  *  | V20 | ERROR    | If one of the program codes reported for a students is Programme   |  V30      |
  *                     francophone, the student must be reported by a CSF school.
  *
@@ -45,8 +43,7 @@ public class CSFProgramRule implements ValidationBaseRule {
         log.debug("In shouldExecute of CSFProgramRule-V19, V20: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        var shouldExecute = StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes())
-                && isValidationDependencyResolved("V19", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V19", validationErrorsMap);
 
         log.debug("In shouldExecute of CSFProgramRule-V19, V20: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
                 shouldExecute,

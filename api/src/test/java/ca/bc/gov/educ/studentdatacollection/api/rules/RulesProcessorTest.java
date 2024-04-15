@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.rules;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
@@ -340,7 +339,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setEnrolledProgramCodes("4005");
         entity.setCareerProgramCode("XA");
-        val noValidationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        school.setSchoolReportingRequirementCode("CSF");
+        val noValidationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(noValidationError.size()).isZero();
     }
 
