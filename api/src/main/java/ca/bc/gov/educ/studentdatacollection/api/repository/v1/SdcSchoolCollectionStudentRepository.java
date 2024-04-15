@@ -26,10 +26,10 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
                 FROM SdcSchoolCollectionStudentEntity
                 where sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID
                 and assignedStudentId is not null
-                and sdcSchoolCollectionStudentStatusCode != 'DELETED'
                 GROUP BY assignedStudentId
                 HAVING COUNT(assignedStudentId) > 1)
     and sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID
+    and sdcSchoolCollectionStudentStatusCode != 'DELETED'
     and assignedStudentId is not null
     """)
   List<SdcSchoolCollectionStudentEntity> findAllDuplicateStudentsInSdcSchoolCollection(UUID sdcSchoolCollectionID);
