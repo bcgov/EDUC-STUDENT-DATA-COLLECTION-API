@@ -341,7 +341,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setEnrolledProgramCodes("4005");
         entity.setCareerProgramCode("XA");
-        val noValidationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        school.setSchoolReportingRequirementCode("CSF");
+        val noValidationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(noValidationError.size()).isZero();
     }
 

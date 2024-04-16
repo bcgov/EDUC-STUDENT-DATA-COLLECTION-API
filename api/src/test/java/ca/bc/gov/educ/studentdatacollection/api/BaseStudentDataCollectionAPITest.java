@@ -330,7 +330,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     school.setMincode("03636018");
     school.setOpenedDate("1964-09-01T00:00:00");
     school.setSchoolCategoryCode("PUBLIC");
-    school.setSchoolReportingRequirementCode("CSF");
+    school.setSchoolReportingRequirementCode("REGULAR");
     school.setFacilityTypeCode("Standard");
     return school;
   }

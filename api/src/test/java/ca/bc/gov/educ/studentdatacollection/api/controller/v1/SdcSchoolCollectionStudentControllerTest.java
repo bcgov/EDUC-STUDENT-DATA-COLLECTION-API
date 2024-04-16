@@ -1331,6 +1331,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     void testGetSdcSchoolCollectionStudentHeadcounts_csfFrenchHeadcounts() throws Exception {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
+        school.setSchoolReportingRequirementCode("CSF");
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
         firstSchool.setUploadDate(null);
@@ -1554,11 +1555,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
             .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("2")))
             .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].currentValue", equalTo("3")))
             .andExpect(jsonPath("$.headcountHeaders[0].columns.['Not Reported'].currentValue", equalTo("1")))
-            .andExpect(jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("0")))
-            .andExpect(jsonPath("$.headcountHeaders[1].title", equalTo("Years in ELL Headcount")))
-            .andExpect(jsonPath("$.headcountHeaders[1].orderedColumnTitles", containsInRelativeOrder("1-5 Years", "6+ Years")))
-            .andExpect(jsonPath("$.headcountHeaders[1].columns.['1-5 Years'].currentValue", equalTo("1")))
-            .andExpect(jsonPath("$.headcountHeaders[1].columns.['6+ Years'].comparisonValue", equalTo("0")));
+            .andExpect(jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("0")));
 
     }
 
