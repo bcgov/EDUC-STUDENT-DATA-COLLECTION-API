@@ -44,10 +44,10 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
   private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
   public FrenchProgramHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
-    super(restUtils);
-    this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
-    this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
-    this.restUtils = restUtils;
+      super(restUtils);
+      this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
+      this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+      this.restUtils = restUtils;
   }
 
   @PostConstruct

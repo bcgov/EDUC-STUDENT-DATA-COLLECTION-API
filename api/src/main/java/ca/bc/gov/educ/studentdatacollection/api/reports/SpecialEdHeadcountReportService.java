@@ -9,15 +9,10 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.CareerHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpecialEdHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountReportNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JRException;
@@ -27,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,9 +34,9 @@ public class SpecialEdHeadcountReportService extends BaseReportGenerationService
   private JasperReport specialEdHeadcountReport;
 
   public SpecialEdHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
-    super(restUtils);
-    this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
-    this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+      super(restUtils);
+      this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
+      this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
   }
 
   @PostConstruct

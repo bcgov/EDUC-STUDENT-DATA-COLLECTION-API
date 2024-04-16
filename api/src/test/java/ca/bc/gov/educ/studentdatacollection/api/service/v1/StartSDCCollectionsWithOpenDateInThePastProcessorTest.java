@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,7 +56,6 @@ class StartSDCCollectionsWithOpenDateInThePastProcessorTest extends
     assertEquals(1, sdcSchoolEntities.size());
     assertEquals(1, sdcDistrictEntities.size());
     assertEquals(school.getSchoolId(), sdcSchoolEntities.get(0).getSchoolID().toString());
-    assertEquals(school.getDistrictId(), sdcSchoolEntities.get(0).getDistrictID().toString());
     assertEquals(school.getDistrictId(), sdcDistrictEntities.get(0).getDistrictID().toString());
     assertEquals(district.getDistrictId(), sdcDistrictEntities.get(0).getDistrictID().toString());
 

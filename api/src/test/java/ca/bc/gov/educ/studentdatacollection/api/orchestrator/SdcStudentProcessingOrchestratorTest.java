@@ -26,9 +26,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-
 import java.time.LocalDateTime;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
+
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCESS_SDC_STUDENT;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.COMPLETED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -73,7 +73,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   @Test
   void testHandleEvent_givenEventTypeInitiated_shouldExecuteValidateStudentWithEventOutComeVALIDATION_SUCCESS_WITH_ERROR() {
     var collection = collectionRepository.save(createMockCollectionEntity());
-    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
     val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
     entity.setGender("G");
     entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
@@ -109,7 +109,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   @Test
   void testStudentOrchestrator_givenEventAndSagaData_shouldProcessStudent() {
     var collection = collectionRepository.save(createMockCollectionEntity());
-    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null, null));
+    var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
     val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
     entity.setGender("G");
     entity.setCreateDate(LocalDateTime.now().minusMinutes(14));

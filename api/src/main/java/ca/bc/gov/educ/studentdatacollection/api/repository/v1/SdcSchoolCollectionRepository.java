@@ -47,8 +47,9 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
 
     @Query(value = """
             SELECT SSC.*
-            FROM sdc_school_collection SSC, collection C
-            WHERE SSC.district_id=:districtId
+            FROM sdc_school_collection SSC, collection C, sdc_district_collection SSD
+            WHERE SSD.district_id=:districtId
+            AND SSC.sdc_district_collection_id = SSD.sdc_district_collection_id
             AND C.collection_id  = ssc.collection_id
             AND C.snapshot_date >= :fiscalSnapshotDate
             AND C.snapshot_date < :currentSnapshotDate"""
@@ -91,8 +92,9 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
 
     @Query(value = """
             SELECT SSC.*
-            FROM sdc_school_collection SSC, collection C
-            WHERE SSC.district_id=:districtId
+            FROM sdc_school_collection SSC, collection C, sdc_district_collection SSD
+            WHERE SSD.district_id=:districtId
+            AND SSC.sdc_district_collection_id = SSD.sdc_district_collection_id
             AND C.collection_id  = ssc.collection_id
             AND C.snapshot_date >= :fiscalSnapshotDate
             AND C.snapshot_date < :currentSnapshotDate
@@ -103,8 +105,9 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
 
     @Query(value = """
             SELECT SSC.*
-            FROM sdc_school_collection SSC, collection C
-            WHERE SSC.district_id=:districtId
+            FROM sdc_school_collection SSC, collection C, sdc_district_collection SSD
+            WHERE SSD.district_id=:districtId
+            AND SSC.sdc_district_collection_id = SSD.sdc_district_collection_id
             AND C.collection_id  = ssc.collection_id
             AND C.snapshot_date >= :fiscalSnapshotDate
             AND C.snapshot_date < :currentSnapshotDate

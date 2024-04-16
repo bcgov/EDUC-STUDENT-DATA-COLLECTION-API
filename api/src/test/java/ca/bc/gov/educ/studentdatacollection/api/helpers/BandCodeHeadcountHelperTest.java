@@ -1,14 +1,16 @@
 
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
+
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplication;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.BandCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.BandResidenceHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResultsTable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -45,7 +48,7 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         CollectionEntity collectionEntity = createMockCollectionEntity();
         collectionRepository.save(collectionEntity);
         UUID schoolID = UUID.randomUUID();
-        schoolCollection = createMockSdcSchoolCollectionEntity(collectionEntity, schoolID, UUID.randomUUID());
+        schoolCollection = createMockSdcSchoolCollectionEntity(collectionEntity, schoolID);
         schoolCollectionRepository.save(schoolCollection);
     }
 

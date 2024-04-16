@@ -37,7 +37,7 @@ class CollectionAndGradeCalculatorTest extends BaseStudentDataCollectionAPITest 
 
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
@@ -65,7 +65,7 @@ class CollectionAndGradeCalculatorTest extends BaseStudentDataCollectionAPITest 
 
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
@@ -93,7 +93,7 @@ class CollectionAndGradeCalculatorTest extends BaseStudentDataCollectionAPITest 
 
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
@@ -115,7 +115,7 @@ class CollectionAndGradeCalculatorTest extends BaseStudentDataCollectionAPITest 
 
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
 
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
@@ -145,7 +145,7 @@ class CollectionAndGradeCalculatorTest extends BaseStudentDataCollectionAPITest 
 
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
@@ -172,7 +172,7 @@ class CollectionAndGradeCalculatorTest extends BaseStudentDataCollectionAPITest 
         int numberOfCourses = 6;
 
         CollectionEntity collection = createMockCollectionEntity();
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);

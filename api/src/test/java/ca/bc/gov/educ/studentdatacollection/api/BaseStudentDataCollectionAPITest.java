@@ -173,11 +173,10 @@ public abstract class BaseStudentDataCollectionAPITest {
     return sdcEntity;
   }
 
-  public SdcSchoolCollectionEntity createMockSdcSchoolCollectionEntity(CollectionEntity entity, UUID schoolID, UUID districtID){
+  public SdcSchoolCollectionEntity createMockSdcSchoolCollectionEntity(CollectionEntity entity, UUID schoolID){
     SdcSchoolCollectionEntity sdcEntity = new SdcSchoolCollectionEntity();
     sdcEntity.setCollectionEntity(entity);
     sdcEntity.setSchoolID(schoolID == null ? UUID.randomUUID() : schoolID);
-    sdcEntity.setDistrictID(districtID == null ? UUID.randomUUID() : districtID);
     sdcEntity.setUploadDate(LocalDateTime.now());
     sdcEntity.setUploadFileName("abc.txt");
     sdcEntity.setUploadReportDate(null);
@@ -368,13 +367,13 @@ public abstract class BaseStudentDataCollectionAPITest {
         .updateUser("TEST").updateDate(LocalDateTime.now()).build();
   }
 
-  public UUID createMockHistoricalCollection(int yearsAgo, UUID schoolID, UUID districtID, LocalDateTime currentCollectionOpenDate, String collectionTypeCode){
+  public UUID createMockHistoricalCollection(int yearsAgo, UUID schoolID, LocalDateTime currentCollectionOpenDate, String collectionTypeCode){
     LocalDateTime historicalOpenDate = currentCollectionOpenDate.minusYears(yearsAgo);
     CollectionEntity historicalCollectionEntity = createMockCollectionEntity();
     historicalCollectionEntity.setOpenDate(historicalOpenDate);
     collectionRepository.save(historicalCollectionEntity);
 
-    SdcSchoolCollectionEntity historicalSdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(historicalCollectionEntity, schoolID, districtID);
+    SdcSchoolCollectionEntity historicalSdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(historicalCollectionEntity, schoolID);
     historicalSdcSchoolCollectionEntity.setCreateDate(historicalOpenDate);
     historicalSdcSchoolCollectionEntity.setSchoolID(schoolID);
     historicalCollectionEntity.setCollectionTypeCode(collectionTypeCode);
