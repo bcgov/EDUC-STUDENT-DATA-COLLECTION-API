@@ -29,7 +29,7 @@ public class SdcFileValidator {
   private static final String HEADER_LENGTH_ERROR = "SHOULD BE 59";
   private static final String DETAIL_LENGTH_ERROR = "SHOULD BE 234";
   private static final String TRAILER_LENGTH_ERROR = "SHOULD BE 224";
-  private static final String   SCHOOL_OUTSIDE_OF_DISTRICT = "The school referenced in the uploaded file does not belong to district with ID $?";
+  private static final String SCHOOL_OUTSIDE_OF_DISTRICT = "The school referenced in the uploaded file does not belong to district with ID $?";
 
   public static final String HEADER_STARTS_WITH = "FFI";
   public static final String TRAILER_STARTS_WITH = "BTR";

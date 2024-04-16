@@ -45,7 +45,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
         //given eligible career program students, non eligible career program students, and non career program students
@@ -100,7 +100,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
         //given two career program students with one in error status
@@ -122,7 +122,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
         //given eligible french students, non eligible french students, and non french students
@@ -158,7 +158,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
         //given 3 french students that are neither adult nor school aged
@@ -188,7 +188,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
         //given two french program students with one in error status
@@ -210,7 +210,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
         //given 2 csf french students, one with ineligibility reason, and 1 non csf french student
@@ -235,7 +235,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
         //given 1 csf french student that is neither adult nor student aged
@@ -258,7 +258,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
         //given two csf french program students with one in error status
@@ -280,7 +280,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
         //given two ell program students, one with non-eligibility reason, and one non ell student
@@ -304,7 +304,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
         //given two ell program students with one in error status
@@ -326,7 +326,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
         //given 12 special ed program students, one with non-eligibility reason, and 1 non-special ed student
@@ -373,7 +373,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
         //given two special ed program students with one in error status
@@ -393,7 +393,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
         //given two indegenous program students, one with non-eligibility reason
@@ -420,7 +420,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
         //given one student with three indigenous program codes
@@ -446,7 +446,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var collection = createMockCollectionEntity();
         collectionRepository.save(collection);
-        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID(), UUID.randomUUID());
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
         sdcSchoolCollectionRepository.save(schoolCollection);
         schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
 

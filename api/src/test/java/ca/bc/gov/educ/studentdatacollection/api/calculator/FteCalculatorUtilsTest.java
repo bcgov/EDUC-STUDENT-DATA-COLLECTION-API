@@ -1328,7 +1328,6 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionEntity sdcEntity = new SdcSchoolCollectionEntity();
         sdcEntity.setCollectionEntity(entity);
         sdcEntity.setSchoolID(schoolID == null ? UUID.randomUUID() : schoolID);
-        sdcEntity.setDistrictID(districtID == null ? UUID.randomUUID() : districtID);
         sdcEntity.setUploadDate(LocalDateTime.now());
         sdcEntity.setUploadFileName("abc.txt");
         sdcEntity.setUploadReportDate(null);

@@ -8,8 +8,6 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpecialEdHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
@@ -79,11 +77,11 @@ public abstract class BaseReportGenerationService<T> {
     return objectWriter.writeValueAsString(mainNode);
   }
 
-  protected District validateAndReturnDistrict(SdcSchoolCollectionEntity sdcSchoolCollection){
-    var district = restUtils.getDistrictByDistrictID(sdcSchoolCollection.getDistrictID().toString());
+  protected District validateAndReturnDistrict(School school){
+    var district = restUtils.getDistrictByDistrictID(school.getDistrictId());
     if(district.isEmpty()){
-      log.info("District could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getDistrictID().toString());
-      throw new EntityNotFoundException(District.class, "District could not be found while writing PDF report for grade enrollment :: ", sdcSchoolCollection.getDistrictID().toString());
+      log.info("District could not be found while writing PDF report for grade enrollment :: " + school.getDistrictId());
+      throw new EntityNotFoundException(District.class, "District could not be found while writing PDF report for grade enrollment :: ", school.getDistrictId());
     }
 
     return district.get();
@@ -100,8 +98,8 @@ public abstract class BaseReportGenerationService<T> {
   }
 
   protected School setReportTombstoneValues(SdcSchoolCollectionEntity sdcSchoolCollection, HeadcountReportNode reportNode){
-    var district = validateAndReturnDistrict(sdcSchoolCollection);
     var school = validateAndReturnSchool(sdcSchoolCollection);
+    var district = validateAndReturnDistrict(school);
 
     reportNode.setReportGeneratedDate("Report Generated: " + LocalDate.now().format(formatter));
     reportNode.setDistrictNumberAndName(district.getDistrictNumber() + " - " + district.getDisplayName());
