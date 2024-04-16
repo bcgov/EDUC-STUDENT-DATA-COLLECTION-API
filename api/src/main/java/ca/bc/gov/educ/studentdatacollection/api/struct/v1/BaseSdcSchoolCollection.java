@@ -29,8 +29,6 @@ public class BaseSdcSchoolCollection extends BaseRequest {
 
   private String sdcDistrictCollectionID;
 
-  private String sdcDistrictCollectionID;
-
   private String uploadDate;
 
   @Size(max = 255)
