@@ -305,25 +305,25 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
-    var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, UUID.randomUUID()));
+    var districtID = UUID.randomUUID();
+    var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
 
     var school1 = createMockSchool();
     school1.setDisplayName("School1");
     school1.setMincode("0000001");
+    school1.setDistrictId(districtID.toString());
     var school2 = createMockSchool();
     school2.setDisplayName("School2");
     school2.setMincode("0000002");
+    school2.setDistrictId(districtID.toString());
 
     var sdcSchoolCollection1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
     sdcSchoolCollection1.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
-    sdcSchoolCollection1.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.COMPLETED.getCode());
+    sdcSchoolCollection1.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
     var sdcSchoolCollection2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
     sdcSchoolCollection2.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
     sdcSchoolCollection2.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SCH_C_VRFD.getCode());
     sdcSchoolCollectionRepository.saveAll(List.of(sdcSchoolCollection1, sdcSchoolCollection2));
-
-
-
 
     when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
     when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
@@ -345,14 +345,14 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].fundingWarnings").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].infoWarnings").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].detailsConfirmed").value(true))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].contactsConfirmed").value(false))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].contactsConfirmed").value(true))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].submittedToDistrict").value(false))
             .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsWithData").value(2))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalErrors").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalFundingWarnings").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalInfoWarnings").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsDetailsConfirmed").value(2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsContactsConfirmed").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsContactsConfirmed").value(2))
             .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsSubmitted").value(1))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalSchools").value(2));
   }
