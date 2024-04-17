@@ -54,4 +54,11 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   public MonitorSdcSchoolCollectionsResponse getMonitorSdcSchoolCollectionResponse(UUID sdcDistrictCollectionId) {
     return this.sdcDistrictCollectionService.getMonitorSdcSchoolCollectionResponse(sdcDistrictCollectionId);
   }
+
+  @Override
+  public SdcDistrictCollection updateDistrictCollection(SdcDistrictCollection sdcDistrictCollection, UUID sdcDistrictCollectionID) {
+    ValidationUtil.validatePayload(() -> this.sdcDistrictCollectionValidator.validatePayload(sdcDistrictCollection, false));
+    RequestUtil.setAuditColumnsForUpdate(sdcDistrictCollection);
+    return mapper.toStructure(sdcDistrictCollectionService.updateSdcDistrictCollection(mapper.toModel(sdcDistrictCollection)));
+  }
 }

@@ -39,9 +39,6 @@ public class SdcSchoolCollectionHistoryEntity {
   @Column(name = "SCHOOL_ID", columnDefinition = "BINARY(16)")
   private UUID schoolID;
 
-  @Column(name = "DISTRICT_ID", columnDefinition = "BINARY(16)")
-  private UUID districtID;
-
   @Column(name = "UPLOAD_DATE")
   private LocalDateTime uploadDate;
 

@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionsResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDistrictCollection;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -53,4 +54,13 @@ public interface SdcDistrictCollectionEndpoint {
   @Transactional(readOnly = true)
   @Tag(name = "Sdc District Collection", description = "Endpoint to get monitoring objects for all sdc school collections in the sdc district collection.")
   MonitorSdcSchoolCollectionsResponse getMonitorSdcSchoolCollectionResponse(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
+
+  @PutMapping("/{sdcDistrictCollectionID}")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_DISTRICT_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional
+  @Tag(name = "Sdc District Collection", description = "Endpoints to get district collection entity.")
+  @Schema(name = "SdcDistrictCollection", implementation = SdcDistrictCollection.class)
+  SdcDistrictCollection updateDistrictCollection(@Validated @RequestBody SdcDistrictCollection sdcDistrictCollection, @PathVariable UUID sdcDistrictCollectionID);
+
 }

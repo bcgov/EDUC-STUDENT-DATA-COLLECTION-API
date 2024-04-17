@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
@@ -10,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionReposito
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
+import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +31,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -379,5 +383,57 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsContactsConfirmed").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsSubmitted").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalSchools").value(0));
+  }
+
+  @Test
+  void testUpdateDistrictCollection_ShouldReturnCollection() throws Exception {
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    District district = createMockDistrict();
+    SdcDistrictCollectionEntity mockSdcDistrictCollectionEntity = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+    sdcDistrictCollectionRepository.save(mockSdcDistrictCollectionEntity);
+
+    var mockSdcDistrictCollection = SdcDistrictCollectionMapper.mapper.toStructure(mockSdcDistrictCollectionEntity);
+    mockSdcDistrictCollection.setCreateDate(null);
+    mockSdcDistrictCollection.setUpdateDate(null);
+    mockSdcDistrictCollection.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.REVIEWED.getCode());
+
+    this.mockMvc.perform(put(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID().toString())
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_DISTRICT_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(mockSdcDistrictCollection))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+    var updatedDistrict = sdcDistrictCollectionRepository.findById(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+    assertThat(updatedDistrict).isPresent();
+    assertThat(updatedDistrict.get().getSdcDistrictCollectionStatusCode()).isEqualTo(SdcDistrictCollectionStatus.REVIEWED.getCode());
+  }
+
+  @Test
+  void testUpdateDistrictCollection_GivenBadStatus_ShouldReturnBadRequest() throws Exception {
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    District district = createMockDistrict();
+    SdcDistrictCollectionEntity mockSdcDistrictCollectionEntity = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+    sdcDistrictCollectionRepository.save(mockSdcDistrictCollectionEntity);
+
+    var mockSdcDistrictCollection = SdcDistrictCollectionMapper.mapper.toStructure(mockSdcDistrictCollectionEntity);
+    mockSdcDistrictCollection.setCreateDate(null);
+    mockSdcDistrictCollection.setUpdateDate(null);
+    mockSdcDistrictCollection.setSdcDistrictCollectionStatusCode("BAD_STATUS");
+
+    this.mockMvc.perform(put(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID().toString())
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_DISTRICT_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(mockSdcDistrictCollection))
+            .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
+
+    var originalDistrict = sdcDistrictCollectionRepository.findById(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+    assertThat(originalDistrict).isPresent();
+    assertThat(originalDistrict.get().getSdcDistrictCollectionStatusCode()).isEqualTo(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionStatusCode());
   }
 }

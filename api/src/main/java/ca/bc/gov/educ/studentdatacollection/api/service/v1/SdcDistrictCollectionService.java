@@ -13,6 +13,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollec
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,6 +29,8 @@ public class SdcDistrictCollectionService {
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final CollectionRepository collectionRepository;
   private final RestUtils restUtils;
+
+  private static final String SDC_DISTRICT_COLLECTION_ID_KEY = "sdcDistrictCollectionID";
 
   @Autowired
   public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils) {
@@ -63,14 +66,14 @@ public class SdcDistrictCollectionService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void deleteSdcDistrictCollection(UUID sdcDistrictCollectionID) {
     Optional<SdcDistrictCollectionEntity> entityOptional = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
-    SdcDistrictCollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionID", sdcDistrictCollectionID.toString()));
+    SdcDistrictCollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, SDC_DISTRICT_COLLECTION_ID_KEY, sdcDistrictCollectionID.toString()));
     sdcDistrictCollectionRepository.delete(entity);
   }
 
   public MonitorSdcSchoolCollectionsResponse getMonitorSdcSchoolCollectionResponse(UUID sdcDistrictCollectionId) {
     Optional<SdcDistrictCollectionEntity> entityOptional = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionId);
     if (entityOptional.isEmpty()) {
-      throw new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionID", sdcDistrictCollectionId.toString());
+      throw new EntityNotFoundException(SdcDistrictCollectionEntity.class, SDC_DISTRICT_COLLECTION_ID_KEY, sdcDistrictCollectionId.toString());
     }
     List<MonitorSdcSchoolCollectionQueryResponse> monitorSdcSchoolCollectionQueryResponses = sdcSchoolCollectionRepository.findAllSdcSchoolCollectionMonitoringBySdcDistrictCollectionId(sdcDistrictCollectionId);
     List<MonitorSdcSchoolCollection> monitorSdcSchoolCollections = new ArrayList<>();
@@ -110,5 +113,18 @@ public class SdcDistrictCollectionService {
 
   private boolean isStatusConfirmed(String statusCode, String... confirmedStatuses) {
     return Arrays.asList(confirmedStatuses).contains(statusCode);
+  }
+
+  public SdcDistrictCollectionEntity updateSdcDistrictCollection(SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
+    final Optional<SdcDistrictCollectionEntity> curSdcDistrictCollection = this.sdcDistrictCollectionRepository.findById(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+    if (curSdcDistrictCollection.isPresent()) {
+      SdcDistrictCollectionEntity curGetSdcDistrictCollection = curSdcDistrictCollection.get();
+      BeanUtils.copyProperties(sdcDistrictCollectionEntity, curGetSdcDistrictCollection, "districtID", "collectionID", SDC_DISTRICT_COLLECTION_ID_KEY);
+      TransformUtil.uppercaseFields(curGetSdcDistrictCollection);
+      curGetSdcDistrictCollection = this.sdcDistrictCollectionRepository.save(curGetSdcDistrictCollection);
+      return curGetSdcDistrictCollection;
+    } else {
+      throw new EntityNotFoundException(SdcDistrictCollectionEntity.class, SDC_DISTRICT_COLLECTION_ID_KEY, sdcDistrictCollectionEntity.getSdcDistrictCollectionID().toString());
+    }
   }
 }
