@@ -23,6 +23,8 @@ public class BaseSdcSchoolStudent extends BaseRequest {
   @NotNull(message = "sdcSchoolCollectionID cannot be null")
   private String sdcSchoolCollectionID;
 
+  private String sdcDistrictCollectionID;
+
   @Size(max = 12)
   private String localID;
 
