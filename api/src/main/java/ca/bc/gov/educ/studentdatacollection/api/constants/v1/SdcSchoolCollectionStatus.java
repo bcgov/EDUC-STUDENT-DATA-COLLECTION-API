@@ -23,7 +23,9 @@ public enum SdcSchoolCollectionStatus {
 
   LOAD_FAIL("LOADFAIL"),
 
-  LOADED("LOADED");
+  LOADED("LOADED"),
+
+  DUP_VRFD("DUP_VRFD");
 
   /**
    * The Code.
