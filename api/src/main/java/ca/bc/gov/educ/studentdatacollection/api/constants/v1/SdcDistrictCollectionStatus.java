@@ -8,7 +8,9 @@ public enum SdcDistrictCollectionStatus {
 
   MONITORING("MONITORING"),
 
-  COMPLETED("COMPLETED");
+  COMPLETED("COMPLETED"),
+
+  REVIEWED("REVIEWED");
 
   @Getter
   private final String code;
