@@ -53,6 +53,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   @Query(value = """
     SELECT COUNT(*) FROM SDC_SCHOOL_COLLECTION_STUDENT SSCS 
     WHERE SSCS.sdc_school_collection_id = :sdcSchoolID 
+    AND SSCS.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE != 'DELETED'
     AND SSCS.STUDENT_PEN=:studentPen""", nativeQuery = true)
   Long countForDuplicateStudentPENs(UUID sdcSchoolID, String studentPen);
 
