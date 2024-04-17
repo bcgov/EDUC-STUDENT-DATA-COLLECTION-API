@@ -924,6 +924,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
+        entity.setSpecialEducationCategoryCode(null);
         entity.setNumberOfCourses("0400");
         entity.setEnrolledGradeCode("01");
         this.sdcSchoolCollectionStudentRepository.save(entity);
