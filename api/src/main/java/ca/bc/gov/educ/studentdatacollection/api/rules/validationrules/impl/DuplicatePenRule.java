@@ -41,12 +41,13 @@ public class DuplicatePenRule implements ValidationBaseRule {
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of DuplicatePenRule-V21 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+        var studentEntity = studentRuleData.getSdcSchoolCollectionStudentEntity();
+        log.debug("In executeValidation of DuplicatePenRule-V21 for sdcSchoolCollectionStudentID ::" + studentEntity.getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        if(StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getStudentPen())) {
-            Long penCount = validationRulesService.getDuplicatePenCount(studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getSdcSchoolCollectionID(), studentRuleData.getSdcSchoolCollectionStudentEntity().getStudentPen());
-            if (penCount > 1) {
-                log.debug("DuplicatePenRule-V21: Duplicate PEN's found - count {} for PEN number, sdcSchoolCollectionStudentID  :: {}" , penCount, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+        if(StringUtils.isNotEmpty(studentEntity.getStudentPen())) {
+            Long penCount = validationRulesService.getDuplicatePenCount(studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID(), studentEntity.getStudentPen());
+            if ((penCount > 1) || (penCount == 1 && studentEntity.getSdcSchoolCollectionStudentID() == null)) {
+                log.debug("DuplicatePenRule-V21: Duplicate PEN's found - count {} for PEN number, sdcSchoolCollectionStudentID  :: {}" , penCount, studentEntity.getSdcSchoolCollectionStudentID());
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.STUDENT_PEN, StudentValidationIssueTypeCode.STUDENT_PEN_DUPLICATE));
             }
         }
