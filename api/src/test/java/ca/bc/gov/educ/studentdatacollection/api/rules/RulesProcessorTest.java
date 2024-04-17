@@ -933,30 +933,35 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     void testSchoolAgedSpedRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
-        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-        val entity2 = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-        entity.setSpecialEducationCategoryCode("A");
-        entity.setDob("19890101");
-        entity.setIsGraduated(true);
-        entity2.setSpecialEducationCategoryCode("A");
-        entity2.setDob("20230101");
 
-        val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
-        val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode())
-            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.SPECIAL_EDUCATION_CATEGORY_CODE.getCode()));
-        val error2 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode())
-            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.DOB.getCode()));
-        assertThat(error1).isTrue();
-        assertThat(error2).isTrue();
+        var graduatedAdult = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        graduatedAdult.setSpecialEducationCategoryCode("A");
+        graduatedAdult.setDob("19890101");
+        graduatedAdult.setIsGraduated(true);
+        graduatedAdult.setEnrolledGradeCode("10");
 
-        
-        val validationError2 = rulesProcessor.processRules(createMockStudentRuleData(entity2, createMockSchool()));
-        val error21 = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode())
-            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.SPECIAL_EDUCATION_CATEGORY_CODE.getCode()));
-        val error22 = validationError2.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode())
-            && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.DOB.getCode()));
-        assertThat(error21).isTrue();
-        assertThat(error22).isTrue();
+        var nonGraduatedAdultInGA = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        nonGraduatedAdultInGA.setSpecialEducationCategoryCode("A");
+        nonGraduatedAdultInGA.setDob("19890101");
+        nonGraduatedAdultInGA.setIsGraduated(false);
+        nonGraduatedAdultInGA.setEnrolledGradeCode("GA");
+
+        var notSchoolAged = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        notSchoolAged.setSpecialEducationCategoryCode("A");
+        notSchoolAged.setDob("20230101");
+
+        var validationErrorGraduatedAdult = rulesProcessor.processRules(createMockStudentRuleData(graduatedAdult, createMockSchool()));
+        boolean errorGraduatedAdult = validationErrorGraduatedAdult.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode()));
+
+        var validationErrorNonGraduatedAdultInGA = rulesProcessor.processRules(createMockStudentRuleData(nonGraduatedAdultInGA, createMockSchool()));
+        boolean errorNonGraduatedAdultInGA = validationErrorNonGraduatedAdultInGA.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode()));
+
+        var validationErrorNotSchoolAged = rulesProcessor.processRules(createMockStudentRuleData(notSchoolAged, createMockSchool()));
+        boolean errorNotSchoolAged = validationErrorNotSchoolAged.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode()));
+
+        assertThat(errorGraduatedAdult).isTrue();
+        assertThat(errorNonGraduatedAdultInGA).isFalse();
+        assertThat(errorNotSchoolAged).isTrue();
     }
 
     @Test
@@ -1218,6 +1223,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setIsSchoolAged(false);
         entity.setDob("20040605");
         entity.setEnrolledGradeCode("10");
+        entity.setSpecialEducationCategoryCode(null);
         val validationNoErrorAdultWithClasses = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationNoErrorAdultWithClasses.size()).isZero();
 
@@ -1330,6 +1336,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob("20020101");
         entity.setEnrolledGradeCode("10");
+        entity.setSpecialEducationCategoryCode(null);
         val saga = createMockStudentRuleData(entity, school);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(false);
         saga.getSdcSchoolCollectionStudentEntity().setSupportBlocks("1");
