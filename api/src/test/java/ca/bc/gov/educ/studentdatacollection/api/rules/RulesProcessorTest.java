@@ -960,7 +960,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         boolean errorNotSchoolAged = validationErrorNotSchoolAged.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode()));
 
         assertThat(errorGraduatedAdult).isTrue();
-        assertThat(errorNonGraduatedAdultInGA).isFalse();
+        assertThat(errorNonGraduatedAdultInGA).isTrue();
         assertThat(errorNotSchoolAged).isTrue();
     }
 
