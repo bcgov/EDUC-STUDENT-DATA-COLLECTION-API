@@ -444,6 +444,37 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
+    void testDuplicatePenRuleFound() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setEnrolledGradeCode("08");
+        entity.setStudentPen("120164447");
+        entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        entity.setUpdateDate(LocalDateTime.now());
+        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+
+        val entity2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity2.setStudentPen("120164447");
+        entity2.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        entity2.setUpdateDate(LocalDateTime.now());
+        entity2.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity2.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        sdcSchoolCollectionStudentRepository.save(entity2);
+
+        val savedEntityTwo = sdcSchoolCollectionStudentRepository.findById(entity2.getSdcSchoolCollectionStudentID());
+        assertThat(savedEntityTwo).isPresent();
+
+        val dupePenCount = sdcSchoolCollectionStudentRepository.countForDuplicateStudentPENs(entity.getSdcSchoolCollection().getSdcSchoolCollectionID(), entity.getStudentPen());
+        assertThat(dupePenCount).isEqualTo(1);
+
+        entity.setStudentPen("120164447");
+        val validationErrorDupe = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        assertThat(validationErrorDupe.size()).isNotZero();
+    }
+
+    @Test
     void testHomeSchoolRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
@@ -1105,7 +1136,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     void testOffshoreSchoolRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
-        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         val school = createMockSchool();
         school.setSchoolCategoryCode("OFFSHORE");
     }
