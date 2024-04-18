@@ -146,4 +146,12 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             GROUP BY s.sdcSchoolCollectionID
             """)
     List<MonitorSdcSchoolCollectionQueryResponse> findAllSdcSchoolCollectionMonitoringBySdcDistrictCollectionId(UUID sdcDistrictCollectionId);
+
+    @Query("""
+          SELECT SSC.sdcSchoolCollectionID
+          FROM SdcSchoolCollectionEntity SSC
+          WHERE SSC.sdcDistrictCollectionID = :sdcDistrictCollectionID
+          AND SSC.sdcSchoolCollectionStatusCode = 'LOADED'
+          """)
+    List<UUID> getListOfCollectionsInProgress(UUID sdcDistrictCollectionID);
 }

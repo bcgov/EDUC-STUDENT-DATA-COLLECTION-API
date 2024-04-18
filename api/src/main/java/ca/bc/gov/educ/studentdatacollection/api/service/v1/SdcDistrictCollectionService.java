@@ -70,7 +70,7 @@ public class SdcDistrictCollectionService {
   }
 
   public HashSet<SdcFileSummary> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
-    List<UUID> schoolCollectionIDs = sdcDistrictCollectionRepository.getListOfCollectionsInProgress(sdcDistrictCollectionID);
+    List<UUID> schoolCollectionIDs = sdcSchoolCollectionRepository.getListOfCollectionsInProgress(sdcDistrictCollectionID);
     HashSet<SdcFileSummary> fileSummaries = new HashSet<>();
     for (UUID schoolCollectionID:schoolCollectionIDs) {
       SdcFileSummary fileSummary = sdcSchoolCollectionService.isSdcSchoolCollectionBeingProcessed(schoolCollectionID);

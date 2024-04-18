@@ -7,10 +7,16 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,9 +26,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,6 +59,12 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
   @Autowired
   SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
+
+  @Autowired
+  SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+
+  @Autowired
+  SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
   @Autowired
   RestUtils restUtils;
@@ -435,5 +449,59 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     var originalDistrict = sdcDistrictCollectionRepository.findById(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
     assertThat(originalDistrict).isPresent();
     assertThat(originalDistrict.get().getSdcDistrictCollectionStatusCode()).isEqualTo(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionStatusCode());
+  }
+
+  @Test
+  void testGetAllSchoolCollectionsForDistrict_shouldReturnSetOfFileSummaries() throws Exception {
+    CollectionEntity collection = createMockCollectionEntity();
+    collectionRepository.save(collection);
+
+    District district = createMockDistrict();
+    SdcDistrictCollectionEntity mockSdcDistrictCollectionEntity = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+    sdcDistrictCollectionRepository.save(mockSdcDistrictCollectionEntity);
+
+    School school = createMockSchool();
+    school.setDistrictId(district.getDistrictId());
+
+    SdcSchoolCollectionEntity schoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    schoolCollectionEntity1.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+    schoolCollectionEntity1.setSdcSchoolCollectionStatusCode("LOADED");
+    sdcSchoolCollectionRepository.save(schoolCollectionEntity1);
+
+    SdcSchoolCollectionEntity schoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    schoolCollectionEntity2.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+    schoolCollectionEntity2.setSdcSchoolCollectionStatusCode("REVIEWED");
+    sdcSchoolCollectionRepository.save(schoolCollectionEntity2);
+
+    SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(schoolCollectionEntity1);
+    student1.setSdcSchoolCollectionStudentStatusCode("LOADED");
+    sdcSchoolCollectionStudentRepository.save(student1);
+
+    SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(schoolCollectionEntity1);
+    student2.setSdcSchoolCollectionStudentStatusCode("LOADED");
+    sdcSchoolCollectionStudentRepository.save(student2);
+
+    SdcSchoolCollectionStudentEntity student3 = createMockSchoolStudentEntity(schoolCollectionEntity1);
+    student3.setSdcSchoolCollectionStudentStatusCode("VERIFIED");
+    sdcSchoolCollectionStudentRepository.save(student3);
+
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_DISTRICT_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    SdcFileSummary fileSummary = new SdcFileSummary();
+    fileSummary.setFileName(schoolCollectionEntity1.getUploadFileName());
+    fileSummary.setUploadDate(String.valueOf(schoolCollectionEntity1.getUploadDate().truncatedTo(ChronoUnit.MICROS)));
+    fileSummary.setUploadReportDate(schoolCollectionEntity1.getUploadReportDate());
+    fileSummary.setTotalStudents("3");
+    fileSummary.setTotalProcessed("1");
+
+
+    this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID().toString() + "/fileProgress")
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_DISTRICT_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString()))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0]").value(fileSummary));
+
   }
 }

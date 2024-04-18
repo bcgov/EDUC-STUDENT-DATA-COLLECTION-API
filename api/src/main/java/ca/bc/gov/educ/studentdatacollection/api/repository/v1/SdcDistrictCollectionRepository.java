@@ -16,13 +16,4 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
 
   Optional<SdcDistrictCollectionEntity> findBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
 
-  @Query(value = """
-          SELECT SSC.sdc_school_collection_id
-          FROM sdc_school_collection SSC
-          WHERE SSC.sdc_district_collection_id = :sdcDistrictCollectionID
-          AND SSC.sdc_school_collection_status_code = 'LOADED'
-          """
-          , nativeQuery = true)
-  List<UUID> getListOfCollectionsInProgress(UUID sdcDistrictCollectionID);
-
 }
