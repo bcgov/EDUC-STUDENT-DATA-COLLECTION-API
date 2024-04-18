@@ -6,12 +6,14 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEn
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDistrictCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionsResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDistrictCollection;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcDistrictCollectionValidator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashSet;
 import java.util.UUID;
 
 @RestController
@@ -48,6 +50,10 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   public ResponseEntity<Void> deleteSdcDistrictCollection(UUID sdcDistrictCollectionID) {
     this.sdcDistrictCollectionService.deleteSdcDistrictCollection(sdcDistrictCollectionID);
     return ResponseEntity.noContent().build();
+  }
+
+  public HashSet<SdcFileSummary> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
+    return sdcDistrictCollectionService.getSchoolCollectionsInProgress(sdcDistrictCollectionID);
   }
 
   @Override
