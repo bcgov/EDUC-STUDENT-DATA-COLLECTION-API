@@ -56,7 +56,10 @@ public class AdultStudentCoursesRule implements ValidationBaseRule {
 
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        if (noOnlineConditionPassed(studentRuleData) && StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getNumberOfCourses()) && Double.parseDouble(df.format(Double.valueOf(studentRuleData.getSdcSchoolCollectionStudentEntity().getNumberOfCourses()))) == 0) {
+        if (!onlineConditionPassed(studentRuleData)
+                && SchoolGradeCodes.getAllowedAdultGrades().contains(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode())
+                && StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getNumberOfCourses())
+                && Double.parseDouble(df.format(Double.valueOf(studentRuleData.getSdcSchoolCollectionStudentEntity().getNumberOfCourses()))) == 0) {
             log.debug("AdultStudentCoursesRule-V33: sdcSchoolCollectionStudentID::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.NUMBER_OF_COURSES, StudentValidationIssueTypeCode.ADULT_ZERO_COURSES));
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.ADULT_ZERO_COURSES));
@@ -65,9 +68,8 @@ public class AdultStudentCoursesRule implements ValidationBaseRule {
         return errors;
     }
 
-    private boolean noOnlineConditionPassed(StudentRuleData studentRuleData) {
-        return !SchoolGradeCodes.getAllowedAdultGrades().contains(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode()) &&
-                (!studentRuleData.getSchool().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DISTONLINE.getCode()) || !studentRuleData.getSchool().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DIST_LEARN.getCode()));
+    private boolean onlineConditionPassed(StudentRuleData studentRuleData) {
+        return studentRuleData.getSchool().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DISTONLINE.getCode()) || studentRuleData.getSchool().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DIST_LEARN.getCode());
     }
 
 }
