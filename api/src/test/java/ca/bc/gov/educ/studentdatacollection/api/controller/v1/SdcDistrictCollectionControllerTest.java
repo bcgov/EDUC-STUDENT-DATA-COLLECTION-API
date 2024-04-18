@@ -22,6 +22,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -463,9 +464,12 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     School school = createMockSchool();
     school.setDistrictId(district.getDistrictId());
 
+    LocalDateTime uploadDate = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
+
     SdcSchoolCollectionEntity schoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     schoolCollectionEntity1.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
     schoolCollectionEntity1.setSdcSchoolCollectionStatusCode("LOADED");
+    schoolCollectionEntity1.setUploadDate(uploadDate);
     sdcSchoolCollectionRepository.save(schoolCollectionEntity1);
 
     SdcSchoolCollectionEntity schoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
@@ -490,7 +494,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     SdcFileSummary fileSummary = new SdcFileSummary();
     fileSummary.setFileName(schoolCollectionEntity1.getUploadFileName());
-    fileSummary.setUploadDate(String.valueOf(schoolCollectionEntity1.getUploadDate().truncatedTo(ChronoUnit.MICROS)));
+    fileSummary.setUploadDate(String.valueOf(uploadDate));
     fileSummary.setUploadReportDate(schoolCollectionEntity1.getUploadReportDate());
     fileSummary.setTotalStudents("3");
     fileSummary.setTotalProcessed("1");
