@@ -13,4 +13,5 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
   Optional<SdcDistrictCollectionEntity> findByDistrictIDAndSdcDistrictCollectionStatusCodeNotIgnoreCase(UUID districtID, String sdcDistrictCollectionStatusCode);
 
   Optional<SdcDistrictCollectionEntity> findBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
+
 }

@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.CREATED;
@@ -47,6 +49,13 @@ public interface SdcDistrictCollectionEndpoint {
   @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "NO CONTENT"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @ResponseStatus(NO_CONTENT)
   ResponseEntity<Void> deleteSdcDistrictCollection(@PathVariable UUID sdcDistrictCollectionID);
+
+  @GetMapping("/{sdcDistrictCollectionID}/fileProgress")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_DISTRICT_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "Sdc District Collection", description = "Endpoint to get the status of all school collections within district currently being processed")
+  List<HashMap<Object, Object>> getSchoolCollectionsInProgress(@PathVariable(name = "sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @GetMapping("/{sdcDistrictCollectionID}/monitorSdcSchoolCollections")
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_DISTRICT_COLLECTION')")

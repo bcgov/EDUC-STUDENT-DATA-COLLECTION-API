@@ -12,6 +12,8 @@ import ca.bc.gov.educ.studentdatacollection.api.validator.SdcDistrictCollectionV
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -48,6 +50,10 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   public ResponseEntity<Void> deleteSdcDistrictCollection(UUID sdcDistrictCollectionID) {
     this.sdcDistrictCollectionService.deleteSdcDistrictCollection(sdcDistrictCollectionID);
     return ResponseEntity.noContent().build();
+  }
+
+  public List<HashMap<Object, Object>> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
+    return sdcDistrictCollectionService.getSchoolCollectionsInProgress(sdcDistrictCollectionID);
   }
 
   @Override

@@ -7,10 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionA
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionQueryResponse;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionsResponse;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -28,15 +25,17 @@ public class SdcDistrictCollectionService {
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final CollectionRepository collectionRepository;
+  private final SdcSchoolCollectionService sdcSchoolCollectionService;
   private final RestUtils restUtils;
 
   private static final String SDC_DISTRICT_COLLECTION_ID_KEY = "sdcDistrictCollectionID";
 
   @Autowired
-  public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils) {
+  public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils, SdcSchoolCollectionService sdcSchoolCollectionService) {
     this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.collectionRepository = collectionRepository;
+    this.sdcSchoolCollectionService = sdcSchoolCollectionService;
     this.restUtils = restUtils;
   }
 
@@ -68,6 +67,19 @@ public class SdcDistrictCollectionService {
     Optional<SdcDistrictCollectionEntity> entityOptional = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
     SdcDistrictCollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, SDC_DISTRICT_COLLECTION_ID_KEY, sdcDistrictCollectionID.toString()));
     sdcDistrictCollectionRepository.delete(entity);
+  }
+
+  public List<HashMap<Object, Object>> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
+    List<UUID> schoolCollectionIDs = sdcSchoolCollectionRepository.getListOfCollectionsInProgress(sdcDistrictCollectionID);
+    List<HashMap<Object, Object>> fileSummaries = new ArrayList<>();
+    for (UUID schoolCollectionID:schoolCollectionIDs) {
+      HashMap<Object, Object> collectionSummary = new HashMap<>();
+      collectionSummary.put("sdcSchoolCollectionID", schoolCollectionID);
+      SdcFileSummary fileSummary = sdcSchoolCollectionService.isSdcSchoolCollectionBeingProcessed(schoolCollectionID);
+      collectionSummary.put("fileSummary", fileSummary);
+      fileSummaries.add(collectionSummary);
+    }
+    return fileSummaries;
   }
 
   public MonitorSdcSchoolCollectionsResponse getMonitorSdcSchoolCollectionResponse(UUID sdcDistrictCollectionId) {
