@@ -16,13 +16,11 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -32,9 +30,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -492,20 +488,14 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_DISTRICT_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    SdcFileSummary fileSummary = new SdcFileSummary();
-    fileSummary.setFileName(schoolCollectionEntity1.getUploadFileName());
-    fileSummary.setUploadDate(String.valueOf(uploadDate));
-    fileSummary.setUploadReportDate(schoolCollectionEntity1.getUploadReportDate());
-    fileSummary.setTotalStudents("3");
-    fileSummary.setTotalProcessed("1");
-
-
     this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID().toString() + "/fileProgress")
             .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_DISTRICT_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString()))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0]").value(fileSummary));
-
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileSummary.fileName").value(schoolCollectionEntity1.getUploadFileName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileSummary.totalStudents").value("3"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileSummary.totalProcessed").value("1"));
   }
+
 }

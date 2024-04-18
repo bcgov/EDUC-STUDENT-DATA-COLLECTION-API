@@ -69,12 +69,15 @@ public class SdcDistrictCollectionService {
     sdcDistrictCollectionRepository.delete(entity);
   }
 
-  public HashSet<SdcFileSummary> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
+  public List<HashMap<Object, Object>> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
     List<UUID> schoolCollectionIDs = sdcSchoolCollectionRepository.getListOfCollectionsInProgress(sdcDistrictCollectionID);
-    HashSet<SdcFileSummary> fileSummaries = new HashSet<>();
+    List<HashMap<Object, Object>> fileSummaries = new ArrayList<>();
     for (UUID schoolCollectionID:schoolCollectionIDs) {
+      HashMap<Object, Object> collectionSummary = new HashMap<>();
+      collectionSummary.put("sdcSchoolCollectionID", schoolCollectionID);
       SdcFileSummary fileSummary = sdcSchoolCollectionService.isSdcSchoolCollectionBeingProcessed(schoolCollectionID);
-      fileSummaries.add(fileSummary);
+      collectionSummary.put("fileSummary", fileSummary);
+      fileSummaries.add(collectionSummary);
     }
     return fileSummaries;
   }
