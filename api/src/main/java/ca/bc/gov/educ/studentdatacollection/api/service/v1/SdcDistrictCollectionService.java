@@ -89,9 +89,9 @@ public class SdcDistrictCollectionService {
       monitorSdcSchoolCollection.setInfoWarnings(monitorSdcSchoolCollectionQueryResponse.getInfoWarnings());
       monitorSdcSchoolCollection.setFundingWarnings(monitorSdcSchoolCollectionQueryResponse.getFundingWarnings());
 
-      monitorSdcSchoolCollection.setDetailsConfirmed(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SCH_D_VRFD.getCode(), SdcSchoolCollectionStatus.SCH_C_VRFD.getCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode()));
-      monitorSdcSchoolCollection.setContactsConfirmed(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SCH_C_VRFD.getCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode()));
-      monitorSdcSchoolCollection.setSubmittedToDistrict(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode()));
+      monitorSdcSchoolCollection.setDetailsConfirmed(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SCH_D_VRFD.getCode(), SdcSchoolCollectionStatus.SCH_C_VRFD.getCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode()));
+      monitorSdcSchoolCollection.setContactsConfirmed(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SCH_C_VRFD.getCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode()));
+      monitorSdcSchoolCollection.setSubmittedToDistrict(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode()));
 
       monitorSdcSchoolCollections.add(monitorSdcSchoolCollection);
     });
