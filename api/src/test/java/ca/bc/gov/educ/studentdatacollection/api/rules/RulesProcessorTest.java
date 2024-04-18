@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.rules;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
@@ -721,13 +722,16 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorFuturePersonDate.size()).isNotZero();
         assertThat(validationErrorFuturePersonDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
+        school.setFacilityTypeCode(FacilityTypeCodes.POST_SEC.getCode());
         entity.setDob("19890101");
         entity.setNumberOfCourses("0000");
+        entity.setEnrolledGradeCode("10");
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorOldDate.size()).isNotZero();
         val zeroCoursesInd = validationErrorOldDate.stream().anyMatch(val -> val.getValidationIssueCode().equals("ADULTZEROCOURSES"));
         assertThat(zeroCoursesInd).isTrue();
-//        assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("ADULTZEROCOURSES");
+        assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("ADULTZEROCOURSES");
+        school.setFacilityTypeCode("DISTONLINE");
 
         entity.setDob("19890101");
         entity.setNumberOfCourses("0100");
@@ -1385,4 +1389,33 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationRuleWithZeroSupportBlock.size()).isZero();
     }
 
+    @Test
+    void testAdultStudentCoursesRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var school = createMockSchool();
+        school.setFacilityTypeCode(FacilityTypeCodes.POST_SEC.getCode());
+
+        var adultWithoutCourses = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        adultWithoutCourses.setDob("19890101");
+        adultWithoutCourses.setEnrolledGradeCode("10");
+        adultWithoutCourses.setNumberOfCourses("0");
+        var testZeroCourses = rulesProcessor.processRules((createMockStudentRuleData(adultWithoutCourses, school)));
+        boolean zeroCoursesValidation = testZeroCourses.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.ADULT_ZERO_COURSES.getCode()));
+
+        var adultWithCourses = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        adultWithCourses.setDob("19890101");
+        adultWithCourses.setEnrolledGradeCode("10");
+        adultWithCourses.setNumberOfCourses("3");
+        var validationErrorAdultWithCourses = rulesProcessor.processRules(createMockStudentRuleData(adultWithCourses, school));
+        boolean errorAdultWithCourses = validationErrorAdultWithCourses.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.ADULT_ZERO_COURSES.getCode()));
+
+        school.setFacilityTypeCode(DISTONLINE.getCode());
+        var testDistOnlineWithNoCourses = rulesProcessor.processRules((createMockStudentRuleData(adultWithoutCourses, school)));
+        boolean testDistOnlineWithNoCoursesValidation = testDistOnlineWithNoCourses.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.ADULT_ZERO_COURSES.getCode()));
+
+        assertThat(zeroCoursesValidation).isTrue();
+        assertThat(errorAdultWithCourses).isFalse();
+        assertThat(testDistOnlineWithNoCoursesValidation).isFalse();
+    }
 }
