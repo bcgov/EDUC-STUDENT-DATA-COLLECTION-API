@@ -70,17 +70,17 @@ public class SdcDistrictCollectionService {
   }
 
   public List<HashMap<Object, Object>> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
-    List<Map<UUID, UUID>> schoolCollectionRecords = sdcSchoolCollectionRepository.getListOfCollectionsInProgress(sdcDistrictCollectionID);
+    List<SdcSchoolCollectionEntity> schoolCollectionRecords = sdcSchoolCollectionRepository.getListOfCollectionsInProgress(sdcDistrictCollectionID);
     List<HashMap<Object, Object>> fileSummaries = new ArrayList<>();
-    for (Map<UUID, UUID> schoolCollectionRecord:schoolCollectionRecords) {
+    for (SdcSchoolCollectionEntity schoolCollectionRecord:schoolCollectionRecords) {
       HashMap<Object, Object> collectionSummary = new HashMap<>();
-      UUID schoolCollectionID = schoolCollectionRecord.get("sdcSchoolCollectionID");
-      UUID schoolID = schoolCollectionRecord.get("schoolID");
+      UUID schoolCollectionID = schoolCollectionRecord.getSdcSchoolCollectionID();
+      UUID schoolID = schoolCollectionRecord.getSchoolID();
       Optional<School> school = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
 
       collectionSummary.put("sdcSchoolCollectionID", schoolCollectionID);
       collectionSummary.put("schoolID", schoolID);
-      collectionSummary.put("displayName", school.get().getDisplayName());
+      school.ifPresent(value -> collectionSummary.put("displayName", value.getDisplayName()));
 
       SdcFileSummary fileSummary = sdcSchoolCollectionService.isSdcSchoolCollectionBeingProcessed(schoolCollectionID);
       collectionSummary.put("fileSummary", fileSummary);
