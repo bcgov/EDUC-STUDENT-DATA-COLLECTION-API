@@ -151,7 +151,7 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
           SELECT SSC
           FROM SdcSchoolCollectionEntity SSC
           WHERE SSC.sdcDistrictCollectionID = :sdcDistrictCollectionID
-          AND SSC.sdcSchoolCollectionStatusCode = 'LOADED'
+          AND SSC.sdcSchoolCollectionStatusCode = 'NEW'
           """)
     List<SdcSchoolCollectionEntity> getListOfCollectionsInProgress(UUID sdcDistrictCollectionID);
 }
