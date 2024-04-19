@@ -25,7 +25,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
@@ -487,9 +486,6 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     student3.setSdcSchoolCollectionStudentStatusCode("VERIFIED");
     sdcSchoolCollectionStudentRepository.save(student3);
 
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_DISTRICT_COLLECTION";
-    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
-
     when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
 
     this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID().toString() + "/fileProgress")
@@ -497,10 +493,10 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .header("correlationID", UUID.randomUUID().toString()))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileSummary.fileName").value(schoolCollectionEntity1.getUploadFileName()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileSummary.totalStudents").value("3"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileSummary.totalProcessed").value("1"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].displayName").value(school1.getDisplayName()));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileName").value(schoolCollectionEntity1.getUploadFileName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].totalStudents").value("3"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].totalProcessed").value("1"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolDisplayName").value(school1.getDisplayName()));
   }
 
 }

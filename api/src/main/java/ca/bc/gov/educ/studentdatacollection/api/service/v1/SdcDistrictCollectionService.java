@@ -69,22 +69,20 @@ public class SdcDistrictCollectionService {
     sdcDistrictCollectionRepository.delete(entity);
   }
 
-  public List<HashMap<Object, Object>> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
+  public List<SdcSchoolFileSummary> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
     List<SdcSchoolCollectionEntity> schoolCollectionRecords = sdcSchoolCollectionRepository.getListOfCollectionsInProgress(sdcDistrictCollectionID);
-    List<HashMap<Object, Object>> fileSummaries = new ArrayList<>();
+    List<SdcSchoolFileSummary> fileSummaries = new ArrayList<>();
     for (SdcSchoolCollectionEntity schoolCollectionRecord:schoolCollectionRecords) {
-      HashMap<Object, Object> collectionSummary = new HashMap<>();
       UUID schoolCollectionID = schoolCollectionRecord.getSdcSchoolCollectionID();
-      UUID schoolID = schoolCollectionRecord.getSchoolID();
-      Optional<School> school = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
-
-      collectionSummary.put("sdcSchoolCollectionID", schoolCollectionID);
-      collectionSummary.put("schoolID", schoolID);
-      school.ifPresent(value -> collectionSummary.put("displayName", value.getDisplayName()));
-
       SdcFileSummary fileSummary = sdcSchoolCollectionService.isSdcSchoolCollectionBeingProcessed(schoolCollectionID);
-      collectionSummary.put("fileSummary", fileSummary);
-      fileSummaries.add(collectionSummary);
+
+      if(fileSummary != null){
+        UUID schoolID = schoolCollectionRecord.getSchoolID();
+        Optional<School> school = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
+
+        SdcSchoolFileSummary collectionSummary = new SdcSchoolFileSummary(schoolCollectionID, schoolID, school.map(School::getDisplayName).orElse(null), fileSummary);
+        fileSummaries.add(collectionSummary);
+      }
     }
     return fileSummaries;
   }
