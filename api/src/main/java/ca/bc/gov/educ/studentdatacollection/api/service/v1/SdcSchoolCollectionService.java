@@ -111,7 +111,7 @@ public class SdcSchoolCollectionService {
     }
   }
 
-  public SdcFileSummary isSdcSchoolCollectionBeingProcessed(UUID sdcSchoolCollectionID) {
+  public SdcFileSummary getSummarySdcSchoolCollectionBeingProcessed(UUID sdcSchoolCollectionID) {
     var sdcSchoolCollectionEntity =  getSdcSchoolCollection(sdcSchoolCollectionID);
     SdcFileSummary summary = new SdcFileSummary();
     if(StringUtils.isNotBlank(sdcSchoolCollectionEntity.getUploadFileName())) {

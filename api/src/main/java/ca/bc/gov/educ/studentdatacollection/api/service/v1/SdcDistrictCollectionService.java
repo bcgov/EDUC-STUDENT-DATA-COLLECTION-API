@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
@@ -25,17 +26,17 @@ public class SdcDistrictCollectionService {
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final CollectionRepository collectionRepository;
-  private final SdcSchoolCollectionService sdcSchoolCollectionService;
+  private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private final RestUtils restUtils;
 
   private static final String SDC_DISTRICT_COLLECTION_ID_KEY = "sdcDistrictCollectionID";
 
   @Autowired
-  public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils, SdcSchoolCollectionService sdcSchoolCollectionService) {
+  public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
     this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.collectionRepository = collectionRepository;
-    this.sdcSchoolCollectionService = sdcSchoolCollectionService;
+    this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
     this.restUtils = restUtils;
   }
 
@@ -69,15 +70,22 @@ public class SdcDistrictCollectionService {
     sdcDistrictCollectionRepository.delete(entity);
   }
 
-  public List<HashMap<Object, Object>> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
-    List<UUID> schoolCollectionIDs = sdcSchoolCollectionRepository.getListOfCollectionsInProgress(sdcDistrictCollectionID);
-    List<HashMap<Object, Object>> fileSummaries = new ArrayList<>();
-    for (UUID schoolCollectionID:schoolCollectionIDs) {
-      HashMap<Object, Object> collectionSummary = new HashMap<>();
-      collectionSummary.put("sdcSchoolCollectionID", schoolCollectionID);
-      SdcFileSummary fileSummary = sdcSchoolCollectionService.isSdcSchoolCollectionBeingProcessed(schoolCollectionID);
-      collectionSummary.put("fileSummary", fileSummary);
-      fileSummaries.add(collectionSummary);
+  public List<SdcSchoolFileSummary> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
+    List<SdcSchoolCollectionEntity> schoolCollectionRecords = sdcSchoolCollectionRepository.getListOfCollectionsInProgress(sdcDistrictCollectionID);
+    List<SdcSchoolFileSummary> fileSummaries = new ArrayList<>();
+    for (SdcSchoolCollectionEntity schoolCollectionRecord:schoolCollectionRecords) {
+      UUID schoolCollectionID = schoolCollectionRecord.getSdcSchoolCollectionID();
+      long totalCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollection_SdcSchoolCollectionID(schoolCollectionID);
+      long loadedCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollection_SdcSchoolCollectionID(SdcSchoolStudentStatus.LOADED.getCode(), schoolCollectionID);
+      var totalProcessed = totalCount - loadedCount;
+
+      if(totalProcessed < totalCount){
+        UUID schoolID = schoolCollectionRecord.getSchoolID();
+        Optional<School> school = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
+
+        SdcSchoolFileSummary collectionSummary = new SdcSchoolFileSummary(schoolCollectionID, schoolID, school.map(School::getDisplayName).orElse(null), schoolCollectionRecord.getUploadFileName(), String.valueOf(totalCount), String.valueOf(totalProcessed));
+        fileSummaries.add(collectionSummary);
+      }
     }
     return fileSummaries;
   }

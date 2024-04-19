@@ -25,7 +25,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
@@ -457,18 +456,20 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity mockSdcDistrictCollectionEntity = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
     sdcDistrictCollectionRepository.save(mockSdcDistrictCollectionEntity);
 
-    School school = createMockSchool();
-    school.setDistrictId(district.getDistrictId());
+    School school1 = createMockSchool();
+    school1.setDistrictId(district.getDistrictId());
+    School school2 = createMockSchool();
+    school2.setDistrictId(district.getDistrictId());
 
     LocalDateTime uploadDate = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
 
-    SdcSchoolCollectionEntity schoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    SdcSchoolCollectionEntity schoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
     schoolCollectionEntity1.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
     schoolCollectionEntity1.setSdcSchoolCollectionStatusCode("LOADED");
     schoolCollectionEntity1.setUploadDate(uploadDate);
     sdcSchoolCollectionRepository.save(schoolCollectionEntity1);
 
-    SdcSchoolCollectionEntity schoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    SdcSchoolCollectionEntity schoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
     schoolCollectionEntity2.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
     schoolCollectionEntity2.setSdcSchoolCollectionStatusCode("REVIEWED");
     sdcSchoolCollectionRepository.save(schoolCollectionEntity2);
@@ -485,17 +486,17 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     student3.setSdcSchoolCollectionStudentStatusCode("VERIFIED");
     sdcSchoolCollectionStudentRepository.save(student3);
 
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_DISTRICT_COLLECTION";
-    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
 
     this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID().toString() + "/fileProgress")
             .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_DISTRICT_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString()))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileSummary.fileName").value(schoolCollectionEntity1.getUploadFileName()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileSummary.totalStudents").value("3"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileSummary.totalProcessed").value("1"));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileName").value(schoolCollectionEntity1.getUploadFileName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].totalStudents").value("3"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].totalProcessed").value("1"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolDisplayName").value(school1.getDisplayName()));
   }
 
 }
