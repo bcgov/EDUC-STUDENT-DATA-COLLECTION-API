@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -148,10 +149,10 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     List<MonitorSdcSchoolCollectionQueryResponse> findAllSdcSchoolCollectionMonitoringBySdcDistrictCollectionId(UUID sdcDistrictCollectionId);
 
     @Query("""
-          SELECT SSC.sdcSchoolCollectionID
+          SELECT SSC.sdcSchoolCollectionID as sdcSchoolCollectionID, SSC.schoolID as schoolID
           FROM SdcSchoolCollectionEntity SSC
           WHERE SSC.sdcDistrictCollectionID = :sdcDistrictCollectionID
           AND SSC.sdcSchoolCollectionStatusCode = 'LOADED'
           """)
-    List<UUID> getListOfCollectionsInProgress(UUID sdcDistrictCollectionID);
+    List<Map<UUID, UUID>> getListOfCollectionsInProgress(UUID sdcDistrictCollectionID);
 }
