@@ -45,7 +45,7 @@ public class SdcFileController implements SdcFileEndpoint {
 
   @Override
   public ResponseEntity<SdcFileSummary> isBeingProcessed(String sdcSchoolCollectionID) {
-    return ResponseEntity.ok(sdcSchoolCollectionService.isSdcSchoolCollectionBeingProcessed(UUID.fromString(sdcSchoolCollectionID)));
+    return ResponseEntity.ok(sdcSchoolCollectionService.getSummarySdcSchoolCollectionBeingProcessed(UUID.fromString(sdcSchoolCollectionID)));
   }
 
   @Override
