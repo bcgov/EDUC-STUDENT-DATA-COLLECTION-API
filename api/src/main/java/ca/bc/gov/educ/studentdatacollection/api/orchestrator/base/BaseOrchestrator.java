@@ -470,7 +470,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
   @Async("subscriberExecutor")
   @Transactional
   public void handleEvent(@NotNull final Event event) throws InterruptedException, IOException, TimeoutException {
-    log.info("executing saga event {}", event);
+    log.debug("Executing saga event {}", event);
     if (this.sagaEventExecutionNotRequired(event)) {
       log.trace("Execution is not required for this message returning EVENT is :: {}", event);
       return;
@@ -490,7 +490,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
           log.error("This should not have happened, please check that both the saga api and all the participating apis are in sync in terms of events and their outcomes. {}", event); // more explicit error message,
         }
       } else {
-        log.info("got message to process saga for saga ID :: {} but saga is already :: {}", saga.getSagaId(), saga.getStatus());
+        log.debug("Got message to process saga for saga ID :: {} but saga is already :: {}", saga.getSagaId(), saga.getStatus());
       }
     } else {
       log.error("Saga process without DB record is not expected. {}", event);
@@ -585,10 +585,10 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
   protected void process(@NotNull final Event event, final SdcSagaEntity saga, final T sagaData, final SagaEventState<T> sagaEventState) throws InterruptedException, TimeoutException, IOException {
     if (!saga.getSagaState().equalsIgnoreCase(COMPLETED.toString())
       && this.isNotProcessedEvent(event.getEventType(), saga, this.nextStepsToExecute.keySet())) {
-      log.info(SYSTEM_IS_GOING_TO_EXECUTE_NEXT_EVENT_FOR_CURRENT_EVENT, sagaEventState.getNextEventType(), event, saga.getSagaId());
+      log.debug(SYSTEM_IS_GOING_TO_EXECUTE_NEXT_EVENT_FOR_CURRENT_EVENT, sagaEventState.getNextEventType(), event, saga.getSagaId());
       this.invokeNextEvent(event, saga, sagaData, sagaEventState);
     } else {
-      log.info("ignoring this message as we have already processed it or it is completed. {}", event.toString()); // it is expected to receive duplicate message in saga pattern, system should be designed to handle duplicates.
+      log.debug("Ignoring this message as we have already processed it or it is completed. {}", event.toString()); // it is expected to receive duplicate message in saga pattern, system should be designed to handle duplicates.
     }
   }
 

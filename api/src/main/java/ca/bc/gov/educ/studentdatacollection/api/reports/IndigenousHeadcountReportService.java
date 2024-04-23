@@ -66,7 +66,7 @@ public class IndigenousHeadcountReportService extends BaseReportGenerationServic
       var headcountsList = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
       return generateJasperReport(convertToReportJSONString(headcountsList, sdcSchoolCollectionEntity), indigenousHeadcountReport, ReportTypeCode.INDIGENOUS_HEADCOUNT);
     } catch (JsonProcessingException e) {
-      log.info("Exception occurred while writing PDF report for indigenous programs :: " + e.getMessage());
+      log.error("Exception occurred while writing PDF report for indigenous programs :: " + e.getMessage());
       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for indigenous programs :: " + e.getMessage());
     }
   }

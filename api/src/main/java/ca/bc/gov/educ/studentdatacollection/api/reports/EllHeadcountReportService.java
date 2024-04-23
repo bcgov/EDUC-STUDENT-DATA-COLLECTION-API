@@ -66,7 +66,7 @@ public class EllHeadcountReportService extends BaseReportGenerationService<EllHe
       var headcountsList = sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
       return generateJasperReport(convertToReportJSONString(headcountsList, sdcSchoolCollectionEntity), ellHeadcountReport, ReportTypeCode.ELL_HEADCOUNT);
     } catch (JsonProcessingException e) {
-      log.info("Exception occurred while writing PDF report for ell programs :: " + e.getMessage());
+      log.error("Exception occurred while writing PDF report for ell programs :: " + e.getMessage());
       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for ell programs :: " + e.getMessage());
     }
   }

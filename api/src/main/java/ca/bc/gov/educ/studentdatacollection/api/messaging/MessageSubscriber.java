@@ -53,7 +53,7 @@ public class MessageSubscriber {
   public MessageHandler onMessage(final EventHandler eventHandler) {
     return (Message message) -> {
       if (message != null) {
-        log.info("Message received subject :: {},  replyTo :: {}, subscriptionID :: {}", message.getSubject(), message.getReplyTo(), message.getSID());
+        log.debug("Message received subject :: {},  replyTo :: {}, subscriptionID :: {}", message.getSubject(), message.getReplyTo(), message.getSID());
         try {
           final var eventString = new String(message.getData());
           LogHelper.logMessagingEventDetails(eventString);

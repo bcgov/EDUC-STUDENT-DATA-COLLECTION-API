@@ -73,7 +73,7 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
       var gradeEnrollmentList = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
       return generateJasperReport(convertToGradeEnrollmentReportJSONString(gradeEnrollmentList, sdcSchoolCollectionEntity), gradeEnrollmentHeadcountReport, ReportTypeCode.GRADE_ENROLLMENT_HEADCOUNT);
     } catch (JsonProcessingException e) {
-      log.info("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
+      log.error("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
     }
   }

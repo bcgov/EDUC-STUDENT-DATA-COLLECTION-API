@@ -1,6 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionTypeCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
@@ -60,7 +62,7 @@ public class SdcService {
       if(!sdcDistrictEntityList.containsKey(UUID.fromString(districtID))) {
         SdcDistrictCollectionEntity sdcDistrictCollectionEntity = SdcDistrictCollectionEntity.builder().collectionEntity(collectionEntity)
                 .districtID(UUID.fromString(districtID))
-                .sdcDistrictCollectionStatusCode("NEW")
+                .sdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.NEW.getCode())
                 .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
                 .createDate(LocalDateTime.now())
                 .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
@@ -81,7 +83,7 @@ public class SdcService {
       SdcSchoolCollectionEntity sdcSchoolEntity = SdcSchoolCollectionEntity.builder().collectionEntity(collectionEntity)
         .schoolID(UUID.fromString(school.getSchoolId()))
         .sdcDistrictCollectionID(sdcDistrictCollectionID)
-        .sdcSchoolCollectionStatusCode("NEW")
+        .sdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode())
         .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
         .createDate(LocalDateTime.now())
         .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
@@ -98,7 +100,6 @@ public class SdcService {
     }
 
     this.collectionRepository.save(collectionEntity);
-    log.info("Collection saved with entities");
 
     collectionCode.setOpenDate(collectionCode.getOpenDate().plusYears(1));
     collectionCode.setCloseDate(collectionCode.getCloseDate().plusYears(1));
@@ -106,6 +107,6 @@ public class SdcService {
     collectionCode.setUpdateDate(LocalDateTime.now());
 
     CollectionTypeCodeEntity savedCollectionCode = this.collectionCodeRepository.save(collectionCode);
-    log.info("Collection {} started, next open date is {}, next close date is {}", savedCollectionCode.getCollectionTypeCode(), savedCollectionCode.getOpenDate(), savedCollectionCode.getCloseDate());
+    log.debug("Collection {} started, next open date is {}, next close date is {}", savedCollectionCode.getCollectionTypeCode(), savedCollectionCode.getOpenDate(), savedCollectionCode.getCloseDate());
   }
 }

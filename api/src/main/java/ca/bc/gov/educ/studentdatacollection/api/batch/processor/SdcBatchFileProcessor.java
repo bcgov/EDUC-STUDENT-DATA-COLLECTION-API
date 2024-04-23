@@ -220,7 +220,7 @@ public class SdcBatchFileProcessor {
    * @param batchFile        the batch file
    */
   public SdcSchoolCollectionEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final SdcBatchFile batchFile, @NonNull final SdcFileUpload fileUpload, @NonNull final String sdcSchoolCollectionID) {
-    log.info("Going to persist data for batch :: {}", guid);
+    log.debug("Going to persist data for batch :: {}", guid);
     final SdcSchoolCollectionEntity entity = mapper.toSdcBatchEntityLoaded(batchFile, fileUpload, sdcSchoolCollectionID); // batch file can be processed further and persisted.
     for (final var student : batchFile.getStudentDetails()) { // set the object so that PK/FK relationship will be auto established by hibernate.
       final var sdcBatchStudentEntity = mapper.toSdcSchoolStudentEntity(student, entity);
@@ -255,8 +255,8 @@ public class SdcBatchFileProcessor {
     List<UUID> removedStudents = new ArrayList<>();
     currentCollection.getSDCSchoolStudentEntities().forEach(student -> currentStudentsHashCodes.put(student.getUniqueObjectHash(), student));
     incomingCollection.getSDCSchoolStudentEntities().forEach(student -> incomingStudentsHashCodes.put(student.getUniqueObjectHash(), student));
-    log.info("Found {} current students for collection", currentStudentsHashCodes.size());
-    log.info("Found {} incoming students for collection", incomingStudentsHashCodes.size());
+    log.debug("Found {} current students for collection", currentStudentsHashCodes.size());
+    log.debug("Found {} incoming students for collection", incomingStudentsHashCodes.size());
 
     currentStudentsHashCodes.keySet().forEach(currentStudentHash -> {
       if(incomingStudentsHashCodes.containsKey(currentStudentHash)  && !currentStudentsHashCodes.get(currentStudentHash).getSdcSchoolCollectionStudentStatusCode().equals(SdcSchoolStudentStatus.DELETED.toString())){
@@ -275,7 +275,7 @@ public class SdcBatchFileProcessor {
     });
 
     finalStudentsMap.values().forEach(finalStudent -> finalStudent.setSdcSchoolCollection(currentCollection));
-    log.info("Found {} new students for collection {}", newStudCount, currentCollection.getSdcSchoolCollectionID());
+    log.debug("Found {} new students for collection {}", newStudCount, currentCollection.getSdcSchoolCollectionID());
     return Pair.of(finalStudentsMap.values().stream().toList(), removedStudents);
   }
 

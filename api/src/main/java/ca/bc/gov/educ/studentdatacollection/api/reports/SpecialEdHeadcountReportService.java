@@ -66,7 +66,7 @@ public class SpecialEdHeadcountReportService extends BaseReportGenerationService
       var programList = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
       return generateJasperReport(convertToReportJSONString(programList, sdcSchoolCollectionEntity), specialEdHeadcountReport, ReportTypeCode.SPECIAL_EDUCATION_HEADCOUNT);
     } catch (JsonProcessingException e) {
-      log.info("Exception occurred while writing PDF report for special education programs :: " + e.getMessage());
+      log.error("Exception occurred while writing PDF report for special education programs :: " + e.getMessage());
       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for special education programs :: " + e.getMessage());
     }
   }

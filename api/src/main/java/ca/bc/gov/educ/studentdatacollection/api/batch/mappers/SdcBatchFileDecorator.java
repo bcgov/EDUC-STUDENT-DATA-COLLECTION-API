@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.mappers;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcStudentDetails;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.StringMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
@@ -49,7 +50,7 @@ public abstract class SdcBatchFileDecorator implements SdcBatchFileMapper {
   public SdcSchoolCollectionStudentEntity toSdcSchoolStudentEntity(final SdcStudentDetails studentDetails, final SdcSchoolCollectionEntity sdcSchoolBatchEntity) {
     final var entity = this.delegate.toSdcSchoolStudentEntity(studentDetails, sdcSchoolBatchEntity);
     entity.setSdcSchoolCollection(sdcSchoolBatchEntity); // add thePK/FK relationship
-    entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolCollectionStatus.LOADED.getCode());
+    entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.getCode());
 
     entity.setStudentPen(StringMapper.trimAndUppercase(studentDetails.getPen()));
     entity.setPostalCode(StringMapper.trimAndUppercase(studentDetails.getPostalCode()));

@@ -84,7 +84,7 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
         return generateJasperReport(convertToFrenchProgramReportJSONString(frenchProgramList, sdcSchoolCollectionEntity, school.get()), frenchProgramHeadcountReport, ReportTypeCode.FRENCH_HEADCOUNT);
       }
     } catch (JsonProcessingException e) {
-      log.info("Exception occurred while writing PDF report for french programs :: " + e.getMessage());
+      log.error("Exception occurred while writing PDF report for french programs :: " + e.getMessage());
       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for french programs :: " + e.getMessage());
     }
   }

@@ -54,7 +54,7 @@ public abstract class BaseReportGenerationService<T> {
       downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(JasperExportManager.exportReportToPdf(jasperPrint)));
       return downloadableReport;
     } catch (JRException e) {
-       log.info("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
+       log.error("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
     }
   }
@@ -80,7 +80,7 @@ public abstract class BaseReportGenerationService<T> {
   protected District validateAndReturnDistrict(School school){
     var district = restUtils.getDistrictByDistrictID(school.getDistrictId());
     if(district.isEmpty()){
-      log.info("District could not be found while writing PDF report for grade enrollment :: " + school.getDistrictId());
+      log.error("District could not be found while writing PDF report for grade enrollment :: " + school.getDistrictId());
       throw new EntityNotFoundException(District.class, "District could not be found while writing PDF report for grade enrollment :: ", school.getDistrictId());
     }
 
@@ -90,7 +90,7 @@ public abstract class BaseReportGenerationService<T> {
   protected School validateAndReturnSchool(SdcSchoolCollectionEntity sdcSchoolCollection){
     var school = restUtils.getSchoolBySchoolID(sdcSchoolCollection.getSchoolID().toString());
     if(school.isEmpty()){
-      log.info("School could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getSchoolID().toString());
+      log.error("School could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getSchoolID().toString());
       throw new EntityNotFoundException(School.class, "School could not be found while writing PDF report for grade enrollment :: ", sdcSchoolCollection.getSchoolID().toString());
     }
 

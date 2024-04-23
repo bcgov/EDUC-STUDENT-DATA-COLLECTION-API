@@ -126,7 +126,7 @@ public class ValidationRulesService {
         student.setYearsInEll(null);
         if(student.getAssignedStudentId() != null) {
             final var yearsInEll = this.getStudentYearsInEll(student.getSdcSchoolCollectionStudentID());
-            log.info("Student years in ELL found for SDC student {} :: is {}", student.getSdcSchoolCollectionStudentID(), yearsInEll);
+            log.debug("Student years in ELL found for SDC student {} :: is {}", student.getSdcSchoolCollectionStudentID(), yearsInEll);
             if(yearsInEll.isPresent()){
                 student.setYearsInEll(yearsInEll.get().getYearsInEll());
             }
@@ -137,7 +137,7 @@ public class ValidationRulesService {
         student.setIsGraduated(false);
         if(student.getAssignedStudentId() != null) {
             final var gradResult = this.restUtils.getGradStatusResult(UUID.randomUUID(), SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(student));
-            log.info("Grad status for SDC student {} :: is {}", student.getSdcSchoolCollectionStudentID(), gradResult);
+            log.debug("Grad status for SDC student {} :: is {}", student.getSdcSchoolCollectionStudentID(), gradResult);
             if(StringUtils.isNotEmpty(gradResult.getException()) && gradResult.getException().equalsIgnoreCase("error")){
                 log.error("Exception occurred calling grad service for grad status - this should not have happened :: {}", gradResult);
                 throw new StudentDataCollectionAPIRuntimeException("Exception occurred calling grad service for grad status - this should not have happened");

@@ -33,7 +33,7 @@ public class EventPublisherService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void send(final Event event) throws JsonProcessingException {
     if (event.getReplyTo() != null) {
-      log.info(RESPONDING_BACK_TO_NATS_ON_CHANNEL, event.getReplyTo());
+      log.debug(RESPONDING_BACK_TO_NATS_ON_CHANNEL, event.getReplyTo());
       this.getMessagePublisher().dispatchMessage(event.getReplyTo(), this.sdcEventProcessed(event));
     }
   }

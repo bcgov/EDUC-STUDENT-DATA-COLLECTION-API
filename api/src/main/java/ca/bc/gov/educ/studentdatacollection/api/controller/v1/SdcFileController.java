@@ -37,9 +37,8 @@ public class SdcFileController implements SdcFileEndpoint {
     ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionFileValidator.validatePayload(sdcSchoolCollectionID));
     log.info("Running file load for file: " + fileUpload.getFileName());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcFileService.runFileLoad(fileUpload, sdcSchoolCollectionID);
-    log.info("File data committed for file: " + fileUpload.getFileName());
+    log.debug("File data committed for file: " + fileUpload.getFileName());
     var mapped = SdcSchoolCollectionMapper.mapper.toStructure(sdcSchoolCollectionEntity);
-    log.info("Mapping data complete");
     return ResponseEntity.ok(mapped);
   }
 
@@ -52,9 +51,8 @@ public class SdcFileController implements SdcFileEndpoint {
   public ResponseEntity<SdcSchoolCollection> processDistrictSdcBatchFile(SdcFileUpload fileUpload, String sdcDistrictCollectionID, String correlationID) {
     log.info("Running file load for file: " + fileUpload.getFileName());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcFileService.runDistrictFileLoad(fileUpload, sdcDistrictCollectionID);
-    log.info("File data committed for file: " + fileUpload.getFileName());
+    log.debug("File data committed for file: " + fileUpload.getFileName());
     var mapped = SdcSchoolCollectionMapper.mapper.toStructure(sdcSchoolCollectionEntity);
-    log.info("Mapping data complete");
     return ResponseEntity.ok(mapped);
   }
 

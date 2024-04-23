@@ -56,11 +56,11 @@ public class EventHandlerDelegatorService implements EventHandler {
   public void handleEvent(final Event event) {
     try {
       if (event.getEventType() == EventType.READ_FROM_TOPIC) {
-        log.info("received read from topic event :: ");
+        log.debug("Received read from topic event :: ");
         log.trace(PAYLOAD_LOG, event.getEventPayload());
         this.getEventHandlerService().handleReadFromTopicEvent(event); // no response in this event.
       } else {
-        log.info("silently ignoring other event :: {}", event);
+        log.debug("Silently ignoring other event :: {}", event);
       }
     } catch (final Exception e) {
       log.error("Exception", e);
