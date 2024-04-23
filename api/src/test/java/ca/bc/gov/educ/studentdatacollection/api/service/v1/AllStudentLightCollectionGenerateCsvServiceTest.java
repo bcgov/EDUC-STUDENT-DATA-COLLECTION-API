@@ -50,6 +50,9 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         verify(mockSearchService).findAllStudentsLightBySchoolCollectionID(schoolCollectionId);
         String decodedData = new String(Base64.getDecoder().decode(response.getDocumentData()));
         assertTrue(decodedData.contains("P.E.N."));
+        assertTrue(decodedData.contains("Legal Name"));
+        assertTrue(decodedData.contains("Usual Name"));
+        assertTrue(decodedData.contains("Birth Date"));
     }
 
     @Test
@@ -70,6 +73,8 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         verify(mockSearchService).findAllStudentsLightByDistrictCollectionId(districtCollectionId);
         String decodedData = new String(Base64.getDecoder().decode(response.getDocumentData()));
         assertTrue(decodedData.contains("School Code"));
+        assertTrue(decodedData.contains("School Name"));
+        assertTrue(decodedData.contains("Facility Type"));
     }
 
     @Test
@@ -124,9 +129,33 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
     }
 
     @Test
+    void testParseEnrolledProgramCodes_NonStandardCodes() {
+        Set<String> result = service.parseEnrolledProgramCodes("ABCDE");
+        assertTrue(result.contains("AB") && result.contains("CD") && result.contains("E"));
+        assertEquals(3, result.size());
+    }
+
+    @Test
     void testParseEnrolledProgramCodes_NullInput() {
         Set<String> result = service.parseEnrolledProgramCodes(null);
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFormatFullName_SpecialCharacters() {
+        String result = service.formatFullName("Jo@n", "D'oe", "O'Reilly");
+        assertEquals("O'Reilly, Jo@n D'oe", result.trim());
+    }
+
+    @Test
+    void testGenerateFromSdcDistrictCollectionID_withRestUtilsException() {
+        UUID districtCollectionId = UUID.randomUUID();
+        when(mockSearchService.findAllStudentsLightByDistrictCollectionId(districtCollectionId)).thenReturn(Collections.singletonList(createMockStudent()));
+        when(mockRestUtils.getSchoolBySchoolID(any())).thenThrow(new RuntimeException("Test exception"));
+
+        assertThrows(RuntimeException.class, () -> {
+            service.generateFromSdcDistrictCollectionID(districtCollectionId);
+        });
     }
 
     private SdcSchoolCollectionStudentLightEntity createMockStudent() {
