@@ -109,36 +109,37 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
 
     @Test
     void testParseEnrolledProgramCodes_Standard() {
-        Set<String> result = service.parseEnrolledProgramCodes("ABCD");
-        assertTrue(result.contains("AB") && result.contains("CD"));
-        assertEquals(2, result.size());
+        Map<String, String> result = service.parseEnrolledProgramCodes("0508EF");
+        assertEquals("1", result.get("05"));
+        assertEquals("1", result.get("08"));
+        assertNull(result.get("EF"));
     }
 
     @Test
     void testParseEnrolledProgramCodes_EmptyString() {
-        Set<String> result = service.parseEnrolledProgramCodes("");
-        assertTrue(result.isEmpty());
+        Map<String, String> result = service.parseEnrolledProgramCodes("");
+        result.values().forEach(value -> assertEquals("0", value));
     }
 
     @Test
     void testParseEnrolledProgramCodes_OddCharacters() {
-        Set<String> result = service.parseEnrolledProgramCodes("ABC");
-        assertTrue(result.contains("AB"));
-        assertTrue(result.contains("C"));
-        assertEquals(2, result.size());
+        Map<String, String> result = service.parseEnrolledProgramCodes("05C");
+        assertEquals("1", result.get("05"));
+        assertNull(result.get("C "));
     }
 
     @Test
     void testParseEnrolledProgramCodes_NonStandardCodes() {
-        Set<String> result = service.parseEnrolledProgramCodes("ABCDE");
-        assertTrue(result.contains("AB") && result.contains("CD") && result.contains("E"));
-        assertEquals(3, result.size());
+        Map<String, String> result = service.parseEnrolledProgramCodes("0508E");
+        assertEquals("1", result.get("05"));
+        assertEquals("1", result.get("08"));
+        assertNull(result.get("E "));
     }
 
     @Test
     void testParseEnrolledProgramCodes_NullInput() {
-        Set<String> result = service.parseEnrolledProgramCodes(null);
-        assertTrue(result.isEmpty());
+        Map<String, String> result = service.parseEnrolledProgramCodes(null);
+        result.values().forEach(value -> assertEquals("0", value));
     }
 
     @Test
@@ -153,9 +154,7 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         when(mockSearchService.findAllStudentsLightByDistrictCollectionId(districtCollectionId)).thenReturn(Collections.singletonList(createMockStudent()));
         when(mockRestUtils.getSchoolBySchoolID(any())).thenThrow(new RuntimeException("Test exception"));
 
-        assertThrows(RuntimeException.class, () -> {
-            service.generateFromSdcDistrictCollectionID(districtCollectionId);
-        });
+        assertThrows(RuntimeException.class, () -> service.generateFromSdcDistrictCollectionID(districtCollectionId));
     }
 
     private SdcSchoolCollectionStudentLightEntity createMockStudent() {

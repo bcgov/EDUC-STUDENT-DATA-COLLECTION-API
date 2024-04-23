@@ -105,8 +105,7 @@ public class AllStudentLightCollectionGenerateCsvService {
         String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "1" : "0";
         String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "1" : "0";
         String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "1" : "0";
-        Set<String> enrolledProgramCodesSet = parseEnrolledProgramCodes(student.getEnrolledProgramCodes());
-
+        Map<String, String> enrolledProgramCodesMap = parseEnrolledProgramCodes(student.getEnrolledProgramCodes());
 
         csvRowData.addAll(Arrays.asList(
                     student.getStudentPen(),
@@ -129,20 +128,20 @@ public class AllStudentLightCollectionGenerateCsvService {
                     student.getNumberOfCourses(),
                     student.getSupportBlocks(),
                     student.getOtherCourses(),
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode()) ? "1" : "0",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.CORE_FRENCH.getCode()) ? "1" : "0",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode()) ? "1" : "0",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode()) ? "1" : "0",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode()) ? "1" : "0",
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.CORE_FRENCH.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode()),
                     student.getYearsInEll(),
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_LANGUAGE.getCode()) ? "1" : "0",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_SUPPORT.getCode()) ? "1" : "0",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode()) ? "1" : "0",
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.ABORIGINAL_LANGUAGE.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.ABORIGINAL_SUPPORT.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode()),
                     student.getCareerProgramCode(),
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_PREPARATION.getCode()) ? "1" : "0",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.COOP.getCode()) ? "1" : "0",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.APPRENTICESHIP.getCode()) ? "1" : "0",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()) ? "1" : "0",
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.CAREER_PREPARATION.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.COOP.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.APPRENTICESHIP.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()),
                     student.getSpecialEducationCategoryCode()
         ));
         return csvRowData;
@@ -176,12 +175,32 @@ public class AllStudentLightCollectionGenerateCsvService {
         return fullName.toString().trim();
     }
 
-    public Set<String> parseEnrolledProgramCodes(String enrolledProgramCodes) {
-        if (StringUtils.isEmpty(enrolledProgramCodes)) {
-            return Collections.emptySet();
+    public Map<String, String> parseEnrolledProgramCodes(String enrolledProgramCodes) {
+        Map<String, String> codesMap = Arrays.stream(new String[] {
+                EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode(),
+                EnrolledProgramCodes.CORE_FRENCH.getCode(),
+                EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode(),
+                EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode(),
+                EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode(),
+                EnrolledProgramCodes.ABORIGINAL_LANGUAGE.getCode(),
+                EnrolledProgramCodes.ABORIGINAL_SUPPORT.getCode(),
+                EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode(),
+                EnrolledProgramCodes.CAREER_PREPARATION.getCode(),
+                EnrolledProgramCodes.COOP.getCode(),
+                EnrolledProgramCodes.APPRENTICESHIP.getCode(),
+                EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()
+        }).collect(Collectors.toMap(code -> code, code -> "0"));
+
+        if (enrolledProgramCodes != null && !enrolledProgramCodes.isEmpty()) {
+            IntStream.iterate(0, i -> i < enrolledProgramCodes.length(), i -> i + 2)
+                    .mapToObj(i -> enrolledProgramCodes.substring(i, Math.min(i + 2, enrolledProgramCodes.length())))
+                    .forEach(code -> {
+                        if (codesMap.containsKey(code)) {
+                            codesMap.put(code, "1");
+                        }
+                    });
         }
-        return IntStream.iterate(0, i -> i < enrolledProgramCodes.length(), i -> i + 2)
-                .mapToObj(i -> enrolledProgramCodes.substring(i, Math.min(i + 2, enrolledProgramCodes.length())))
-                .collect(Collectors.toSet());
+
+        return codesMap;
     }
 }
