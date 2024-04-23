@@ -69,7 +69,7 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         assertFalse(response.getDocumentData().isEmpty());
         verify(mockSearchService).findAllStudentsLightByDistrictCollectionId(districtCollectionId);
         String decodedData = new String(Base64.getDecoder().decode(response.getDocumentData()));
-        assertTrue(decodedData.contains("School ID"));
+        assertTrue(decodedData.contains("School Code"));
     }
 
     @Test
