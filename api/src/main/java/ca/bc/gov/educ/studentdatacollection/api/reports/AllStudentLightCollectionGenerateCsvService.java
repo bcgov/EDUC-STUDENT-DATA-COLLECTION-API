@@ -93,10 +93,12 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<School> school = restUtils.getSchoolBySchoolID(schoolID.toString());
+            String schoolNumber = school.isPresent() ? school.get().getSchoolNumber() : "No School Code Found";
             String schoolName = school.map(School::getDisplayName).orElse("No School Name Found");
-            csvRowData.add(schoolID);
+            String facilityType = school.isPresent() ? school.get().getFacilityTypeCode() : "No Facility Type Found";
+            csvRowData.add(schoolNumber);
             csvRowData.add(schoolName);
-            csvRowData.add(schoolName);
+            csvRowData.add(facilityType);
         }
         String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
         String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());
