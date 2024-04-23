@@ -102,9 +102,9 @@ public class AllStudentLightCollectionGenerateCsvService {
         }
         String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
         String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());
-        String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "1" : "0";
-        String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "1" : "0";
-        String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "1" : "0";
+        String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "1" : "";
+        String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "1" : "";
+        String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "1" : "";
         Map<String, String> enrolledProgramCodesMap = parseEnrolledProgramCodes(student.getEnrolledProgramCodes());
 
         csvRowData.addAll(Arrays.asList(
@@ -117,11 +117,11 @@ public class AllStudentLightCollectionGenerateCsvService {
                     student.getLocalID(),
                     student.getEnrolledGradeCode(),
                     student.getFte(),
-                    Boolean.TRUE.equals(student.getIsAdult()) ? "1" : "0",
-                    Boolean.TRUE.equals(student.getIsGraduated()) ? "1" : "0",
+                    Boolean.TRUE.equals(student.getIsAdult()) ? "1" : "",
+                    Boolean.TRUE.equals(student.getIsGraduated()) ? "1" : "",
                     feePayer,
                     refugee,
-                    student.getNativeAncestryInd(),
+                    convertToBinary(student.getNativeAncestryInd()),
                     ordinarilyResidentOnReserve,
                     student.getBandCode(),
                     student.getHomeLanguageSpokenCode(),
@@ -189,7 +189,7 @@ public class AllStudentLightCollectionGenerateCsvService {
                 EnrolledProgramCodes.COOP.getCode(),
                 EnrolledProgramCodes.APPRENTICESHIP.getCode(),
                 EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()
-        }).collect(Collectors.toMap(code -> code, code -> "0"));
+        }).collect(Collectors.toMap(code -> code, code -> ""));
 
         if (enrolledProgramCodes != null && !enrolledProgramCodes.isEmpty()) {
             IntStream.iterate(0, i -> i < enrolledProgramCodes.length(), i -> i + 2)
@@ -202,5 +202,15 @@ public class AllStudentLightCollectionGenerateCsvService {
         }
 
         return codesMap;
+    }
+
+    public String convertToBinary(String code) {
+        if (code == null || code.equals("N")) {
+            return "";
+        }
+        if (code.equals("Y")) {
+            return "1";
+        }
+        return code;
     }
 }

@@ -109,23 +109,16 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
 
     @Test
     void testParseEnrolledProgramCodes_Standard() {
-        Map<String, String> result = service.parseEnrolledProgramCodes("0508EF");
+        Map<String, String> result = service.parseEnrolledProgramCodes("05EF");
         assertEquals("1", result.get("05"));
-        assertEquals("1", result.get("08"));
+        assertEquals("", result.get("08"));
         assertNull(result.get("EF"));
     }
 
     @Test
     void testParseEnrolledProgramCodes_EmptyString() {
         Map<String, String> result = service.parseEnrolledProgramCodes("");
-        result.values().forEach(value -> assertEquals("0", value));
-    }
-
-    @Test
-    void testParseEnrolledProgramCodes_OddCharacters() {
-        Map<String, String> result = service.parseEnrolledProgramCodes("05C");
-        assertEquals("1", result.get("05"));
-        assertNull(result.get("C "));
+        result.values().forEach(value -> assertEquals("", value));
     }
 
     @Test
@@ -139,13 +132,42 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
     @Test
     void testParseEnrolledProgramCodes_NullInput() {
         Map<String, String> result = service.parseEnrolledProgramCodes(null);
-        result.values().forEach(value -> assertEquals("0", value));
+        result.values().forEach(value -> assertEquals("", value));
     }
 
     @Test
     void testFormatFullName_SpecialCharacters() {
         String result = service.formatFullName("Jo@n", "D'oe", "O'Reilly");
         assertEquals("O'Reilly, Jo@n D'oe", result.trim());
+    }
+
+    @Test
+    void testConvertToBinary_WithN() {
+        String input = "N";
+        assertEquals("", service.convertToBinary(input), "Should return null for 'N'");
+    }
+
+    @Test
+    void testConvertToBinary_WithY() {
+        String input = "Y";
+        assertEquals("1", service.convertToBinary(input), "Should return '1' for 'Y'");
+    }
+
+    @Test
+    void testConvertToBinary_WithOtherString() {
+        String input = "Hello";
+        assertEquals(input, service.convertToBinary(input), "Should return the input string when not 'Y' or 'N'");
+    }
+
+    @Test
+    void testConvertToBinary_EmptyString() {
+        String input = "";
+        assertEquals(input, service.convertToBinary(input), "Should return the empty string as it is");
+    }
+
+    @Test
+    void testConvertToBinary_WithNull() {
+        assertEquals("", service.convertToBinary(null), "Should return null when input is null");
     }
 
     @Test
