@@ -63,10 +63,10 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateFromSdcDistrictCollectionID(UUID sdcDistrictcollectionID) {
         List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightByDistrictCollectionId(sdcDistrictcollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("School ID", "School Name", "P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer",
-                        "Refugee", "Indigenous  Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses",
-                        "Programme Francophone", "Core French", "Early Immersion", "Late Immersion", "ELL", "Years in ELL", "Indigenous Culture/Lang", "Indigenous Support", "Indigenous Other",
-                        "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC - Career Technical C.", "Special Ed Category")
+                .setHeader("School Code", "School Name", "Facility Type", "P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer",
+                        "Refugee", "Native Ancestry", "Status Indian", "Band Code", "Home Lang", "# Courses", "# Support Blocks", "# Other Courses",
+                        "Prog Franco", "Core French", "Early Immer", "Late Immer", "ELL", "ELL-yrs", "Aborig Cult/Lang", "Aborig Support", "Aborig Other",
+                        "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC", "Special Ed Category")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -93,17 +93,19 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<School> school = restUtils.getSchoolBySchoolID(schoolID.toString());
+            String schoolNumber = school.isPresent() ? school.get().getSchoolNumber() : "No School Code Found";
             String schoolName = school.map(School::getDisplayName).orElse("No School Name Found");
-            csvRowData.add(schoolID);
+            String facilityType = school.isPresent() ? school.get().getFacilityTypeCode() : "No Facility Type Found";
+            csvRowData.add(schoolNumber);
             csvRowData.add(schoolName);
+            csvRowData.add(facilityType);
         }
         String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
         String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());
-        String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "Y" : "N";
-        String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "Y" : "N";
-        String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "Y" : "N";
-        Set<String> enrolledProgramCodesSet = parseEnrolledProgramCodes(student.getEnrolledProgramCodes());
-
+        String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "1" : "";
+        String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "1" : "";
+        String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "1" : "";
+        Map<String, String> enrolledProgramCodesMap = parseEnrolledProgramCodes(student.getEnrolledProgramCodes());
 
         csvRowData.addAll(Arrays.asList(
                     student.getStudentPen(),
@@ -115,31 +117,31 @@ public class AllStudentLightCollectionGenerateCsvService {
                     student.getLocalID(),
                     student.getEnrolledGradeCode(),
                     student.getFte(),
-                    Boolean.TRUE.equals(student.getIsAdult()) ? "Y" : "N",
-                    Boolean.TRUE.equals(student.getIsGraduated()) ? "Y" : "N",
+                    Boolean.TRUE.equals(student.getIsAdult()) ? "1" : "",
+                    Boolean.TRUE.equals(student.getIsGraduated()) ? "1" : "",
                     feePayer,
                     refugee,
-                    student.getNativeAncestryInd(),
+                    convertToBinary(student.getNativeAncestryInd()),
                     ordinarilyResidentOnReserve,
                     student.getBandCode(),
                     student.getHomeLanguageSpokenCode(),
                     student.getNumberOfCourses(),
                     student.getSupportBlocks(),
                     student.getOtherCourses(),
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode()) ? "Y" : "N",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.CORE_FRENCH.getCode()) ? "Y" : "N",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode()) ? "Y" : "N",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode()) ? "Y" : "N",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode()) ? "Y" : "N",
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.CORE_FRENCH.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode()),
                     student.getYearsInEll(),
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_LANGUAGE.getCode()) ? "Y" : "N",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.ABORIGINAL_SUPPORT.getCode()) ? "Y" : "N",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode()) ? "Y" : "N",
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.ABORIGINAL_LANGUAGE.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.ABORIGINAL_SUPPORT.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode()),
                     student.getCareerProgramCode(),
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_PREPARATION.getCode()) ? "Y" : "N",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.COOP.getCode()) ? "Y" : "N",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.APPRENTICESHIP.getCode()) ? "Y" : "N",
-                    enrolledProgramCodesSet.contains(EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()) ? "Y" : "N",
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.CAREER_PREPARATION.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.COOP.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.APPRENTICESHIP.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()),
                     student.getSpecialEducationCategoryCode()
         ));
         return csvRowData;
@@ -173,12 +175,42 @@ public class AllStudentLightCollectionGenerateCsvService {
         return fullName.toString().trim();
     }
 
-    public Set<String> parseEnrolledProgramCodes(String enrolledProgramCodes) {
-        if (StringUtils.isEmpty(enrolledProgramCodes)) {
-            return Collections.emptySet();
+    public Map<String, String> parseEnrolledProgramCodes(String enrolledProgramCodes) {
+        Map<String, String> codesMap = Arrays.stream(new String[] {
+                EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode(),
+                EnrolledProgramCodes.CORE_FRENCH.getCode(),
+                EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode(),
+                EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode(),
+                EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode(),
+                EnrolledProgramCodes.ABORIGINAL_LANGUAGE.getCode(),
+                EnrolledProgramCodes.ABORIGINAL_SUPPORT.getCode(),
+                EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode(),
+                EnrolledProgramCodes.CAREER_PREPARATION.getCode(),
+                EnrolledProgramCodes.COOP.getCode(),
+                EnrolledProgramCodes.APPRENTICESHIP.getCode(),
+                EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()
+        }).collect(Collectors.toMap(code -> code, code -> ""));
+
+        if (enrolledProgramCodes != null && !enrolledProgramCodes.isEmpty()) {
+            IntStream.iterate(0, i -> i < enrolledProgramCodes.length(), i -> i + 2)
+                    .mapToObj(i -> enrolledProgramCodes.substring(i, Math.min(i + 2, enrolledProgramCodes.length())))
+                    .forEach(code -> {
+                        if (codesMap.containsKey(code)) {
+                            codesMap.put(code, "1");
+                        }
+                    });
         }
-        return IntStream.iterate(0, i -> i < enrolledProgramCodes.length(), i -> i + 2)
-                .mapToObj(i -> enrolledProgramCodes.substring(i, Math.min(i + 2, enrolledProgramCodes.length())))
-                .collect(Collectors.toSet());
+
+        return codesMap;
+    }
+
+    public String convertToBinary(String code) {
+        if (code == null || code.equals("N")) {
+            return "";
+        }
+        if (code.equals("Y")) {
+            return "1";
+        }
+        return code;
     }
 }
