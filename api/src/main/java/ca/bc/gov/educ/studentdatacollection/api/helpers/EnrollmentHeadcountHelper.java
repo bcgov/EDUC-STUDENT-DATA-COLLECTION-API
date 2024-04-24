@@ -56,6 +56,10 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
     }
   }
 
+  public void setGradeCodesForDistricts() {
+    gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
+  }
+
   public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
     UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
 
