@@ -12,6 +12,5 @@ public class SdcSchoolFileSummary{
     private UUID schoolID;
     private String schoolDisplayName;
     private String fileName;
-    private String totalStudents;
-    private String totalProcessed;
+    private String percentageStudentsProcessed;
 }

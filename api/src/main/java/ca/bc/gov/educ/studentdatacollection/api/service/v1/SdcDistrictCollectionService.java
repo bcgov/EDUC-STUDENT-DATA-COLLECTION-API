@@ -71,21 +71,23 @@ public class SdcDistrictCollectionService {
   }
 
   public List<SdcSchoolFileSummary> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
-    List<SdcSchoolCollectionEntity> schoolCollectionRecords = sdcSchoolCollectionRepository.getListOfCollectionsInProgress(sdcDistrictCollectionID);
+    List<SdcSchoolCollectionEntity> schoolCollectionRecords = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
     List<SdcSchoolFileSummary> fileSummaries = new ArrayList<>();
     for (SdcSchoolCollectionEntity schoolCollectionRecord:schoolCollectionRecords) {
       UUID schoolCollectionID = schoolCollectionRecord.getSdcSchoolCollectionID();
+
       long totalCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollection_SdcSchoolCollectionID(schoolCollectionID);
       long loadedCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollection_SdcSchoolCollectionID(SdcSchoolStudentStatus.LOADED.getCode(), schoolCollectionID);
       var totalProcessed = totalCount - loadedCount;
+      int percentageStudentsProcessed = (int) Math.floor((double) totalProcessed / totalCount * 100);
 
-      if(totalProcessed < totalCount){
-        UUID schoolID = schoolCollectionRecord.getSchoolID();
-        Optional<School> school = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
+      UUID schoolID = schoolCollectionRecord.getSchoolID();
+      Optional<School> school = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
+      String schoolName = school.map(School::getMincode).orElse(null) + " - " + school.map(School::getDisplayName).orElse(null);
 
-        SdcSchoolFileSummary collectionSummary = new SdcSchoolFileSummary(schoolCollectionID, schoolID, school.map(School::getDisplayName).orElse(null), schoolCollectionRecord.getUploadFileName(), String.valueOf(totalCount), String.valueOf(totalProcessed));
-        fileSummaries.add(collectionSummary);
-      }
+      SdcSchoolFileSummary collectionSummary = new SdcSchoolFileSummary(schoolCollectionID, schoolID, schoolName, schoolCollectionRecord.getUploadFileName(), String.valueOf(percentageStudentsProcessed));
+      fileSummaries.add(collectionSummary);
+
     }
     return fileSummaries;
   }
