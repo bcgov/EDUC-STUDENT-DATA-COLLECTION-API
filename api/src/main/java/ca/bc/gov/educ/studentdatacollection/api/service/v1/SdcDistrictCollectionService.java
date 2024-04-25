@@ -85,7 +85,7 @@ public class SdcDistrictCollectionService {
       Optional<School> school = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
       String schoolName = school.map(School::getMincode).orElse(null) + " - " + school.map(School::getDisplayName).orElse(null);
 
-      SdcSchoolFileSummary collectionSummary = new SdcSchoolFileSummary(schoolCollectionID, schoolID, schoolName, schoolCollectionRecord.getUploadFileName(), schoolCollectionRecord.getUploadDate(), String.valueOf(percentageStudentsProcessed));
+      SdcSchoolFileSummary collectionSummary = new SdcSchoolFileSummary(schoolCollectionID, schoolID, schoolName, schoolCollectionRecord.getUploadFileName(), schoolCollectionRecord.getUploadDate(), schoolCollectionRecord.getUploadReportDate(), String.valueOf(percentageStudentsProcessed));
       fileSummaries.add(collectionSummary);
 
     }
