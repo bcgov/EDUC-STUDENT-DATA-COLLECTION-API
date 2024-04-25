@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.BandCodeRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
@@ -43,6 +44,9 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
     @Autowired
     CodeTableService codeTableService;
 
+    @Autowired
+    SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
+
     @BeforeEach
     void setUp() {
         CollectionEntity collectionEntity = createMockCollectionEntity();
@@ -58,13 +62,14 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         schoolCollectionRepository.deleteAll();
         bandCodeRepository.deleteAll();
         collectionRepository.deleteAll();
+        sdcDistrictCollectionRepository.deleteAll();
     }
 
     @Test
     void testConvertHeadcountResults_ShouldReturnTableContents(){
 
         saveStudentsWithBandCodes();
-        helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService);
+        helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService, sdcDistrictCollectionRepository);
 
         List<BandResidenceHeadcountResult> result = studentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(schoolCollection.getSdcSchoolCollectionID());
         helper.setBandTitles(result);

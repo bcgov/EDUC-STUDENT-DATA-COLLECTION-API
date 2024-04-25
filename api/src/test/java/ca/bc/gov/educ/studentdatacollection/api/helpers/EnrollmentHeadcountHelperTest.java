@@ -120,7 +120,7 @@ class EnrollmentHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testConvertHeadcountResults_ShouldReturnTableContents(){
 
-        helper = new EnrollmentHeadcountHelper(schoolCollectionRepository, studentRepository, restUtils);
+        helper = new EnrollmentHeadcountHelper(schoolCollectionRepository, studentRepository, restUtils, sdcDistrictCollectionRepository);
 
         List<EnrollmentHeadcountResult> result = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySchoolIdAndBySdcDistrictCollectionId(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
         helper.setGradeCodesForDistricts();
