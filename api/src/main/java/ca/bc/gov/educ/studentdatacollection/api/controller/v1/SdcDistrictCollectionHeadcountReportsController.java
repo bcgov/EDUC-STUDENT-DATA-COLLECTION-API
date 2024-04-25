@@ -26,6 +26,8 @@ public class SdcDistrictCollectionHeadcountReportsController implements SdcDistr
                 new EntityNotFoundException(SdcSchoolCollectionStudent.class, "sdcDistrictCollectionID", sdcDistrictCollectionID.toString()));
         if (HeadcountReportTypeCodes.ENROLLMENT.getCode().equals(type)) {
             return sdcDistrictCollectionHeadcountService.getEnrollmentHeadcounts(sdcDistrictCollectionEntity, compare);
+        } else if (HeadcountReportTypeCodes.SPECIAL_ED.getCode().equals(type)) {
+            return sdcDistrictCollectionHeadcountService.getSpecialEdHeadcounts(sdcDistrictCollectionEntity, compare);
         }
         return null;
     }
