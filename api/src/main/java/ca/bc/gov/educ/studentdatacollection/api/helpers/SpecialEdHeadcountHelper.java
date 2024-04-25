@@ -72,9 +72,13 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     }
   }
 
+  public void setGradeCodesForDistricts() {
+    gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
+  }
+
   public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
     UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
-    List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID);
+    List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, false);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 
@@ -85,8 +89,10 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     setResultsTableComparisonValues(collectionData, previousCollectionData);
   }
 
-  public List<HeadcountHeader> getHeaders(UUID sdcSchoolCollectionID) {
-    SpecialEdHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getSpecialEdHeadersBySchoolId(sdcSchoolCollectionID);
+  public List<HeadcountHeader> getHeaders(UUID sdcCollectionID, Boolean isDistrict) {
+    SpecialEdHeadcountHeaderResult result = (Boolean.TRUE.equals(isDistrict))
+            ? sdcSchoolCollectionStudentRepository.getSpecialEdHeadersByDistrictId(sdcCollectionID)
+            : sdcSchoolCollectionStudentRepository.getSpecialEdHeadersBySchoolId(sdcCollectionID);
     List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
     Arrays.asList(A_CODE_TITLE, B_CODE_TITLE, C_CODE_TITLE, D_CODE_TITLE, E_CODE_TITLE, F_CODE_TITLE, G_CODE_TITLE, H_CODE_TITLE, K_CODE_TITLE, P_CODE_TITLE, Q_CODE_TITLE, R_CODE_TITLE).forEach(headerTitle -> {
       HeadcountHeader headcountHeader = new HeadcountHeader();
