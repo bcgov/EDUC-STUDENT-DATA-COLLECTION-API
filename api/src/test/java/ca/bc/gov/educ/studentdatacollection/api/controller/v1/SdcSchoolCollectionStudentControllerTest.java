@@ -2463,7 +2463,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
-    void testGetSdcDistrictCollectionStudentHeadcounts_sped() throws Exception {
+    void testGetSdcDistrictCollectionStudentHeadcounts_specialEdHeadcounts() throws Exception {
         CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
         var districtID = UUID.randomUUID();
         var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
