@@ -93,7 +93,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
       HeadcountHeaderColumn headcountHeaderColumn = new HeadcountHeaderColumn();
       headcountHeaderColumn.setCurrentValue(String.valueOf(
         headcountResultsTable.getRows().stream()
-          .filter(row -> row.get("title").getCurrentValue().equals(HEADCOUNT_TITLE)&& row.get("section").getCurrentValue().equals(ALL_STUDENT_TITLE))
+          .filter(row -> row.get(TITLE).getCurrentValue().equals(HEADCOUNT_TITLE)&& row.get(SECTION).getCurrentValue().equals(ALL_STUDENT_TITLE))
           .mapToLong(row -> Long.parseLong(row.get(grade).getCurrentValue()))
           .sum()));
       headcountTotals.getColumns().put(grade, headcountHeaderColumn);
@@ -110,7 +110,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
       HeadcountHeaderColumn headcountHeaderColumn = new HeadcountHeaderColumn();
       headcountHeaderColumn.setCurrentValue(String.valueOf(
         headcountResultsTable.getRows().stream()
-          .filter(row -> row.get("title").getCurrentValue().equals(HEADCOUNT_TITLE)&& row.get("section").getCurrentValue().equals(title))
+          .filter(row -> row.get(TITLE).getCurrentValue().equals(HEADCOUNT_TITLE)&& row.get(SECTION).getCurrentValue().equals(title))
           .mapToLong(row -> Long.parseLong(row.get(TOTAL_TITLE).getCurrentValue()))
           .sum()));
       studentTotals.getColumns().put(title, headcountHeaderColumn);
