@@ -1,7 +1,9 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
@@ -20,15 +22,17 @@ import java.util.stream.IntStream;
 public class HeadcountHelper<T extends HeadcountResult> {
   protected final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   protected final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  protected final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
 
   protected Map<String, Function<T, String>> headcountMethods;
   protected Map<String, String> sectionTitles;
   protected Map<String, String> rowTitles;
   protected List<String> gradeCodes;
 
-  public HeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
-    this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
-    this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+  public HeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
+      this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
+      this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+      this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
   }
 
   public void setComparisonValues(List<HeadcountHeader> headcountHeaderList, List<HeadcountHeader> previousHeadcountHeaderList) {
@@ -65,6 +69,11 @@ public class HeadcountHelper<T extends HeadcountResult> {
     } else {
       return null;
     }
+  }
+
+  public UUID getPreviousSeptemberCollectionIDByDistrictCollectionID(SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
+    var septemberCollection = sdcDistrictCollectionRepository.findLastCollectionByType(sdcDistrictCollectionEntity.getDistrictID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+      return septemberCollection.map(SdcDistrictCollectionEntity::getSdcDistrictCollectionID).orElse(null);
   }
 
   public void stripZeroColumns(HeadcountHeader headcountHeader) {
