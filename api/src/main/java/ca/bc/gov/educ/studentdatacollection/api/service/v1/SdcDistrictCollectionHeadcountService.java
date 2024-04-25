@@ -41,12 +41,7 @@ public class SdcDistrictCollectionHeadcountService {
 
     HeadcountResultsTable collectionData = specialEdHeadcountHelper.convertHeadcountResults(collectionRawData);
     List<HeadcountHeader> headcountHeaderList = specialEdHeadcountHelper.getHeaders(sdcDistrictCollectionID, true);
-    /*
-    if(compare) {
-      specialEdHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
-      specialEdHeadcountHelper.setResultsTableComparisonValues(sdcSchoolCollectionEntity, headcountResultsTable);
-    }
-     */
+
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
   }
 
