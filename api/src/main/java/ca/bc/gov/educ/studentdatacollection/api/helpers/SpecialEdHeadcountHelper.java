@@ -159,6 +159,73 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     return headcountHeaderList;
   }
 
+  public List<HeadcountHeader> getHeadersPerGrade(UUID sdcDistrictCollectionID) {
+    SpecialEdHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getSpecialEdHeadersByDistrictId(sdcDistrictCollectionID);
+    List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
+    Arrays.asList(A_CODE_TITLE, B_CODE_TITLE, C_CODE_TITLE, D_CODE_TITLE, E_CODE_TITLE, F_CODE_TITLE, G_CODE_TITLE, H_CODE_TITLE, K_CODE_TITLE, P_CODE_TITLE, Q_CODE_TITLE, R_CODE_TITLE).forEach(headerTitle -> {
+      HeadcountHeader headcountHeader = new HeadcountHeader();
+      headcountHeader.setColumns(new HashMap<>());
+      headcountHeader.setTitle(headerTitle);
+      headcountHeader.setOrderedColumnTitles(HEADER_COLUMN_TITLES);
+      switch (headerTitle) {
+        case A_CODE_TITLE -> {
+          headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getTotalEligibleA())).build());
+          headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getReportedA())).build());
+        }
+        case B_CODE_TITLE -> {
+          headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getTotalEligibleB()).build());
+          headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedB()).build());
+        }
+        case C_CODE_TITLE -> {
+          headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getTotalEligibleC()).build());
+          headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedC()).build());
+        }
+        case D_CODE_TITLE -> {
+          headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getTotalEligibleD())).build());
+          headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getReportedD())).build());
+        }
+        case E_CODE_TITLE -> {
+          headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getTotalEligibleE()).build());
+          headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedE()).build());
+        }
+        case F_CODE_TITLE -> {
+          headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getTotalEligibleF()).build());
+          headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedF()).build());
+        }
+        case G_CODE_TITLE -> {
+          headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getTotalEligibleG())).build());
+          headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getReportedG())).build());
+        }
+        case H_CODE_TITLE -> {
+          headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getTotalEligibleH()).build());
+          headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedH()).build());
+        }
+        case K_CODE_TITLE -> {
+          headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getTotalEligibleK()).build());
+          headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedK()).build());
+        }
+        case P_CODE_TITLE -> {
+          headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getTotalEligibleP())).build());
+          headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getReportedP())).build());
+        }
+        case Q_CODE_TITLE -> {
+          headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getTotalEligibleQ()).build());
+          headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedQ()).build());
+        }
+        case R_CODE_TITLE -> {
+          headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getTotalEligibleR()).build());
+          headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedR()).build());
+        }
+        default -> {
+          log.error("Unexpected header title.  This cannot happen::" + headerTitle);
+          throw new StudentDataCollectionAPIRuntimeException("Unexpected header title.  This cannot happen::" + headerTitle);
+        }
+      }
+      headcountHeaderList.add(headcountHeader);
+    });
+    return headcountHeaderList;
+  }
+
   private Map<String, Function<SpecialEdHeadcountResult, String>> getHeadcountMethods() {
     Map<String, Function<SpecialEdHeadcountResult, String>> headcountMethods = new HashMap<>();
 
