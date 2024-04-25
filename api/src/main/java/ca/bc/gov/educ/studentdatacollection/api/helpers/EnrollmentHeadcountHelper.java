@@ -44,7 +44,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
   private static final String ALL_AGED_FTE_KEY = "allFte";
   public static final String SCHOOL_NAME_KEY="schoolName";
   public static final String ALL_SCHOOLS="All Schools";
-  public static final String SECTION="SECTION";
+  public static final String SECTION="section";
   public static final String TITLE="title";
   private final RestUtils restUtils;
   protected Map<String, String> perSchoolRowTitles;
