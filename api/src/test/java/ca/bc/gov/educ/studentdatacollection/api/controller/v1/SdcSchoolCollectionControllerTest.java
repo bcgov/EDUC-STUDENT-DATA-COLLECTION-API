@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
@@ -245,6 +246,36 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
                     get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcSchoolCollectionEntity.getSdcSchoolCollectionID()
                             + "/duplicates").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
+  }
+
+  @Test
+  void testGetAllStudentDuplicatesBySdcSchoolCollectionID_WithStatus_DELETED_ShouldNotReturnStudents() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    School school = createMockSchool();
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    sdcSchoolCollectionEntity.setUploadDate(null);
+    sdcSchoolCollectionEntity.setUploadFileName(null);
+    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
+
+    var studentID = UUID.randomUUID();
+    var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+    student1.setAssignedStudentId(studentID);
+    sdcSchoolCollectionStudentRepository.save(student1);
+    var student2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+    student2.setAssignedStudentId(studentID);
+    student2.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.DELETED.getCode());
+    sdcSchoolCollectionStudentRepository.save(student2);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcSchoolCollectionEntity.getSdcSchoolCollectionID()
+                            + "/duplicates").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(0)));
   }
 
   @Test
