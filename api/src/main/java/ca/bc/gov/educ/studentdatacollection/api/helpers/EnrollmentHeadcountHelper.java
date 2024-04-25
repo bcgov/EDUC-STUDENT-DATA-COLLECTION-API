@@ -44,6 +44,8 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
   private static final String ALL_AGED_FTE_KEY = "allFte";
   public static final String SCHOOL_NAME_KEY="schoolName";
   public static final String ALL_SCHOOLS="All Schools";
+  public static final String SECTION="SECTION";
+  public static final String TITLE="title";
   private final RestUtils restUtils;
   protected Map<String, String> perSchoolRowTitles;
   protected Map<String, String> allSchoolSectionTitles;
@@ -205,8 +207,8 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
   public HeadcountResultsTable convertEnrollmentBySchoolHeadcountResults(List<EnrollmentHeadcountResult> results) {
     HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
     List<String> columnTitles = new ArrayList<>(gradeCodes);
-    columnTitles.add(0, "title");
-    columnTitles.add("Total");
+    columnTitles.add(0, TITLE);
+    columnTitles.add(TOTAL_TITLE);
     headcountResultsTable.setHeaders(columnTitles);
     headcountResultsTable.setRows(new ArrayList<>());
 
@@ -215,43 +217,42 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
     List<String> schools = results.stream()
             .map(value ->  restUtils.getSchoolBySchoolID(value.getSchoolID()).get().getDisplayName()).toList();
 
-    schools.stream().distinct().forEach(school -> {
-      for (Map.Entry<String, String> title : perSchoolRowTitles.entrySet()) {
-        Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
-
-        if(title.getKey().equals(SCHOOL_NAME_KEY)) {
-          rowData.put("title", HeadcountHeaderColumn.builder().currentValue(school).build());
-        } else {
-          rowData.put("title", HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
-        }
-
-        BigDecimal total = BigDecimal.ZERO;
-
-        Function<EnrollmentHeadcountResult, String> headcountFunction = headcountMethods.get(title.getKey());
-
-        if(headcountFunction != null) {
-          for (String gradeCode : gradeCodes) {
-            var result = results.stream()
-                    .filter(value -> value.getEnrolledGradeCode().equals(gradeCode))
-                    .findFirst()
-                    .orElse(null);
-            String headcount = "0";
-            if (result != null && result.getEnrolledGradeCode().equals(gradeCode)) {
-              headcount = headcountFunction.apply(result);
-            }
-            rowData.put(gradeCode, HeadcountHeaderColumn.builder().currentValue(headcount).build());
-            total = total.add(new BigDecimal(headcount));
-          }
-          rowData.put("Total", HeadcountHeaderColumn.builder().currentValue(String.valueOf(total)).build());
-        }
-        rowData.put("section", HeadcountHeaderColumn.builder().currentValue(school).build());
-        rows.add(rowData);
-      }
-    });
-
+    schools.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
     createAllSchoolSection(rows, results);
     headcountResultsTable.setRows(rows);
     return headcountResultsTable;
+  }
+
+  public void createSectionsBySchool(List<Map<String, HeadcountHeaderColumn>> rows, List<EnrollmentHeadcountResult> results, String school) {
+    for (Map.Entry<String, String> title : perSchoolRowTitles.entrySet()) {
+      Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
+
+      if (title.getKey().equals(SCHOOL_NAME_KEY)) {
+        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(school).build());
+      } else {
+        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
+      }
+
+      BigDecimal total = BigDecimal.ZERO;
+      Function<EnrollmentHeadcountResult, String> headcountFunction = headcountMethods.get(title.getKey());
+      if (headcountFunction != null) {
+        for (String gradeCode : gradeCodes) {
+          var result = results.stream()
+                  .filter(value -> value.getEnrolledGradeCode().equals(gradeCode))
+                  .findFirst()
+                  .orElse(null);
+          String headcount = "0";
+          if (result != null && result.getEnrolledGradeCode().equals(gradeCode)) {
+            headcount = headcountFunction.apply(result);
+          }
+          rowData.put(gradeCode, HeadcountHeaderColumn.builder().currentValue(headcount).build());
+          total = total.add(new BigDecimal(headcount));
+        }
+        rowData.put(TOTAL_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(total)).build());
+      }
+      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(school).build());
+      rows.add(rowData);
+    }
   }
 
   public void createAllSchoolSection(List<Map<String, HeadcountHeaderColumn>> rows, List<EnrollmentHeadcountResult> results) {
@@ -259,9 +260,9 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
       Map<String, HeadcountHeaderColumn> totalRowData = new LinkedHashMap<>();
       BigDecimal sectionTotal = BigDecimal.ZERO;
       if(row.getKey().equals(ALL_SCHOOLS)) {
-        totalRowData.put("title", HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+        totalRowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
       } else {
-        totalRowData.put("title", HeadcountHeaderColumn.builder().currentValue(row.getValue()).build());
+        totalRowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(row.getValue()).build());
       }
       String section = allSchoolSectionTitles.get(row.getKey());
       if(row.getValue() != null) {
@@ -279,10 +280,10 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
             sectionTotal = sectionTotal.add(BigDecimal.valueOf(totalFtePerGrade));
           }
         }
-        totalRowData.put("Total", HeadcountHeaderColumn.builder().currentValue(String.valueOf(sectionTotal)).build());
+        totalRowData.put(TOTAL_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(sectionTotal)).build());
       }
 
-      totalRowData.put("section", HeadcountHeaderColumn.builder().currentValue(section).build());
+      totalRowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(section).build());
       rows.add(totalRowData);
     }
   }
