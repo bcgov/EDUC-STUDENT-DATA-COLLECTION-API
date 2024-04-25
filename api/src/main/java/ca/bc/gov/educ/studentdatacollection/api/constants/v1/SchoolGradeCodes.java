@@ -63,6 +63,21 @@ public enum SchoolGradeCodes {
         return codes;
     }
 
+    public static List<String> getKToSevenEuGrades() {
+        List<String> codes = new ArrayList<>();
+        codes.add(KINDHALF.getCode());
+        codes.add(KINDFULL.getCode());
+        codes.add(GRADE01.getCode());
+        codes.add(GRADE02.getCode());
+        codes.add(GRADE03.getCode());
+        codes.add(GRADE04.getCode());
+        codes.add(GRADE05.getCode());
+        codes.add(GRADE06.getCode());
+        codes.add(GRADE07.getCode());
+        codes.add(ELEMUNGR.getCode());
+        return codes;
+    }
+
     public static List<String> getKToNineGrades() {
         List<String> codes = new ArrayList<>();
         codes.add(KINDHALF.getCode());
@@ -169,6 +184,13 @@ public enum SchoolGradeCodes {
         codes.add(GRADE11.getCode());
         codes.add(GRADE12.getCode());
         codes.add(SECONDARY_UNGRADED.getCode());
+        return codes;
+    }
+
+    public static List<String> getGrades8and9() {
+        List<String> codes = new ArrayList<>();
+        codes.add(GRADE08.getCode());
+        codes.add(GRADE09.getCode());
         return codes;
     }
 

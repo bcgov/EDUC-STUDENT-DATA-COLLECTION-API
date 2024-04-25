@@ -34,6 +34,25 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     """)
   List<SdcSchoolCollectionStudentEntity> findAllDuplicateStudentsInSdcSchoolCollection(UUID sdcSchoolCollectionID);
 
+  @Query(value = """  
+    SELECT stud
+    FROM SdcSchoolCollectionStudentEntity stud, SdcSchoolCollectionEntity school, SdcDistrictCollectionEntity dist
+    WHERE stud.assignedStudentId IN (SELECT innerStud.assignedStudentId
+                FROM SdcSchoolCollectionStudentEntity innerStud, SdcSchoolCollectionEntity sdcSchool, SdcDistrictCollectionEntity sdcDist
+                where sdcDist.sdcDistrictCollectionID = :sdcDistrictCollectionID
+                and sdcDist.sdcDistrictCollectionID = sdcSchool.sdcDistrictCollectionID
+                and sdcSchool.sdcSchoolCollectionID = innerStud.sdcSchoolCollection.sdcSchoolCollectionID
+                and innerStud.assignedStudentId is not null
+                GROUP BY innerStud.assignedStudentId
+                HAVING COUNT(innerStud.assignedStudentId) > 1)
+    and dist.sdcDistrictCollectionID = :sdcDistrictCollectionID
+    and dist.sdcDistrictCollectionID = school.sdcDistrictCollectionID
+    and school.sdcSchoolCollectionID = stud.sdcSchoolCollection.sdcSchoolCollectionID
+    and stud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+    and stud.assignedStudentId is not null
+    """)
+  List<SdcSchoolCollectionStudentEntity> findAllInDistrictDuplicateStudentsInSdcDistrictCollection(UUID sdcDistrictCollectionID);
+
   long countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollection_SdcSchoolCollectionID(String sdcSchoolCollectionStudentStatusCode, UUID sdcSchoolCollectionID);
 
   @Query(value = """
