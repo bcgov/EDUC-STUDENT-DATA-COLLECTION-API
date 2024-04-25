@@ -439,4 +439,27 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "FROM SdcSchoolCollectionStudentEntity s " +
           "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID")
   SpecialEdHeadcountHeaderResult getSpecialEdHeadersByDistrictId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
+
+  @Query("SELECT " +
+          "s.enrolledGradeCode AS enrolledGradeCode, " +
+          "s.sdcSchoolCollection.schoolID AS schoolID, " +
+          "COUNT(CASE WHEN s.isSchoolAged = false AND s.isAdult = false THEN 1 END) AS underSchoolAgedHeadcount, " +
+          "SUM(CASE WHEN s.isSchoolAged = false AND s.isAdult = false AND  s.fte > 0 THEN 1 ELSE 0 END) AS underSchoolAgedEligibleForFte, " +
+          "SUM(CASE WHEN s.isSchoolAged = false AND s.isAdult = false THEN s.fte ELSE 0 END) AS underSchoolAgedFteTotal, " +
+          "COUNT(CASE WHEN s.isSchoolAged = true THEN 1 END) AS schoolAgedHeadcount, " +
+          "SUM(CASE WHEN s.isSchoolAged = true AND s.fte > 0 THEN 1 ELSE 0 END) AS schoolAgedEligibleForFte, " +
+          "SUM(CASE WHEN s.isSchoolAged = true THEN s.fte ELSE 0 END) AS schoolAgedFteTotal, " +
+          "COUNT(CASE WHEN s.isAdult = true THEN 1 END) AS adultHeadcount, " +
+          "SUM(CASE WHEN s.isAdult = true AND s.fte > 0 THEN 1 ELSE 0 END) AS adultEligibleForFte, " +
+          "SUM(CASE WHEN s.isAdult = true THEN s.fte ELSE 0 END) AS adultFteTotal, " +
+          "COUNT(s) AS totalHeadcount, " +
+          "SUM(CASE WHEN s.fte > 0 THEN 1 ELSE 0 END) AS totalEligibleForFte, " +
+          "SUM(CASE WHEN s.fte IS NOT NULL THEN s.fte ELSE 0 END) AS totalFteTotal " +
+          "FROM SdcSchoolCollectionStudentEntity s " +
+          "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
+          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
+          "GROUP BY s.sdcSchoolCollection.schoolID, s.enrolledGradeCode " +
+          "ORDER BY s.sdcSchoolCollection.schoolID, s.enrolledGradeCode")
+  List<EnrollmentHeadcountResult> getEnrollmentHeadcountsBySchoolIdAndBySdcDistrictCollectionId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
+
 }
