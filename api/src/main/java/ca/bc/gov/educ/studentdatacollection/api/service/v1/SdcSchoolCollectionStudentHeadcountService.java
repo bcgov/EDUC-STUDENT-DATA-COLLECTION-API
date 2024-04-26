@@ -80,7 +80,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
 
     List<CareerHeadcountResult> result = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
     HeadcountResultsTable headcountResultsTable = careerHeadcountHelper.convertHeadcountResults(result);
-    List<HeadcountHeader> headcountHeaderList = careerHeadcountHelper.getHeaders(sdcSchoolCollectionID);
+    List<HeadcountHeader> headcountHeaderList = careerHeadcountHelper.getHeaders(sdcSchoolCollectionID, false);
     if(compare) {
       careerHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
       careerHeadcountHelper.setResultsTableComparisonValues(sdcSchoolCollectionEntity, headcountResultsTable);
