@@ -61,9 +61,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
                   currentRow.setComparisonValue(previousColumn.getCurrentValue());
                 });
               } else {
-                currentData.forEach((rowName, currentRow) -> {
-                  currentRow.setComparisonValue("0");
-                });
+                currentData.forEach((rowName, currentRow) -> currentRow.setComparisonValue("0"));
               }
             });
   }
