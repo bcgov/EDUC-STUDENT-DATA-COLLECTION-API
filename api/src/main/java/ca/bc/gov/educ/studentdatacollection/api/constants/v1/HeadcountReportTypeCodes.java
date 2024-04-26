@@ -13,6 +13,7 @@ public enum HeadcountReportTypeCodes {
     CAREER("career"),
     INDIGENOUS("indigenous"),
     SPECIAL_ED("special-ed"),
+    SPECIAL_ED_PER_SCHOOL("special-ed-per-school"),
     BAND_CODES("band-codes"),
     GRADE_ENROLLMENT("grade-enrollment");
 
