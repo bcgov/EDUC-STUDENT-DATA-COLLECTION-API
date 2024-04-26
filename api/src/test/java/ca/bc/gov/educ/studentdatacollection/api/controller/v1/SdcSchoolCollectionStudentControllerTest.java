@@ -2612,10 +2612,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("A - Physically Dependent")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns['Eligible'].currentValue", equalTo("1")))
-                .andExpect(jsonPath("$.headcountResultsTable.rows[*].['School Name'].currentValue", containsInAnyOrder("School1", "School2", "Total")))
-                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['School Name'].currentValue=='Total')].['01'].currentValue", contains("2")))
-                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['School Name'].currentValue=='Total')].['02'].currentValue", contains("1")))
-                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['School Name'].currentValue=='Total')].['10'].currentValue", contains("1")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[*].['School Name'].currentValue", containsInAnyOrder("0000001 - School1", "0000002 - School2", "All Schools")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['School Name'].currentValue=='All Schools')].['01'].currentValue", contains("2")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['School Name'].currentValue=='All Schools')].['02'].currentValue", contains("1")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['School Name'].currentValue=='All Schools')].['10'].currentValue", contains("1")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows", hasSize(3)));
     }
 

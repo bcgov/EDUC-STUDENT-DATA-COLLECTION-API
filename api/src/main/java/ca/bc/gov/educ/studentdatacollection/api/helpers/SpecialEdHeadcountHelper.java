@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +60,9 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   private static final String Q_CODE_TITLE_KEY = "qCodeKey";
   private static final String R_CODE_TITLE_KEY = "rCodeKey";
   private static final String ALL_LEVELS_TITLE_KEY = "allLevelKey";
+  private static final String ALL_SCHOOLS = "All Schools";
   private static final String SCHOOL_NAME = "School Name";
+  private static final String SECTION = "section";
   private final RestUtils restUtils;
 
   public SpecialEdHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
@@ -167,28 +170,25 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(List<SpecialEdHeadcountResult> results) throws EntityNotFoundException {
     HeadcountResultsTable table = new HeadcountResultsTable();
     List<String> headers = new ArrayList<>();
-    headers.add(SCHOOL_NAME);
     Set<String> grades = new HashSet<>();
     Map<String, Map<String, Integer>> schoolGradeCounts = new HashMap<>();
     Map<String, Integer> totalCounts = new HashMap<>();
-    Map<String, String> schoolNames = new HashMap<>();
+    Map<String, String> schoolDetails  = new HashMap<>();
 
     // Collect all grades and initialize school-grade map
     for (SpecialEdHeadcountResult result : results) {
       grades.add(result.getEnrolledGradeCode());
       schoolGradeCounts.computeIfAbsent(result.getSchoolID(), k -> new HashMap<>());
-      schoolNames.putIfAbsent(result.getSchoolID(),
+      schoolDetails .putIfAbsent(result.getSchoolID(),
               restUtils.getSchoolBySchoolID(result.getSchoolID())
-                      .map(School::getDisplayName)
-                      .orElseThrow(EntityNotFoundException::new));
+                      .map(school -> school.getMincode() + " - " + school.getDisplayName())
+                      .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", result.getSchoolID())));
     }
 
     // Initialize totals for each grade
     for (String grade : gradeCodes) {
       totalCounts.put(grade, 0);
-      for (Map<String, Integer> school : schoolGradeCounts.values()) {
-        school.putIfAbsent(grade, 0);
-      }
+      schoolGradeCounts.values().forEach(school -> school.putIfAbsent(grade, 0));
     }
 
     // Sort grades and add to headers
@@ -206,20 +206,23 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
       totalCounts.merge(grade, count, Integer::sum);
     }
 
-    // Create rows for the table, including school names
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
+
+    // Add all schools row at the start
+    Map<String, HeadcountHeaderColumn> totalRow = new LinkedHashMap<>();
+    totalRow.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+    totalRow.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+    totalCounts.forEach((grade, count) -> totalRow.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
+    rows.add(totalRow);
+
+    // Create rows for the table, including school names
     schoolGradeCounts.forEach((schoolID, gradesCount) -> {
       Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
-      rowData.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue(schoolNames.get(schoolID)).build());
+      rowData.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue(schoolDetails.get(schoolID)).build());
+      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
       gradesCount.forEach((grade, count) -> rowData.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
       rows.add(rowData);
     });
-
-    // Add total row at the end
-    Map<String, HeadcountHeaderColumn> totalRow = new LinkedHashMap<>();
-    totalRow.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue("Total").build());
-    totalCounts.forEach((grade, count) -> totalRow.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
-    rows.add(totalRow);
 
     table.setRows(rows);
     return table;
