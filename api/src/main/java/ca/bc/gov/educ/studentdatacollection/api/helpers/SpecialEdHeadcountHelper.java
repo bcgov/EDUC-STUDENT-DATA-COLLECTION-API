@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -171,24 +172,22 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     Set<String> grades = new HashSet<>();
     Map<String, Map<String, Integer>> schoolGradeCounts = new HashMap<>();
     Map<String, Integer> totalCounts = new HashMap<>();
-    Map<String, String> schoolNames = new HashMap<>();
+    Map<String, String> schoolDetails  = new HashMap<>();
 
     // Collect all grades and initialize school-grade map
     for (SpecialEdHeadcountResult result : results) {
       grades.add(result.getEnrolledGradeCode());
       schoolGradeCounts.computeIfAbsent(result.getSchoolID(), k -> new HashMap<>());
-      schoolNames.putIfAbsent(result.getSchoolID(),
+      schoolDetails .putIfAbsent(result.getSchoolID(),
               restUtils.getSchoolBySchoolID(result.getSchoolID())
-                      .map(School::getDisplayName)
-                      .orElseThrow(EntityNotFoundException::new));
+                      .map(school -> school.getMincode() + " - " + school.getDisplayName())
+                      .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", result.getSchoolID())));
     }
 
     // Initialize totals for each grade
     for (String grade : gradeCodes) {
       totalCounts.put(grade, 0);
-      for (Map<String, Integer> school : schoolGradeCounts.values()) {
-        school.putIfAbsent(grade, 0);
-      }
+      schoolGradeCounts.values().forEach(school -> school.putIfAbsent(grade, 0));
     }
 
     // Sort grades and add to headers
@@ -210,7 +209,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
     schoolGradeCounts.forEach((schoolID, gradesCount) -> {
       Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
-      rowData.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue(schoolNames.get(schoolID)).build());
+      rowData.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue(schoolDetails.get(schoolID)).build());
       gradesCount.forEach((grade, count) -> rowData.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
       rows.add(rowData);
     });
