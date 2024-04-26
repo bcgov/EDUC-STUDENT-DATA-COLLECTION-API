@@ -53,12 +53,18 @@ public class HeadcountHelper<T extends HeadcountResult> {
     IntStream.range(0, rows.size())
             .forEach(i -> {
               var  currentData = collectionData.getRows().get(i);
-              var previousData = previousCollectionData.getRows().get(i);
-
-              currentData.forEach((rowName, currentRow) -> {
-                HeadcountHeaderColumn previousColumn = previousData.get(rowName);
-                currentRow.setComparisonValue(previousColumn.getCurrentValue());
-              });
+              boolean previousCollectionHasData = i < previousCollectionData.getRows().size();
+              if(previousCollectionHasData) {
+                var previousData = previousCollectionData.getRows().get(i);
+                currentData.forEach((rowName, currentRow) -> {
+                  HeadcountHeaderColumn previousColumn = previousData.get(rowName);
+                  currentRow.setComparisonValue(previousColumn.getCurrentValue());
+                });
+              } else {
+                currentData.forEach((rowName, currentRow) -> {
+                  currentRow.setComparisonValue("0");
+                });
+              }
             });
   }
 
