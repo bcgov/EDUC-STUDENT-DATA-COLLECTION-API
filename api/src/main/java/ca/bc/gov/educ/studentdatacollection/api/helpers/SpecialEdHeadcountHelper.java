@@ -63,6 +63,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   private static final String ALL_SCHOOLS = "All Schools";
   private static final String SECTION = "section";
   private static final String TITLE = "title";
+  private static final String TOTAL = "Total";
   private final RestUtils restUtils;
 
   public SpecialEdHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
@@ -196,15 +197,18 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     Collections.sort(sortedGrades);
     headers.add(TITLE);
     headers.addAll(sortedGrades);
+    headers.add(TOTAL);
     table.setHeaders(headers);
 
-    // Populate counts for each school and grade
+    // Populate counts for each school and grade, and calculate row totals
+    Map<String, Integer> schoolTotals = new HashMap<>();
     for (SpecialEdHeadcountResult result : results) {
       Map<String, Integer> gradeCounts = schoolGradeCounts.get(result.getSchoolID());
       String grade = result.getEnrolledGradeCode();
       int count = getCountFromResult(result);
       gradeCounts.merge(grade, count, Integer::sum);
       totalCounts.merge(grade, count, Integer::sum);
+      schoolTotals.merge(result.getSchoolID(), count, Integer::sum);
     }
 
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
@@ -214,6 +218,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     totalRow.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
     totalRow.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
     totalCounts.forEach((grade, count) -> totalRow.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
+    totalRow.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotals.values().stream().mapToInt(Integer::intValue).sum())).build());
     rows.add(totalRow);
 
     // Create rows for the table, including school names
@@ -222,6 +227,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
       rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(schoolDetails.get(schoolID)).build());
       rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
       gradesCount.forEach((grade, count) -> rowData.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
+      rowData.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotals.get(schoolID))).build());
       rows.add(rowData);
     });
 
