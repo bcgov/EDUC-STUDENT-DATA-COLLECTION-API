@@ -42,6 +42,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
                 where sdcDist.sdcDistrictCollectionID = :sdcDistrictCollectionID
                 and sdcDist.sdcDistrictCollectionID = sdcSchool.sdcDistrictCollectionID
                 and sdcSchool.sdcSchoolCollectionID = innerStud.sdcSchoolCollection.sdcSchoolCollectionID
+                and innerStud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
                 and innerStud.assignedStudentId is not null
                 GROUP BY innerStud.assignedStudentId
                 HAVING COUNT(innerStud.assignedStudentId) > 1)

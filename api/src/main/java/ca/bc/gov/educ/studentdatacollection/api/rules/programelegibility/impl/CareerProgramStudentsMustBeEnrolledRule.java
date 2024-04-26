@@ -40,7 +40,7 @@ public class CareerProgramStudentsMustBeEnrolledRule implements ProgramEligibili
     log.debug("In executeValidation of ProgramEligibilityBaseRule - CareerProgramStudentsMustBeEnrolledRule for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
     List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
-    List<String> studentPrograms = validationRulesService.splitString(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
+    List<String> studentPrograms = validationRulesService.splitEnrolledProgramsString(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
 
     log.debug("ProgramEligibilityBaseRule - CareerProgramStudentsMustBeEnrolledRule: Enrolled Programs - {} for sdcSchoolCollectionStudentID :: {}", studentPrograms, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
     if (EnrolledProgramCodes.getCareerProgramCodes().stream().noneMatch(studentPrograms::contains)) {

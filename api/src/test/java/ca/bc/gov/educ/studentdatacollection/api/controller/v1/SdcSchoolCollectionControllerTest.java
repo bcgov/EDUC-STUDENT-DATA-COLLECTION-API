@@ -220,7 +220,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
   @Test
   void testGetAllStudentDuplicatesBySdcSchoolCollectionID_ShouldReturnStudents() throws Exception {
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_DISTRICT_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     CollectionEntity collection = createMockCollectionEntity();
@@ -242,8 +242,8 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     sdcSchoolCollectionStudentRepository.save(student2);
 
     this.mockMvc.perform(
-                    get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcSchoolCollectionEntity.getSdcSchoolCollectionID()
-                            + "/duplicates").with(mockAuthority))
+            get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcSchoolCollectionEntity.getSdcSchoolCollectionID()
+                    + "/duplicates").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
   }
 

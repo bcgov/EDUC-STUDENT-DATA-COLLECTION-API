@@ -59,7 +59,7 @@ public class HomeSchoolLanguageProgramRule implements ValidationBaseRule {
 
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
-        final List<String> enrolledProgramCodes = validationRulesService.splitString(student.getEnrolledProgramCodes());
+        final List<String> enrolledProgramCodes = validationRulesService.splitEnrolledProgramsString(student.getEnrolledProgramCodes());
 
         if (EnrolledProgramCodes.getFrenchProgramCodesWithEll().stream().anyMatch(enrolledProgramCodes::contains)) {
             log.debug("HomeSchoolLanguageProgramRule-V22: Homeschool student cannot have language program codes for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());

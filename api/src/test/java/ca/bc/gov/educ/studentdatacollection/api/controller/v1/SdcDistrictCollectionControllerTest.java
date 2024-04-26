@@ -29,7 +29,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -40,6 +42,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITest {
@@ -141,6 +144,48 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/search/" + district.getDistrictId()).with(mockAuthority))
             .andDo(print()).andExpect(status().isForbidden());
   }
+
+  @Test
+  void testGetAllInDistrictDuplicatesBySdcDistrictCollectionID_ShouldReturnDups() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_DISTRICT_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
+    var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
+
+    School school1 = createMockSchool();
+    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
+
+    School school2 = createMockSchool();
+    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
+
+    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+
+    var studentID = UUID.randomUUID();
+    var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    student1.setAssignedStudentId(studentID);
+    sdcSchoolCollectionStudentRepository.save(student1);
+    var student2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+    student2.setAssignedStudentId(studentID);
+    sdcSchoolCollectionStudentRepository.save(student2);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$[0]").value(sdcSchoolCollectionEntity1.getSdcSchoolCollectionID().toString()));
+  }
+
 
   @Test
   void testGetSdcDistrictCollection_ShouldReturnCollection() throws Exception {

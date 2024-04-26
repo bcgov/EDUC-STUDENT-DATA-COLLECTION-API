@@ -2,13 +2,13 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcDistrictCollectionEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDistrictCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionsResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDistrictCollection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcInDistrictDuplicate;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicate;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
@@ -25,7 +25,7 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   private static final SdcDistrictCollectionMapper mapper = SdcDistrictCollectionMapper.mapper;
   private final SdcDuplicatesService sdcDuplicatesService;
   private final SdcDistrictCollectionService sdcDistrictCollectionService;
-  private static final SdcSchoolCollectionStudentMapper studentMapper = SdcSchoolCollectionStudentMapper.mapper;
+  private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
   private final SdcDistrictCollectionValidator sdcDistrictCollectionValidator;
 
   public SdcDistrictCollectionController(SdcDuplicatesService sdcDuplicatesService, SdcDistrictCollectionService sdcDistrictCollectionService, SdcDistrictCollectionValidator sdcDistrictCollectionValidator) {
@@ -40,8 +40,8 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   }
 
   @Override
-  public List<SdcInDistrictDuplicate> getDistrictCollectionDuplicates(UUID sdcDistrictCollectionID) {
-    return this.sdcDuplicatesService.getAllInDistrictCollectionDuplicates(sdcDistrictCollectionID).stream().map(studentMapper::toSdcSchoolStudent).toList();
+  public List<SdcDuplicate> getDistrictCollectionDuplicates(UUID sdcDistrictCollectionID) {
+    return this.sdcDuplicatesService.getAllInDistrictCollectionDuplicates(sdcDistrictCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
   }
 
   @Override

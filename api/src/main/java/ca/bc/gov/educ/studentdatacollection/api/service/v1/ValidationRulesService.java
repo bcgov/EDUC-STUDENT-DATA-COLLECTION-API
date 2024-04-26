@@ -78,12 +78,12 @@ public class ValidationRulesService {
     }
 
     public boolean isEnrolledProgramCodeInvalid(String enrolledProgramCode) {
-        final List<String> enrolledProgramCodes = splitString(enrolledProgramCode);
+        final List<String> enrolledProgramCodes = splitEnrolledProgramsString(enrolledProgramCode);
         var activeEnrolledCodes = getActiveEnrolledProgramCodes().stream().map(EnrolledProgramCode::getEnrolledProgramCode).toList();
         return !enrolledProgramCodes.stream().allMatch(activeEnrolledCodes::contains);
     }
 
-    public List<String> splitString(String enrolledProgramCode) {
+    public List<String> splitEnrolledProgramsString(String enrolledProgramCode) {
         if (StringUtils.isEmpty(enrolledProgramCode)) {
             return Collections.<String>emptyList();
         }

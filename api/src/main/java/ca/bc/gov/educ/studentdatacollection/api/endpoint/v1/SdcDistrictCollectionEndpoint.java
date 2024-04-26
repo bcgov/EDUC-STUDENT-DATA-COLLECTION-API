@@ -3,7 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionsResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDistrictCollection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcInDistrictDuplicate;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicate;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolFileSummary;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,11 +32,11 @@ public interface SdcDistrictCollectionEndpoint {
   SdcDistrictCollection getDistrictCollection(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @GetMapping("/{sdcDistrictCollectionID}/in-district-duplicates")
-  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_DISTRICT_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional(readOnly = true)
   @Tag(name = "Sdc District Collection", description = "Endpoints to get in district collection duplicates.")
-  List<SdcInDistrictDuplicate> getDistrictCollectionDuplicates(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
+  List<SdcDuplicate> getDistrictCollectionDuplicates(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @GetMapping("/search/{districtID}")
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_DISTRICT_COLLECTION')")
