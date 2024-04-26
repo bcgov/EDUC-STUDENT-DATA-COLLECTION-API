@@ -2,8 +2,8 @@ package ca.bc.gov.educ.studentdatacollection.api.mappers.v1;
 
 
 import ca.bc.gov.educ.studentdatacollection.api.mappers.UUIDMapper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDuplicateEntity;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicate;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcInDistrictDuplicateEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcInDistrictDuplicate;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -15,9 +15,9 @@ public interface SdcDuplicateMapper {
 
   @Mapping(target = "sdcSchoolCollectionID", source = "sdcSchoolCollection.sdcSchoolCollectionID")
   @Mapping(target = "sdcDistrictCollectionID", source = "sdcSchoolCollection.sdcDistrictCollectionID")
-  SdcDuplicate toSdcDuplicate(SdcDuplicateEntity sdcSchoolStudentEntity);
+  SdcInDistrictDuplicate toSdcDuplicate(SdcInDistrictDuplicateEntity sdcSchoolStudentEntity);
 
   @Mapping(target = "sdcSchoolCollection.sdcSchoolCollectionID", source = "sdcSchoolCollectionID")
-  SdcDuplicateEntity toSdcDuplicateEntity(SdcDuplicate sdcSchoolStudent);
+  SdcInDistrictDuplicateEntity toSdcDuplicateEntity(SdcInDistrictDuplicate sdcSchoolStudent);
 
 }

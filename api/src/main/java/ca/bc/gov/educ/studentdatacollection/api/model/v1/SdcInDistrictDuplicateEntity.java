@@ -20,14 +20,14 @@ import java.util.UUID;
 @Entity
 @Table(name = "SDC_DUPLICATE")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SdcDuplicateEntity {
+public class SdcInDistrictDuplicateEntity {
 
   @Id
   @GeneratedValue(generator = "UUID")
   @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator", parameters = {
       @Parameter(name = "uuid_gen_strategy_class", value = "org.hibernate.id.uuid.CustomVersionOneStrategy")})
   @Column(name = "SDC_DUPLICATE_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
-  private UUID sdcDuplicateID;
+  private UUID sdcInDistrictDuplicateID;
 
   @Column(name = "SDC_DISTRICT_COLLECTION_ID", columnDefinition = "BINARY(16)")
   private UUID sdcDistrictCollectionID;

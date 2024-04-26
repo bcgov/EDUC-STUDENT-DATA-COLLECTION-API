@@ -8,7 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDistrictCollection
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionsResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDistrictCollection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicate;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcInDistrictDuplicate;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
@@ -40,7 +40,7 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   }
 
   @Override
-  public List<SdcDuplicate> getDistrictCollectionDuplicates(UUID sdcDistrictCollectionID) {
+  public List<SdcInDistrictDuplicate> getDistrictCollectionDuplicates(UUID sdcDistrictCollectionID) {
     return this.sdcDuplicatesService.getAllInDistrictCollectionDuplicates(sdcDistrictCollectionID).stream().map(studentMapper::toSdcSchoolStudent).toList();
   }
 

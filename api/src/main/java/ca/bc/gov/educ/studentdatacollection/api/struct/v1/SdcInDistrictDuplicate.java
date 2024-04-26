@@ -14,12 +14,12 @@ import java.io.Serializable;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ToString(callSuper = true)
-public class SdcDuplicate extends BaseRequest implements Serializable {
+public class SdcInDistrictDuplicate extends BaseRequest implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  @NotNull(message = "sdcDuplicateID cannot be null")
-  private String sdcDuplicateID;
+  @NotNull(message = "sdcInDistrictDuplicateID cannot be null")
+  private String sdcInDistrictDuplicateID;
 
   private String sdcDistrictCollectionID;
 
