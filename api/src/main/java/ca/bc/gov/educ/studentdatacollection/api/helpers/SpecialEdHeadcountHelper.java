@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
@@ -163,7 +164,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     return headcountHeaderList;
   }
 
-  public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(List<SpecialEdHeadcountResult> results) {
+  public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(List<SpecialEdHeadcountResult> results) throws EntityNotFoundException {
     HeadcountResultsTable table = new HeadcountResultsTable();
     List<String> headers = new ArrayList<>();
     headers.add(SCHOOL_NAME);
@@ -176,7 +177,10 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     for (SpecialEdHeadcountResult result : results) {
       grades.add(result.getEnrolledGradeCode());
       schoolGradeCounts.computeIfAbsent(result.getSchoolID(), k -> new HashMap<>());
-      schoolNames.putIfAbsent(result.getSchoolID(), restUtils.getSchoolBySchoolID(result.getSchoolID()).map(School::getDisplayName).orElse("No School Name Found"));
+      schoolNames.putIfAbsent(result.getSchoolID(),
+              restUtils.getSchoolBySchoolID(result.getSchoolID())
+                      .map(School::getDisplayName)
+                      .orElseThrow(EntityNotFoundException::new));
     }
 
     // Initialize totals for each grade
