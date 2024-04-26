@@ -44,7 +44,7 @@ public enum StudentValidationIssueTypeCode {
   ENROLLED_CODE_INVALID("ENROLLEDCODEINVALID", "List of enrolled programs includes an invalid code. Select the valid programs for the student."),
   ENROLLED_CODE_COUNT_ERR("ENROLLEDCODECOUNTERR", "Students can have at most one French language code."),
   CAREER_CODE_INVALID("CAREERCODEINVALID", "Invalid career code."),
-  ADULT_ZERO_COURSES("ADULTZEROCOURSES", "Adult students must have 0 or more courses."),
+  ADULT_ZERO_COURSES("ADULTZEROCOURSES", "Adult students must have more than 0 courses."),
   SCHOOLAGE_ZERO_COURSES("SCHOOLAGEZEROCOURSES", "Secondary students must be reported with at least one course. If the student is not enrolled in any courses they should be removed from the submission."),
   AGE_LESS_THAN_FIVE("AGELESSTHANFIVE", "Student is too young for school and is not eligible for funding."),
   CONT_ED_ERR("CONTEDERR", "Student is too young for Continuing Education. Student must be removed from submission or their birthdate adjusted."),

@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.helpers;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
@@ -34,9 +35,10 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
 
   public EllHeadcountHelper(
     SdcSchoolCollectionRepository sdcSchoolCollectionRepository,
-    SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository
+    SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository,
+    SdcDistrictCollectionRepository sdcDistrictCollectionRepository
   ) {
-    super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository);
+    super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
     headcountMethods = getHeadcountMethods();
     sectionTitles = getSelectionTitles();
     rowTitles = getRowTitles();

@@ -2,7 +2,9 @@ package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
@@ -80,8 +82,8 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
   private static final String ALL_XG_KEY = "AllXG";
   private static final String ALL_XH_KEY = "AllXH";
 
-  public CareerHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
-    super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository);
+  public CareerHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
+    super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
     headcountMethods = getHeadcountMethods();
     sectionTitles = getSelectionTitles();
     rowTitles = getRowTitles();
@@ -89,7 +91,16 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
   }
   public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
     UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
-    List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID);
+    List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, false);
+    setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
+  }
+
+  public void setComparisonValuesForDistrictReporting(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
+    UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+    List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
+    List<CareerHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySdcDistrictCollectionId(previousCollectionID);
+    HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
+    setResultsTableComparisonValues(collectionData, previousCollectionData);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 
@@ -99,8 +110,10 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
     HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
     setResultsTableComparisonValues(collectionData, previousCollectionData);
   }
-  public List<HeadcountHeader> getHeaders(UUID sdcSchoolCollectionID) {
-    CareerHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getCareerHeadersBySchoolId(sdcSchoolCollectionID);
+  public List<HeadcountHeader> getHeaders(UUID sdcSchoolCollectionID, boolean isDistrict) {
+    CareerHeadcountHeaderResult result = isDistrict
+            ? sdcSchoolCollectionStudentRepository.getCareerHeadersBySdcDistrictCollectionId(sdcSchoolCollectionID)
+            : sdcSchoolCollectionStudentRepository.getCareerHeadersBySchoolId(sdcSchoolCollectionID);
     List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
     Arrays.asList(CAREER_PREPARATION_TITLE, COOP_EDUCATION_TITLE, APPRENTICESHIP_TITLE, TECH_YOUTH_TITLE).forEach(headerTitle -> {
       HeadcountHeader headcountHeader = new HeadcountHeader();

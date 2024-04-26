@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.BandCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
@@ -32,8 +33,8 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
     private static final Map<String, String> bandRowTitles = new HashMap<>();
 
 
-    public BandResidenceHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, CodeTableService codeTableService) {
-        super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository);
+    public BandResidenceHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, CodeTableService codeTableService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
+        super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
         this.codeTableService = codeTableService;
         headcountMethods = getHeadcountMethods();
     }

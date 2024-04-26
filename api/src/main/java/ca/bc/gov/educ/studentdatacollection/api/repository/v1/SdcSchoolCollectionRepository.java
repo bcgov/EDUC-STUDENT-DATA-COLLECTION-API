@@ -147,11 +147,5 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             """)
     List<MonitorSdcSchoolCollectionQueryResponse> findAllSdcSchoolCollectionMonitoringBySdcDistrictCollectionId(UUID sdcDistrictCollectionId);
 
-    @Query("""
-          SELECT SSC
-          FROM SdcSchoolCollectionEntity SSC
-          WHERE SSC.sdcDistrictCollectionID = :sdcDistrictCollectionID
-          AND SSC.sdcSchoolCollectionStatusCode = 'NEW'
-          """)
-    List<SdcSchoolCollectionEntity> getListOfCollectionsInProgress(UUID sdcDistrictCollectionID);
+    List<SdcSchoolCollectionEntity> findAllBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
 }
