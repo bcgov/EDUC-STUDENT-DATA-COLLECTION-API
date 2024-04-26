@@ -70,9 +70,7 @@ public class SdcDistrictCollectionHeadcountService {
 
     List<SpecialEdHeadcountResult> collectionRawDataForHeadcount = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySchoolIdAndBySdcDistrictCollectionId(sdcDistrictCollectionID);
 
-
-    HeadcountResultsTable collectionDataForHeadcounts = specialEdHeadcountHelper.convertHeadcountResults(collectionRawDataForHeadcount);
-    // need to change headers
+    HeadcountResultsTable collectionDataForHeadcounts = specialEdHeadcountHelper.convertHeadcountResultsToSchoolGradeTable(collectionRawDataForHeadcount);
     List<HeadcountHeader> headcountHeaderList = specialEdHeadcountHelper.getHeadersPerGrade(sdcDistrictCollectionID);
 
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionDataForHeadcounts).build();
