@@ -50,6 +50,9 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         verify(mockSearchService).findAllStudentsLightBySchoolCollectionID(schoolCollectionId);
         String decodedData = new String(Base64.getDecoder().decode(response.getDocumentData()));
         assertTrue(decodedData.contains("P.E.N."));
+        assertTrue(decodedData.contains("Legal Name"));
+        assertTrue(decodedData.contains("Usual Name"));
+        assertTrue(decodedData.contains("Birth Date"));
     }
 
     @Test
@@ -69,7 +72,9 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         assertFalse(response.getDocumentData().isEmpty());
         verify(mockSearchService).findAllStudentsLightByDistrictCollectionId(districtCollectionId);
         String decodedData = new String(Base64.getDecoder().decode(response.getDocumentData()));
-        assertTrue(decodedData.contains("School ID"));
+        assertTrue(decodedData.contains("School Code"));
+        assertTrue(decodedData.contains("School Name"));
+        assertTrue(decodedData.contains("Facility Type"));
     }
 
     @Test
@@ -104,29 +109,74 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
 
     @Test
     void testParseEnrolledProgramCodes_Standard() {
-        Set<String> result = service.parseEnrolledProgramCodes("ABCD");
-        assertTrue(result.contains("AB") && result.contains("CD"));
-        assertEquals(2, result.size());
+        Map<String, String> result = service.parseEnrolledProgramCodes("05EF");
+        assertEquals("1", result.get("05"));
+        assertEquals("", result.get("08"));
+        assertNull(result.get("EF"));
     }
 
     @Test
     void testParseEnrolledProgramCodes_EmptyString() {
-        Set<String> result = service.parseEnrolledProgramCodes("");
-        assertTrue(result.isEmpty());
+        Map<String, String> result = service.parseEnrolledProgramCodes("");
+        result.values().forEach(value -> assertEquals("", value));
     }
 
     @Test
-    void testParseEnrolledProgramCodes_OddCharacters() {
-        Set<String> result = service.parseEnrolledProgramCodes("ABC");
-        assertTrue(result.contains("AB"));
-        assertTrue(result.contains("C"));
-        assertEquals(2, result.size());
+    void testParseEnrolledProgramCodes_NonStandardCodes() {
+        Map<String, String> result = service.parseEnrolledProgramCodes("0508E");
+        assertEquals("1", result.get("05"));
+        assertEquals("1", result.get("08"));
+        assertNull(result.get("E "));
     }
 
     @Test
     void testParseEnrolledProgramCodes_NullInput() {
-        Set<String> result = service.parseEnrolledProgramCodes(null);
-        assertTrue(result.isEmpty());
+        Map<String, String> result = service.parseEnrolledProgramCodes(null);
+        result.values().forEach(value -> assertEquals("", value));
+    }
+
+    @Test
+    void testFormatFullName_SpecialCharacters() {
+        String result = service.formatFullName("Jo@n", "D'oe", "O'Reilly");
+        assertEquals("O'Reilly, Jo@n D'oe", result.trim());
+    }
+
+    @Test
+    void testConvertToBinary_WithN() {
+        String input = "N";
+        assertEquals("", service.convertToBinary(input), "Should return null for 'N'");
+    }
+
+    @Test
+    void testConvertToBinary_WithY() {
+        String input = "Y";
+        assertEquals("1", service.convertToBinary(input), "Should return '1' for 'Y'");
+    }
+
+    @Test
+    void testConvertToBinary_WithOtherString() {
+        String input = "Hello";
+        assertEquals(input, service.convertToBinary(input), "Should return the input string when not 'Y' or 'N'");
+    }
+
+    @Test
+    void testConvertToBinary_EmptyString() {
+        String input = "";
+        assertEquals(input, service.convertToBinary(input), "Should return the empty string as it is");
+    }
+
+    @Test
+    void testConvertToBinary_WithNull() {
+        assertEquals("", service.convertToBinary(null), "Should return null when input is null");
+    }
+
+    @Test
+    void testGenerateFromSdcDistrictCollectionID_withRestUtilsException() {
+        UUID districtCollectionId = UUID.randomUUID();
+        when(mockSearchService.findAllStudentsLightByDistrictCollectionId(districtCollectionId)).thenReturn(Collections.singletonList(createMockStudent()));
+        when(mockRestUtils.getSchoolBySchoolID(any())).thenThrow(new RuntimeException("Test exception"));
+
+        assertThrows(RuntimeException.class, () -> service.generateFromSdcDistrictCollectionID(districtCollectionId));
     }
 
     private SdcSchoolCollectionStudentLightEntity createMockStudent() {

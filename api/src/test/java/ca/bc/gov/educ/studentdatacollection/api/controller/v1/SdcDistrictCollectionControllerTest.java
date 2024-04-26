@@ -531,7 +531,12 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     student3.setSdcSchoolCollectionStudentStatusCode("VERIFIED");
     sdcSchoolCollectionStudentRepository.save(student3);
 
+    SdcSchoolCollectionStudentEntity student4 = createMockSchoolStudentEntity(schoolCollectionEntity2);
+    student4.setSdcSchoolCollectionStudentStatusCode("VERIFIED");
+    sdcSchoolCollectionStudentRepository.save(student4);
+
     when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
 
     this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID().toString() + "/fileProgress")
             .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_DISTRICT_COLLECTION")))
@@ -539,9 +544,9 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileName").value(schoolCollectionEntity1.getUploadFileName()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].totalStudents").value("3"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].totalProcessed").value("1"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolDisplayName").value(school1.getDisplayName()));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].percentageStudentsProcessed").value("33"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolDisplayName").value(school1.getMincode() + " - " + school1.getDisplayName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)));
   }
 
 }

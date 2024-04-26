@@ -6,7 +6,7 @@ public enum SdcDistrictCollectionStatus {
 
   NEW("NEW"),
 
-  MONITORING("MONITORING"),
+  LOADED("LOADED"),
 
   COMPLETED("COMPLETED"),
 

@@ -1396,6 +1396,13 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var school = createMockSchool();
         school.setFacilityTypeCode(FacilityTypeCodes.POST_SEC.getCode());
 
+        var adultWithoutCoursesSet = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        adultWithoutCoursesSet.setDob("19890101");
+        adultWithoutCoursesSet.setEnrolledGradeCode("10");
+        adultWithoutCoursesSet.setNumberOfCourses("");
+        var testNullCourses = rulesProcessor.processRules((createMockStudentRuleData(adultWithoutCoursesSet, school)));
+        boolean nullCoursesValidation = testNullCourses.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.ADULT_ZERO_COURSES.getCode()));
+
         var adultWithoutCourses = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         adultWithoutCourses.setDob("19890101");
         adultWithoutCourses.setEnrolledGradeCode("10");
@@ -1414,6 +1421,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var testDistOnlineWithNoCourses = rulesProcessor.processRules((createMockStudentRuleData(adultWithoutCourses, school)));
         boolean testDistOnlineWithNoCoursesValidation = testDistOnlineWithNoCourses.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.ADULT_ZERO_COURSES.getCode()));
 
+        assertThat(nullCoursesValidation).isTrue();
         assertThat(zeroCoursesValidation).isTrue();
         assertThat(errorAdultWithCourses).isFalse();
         assertThat(testDistOnlineWithNoCoursesValidation).isFalse();
