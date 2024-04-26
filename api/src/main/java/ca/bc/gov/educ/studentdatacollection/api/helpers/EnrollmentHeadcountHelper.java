@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
@@ -9,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -241,7 +243,9 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
 
     List<String> schools = results.stream()
-            .map(value ->  restUtils.getSchoolBySchoolID(value.getSchoolID()).get().getDisplayName()).toList();
+            .map(value ->  restUtils.getSchoolBySchoolID(value.getSchoolID()).orElseThrow(() ->
+                            new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", value.toString())
+            ).getDisplayName()).toList();
 
     schools.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
     createAllSchoolSection(rows, results);
