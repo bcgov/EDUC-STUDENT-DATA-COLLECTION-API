@@ -61,8 +61,8 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   private static final String R_CODE_TITLE_KEY = "rCodeKey";
   private static final String ALL_LEVELS_TITLE_KEY = "allLevelKey";
   private static final String ALL_SCHOOLS = "All Schools";
-  private static final String SCHOOL_NAME = "School Name";
   private static final String SECTION = "section";
+  private static final String TITLE = "title";
   private final RestUtils restUtils;
 
   public SpecialEdHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
@@ -210,7 +210,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
 
     // Add all schools row at the start
     Map<String, HeadcountHeaderColumn> totalRow = new LinkedHashMap<>();
-    totalRow.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+    totalRow.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
     totalRow.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
     totalCounts.forEach((grade, count) -> totalRow.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
     rows.add(totalRow);
@@ -218,7 +218,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     // Create rows for the table, including school names
     schoolGradeCounts.forEach((schoolID, gradesCount) -> {
       Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
-      rowData.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue(schoolDetails.get(schoolID)).build());
+      rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(schoolDetails.get(schoolID)).build());
       rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
       gradesCount.forEach((grade, count) -> rowData.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
       rows.add(rowData);
