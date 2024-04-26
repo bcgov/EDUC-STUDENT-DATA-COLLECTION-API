@@ -97,6 +97,19 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
     setResultsTableComparisonValues(collectionData, previousCollectionData);
   }
 
+  public void setComparisonValuesForDistrictBySchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
+    UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+    List<EnrollmentHeadcountResult> previousCollectionRawDataForHeadcounts = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcDistrictCollectionId(previousCollectionID);
+    List<EnrollmentHeadcountResult> prevCollectionRawData = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySchoolIdAndBySdcDistrictCollectionId(previousCollectionID);
+
+    HeadcountResultsTable previousCollectionData = convertHeadcountResults(previousCollectionRawDataForHeadcounts);
+    HeadcountResultsTable prevCollectionRawDataForTable = convertEnrollmentBySchoolHeadcountResults(prevCollectionRawData);
+    List<HeadcountHeader> previousHeadcountHeaderList = Arrays.asList(getStudentsHeadcountTotals(previousCollectionData), getGradesHeadcountTotals(previousCollectionData));
+    setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
+    setResultsTableComparisonValues(collectionData, prevCollectionRawDataForTable);
+  }
+
+
   public HeadcountHeader getGradesHeadcountTotals(HeadcountResultsTable headcountResultsTable) {
     HeadcountHeader headcountTotals = new HeadcountHeader();
     headcountTotals.setTitle("Grade Headcount");
