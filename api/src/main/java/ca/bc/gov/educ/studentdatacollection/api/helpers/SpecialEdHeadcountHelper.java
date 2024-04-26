@@ -194,6 +194,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     // Sort grades and add to headers
     List<String> sortedGrades = new ArrayList<>(grades);
     Collections.sort(sortedGrades);
+    headers.add(TITLE);
     headers.addAll(sortedGrades);
     table.setHeaders(headers);
 
