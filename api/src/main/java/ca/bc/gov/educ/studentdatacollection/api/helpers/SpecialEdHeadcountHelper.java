@@ -168,7 +168,6 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(List<SpecialEdHeadcountResult> results) throws EntityNotFoundException {
     HeadcountResultsTable table = new HeadcountResultsTable();
     List<String> headers = new ArrayList<>();
-    headers.add(SCHOOL_NAME);
     Set<String> grades = new HashSet<>();
     Map<String, Map<String, Integer>> schoolGradeCounts = new HashMap<>();
     Map<String, Integer> totalCounts = new HashMap<>();
@@ -205,20 +204,21 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
       totalCounts.merge(grade, count, Integer::sum);
     }
 
-    // Create rows for the table, including school names
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
+
+    // Add all schools row at the start
+    Map<String, HeadcountHeaderColumn> totalRow = new LinkedHashMap<>();
+    totalRow.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue("All Schools").build());
+    totalCounts.forEach((grade, count) -> totalRow.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
+    rows.add(totalRow);
+
+    // Create rows for the table, including school names
     schoolGradeCounts.forEach((schoolID, gradesCount) -> {
       Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
       rowData.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue(schoolDetails.get(schoolID)).build());
       gradesCount.forEach((grade, count) -> rowData.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
       rows.add(rowData);
     });
-
-    // Add total row at the end
-    Map<String, HeadcountHeaderColumn> totalRow = new LinkedHashMap<>();
-    totalRow.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue("Total").build());
-    totalCounts.forEach((grade, count) -> totalRow.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
-    rows.add(totalRow);
 
     table.setRows(rows);
     return table;
