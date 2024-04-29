@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -66,7 +67,8 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   private static final String TOTAL = "Total";
   private final RestUtils restUtils;
 
-  public SpecialEdHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
+  public SpecialEdHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository,
+                                  SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
     super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
     this.restUtils = restUtils;
     headcountMethods = getHeadcountMethods();
@@ -96,6 +98,21 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
     List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcSchoolCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
+    setResultsTableComparisonValues(collectionData, previousCollectionData);
+  }
+
+  public void setComparisonValuesForDistrictReporting(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
+    UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+
+    List<SpecialEdHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcDistrictCollectionId(previousCollectionID);
+    compareWithPrevCollection(previousCollectionRawData, headcountHeaderList, collectionData, sdcDistrictCollectionEntity);
+  }
+
+  public void compareWithPrevCollection(List<SpecialEdHeadcountResult> previousCollectionRawData, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData, SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
+    HeadcountResultsTable previousCollectionData = convertHeadcountResults(previousCollectionRawData);
+    UUID previousCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
+    List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
+    setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
     setResultsTableComparisonValues(collectionData, previousCollectionData);
   }
 
