@@ -50,6 +50,10 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
     rowTitles = getRowTitles();
   }
 
+  public void setGradeCodesForDistricts() {
+    gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
+  }
+
   public void setGradeCodes(Optional<School> school) {
     if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))) {
       gradeCodes = SchoolGradeCodes.getIndependentKtoGAGrades();
@@ -60,7 +64,7 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
 
   public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
     UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
-    List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID);
+    List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, false);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 
@@ -71,8 +75,10 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
     setResultsTableComparisonValues(collectionData, previousCollectionData);
   }
 
-  public List<HeadcountHeader> getHeaders(UUID sdcSchoolCollectionID) {
-    FrenchHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getFrenchHeadersBySchoolId(sdcSchoolCollectionID);
+  public List<HeadcountHeader> getHeaders(UUID sdcCollectionID, Boolean isDistrict) {
+    FrenchHeadcountHeaderResult result = Boolean.TRUE.equals(isDistrict)
+            ? sdcSchoolCollectionStudentRepository.getFrenchHeadersByDistrictId(sdcCollectionID)
+            : sdcSchoolCollectionStudentRepository.getFrenchHeadersBySchoolId(sdcCollectionID);
     List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
     Arrays.asList(CORE_FRENCH_TITLE, EARLY_FRENCH_TITLE, LATE_FRENCH_TITLE).forEach(headerTitle -> {
       HeadcountHeader headcountHeader = new HeadcountHeader();
