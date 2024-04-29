@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDuplicateEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDuplicateStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
@@ -66,8 +67,10 @@ public class SdcDuplicatesService {
 
   private List<SdcDuplicateEntity> runDuplicatesCheck(DuplicateLevelCode level, SdcSchoolCollectionStudentEntity entity1, SdcSchoolCollectionStudentEntity entity2){
     List<SdcDuplicateEntity> dups = new ArrayList<>();
-    School school1 = restUtils.getSchoolBySchoolID(entity1.getSdcSchoolCollection().getSchoolID().toString()).get();
-    School school2 = restUtils.getSchoolBySchoolID(entity2.getSdcSchoolCollection().getSchoolID().toString()).get();
+    School school1 = restUtils.getSchoolBySchoolID(entity1.getSdcSchoolCollection().getSchoolID().toString()).orElseThrow(() ->
+            new StudentDataCollectionAPIRuntimeException("School provided by ID " + entity1.getSdcSchoolCollection().getSchoolID() + "was not found - this is not expected"));
+    School school2 = restUtils.getSchoolBySchoolID(entity2.getSdcSchoolCollection().getSchoolID().toString()).orElseThrow(() ->
+            new StudentDataCollectionAPIRuntimeException("School provided by ID " + entity2.getSdcSchoolCollection().getSchoolID() + "was not found - this is not expected"));
     //Is the student an adult?
     if(entity1.getIsAdult() || entity2.getIsAdult()){
       addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
