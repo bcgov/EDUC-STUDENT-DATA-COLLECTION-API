@@ -117,6 +117,15 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 
+  public void setComparisonValuesForDistrictBySchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
+    UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+    List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
+    List<CareerHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySchoolIdAndBySdcDistrictCollectionId(previousCollectionID);
+    HeadcountResultsTable previousCollectionData = convertCareerBySchoolHeadcountResults(collectionRawData);
+    setResultsTableComparisonValues(collectionData, previousCollectionData);
+    setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
+  }
+
   public void setResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable collectionData) {
     UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
     List<CareerHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySdcSchoolCollectionId(previousCollectionID);
