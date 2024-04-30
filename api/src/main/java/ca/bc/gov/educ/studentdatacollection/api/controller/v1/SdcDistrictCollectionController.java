@@ -2,16 +2,20 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcDistrictCollectionEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDistrictCollectionService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionsResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDistrictCollection;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicate;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcDistrictCollectionValidator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -19,17 +23,25 @@ import java.util.UUID;
 public class SdcDistrictCollectionController implements SdcDistrictCollectionEndpoint {
 
   private static final SdcDistrictCollectionMapper mapper = SdcDistrictCollectionMapper.mapper;
+  private final SdcDuplicatesService sdcDuplicatesService;
   private final SdcDistrictCollectionService sdcDistrictCollectionService;
+  private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
   private final SdcDistrictCollectionValidator sdcDistrictCollectionValidator;
 
-  public SdcDistrictCollectionController(SdcDistrictCollectionService sdcDistrictCollectionService, SdcDistrictCollectionValidator sdcDistrictCollectionValidator) {
-    this.sdcDistrictCollectionService = sdcDistrictCollectionService;
-    this.sdcDistrictCollectionValidator = sdcDistrictCollectionValidator;
+  public SdcDistrictCollectionController(SdcDuplicatesService sdcDuplicatesService, SdcDistrictCollectionService sdcDistrictCollectionService, SdcDistrictCollectionValidator sdcDistrictCollectionValidator) {
+      this.sdcDuplicatesService = sdcDuplicatesService;
+      this.sdcDistrictCollectionService = sdcDistrictCollectionService;
+      this.sdcDistrictCollectionValidator = sdcDistrictCollectionValidator;
   }
 
   @Override
   public SdcDistrictCollection getDistrictCollection(UUID sdcDistrictCollectionID) {
     return mapper.toStructure(sdcDistrictCollectionService.getSdcDistrictCollection(sdcDistrictCollectionID));
+  }
+
+  @Override
+  public List<SdcDuplicate> getDistrictCollectionDuplicates(UUID sdcDistrictCollectionID) {
+    return this.sdcDuplicatesService.getAllInDistrictCollectionDuplicates(sdcDistrictCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
   }
 
   @Override

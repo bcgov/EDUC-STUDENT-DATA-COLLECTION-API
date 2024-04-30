@@ -43,7 +43,7 @@ public class CareerProgramCountRule implements ValidationBaseRule {
         log.debug("In executeValidation of CareerProgramCountRule-V59 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        final List<String> enrolledProgramCodes = validationRulesService.splitString(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
+        final List<String> enrolledProgramCodes = validationRulesService.splitEnrolledProgramsString(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
 
         if (EnrolledProgramCodes.getCareerProgramCodes().stream().filter(enrolledProgramCodes::contains).count() > 1) {
             log.debug("CareerProgramCountRule-V59: More than one career program reported for sdcSchoolCollectionStudentID:: {}" , studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());

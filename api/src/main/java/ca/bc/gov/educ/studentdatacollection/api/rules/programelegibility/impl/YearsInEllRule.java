@@ -41,7 +41,7 @@ public class YearsInEllRule implements ProgramEligibilityBaseRule {
 
     List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
     var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
-    List<String> studentPrograms = validationRulesService.splitString(student.getEnrolledProgramCodes());
+    List<String> studentPrograms = validationRulesService.splitEnrolledProgramsString(student.getEnrolledProgramCodes());
     log.debug("In executeValidation of ProgramEligibilityBaseRule - YearsInEllRule: Enrolled Program - {} for sdcSchoolCollectionStudentID :: {}", studentPrograms, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
     if(!studentPrograms.contains(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode())){

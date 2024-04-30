@@ -11,7 +11,6 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -55,7 +54,7 @@ public class SchoolAgedELLRule implements ValidationBaseRule {
 
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
-        List<String> studentPrograms = validationRulesService.splitString(student.getEnrolledProgramCodes());
+        List<String> studentPrograms = validationRulesService.splitEnrolledProgramsString(student.getEnrolledProgramCodes());
 
         log.debug("SchoolAgedELLRule-V78: Invalid age for English Language Learning for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         if (EnrolledProgramCodes.getELLCodes().stream().anyMatch(studentPrograms::contains) && DOBUtil.isAdult(student.getDob())
