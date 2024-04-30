@@ -15,7 +15,8 @@ public enum HeadcountReportTypeCodes {
     SPECIAL_ED("special-ed"),
     SPECIAL_ED_PER_SCHOOL("special-ed-per-school"),
     BAND_CODES("band-codes"),
-    GRADE_ENROLLMENT("grade-enrollment");
+    GRADE_ENROLLMENT("grade-enrollment"),
+    CAREER_PER_SCHOOL("career-per-school");
 
     private final String code;
     HeadcountReportTypeCodes(String code) { this.code = code; }

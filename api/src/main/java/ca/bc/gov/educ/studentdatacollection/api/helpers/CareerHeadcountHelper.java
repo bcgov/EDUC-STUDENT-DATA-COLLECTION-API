@@ -1,17 +1,22 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 
@@ -81,13 +86,21 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
   private static final String ALL_XF_KEY = "AllXF";
   private static final String ALL_XG_KEY = "AllXG";
   private static final String ALL_XH_KEY = "AllXH";
+  public static final String TITLE="title";
+  private final RestUtils restUtils;
+  protected Map<String, String> perSchoolRowTitles;
+  public static final String SCHOOL_NAME_KEY="schoolName";
+  public static final String SECTION="section";
+  private static final String TOTAL_TITLE = "Total";
 
-  public CareerHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
+  public CareerHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
     super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
+    this.restUtils = restUtils;
     headcountMethods = getHeadcountMethods();
     sectionTitles = getSelectionTitles();
     rowTitles = getRowTitles();
     gradeCodes = SchoolGradeCodes.get8PlusGradesNoGA();
+    perSchoolRowTitles = getPerSchoolReportRowTitles();
   }
   public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
     UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
@@ -299,5 +312,68 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
     rowTitles.put(ALL_XG_KEY, XG_CODE_TITLE);
     rowTitles.put(ALL_XH_KEY, XH_CODE_TITLE);
     return rowTitles;
+  }
+
+  private Map<String, String> getPerSchoolReportRowTitles() {
+    Map<String, String> rowTitles = new LinkedHashMap<>();
+    rowTitles.put(SCHOOL_NAME_KEY, null);
+    rowTitles.put(PREP_TOTAL_KEY, CAREER_PREPARATION_TITLE);
+    rowTitles.put(COOP_TOTAL_KEY, COOP_EDUCATION_TITLE);
+    rowTitles.put(TECH_YOUTH_TOTAL_KEY, TECH_YOUTH_TITLE);
+    rowTitles.put(APPRENTICE_TOTAL_KEY, APPRENTICESHIP_TITLE);
+    rowTitles.put(ALL_TOTAL_KEY, ALL_CAREER_PROGRAM_TITLE);
+    return rowTitles;
+  }
+
+  public HeadcountResultsTable convertCareerBySchoolHeadcountResults(List<CareerHeadcountResult> results) {
+    HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
+    List<String> columnTitles = new ArrayList<>(gradeCodes);
+    columnTitles.add(0, TITLE);
+    columnTitles.add(TOTAL_TITLE);
+    headcountResultsTable.setHeaders(columnTitles);
+    headcountResultsTable.setRows(new ArrayList<>());
+
+    List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
+
+    List<School> schools = results.stream()
+            .map(value ->  restUtils.getSchoolBySchoolID(value.getSchoolID()).orElseThrow(() ->
+                    new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", value.toString())
+            )).toList();
+
+    schools.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
+    headcountResultsTable.setRows(rows);
+    return headcountResultsTable;
+  }
+
+  public void createSectionsBySchool(List<Map<String, HeadcountHeaderColumn>> rows, List<CareerHeadcountResult> results, School school) {
+    for (Map.Entry<String, String> title : perSchoolRowTitles.entrySet()) {
+      Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
+
+      if (title.getKey().equals(SCHOOL_NAME_KEY)) {
+        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(school.getDisplayName()).build());
+      } else {
+        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
+      }
+
+      BigDecimal total = BigDecimal.ZERO;
+      Function<CareerHeadcountResult, String> headcountFunction = headcountMethods.get(title.getKey());
+      if (headcountFunction != null) {
+        for (String gradeCode : gradeCodes) {
+          var result = results.stream()
+                  .filter(value -> value.getEnrolledGradeCode().equals(gradeCode) && value.getSchoolID().equals(school.getSchoolId()))
+                  .findFirst()
+                  .orElse(null);
+          String headcount = "0";
+          if (result != null && result.getEnrolledGradeCode().equals(gradeCode)) {
+            headcount = headcountFunction.apply(result);
+          }
+          rowData.put(gradeCode, HeadcountHeaderColumn.builder().currentValue(headcount).build());
+          total = total.add(new BigDecimal(headcount));
+        }
+        rowData.put(TOTAL_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(total)).build());
+      }
+      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(school.getDisplayName()).build());
+      rows.add(rowData);
+    }
   }
 }
