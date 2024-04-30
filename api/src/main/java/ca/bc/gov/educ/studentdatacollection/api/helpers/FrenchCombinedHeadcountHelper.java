@@ -158,7 +158,7 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
         rowTitles.put(LATE_TOTAL_TITLE, LATE_FRENCH_TITLE);
         rowTitles.put(LATE_SCHOOL_AGE_TITLE, SCHOOL_AGED_TITLE);
         rowTitles.put(LATE_ADULT_TITLE, ADULT_TITLE);
-        rowTitles.put(FRANCO_TITLE, LATE_FRENCH_TITLE);
+        rowTitles.put(FRANCO_TOTAL_TITLE, FRANCO_TITLE);
         rowTitles.put(FRANCO_SCHOOL_AGE_TITLE, SCHOOL_AGED_TITLE);
         rowTitles.put(FRANCO_ADULT_TITLE, ADULT_TITLE);
         rowTitles.put(ALL_TOTAL_TITLE, TOTAL_FRENCH_TITLE);
