@@ -242,10 +242,10 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
 
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
 
-    List<String> schools = results.stream()
+    List<School> schools = results.stream()
             .map(value ->  restUtils.getSchoolBySchoolID(value.getSchoolID()).orElseThrow(() ->
                             new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", value.toString())
-            ).getDisplayName()).toList();
+            )).toList();
 
     schools.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
     createAllSchoolSection(rows, results);
@@ -253,12 +253,12 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
     return headcountResultsTable;
   }
 
-  public void createSectionsBySchool(List<Map<String, HeadcountHeaderColumn>> rows, List<EnrollmentHeadcountResult> results, String school) {
+  public void createSectionsBySchool(List<Map<String, HeadcountHeaderColumn>> rows, List<EnrollmentHeadcountResult> results, School school) {
     for (Map.Entry<String, String> title : perSchoolRowTitles.entrySet()) {
       Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
 
       if (title.getKey().equals(SCHOOL_NAME_KEY)) {
-        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(school).build());
+        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(school.getDisplayName()).build());
       } else {
         rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
       }
@@ -268,7 +268,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
       if (headcountFunction != null) {
         for (String gradeCode : gradeCodes) {
           var result = results.stream()
-                  .filter(value -> value.getEnrolledGradeCode().equals(gradeCode))
+                  .filter(value -> value.getEnrolledGradeCode().equals(gradeCode) && value.getSchoolID().equals(school.getSchoolId()))
                   .findFirst()
                   .orElse(null);
           String headcount = "0";
@@ -280,7 +280,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
         }
         rowData.put(TOTAL_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(total)).build());
       }
-      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(school).build());
+      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(school.getDisplayName()).build());
       rows.add(rowData);
     }
   }
