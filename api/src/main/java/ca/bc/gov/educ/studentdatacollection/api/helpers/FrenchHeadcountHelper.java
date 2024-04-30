@@ -23,6 +23,7 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
   private static final String CORE_FRENCH_TITLE = "Core French";
   private static final String EARLY_FRENCH_TITLE = "Early French Immersion";
   private static final String LATE_FRENCH_TITLE = "Late French Immersion";
+  private static final String FRANCO_TITLE = "Programme Francophone";
   private static final String TOTAL_FRENCH_TITLE = "All French Programs";
   private static final String ADULT_TITLE = "Adult";
   private static final String SCHOOL_AGED_TITLE = "School-Aged";
@@ -39,6 +40,9 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
   private static final String LATE_TOTAL_TITLE = "totalLateFrench";
   private static final String LATE_SCHOOL_AGE_TITLE = "schoolAgedLateFrench";
   private static final String LATE_ADULT_TITLE = "adultLateFrench";
+  private static final String FRANCO_TOTAL_TITLE = "totalFrancophone";
+  private static final String FRANCO_SCHOOL_AGE_TITLE = "schoolAgedFrancophone";
+  private static final String FRANCO_ADULT_TITLE = "adultFrancophone";
   private static final String ALL_TOTAL_TITLE = "allTotal";
   private static final String ALL_SCHOOL_AGE_TITLE = "allSchoolAged";
   private static final String ALL_ADULT_TITLE = "allAdult";
@@ -54,6 +58,10 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
     gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
   }
 
+  public void setDistrict(Boolean val) {
+    isDistrict = val;
+  }
+
   public void setGradeCodes(Optional<School> school) {
     if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))) {
       gradeCodes = SchoolGradeCodes.getIndependentKtoGAGrades();
@@ -64,7 +72,7 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
 
   public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
     UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
-    List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, false);
+    List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 
@@ -75,12 +83,16 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
     setResultsTableComparisonValues(collectionData, previousCollectionData);
   }
 
-  public List<HeadcountHeader> getHeaders(UUID sdcCollectionID, Boolean isDistrict) {
+  public List<HeadcountHeader> getHeaders(UUID sdcCollectionID) {
     FrenchHeadcountHeaderResult result = Boolean.TRUE.equals(isDistrict)
             ? sdcSchoolCollectionStudentRepository.getFrenchHeadersByDistrictId(sdcCollectionID)
             : sdcSchoolCollectionStudentRepository.getFrenchHeadersBySchoolId(sdcCollectionID);
     List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
-    Arrays.asList(CORE_FRENCH_TITLE, EARLY_FRENCH_TITLE, LATE_FRENCH_TITLE).forEach(headerTitle -> {
+    List<String> headerTitles = new ArrayList<>(Arrays.asList(CORE_FRENCH_TITLE, EARLY_FRENCH_TITLE, LATE_FRENCH_TITLE));
+    if (Boolean.TRUE.equals(isDistrict)) {
+      headerTitles.add(FRANCO_TITLE);
+    }
+    headerTitles.forEach(headerTitle -> {
       HeadcountHeader headcountHeader = new HeadcountHeader();
       headcountHeader.setColumns(new HashMap<>());
       headcountHeader.setTitle(headerTitle);
@@ -100,6 +112,11 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
           headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getTotalLateFrench()).build());
           headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedLateFrench()).build());
           headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedLateFrench()))).build());
+        }
+        case FRANCO_TITLE -> {
+          headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getTotalFrancophone()).build());
+          headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedFrancophone()).build());
+          headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedFrancophone()))).build());
         }
         default -> {
           log.error("Unexpected header title.  This cannot happen::" + headerTitle);
@@ -123,6 +140,11 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
     headcountMethods.put(LATE_TOTAL_TITLE, FrenchHeadcountResult::getTotalLateFrench);
     headcountMethods.put(LATE_SCHOOL_AGE_TITLE, FrenchHeadcountResult::getSchoolAgedLateFrench);
     headcountMethods.put(LATE_ADULT_TITLE, FrenchHeadcountResult::getAdultLateFrench);
+    if (Boolean.TRUE.equals(isDistrict)) {
+      headcountMethods.put(FRANCO_TOTAL_TITLE, FrenchHeadcountResult::getTotalFrancophone);
+      headcountMethods.put(FRANCO_SCHOOL_AGE_TITLE, FrenchHeadcountResult::getSchoolAgedFrancophone);
+      headcountMethods.put(FRANCO_ADULT_TITLE, FrenchHeadcountResult::getAdultFrancophone);
+    }
     headcountMethods.put(ALL_TOTAL_TITLE, FrenchHeadcountResult::getTotalTotals);
     headcountMethods.put(ALL_SCHOOL_AGE_TITLE, FrenchHeadcountResult::getSchoolAgedTotals);
     headcountMethods.put(ALL_ADULT_TITLE, FrenchHeadcountResult::getAdultTotals);
@@ -139,6 +161,11 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
     sectionTitles.put(LATE_TOTAL_TITLE, LATE_FRENCH_TITLE);
     sectionTitles.put(LATE_SCHOOL_AGE_TITLE, LATE_FRENCH_TITLE);
     sectionTitles.put(LATE_ADULT_TITLE, LATE_FRENCH_TITLE);
+    if (Boolean.TRUE.equals(isDistrict)) {
+      sectionTitles.put(FRANCO_TOTAL_TITLE, FRANCO_TITLE);
+      sectionTitles.put(FRANCO_SCHOOL_AGE_TITLE, FRANCO_TITLE);
+      sectionTitles.put(FRANCO_ADULT_TITLE, FRANCO_TITLE);
+    }
     sectionTitles.put(ALL_TOTAL_TITLE, TOTAL_FRENCH_TITLE);
     sectionTitles.put(ALL_SCHOOL_AGE_TITLE, TOTAL_FRENCH_TITLE);
     sectionTitles.put(ALL_ADULT_TITLE, TOTAL_FRENCH_TITLE);
@@ -155,6 +182,11 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
     rowTitles.put(LATE_TOTAL_TITLE, LATE_FRENCH_TITLE);
     rowTitles.put(LATE_SCHOOL_AGE_TITLE, SCHOOL_AGED_TITLE);
     rowTitles.put(LATE_ADULT_TITLE, ADULT_TITLE);
+    if (Boolean.TRUE.equals(isDistrict)) {
+      rowTitles.put(FRANCO_TITLE, LATE_FRENCH_TITLE);
+      rowTitles.put(FRANCO_SCHOOL_AGE_TITLE, SCHOOL_AGED_TITLE);
+      rowTitles.put(FRANCO_ADULT_TITLE, ADULT_TITLE);
+    }
     rowTitles.put(ALL_TOTAL_TITLE, TOTAL_FRENCH_TITLE);
     rowTitles.put(ALL_SCHOOL_AGE_TITLE, SCHOOL_AGED_TITLE);
     rowTitles.put(ALL_ADULT_TITLE, ADULT_TITLE);

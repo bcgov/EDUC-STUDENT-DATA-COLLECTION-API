@@ -64,7 +64,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
       List<FrenchHeadcountResult> collectionRawData;
       frenchHeadcountHelper.setGradeCodes(school);
       collectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
-      headcountHeaderList = frenchHeadcountHelper.getHeaders(sdcSchoolCollectionID, false);
+      headcountHeaderList = frenchHeadcountHelper.getHeaders(sdcSchoolCollectionID);
       collectionData = frenchHeadcountHelper.convertHeadcountResults(collectionRawData);
       if(compare) {
         frenchHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);

@@ -2836,6 +2836,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andExpect(jsonPath("$.headcountHeaders[1].columns.['Not Reported'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[2].title", equalTo("Late French Immersion")))
                 .andExpect(jsonPath("$.headcountHeaders[2].columns.['Eligible'].currentValue", equalTo("0")))
-                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Not Reported'].currentValue", equalTo("0")));
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Not Reported'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[3].title", equalTo("Programme Francophone")))
+                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Not Reported'].currentValue", equalTo("0")));
     }
 }

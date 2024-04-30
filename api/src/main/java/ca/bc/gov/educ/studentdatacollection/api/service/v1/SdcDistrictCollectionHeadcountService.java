@@ -77,7 +77,8 @@ public class SdcDistrictCollectionHeadcountService {
 
     List<FrenchHeadcountResult> collectionRawData;
     collectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionID);
-    headcountHeaderList = frenchHeadcountHelper.getHeaders(sdcDistrictCollectionID, true);
+    frenchHeadcountHelper.setDistrict(true);
+    headcountHeaderList = frenchHeadcountHelper.getHeaders(sdcDistrictCollectionID);
     collectionData = frenchHeadcountHelper.convertHeadcountResults(collectionRawData);
 
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();

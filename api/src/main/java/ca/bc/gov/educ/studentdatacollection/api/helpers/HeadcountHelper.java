@@ -28,6 +28,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
   protected Map<String, String> sectionTitles;
   protected Map<String, String> rowTitles;
   protected List<String> gradeCodes;
+  protected Boolean isDistrict = false;
 
   public HeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
       this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;

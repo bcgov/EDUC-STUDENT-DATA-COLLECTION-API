@@ -11,6 +11,9 @@ public interface FrenchHeadcountResult extends HeadcountResult {
     String getAdultLateFrench();
     String getTotalLateFrench();
     String getSchoolAgedTotals();
+    String getSchoolAgedFrancophone();
+    String getAdultFrancophone();
+    String getTotalFrancophone();
     String getAdultTotals();
     String getTotalTotals();
 }
