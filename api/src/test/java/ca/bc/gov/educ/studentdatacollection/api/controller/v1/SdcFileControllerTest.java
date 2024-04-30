@@ -250,7 +250,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
   }
 
-  //@Test
+  @Test
   void testProcessSdcFNCharsFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
