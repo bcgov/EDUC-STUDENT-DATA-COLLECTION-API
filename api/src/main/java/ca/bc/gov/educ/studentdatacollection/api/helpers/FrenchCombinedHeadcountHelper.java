@@ -69,8 +69,8 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
         setResultsTableComparisonValues(collectionData, previousCollectionData);
     }
 
-    public List<HeadcountHeader> getHeaders(UUID sdcCollectionID) {
-        FrenchCombinedHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getFrenchHeadersByDistrictId(sdcCollectionID);
+    public List<HeadcountHeader> getHeaders(UUID sdcDistrictCollectionID) {
+        FrenchCombinedHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getFrenchHeadersByDistrictId(sdcDistrictCollectionID);
         List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
         Arrays.asList(CORE_FRENCH_TITLE, EARLY_FRENCH_TITLE, LATE_FRENCH_TITLE, FRANCO_TITLE).forEach(headerTitle -> {
             HeadcountHeader headcountHeader = new HeadcountHeader();

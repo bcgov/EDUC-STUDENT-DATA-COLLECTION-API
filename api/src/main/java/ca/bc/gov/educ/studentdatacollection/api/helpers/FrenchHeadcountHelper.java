@@ -49,6 +49,7 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
     sectionTitles = getSelectionTitles();
     rowTitles = getRowTitles();
   }
+
   public void setGradeCodes(Optional<School> school) {
     if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))) {
       gradeCodes = SchoolGradeCodes.getIndependentKtoGAGrades();
@@ -70,8 +71,8 @@ public class FrenchHeadcountHelper extends HeadcountHelper<FrenchHeadcountResult
     setResultsTableComparisonValues(collectionData, previousCollectionData);
   }
 
-  public List<HeadcountHeader> getHeaders(UUID sdcCollectionID) {
-    FrenchHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getFrenchHeadersBySchoolId(sdcCollectionID);
+  public List<HeadcountHeader> getHeaders(UUID sdcSchoolCollectionID) {
+    FrenchHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getFrenchHeadersBySchoolId(sdcSchoolCollectionID);
     List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
     Arrays.asList(CORE_FRENCH_TITLE, EARLY_FRENCH_TITLE, LATE_FRENCH_TITLE).forEach(headerTitle -> {
       HeadcountHeader headcountHeader = new HeadcountHeader();
