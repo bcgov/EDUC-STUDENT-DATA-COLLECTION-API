@@ -39,7 +39,7 @@ public class FrenchStudentsMustBeEnrolledRule implements ProgramEligibilityBaseR
     log.debug("In executeValidation of ProgramEligibilityBaseRule - FrenchStudentsMustBeEnrolledRule for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
     List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
-    List<String> studentPrograms = validationRulesService.splitString(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
+    List<String> studentPrograms = validationRulesService.splitEnrolledProgramsString(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
 
     log.debug("ProgramEligibilityBaseRule - FrenchStudentsMustBeEnrolledRule: Enrolled Programs - {} for sdcSchoolCollectionStudentID :: {}", studentPrograms, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
     if (EnrolledProgramCodes.getFrenchProgramCodes().stream().noneMatch(studentPrograms::contains)) {

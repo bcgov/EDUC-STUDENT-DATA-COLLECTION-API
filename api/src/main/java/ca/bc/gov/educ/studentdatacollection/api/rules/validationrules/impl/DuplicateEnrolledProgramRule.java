@@ -45,7 +45,7 @@ public class DuplicateEnrolledProgramRule implements ValidationBaseRule {
         log.debug("In executeValidation of DuplicateEnrolledProgramRule-V75 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        List<String> enrolledProgramCodesList = validationRulesService.splitString(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
+        List<String> enrolledProgramCodesList = validationRulesService.splitEnrolledProgramsString(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
         Set<String> enrolledProgramCodesSet = new HashSet<>(enrolledProgramCodesList);
         if (enrolledProgramCodesList.size() > enrolledProgramCodesSet.size()) {
             log.debug("DuplicateEnrolledProgramRule-V75: Duplicate enrolled program code found {} for sdcSchoolCollectionStudentID:: {}" , studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());

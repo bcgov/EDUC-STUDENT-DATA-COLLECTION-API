@@ -43,7 +43,7 @@ public class IndigenousSupportProgramsRule implements ProgramEligibilityBaseRule
     List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
     var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
-    List<String> studentPrograms = validationRulesService.splitString(student.getEnrolledProgramCodes());
+    List<String> studentPrograms = validationRulesService.splitEnrolledProgramsString(student.getEnrolledProgramCodes());
     String ancestryData = student.getNativeAncestryInd();
 
     log.debug("ProgramEligibilityBaseRule - IndigenousSupportProgramsRule: Enrolled Programs - {} - school -{} for sdcSchoolCollectionStudentID :: {}", studentPrograms, studentRuleData.getSchool(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());

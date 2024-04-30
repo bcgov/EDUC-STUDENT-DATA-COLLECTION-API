@@ -243,8 +243,8 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     sdcSchoolCollectionStudentRepository.save(student2);
 
     this.mockMvc.perform(
-                    get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcSchoolCollectionEntity.getSdcSchoolCollectionID()
-                            + "/duplicates").with(mockAuthority))
+            get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcSchoolCollectionEntity.getSdcSchoolCollectionID()
+                    + "/duplicates").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
   }
 
