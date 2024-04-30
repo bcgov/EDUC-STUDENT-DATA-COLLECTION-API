@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts;
 
-public interface FrenchHeadcountResult extends HeadcountResult {
+public interface FrenchCombinedHeadcountResult extends HeadcountResult {
     String getSchoolAgedCoreFrench();
     String getAdultCoreFrench();
     String getTotalCoreFrench();
@@ -11,6 +11,9 @@ public interface FrenchHeadcountResult extends HeadcountResult {
     String getAdultLateFrench();
     String getTotalLateFrench();
     String getSchoolAgedTotals();
+    String getSchoolAgedFrancophone();
+    String getAdultFrancophone();
+    String getTotalFrancophone();
     String getAdultTotals();
     String getTotalTotals();
 }

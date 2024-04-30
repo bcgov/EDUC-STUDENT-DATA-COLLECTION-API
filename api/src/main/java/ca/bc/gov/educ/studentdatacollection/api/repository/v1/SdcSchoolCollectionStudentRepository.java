@@ -158,7 +158,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "s.enrolledGradeCode AS enrolledGradeCode, " +
           "COUNT(DISTINCT CASE WHEN s.isSchoolAged = true AND s.frenchProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '05' THEN s.sdcSchoolCollectionStudentID END) AS schoolAgedFrancophone, " +
           "COUNT(DISTINCT CASE WHEN s.isAdult = true AND s.frenchProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '05' THEN s.sdcSchoolCollectionStudentID END) AS adultFrancophone, " +
-          "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '05' AND s.frenchProgramNonEligReasonCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS totalCoreFrench, " +
+          "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '05' AND s.frenchProgramNonEligReasonCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS totalFrancophone, " +
           "COUNT(DISTINCT CASE WHEN s.isSchoolAged = true AND s.frenchProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '08' THEN s.sdcSchoolCollectionStudentID END) AS schoolAgedCoreFrench, " +
           "COUNT(DISTINCT CASE WHEN s.isAdult = true AND s.frenchProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '08' THEN s.sdcSchoolCollectionStudentID END) AS adultCoreFrench, " +
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '08' AND s.frenchProgramNonEligReasonCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS totalCoreFrench, " +
@@ -177,7 +177,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           "GROUP BY s.enrolledGradeCode " +
           "ORDER BY s.enrolledGradeCode")
-  List<FrenchHeadcountResult> getFrenchHeadcountsBySdcDistrictCollectionId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
+  List<FrenchCombinedHeadcountResult> getFrenchHeadcountsBySdcDistrictCollectionId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @Query("SELECT " +
           "s.enrolledGradeCode AS enrolledGradeCode, " +
@@ -256,7 +256,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "FROM SdcSchoolCollectionStudentEntity s " +
           "JOIN s.sdcStudentEnrolledProgramEntities ep " +
           "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID")
-  FrenchHeadcountHeaderResult getFrenchHeadersByDistrictId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
+  FrenchCombinedHeadcountHeaderResult getFrenchHeadersByDistrictId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @Query("SELECT " +
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '40' AND s.careerProgramNonEligReasonCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS eligCareerPrep, " +

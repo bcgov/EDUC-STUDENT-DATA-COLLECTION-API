@@ -20,7 +20,7 @@ public class SdcDistrictCollectionHeadcountService {
   private final EnrollmentHeadcountHelper enrollmentHeadcountHelper;
   private final SpecialEdHeadcountHelper specialEdHeadcountHelper;
   private final CareerHeadcountHelper careerHeadcountHelper;
-  private final FrenchHeadcountHelper frenchHeadcountHelper;
+  private final FrenchCombinedHeadcountHelper frenchCombinedHeadcountHelper;
 
   public SdcSchoolCollectionStudentHeadcounts getEnrollmentHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
     var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
@@ -74,16 +74,15 @@ public class SdcDistrictCollectionHeadcountService {
   }
   public SdcSchoolCollectionStudentHeadcounts getFrenchHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
     var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
-    frenchHeadcountHelper.setGradeCodesForDistricts();
+    frenchCombinedHeadcountHelper.setGradeCodesForDistricts();
 
     List<HeadcountHeader> headcountHeaderList;
     HeadcountResultsTable collectionData;
 
-    List<FrenchHeadcountResult> collectionRawData;
+    List<FrenchCombinedHeadcountResult> collectionRawData;
     collectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionID);
-    frenchHeadcountHelper.setDistrict(true);
-    headcountHeaderList = frenchHeadcountHelper.getHeaders(sdcDistrictCollectionID);
-    collectionData = frenchHeadcountHelper.convertHeadcountResults(collectionRawData);
+    headcountHeaderList = frenchCombinedHeadcountHelper.getHeaders(sdcDistrictCollectionID);
+    collectionData = frenchCombinedHeadcountHelper.convertHeadcountResults(collectionRawData);
 
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
   }
