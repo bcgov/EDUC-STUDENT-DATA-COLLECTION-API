@@ -75,7 +75,7 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
         setResultsTableComparisonValues(collectionData, previousCollectionData);
     }
 
-    public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(List<SpecialEdHeadcountResult> results) throws EntityNotFoundException {
+    public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(List<FrenchCombinedHeadcountResult> results) throws EntityNotFoundException {
         HeadcountResultsTable table = new HeadcountResultsTable();
         List<String> headers = new ArrayList<>();
         headers.add(SCHOOL_NAME);
@@ -85,7 +85,7 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
         Map<String, String> schoolNames = new HashMap<>();
 
         // Collect all grades and initialize school-grade map
-        for (SpecialEdHeadcountResult result : results) {
+        for (FrenchCombinedHeadcountResult result : results) {
             grades.add(result.getEnrolledGradeCode());
             schoolGradeCounts.computeIfAbsent(result.getSchoolID(), k -> new HashMap<>());
             schoolNames.putIfAbsent(result.getSchoolID(),
@@ -109,7 +109,7 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
         table.setHeaders(headers);
 
         // Populate counts for each school and grade
-        for (SpecialEdHeadcountResult result : results) {
+        for (FrenchCombinedHeadcountResult result : results) {
             Map<String, Integer> gradeCounts = schoolGradeCounts.get(result.getSchoolID());
             String grade = result.getEnrolledGradeCode();
             int count = getCountFromResult(result);
@@ -137,9 +137,9 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
     }
 
 
-    private int getCountFromResult(SpecialEdHeadcountResult result) {
+    private int getCountFromResult(FrenchCombinedHeadcountResult result) {
         try {
-            return Integer.parseInt(result.getAllLevels());
+            return Integer.parseInt(result.getTotalTotals());
         } catch (NumberFormatException e) {
             log.error("Error parsing count from result for SchoolID {}: {}", result.getSchoolID(), e.getMessage());
             return 0;

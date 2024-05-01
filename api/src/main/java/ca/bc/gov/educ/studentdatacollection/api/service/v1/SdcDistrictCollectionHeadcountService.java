@@ -79,8 +79,8 @@ public class SdcDistrictCollectionHeadcountService {
 
     List<HeadcountHeader> headcountHeaderList;
     HeadcountResultsTable collectionData;
-
     List<FrenchCombinedHeadcountResult> collectionRawData;
+
     collectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionID);
     headcountHeaderList = frenchCombinedHeadcountHelper.getHeaders(sdcDistrictCollectionID);
     collectionData = frenchCombinedHeadcountHelper.convertHeadcountResults(collectionRawData);
@@ -94,11 +94,11 @@ public class SdcDistrictCollectionHeadcountService {
 
     List<HeadcountHeader> headcountHeaderList;
     HeadcountResultsTable collectionData;
-
     List<FrenchCombinedHeadcountResult> collectionRawData;
-    collectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionID);
+
+    collectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionID);
     headcountHeaderList = frenchCombinedHeadcountHelper.getHeaders(sdcDistrictCollectionID);
-    collectionData = frenchCombinedHeadcountHelper.convertHeadcountResults(collectionRawData);
+    collectionData = frenchCombinedHeadcountHelper.convertHeadcountResultsToSchoolGradeTable(collectionRawData);
 
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
   }
