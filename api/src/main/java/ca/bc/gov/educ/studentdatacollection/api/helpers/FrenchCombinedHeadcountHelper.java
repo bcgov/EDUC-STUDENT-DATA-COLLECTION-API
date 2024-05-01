@@ -1,11 +1,14 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -44,9 +47,12 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
     private static final String ALL_TOTAL_TITLE = "allTotal";
     private static final String ALL_SCHOOL_AGE_TITLE = "allSchoolAged";
     private static final String ALL_ADULT_TITLE = "allAdult";
+    private static final String SCHOOL_NAME = "School Name";
+    private final RestUtils restUtils;
 
-    public FrenchCombinedHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
+    public FrenchCombinedHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
         super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
+        this.restUtils = restUtils;
         headcountMethods = getHeadcountMethods();
         sectionTitles = getSelectionTitles();
         rowTitles = getRowTitles();
@@ -67,6 +73,77 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
         List<FrenchCombinedHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionId(previousCollectionID);
         HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
         setResultsTableComparisonValues(collectionData, previousCollectionData);
+    }
+
+    public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(List<SpecialEdHeadcountResult> results) throws EntityNotFoundException {
+        HeadcountResultsTable table = new HeadcountResultsTable();
+        List<String> headers = new ArrayList<>();
+        headers.add(SCHOOL_NAME);
+        Set<String> grades = new HashSet<>();
+        Map<String, Map<String, Integer>> schoolGradeCounts = new HashMap<>();
+        Map<String, Integer> totalCounts = new HashMap<>();
+        Map<String, String> schoolNames = new HashMap<>();
+
+        // Collect all grades and initialize school-grade map
+        for (SpecialEdHeadcountResult result : results) {
+            grades.add(result.getEnrolledGradeCode());
+            schoolGradeCounts.computeIfAbsent(result.getSchoolID(), k -> new HashMap<>());
+            schoolNames.putIfAbsent(result.getSchoolID(),
+                    restUtils.getSchoolBySchoolID(result.getSchoolID())
+                            .map(School::getDisplayName)
+                            .orElseThrow(EntityNotFoundException::new));
+        }
+
+        // Initialize totals for each grade
+        for (String grade : gradeCodes) {
+            totalCounts.put(grade, 0);
+            for (Map<String, Integer> school : schoolGradeCounts.values()) {
+                school.putIfAbsent(grade, 0);
+            }
+        }
+
+        // Sort grades and add to headers
+        List<String> sortedGrades = new ArrayList<>(grades);
+        Collections.sort(sortedGrades);
+        headers.addAll(sortedGrades);
+        table.setHeaders(headers);
+
+        // Populate counts for each school and grade
+        for (SpecialEdHeadcountResult result : results) {
+            Map<String, Integer> gradeCounts = schoolGradeCounts.get(result.getSchoolID());
+            String grade = result.getEnrolledGradeCode();
+            int count = getCountFromResult(result);
+            gradeCounts.merge(grade, count, Integer::sum);
+            totalCounts.merge(grade, count, Integer::sum);
+        }
+
+        // Create rows for the table, including school names
+        List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
+        schoolGradeCounts.forEach((schoolID, gradesCount) -> {
+            Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
+            rowData.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue(schoolNames.get(schoolID)).build());
+            gradesCount.forEach((grade, count) -> rowData.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
+            rows.add(rowData);
+        });
+
+        // Add total row at the end
+        Map<String, HeadcountHeaderColumn> totalRow = new LinkedHashMap<>();
+        totalRow.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue("Total").build());
+        totalCounts.forEach((grade, count) -> totalRow.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
+        rows.add(totalRow);
+
+        table.setRows(rows);
+        return table;
+    }
+
+
+    private int getCountFromResult(SpecialEdHeadcountResult result) {
+        try {
+            return Integer.parseInt(result.getAllLevels());
+        } catch (NumberFormatException e) {
+            log.error("Error parsing count from result for SchoolID {}: {}", result.getSchoolID(), e.getMessage());
+            return 0;
+        }
     }
 
     public List<HeadcountHeader> getHeaders(UUID sdcDistrictCollectionID) {
