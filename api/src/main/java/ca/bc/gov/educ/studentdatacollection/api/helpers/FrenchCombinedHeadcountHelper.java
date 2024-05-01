@@ -47,7 +47,6 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
     private static final String ALL_TOTAL_TITLE = "allTotal";
     private static final String ALL_SCHOOL_AGE_TITLE = "allSchoolAged";
     private static final String ALL_ADULT_TITLE = "allAdult";
-    private static final String SCHOOL_NAME = "School Name";
     private static final String ALL_SCHOOLS = "All Schools";
     private static final String SECTION = "section";
     private static final String TITLE = "title";
@@ -82,7 +81,6 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
     public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(List<FrenchCombinedHeadcountResult> results) throws EntityNotFoundException {
         HeadcountResultsTable table = new HeadcountResultsTable();
         List<String> headers = new ArrayList<>();
-        headers.add(SCHOOL_NAME);
         Set<String> grades = new HashSet<>();
         Map<String, Map<String, Integer>> schoolGradeCounts = new HashMap<>();
         Map<String, Integer> totalCounts = new HashMap<>();
