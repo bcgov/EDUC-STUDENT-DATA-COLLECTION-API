@@ -113,25 +113,11 @@ curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scope
   -d "{\"description\": \"Read Student Data Collection School Collection Students\",\"id\": \"READ_SDC_SCHOOL_COLLECTION_STUDENT\",\"name\": \"READ_SDC_SCHOOL_COLLECTION_STUDENT\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
 
 echo
-echo Writing scope READ_SCHOOL_FUNDING_GROUP
+echo Writing scope READ_SCHOOL_FUNDING_GROUP_SNAPSHOT
 curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TKN" \
-  -d "{\"description\": \"Read Independent School Funding Group\",\"id\": \"READ_SCHOOL_FUNDING_GROUP\",\"name\": \"READ_SCHOOL_FUNDING_GROUP\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
-
-echo
-echo Writing scope WRITE_SCHOOL_FUNDING_GROUP
-curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TKN" \
-  -d "{\"description\": \"Write Independent School Funding Group\",\"id\": \"WRITE_SCHOOL_FUNDING_GROUP\",\"name\": \"WRITE_SCHOOL_FUNDING_GROUP\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
-
-echo
-echo Delete scope DELETE_SCHOOL_FUNDING_GROUP
-curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TKN" \
-  -d "{\"description\": \"Delete Independent School Funding Group\",\"id\": \"DELETE_SCHOOL_FUNDING_GROUP\",\"name\": \"DELETE_SCHOOL_FUNDING_GROUP\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
+  -d "{\"description\": \"Read Independent School Funding Group Snapshot\",\"id\": \"READ_SCHOOL_FUNDING_GROUP_SNAPSHOT\",\"name\": \"READ_SCHOOL_FUNDING_GROUP_SNAPSHOT\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
 
 echo
 echo Writing scope WRITE_SDC_SCHOOL_COLLECTION_STUDENT

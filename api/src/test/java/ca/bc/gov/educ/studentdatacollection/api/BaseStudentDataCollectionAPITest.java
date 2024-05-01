@@ -135,18 +135,6 @@ public abstract class BaseStudentDataCollectionAPITest {
             .closeDate(LocalDateTime.now().plusMonths(1)).createUser("TEST").snapshotDate(LocalDate.now()).updateUser("TEST").build();
   }
 
-  public IndependentSchoolFundingGroupEntity createMockIndependentSchoolFundingGroupEntity(UUID schoolID){
-    IndependentSchoolFundingGroupEntity independentSchoolFundingGroupEntity = new IndependentSchoolFundingGroupEntity();
-    independentSchoolFundingGroupEntity.setSchoolID(schoolID);
-    independentSchoolFundingGroupEntity.setSchoolFundingGroupCode("GROUP1");
-    independentSchoolFundingGroupEntity.setSchoolGradeCode("GRADE01");
-    independentSchoolFundingGroupEntity.setCreateUser("ABC");
-    independentSchoolFundingGroupEntity.setCreateDate(LocalDateTime.now());
-    independentSchoolFundingGroupEntity.setUpdateUser("ABC");
-    independentSchoolFundingGroupEntity.setUpdateDate(LocalDateTime.now());
-    return independentSchoolFundingGroupEntity;
-  }
-
   public IndependentSchoolFundingGroupSnapshotEntity createMockIndependentSchoolFundingGroupSnapshotEntity(UUID schoolID, UUID collectionID){
     IndependentSchoolFundingGroupSnapshotEntity independentSchoolFundingGroupEntity = new IndependentSchoolFundingGroupSnapshotEntity();
     independentSchoolFundingGroupEntity.setSchoolID(schoolID);

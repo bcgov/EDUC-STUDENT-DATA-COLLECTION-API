@@ -12,7 +12,7 @@ public final class URL {
   public static final String BASE_URL_SCHOOL_COLLECTION="/api/v1/student-data-collection/sdcSchoolCollection";
   public static final String BASE_URL_SCHOOL_COLLECTION_STUDENT="/api/v1/student-data-collection/sdcSchoolCollectionStudent";
   public static final String BASE_URL_REPORT_GENERATION="/api/v1/student-data-collection/reportGeneration";
-  public static final String BASE_URL_SCHOOL_FUNDING="/api/v1/student-data-collection/schoolFundingGroup";
+  public static final String BASE_URL_SCHOOL_FUNDING="/api/v1/student-data-collection/schoolFundingGroupSnapshot";
   public static final String ENROLLED_PROGRAM_CODES="/enrolled-program-codes";
   public static final String CAREER_PROGRAM_CODES="/career-program-codes";
   public static final String HOME_LANGUAGE_SPOKEN_CODES="/home-language-codes";
