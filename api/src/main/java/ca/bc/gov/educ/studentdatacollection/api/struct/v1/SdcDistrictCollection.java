@@ -34,6 +34,8 @@ public class SdcDistrictCollection extends BaseRequest {
 
   private String collectionOpenDate;
 
+  private String collectionCloseDate;
+
   private String submissionDueDate;
 
 }
