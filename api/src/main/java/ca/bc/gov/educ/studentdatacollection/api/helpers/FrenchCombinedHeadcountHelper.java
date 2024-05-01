@@ -8,7 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollect
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +48,10 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
     private static final String ALL_SCHOOL_AGE_TITLE = "allSchoolAged";
     private static final String ALL_ADULT_TITLE = "allAdult";
     private static final String SCHOOL_NAME = "School Name";
+    private static final String ALL_SCHOOLS = "All Schools";
+    private static final String SECTION = "section";
+    private static final String TITLE = "title";
+    private static final String TOTAL = "Total";
     private final RestUtils restUtils;
 
     public FrenchCombinedHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
@@ -82,55 +86,62 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
         Set<String> grades = new HashSet<>();
         Map<String, Map<String, Integer>> schoolGradeCounts = new HashMap<>();
         Map<String, Integer> totalCounts = new HashMap<>();
-        Map<String, String> schoolNames = new HashMap<>();
+        Map<String, String> schoolDetails  = new HashMap<>();
 
         // Collect all grades and initialize school-grade map
         for (FrenchCombinedHeadcountResult result : results) {
             grades.add(result.getEnrolledGradeCode());
             schoolGradeCounts.computeIfAbsent(result.getSchoolID(), k -> new HashMap<>());
-            schoolNames.putIfAbsent(result.getSchoolID(),
+            schoolDetails .putIfAbsent(result.getSchoolID(),
                     restUtils.getSchoolBySchoolID(result.getSchoolID())
-                            .map(School::getDisplayName)
-                            .orElseThrow(EntityNotFoundException::new));
+                            .map(school -> school.getMincode() + " - " + school.getDisplayName())
+                            .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", result.getSchoolID())));
         }
 
         // Initialize totals for each grade
         for (String grade : gradeCodes) {
             totalCounts.put(grade, 0);
-            for (Map<String, Integer> school : schoolGradeCounts.values()) {
-                school.putIfAbsent(grade, 0);
-            }
+            schoolGradeCounts.values().forEach(school -> school.putIfAbsent(grade, 0));
         }
 
         // Sort grades and add to headers
         List<String> sortedGrades = new ArrayList<>(grades);
         Collections.sort(sortedGrades);
+        headers.add(TITLE);
         headers.addAll(sortedGrades);
+        headers.add(TOTAL);
         table.setHeaders(headers);
 
         // Populate counts for each school and grade
+        Map<String, Integer> schoolTotals = new HashMap<>();
         for (FrenchCombinedHeadcountResult result : results) {
             Map<String, Integer> gradeCounts = schoolGradeCounts.get(result.getSchoolID());
             String grade = result.getEnrolledGradeCode();
             int count = getCountFromResult(result);
             gradeCounts.merge(grade, count, Integer::sum);
             totalCounts.merge(grade, count, Integer::sum);
+            schoolTotals.merge(result.getSchoolID(), count, Integer::sum);
         }
 
-        // Create rows for the table, including school names
         List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
+
+        // Add all schools row at the start
+        Map<String, HeadcountHeaderColumn> totalRow = new LinkedHashMap<>();
+        totalRow.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+        totalRow.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+        totalCounts.forEach((grade, count) -> totalRow.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
+        totalRow.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotals.values().stream().mapToInt(Integer::intValue).sum())).build());
+        rows.add(totalRow);
+
+        // Create rows for the table, including school names
         schoolGradeCounts.forEach((schoolID, gradesCount) -> {
             Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
-            rowData.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue(schoolNames.get(schoolID)).build());
+            rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(schoolDetails.get(schoolID)).build());
+            rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
             gradesCount.forEach((grade, count) -> rowData.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
+            rowData.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotals.get(schoolID))).build());
             rows.add(rowData);
         });
-
-        // Add total row at the end
-        Map<String, HeadcountHeaderColumn> totalRow = new LinkedHashMap<>();
-        totalRow.put(SCHOOL_NAME, HeadcountHeaderColumn.builder().currentValue("Total").build());
-        totalCounts.forEach((grade, count) -> totalRow.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
-        rows.add(totalRow);
 
         table.setRows(rows);
         return table;
