@@ -8,9 +8,14 @@ public enum SdcDistrictCollectionStatus {
 
   LOADED("LOADED"),
 
-  COMPLETED("COMPLETED"),
+  REVIEWED("REVIEWED"),
 
-  REVIEWED("REVIEWED");
+  VERIFIED("VERIFIED"),
+
+  D_DUP_VRFD("D_DUP_VRFD"),
+
+  COMPLETED("COMPLETED");
+
 
   @Getter
   private final String code;
