@@ -9,6 +9,7 @@ import lombok.Getter;
 public enum HeadcountReportTypeCodes {
     ENROLLMENT("enrollment"),
     FRENCH("french"),
+    FRENCH_PER_SCHOOL("french-per-school"),
     ELL("ell"),
     CAREER("career"),
     INDIGENOUS("indigenous"),

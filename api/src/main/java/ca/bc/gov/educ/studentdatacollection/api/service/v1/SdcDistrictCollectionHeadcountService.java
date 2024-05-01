@@ -72,17 +72,33 @@ public class SdcDistrictCollectionHeadcountService {
 
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
   }
+
   public SdcSchoolCollectionStudentHeadcounts getFrenchHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
     var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
     frenchCombinedHeadcountHelper.setGradeCodesForDistricts();
 
     List<HeadcountHeader> headcountHeaderList;
     HeadcountResultsTable collectionData;
-
     List<FrenchCombinedHeadcountResult> collectionRawData;
+
     collectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionID);
     headcountHeaderList = frenchCombinedHeadcountHelper.getHeaders(sdcDistrictCollectionID);
     collectionData = frenchCombinedHeadcountHelper.convertHeadcountResults(collectionRawData);
+
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
+  }
+
+  public SdcSchoolCollectionStudentHeadcounts getFrenchHeadcountsPerSchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
+    var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
+    frenchCombinedHeadcountHelper.setGradeCodesForDistricts();
+
+    List<HeadcountHeader> headcountHeaderList;
+    HeadcountResultsTable collectionData;
+    List<FrenchCombinedHeadcountResult> collectionRawData;
+
+    collectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionID);
+    headcountHeaderList = frenchCombinedHeadcountHelper.getHeaders(sdcDistrictCollectionID);
+    collectionData = frenchCombinedHeadcountHelper.convertHeadcountResultsToSchoolGradeTable(collectionRawData);
 
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
   }

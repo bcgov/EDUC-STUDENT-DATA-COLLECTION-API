@@ -2773,7 +2773,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
-    void testGetSdcDistrictCollectionStudentHeadcounts_frenchHeadcounts() throws Exception {
+    void testGetSdcDistrictCollectionStudentHeadcounts_frenchCombinedHeadcounts() throws Exception {
         CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
         var districtID = UUID.randomUUID();
         var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
@@ -2832,14 +2832,12 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         );
         final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
         });
+        var schools = Arrays.asList(firstSchool, secondSchool, thirdSchool, fourthSchool);
         var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
         var students = IntStream.range(0, models.size())
                 .mapToObj(i -> {
-                    if (i % 2 == 0) {
-                        models.get(i).setSdcSchoolCollection(secondSchool);
-                    } else {
-                        models.get(i).setSdcSchoolCollection(firstSchool);
-                    }
+                    models.get(i).setSdcSchoolCollection(schools.get(i % schools.size()));
+
                     return models.get(i);
                 })
                 .toList();
@@ -2883,6 +2881,122 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andExpect(jsonPath("$.headcountHeaders[3].title", equalTo("Programme Francophone")))
                 .andExpect(jsonPath("$.headcountHeaders[3].columns.['Eligible'].currentValue", equalTo("4")))
                 .andExpect(jsonPath("$.headcountHeaders[3].columns.['Not Reported'].currentValue", equalTo("4")));
+    }
+
+    @Test
+    void testGetSdcDistrictCollectionSchoolAndGrades_frenchCombinedTable() throws Exception {
+        CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+        var districtID = UUID.randomUUID();
+        var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+
+        var school1 = createMockSchool();
+        school1.setDisplayName("School1");
+        school1.setMincode("0000001");
+        school1.setDistrictId(districtID.toString());
+        school1.setSchoolReportingRequirementCode(SchoolReportingRequirementCodes.REGULAR.getCode());
+
+        var school2 = createMockSchool();
+        school2.setDisplayName("School2");
+        school2.setMincode("0000002");
+        school2.setDistrictId(districtID.toString());
+        school2.setSchoolReportingRequirementCode(SchoolReportingRequirementCodes.REGULAR.getCode());
+
+        var school3 = createMockSchool();
+        school3.setDisplayName("School3");
+        school3.setMincode("0000003");
+        school3.setDistrictId(districtID.toString());
+        school3.setSchoolReportingRequirementCode(SchoolReportingRequirementCodes.CSF.getCode());
+
+        var school4 = createMockSchool();
+        school4.setDisplayName("School4");
+        school4.setMincode("0000004");
+        school4.setDistrictId(districtID.toString());
+        school4.setSchoolReportingRequirementCode(SchoolReportingRequirementCodes.CSF.getCode());
+
+        when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+        when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+        when(this.restUtils.getSchoolBySchoolID(school3.getSchoolId())).thenReturn(Optional.of(school3));
+        when(this.restUtils.getSchoolBySchoolID(school4.getSchoolId())).thenReturn(Optional.of(school4));
+
+        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+        firstSchool.setUploadDate(null);
+        firstSchool.setUploadFileName(null);
+        firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+        secondSchool.setUploadDate(null);
+        secondSchool.setUploadFileName(null);
+        secondSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        secondSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+        var thirdSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school3.getSchoolId()));
+        thirdSchool.setUploadDate(null);
+        thirdSchool.setUploadFileName(null);
+        thirdSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        var fourthSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school4.getSchoolId()));
+        fourthSchool.setUploadDate(null);
+        fourthSchool.setUploadFileName(null);
+        fourthSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        fourthSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+        sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchool, secondSchool, thirdSchool, fourthSchool));
+
+        final File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+        );
+        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+        });
+        var schools = Arrays.asList(firstSchool, secondSchool, thirdSchool, fourthSchool);
+        var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+        var students = new ArrayList<>(IntStream.range(0, models.size())
+                .mapToObj(i -> {
+                    models.get(i).setSdcSchoolCollection(schools.get(i % schools.size()));
+
+                    return models.get(i);
+                })
+                .toList());
+
+        var fourthSchoolStudentCustom = createMockSchoolStudentEntity(fourthSchool);
+        fourthSchoolStudentCustom.setGender("F");
+        students.add(fourthSchoolStudentCustom);
+
+        var savedStudents = sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        List<SdcSchoolCollectionStudentEnrolledProgramEntity> enrolledPrograms = new ArrayList<>();
+
+        savedStudents.forEach(student -> {
+            var enrolledProg = new SdcSchoolCollectionStudentEnrolledProgramEntity();
+            enrolledProg.setSdcSchoolCollectionStudentEntity(student);
+            if (Objects.equals(student.getGender(), "M"))
+                enrolledProg.setEnrolledProgramCode("14");
+            else
+                enrolledProg.setEnrolledProgramCode("05");
+            enrolledProg.setCreateUser("ABC");
+            enrolledProg.setUpdateUser("ABC");
+            enrolledProg.setCreateDate(LocalDateTime.now());
+            enrolledProg.setUpdateDate(LocalDateTime.now());
+            enrolledPrograms.add(enrolledProg);
+        });
+
+        sdcSchoolCollectionStudentEnrolledProgramRepository.saveAll(enrolledPrograms);
+
+        this.mockMvc
+                .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("type", "french-per-school")
+                        .param("compare", "true")
+                        .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(jsonPath("$.headcountHeaders[2].title", equalTo("Late French Immersion")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Eligible'].currentValue", equalTo("2")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Not Reported'].currentValue", equalTo("5")))
+                .andExpect(jsonPath("$.headcountHeaders[3].title", equalTo("Programme Francophone")))
+                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Eligible'].currentValue", equalTo("5")))
+                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Not Reported'].currentValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[*].['School Name'].currentValue", containsInAnyOrder("School1", "School2", "School3", "School4", "Total")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['School Name'].currentValue=='Total')].['01'].currentValue", contains("2")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['School Name'].currentValue=='Total')].['02'].currentValue", contains("1")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['School Name'].currentValue=='Total')].['10'].currentValue", contains("1")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['School Name'].currentValue=='Total')].['02'].currentValue", contains("1")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['School Name'].currentValue=='Total')].['10'].currentValue", contains("1")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows", hasSize(5)));
     }
 
     @Test
