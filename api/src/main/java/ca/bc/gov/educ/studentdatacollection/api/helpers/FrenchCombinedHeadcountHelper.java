@@ -3,7 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.helpers;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
@@ -65,16 +65,28 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
         gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
     }
 
-    public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
-        UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
-        List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID);
-        setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
+    public void setComparisonValuesForDistrictReporting(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
+        UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+
+        List<FrenchCombinedHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionId(previousCollectionID);
+        compareWithPrevCollection(previousCollectionRawData, headcountHeaderList, collectionData, sdcDistrictCollectionEntity);
     }
 
-    public void setResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable collectionData) {
-        UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
-        List<FrenchCombinedHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionId(previousCollectionID);
-        HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
+    public void compareWithPrevCollection(List<FrenchCombinedHeadcountResult> previousCollectionRawData, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData, SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
+        HeadcountResultsTable previousCollectionData = convertHeadcountResults(previousCollectionRawData);
+        UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+        List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID);
+        setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
+        setResultsTableComparisonValues(collectionData, previousCollectionData);
+    }
+
+    public void setComparisonValuesForDistrictBySchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
+        UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+        List<FrenchCombinedHeadcountResult> collectionRawDataForHeadcount = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(previousCollectionID);
+
+        HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawDataForHeadcount);
+        List<HeadcountHeader> previousHeadcountHeaderList = this.getHeaders(previousCollectionID);
+        setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
         setResultsTableComparisonValues(collectionData, previousCollectionData);
     }
 
