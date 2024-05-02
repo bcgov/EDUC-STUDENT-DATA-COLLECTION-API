@@ -18,7 +18,7 @@ import java.util.UUID;
 @RequestMapping(URL.BASE_URL_SCHOOL_FUNDING)
 public interface IndependentSchoolFundingGroupSnapshotEndpoint {
 
-  @GetMapping("/snapshot/{schoolID}/{collectionID}")
+  @GetMapping("/{schoolID}/{collectionID}")
   @PreAuthorize("hasAuthority('SCOPE_READ_SCHOOL_FUNDING_GROUP_SNAPSHOT')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional(readOnly = true)
