@@ -209,6 +209,7 @@ public class SdcDuplicatesService {
     student.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     student.setUpdateDate(LocalDateTime.now());
     dupe.getSdcDuplicateStudentEntities().add(student);
+    sdcDuplicateRepository.save(dupe);
   }
 
   private boolean duplicateAlreadyExists(List<SdcDuplicateEntity> existingDuplicates, List<SdcDuplicateEntity> newDups, SdcSchoolCollectionStudentEntity entity1, SdcSchoolCollectionStudentEntity entity2){
