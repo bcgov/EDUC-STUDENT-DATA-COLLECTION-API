@@ -62,7 +62,7 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
     }
 
     public void setGradeCodesForDistricts() {
-        gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
+        gradeCodes = SchoolGradeCodes.getNonIndependentKtoGAGrades();
     }
 
     public void setComparisonValuesForDistrictReporting(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
