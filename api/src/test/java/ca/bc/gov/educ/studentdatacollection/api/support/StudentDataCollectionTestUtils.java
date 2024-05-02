@@ -21,7 +21,8 @@ public class StudentDataCollectionTestUtils {
   SdcSchoolCollectionRepository sdcSchoolRepository;
   @Autowired
   SdcSchoolCollectionHistoryRepository sdcSchoolHistoryRepository;
-
+  @Autowired
+  SdcDuplicateRepository sdcDuplicateRepository;
   @Autowired
   EnrolledProgramCodeRepository enrolledProgramCodeRepository;
   @Autowired
@@ -39,6 +40,7 @@ public class StudentDataCollectionTestUtils {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void cleanDB() {
+    sdcDuplicateRepository.deleteAll();
     sdcSchoolHistoryRepository.deleteAll();
     sdcSchoolRepository.deleteAll();
     collectionRepository.deleteAll();

@@ -7,10 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
@@ -60,6 +57,9 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
   SdcDistrictCollectionController sdcDistrictCollectionController;
 
   @Autowired
+  SdcDuplicateRepository sdcDuplicateRepository;
+
+  @Autowired
   CollectionRepository collectionRepository;
 
   @Autowired
@@ -82,6 +82,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
   @AfterEach
   public void after() {
+    this.sdcDuplicateRepository.deleteAll();
     this.collectionRepository.deleteAll();
   }
 
