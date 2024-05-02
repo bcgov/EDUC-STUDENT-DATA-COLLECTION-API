@@ -67,7 +67,7 @@ class IndependentSchoolFundingGroupControllerTest extends BaseStudentDataCollect
     final var independentSchoolFundingGroupEntity = this.independentSchoolFundingGroupSnapshotRepository.save(this.createMockIndependentSchoolFundingGroupSnapshotEntity(UUID.randomUUID(), UUID.randomUUID()));
 
     var resultActions = this.mockMvc.perform(
-                    get(URL.BASE_URL_SCHOOL_FUNDING + "/snapshot/" + independentSchoolFundingGroupEntity.getSchoolID() + "/" + independentSchoolFundingGroupEntity.getCollectionID()).with(mockAuthority))
+                    get(URL.BASE_URL_SCHOOL_FUNDING + "/" + independentSchoolFundingGroupEntity.getSchoolID() + "/" + independentSchoolFundingGroupEntity.getCollectionID()).with(mockAuthority))
             .andDo(print()).andExpect(status().isOk());
 
     val summary = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List>() {
@@ -80,7 +80,7 @@ class IndependentSchoolFundingGroupControllerTest extends BaseStudentDataCollect
     this.independentSchoolFundingGroupSnapshotRepository.save(independentSchoolFundingGroupEntity1);
 
     var resultActions1 = this.mockMvc.perform(
-                    get(URL.BASE_URL_SCHOOL_FUNDING + "/snapshot/" + independentSchoolFundingGroupEntity.getSchoolID() + "/" + independentSchoolFundingGroupEntity.getCollectionID()).with(mockAuthority))
+                    get(URL.BASE_URL_SCHOOL_FUNDING + "/" + independentSchoolFundingGroupEntity.getSchoolID() + "/" + independentSchoolFundingGroupEntity.getCollectionID()).with(mockAuthority))
             .andDo(print()).andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List>() {
