@@ -85,7 +85,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   }
 
   public void setGradeCodesForDistricts() {
-    gradeCodes = SchoolGradeCodes.getNonIndependentKtoGAGrades();
+    gradeCodes = SchoolGradeCodes.getNonIndependentKtoSUGrades();
   }
 
   public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
