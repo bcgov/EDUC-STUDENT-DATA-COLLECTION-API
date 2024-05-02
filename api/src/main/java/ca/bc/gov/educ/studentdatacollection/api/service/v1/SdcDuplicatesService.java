@@ -193,12 +193,12 @@ public class SdcDuplicatesService {
     dupe.setProgramDuplicateTypeCode(programDuplicateTypeCode != null ? programDuplicateTypeCode.getCode() : null);
     dupe.setDuplicateLevelCode(levelCode.getCode());
 
-    dupe.getSdcDuplicateStudentEntities().add(createSdcDuplicateStudent(entity1, dupe));
-    dupe.getSdcDuplicateStudentEntities().add(createSdcDuplicateStudent(entity2, dupe));
+    createSdcDuplicateStudent(entity1, dupe);
+    createSdcDuplicateStudent(entity2, dupe);
     return dupe;
   }
 
-  private SdcDuplicateStudentEntity createSdcDuplicateStudent(SdcSchoolCollectionStudentEntity studentEntity, SdcDuplicateEntity dupe){
+  private void createSdcDuplicateStudent(SdcSchoolCollectionStudentEntity studentEntity, SdcDuplicateEntity dupe){
     SdcDuplicateStudentEntity student = new SdcDuplicateStudentEntity();
     student.setSdcDistrictCollectionID(studentEntity.getSdcSchoolCollection().getSdcDistrictCollectionID());
     student.setSdcSchoolCollectionID(studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID());
@@ -208,7 +208,7 @@ public class SdcDuplicatesService {
     student.setCreateDate(LocalDateTime.now());
     student.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     student.setUpdateDate(LocalDateTime.now());
-    return student;
+    dupe.getSdcDuplicateStudentEntities().add(student);
   }
 
   private boolean duplicateAlreadyExists(List<SdcDuplicateEntity> existingDuplicates, List<SdcDuplicateEntity> newDups, SdcSchoolCollectionStudentEntity entity1, SdcSchoolCollectionStudentEntity entity2){
