@@ -198,7 +198,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(List<SpecialEdHeadcountResult> results) throws EntityNotFoundException {
     HeadcountResultsTable table = new HeadcountResultsTable();
     List<String> headers = new ArrayList<>();
-    Set<String> grades = new HashSet<>();
+    Set<String> grades = new HashSet<>(gradeCodes);
     Map<String, Map<String, Integer>> schoolGradeCounts = new HashMap<>();
     Map<String, Integer> totalCounts = new HashMap<>();
     Map<String, String> schoolDetails  = new HashMap<>();
@@ -220,27 +220,27 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     }
 
     // Sort grades and add to headers
-    List<String> sortedGrades = new ArrayList<>(grades);
-    Collections.sort(sortedGrades);
     headers.add(TITLE);
-    headers.addAll(sortedGrades);
+    headers.addAll(gradeCodes);
     headers.add(TOTAL);
     table.setHeaders(headers);
 
     // Populate counts for each school and grade, and calculate row totals
     Map<String, Integer> schoolTotals = new HashMap<>();
     for (SpecialEdHeadcountResult result : results) {
-      Map<String, Integer> gradeCounts = schoolGradeCounts.get(result.getSchoolID());
-      String grade = result.getEnrolledGradeCode();
-      int count = getCountFromResult(result);
-      gradeCounts.merge(grade, count, Integer::sum);
-      totalCounts.merge(grade, count, Integer::sum);
-      schoolTotals.merge(result.getSchoolID(), count, Integer::sum);
+      if (gradeCodes.contains(result.getEnrolledGradeCode())) {
+        Map<String, Integer> gradeCounts = schoolGradeCounts.get(result.getSchoolID());
+        String grade = result.getEnrolledGradeCode();
+        int count = getCountFromResult(result);
+        gradeCounts.merge(grade, count, Integer::sum);
+        totalCounts.merge(grade, count, Integer::sum);
+        schoolTotals.merge(result.getSchoolID(), count, Integer::sum);
+      }
     }
 
-    List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
 
     // Add all schools row at the start
+    List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
     Map<String, HeadcountHeaderColumn> totalRow = new LinkedHashMap<>();
     totalRow.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
     totalRow.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
