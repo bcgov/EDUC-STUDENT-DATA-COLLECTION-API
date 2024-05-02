@@ -2872,15 +2872,23 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Core French")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Not Reported'].currentValue", equalTo("8")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[1].title", equalTo("Early French Immersion")))
                 .andExpect(jsonPath("$.headcountHeaders[1].columns.['Eligible'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[1].columns.['Not Reported'].currentValue", equalTo("8")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Eligible'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Not Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[2].title", equalTo("Late French Immersion")))
                 .andExpect(jsonPath("$.headcountHeaders[2].columns.['Eligible'].currentValue", equalTo("2")))
                 .andExpect(jsonPath("$.headcountHeaders[2].columns.['Not Reported'].currentValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Eligible'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Not Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[3].title", equalTo("Programme Francophone")))
                 .andExpect(jsonPath("$.headcountHeaders[3].columns.['Eligible'].currentValue", equalTo("4")))
-                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Not Reported'].currentValue", equalTo("4")));
+                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Not Reported'].currentValue", equalTo("4")))                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Eligible'].currentValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Eligible'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Not Reported'].comparisonValue", equalTo("0")));
     }
 
     @Test
@@ -2987,15 +2995,24 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andExpect(jsonPath("$.headcountHeaders[2].title", equalTo("Late French Immersion")))
                 .andExpect(jsonPath("$.headcountHeaders[2].columns.['Eligible'].currentValue", equalTo("2")))
                 .andExpect(jsonPath("$.headcountHeaders[2].columns.['Not Reported'].currentValue", equalTo("5")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Eligible'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Not Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[3].title", equalTo("Programme Francophone")))
                 .andExpect(jsonPath("$.headcountHeaders[3].columns.['Eligible'].currentValue", equalTo("5")))
                 .andExpect(jsonPath("$.headcountHeaders[3].columns.['Not Reported'].currentValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Eligible'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Not Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[*].['title'].currentValue", containsInAnyOrder("0000001 - School1", "0000002 - School2", "0000003 - School3", "0000004 - School4", "All Schools")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['01'].currentValue", contains("2")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['02'].currentValue", contains("1")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['10'].currentValue", contains("1")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['GA'].currentValue", contains("0")))
-                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['KH'].currentValue", contains("0")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['KF'].currentValue", contains("0")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['01'].comparisonValue", contains("0")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['02'].comparisonValue", contains("0")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['10'].comparisonValue", contains("0")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['GA'].comparisonValue", contains("0")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['KF'].comparisonValue", contains("0")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows", hasSize(5)));
     }
 
