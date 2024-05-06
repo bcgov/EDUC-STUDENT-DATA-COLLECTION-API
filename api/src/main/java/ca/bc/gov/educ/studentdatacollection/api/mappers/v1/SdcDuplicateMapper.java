@@ -14,6 +14,6 @@ public interface SdcDuplicateMapper {
 
   SdcDuplicateMapper mapper = Mappers.getMapper(SdcDuplicateMapper.class);
 
-  SdcDuplicate toSdcDuplicate(SdcDuplicateEntity sdcSchoolStudentEntity);
+  SdcDuplicate toSdcDuplicate(SdcDuplicateEntity sdcDuplicateEntity);
 
 }
