@@ -155,6 +155,7 @@ public class SdcFileValidator {
       if (!StringUtils.startsWith(ds.getRawData(), HEADER_STARTS_WITH)) {
         throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_HEADER, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
       }
+      ds.goTop();
     }
   }
 
