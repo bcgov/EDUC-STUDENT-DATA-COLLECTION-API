@@ -516,9 +516,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   @ParameterizedTest
   @CsvSource({
     "src/test/resources/sample-malformed-short-header.txt,Header record is missing characters.",
-    "src/test/resources/sample-malformed-long-header.txt,Header record has extraneous characters.",
-    "src/test/resources/sample-malformed-short-trailer.txt,Trailer record is missing characters.",
-    "src/test/resources/sample-malformed-long-trailer.txt,Trailer record has extraneous characters."
+    "src/test/resources/sample-malformed-long-header.txt,Header record has extraneous characters."
   })
   void testProcessSdcFile_givenMalformedHeaderOrTrailer_ShouldReturnStatusBadRequest(
     final String sample,

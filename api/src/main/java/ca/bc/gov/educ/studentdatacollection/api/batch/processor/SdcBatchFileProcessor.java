@@ -152,6 +152,7 @@ public class SdcBatchFileProcessor {
     val batchFile = new SdcBatchFile();
     Optional<Reader> batchFileReaderOptional = Optional.empty();
     try (final Reader mapperReader = new FileReader(Objects.requireNonNull(this.getClass().getClassLoader().getResource("mapper.xml")).getFile())) {
+
       var byteArrayOutputStream = new ByteArrayInputStream(Base64.getDecoder().decode(fileUpload.getFileContents()));
       batchFileReaderOptional = Optional.of(new InputStreamReader(byteArrayOutputStream));
       final DataSet ds = DefaultParserFactory.getInstance().newFixedLengthParser(mapperReader, batchFileReaderOptional.get()).setStoreRawDataToDataError(true).setStoreRawDataToDataSet(true).setNullEmptyStrings(true).parse();
@@ -163,6 +164,7 @@ public class SdcBatchFileProcessor {
 
       var sdcSchoolCollection = this.sdcSchoolCollectionRepository.findActiveCollectionBySchoolId(UUID.fromString(school.get().getSchoolId()));
       var sdcSchoolCollectionID = sdcSchoolCollection.get().getSdcSchoolCollectionID();
+
       this.resetFileUploadMetadata(String.valueOf(sdcSchoolCollectionID));
       this.sdcFileValidator.validateFileHasCorrectExtension(String.valueOf(sdcSchoolCollectionID), fileUpload);
       this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);

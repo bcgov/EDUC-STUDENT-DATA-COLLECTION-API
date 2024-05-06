@@ -155,6 +155,7 @@ public class SdcFileValidator {
       if (!StringUtils.startsWith(ds.getRawData(), HEADER_STARTS_WITH)) {
         throw new FileUnProcessableException(FileError.INVALID_TRANSACTION_CODE_HEADER, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
       }
+      ds.goTop();
     }
   }
 
@@ -188,8 +189,9 @@ public class SdcFileValidator {
       return this.getDetailRowLengthIncorrectMessage(error, errorDescription);
     }
 
+    // Ignore trailer length errors due to inconsistency in flat files
     if (errorDescription.contains(TRAILER_LENGTH_ERROR)) {
-      return this.getTrailerRowLengthIncorrectMessage(errorDescription);
+      return null;
     }
 
     return "The uploaded file contains a malformed row that could not be identified.";
@@ -209,7 +211,8 @@ public class SdcFileValidator {
       .filter(SdcFileValidator::isMalformedRowError)
       .findFirst();
 
-    if (maybeError.isPresent()) {
+    // Ignore trailer length errors due to inconsistency in flat files
+    if (maybeError.isPresent() && ds.getRowCount() != maybeError.get().getLineNo() - 1) {
       DataError error = maybeError.get();
       String message = this.getMalformedRowMessage(error.getErrorDesc(), error);
       throw new FileUnProcessableException(
@@ -232,19 +235,6 @@ public class SdcFileValidator {
       return "Header record has extraneous characters.";
     }
     return "Header record is missing characters.";
-  }
-
-  /**
-   * Gets trailer row length incorrect message.
-   *
-   * @param errorDescription the {@link DataError} description
-   * @return the trailer row length incorrect message
-   */
-  private String getTrailerRowLengthIncorrectMessage(String errorDescription) {
-    if (errorDescription.contains(TOO_LONG)) {
-      return "Trailer record has extraneous characters.";
-    }
-    return "Trailer record is missing characters.";
   }
 
   /**
