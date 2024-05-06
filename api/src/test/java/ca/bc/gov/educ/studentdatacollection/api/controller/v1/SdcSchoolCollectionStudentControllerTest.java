@@ -3262,6 +3262,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(jsonPath("$.headcountResultsTable.rows[*].['title'].currentValue", containsInAnyOrder("0500 - KWANLIN DUN", "All Bands & Students")));
+                .andExpect(jsonPath("$.headcountResultsTable.rows[*].['title'].currentValue", containsInAnyOrder("0500 - KWANLIN DUN", "All Bands & Students")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['Headcount'].currentValue", contains("4")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['FTE'].currentValue", contains("2.72")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows", hasSize(2)));
     }
 }
