@@ -165,9 +165,8 @@ public class SdcBatchFileProcessor {
       var sdcSchoolCollectionID = sdcSchoolCollection.get().getSdcSchoolCollectionID();
       this.resetFileUploadMetadata(String.valueOf(sdcSchoolCollectionID));
       this.sdcFileValidator.validateFileHasCorrectExtension(String.valueOf(sdcSchoolCollectionID), fileUpload);
-      this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
-
       this.populateBatchFile(guid, ds, batchFile);
+      this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
 
       return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, String.valueOf(sdcSchoolCollectionID));
