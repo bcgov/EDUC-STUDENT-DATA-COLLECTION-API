@@ -54,9 +54,13 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
       }
     }
 
+    public void setGradeCodesForDistricts() {
+        gradeCodes = SchoolGradeCodes.getNonIndependentKtoSUGrades();
+    }
+
     public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
         UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
-        List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID);
+        List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, false);
         setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
     }
 
@@ -67,8 +71,10 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
         setResultsTableComparisonValues(collectionData, previousCollectionData);
     }
 
-    public List<HeadcountHeader> getHeaders(UUID sdcSchoolCollectionID) {
-        IndigenousHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getIndigenousHeadersBySchoolId(sdcSchoolCollectionID);
+    public List<HeadcountHeader> getHeaders(UUID sdcSchoolCollectionID, Boolean isDistrict) {
+        IndigenousHeadcountHeaderResult result = (Boolean.TRUE.equals(isDistrict))
+                ? sdcSchoolCollectionStudentRepository.getIndigenousHeadersByDistrictId(sdcSchoolCollectionID)
+                : sdcSchoolCollectionStudentRepository.getIndigenousHeadersBySchoolId(sdcSchoolCollectionID);
         List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
         Arrays.asList(INDIGENOUS_LANGUAGE_TITLE, INDIGENOUS_SUPPORT_TITLE, OTHER_APPROVED_TITLE, ANCESTRY_COUNT_TITLE, LIVING_ON_RESERVE_TITLE).forEach(headerTitle -> {
             HeadcountHeader headcountHeader = new HeadcountHeader();

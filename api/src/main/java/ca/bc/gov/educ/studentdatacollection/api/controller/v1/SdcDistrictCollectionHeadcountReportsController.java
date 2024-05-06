@@ -40,6 +40,10 @@ public class SdcDistrictCollectionHeadcountReportsController implements SdcDistr
             return sdcDistrictCollectionHeadcountService.getCareerPerSchoolHeadcounts(sdcDistrictCollectionEntity, compare);
         } else if (HeadcountReportTypeCodes.FRENCH_PER_SCHOOL.getCode().equals(type)) {
             return sdcDistrictCollectionHeadcountService.getFrenchHeadcountsPerSchool(sdcDistrictCollectionEntity, compare);
+        } else if (HeadcountReportTypeCodes.INDIGENOUS.getCode().equals(type)) {
+            return sdcDistrictCollectionHeadcountService.getIndigenousHeadcounts(sdcDistrictCollectionEntity, compare);
+        } else if (HeadcountReportTypeCodes.BAND_CODES.getCode().equals(type)) {
+            return sdcDistrictCollectionHeadcountService.getBandResidenceHeadcounts(sdcDistrictCollectionEntity, compare);
         }
         return null;
     }
