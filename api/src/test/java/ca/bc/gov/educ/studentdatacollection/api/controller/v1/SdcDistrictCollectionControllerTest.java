@@ -12,7 +12,6 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicate;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SpecialEducationCategoryCode;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -200,6 +199,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     assertThat(sdcDuplicates.get(0).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.ENROLLMENT.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateSeverityCode()).isEqualTo(DuplicateSeverityCode.NON_ALLOWABLE.getCode());
+    assertThat(sdcDuplicates.get(0).getDuplicateErrorDescriptionCode()).isEqualTo(DuplicateErrorDescriptionCode.K_TO_9_DUP.getMessage());
   }
 
   @Test
@@ -304,6 +304,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     assertThat(sdcDuplicates.get(0).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.ENROLLMENT.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateSeverityCode()).isEqualTo(DuplicateSeverityCode.NON_ALLOWABLE.getCode());
+    assertThat(sdcDuplicates.get(0).getDuplicateErrorDescriptionCode()).isEqualTo(DuplicateErrorDescriptionCode.K_TO_7_DUP.getMessage());
   }
 
   @Test
@@ -465,6 +466,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     assertThat(sdcDuplicates.get(0).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.ENROLLMENT.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateSeverityCode()).isEqualTo(DuplicateSeverityCode.NON_ALLOWABLE.getCode());
+    assertThat(sdcDuplicates.get(0).getDuplicateErrorDescriptionCode()).isEqualTo(DuplicateErrorDescriptionCode.ALT_DUP.getMessage());
   }
 
   @Test
@@ -518,6 +520,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     assertThat(sdcDuplicates.get(0).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.ENROLLMENT.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateSeverityCode()).isEqualTo(DuplicateSeverityCode.NON_ALLOWABLE.getCode());
+    assertThat(sdcDuplicates.get(0).getDuplicateErrorDescriptionCode()).isEqualTo(DuplicateErrorDescriptionCode.ALT_DUP.getMessage());
   }
 
   @Test
@@ -622,6 +625,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     assertThat(sdcDuplicates.get(0).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.ENROLLMENT.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateSeverityCode()).isEqualTo(DuplicateSeverityCode.NON_ALLOWABLE.getCode());
+    assertThat(sdcDuplicates.get(0).getDuplicateErrorDescriptionCode()).isEqualTo(DuplicateErrorDescriptionCode.IN_8_9_DUP.getMessage());
   }
 
   @Test
