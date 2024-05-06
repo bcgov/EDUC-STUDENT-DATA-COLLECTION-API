@@ -35,4 +35,8 @@ public class SdcDuplicate extends BaseRequest implements Serializable {
 
   private String duplicateLevelCode;
 
+  private String duplicateErrorDescriptionCode;
+
+  private String duplicateResolutionCode;
+
 }

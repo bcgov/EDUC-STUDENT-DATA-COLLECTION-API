@@ -49,6 +49,12 @@ public class SdcDuplicateEntity {
   @Column(name = "DUPLICATE_LEVEL_CODE")
   private String duplicateLevelCode;
 
+  @Column(name = "DUPLICATE_ERROR_DESCRIPTION_CODE")
+  private String duplicateErrorDescriptionCode;
+
+  @Column(name = "DUPLICATE_RESOLUTION_CODE")
+  private String duplicateResolutionCode;
+
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
 

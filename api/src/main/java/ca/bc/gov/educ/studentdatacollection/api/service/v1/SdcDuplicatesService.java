@@ -48,7 +48,7 @@ public class SdcDuplicatesService {
 
     duplicateStudentEntities.forEach(student -> {
       if (!groupedDups.containsKey(student.getAssignedStudentId())) {
-        groupedDups.put(student.getAssignedStudentId(), new ArrayList<>(Arrays.asList(student)));
+        groupedDups.put(student.getAssignedStudentId(), new ArrayList<>(List.of(student)));
       } else {
         groupedDups.get(student.getAssignedStudentId()).add(student);
       }
@@ -65,6 +65,7 @@ public class SdcDuplicatesService {
     });
 
     sdcDuplicateRepository.saveAll(newDuplicates);
+    newDuplicates.addAll(existingDuplicates);
     return newDuplicates;
   }
 
