@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDuplicateReposi
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,12 @@ public class SdcDuplicatesService {
     School school2 = restUtils.getSchoolBySchoolID(entity2.getSdcSchoolCollection().getSchoolID().toString()).orElseThrow(() ->
             new StudentDataCollectionAPIRuntimeException("School provided by ID " + entity2.getSdcSchoolCollection().getSchoolID() + "was not found - this is not expected"));
     //Is the student an adult?
+    if(entity1.getIsAdult() == null) {
+      entity1.setIsAdult(DOBUtil.isAdult(entity1.getDob()));
+    }
+    if(entity2.getIsAdult() == null) {
+      entity2.setIsAdult(DOBUtil.isAdult(entity2.getDob()));
+    }
     if(entity1.getIsAdult() || entity2.getIsAdult()){
       addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
     }
