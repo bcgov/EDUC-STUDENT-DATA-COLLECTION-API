@@ -106,11 +106,12 @@ public class SdcSchoolCollectionStudentHeadcountService {
     var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
     Optional<School> school = this.restUtils.getSchoolBySchoolID(String.valueOf(sdcSchoolCollectionEntity.getSchoolID()));
     ellHeadcountHelper.setGradeCodes(school);
+    ellHeadcountHelper.setSchoolReportTitles();
 
     List<EllHeadcountResult> collectionRawData =
       sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
     HeadcountResultsTable headcountResultsTable = ellHeadcountHelper.convertHeadcountResults(collectionRawData);
-    List<HeadcountHeader> headcountHeaderList = ellHeadcountHelper.getHeaders(sdcSchoolCollectionID);
+    List<HeadcountHeader> headcountHeaderList = ellHeadcountHelper.getHeaders(sdcSchoolCollectionID, false);
     if (compare) {
       ellHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
       ellHeadcountHelper.setResultsTableComparisonValues(sdcSchoolCollectionEntity, headcountResultsTable);
