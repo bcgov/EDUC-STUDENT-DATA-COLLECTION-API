@@ -54,6 +54,10 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
       }
     }
 
+    public void setGradeCodesForDistricts() {
+        gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
+    }
+
     public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
         UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
         List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID);
