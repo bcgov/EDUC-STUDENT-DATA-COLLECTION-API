@@ -182,10 +182,9 @@ public class SdcDistrictCollectionHeadcountService {
   public SdcSchoolCollectionStudentHeadcounts getBandResidenceHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
     var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
     List<BandResidenceHeadcountResult> result = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionID);
-    bandResidenceHeadcountHelper.setBandTitles(result);
 
     List<HeadcountHeader> headcountHeaderList = indigenousHeadcountHelper.getHeaders(sdcDistrictCollectionID, true);
-    HeadcountResultsTable headcountResultsTable = bandResidenceHeadcountHelper.convertBandHeadcountResults(result);
+    HeadcountResultsTable headcountResultsTable = bandResidenceHeadcountHelper.convertBandHeadcountResults(result, false);
 
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
   }
@@ -193,10 +192,9 @@ public class SdcDistrictCollectionHeadcountService {
   public SdcSchoolCollectionStudentHeadcounts getBandResidenceHeadcountsPerSchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
     var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
     List<BandResidenceHeadcountResult> result = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionID);
-    bandResidenceHeadcountHelper.setSchoolTitles(result);
 
     List<HeadcountHeader> headcountHeaderList = indigenousHeadcountHelper.getHeaders(sdcDistrictCollectionID, true);
-    HeadcountResultsTable headcountResultsTable = bandResidenceHeadcountHelper.convertBandHeadcountResults(result);
+    HeadcountResultsTable headcountResultsTable = bandResidenceHeadcountHelper.convertBandHeadcountResults(result, true);
 
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
   }

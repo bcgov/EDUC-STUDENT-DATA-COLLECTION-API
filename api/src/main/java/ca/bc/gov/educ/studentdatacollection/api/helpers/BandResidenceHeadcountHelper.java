@@ -48,8 +48,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
     public void setBandResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable currentCollectionData) {
         UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
         List<BandResidenceHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(previousCollectionID);
-        setBandTitles(previousCollectionRawData);
-        HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData);
+        HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, false);
         setResultsTableComparisonValues(currentCollectionData, previousCollectionData);
     }
 
@@ -96,10 +95,16 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         });
     }
 
-    public HeadcountResultsTable convertBandHeadcountResults(List<BandResidenceHeadcountResult> results){
+    public HeadcountResultsTable convertBandHeadcountResults(List<BandResidenceHeadcountResult> results, Boolean schoolTitles){
         HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
         headcountResultsTable.setHeaders(TABLE_COLUMN_TITLES);
         headcountResultsTable.setRows(new ArrayList<>());
+
+        if (Boolean.TRUE.equals(schoolTitles)) {
+            setSchoolTitles(results);
+        } else {
+            setBandTitles(results);
+        }
 
         BigDecimal fteTotal = BigDecimal.ZERO;
         BigDecimal headcountTotal = BigDecimal.ZERO;
@@ -110,7 +115,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
             rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
             for (String column : columns) {
                 var result = results.stream()
-                        .filter(value -> value.getBandCode().equals(title.getKey()))
+                        .filter(value -> (Boolean.TRUE.equals(schoolTitles) ? value.getSchoolID() : value.getBandCode()).equals(title.getKey()))
                         .findFirst()
                         .orElse(null);
 

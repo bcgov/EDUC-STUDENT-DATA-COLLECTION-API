@@ -138,10 +138,9 @@ public class SdcSchoolCollectionStudentHeadcountService {
   public SdcSchoolCollectionStudentHeadcounts getBandResidenceHeadcounts(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, boolean compare) {
     UUID sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
     List<BandResidenceHeadcountResult> result = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
-    bandResidenceHeadcountHelper.setBandTitles(result);
 
     List<HeadcountHeader> headcountHeaderList = indigenousHeadcountHelper.getHeaders(sdcSchoolCollectionID, false);
-    HeadcountResultsTable headcountResultsTable = bandResidenceHeadcountHelper.convertBandHeadcountResults(result);
+    HeadcountResultsTable headcountResultsTable = bandResidenceHeadcountHelper.convertBandHeadcountResults(result, false);
     if(compare) {
       indigenousHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
       bandResidenceHeadcountHelper.setBandResultsTableComparisonValues(sdcSchoolCollectionEntity, headcountResultsTable);
