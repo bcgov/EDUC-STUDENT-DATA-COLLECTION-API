@@ -28,6 +28,7 @@ public class SdcDuplicatesService {
   private final SdcDuplicateRepository sdcDuplicateRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private final ValidationRulesService validationRulesService;
+
   private final RestUtils restUtils;
 
   @Autowired
@@ -65,9 +66,20 @@ public class SdcDuplicatesService {
       }
     });
 
+    updateResolvedDuplicates(newDuplicates, existingDuplicates);
+
     sdcDuplicateRepository.saveAll(newDuplicates);
     newDuplicates.addAll(existingDuplicates);
     return newDuplicates;
+  }
+
+  private void updateResolvedDuplicates(List<SdcDuplicateEntity> newDuplicates, List<SdcDuplicateEntity> existingDuplicates){
+    List<SdcDuplicateEntity> resolvedDuplicates = newDuplicates.stream()
+            .filter(el -> !existingDuplicates.contains(el))
+            .peek(el -> el.setDuplicateResolutionCode(DuplicateResolutionCode.RELEASED.getCode()))
+            .toList();
+
+    sdcDuplicateRepository.saveAll(resolvedDuplicates);
   }
 
   private List<SdcDuplicateEntity> runDuplicatesCheck(DuplicateLevelCode level, SdcSchoolCollectionStudentEntity entity1, SdcSchoolCollectionStudentEntity entity2){
@@ -178,6 +190,8 @@ public class SdcDuplicatesService {
         }
       }
     }
+
+    //Compare new duplicates with passed in existing duplicates
     return newDuplicates;
   }
 
