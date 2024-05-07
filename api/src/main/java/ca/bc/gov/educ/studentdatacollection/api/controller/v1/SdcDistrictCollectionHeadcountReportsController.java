@@ -42,9 +42,13 @@ public class SdcDistrictCollectionHeadcountReportsController implements SdcDistr
             return sdcDistrictCollectionHeadcountService.getFrenchHeadcountsPerSchool(sdcDistrictCollectionEntity, compare);
         } else if (HeadcountReportTypeCodes.INDIGENOUS.getCode().equals(type)) {
             return sdcDistrictCollectionHeadcountService.getIndigenousHeadcounts(sdcDistrictCollectionEntity, compare);
+        } else if (HeadcountReportTypeCodes.INDIGENOUS_PER_SCHOOL.getCode().equals(type)) {
+            return sdcDistrictCollectionHeadcountService.getIndigenousHeadcountsPerSchool(sdcDistrictCollectionEntity, compare);
         } else if (HeadcountReportTypeCodes.BAND_CODES.getCode().equals(type)) {
             return sdcDistrictCollectionHeadcountService.getBandResidenceHeadcounts(sdcDistrictCollectionEntity, compare);
-        } else if (HeadcountReportTypeCodes.ELL .getCode().equals(type)) {
+        } else if (HeadcountReportTypeCodes.BAND_CODES_PER_SCHOOL.getCode().equals(type)) {
+            return sdcDistrictCollectionHeadcountService.getBandResidenceHeadcountsPerSchool(sdcDistrictCollectionEntity, compare);
+        }else if (HeadcountReportTypeCodes.ELL .getCode().equals(type)) {
             return sdcDistrictCollectionHeadcountService.getEllHeadcounts(sdcDistrictCollectionEntity, compare);
         } else if (HeadcountReportTypeCodes.ELL_PER_SCHOOL .getCode().equals(type)) {
             return sdcDistrictCollectionHeadcountService.getEllPerSchoolHeadcounts(sdcDistrictCollectionEntity, compare);
