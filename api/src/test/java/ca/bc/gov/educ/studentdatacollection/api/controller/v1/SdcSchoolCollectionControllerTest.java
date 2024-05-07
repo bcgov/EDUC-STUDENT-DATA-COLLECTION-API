@@ -238,14 +238,15 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     sdcMockSchool.setSdcDistrictCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID());
     sdcSchoolCollectionRepository.save(sdcMockSchool);
 
-    SdcSchoolCollectionEntity sdcMockSchool2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    School school2 = createMockSchool();
+    SdcSchoolCollectionEntity sdcMockSchool2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
     sdcMockSchool2.setUploadDate(null);
     sdcMockSchool2.setUploadFileName(null);
     sdcMockSchool2.setSdcDistrictCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID());
     sdcSchoolCollectionRepository.save(sdcMockSchool2);
 
     this.mockMvc.perform(
-                    get(URL.BASE_URL_SCHOOL_COLLECTION + "/searchAll?schoolID=" + school.getSchoolId()).with(mockAuthority))
+                    get(URL.BASE_URL_SCHOOL_COLLECTION + "/searchAll?sdcDistrictCollectionID=" + sdcMockDistrictCollection.getSdcDistrictCollectionID()).with(mockAuthority))
             .andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
   }
 
