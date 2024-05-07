@@ -6,13 +6,12 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollection
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentEnrolledProgramRepository;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
@@ -59,6 +58,9 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
   @Autowired
   SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository;
 
+  @Autowired
+  SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
+
   @BeforeEach
   public void before() {
   }
@@ -90,8 +92,6 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
   @Test
   void testUpdateCollection_ShouldReturnCollection() throws Exception {
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
-
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
     collectionRepository.save(collection);
@@ -121,7 +121,6 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
   @Test
   void testUpdateCollection_GivenBadStatus_ShouldReturnBadRequest() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
-    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
     collectionRepository.save(collection);
@@ -215,8 +214,50 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     sdcSchoolCollectionRepository.save(sdcMockSchool2);
 
     this.mockMvc.perform(
-        get(URL.BASE_URL_SCHOOL_COLLECTION + "/searchAll/" + school.getSchoolId()).with(mockAuthority))
+        get(URL.BASE_URL_SCHOOL_COLLECTION + "/searchAll?schoolID=" + school.getSchoolId()).with(mockAuthority))
       .andDo(print()).andExpect(status().isOk());
+  }
+
+  @Test
+  void testGetAllCollectionsBySdcDistrictCollectionID_ShouldReturnCollection() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    District district = createMockDistrict();
+    SdcDistrictCollectionEntity sdcMockDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+    sdcDistrictCollectionRepository.save(sdcMockDistrictCollection);
+
+    School school = createMockSchool();
+    SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    sdcMockSchool.setUploadDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setSdcDistrictCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID());
+    sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+    School school2 = createMockSchool();
+    SdcSchoolCollectionEntity sdcMockSchool2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    sdcMockSchool2.setUploadDate(null);
+    sdcMockSchool2.setUploadFileName(null);
+    sdcMockSchool2.setSdcDistrictCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID());
+    sdcSchoolCollectionRepository.save(sdcMockSchool2);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_SCHOOL_COLLECTION + "/searchAll?sdcDistrictCollectionID=" + sdcMockDistrictCollection.getSdcDistrictCollectionID()).with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
+  }
+
+  @Test
+  void testGetAllCollectionsWithInvalidParam_ShouldThrowException() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_SCHOOL_COLLECTION + "/searchAll?userID=12345").with(mockAuthority))
+            .andDo(print()).andExpect(status().isBadRequest());
   }
 
   @Test
@@ -511,7 +552,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(
         newCollectionEntity, UUID.randomUUID());
     sdcMockSchool.setCreateDate(null);
-    sdcMockSchool.setUpdateDate(null);;
+    sdcMockSchool.setUpdateDate(null);
 
     this.mockMvc.perform(
         post(URL.BASE_URL_SCHOOL_COLLECTION + "/" + UUID.randomUUID()).contentType(MediaType.APPLICATION_JSON)

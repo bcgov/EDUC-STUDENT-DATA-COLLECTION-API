@@ -83,8 +83,8 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   }
 
   @Override
-  public List<SdcSchoolCollection> getAllSchoolCollectionsBySchoolId(UUID schoolID) {
-    List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities = this.sdcSchoolCollectionService.getAllSchoolCollectionsBySchoolId(schoolID);
+  public List<SdcSchoolCollection> getAllSchoolCollections(UUID schoolID, UUID sdcDistrictCollectionID) {
+    List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities = this.sdcSchoolCollectionService.getAllSchoolCollections(schoolID, sdcDistrictCollectionID);
 
     List<SdcSchoolCollection> sdcSchoolCollectionList = new ArrayList<>();
     for (SdcSchoolCollectionEntity entity : sdcSchoolCollectionEntities) {

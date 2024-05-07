@@ -64,11 +64,12 @@ public interface SdcSchoolCollectionEndpoint {
   @ResponseStatus(NO_CONTENT)
   ResponseEntity<Void> deleteSdcSchoolCollection(@PathVariable UUID sdcSchoolCollectionID);
 
-  @GetMapping("/searchAll/{schoolID}")
+  @GetMapping("/searchAll")
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional(readOnly = true)
   @Tag(name = "Sdc School Collection", description = "Endpoints to get school collection entity.")
-  List<SdcSchoolCollection> getAllSchoolCollectionsBySchoolId(@PathVariable("schoolID") UUID schoolID);
+  List<SdcSchoolCollection> getAllSchoolCollections(@RequestParam(name = "schoolID", defaultValue = "") UUID schoolID,
+                                                              @RequestParam(name = "sdcDistrictCollectionID", defaultValue = "") UUID sdcDistrictCollectionID);
 
 }
