@@ -5,7 +5,9 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -32,10 +34,14 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
 
     private static final Map<String, String> bandRowTitles = new HashMap<>();
 
+    private final RestUtils restUtils;
 
-    public BandResidenceHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, CodeTableService codeTableService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
+
+    public BandResidenceHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository,
+                                        CodeTableService codeTableService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
         super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
         this.codeTableService = codeTableService;
+        this.restUtils = restUtils;
         headcountMethods = getHeadcountMethods();
     }
 
@@ -78,6 +84,15 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         bandCodesInSchoolCollection.forEach(code -> {
             Optional<BandCodeEntity> entity = allActiveBandCodes.stream().filter(band -> band.getBandCode().equalsIgnoreCase(code)).findFirst();
             entity.ifPresent(bandCodeEntity -> bandRowTitles.put(code, code + " - " + bandCodeEntity.getLabel()));
+        });
+    }
+
+    public void setSchoolTitles(List<BandResidenceHeadcountResult> result) {
+        bandRowTitles.clear();
+        var schoolIdInSchoolCollection = result.stream().map(BandResidenceHeadcountResult::getSchoolID).toList();
+        schoolIdInSchoolCollection.forEach(code -> {
+            Optional<School> entity =  restUtils.getSchoolBySchoolID(code);
+            entity.ifPresent(school -> bandRowTitles.put(code, school.getMincode() + " - " + school.getDisplayName()));
         });
     }
 

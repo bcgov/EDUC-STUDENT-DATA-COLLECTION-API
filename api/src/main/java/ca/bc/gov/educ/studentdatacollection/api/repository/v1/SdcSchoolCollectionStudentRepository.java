@@ -509,6 +509,19 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<BandResidenceHeadcountResult> getBandResidenceHeadcountsBySdcDistrictCollectionId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @Query("SELECT " +
+          "s.bandCode AS bandCode, " +
+          "s.sdcSchoolCollection.schoolID AS schoolID, " +
+          "SUM(s.fte) AS fteTotal, " +
+          "COUNT(*) AS headcount " +
+          "FROM SdcSchoolCollectionStudentEntity s " +
+          "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
+          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
+          "AND s.bandCode IS NOT NULL " +
+          "GROUP BY s.sdcSchoolCollection.schoolID, s.bandCode " +
+          "ORDER BY s.sdcSchoolCollection.schoolID, s.bandCode")
+  List<BandResidenceHeadcountResult> getBandResidenceHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
+
+  @Query("SELECT " +
           "s.enrolledGradeCode AS enrolledGradeCode, " +
           "COUNT(CASE WHEN s.isSchoolAged = false AND s.isAdult = false THEN 1 END) AS underSchoolAgedHeadcount, " +
           "SUM(CASE WHEN s.isSchoolAged = false AND s.isAdult = false AND  s.fte > 0 THEN 1 ELSE 0 END) AS underSchoolAgedEligibleForFte, " +

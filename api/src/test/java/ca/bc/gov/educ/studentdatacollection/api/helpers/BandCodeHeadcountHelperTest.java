@@ -69,7 +69,7 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
     void testConvertHeadcountResults_ShouldReturnTableContents(){
 
         saveStudentsWithBandCodes();
-        helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService, sdcDistrictCollectionRepository);
+        helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService, sdcDistrictCollectionRepository, null);
 
         List<BandResidenceHeadcountResult> result = studentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(schoolCollection.getSdcSchoolCollectionID());
         helper.setBandTitles(result);

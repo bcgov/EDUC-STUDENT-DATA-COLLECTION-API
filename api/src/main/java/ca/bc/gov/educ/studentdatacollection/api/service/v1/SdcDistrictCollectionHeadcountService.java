@@ -190,6 +190,17 @@ public class SdcDistrictCollectionHeadcountService {
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
   }
 
+  public SdcSchoolCollectionStudentHeadcounts getBandResidenceHeadcountsPerSchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
+    var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
+    List<BandResidenceHeadcountResult> result = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionID);
+    bandResidenceHeadcountHelper.setSchoolTitles(result);
+
+    List<HeadcountHeader> headcountHeaderList = indigenousHeadcountHelper.getHeaders(sdcDistrictCollectionID, true);
+    HeadcountResultsTable headcountResultsTable = bandResidenceHeadcountHelper.convertBandHeadcountResults(result);
+
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
+  }
+
   public SdcSchoolCollectionStudentHeadcounts getEllHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
     var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
     ellHeadcountHelper.setGradeCodesForDistricts();
