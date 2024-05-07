@@ -6,10 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentHistoryRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -81,8 +78,14 @@ public class SdcSchoolCollectionService {
     }
   }
 
-  public List<SdcSchoolCollectionEntity> getAllSchoolCollectionsBySchoolId(UUID schoolID) {
-    return sdcSchoolCollectionRepository.findAllBySchoolID(schoolID);
+  public List<SdcSchoolCollectionEntity> getAllSchoolCollections(UUID schoolID, UUID sdcDistrictCollectionID) {
+    if (schoolID != null){
+      return sdcSchoolCollectionRepository.findAllBySchoolID(schoolID);
+    } else if (sdcDistrictCollectionID != null){
+      return sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
+    } else {
+      throw new IllegalArgumentException("Invalid query param");
+    }
   }
 
   public List<SdcSchoolCollectionStudentEntity> getAllSchoolCollectionDuplicates(UUID sdcSchoolCollectionID) {
