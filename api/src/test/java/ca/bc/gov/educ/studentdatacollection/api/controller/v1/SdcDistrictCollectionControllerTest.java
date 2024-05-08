@@ -774,6 +774,11 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     student3.setEnrolledProgramCodes("08");
     sdcSchoolCollectionStudentRepository.save(student3);
 
+    var student4 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    student4.setEnrolledGradeCode(SchoolGradeCodes.GRADE05.getCode());
+    student4.setAssignedStudentId(UUID.randomUUID());
+    sdcSchoolCollectionStudentRepository.save(student4);
+
     SdcDuplicateStudentEntity duplicateStudent1 = SdcDuplicateStudentEntity.builder()
             .sdcDuplicateStudentID(UUID.randomUUID())
             .sdcSchoolCollectionStudentEntity(student1)
@@ -781,7 +786,12 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .sdcSchoolCollectionID(sdcSchoolCollectionEntity1.getSdcSchoolCollectionID())
             .build();
 
-
+    SdcDuplicateStudentEntity duplicateStudent2 = SdcDuplicateStudentEntity.builder()
+            .sdcDuplicateStudentID(UUID.randomUUID())
+            .sdcSchoolCollectionStudentEntity(student4)
+            .sdcDistrictCollectionID(sdcDistrictCollectionID)
+            .sdcSchoolCollectionID(sdcSchoolCollectionEntity2.getSdcSchoolCollectionID())
+            .build();
 
     SdcDuplicateEntity duplicate1 = SdcDuplicateEntity.builder()
             .sdcDuplicateID(UUID.randomUUID())
@@ -794,9 +804,11 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .build();
 
     duplicateStudent1.setSdcDuplicateEntity(duplicate1);
+    duplicateStudent2.setSdcDuplicateEntity(duplicate1);
 
     Set<SdcDuplicateStudentEntity> dupStudentSet = new HashSet<>();
     dupStudentSet.add(duplicateStudent1);
+    dupStudentSet.add(duplicateStudent2);
     duplicate1.setSdcDuplicateStudentEntities(dupStudentSet);
 
     sdcDuplicateRepository.save(duplicate1);

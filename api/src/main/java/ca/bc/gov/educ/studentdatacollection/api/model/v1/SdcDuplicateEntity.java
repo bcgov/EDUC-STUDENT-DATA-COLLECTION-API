@@ -82,14 +82,10 @@ public class SdcDuplicateEntity {
   public int getUniqueObjectHash() {
 
     List<UUID> studentIDs = getSdcDuplicateStudentEntities().stream().map(studentDupe -> studentDupe.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID()).toList();
-    UUID student1ID = studentIDs.get(0);
-    UUID student2ID = null;
+    UUID smallerID = studentIDs.get(0).compareTo(studentIDs.get(1)) < 0 ? studentIDs.get(1) : studentIDs.get(0);
+    UUID largerID = smallerID == studentIDs.get(0) ? studentIDs.get(1) : studentIDs.get(0);
 
-    if(studentIDs.size() > 1){
-      student2ID = studentIDs.get(1);
-    }
-
-    return Objects.hash(student1ID, student2ID, duplicateSeverityCode, duplicateTypeCode, programDuplicateTypeCode, duplicateLevelCode,
+    return Objects.hash(smallerID, largerID, duplicateSeverityCode, duplicateTypeCode, programDuplicateTypeCode, duplicateLevelCode,
             duplicateErrorDescriptionCode, duplicateResolutionCode, createUser, createDate, updateUser, updateDate);
   }
 }
