@@ -195,6 +195,11 @@ public class SdcDistrictCollectionHeadcountService {
     List<HeadcountHeader> headcountHeaderList = indigenousHeadcountHelper.getHeaders(sdcDistrictCollectionID, true);
     HeadcountResultsTable headcountResultsTable = bandResidenceHeadcountHelper.convertBandHeadcountResults(result, false);
 
+    if(compare) {
+      indigenousHeadcountHelper.setComparisonValuesForDistrict(sdcDistrictCollectionEntity, headcountHeaderList);
+      bandResidenceHeadcountHelper.setBandResultsTableComparisonValuesDistrict(sdcDistrictCollectionEntity, headcountResultsTable);
+    }
+
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
   }
 

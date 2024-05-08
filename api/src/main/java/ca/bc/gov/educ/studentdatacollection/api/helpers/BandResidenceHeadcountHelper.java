@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.BandCodeEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -49,6 +50,13 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
         List<BandResidenceHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(previousCollectionID);
         HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, false);
+        setResultsTableComparisonValues(currentCollectionData, previousCollectionData);
+    }
+
+    public void setBandResultsTableComparisonValuesDistrict(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, HeadcountResultsTable currentCollectionData) {
+        UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+        List<BandResidenceHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcDistrictCollectionId(previousCollectionID);
+        HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, true);
         setResultsTableComparisonValues(currentCollectionData, previousCollectionData);
     }
 
