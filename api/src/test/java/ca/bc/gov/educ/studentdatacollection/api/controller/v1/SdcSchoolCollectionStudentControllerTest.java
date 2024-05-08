@@ -3172,15 +3172,15 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Indigenous Language and Culture")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
-                //.andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("0")))
-                //.andExpect(jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Not Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[1].title", equalTo("Indigenous Support Services")))
                 .andExpect(jsonPath("$.headcountHeaders[1].columns.['Not Reported'].currentValue", equalTo("0")))
-                //.andExpect(jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("4")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[1].columns.['Eligible'].currentValue", equalTo("8")))
                 .andExpect(jsonPath("$.headcountHeaders[2].title", equalTo("Other Approved Indigenous Programs")))
                 .andExpect(jsonPath("$.headcountHeaders[2].columns.['Not Reported'].currentValue", equalTo("8")))
-                //.andExpect(jsonPath("$.headcountHeaders[2].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[2].columns.['Eligible'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[3].title", equalTo("Indigenous Ancestry")))
                 .andExpect(jsonPath("$.headcountHeaders[3].columns.['Total Students'].currentValue", equalTo("4")))
@@ -3265,6 +3265,8 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andExpect(jsonPath("$.headcountResultsTable.rows[*].['title'].currentValue", containsInAnyOrder("0500 - KWANLIN DUN", "All Bands & Students")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['Headcount'].currentValue", contains("4")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['FTE'].currentValue", contains("2.72")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['Headcount'].comparisonValue", contains("0")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['FTE'].comparisonValue", contains("0")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows", hasSize(2)));
     }
 
@@ -3464,9 +3466,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['01'].currentValue", contains("2")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['02'].currentValue", contains("1")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['10'].currentValue", contains("1")))
-                //.andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['01'].comparisonValue", contains("0")))
-                //.andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['02'].comparisonValue", contains("0")))
-                //.andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['10'].comparisonValue", contains("0")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['01'].comparisonValue", contains("0")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['02'].comparisonValue", contains("0")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['10'].comparisonValue", contains("0")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows", hasSize(3)));
     }
 
@@ -3550,9 +3552,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Bands & Students')].['Headcount'].currentValue", contains("6")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Bands & Students')].['FTE'].currentValue", contains("5.18")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0000001 - School1')].['FTE'].currentValue", contains("2.46")))
-                //.andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['01'].comparisonValue", contains("0")))
-                //.andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['02'].comparisonValue", contains("0")))
-                //.andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Schools')].['10'].comparisonValue", contains("0")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Bands & Students')].['Headcount'].comparisonValue", contains("0")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Bands & Students')].['FTE'].comparisonValue", contains("0")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0000001 - School1')].['FTE'].comparisonValue", contains("0")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows", hasSize(3)));
     }
 }
