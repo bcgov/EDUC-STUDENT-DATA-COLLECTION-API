@@ -1,11 +1,14 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.BandCodeEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -32,18 +35,28 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
 
     private static final Map<String, String> bandRowTitles = new HashMap<>();
 
+    private final RestUtils restUtils;
 
-    public BandResidenceHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, CodeTableService codeTableService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
+
+    public BandResidenceHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository,
+                                        CodeTableService codeTableService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
         super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
         this.codeTableService = codeTableService;
+        this.restUtils = restUtils;
         headcountMethods = getHeadcountMethods();
     }
 
     public void setBandResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable currentCollectionData) {
         UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
         List<BandResidenceHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(previousCollectionID);
-        setBandTitles(previousCollectionRawData);
-        HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData);
+        HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, false);
+        setResultsTableComparisonValues(currentCollectionData, previousCollectionData);
+    }
+
+    public void setBandResultsTableComparisonValuesDistrict(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, HeadcountResultsTable currentCollectionData, Boolean schoolTitles) {
+        UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+        List<BandResidenceHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcDistrictCollectionId(previousCollectionID);
+        HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, schoolTitles);
         setResultsTableComparisonValues(currentCollectionData, previousCollectionData);
     }
 
@@ -81,10 +94,25 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         });
     }
 
-    public HeadcountResultsTable convertBandHeadcountResults(List<BandResidenceHeadcountResult> results){
+    public void setSchoolTitles(List<BandResidenceHeadcountResult> result) {
+        bandRowTitles.clear();
+        var schoolIdInSchoolCollection = result.stream().map(BandResidenceHeadcountResult::getSchoolID).toList();
+        schoolIdInSchoolCollection.forEach(code -> {
+            Optional<School> entity =  restUtils.getSchoolBySchoolID(code);
+            entity.ifPresent(school -> bandRowTitles.put(code, school.getMincode() + " - " + school.getDisplayName()));
+        });
+    }
+
+    public HeadcountResultsTable convertBandHeadcountResults(List<BandResidenceHeadcountResult> results, Boolean schoolTitles){
         HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
         headcountResultsTable.setHeaders(TABLE_COLUMN_TITLES);
         headcountResultsTable.setRows(new ArrayList<>());
+
+        if (Boolean.TRUE.equals(schoolTitles)) {
+            setSchoolTitles(results);
+        } else {
+            setBandTitles(results);
+        }
 
         BigDecimal fteTotal = BigDecimal.ZERO;
         BigDecimal headcountTotal = BigDecimal.ZERO;
@@ -95,7 +123,10 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
             rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
             for (String column : columns) {
                 var result = results.stream()
-                        .filter(value -> value.getBandCode().equals(title.getKey()))
+                        .filter(value -> {
+                            String compareKey = Boolean.TRUE.equals(schoolTitles) ? value.getSchoolID() : value.getBandCode();
+                            return compareKey.equals(title.getKey());
+                        })
                         .findFirst()
                         .orElse(null);
 
