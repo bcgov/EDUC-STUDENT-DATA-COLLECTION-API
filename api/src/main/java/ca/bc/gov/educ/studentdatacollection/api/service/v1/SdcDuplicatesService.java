@@ -66,20 +66,39 @@ public class SdcDuplicatesService {
       }
     });
 
-    updateResolvedDuplicates(newDuplicates, existingDuplicates);
+    List<SdcDuplicateEntity> unresolvedExistingDuplicates = updateResolvedDuplicates(newDuplicates, existingDuplicates);
 
     sdcDuplicateRepository.saveAll(newDuplicates);
-    newDuplicates.addAll(existingDuplicates);
+    newDuplicates.addAll(unresolvedExistingDuplicates);
     return newDuplicates;
   }
 
-  private void updateResolvedDuplicates(List<SdcDuplicateEntity> newDuplicates, List<SdcDuplicateEntity> existingDuplicates){
-    List<SdcDuplicateEntity> resolvedDuplicates = newDuplicates.stream()
-            .filter(el -> !existingDuplicates.contains(el))
-            .peek(el -> el.setDuplicateResolutionCode(DuplicateResolutionCode.RELEASED.getCode()))
-            .toList();
+  private List<SdcDuplicateEntity> updateResolvedDuplicates(List<SdcDuplicateEntity> newDuplicates, List<SdcDuplicateEntity> existingDuplicates){
+
+    List<Integer> newDuplicatesHashes = newDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
+    List<Integer> existingDuplicatesHashes = existingDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
+
+    List<SdcDuplicateEntity> resolvedDuplicates = new ArrayList<>();
+    List<SdcDuplicateEntity> unresolvedDuplicates = new ArrayList<>();
+
+    int index = 0;
+    for(Integer hash : existingDuplicatesHashes){
+      if(!newDuplicatesHashes.contains(hash)){
+        SdcDuplicateEntity resolvedDuplicate = existingDuplicates.get(index);
+
+        if(Objects.equals(resolvedDuplicate.getDuplicateTypeCode(), DuplicateTypeCode.PROGRAM.getCode())) {
+          resolvedDuplicate.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
+          resolvedDuplicates.add(resolvedDuplicate);
+        }
+      } else {
+        unresolvedDuplicates.add(existingDuplicates.get(index));
+      }
+      index++;
+    }
 
     sdcDuplicateRepository.saveAll(resolvedDuplicates);
+
+    return unresolvedDuplicates;
   }
 
   private List<SdcDuplicateEntity> runDuplicatesCheck(DuplicateLevelCode level, SdcSchoolCollectionStudentEntity entity1, SdcSchoolCollectionStudentEntity entity2){
@@ -191,7 +210,6 @@ public class SdcDuplicatesService {
       }
     }
 
-    //Compare new duplicates with passed in existing duplicates
     return newDuplicates;
   }
 

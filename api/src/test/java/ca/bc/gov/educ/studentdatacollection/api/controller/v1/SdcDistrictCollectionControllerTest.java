@@ -3,10 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
@@ -28,12 +25,9 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -44,7 +38,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITest {
@@ -734,6 +727,96 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     assertThat(sdcDuplicates.get(0).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.ENROLLMENT.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateSeverityCode()).isEqualTo(DuplicateSeverityCode.ALLOWABLE.getCode());
+  }
+
+  @Test
+  void testGetAllInDistrictDuplicatesBySdcDistrictCollectionID_ShouldResolveDupsAndReturnUnresolved() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_DISTRICT_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
+    var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
+
+    School school1 = createMockSchool();
+    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
+
+    School school2 = createMockSchool();
+    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
+
+    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+
+    var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE05.getCode());
+    student1.setAssignedStudentId(UUID.randomUUID());
+    student1.setEnrolledProgramCodes("33");
+    sdcSchoolCollectionStudentRepository.save(student1);
+
+    var student2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    student2.setEnrolledGradeCode(SchoolGradeCodes.GRADE11.getCode());
+    student2.setAssignedStudentId(UUID.randomUUID());
+    student2.setEnrolledProgramCodes("08");
+    sdcSchoolCollectionStudentRepository.save(student2);
+
+    var student3 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+    student3.setEnrolledGradeCode(SchoolGradeCodes.GRADE11.getCode());
+    student3.setAssignedStudentId(student2.getAssignedStudentId());
+    student3.setEnrolledProgramCodes("08");
+    sdcSchoolCollectionStudentRepository.save(student3);
+
+    SdcDuplicateStudentEntity duplicateStudent1 = SdcDuplicateStudentEntity.builder()
+            .sdcDuplicateStudentID(UUID.randomUUID())
+            .sdcSchoolCollectionStudentEntity(student1)
+            .sdcDistrictCollectionID(sdcDistrictCollectionID)
+            .sdcSchoolCollectionID(sdcSchoolCollectionEntity1.getSdcSchoolCollectionID())
+            .build();
+
+
+
+    SdcDuplicateEntity duplicate1 = SdcDuplicateEntity.builder()
+            .sdcDuplicateID(UUID.randomUUID())
+            .retainedSdcSchoolCollectionStudentEntity(null)
+            .duplicateSeverityCode("NON_ALLOW")
+            .duplicateTypeCode("PROGRAM") // Set type code
+            .programDuplicateTypeCode("INDIGENOUS")
+            .createUser("system")
+            .createDate(LocalDateTime.now())
+            .build();
+
+    duplicateStudent1.setSdcDuplicateEntity(duplicate1);
+
+    Set<SdcDuplicateStudentEntity> dupStudentSet = new HashSet<>();
+    dupStudentSet.add(duplicateStudent1);
+    duplicate1.setSdcDuplicateStudentEntities(dupStudentSet);
+
+    sdcDuplicateRepository.save(duplicate1);
+
+    UUID duplicateID = sdcDuplicateRepository.findAll().get(0).getSdcDuplicateID();
+
+    var resultActions1 = this.mockMvc.perform(
+                    get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
+
+    val sdcDuplicates = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List<SdcDuplicate>>() {
+    });
+
+    assertThat(sdcDuplicates).hasSize(3);
+    assertThat(sdcDuplicates.get(0).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
+    assertThat(sdcDuplicates.get(0).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.ENROLLMENT.getCode());
+
+    Optional<SdcDuplicateEntity> updatedDupe = sdcDuplicateRepository.findById(duplicateID);
+
+    assertThat(updatedDupe.get().getDuplicateResolutionCode()).isEqualTo(DuplicateResolutionCode.RESOLVED.getCode());
   }
 
   @Test

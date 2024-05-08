@@ -5,7 +5,8 @@ import lombok.Getter;
 public enum DuplicateResolutionCode {
 
   RELEASED("RELEASED", "Student released from school."),
-  GRADE_CHNG("GRADE_CHNG", "The students grade was changed.");
+  GRADE_CHNG("GRADE_CHNG", "The students grade was changed."),
+  RESOLVED("RESOLVED", "Student removed from conflicting program.");
 
 
   @Getter
