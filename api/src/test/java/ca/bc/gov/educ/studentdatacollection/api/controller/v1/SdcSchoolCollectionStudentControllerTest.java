@@ -3548,6 +3548,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Indigenous Language and Culture")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[*].['title'].currentValue", containsInAnyOrder("0000001 - School1", "0000002 - School2", "All Bands & Students")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Bands & Students')].['Headcount'].currentValue", contains("6")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Bands & Students')].['FTE'].currentValue", contains("5.18")))

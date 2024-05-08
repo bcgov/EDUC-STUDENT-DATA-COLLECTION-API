@@ -123,7 +123,10 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
             rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
             for (String column : columns) {
                 var result = results.stream()
-                        .filter(value -> (Boolean.TRUE.equals(schoolTitles) ? value.getSchoolID() : value.getBandCode()).equals(title.getKey()))
+                        .filter(value -> {
+                            String compareKey = Boolean.TRUE.equals(schoolTitles) ? value.getSchoolID() : value.getBandCode();
+                            return compareKey.equals(title.getKey());
+                        })
                         .findFirst()
                         .orElse(null);
 
