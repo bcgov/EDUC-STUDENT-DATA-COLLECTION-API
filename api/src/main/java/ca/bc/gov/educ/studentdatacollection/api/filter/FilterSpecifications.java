@@ -130,10 +130,9 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
             criteriaQuery.distinct(true);
             if (filterCriteria.getFieldName().contains(".")) {
                 String[] splits = filterCriteria.getFieldName().split("\\.");
-                return criteriaBuilder.or(root.join(splits[0], JoinType.LEFT).get(splits[1]).in(filterCriteria.getConvertedValues()), criteriaBuilder.isNotEmpty(root.get(splits[0])));
+                return criteriaBuilder.or(root.join(splits[0], JoinType.LEFT).get(splits[1]).in(filterCriteria.getConvertedValues()));
             }
             return root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues());
         });
-
     }
 }
