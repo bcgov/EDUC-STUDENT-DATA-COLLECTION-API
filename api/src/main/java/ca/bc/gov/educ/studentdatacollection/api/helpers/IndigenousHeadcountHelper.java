@@ -95,6 +95,16 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
         setResultsTableComparisonValues(collectionData, previousCollectionData);
     }
 
+    public void setComparisonValuesForDistrictBySchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
+        UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+        List<IndigenousHeadcountResult> collectionRawDataForHeadcount = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(previousCollectionID);
+
+        HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawDataForHeadcount);
+        List<HeadcountHeader> previousHeadcountHeaderList = this.getHeaders(previousCollectionID, true);
+        setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
+        setResultsTableComparisonValues(collectionData, previousCollectionData);
+    }
+
     @Override
     public void setComparisonValues(List<HeadcountHeader> headcountHeaderList, List<HeadcountHeader> previousHeadcountHeaderList) {
         IntStream.range(0, headcountHeaderList.size())
