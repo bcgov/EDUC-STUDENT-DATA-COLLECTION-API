@@ -96,9 +96,13 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
 
     public void setSchoolTitles(List<BandResidenceHeadcountResult> result) {
         bandRowTitles.clear();
-        var schoolIdInSchoolCollection = result.stream().map(BandResidenceHeadcountResult::getSchoolID).toList();
+        var schoolIdInSchoolCollection = result.stream()
+                .map(BandResidenceHeadcountResult::getSchoolID)
+                .filter(Objects::nonNull)
+                .toList();
+
         schoolIdInSchoolCollection.forEach(code -> {
-            Optional<School> entity =  restUtils.getSchoolBySchoolID(code);
+            Optional<School> entity = restUtils.getSchoolBySchoolID(code);
             entity.ifPresent(school -> bandRowTitles.put(code, school.getMincode() + " - " + school.getDisplayName()));
         });
     }
