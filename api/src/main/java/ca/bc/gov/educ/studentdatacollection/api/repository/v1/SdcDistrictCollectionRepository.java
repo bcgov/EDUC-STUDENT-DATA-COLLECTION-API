@@ -10,14 +10,17 @@ import java.util.UUID;
 
 @Repository
 public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistrictCollectionEntity, UUID> {
-
-  Optional<SdcDistrictCollectionEntity> findByDistrictIDAndSdcDistrictCollectionStatusCodeNotIgnoreCase(UUID districtID, String sdcDistrictCollectionStatusCode);
+  @Query(value="""
+            SELECT SSC FROM SdcDistrictCollectionEntity SSC, CollectionEntity C WHERE SSC.districtID=:districtID
+            AND C.collectionID = SSC.collectionEntity.collectionID
+            AND C.openDate <= CURRENT_TIMESTAMP AND C.closeDate >= CURRENT_TIMESTAMP""")
+  Optional<SdcDistrictCollectionEntity> findActiveCollectionByDistrictId(UUID districtID);
 
   Optional<SdcDistrictCollectionEntity> findBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
 
   @Query(value="""
-            SELECT SSD FROM SdcDistrictCollectionEntity SSD, CollectionEntity C 
-            WHERE SSD.districtID=:districtID 
+            SELECT SSD FROM SdcDistrictCollectionEntity SSD, CollectionEntity C
+            WHERE SSD.districtID=:districtID
             AND C.collectionID = SSD.collectionEntity.collectionID
             AND SSD.sdcDistrictCollectionID != :currentSdcDistrictCollectionID
             AND C.collectionTypeCode = :collectionTypeCode
