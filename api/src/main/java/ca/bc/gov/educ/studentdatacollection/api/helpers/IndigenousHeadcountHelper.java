@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -74,11 +75,42 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
         setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
     }
 
+    public void setComparisonValuesForDistrict(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
+        UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+        List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
+        setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
+    }
+
     public void setResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable collectionData) {
         UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
         List<IndigenousHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcSchoolCollectionId(previousCollectionID);
         HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
         setResultsTableComparisonValues(collectionData, previousCollectionData);
+    }
+
+    public void setResultsTableComparisonValuesForDistrict(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, HeadcountResultsTable collectionData) {
+        UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+        List<IndigenousHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcDistrictCollectionId(previousCollectionID);
+        HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
+        setResultsTableComparisonValues(collectionData, previousCollectionData);
+    }
+
+    @Override
+    public void setComparisonValues(List<HeadcountHeader> headcountHeaderList, List<HeadcountHeader> previousHeadcountHeaderList) {
+        IntStream.range(0, headcountHeaderList.size())
+                .forEach(i -> {
+                    HeadcountHeader currentHeader = headcountHeaderList.get(i);
+                    HeadcountHeader previousHeader = previousHeadcountHeaderList.get(i);
+
+                    currentHeader.getColumns().forEach((columnName, currentColumn) -> {
+                        HeadcountHeaderColumn previousColumn = previousHeader.getColumns().get(columnName);
+                        currentColumn.setComparisonValue(previousColumn.getCurrentValue());
+                    });
+
+                    if(currentHeader.getHeadCountValue() != null && previousHeader.getHeadCountValue() != null) {
+                        currentHeader.getHeadCountValue().setComparisonValue(previousHeader.getHeadCountValue().getCurrentValue());
+                    }
+                });
     }
 
     public List<HeadcountHeader> getHeaders(UUID sdcSchoolCollectionID, Boolean isDistrict) {
@@ -200,24 +232,6 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
             log.error("Error parsing count from result for SchoolID {}: {}", result.getSchoolID(), e.getMessage());
             return 0;
         }
-    }
-
-    @Override
-    public void setComparisonValues(List<HeadcountHeader> headcountHeaderList, List<HeadcountHeader> previousHeadcountHeaderList) {
-        IntStream.range(0, headcountHeaderList.size())
-                .forEach(i -> {
-                    HeadcountHeader currentHeader = headcountHeaderList.get(i);
-                    HeadcountHeader previousHeader = previousHeadcountHeaderList.get(i);
-
-                    currentHeader.getColumns().forEach((columnName, currentColumn) -> {
-                        HeadcountHeaderColumn previousColumn = previousHeader.getColumns().get(columnName);
-                        currentColumn.setComparisonValue(previousColumn.getCurrentValue());
-                    });
-
-                    if(currentHeader.getHeadCountValue() != null && previousHeader.getHeadCountValue() != null) {
-                        currentHeader.getHeadCountValue().setComparisonValue(previousHeader.getHeadCountValue().getCurrentValue());
-                    }
-                });
     }
 
     private Map<String, Function<IndigenousHeadcountResult, String>> getHeadcountMethods() {
