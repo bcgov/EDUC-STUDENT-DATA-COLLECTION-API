@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
@@ -50,7 +49,12 @@ public class SdcDistrictCollectionService {
   }
 
   public SdcDistrictCollectionEntity getActiveSdcDistrictCollectionByDistrictID(UUID districtID) {
-    return sdcDistrictCollectionRepository.findByDistrictIDAndSdcDistrictCollectionStatusCodeNotIgnoreCase(districtID, SdcDistrictCollectionStatus.COMPLETED.getCode()).orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection for district Id", districtID.toString()));
+    Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntity =  sdcDistrictCollectionRepository.findActiveCollectionByDistrictId(districtID);
+    if(sdcDistrictCollectionEntity.isPresent()) {
+      return sdcDistrictCollectionEntity.get();
+    } else {
+      throw new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection for district Id", districtID.toString());
+    }
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
