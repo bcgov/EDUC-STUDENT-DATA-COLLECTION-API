@@ -823,7 +823,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     val sdcDuplicates = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List<SdcDuplicate>>() {
     });
 
-    assertThat(sdcDuplicates).hasSize(3);
+    assertThat(sdcDuplicates).hasSize(4);
     assertThat(sdcDuplicates.get(0).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.ENROLLMENT.getCode());
 
