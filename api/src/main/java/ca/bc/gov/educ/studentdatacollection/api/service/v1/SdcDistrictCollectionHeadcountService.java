@@ -221,7 +221,6 @@ public class SdcDistrictCollectionHeadcountService {
   public SdcSchoolCollectionStudentHeadcounts getEllHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
     var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
     ellHeadcountHelper.setGradeCodesForDistricts();
-    ellHeadcountHelper.setDistrictReportTitles();
 
     List<EllHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionID);
     HeadcountResultsTable collectionData = ellHeadcountHelper.convertHeadcountResults(collectionRawData);

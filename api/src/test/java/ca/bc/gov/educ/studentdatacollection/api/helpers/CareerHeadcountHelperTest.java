@@ -121,11 +121,11 @@ class CareerHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         HeadcountResultsTable actualResultsTable = helper.convertCareerBySchoolHeadcountResults(result);
         var schoolSection = actualResultsTable.getRows().stream().map(row -> row.get("section")).toList();
 
-        var titles = actualResultsTable.getRows().stream().filter(row -> row.get("section").getCurrentValue().equals("School2") &&
+        var titles = actualResultsTable.getRows().stream().filter(row -> row.get("section").getCurrentValue().equals("0000002 - School2") &&
                 row.get("title").getCurrentValue().equals("All Career Programs")).findAny();
 
-        assert(schoolSection.stream().anyMatch(val -> val.getCurrentValue().equals("School2")));
-        assert(schoolSection.stream().anyMatch(val -> val.getCurrentValue().equals("School1")));
+        assert(schoolSection.stream().anyMatch(val -> val.getCurrentValue().equals("0000002 - School2")));
+        assert(schoolSection.stream().anyMatch(val -> val.getCurrentValue().equals("0000001 - School1")));
 
         assert(titles.isPresent());
         assertEquals("0", titles.get().get("08").getCurrentValue());

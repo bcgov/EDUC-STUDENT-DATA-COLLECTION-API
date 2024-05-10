@@ -130,15 +130,15 @@ class EnrollmentHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         var titles = actualResultsTable.getRows().stream().filter(row -> row.get("section").getCurrentValue().equals("All Schools") &&
                 row.get("title").getCurrentValue().equals("FTE Total")).findAny();
 
-        assert(schoolSection.stream().anyMatch(val -> val.getCurrentValue().equals("School2")));
-        assert(schoolSection.stream().anyMatch(val -> val.getCurrentValue().equals("School1")));
+        assert(schoolSection.stream().anyMatch(val -> val.getCurrentValue().equals("0000002 - School2")));
+        assert(schoolSection.stream().anyMatch(val -> val.getCurrentValue().equals("0000001 - School1")));
         assert(schoolSection.stream().anyMatch(val -> val.getCurrentValue().equals("All Schools")));
 
         assert(titles.isPresent());
-        assertEquals("1.7999999999999998", titles.get().get("01").getCurrentValue());
-        assertEquals("0.79", titles.get().get("02").getCurrentValue());
-        assertEquals("0.79", titles.get().get("10").getCurrentValue());
-        assertEquals("1.7999999999999998", titles.get().get("11").getCurrentValue());
+        assertEquals("1.8000", titles.get().get("01").getCurrentValue());
+        assertEquals("0.7900", titles.get().get("02").getCurrentValue());
+        assertEquals("0.7900", titles.get().get("10").getCurrentValue());
+        assertEquals("1.8000", titles.get().get("11").getCurrentValue());
         assertEquals("5.1799999999999996", titles.get().get("Total").getCurrentValue());
 
     }

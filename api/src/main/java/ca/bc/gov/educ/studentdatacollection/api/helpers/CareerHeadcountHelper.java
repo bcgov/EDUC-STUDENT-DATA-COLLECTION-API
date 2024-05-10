@@ -359,7 +359,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
       Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
 
       if (title.getKey().equals(SCHOOL_NAME_KEY)) {
-        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(school.getDisplayName()).build());
+        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(school.getMincode() + "-" + school.getDisplayName()).build());
       } else {
         rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
       }
@@ -381,7 +381,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
         }
         rowData.put(TOTAL_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(total)).build());
       }
-      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(school.getDisplayName()).build());
+      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(school.getMincode() + " - " + school.getDisplayName()).build());
       rows.add(rowData);
     }
   }

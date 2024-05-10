@@ -59,6 +59,8 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
     this.restUtils = restUtils;
     headcountMethods = getHeadcountMethods();
     perSchoolReportRowTitles = getPerSchoolReportRowTitles();
+    sectionTitles = getSelectionTitles();
+    rowTitles = getRowTitles();
   }
 
   public void setGradeCodes(Optional<School> school) {
@@ -67,16 +69,6 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
     } else {
       gradeCodes = SchoolGradeCodes.getNonIndependentKtoSUGrades();
     }
-  }
-
-  public void setSchoolReportTitles() {
-    sectionTitles = getSelectionTitles();
-    rowTitles = getRowTitles();
-  }
-
-  public void setDistrictReportTitles() {
-    sectionTitles = getDistrictSelectionTitles();
-    rowTitles = getDistrictRowTitles();
   }
 
   public void setGradeCodesForDistricts() {
@@ -219,7 +211,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
   public void createSectionsBySchool(List<Map<String, HeadcountHeaderColumn>> rows, List<EllHeadcountResult> results, School school) {
     for (Map.Entry<String, String> title : perSchoolReportRowTitles.entrySet()) {
       Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
-      rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(school.getDisplayName()).build());
+      rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(school.getMincode() + " - " + school.getDisplayName()).build());
 
       BigDecimal total = BigDecimal.ZERO;
       Function<EllHeadcountResult, String> headcountFunction = headcountMethods.get(title.getKey());

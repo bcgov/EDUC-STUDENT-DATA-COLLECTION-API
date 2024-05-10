@@ -106,7 +106,6 @@ public class SdcSchoolCollectionStudentHeadcountService {
     var sdcSchoolCollectionID = sdcSchoolCollectionEntity.getSdcSchoolCollectionID();
     Optional<School> school = this.restUtils.getSchoolBySchoolID(String.valueOf(sdcSchoolCollectionEntity.getSchoolID()));
     ellHeadcountHelper.setGradeCodes(school);
-    ellHeadcountHelper.setSchoolReportTitles();
 
     List<EllHeadcountResult> collectionRawData =
       sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
