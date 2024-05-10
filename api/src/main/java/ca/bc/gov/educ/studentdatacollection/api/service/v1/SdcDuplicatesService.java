@@ -28,6 +28,7 @@ public class SdcDuplicatesService {
   private final SdcDuplicateRepository sdcDuplicateRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private final ValidationRulesService validationRulesService;
+
   private final RestUtils restUtils;
 
   @Autowired
@@ -65,9 +66,34 @@ public class SdcDuplicatesService {
       }
     });
 
+    resolveDuplicates(newDuplicates, existingDuplicates);
+
     sdcDuplicateRepository.saveAll(newDuplicates);
     newDuplicates.addAll(existingDuplicates);
     return newDuplicates;
+  }
+
+  private void resolveDuplicates(List<SdcDuplicateEntity> newDuplicates, List<SdcDuplicateEntity> existingDuplicates){
+
+    List<Integer> newDuplicatesHashes = newDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
+    List<Integer> existingDuplicatesHashes = existingDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
+
+    List<SdcDuplicateEntity> resolvedDuplicates = new ArrayList<>();
+
+    int index = 0;
+    for(Integer hash : existingDuplicatesHashes){
+      if(!newDuplicatesHashes.contains(hash)){
+        SdcDuplicateEntity duplicate = existingDuplicates.get(index);
+
+        if(Objects.equals(duplicate.getDuplicateTypeCode(), DuplicateTypeCode.PROGRAM.getCode())) {
+          duplicate.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
+          resolvedDuplicates.add(duplicate);
+        }
+      }
+      index++;
+    }
+
+    sdcDuplicateRepository.saveAll(resolvedDuplicates);
   }
 
   private List<SdcDuplicateEntity> runDuplicatesCheck(DuplicateLevelCode level, SdcSchoolCollectionStudentEntity entity1, SdcSchoolCollectionStudentEntity entity2){
@@ -178,6 +204,7 @@ public class SdcDuplicatesService {
         }
       }
     }
+
     return newDuplicates;
   }
 

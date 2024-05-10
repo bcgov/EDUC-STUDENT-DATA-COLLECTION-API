@@ -10,9 +10,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @SuperBuilder
@@ -79,5 +77,15 @@ public class SdcDuplicateEntity {
       this.sdcDuplicateStudentEntities = new HashSet<>();
     }
     return this.sdcDuplicateStudentEntities;
+  }
+
+  public int getUniqueObjectHash() {
+
+    List<UUID> studentIDs = getSdcDuplicateStudentEntities().stream().map(studentDupe -> studentDupe.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID()).toList();
+    UUID smallerID = studentIDs.get(0).compareTo(studentIDs.get(1)) < 0 ? studentIDs.get(1) : studentIDs.get(0);
+    UUID largerID = smallerID == studentIDs.get(0) ? studentIDs.get(1) : studentIDs.get(0);
+
+    return Objects.hash(smallerID, largerID, duplicateSeverityCode, duplicateTypeCode, programDuplicateTypeCode, duplicateLevelCode,
+            duplicateErrorDescriptionCode, duplicateResolutionCode, createUser, createDate, updateUser, updateDate);
   }
 }
