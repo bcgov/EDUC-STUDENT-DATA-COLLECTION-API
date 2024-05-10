@@ -176,8 +176,9 @@ class EllHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         List<EllHeadcountResult> result = sdcSchoolCollectionStudentRepository.getEllHeadcountsByBySchoolIdAndSdcDistrictCollectionId(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
 
         HeadcountResultsTable actualResultsTable = helper.convertEllBySchoolHeadcountResults(result);
+
         var titles = actualResultsTable.getRows().stream().filter(row ->
-                row.get("title").getCurrentValue().equals("School2")).findAny();
+                row.get("title").getCurrentValue().equals("0000002 - School2")).findAny();
 
         assert(titles.isPresent());
         assertEquals("4", titles.get().get("Total").getCurrentValue());

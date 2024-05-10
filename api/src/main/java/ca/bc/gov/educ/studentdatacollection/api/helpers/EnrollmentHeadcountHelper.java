@@ -258,7 +258,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
       Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
 
       if (title.getKey().equals(SCHOOL_NAME_KEY)) {
-        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(school.getDisplayName()).build());
+        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(school.getMincode() + "-" + school.getDisplayName()).build());
       } else {
         rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
       }
@@ -280,7 +280,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
         }
         rowData.put(TOTAL_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(total)).build());
       }
-      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(school.getDisplayName()).build());
+      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(school.getMincode() + " - " + school.getDisplayName()).build());
       rows.add(rowData);
     }
   }
@@ -306,7 +306,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
           else if(row.getKey().equals(TOTAL_FTE_TITLE)) {
             double totalFtePerGrade = results.stream().filter(grade -> grade.getEnrolledGradeCode().equals(gradeCode))
                     .map(EnrollmentHeadcountResult::getTotalFteTotal).mapToDouble(Double::valueOf).sum();
-            totalRowData.put(gradeCode, HeadcountHeaderColumn.builder().currentValue(String.valueOf(totalFtePerGrade)).build());
+            totalRowData.put(gradeCode, HeadcountHeaderColumn.builder().currentValue(String.format("%,.4f", BigDecimal.valueOf(totalFtePerGrade))).build());
             sectionTotal = sectionTotal.add(BigDecimal.valueOf(totalFtePerGrade));
           }
         }
