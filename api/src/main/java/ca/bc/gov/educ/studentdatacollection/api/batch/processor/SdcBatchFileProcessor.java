@@ -157,6 +157,8 @@ public class SdcBatchFileProcessor {
       batchFileReaderOptional = Optional.of(new InputStreamReader(byteArrayOutputStream));
       final DataSet ds = DefaultParserFactory.getInstance().newFixedLengthParser(mapperReader, batchFileReaderOptional.get()).setStoreRawDataToDataError(true).setStoreRawDataToDataSet(true).setNullEmptyStrings(true).parse();
 
+      this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
+
       var school = this.sdcFileValidator.getSchoolUsingMincode(guid, ds);
 
       var districtCollection = this.sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(UUID.fromString(sdcDistrictCollectionID));
@@ -167,7 +169,6 @@ public class SdcBatchFileProcessor {
 
       this.resetFileUploadMetadata(String.valueOf(sdcSchoolCollectionID));
       this.sdcFileValidator.validateFileHasCorrectExtension(String.valueOf(sdcSchoolCollectionID), fileUpload);
-      this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
 
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);

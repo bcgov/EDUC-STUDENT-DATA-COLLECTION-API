@@ -11,7 +11,7 @@ public enum FileError {
   /**
    * The Invalid mincode header.
    */
-  MISSING_HEADER("The file header appeards to be missing"),
+  MISSING_HEADER("The file header appears to be missing"),
 
   /**
    * The Invalid transaction code header.
@@ -64,6 +64,8 @@ public enum FileError {
    * The mincode on the uploaded document does not match the collection record.
    */
   MINCODE_MISMATCH("The uploaded file is for another school. Please upload a file for $?"),
+
+  SCHOOL_OUTSIDE_OF_DISTRICT("The school referenced in the uploaded file does not belong to district."),
 
   /**
    * Invalid row length file error.
