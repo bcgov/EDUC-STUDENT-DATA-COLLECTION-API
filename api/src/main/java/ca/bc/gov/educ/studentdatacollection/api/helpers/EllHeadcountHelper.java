@@ -161,22 +161,6 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
     return rowTitles;
   }
 
-  private Map<String, String> getDistrictSelectionTitles() {
-    Map<String, String> rowTitles = new LinkedHashMap<>();
-    rowTitles.put(ELL_TITLE_KEY, ELL_TITLE);
-    rowTitles.put(TOTAL_ELL_ADULT_STUDENTS, ELL_TITLE);
-    rowTitles.put(TOTAL_ELL_SCHOOL_AGED_STUDENTS, ELL_TITLE);
-    return rowTitles;
-  }
-
-  private Map<String, String> getDistrictRowTitles() {
-    Map<String, String> rowTitles = new LinkedHashMap<>();
-    rowTitles.put(ELL_TITLE_KEY, ELL_TITLE);
-    rowTitles.put(TOTAL_ELL_SCHOOL_AGED_STUDENTS, TOTAL_ELL_SCHOOL_AGED_STUDENTS_TITLE);
-    rowTitles.put(TOTAL_ELL_ADULT_STUDENTS, TOTAL_ELL_ADULT_STUDENTS_TITLE);
-    return rowTitles;
-  }
-
   private Map<String, String> getPerSchoolReportRowTitles() {
     Map<String, String> rowTitles = new LinkedHashMap<>();
     rowTitles.put(TOTAL_ELL_STUDENTS, TOTAL_ELL_STUDENTS);
