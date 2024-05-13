@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.AccessDeniedException;
 import java.util.Optional;
 
 /**
@@ -29,8 +28,6 @@ public class SdcFileValidator {
   private static final String HEADER_LENGTH_ERROR = "SHOULD BE 59";
   private static final String DETAIL_LENGTH_ERROR = "SHOULD BE 234";
   private static final String TRAILER_LENGTH_ERROR = "SHOULD BE 224";
-  private static final String SCHOOL_OUTSIDE_OF_DISTRICT = "The school referenced in the uploaded file does not belong to district with ID $?";
-
   public static final String HEADER_STARTS_WITH = "FFI";
   public static final String TRAILER_STARTS_WITH = "BTR";
   public static final String TOO_LONG = "TOO LONG";
@@ -98,7 +95,7 @@ public class SdcFileValidator {
     }
   }
 
-  public void validateSchoolBelongsToDistrict(@NonNull final String guid, @NonNull final Optional<School> school, final String districtID) throws AccessDeniedException, FileUnProcessableException {
+  public void validateSchoolBelongsToDistrict(@NonNull final String guid, @NonNull final Optional<School> school, final String districtID) throws FileUnProcessableException {
 
     if (school.isEmpty()) {
       throw new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, SdcSchoolCollectionStatus.LOAD_FAIL, districtID);
@@ -107,7 +104,11 @@ public class SdcFileValidator {
     String schoolDistrictID = school.get().getDistrictId();
 
     if(StringUtils.compare(schoolDistrictID, districtID) != 0) {
-      throw new AccessDeniedException(null, null, SCHOOL_OUTSIDE_OF_DISTRICT);
+      throw new FileUnProcessableException(
+              FileError.SCHOOL_OUTSIDE_OF_DISTRICT,
+              guid,
+              SdcSchoolCollectionStatus.LOAD_FAIL
+      );
     }
 
   }
