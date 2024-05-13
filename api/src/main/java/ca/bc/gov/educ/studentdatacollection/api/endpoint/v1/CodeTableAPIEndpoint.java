@@ -127,4 +127,12 @@ public interface CodeTableAPIEndpoint {
     @Tag(name = "Collection Codes", description = "Endpoints to get collection codes.")
     @Schema(name = "DuplicateResolutionCodes", implementation = ZeroFteReasonCode.class)
     List<DuplicateResolutionCode> getDuplicateResolutionCodes();
+
+    @PreAuthorize("hasAuthority('SCOPE_READ_COLLECTION_CODES')")
+    @GetMapping(URL.PROGRAM_DUPLICATE_TYPE_CODES)
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
+    @Transactional(readOnly = true)
+    @Tag(name = "Collection Codes", description = "Endpoints to get collection codes.")
+    @Schema(name = "ProgramDuplicateTypeCodes", implementation = ZeroFteReasonCode.class)
+    List<ProgramDuplicateTypeCode> getProgramDuplicateTypeCodes();
 }

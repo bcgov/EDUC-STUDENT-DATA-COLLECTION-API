@@ -23,6 +23,7 @@ public class CodeTableService {
   private final GenderCodeRepository genderCodeRepository;
   private final SchoolGradeCodeRepository schoolGradeCodeRepository;
   private final SchoolFundingGroupCodeRepository schoolFundingGroupCodeRepository;
+  private final ProgramDuplicateTypeCodeRepository programDuplicateTypeCodeRepository;
 
   /**
    * Instantiates a new Code table service.
@@ -41,7 +42,7 @@ public class CodeTableService {
    */
   @Autowired
   public CodeTableService(CollectionTypeCodeRepository collectionCodeRepository, EnrolledProgramCodeRepository enrolledProgramCodeRepository, CareerProgramCodeRepository careerProgramCodeRepository, HomeLanguageSpokenCodeRepository homeLanguageSpokenCodeRepository, BandCodeRepository bandCodeRepository, FundingCodeRepository fundingCodeRepository, EnrolledGradeCodeRepository enrolledGradeCodeRepository, SpecialEducationCategoryRepository specialEducationCategoryRepository,
-                          GenderCodeRepository genderCodeRepository, SchoolGradeCodeRepository schoolGradeCodeRepository, SchoolFundingGroupCodeRepository schoolFundingGroupCodeRepository) {
+                          GenderCodeRepository genderCodeRepository, SchoolGradeCodeRepository schoolGradeCodeRepository, SchoolFundingGroupCodeRepository schoolFundingGroupCodeRepository, ProgramDuplicateTypeCodeRepository programDuplicateTypeCodeRepository) {
     this.collectionCodeRepository = collectionCodeRepository;
     this.enrolledProgramCodeRepository = enrolledProgramCodeRepository;
     this.careerProgramCodeRepository = careerProgramCodeRepository;
@@ -53,6 +54,7 @@ public class CodeTableService {
     this.genderCodeRepository = genderCodeRepository;
     this.schoolGradeCodeRepository = schoolGradeCodeRepository;
     this.schoolFundingGroupCodeRepository = schoolFundingGroupCodeRepository;
+    this.programDuplicateTypeCodeRepository = programDuplicateTypeCodeRepository;
   }
 
   @Cacheable("enrolledProgramCodes")
@@ -112,6 +114,11 @@ public class CodeTableService {
 
   public Optional<CollectionTypeCodeEntity> getCollectionCode(String collectionCode) {
     return collectionCodeRepository.findById(collectionCode);
+  }
+
+  @Cacheable("programDuplicateTypeCodes")
+  public List<ProgramDuplicateTypeCodeEntity> getProgramDuplicateTypeCodes() {
+    return programDuplicateTypeCodeRepository.findAll();
   }
 
 }
