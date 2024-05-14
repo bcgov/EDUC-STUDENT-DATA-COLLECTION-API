@@ -139,7 +139,7 @@ class EnrollmentHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         assertEquals("0.7900", titles.get().get("02").getCurrentValue());
         assertEquals("0.7900", titles.get().get("10").getCurrentValue());
         assertEquals("1.8000", titles.get().get("11").getCurrentValue());
-        assertEquals("5.1799999999999996", titles.get().get("Total").getCurrentValue());
+        assertEquals("5.1800", titles.get().get("Total").getCurrentValue());
 
     }
 

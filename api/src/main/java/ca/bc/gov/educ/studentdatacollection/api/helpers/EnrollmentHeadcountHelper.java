@@ -310,7 +310,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
             sectionTotal = sectionTotal.add(BigDecimal.valueOf(totalFtePerGrade));
           }
         }
-        totalRowData.put(TOTAL_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(sectionTotal)).build());
+        totalRowData.put(TOTAL_TITLE, HeadcountHeaderColumn.builder().currentValue(String.format("%,.4f", sectionTotal)).build());
       }
 
       totalRowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(section).build());
