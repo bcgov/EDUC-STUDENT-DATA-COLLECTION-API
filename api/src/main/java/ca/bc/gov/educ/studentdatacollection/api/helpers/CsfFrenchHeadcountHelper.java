@@ -27,8 +27,7 @@ public class CsfFrenchHeadcountHelper extends HeadcountHelper<CsfFrenchHeadcount
   private static final String FRANCO_ADULT_TITLE = "adultFrancophone";
   private static final String ELIGIBLE_TITLE = "Eligible";
   private static final String REPORTED_TITLE = "Reported";
-  private static final String NOT_REPORTED_TITLE = "Not Reported";
-  private static final List<String> HEADER_COLUMN_TITLES = List.of(ELIGIBLE_TITLE, REPORTED_TITLE, NOT_REPORTED_TITLE);
+  private static final List<String> HEADER_COLUMN_TITLES = List.of(ELIGIBLE_TITLE, REPORTED_TITLE);
 
   public CsfFrenchHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
     super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
@@ -66,7 +65,6 @@ public class CsfFrenchHeadcountHelper extends HeadcountHelper<CsfFrenchHeadcount
     headcountHeader.setOrderedColumnTitles(HEADER_COLUMN_TITLES);
     headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getTotalFrancophone()).build());
     headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedFrancophone()).build());
-    headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedFrancophone()))).build());
     headcountHeaderList.add(headcountHeader);
     return headcountHeaderList;
   }

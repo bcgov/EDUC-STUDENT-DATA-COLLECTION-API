@@ -30,8 +30,7 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
     private static final String SCHOOL_AGED_TITLE = "School-Aged";
     private static final String ELIGIBLE_TITLE = "Eligible";
     private static final String REPORTED_TITLE = "Reported";
-    private static final String NOT_REPORTED_TITLE = "Not Reported";
-    private static final List<String> HEADER_COLUMN_TITLES = List.of(ELIGIBLE_TITLE, REPORTED_TITLE, NOT_REPORTED_TITLE);
+    private static final List<String> HEADER_COLUMN_TITLES = List.of(ELIGIBLE_TITLE, REPORTED_TITLE);
     private static final String CORE_TOTAL_TITLE = "totalCoreFrench";
     private static final String CORE_SCHOOL_AGE_TITLE = "schoolAgedCoreFrench";
     private static final String CORE_ADULT_TITLE = "adultCoreFrench";
@@ -179,22 +178,18 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
                 case CORE_FRENCH_TITLE -> {
                     headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getTotalCoreFrench())).build());
                     headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getReportedCoreFrench())).build());
-                    headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedCoreFrench()))).build());
                 }
                 case EARLY_FRENCH_TITLE -> {
                     headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getTotalEarlyFrench()).build());
                     headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedEarlyFrench()).build());
-                    headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedEarlyFrench()))).build());
                 }
                 case LATE_FRENCH_TITLE -> {
                     headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getTotalLateFrench()).build());
                     headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedLateFrench()).build());
-                    headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedLateFrench()))).build());
                 }
                 case FRANCO_TITLE -> {
                     headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getTotalFrancophone()).build());
                     headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedFrancophone()).build());
-                    headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedFrancophone()))).build());
                 }
                 default -> {
                     log.error("Unexpected header title.  This cannot happen::" + headerTitle);
