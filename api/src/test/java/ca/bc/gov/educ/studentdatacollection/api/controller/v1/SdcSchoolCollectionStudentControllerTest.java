@@ -3351,6 +3351,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("English Language Learners")))
+                .andExpect(jsonPath("$.headcountHeaders[0].orderedColumnTitles", containsInRelativeOrder("Eligible", "Reported")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("6")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].currentValue", equalTo("7")));
 
