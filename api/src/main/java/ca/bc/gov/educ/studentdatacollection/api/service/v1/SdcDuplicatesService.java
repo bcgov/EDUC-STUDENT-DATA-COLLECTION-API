@@ -45,6 +45,7 @@ public class SdcDuplicatesService {
     var duplicateStudentEntities = sdcSchoolCollectionStudentRepository.findAllInDistrictDuplicateStudentsInSdcDistrictCollection(sdcDistrictCollectionID);
 
     List<SdcDuplicateEntity> newDuplicates = new ArrayList<>();
+    List<SdcDuplicateEntity> oldDuplicates = new ArrayList<>();
 
     HashMap<UUID, List<SdcSchoolCollectionStudentEntity>> groupedDups = new HashMap<>();
 
@@ -59,30 +60,44 @@ public class SdcDuplicatesService {
     groupedDups.forEach((sdcStudentID, sdcSchoolCollectionStudentEntities) -> {
       for (SdcSchoolCollectionStudentEntity entity1 : sdcSchoolCollectionStudentEntities) {
         for (SdcSchoolCollectionStudentEntity entity2 : sdcSchoolCollectionStudentEntities) {
-           if (!entity1.getSdcSchoolCollectionStudentID().equals(entity2.getSdcSchoolCollectionStudentID()) && !duplicateAlreadyExists(existingDuplicates, newDuplicates, entity1, entity2)) {
-                newDuplicates.addAll(runDuplicatesCheck(DuplicateLevelCode.IN_DIST, entity1, entity2));
+           if (!entity1.getSdcSchoolCollectionStudentID().equals(entity2.getSdcSchoolCollectionStudentID())) {
+             List<SdcDuplicateEntity> duplicateRecord = runDuplicatesCheck(DuplicateLevelCode.IN_DIST, entity1, entity2);
+
+             if(!duplicateAlreadyExists(existingDuplicates, newDuplicates, entity1, entity2)) {
+               newDuplicates.addAll(duplicateRecord);
+             } else {
+
+               List<Integer> duplicateRecordHash = duplicateRecord.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
+               List<Integer> oldDuplicatesHashes = oldDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
+               List<Integer> newDuplicatesHashes = newDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
+
+               if(!oldDuplicatesHashes.contains(duplicateRecordHash.get(0)) && !newDuplicatesHashes.contains(duplicateRecordHash.get(0))){
+                 oldDuplicates.addAll(runDuplicatesCheck(DuplicateLevelCode.IN_DIST, entity1, entity2));
+               }
+             }
+
            }
         }
       }
     });
 
-    resolveDuplicates(newDuplicates, existingDuplicates);
+    resolveDuplicates(existingDuplicates, oldDuplicates);
 
     sdcDuplicateRepository.saveAll(newDuplicates);
-    newDuplicates.addAll(existingDuplicates);
+    newDuplicates.addAll(oldDuplicates);
     return newDuplicates;
   }
 
-  private void resolveDuplicates(List<SdcDuplicateEntity> newDuplicates, List<SdcDuplicateEntity> existingDuplicates){
+  private void resolveDuplicates(List<SdcDuplicateEntity> existingDuplicates, List<SdcDuplicateEntity> oldDuplicates){
 
-    List<Integer> newDuplicatesHashes = newDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
-    List<Integer> existingDuplicatesHashes = existingDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
+    List<Integer> existingDuplicateHashes = existingDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
+    List<Integer> allCurrentDuplicateHashes = oldDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
 
     List<SdcDuplicateEntity> resolvedDuplicates = new ArrayList<>();
 
     int index = 0;
-    for(Integer hash : existingDuplicatesHashes){
-      if(!newDuplicatesHashes.contains(hash)){
+    for(Integer hash : existingDuplicateHashes){
+      if(!allCurrentDuplicateHashes.contains(hash)){
         SdcDuplicateEntity duplicate = existingDuplicates.get(index);
 
         if(Objects.equals(duplicate.getDuplicateTypeCode(), DuplicateTypeCode.PROGRAM.getCode())) {
