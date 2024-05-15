@@ -30,7 +30,6 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
   private static final String ELL_TITLE = "English Language Learners";
   private static final String ELIGIBLE_TITLE = "Eligible";
   private static final String REPORTED_TITLE = "Reported";
-  private static final String NOT_REPORTED_TITLE = "Not Reported";
 
   // Table Row Titles
   private static final String ALL_STUDENTS_TITLE = "English Language Learners";
@@ -114,7 +113,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
             ? sdcSchoolCollectionStudentRepository.getEllHeadersBySdcDistrictCollectionId(sdcSchoolCollectionID)
             : sdcSchoolCollectionStudentRepository.getEllHeadersBySchoolId(sdcSchoolCollectionID);
 
-    List<String> ellColumnTitles = List.of(ELIGIBLE_TITLE, REPORTED_TITLE, NOT_REPORTED_TITLE);
+    List<String> ellColumnTitles = List.of(ELIGIBLE_TITLE, REPORTED_TITLE);
     List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
 
       List.of(ELL_TITLE).forEach(headerTitle -> {
@@ -130,11 +129,6 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
         headcountHeader.getColumns()
           .put(REPORTED_TITLE, HeadcountHeaderColumn.builder()
               .currentValue(String.valueOf(result.getReportedStudents())).build());
-        headcountHeader.getColumns()
-          .put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder()
-              .currentValue(String.valueOf(
-                  Long.parseLong(result.getAllStudents())
-                  - Long.parseLong(result.getReportedStudents()))).build());
       } else { log.warn("Unexpected case headerTitle.  This should not have happened."); }
 
       headcountHeaderList.add(headcountHeader);

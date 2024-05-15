@@ -39,8 +39,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
   private static final String XH_CODE_TITLE = "XH - Trades & Technology";
   private static final String ELIGIBLE_TITLE = "Eligible";
   private static final String REPORTED_TITLE = "Reported";
-  private static final String NOT_REPORTED_TITLE = "Not Reported";
-  private static final List<String> HEADER_COLUMN_TITLES = List.of(ELIGIBLE_TITLE, REPORTED_TITLE, NOT_REPORTED_TITLE);
+  private static final List<String> HEADER_COLUMN_TITLES = List.of(ELIGIBLE_TITLE, REPORTED_TITLE);
   private static final String PREP_TOTAL_KEY = "preparationTotal";
   private static final String PREP_XA_KEY = "preparationXA";
   private static final String PREP_XB_KEY = "preparationXB";
@@ -146,22 +145,18 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
         case CAREER_PREPARATION_TITLE -> {
           headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getEligCareerPrep())).build());
           headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getReportedCareerPrep())).build());
-          headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedCareerPrep()))).build());
         }
         case COOP_EDUCATION_TITLE -> {
           headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getEligCoopEduc()).build());
           headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedCoopEduc()).build());
-          headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedCoopEduc()))).build());
         }
         case APPRENTICESHIP_TITLE -> {
           headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getEligApprentice()).build());
           headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedApprentice()).build());
-          headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedApprentice()))).build());
         }
         case TECH_YOUTH_TITLE -> {
           headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getEligTechOrYouth()).build());
           headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedTechOrYouth()).build());
-          headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedTechOrYouth()))).build());
         }
         default -> {
           log.error("Unexpected header title.  This cannot happen::" + headerTitle);

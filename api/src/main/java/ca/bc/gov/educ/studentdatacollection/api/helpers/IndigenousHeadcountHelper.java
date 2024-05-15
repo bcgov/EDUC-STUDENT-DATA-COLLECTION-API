@@ -34,9 +34,8 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
     private static final String ALL_TITLE = "All Indigenous Support Programs";
     private static final String ELIGIBLE_TITLE = "Eligible";
     private static final String REPORTED_TITLE = "Reported";
-    private static final String NOT_REPORTED_TITLE = "Not Reported";
     private static final String TOTAL_STUDENTS = "Total Students";
-    private static final List<String> HEADER_COLUMN_TITLES = List.of(ELIGIBLE_TITLE, REPORTED_TITLE, NOT_REPORTED_TITLE);
+    private static final List<String> HEADER_COLUMN_TITLES = List.of(ELIGIBLE_TITLE, REPORTED_TITLE);
     private static final List<String> HEADER_COLUMN_TITLE = List.of(TOTAL_STUDENTS);
     private static final String LANGUAGE_TOTAL_KEY = "languageTotal";
     private static final String SUPPORT_TOTAL_KEY = "supportTotal";
@@ -137,19 +136,16 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
                     headcountHeader.setOrderedColumnTitles(HEADER_COLUMN_TITLES);
                     headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getEligIndigenousLanguage())).build());
                     headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getReportedIndigenousLanguage())).build());
-                    headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedIndigenousLanguage()))).build());
                 }
                 case INDIGENOUS_SUPPORT_TITLE -> {
                     headcountHeader.setOrderedColumnTitles(HEADER_COLUMN_TITLES);
                     headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getEligIndigenousSupport()).build());
                     headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedIndigenousSupport()).build());
-                    headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedIndigenousSupport()))).build());
                 }
                 case OTHER_APPROVED_TITLE -> {
                     headcountHeader.setOrderedColumnTitles(HEADER_COLUMN_TITLES);
                     headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getEligOtherProgram()).build());
                     headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedOtherProgram()).build());
-                    headcountHeader.getColumns().put(NOT_REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(Long.parseLong(result.getAllStudents()) - Long.parseLong(result.getReportedOtherProgram()))).build());
                 }
                 case ANCESTRY_COUNT_TITLE -> {
                     headcountHeader.setOrderedColumnTitles(HEADER_COLUMN_TITLE);
