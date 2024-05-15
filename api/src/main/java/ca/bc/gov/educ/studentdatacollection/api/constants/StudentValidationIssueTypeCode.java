@@ -48,7 +48,7 @@ public enum StudentValidationIssueTypeCode {
   SCHOOLAGE_ZERO_COURSES("SCHOOLAGEZEROCOURSES", "Secondary students must be reported with at least one course. If the student is not enrolled in any courses they should be removed from the submission."),
   AGE_LESS_THAN_FIVE("AGELESSTHANFIVE", "Student is too young for school and is not eligible for funding."),
   CONT_ED_ERR("CONTEDERR", "Student is too young for Continuing Education. Student must be removed from submission or their birthdate adjusted."),
-  PROGRAM_CODE_IND("PROGRAMCODEIND", "Only students who self identify as Indigenous Ancestry are eligible for program funding in Indigenous Education Programs and Services."),
+  PROGRAM_CODE_IND("PROGRAMCODEIND", "Only students who self identify as having Indigenous Ancestry are eligible for program funding in Indigenous Education Programs and Services."),
   ENROLLED_CODE_FRANCOPHONE_ERR("ENROLLEDCODEFRANCOPHONEERR", "Student grade must be 6 or 7 for Late French Immersion."),
   BAND_CODE_BLANK("BANDCODEBLANK", "Student must be reported with both a Band of Residence and as Ordinarily Living on Reserve (funding code 20)."),
   BAND_CODE_INVALID("BANDCODEINVALID", "Invalid Band Code (Band of Residence) reported."),
