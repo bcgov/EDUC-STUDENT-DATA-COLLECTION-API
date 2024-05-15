@@ -34,6 +34,8 @@ public class SdcSchoolCollectionService {
 
   private final SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
 
+  private final SdcDuplicateRepository sdcDuplicateRepository;
+
   private final SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService;
 
   private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
@@ -41,11 +43,12 @@ public class SdcSchoolCollectionService {
   private final CollectionRepository collectionRepository;
 
   @Autowired
-  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
+  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
     this.sdcSchoolCollectionHistoryService = sdcSchoolCollectionHistoryService;
     this.sdcSchoolCollectionStudentHistoryRepository = sdcSchoolCollectionStudentHistoryRepository;
+    this.sdcDuplicateRepository = sdcDuplicateRepository;
     this.sdcSchoolCollectionStudentHistoryService = sdcSchoolCollectionStudentHistoryService;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
     this.collectionRepository = collectionRepository;
@@ -53,16 +56,22 @@ public class SdcSchoolCollectionService {
 
   @Transactional(propagation = Propagation.MANDATORY)
   public SdcSchoolCollectionEntity saveSdcSchoolCollection(SdcSchoolCollectionEntity curSDCSchoolEntity, List<SdcSchoolCollectionStudentEntity> finalStudents, List<UUID> removedStudents) {
+    log.debug("Removing duplicate records by sdcSchoolCollectionStudentIDs: {}", removedStudents);
+    var duplicatesToDelete = this.sdcDuplicateRepository.findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentIDIn(removedStudents);
+    this.sdcDuplicateRepository.deleteAll(duplicatesToDelete);
+
     List<SdcSchoolCollectionStudentEntity> newStudents = finalStudents.stream().filter(sdcSchoolCollectionStudentEntity -> sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID() == null).toList();
     curSDCSchoolEntity.getSDCSchoolStudentEntities().clear();
     curSDCSchoolEntity.getSDCSchoolStudentEntities().addAll(finalStudents);
     curSDCSchoolEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(curSDCSchoolEntity, curSDCSchoolEntity.getUpdateUser()));
-    List<SdcSchoolCollectionStudentHistoryEntity> newHistoryEntities = new ArrayList<>();
-    log.debug("Removing the following student history records by sdcSchoolCollectionStudentIDs: {}", removedStudents);
+
+    log.debug("Removing student history records by sdcSchoolCollectionStudentIDs: {}", removedStudents);
     this.sdcSchoolCollectionStudentHistoryRepository.deleteBySdcSchoolCollectionStudentIDs(removedStudents);
     log.debug("About to save school file data for collection: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
     var returnedEntities = this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);
+
     log.debug("About to persist history records for students: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
+    List<SdcSchoolCollectionStudentHistoryEntity> newHistoryEntities = new ArrayList<>();
     newStudents.stream().forEach(sdcSchoolCollectionStudentEntity -> newHistoryEntities.add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser())));
     this.sdcSchoolCollectionStudentHistoryRepository.saveAll(newHistoryEntities);
 
