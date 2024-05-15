@@ -10,4 +10,7 @@ import java.util.UUID;
 @Repository
 public interface SdcDuplicateRepository extends JpaRepository<SdcDuplicateEntity, UUID> {
     List<SdcDuplicateEntity> findAllBySdcDuplicateStudentEntities_SdcDistrictCollectionID(UUID sdcDistrictCollectionID);
+
+    List<SdcDuplicateEntity> findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentIDIn(List<UUID> removedStudents);
+
 }

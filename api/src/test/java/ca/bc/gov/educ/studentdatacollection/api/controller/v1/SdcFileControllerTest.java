@@ -1,9 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentValidationIssueEntity;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateErrorDescriptionCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateLevelCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
@@ -58,6 +60,9 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   SdcSchoolCollectionStudentRepository schoolStudentRepository;
 
   @Autowired
+  SdcDuplicateRepository sdcDuplicateRepository;
+
+  @Autowired
   SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
 
   @Autowired
@@ -81,6 +86,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
   @AfterEach
   public void afterEach() {
+    this.sdcDuplicateRepository.deleteAll();
     this.schoolStudentRepository.deleteAll();
     this.sdcSchoolCollectionRepository.deleteAll();
     this.sdcRepository.deleteAll();
@@ -395,6 +401,93 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
     var historyStuds2 = this.sdcSchoolCollectionStudentHistoryRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(historyStuds2).isNotNull().hasSize(2);
+  }
+
+  @Test
+  void testProcessSdcFileReUploadCompareWithDups_givenValidPayload_ShouldReturnStatusOk() throws Exception {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    sdcMockSchool.setUploadDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setUploadReportDate(null);
+    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-2-student.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    assertThat(fileContents).isNotEmpty();
+    val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
+    this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(body))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+    final var result = this.sdcSchoolCollectionRepository.findAll();
+    assertThat(result).hasSize(1);
+    var entity = result.get(0);
+    assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+    var students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    assertThat(students).isNotNull();
+
+    var historyStuds = this.sdcSchoolCollectionStudentHistoryRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    assertThat(historyStuds).isNotNull().hasSize(2);
+
+    final FileInputStream fis2 = new FileInputStream("src/test/resources/sample-2-student-diff.txt");
+    final String fileContents2 = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis2));
+    assertThat(fileContents2).isNotEmpty();
+    val body2 = SdcFileUpload.builder().fileContents(fileContents2).createUser("ABC").fileName("SampleUpload.std").build();
+
+    SdcDuplicateEntity dup = new SdcDuplicateEntity();
+    dup.setDuplicateErrorDescriptionCode(DuplicateErrorDescriptionCode.K_TO_7_DUP.getCode());
+    dup.setDuplicateLevelCode(DuplicateLevelCode.IN_DIST.getCode());
+    dup.setDuplicateTypeCode(DuplicateTypeCode.ENROLLMENT.getCode());
+    dup.setDuplicateSeverityCode(DuplicateSeverityCode.ALLOWABLE.getCode());
+
+    SdcDuplicateStudentEntity stud1 = new SdcDuplicateStudentEntity();
+    stud1.setSdcSchoolCollectionID(UUID.randomUUID());
+    stud1.setSdcDuplicateEntity(dup);
+    stud1.setSdcSchoolCollectionStudentEntity(students.get(0));
+    stud1.setCreateUser("ABC");
+    stud1.setCreateDate(LocalDateTime.now());
+    stud1.setUpdateUser("ABC");
+    stud1.setUpdateDate(LocalDateTime.now());
+
+    SdcDuplicateStudentEntity stud2 = new SdcDuplicateStudentEntity();
+    stud2.setSdcSchoolCollectionID(UUID.randomUUID());
+    stud2.setSdcDuplicateEntity(dup);
+    stud2.setSdcSchoolCollectionStudentEntity(students.get(1));
+    stud2.setCreateUser("ABC");
+    stud2.setCreateDate(LocalDateTime.now());
+    stud2.setUpdateUser("ABC");
+    stud2.setUpdateDate(LocalDateTime.now());
+
+    dup.getSdcDuplicateStudentEntities().add(stud1);
+    dup.getSdcDuplicateStudentEntities().add(stud2);
+
+    sdcDuplicateRepository.save(dup);
+
+    this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(body2))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+    assertThat(result).hasSize(1);
+    entity = result.get(0);
+    assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+    students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    assertThat(students).isNotNull().hasSize(2);
+
+    var historyStuds2 = this.sdcSchoolCollectionStudentHistoryRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    assertThat(historyStuds2).isNotNull().hasSize(2);
+
+    var dups = sdcDuplicateRepository.findAll();
+    assertThat(dups).isNotNull().isEmpty();
   }
 
   @Test
