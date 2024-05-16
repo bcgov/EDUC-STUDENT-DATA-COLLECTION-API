@@ -757,39 +757,58 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
     when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
 
+    // Two student records representing a resolved program dupe
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
     student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE05.getCode());
     student1.setAssignedStudentId(UUID.randomUUID());
     student1.setEnrolledProgramCodes("33");
-    sdcSchoolCollectionStudentRepository.save(student1);
+    SdcSchoolCollectionStudentEntity savedStudent1 = sdcSchoolCollectionStudentRepository.save(student1);
 
+    var student4 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    student4.setEnrolledGradeCode(SchoolGradeCodes.GRADE05.getCode());
+    student4.setAssignedStudentId(student1.getAssignedStudentId());
+    SdcSchoolCollectionStudentEntity savedStudent4 = sdcSchoolCollectionStudentRepository.save(student4);
+
+    // Two student records representing a new program dupe
     var student2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
     student2.setEnrolledGradeCode(SchoolGradeCodes.GRADE11.getCode());
     student2.setAssignedStudentId(UUID.randomUUID());
     student2.setEnrolledProgramCodes("08");
-    sdcSchoolCollectionStudentRepository.save(student2);
 
     var student3 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
     student3.setEnrolledGradeCode(SchoolGradeCodes.GRADE11.getCode());
     student3.setAssignedStudentId(student2.getAssignedStudentId());
     student3.setEnrolledProgramCodes("08");
-    sdcSchoolCollectionStudentRepository.save(student3);
 
-    var student4 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
-    student4.setEnrolledGradeCode(SchoolGradeCodes.GRADE05.getCode());
-    student4.setAssignedStudentId(UUID.randomUUID());
-    sdcSchoolCollectionStudentRepository.save(student4);
+    // Two student records representing an unresolved program dupe
+    var student5 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    student5.setEnrolledGradeCode(SchoolGradeCodes.GRADE11.getCode());
+    student5.setAssignedStudentId(UUID.randomUUID());
+    student5.setEnrolledProgramCodes("40");
+    SdcSchoolCollectionStudentEntity savedStudent5 = sdcSchoolCollectionStudentRepository.save(student5);
+
+    var student6 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+    student6.setEnrolledGradeCode(SchoolGradeCodes.GRADE11.getCode());
+    student6.setAssignedStudentId(student5.getAssignedStudentId());
+    student6.setEnrolledProgramCodes("40");
+    SdcSchoolCollectionStudentEntity savedStudent6 = sdcSchoolCollectionStudentRepository.save(student6);
+
+    SdcSchoolCollectionStudentEntity stud1 = sdcSchoolCollectionStudentRepository.findById(savedStudent1.getSdcSchoolCollectionStudentID()).get();
+    stud1.setEnrolledProgramCodes("33");
 
     SdcDuplicateStudentEntity duplicateStudent1 = SdcDuplicateStudentEntity.builder()
             .sdcDuplicateStudentID(UUID.randomUUID())
-            .sdcSchoolCollectionStudentEntity(student1)
+            .sdcSchoolCollectionStudentEntity(stud1)
             .sdcDistrictCollectionID(sdcDistrictCollectionID)
             .sdcSchoolCollectionID(sdcSchoolCollectionEntity1.getSdcSchoolCollectionID())
             .build();
 
+    SdcSchoolCollectionStudentEntity stud2 = sdcSchoolCollectionStudentRepository.findById(savedStudent4.getSdcSchoolCollectionStudentID()).get();
+    stud2.setEnrolledProgramCodes("33");
+
     SdcDuplicateStudentEntity duplicateStudent2 = SdcDuplicateStudentEntity.builder()
             .sdcDuplicateStudentID(UUID.randomUUID())
-            .sdcSchoolCollectionStudentEntity(student4)
+            .sdcSchoolCollectionStudentEntity(stud2)
             .sdcDistrictCollectionID(sdcDistrictCollectionID)
             .sdcSchoolCollectionID(sdcSchoolCollectionEntity2.getSdcSchoolCollectionID())
             .build();
@@ -804,17 +823,57 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .createDate(LocalDateTime.now())
             .build();
 
-    duplicateStudent1.setSdcDuplicateEntity(duplicate1);
-    duplicateStudent2.setSdcDuplicateEntity(duplicate1);
+    SdcDuplicateEntity savedDupe1 = sdcDuplicateRepository.save(duplicate1);
 
-    Set<SdcDuplicateStudentEntity> dupStudentSet = new HashSet<>();
-    dupStudentSet.add(duplicateStudent1);
-    dupStudentSet.add(duplicateStudent2);
-    duplicate1.setSdcDuplicateStudentEntities(dupStudentSet);
+    duplicateStudent1.setSdcDuplicateEntity(savedDupe1);
+    duplicateStudent2.setSdcDuplicateEntity(savedDupe1);
 
-    sdcDuplicateRepository.save(duplicate1);
+    Set<SdcDuplicateStudentEntity> dupStudentSet1 = new HashSet<>();
+    dupStudentSet1.add(duplicateStudent1);
+    dupStudentSet1.add(duplicateStudent2);
 
-    UUID duplicateID = sdcDuplicateRepository.findAll().get(0).getSdcDuplicateID();
+    savedDupe1.setSdcDuplicateStudentEntities(dupStudentSet1);
+    sdcDuplicateRepository.save(savedDupe1);
+
+    SdcSchoolCollectionStudentEntity stud5 = sdcSchoolCollectionStudentRepository.findById(savedStudent5.getSdcSchoolCollectionStudentID()).get();
+
+    SdcDuplicateStudentEntity duplicateStudent3 = SdcDuplicateStudentEntity.builder()
+            .sdcDuplicateStudentID(UUID.randomUUID())
+            .sdcSchoolCollectionStudentEntity(stud5)
+            .sdcDistrictCollectionID(sdcDistrictCollectionID)
+            .sdcSchoolCollectionID(sdcSchoolCollectionEntity1.getSdcSchoolCollectionID())
+            .build();
+
+    SdcSchoolCollectionStudentEntity stud6 = sdcSchoolCollectionStudentRepository.findById(savedStudent6.getSdcSchoolCollectionStudentID()).get();
+
+    SdcDuplicateStudentEntity duplicateStudent4 = SdcDuplicateStudentEntity.builder()
+            .sdcDuplicateStudentID(UUID.randomUUID())
+            .sdcSchoolCollectionStudentEntity(stud6)
+            .sdcDistrictCollectionID(sdcDistrictCollectionID)
+            .sdcSchoolCollectionID(sdcSchoolCollectionEntity2.getSdcSchoolCollectionID())
+            .build();
+
+    SdcDuplicateEntity duplicate2 = SdcDuplicateEntity.builder()
+            .sdcDuplicateID(UUID.randomUUID())
+            .retainedSdcSchoolCollectionStudentEntity(null)
+            .duplicateSeverityCode("NON_ALLOW")
+            .duplicateTypeCode("PROGRAM") // Set type code
+            .programDuplicateTypeCode("CAREER")
+            .createUser("system")
+            .createDate(LocalDateTime.now())
+            .build();
+
+    SdcDuplicateEntity savedDupe2 = sdcDuplicateRepository.save(duplicate2);
+
+    duplicateStudent3.setSdcDuplicateEntity(savedDupe2);
+    duplicateStudent4.setSdcDuplicateEntity(savedDupe2);
+
+    Set<SdcDuplicateStudentEntity> dupStudentSet2 = new HashSet<>();
+    dupStudentSet2.add(duplicateStudent3);
+    dupStudentSet2.add(duplicateStudent4);
+    savedDupe2.setSdcDuplicateStudentEntities(dupStudentSet2);
+
+    sdcDuplicateRepository.save(savedDupe2);
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates").with(mockAuthority))
@@ -827,7 +886,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     assertThat(sdcDuplicates.get(0).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.ENROLLMENT.getCode());
 
-    Optional<SdcDuplicateEntity> updatedDupe = sdcDuplicateRepository.findById(duplicateID);
+    Optional<SdcDuplicateEntity> updatedDupe = sdcDuplicateRepository.findById(savedDupe1.getSdcDuplicateID());
 
     assertThat(updatedDupe.get().getDuplicateResolutionCode()).isEqualTo(DuplicateResolutionCode.RESOLVED.getCode());
   }
