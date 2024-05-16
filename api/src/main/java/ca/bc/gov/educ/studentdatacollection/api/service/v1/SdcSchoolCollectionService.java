@@ -133,9 +133,13 @@ public class SdcSchoolCollectionService {
       var totalCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollection_SdcSchoolCollectionID(sdcSchoolCollectionID);
       var loadedCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollection_SdcSchoolCollectionID(SdcSchoolStudentStatus.LOADED.getCode(), sdcSchoolCollectionID);
       var totalProcessed = totalCount - loadedCount;
+      long positionInQueue = 0;
+      if(totalProcessed == 0) {
+        positionInQueue = sdcSchoolCollectionRepository.findSdcSchoolCollectionsPositionInQueue(sdcSchoolCollectionEntity.getUploadDate());
+      }
       summary.setTotalProcessed(Long.toString(totalProcessed));
       summary.setTotalStudents(Long.toString(totalCount));
-      summary.setPositionInQueue(String.valueOf(sdcSchoolCollectionRepository.findSdcSchoolCollectionsPositionInQueue(sdcSchoolCollectionEntity.getUploadDate())));
+      summary.setPositionInQueue(String.valueOf(positionInQueue));
     }
     return summary;
   }
