@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
@@ -45,7 +44,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
     private SdcSchoolCollectionEntity secondSchoolCollection;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         LockAssert.TestHelper.makeAllAssertsPass(true);
     }
 
