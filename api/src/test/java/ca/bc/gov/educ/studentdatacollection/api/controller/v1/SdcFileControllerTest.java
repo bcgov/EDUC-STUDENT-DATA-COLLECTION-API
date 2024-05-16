@@ -763,7 +763,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
     assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
     assertThat(entity.getUploadReportDate()).isNotNull();
-    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("DIS_UPLOAD");
     final var students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
   }

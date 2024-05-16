@@ -148,4 +148,12 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     List<MonitorSdcSchoolCollectionQueryResponse> findAllSdcSchoolCollectionMonitoringBySdcDistrictCollectionId(UUID sdcDistrictCollectionId);
 
     List<SdcSchoolCollectionEntity> findAllBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
+
+    @Query(value="""
+    SELECT ssc FROM SdcSchoolCollectionEntity ssc, SdcSchoolCollectionStudentEntity sscs
+    WHERE ssc.sdcSchoolCollectionStatusCode = 'DIS_UPLOAD'
+    AND ssc.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+    AND sscs.sdcSchoolCollectionStudentStatusCode  != 'LOADED'
+    order by sscs.createDate""")
+    List<SdcSchoolCollectionEntity> findSchoolCollectionsWithStudentsNotInLoadedStatus();
 }
