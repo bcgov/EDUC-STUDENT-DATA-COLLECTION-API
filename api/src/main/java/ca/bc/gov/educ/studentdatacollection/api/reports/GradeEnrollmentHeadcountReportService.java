@@ -87,7 +87,6 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
 
     mappedResults.forEach(careerHeadcountResult -> setValueForGrade(nodeMap, careerHeadcountResult));
 
-    nodeMap.get("underSchoolAgedHeading").setAllValuesToNull();
     nodeMap.get("schoolAgedHeading").setAllValuesToNull();
     nodeMap.get("adultHeading").setAllValuesToNull();
     nodeMap.get("allHeading").setAllValuesToNull();
@@ -99,10 +98,9 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
 
   public HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH){
     HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
-    addValuesForSectionToMap(nodeMap, "underSchoolAged", "Preschool Aged", "00", includeKH);
-    addValuesForSectionToMap(nodeMap, "schoolAged", "School Aged", "10", includeKH);
-    addValuesForSectionToMap(nodeMap, "adult", "Adult", "20", includeKH);
-    addValuesForSectionToMap(nodeMap, "all", "All Students", "30", includeKH);
+    addValuesForSectionToMap(nodeMap, "schoolAged", "School Aged", "00", includeKH);
+    addValuesForSectionToMap(nodeMap, "adult", "Adult", "10", includeKH);
+    addValuesForSectionToMap(nodeMap, "all", "All Students", "20", includeKH);
 
     return nodeMap;
   }
@@ -118,10 +116,6 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
     var code = optionalCode.orElseThrow(() ->
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
-
-    nodeMap.get("underSchoolAgedHeadcount").setValueForGrade(code, gradeResult.getUnderSchoolAgedHeadcount());
-    nodeMap.get("underSchoolAgedEligibleForFTE").setValueForGrade(code, gradeResult.getUnderSchoolAgedEligibleForFte());
-    nodeMap.get("underSchoolAgedFTETotal").setValueForGrade(code, String.format(DOUBLE_FORMAT, Double.valueOf(gradeResult.getUnderSchoolAgedFteTotal())));
 
     nodeMap.get("schoolAgedHeadcount").setValueForGrade(code, gradeResult.getSchoolAgedHeadcount());
     nodeMap.get("schoolAgedEligibleForFTE").setValueForGrade(code, gradeResult.getSchoolAgedEligibleForFte());
