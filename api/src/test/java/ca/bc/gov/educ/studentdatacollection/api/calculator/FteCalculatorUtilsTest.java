@@ -1147,6 +1147,9 @@ class FteCalculatorUtilsTest {
             "DISTONLINE, 0100, false",
             "STANDARD, 0000, false",
             "STANDARD, 0300, false",
+            "DIST_LEARN, 0, true",
+            "DIST_LEARN, 00, true",
+            "DIST_LEARN, 000, true",
     })
     void noCoursesForStudentInLastTwoYears_GivenDifferentFacilityTypesAndNumCourses_ShouldReturnTrue(String facilityTypeCode, String numberOfCourses, boolean expectedResult) {
         // Given
