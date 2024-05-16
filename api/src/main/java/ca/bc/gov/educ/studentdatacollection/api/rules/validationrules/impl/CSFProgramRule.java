@@ -21,9 +21,7 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V19 | ERROR    | If the student is reported by a CSF school, one of the program     |  V30      |
- *                     codes reported for the student must be Programme francophone.
- *  | V20 | ERROR    | If one of the program codes reported for a students is Programme   |  V30      |
+ *  | V20 | ERROR    | If one of the program codes reported for a students is Programme      |     V30      |
  *                     francophone, the student must be reported by a CSF school.
  *
  */
@@ -40,12 +38,12 @@ public class CSFProgramRule implements ValidationBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of CSFProgramRule-V19, V20: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
+        log.debug("In shouldExecute of CSFProgramRule-V20: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V19", validationErrorsMap);
+        var shouldExecute = isValidationDependencyResolved("V20", validationErrorsMap);
 
-        log.debug("In shouldExecute of CSFProgramRule-V19, V20: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
+        log.debug("In shouldExecute of CSFProgramRule-V20: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
                 shouldExecute,
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
@@ -54,18 +52,14 @@ public class CSFProgramRule implements ValidationBaseRule {
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of CSFProgramRule-V19, V20 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+        log.debug("In executeValidation of CSFProgramRule-V20 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         final List<String> enrolledProgramCodes = validationRulesService.splitEnrolledProgramsString(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
 
         if (enrolledProgramCodes.contains(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode()) && !studentRuleData.getSchool().getSchoolReportingRequirementCode().equals(SchoolReportingRequirementCodes.CSF.getCode())) {
-            log.debug("CSFProgramRule-V19, V20: Enrolled program contains PROGRAMME_FRANCOPHONE and reporting is not CSF for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+            log.debug("CSFProgramRule-V20: Enrolled program contains PROGRAMME_FRANCOPHONE and reporting is not CSF for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_PROGRAM_CODE, StudentValidationIssueTypeCode.ENROLLED_WRONG_REPORTING));
-        }
-        if (studentRuleData.getSchool().getSchoolCategoryCode().equals(SchoolCategoryCodes.PUBLIC.getCode()) && studentRuleData.getSchool().getSchoolReportingRequirementCode().equals(SchoolReportingRequirementCodes.CSF.getCode()) && !enrolledProgramCodes.contains(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode())) {
-            log.debug("CSFProgramRule-V19, V20: Reported by CSF but does not have PROGRAMME_FRANCOPHONE for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_PROGRAM_CODE, StudentValidationIssueTypeCode.ENROLLED_NO_FRANCOPHONE));
         }
 
         return errors;
