@@ -118,12 +118,12 @@ public class EventTaskSchedulerAsyncService {
         if(schoolCollectionWithStudentInErrors.isEmpty()) {
           List<SdcSchoolCollectionStudentEntity> duplicates = sdcSchoolCollectionService.getAllSchoolCollectionDuplicates(sdcSchoolCollection.getSdcSchoolCollectionID());
           if (duplicates.isEmpty()) {
-            sdcSchoolCollection.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.SUBMITTED));
+            sdcSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
           } else {
-            sdcSchoolCollection.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.VERIFIED));
+            sdcSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.VERIFIED.getCode());
           }
         } else {
-          sdcSchoolCollection.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.LOADED));
+          sdcSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.LOADED.getCode());
         }
       });
       sdcSchoolCollectionEntity.forEach(sdcSchoolCollectionService::updateSdcSchoolCollection);

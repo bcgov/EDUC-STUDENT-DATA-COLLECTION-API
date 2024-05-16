@@ -245,7 +245,7 @@ public class SdcBatchFileProcessor {
       coll.setUpdateUser(sdcSchoolCollectionEntity.getUpdateUser());
       coll.setUpdateDate(LocalDateTime.now());
       if(isDistrictUpload) {
-        coll.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.DISTRICT_UPLOAD));
+        coll.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.DISTRICT_UPLOAD.getCode());
       } else {
         coll.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.NEW));
       }
