@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionQueryResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

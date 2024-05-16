@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.mockito.Mockito.when;
 
-public class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
+class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
     @Autowired
     EventTaskScheduler eventTaskScheduler;
@@ -60,7 +60,7 @@ public class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
 
     @Test
-    void testFindSchoolCollectionsForSubmission_HasErrorHasDuplicates_shouldSetCollectionStatusToVerified() throws IOException, InterruptedException {
+    void testFindSchoolCollectionsForSubmission_HasErrorHasDuplicates_shouldSetCollectionStatusToVerified() {
         setMockDataForSchoolCollectionsForSubmissionFn();
 
         var studentID = UUID.randomUUID();
@@ -95,7 +95,7 @@ public class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
 
 
-    public void setMockDataForSchoolCollectionsForSubmissionFn() throws IOException {
+    public void setMockDataForSchoolCollectionsForSubmissionFn() {
         CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
         var districtID = UUID.randomUUID();
         var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
