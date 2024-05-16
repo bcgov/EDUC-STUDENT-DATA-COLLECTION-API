@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum SdcSchoolCollectionStatus {
 
   NEW("NEW"),
+  DISTRICT_UPLOAD("DIS_UPLOAD"),
 
   SCH_D_VRFD("SCH_D_VRFD"),
 

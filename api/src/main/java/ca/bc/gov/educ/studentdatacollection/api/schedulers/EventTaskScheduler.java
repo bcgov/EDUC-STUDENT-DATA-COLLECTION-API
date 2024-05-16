@@ -50,5 +50,10 @@ public class EventTaskScheduler {
     this.getTaskSchedulerAsyncService().findAndPublishLoadedStudentRecordsForProcessing();
   }
 
-
+  @Scheduled(cron = "${scheduled.jobs.process.school.collection.for.submission.cron}")
+  @SchedulerLock(name = "SUBMIT_SCHOOL_COLLECTION", lockAtLeastFor = "${scheduled.jobs.process.school.collection.for.submission.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.school.collection.for.submission.cron.lockAtMostFor}")
+  public void submitSchoolCollections() {
+    LockAssert.assertLocked();
+    this.getTaskSchedulerAsyncService().findSchoolCollectionsForSubmission();
+  }
 }

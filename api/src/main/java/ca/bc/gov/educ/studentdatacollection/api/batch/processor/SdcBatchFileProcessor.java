@@ -119,7 +119,7 @@ public class SdcBatchFileProcessor {
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
 
-      return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, sdcSchoolCollectionID);
+      return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, sdcSchoolCollectionID, false);
     } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
       log.error("File could not be processed exception :: {}", fileUnProcessableException);
       ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
@@ -173,7 +173,7 @@ public class SdcBatchFileProcessor {
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
 
-      return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, String.valueOf(sdcSchoolCollectionID));
+      return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, String.valueOf(sdcSchoolCollectionID), true);
     } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
       log.error("File could not be processed exception :: {}", fileUnProcessableException);
       ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
@@ -222,7 +222,7 @@ public class SdcBatchFileProcessor {
    * @param guid             the guid
    * @param batchFile        the batch file
    */
-  public SdcSchoolCollectionEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final SdcBatchFile batchFile, @NonNull final SdcFileUpload fileUpload, @NonNull final String sdcSchoolCollectionID) {
+  public SdcSchoolCollectionEntity processLoadedRecordsInBatchFile(@NonNull final String guid, @NonNull final SdcBatchFile batchFile, @NonNull final SdcFileUpload fileUpload, @NonNull final String sdcSchoolCollectionID, final boolean isDistrictUpload) {
     log.debug("Going to persist data for batch :: {}", guid);
     final SdcSchoolCollectionEntity entity = mapper.toSdcBatchEntityLoaded(batchFile, fileUpload, sdcSchoolCollectionID); // batch file can be processed further and persisted.
     for (final var student : batchFile.getStudentDetails()) { // set the object so that PK/FK relationship will be auto established by hibernate.
@@ -230,11 +230,11 @@ public class SdcBatchFileProcessor {
       entity.getSDCSchoolStudentEntities().add(sdcBatchStudentEntity);
     }
 
-    return craftStudentSetAndMarkInitialLoadComplete(entity, sdcSchoolCollectionID);
+    return craftStudentSetAndMarkInitialLoadComplete(entity, sdcSchoolCollectionID, isDistrictUpload);
   }
 
   @Retryable(maxAttempts = 10, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public SdcSchoolCollectionEntity craftStudentSetAndMarkInitialLoadComplete(@NonNull final SdcSchoolCollectionEntity sdcSchoolCollectionEntity, @NonNull final String sdcSchoolCollectionID) {
+  public SdcSchoolCollectionEntity craftStudentSetAndMarkInitialLoadComplete(@NonNull final SdcSchoolCollectionEntity sdcSchoolCollectionEntity, @NonNull final String sdcSchoolCollectionID, final boolean isDistrictUpload) {
     var schoolCollection = sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
     if(schoolCollection.isPresent()) {
       var coll = schoolCollection.get();
@@ -244,7 +244,12 @@ public class SdcBatchFileProcessor {
       coll.setUploadReportDate(sdcSchoolCollectionEntity.getUploadReportDate());
       coll.setUpdateUser(sdcSchoolCollectionEntity.getUpdateUser());
       coll.setUpdateDate(LocalDateTime.now());
-      coll.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.NEW));
+      if(isDistrictUpload) {
+        coll.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.DISTRICT_UPLOAD));
+      } else {
+        coll.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.NEW));
+      }
+
       return sdcSchoolCollectionService.saveSdcSchoolCollection(coll, pairStudentList.getLeft(), pairStudentList.getRight());
     }else{
       throw new StudentDataCollectionAPIRuntimeException("SDC School Collection ID provided :: " + sdcSchoolCollectionID + " :: is not valid");

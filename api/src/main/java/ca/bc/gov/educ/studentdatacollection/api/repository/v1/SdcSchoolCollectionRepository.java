@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionQueryResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -148,4 +149,12 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     List<MonitorSdcSchoolCollectionQueryResponse> findAllSdcSchoolCollectionMonitoringBySdcDistrictCollectionId(UUID sdcDistrictCollectionId);
 
     List<SdcSchoolCollectionEntity> findAllBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
+
+    @Query(value="""
+    SELECT ssc FROM SdcSchoolCollectionEntity ssc, SdcSchoolCollectionStudentEntity sscs
+    WHERE ssc.sdcSchoolCollectionStatusCode = 'DIS_UPLOAD'
+    AND ssc.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+    AND sscs.sdcSchoolCollectionStudentStatusCode  != 'LOADED'
+    order by sscs.createDate""")
+    List<SdcSchoolCollectionEntity> findSchoolCollectionsWithStudentsNotInLoadedStatus();
 }

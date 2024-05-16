@@ -36,7 +36,7 @@ public class SdcFileService {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public SdcSchoolCollectionEntity runDistrictFileLoad(SdcFileUpload sdcFileUpload, String sdcDistrictCollectionID) {
-
+    log.info("Uploaded file contents for district collection ID: {}", sdcDistrictCollectionID);
     return this.getSdcBatchProcessor().processDistrictSdcBatchFile(sdcFileUpload, sdcDistrictCollectionID);
   }
 

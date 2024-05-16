@@ -1,11 +1,17 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.events.schedulers;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.LogHelper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.Orchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcService;
 import lombok.Getter;
@@ -20,10 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -51,13 +54,17 @@ public class EventTaskSchedulerAsyncService {
 
   @Value("${number.students.process.saga}")
   private String numberOfStudentsToProcess;
+  private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+  private final SdcSchoolCollectionService sdcSchoolCollectionService;
 
-  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, final SdcService sdcService, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
+  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, final SdcService sdcService, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionService sdcSchoolCollectionService) {
     this.sagaRepository = sagaRepository;
     this.sdcSchoolStudentRepository = sdcSchoolStudentRepository;
     this.sdcService = sdcService;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
-    orchestrators.forEach(orchestrator -> this.sagaOrchestrators.put(orchestrator.getSagaName(), orchestrator));
+      this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
+      this.sdcSchoolCollectionService = sdcSchoolCollectionService;
+      orchestrators.forEach(orchestrator -> this.sagaOrchestrators.put(orchestrator.getSagaName(), orchestrator));
   }
 
   @Async("taskExecutor")
@@ -97,6 +104,29 @@ public class EventTaskSchedulerAsyncService {
     log.debug("Found :: {}  records in loaded status", sdcSchoolStudentEntities.size());
     if (!sdcSchoolStudentEntities.isEmpty()) {
       this.getSdcSchoolCollectionStudentService().prepareAndSendSdcStudentsForFurtherProcessing(sdcSchoolStudentEntities);
+    }
+  }
+
+  @Async("taskExecutor")
+  @Transactional
+  public void findSchoolCollectionsForSubmission() {
+    final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findSchoolCollectionsWithStudentsNotInLoadedStatus();
+    log.debug("Found :: {}  school collection entities for processing", sdcSchoolCollectionEntity.size());
+    if (!sdcSchoolCollectionEntity.isEmpty()) {
+      sdcSchoolCollectionEntity.forEach(sdcSchoolCollection -> {
+        List<SdcSchoolCollectionStudentEntity> schoolCollectionWithStudentInErrors = sdcSchoolCollection.getSDCSchoolStudentEntities().stream().filter(student -> student.getSdcSchoolCollectionStudentStatusCode().equals(SdcSchoolStudentStatus.ERROR.getCode())).toList();
+        if(schoolCollectionWithStudentInErrors.isEmpty()) {
+          List<SdcSchoolCollectionStudentEntity> duplicates = sdcSchoolCollectionService.getAllSchoolCollectionDuplicates(sdcSchoolCollection.getSdcSchoolCollectionID());
+          if (duplicates.isEmpty()) {
+            sdcSchoolCollection.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.SUBMITTED));
+          } else {
+            sdcSchoolCollection.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.VERIFIED));
+          }
+        } else {
+          sdcSchoolCollection.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.LOADED));
+        }
+      });
+      sdcSchoolCollectionEntity.forEach(sdcSchoolCollectionService::updateSdcSchoolCollection);
     }
   }
 
