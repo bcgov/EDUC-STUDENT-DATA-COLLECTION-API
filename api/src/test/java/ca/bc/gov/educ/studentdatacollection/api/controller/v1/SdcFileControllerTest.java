@@ -587,6 +587,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     });
     assertThat(summary.getFileName()).isEqualTo(body.getFileName());
     assertThat(summary.getUploadReportDate()).isNotNull();
+    assertThat(summary.getPositionInQueue()).isEqualTo("1");
   }
 
   @Test
@@ -768,4 +769,89 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(students).isNotNull();
   }
 
+  @Test
+  void testProcessSdcFileCheckProgress_givenOtherFilesProcessing_ShouldReturnStatusOk() throws Exception {
+    // Create first sdcSchoolCollection
+    var collection1 = sdcRepository.save(createMockCollectionEntity());
+    var school1 = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school1));
+    var sdcMockSchool1 = createMockSdcSchoolCollectionEntity(collection1, UUID.fromString(school1.getSchoolId()));
+    sdcMockSchool1.setUploadDate(null);
+    sdcMockSchool1.setUploadFileName(null);
+    sdcMockSchool1.setUploadReportDate(null);
+    var sdcSchoolCollection1 = sdcSchoolCollectionRepository.save(sdcMockSchool1);
+
+    // Upload file for first sdcSchoolCollection
+    final FileInputStream fis1 = new FileInputStream("src/test/resources/sample-1-student.txt");
+    final String fileContents1 = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis1));
+    assertThat(fileContents1).isNotEmpty();
+    val body1 = SdcFileUpload.builder().fileContents(fileContents1).createUser("ABC").fileName("SampleUpload1.std").build();
+    this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection1.getSdcSchoolCollectionID().toString() + "/file")
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(body1))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+    // Verify results for first sdcSchoolCollection
+    var result1 = this.sdcSchoolCollectionRepository.findAll();
+    assertThat(result1).hasSize(1);
+    var entity1 = result1.get(0);
+    assertThat(entity1.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity1.getUploadFileName()).isEqualTo("SampleUpload1.std");
+    assertThat(entity1.getUploadReportDate()).isNotNull();
+    assertThat(entity1.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+
+    // Get file summary for first sdcSchoolCollection
+    var resultActions1 = this.mockMvc.perform(get(BASE_URL + "/" + sdcSchoolCollection1.getSdcSchoolCollectionID().toString() + "/file")
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(body1))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+    val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SdcFileSummary>() {});
+    assertThat(summary1.getFileName()).isEqualTo(body1.getFileName());
+    assertThat(summary1.getUploadReportDate()).isNotNull();
+
+    // Create second sdcSchoolCollection
+    var collection2 = sdcRepository.save(createMockCollectionEntity());
+    var school2 = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school2));
+    var sdcMockSchool2 = createMockSdcSchoolCollectionEntity(collection2, UUID.fromString(school2.getSchoolId()));
+    sdcMockSchool2.setUploadDate(null);
+    sdcMockSchool2.setUploadFileName(null);
+    sdcMockSchool2.setUploadReportDate(null);
+    var sdcSchoolCollection2 = sdcSchoolCollectionRepository.save(sdcMockSchool2);
+
+    // Upload file for second sdcSchoolCollection
+    final FileInputStream fis2 = new FileInputStream("src/test/resources/sample-2-student.txt");
+    final String fileContents2 = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis2));
+    assertThat(fileContents2).isNotEmpty();
+    val body2 = SdcFileUpload.builder().fileContents(fileContents2).createUser("DEF").fileName("SampleUpload2.std").build();
+    this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection2.getSdcSchoolCollectionID().toString() + "/file")
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(body2))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+    // Verify results for second sdcSchoolCollection
+    var result2 = this.sdcSchoolCollectionRepository.findAll();
+    assertThat(result2).hasSize(2);
+    var entity2 = result2.get(1); // Assuming the second entity is at index 1
+    assertThat(entity2.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity2.getUploadFileName()).isEqualTo("SampleUpload2.std");
+    assertThat(entity2.getUploadReportDate()).isNotNull();
+    assertThat(entity2.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+
+    // Get file summary for second sdcSchoolCollection
+    var resultActions2 = this.mockMvc.perform(get(BASE_URL + "/" + sdcSchoolCollection2.getSdcSchoolCollectionID().toString() + "/file")
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(body2))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+    val summary2 = objectMapper.readValue(resultActions2.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SdcFileSummary>() {});
+    assertThat(summary2.getFileName()).isEqualTo(body2.getFileName());
+    assertThat(summary2.getUploadReportDate()).isNotNull();
+    assertThat(summary2.getPositionInQueue()).isEqualTo("2");
+  }
 }

@@ -4,9 +4,11 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionQueryResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -156,4 +158,11 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     AND sscs.sdcSchoolCollectionStudentStatusCode  != 'LOADED'
     order by sscs.createDate""")
     List<SdcSchoolCollectionEntity> findSchoolCollectionsWithStudentsNotInLoadedStatus();
+
+    @Query(value="""
+    SELECT COUNT(DISTINCT ssc.sdcSchoolCollectionID) FROM SdcSchoolCollectionEntity ssc, SdcSchoolCollectionStudentEntity sscs
+    WHERE ssc.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+    AND sscs.sdcSchoolCollectionStudentStatusCode  = 'LOADED'
+    AND ssc.createDate <= :createDate""")
+    long findSdcSchoolCollectionsPositionInQueue(@Param("createDate") LocalDateTime createDate);
 }

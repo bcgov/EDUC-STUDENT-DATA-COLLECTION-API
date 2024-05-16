@@ -16,4 +16,5 @@ public class SdcSchoolFileSummary{
     private String fileName;
     private LocalDateTime uploadDate;
     private String percentageStudentsProcessed;
+    private String positionInQueue;
 }
