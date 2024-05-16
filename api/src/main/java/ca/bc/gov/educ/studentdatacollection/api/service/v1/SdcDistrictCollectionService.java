@@ -84,12 +84,14 @@ public class SdcDistrictCollectionService {
       long loadedCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollection_SdcSchoolCollectionID(SdcSchoolStudentStatus.LOADED.getCode(), schoolCollectionID);
       var totalProcessed = totalCount - loadedCount;
       int percentageStudentsProcessed = (int) Math.floor((double) totalProcessed / totalCount * 100);
+      long positionInQueue = sdcSchoolCollectionRepository.findSdcSchoolCollectionsPositionInQueue(schoolCollectionRecord.getCreateDate());
+
 
       UUID schoolID = schoolCollectionRecord.getSchoolID();
       Optional<School> school = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
       String schoolName = school.map(School::getMincode).orElse(null) + " - " + school.map(School::getDisplayName).orElse(null);
 
-      SdcSchoolFileSummary collectionSummary = new SdcSchoolFileSummary(schoolCollectionID, schoolID, schoolName, schoolCollectionRecord.getUploadFileName(), schoolCollectionRecord.getUploadDate(), String.valueOf(percentageStudentsProcessed));
+      SdcSchoolFileSummary collectionSummary = new SdcSchoolFileSummary(schoolCollectionID, schoolID, schoolName, schoolCollectionRecord.getUploadFileName(), schoolCollectionRecord.getUploadDate(), String.valueOf(percentageStudentsProcessed), String.valueOf(positionInQueue));
       fileSummaries.add(collectionSummary);
 
     }

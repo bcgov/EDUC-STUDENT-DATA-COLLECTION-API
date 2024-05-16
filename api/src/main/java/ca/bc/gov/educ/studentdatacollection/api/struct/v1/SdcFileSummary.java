@@ -16,4 +16,5 @@ public class SdcFileSummary {
   private String uploadReportDate;
   private String totalStudents;
   private String totalProcessed;
+  private String positionInQueue;
 }

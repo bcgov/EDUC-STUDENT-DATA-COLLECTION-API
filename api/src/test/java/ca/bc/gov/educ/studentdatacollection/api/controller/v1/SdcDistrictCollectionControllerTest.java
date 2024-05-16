@@ -1212,16 +1212,16 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     LocalDateTime uploadDate = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
 
+    SdcSchoolCollectionEntity schoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    schoolCollectionEntity2.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+    schoolCollectionEntity2.setSdcSchoolCollectionStatusCode("LOADED");
+    sdcSchoolCollectionRepository.save(schoolCollectionEntity2);
+
     SdcSchoolCollectionEntity schoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
     schoolCollectionEntity1.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
     schoolCollectionEntity1.setSdcSchoolCollectionStatusCode("NEW");
     schoolCollectionEntity1.setUploadDate(uploadDate);
     sdcSchoolCollectionRepository.save(schoolCollectionEntity1);
-
-    SdcSchoolCollectionEntity schoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
-    schoolCollectionEntity2.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
-    schoolCollectionEntity2.setSdcSchoolCollectionStatusCode("LOADED");
-    sdcSchoolCollectionRepository.save(schoolCollectionEntity2);
 
     SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(schoolCollectionEntity1);
     student1.setSdcSchoolCollectionStudentStatusCode("LOADED");
@@ -1247,9 +1247,14 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .header("correlationID", UUID.randomUUID().toString()))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileName").value(schoolCollectionEntity1.getUploadFileName()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].percentageStudentsProcessed").value("33"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolDisplayName").value(school1.getMincode() + " - " + school1.getDisplayName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileName").value(schoolCollectionEntity2.getUploadFileName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].percentageStudentsProcessed").value("100"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolDisplayName").value(school2.getMincode() + " - " + school2.getDisplayName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].positionInQueue").value("0"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].fileName").value(schoolCollectionEntity1.getUploadFileName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].percentageStudentsProcessed").value("33"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].schoolDisplayName").value(school1.getMincode() + " - " + school1.getDisplayName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].positionInQueue").value("1"))
             .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)));
   }
 
