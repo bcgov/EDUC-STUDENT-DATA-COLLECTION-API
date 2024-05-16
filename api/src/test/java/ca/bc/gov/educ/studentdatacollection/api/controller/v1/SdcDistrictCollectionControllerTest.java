@@ -1209,6 +1209,8 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     school1.setDistrictId(district.getDistrictId());
     School school2 = createMockSchool();
     school2.setDistrictId(district.getDistrictId());
+    School school3 = createMockSchool();
+    school3.setDistrictId(district.getDistrictId());
 
     SdcSchoolCollectionEntity schoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
     schoolCollectionEntity2.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
@@ -1219,6 +1221,11 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     schoolCollectionEntity1.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
     schoolCollectionEntity1.setSdcSchoolCollectionStatusCode("NEW");
     sdcSchoolCollectionRepository.save(schoolCollectionEntity1);
+
+    SdcSchoolCollectionEntity schoolCollectionEntity3 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school3.getSchoolId()));
+    schoolCollectionEntity3.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+    schoolCollectionEntity3.setSdcSchoolCollectionStatusCode("NEW");
+    sdcSchoolCollectionRepository.save(schoolCollectionEntity3);
 
     SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(schoolCollectionEntity1);
     student1.setSdcSchoolCollectionStudentStatusCode("LOADED");
@@ -1236,8 +1243,13 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     student4.setSdcSchoolCollectionStudentStatusCode("VERIFIED");
     sdcSchoolCollectionStudentRepository.save(student4);
 
+    SdcSchoolCollectionStudentEntity student5 = createMockSchoolStudentEntity(schoolCollectionEntity3);
+    student5.setSdcSchoolCollectionStudentStatusCode("LOADED");
+    sdcSchoolCollectionStudentRepository.save(student5);
+
     when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
     when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(school3.getSchoolId())).thenReturn(Optional.of(school3));
 
     this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID().toString() + "/fileProgress")
             .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_DISTRICT_COLLECTION")))
@@ -1251,8 +1263,12 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].fileName").value(schoolCollectionEntity1.getUploadFileName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].percentageStudentsProcessed").value("33"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].schoolDisplayName").value(school1.getMincode() + " - " + school1.getDisplayName()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].positionInQueue").value("1"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].positionInQueue").value("0"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].fileName").value(schoolCollectionEntity3.getUploadFileName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].percentageStudentsProcessed").value("0"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].schoolDisplayName").value(school3.getMincode() + " - " + school3.getDisplayName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].positionInQueue").value("2"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(3)));
   }
 
 }
