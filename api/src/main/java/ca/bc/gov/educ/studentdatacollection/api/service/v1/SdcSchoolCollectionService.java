@@ -135,7 +135,7 @@ public class SdcSchoolCollectionService {
       var totalProcessed = totalCount - loadedCount;
       summary.setTotalProcessed(Long.toString(totalProcessed));
       summary.setTotalStudents(Long.toString(totalCount));
-      summary.setPositionInQueue(String.valueOf(sdcSchoolCollectionRepository.findSdcSchoolCollectionsPositionInQueue(sdcSchoolCollectionEntity.getCreateDate())));
+      summary.setPositionInQueue(String.valueOf(sdcSchoolCollectionRepository.findSdcSchoolCollectionsPositionInQueue(sdcSchoolCollectionEntity.getUploadDate())));
     }
     return summary;
   }

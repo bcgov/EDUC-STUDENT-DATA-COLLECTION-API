@@ -163,6 +163,6 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     SELECT COUNT(DISTINCT ssc.sdcSchoolCollectionID) FROM SdcSchoolCollectionEntity ssc, SdcSchoolCollectionStudentEntity sscs
     WHERE ssc.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
     AND sscs.sdcSchoolCollectionStudentStatusCode  = 'LOADED'
-    AND ssc.createDate <= :createDate""")
-    long findSdcSchoolCollectionsPositionInQueue(@Param("createDate") LocalDateTime createDate);
+    AND ssc.uploadDate <= :uploadDate""")
+    long findSdcSchoolCollectionsPositionInQueue(@Param("uploadDate") LocalDateTime uploadDate);
 }
