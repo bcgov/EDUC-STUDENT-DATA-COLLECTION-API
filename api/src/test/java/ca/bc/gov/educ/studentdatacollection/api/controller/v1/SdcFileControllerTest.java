@@ -108,7 +108,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(fileContents).isNotEmpty();
     val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
       .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -149,7 +149,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
     String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
     this.mockMvc.perform(post( BASE_URL + "/" + cid + "/file")
-      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(verFile))
       .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -185,7 +185,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
     String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
     this.mockMvc.perform(post( BASE_URL + "/" + cid + "/file")
-      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(stdFile))
       .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -220,7 +220,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
     String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
     this.mockMvc.perform(post( BASE_URL + "/" + cid + "/file")
-      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(stdFile))
       .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
@@ -250,7 +250,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
     String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
     this.mockMvc.perform(post( BASE_URL + "/" + cid + "/file")
-      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(stdFile))
       .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
@@ -272,7 +272,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(fileContents).isNotEmpty();
     val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(body))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -302,7 +302,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(fileContents).isNotEmpty();
     val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(body))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -328,7 +328,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     sdcSchoolCollectionStudentValidationIssueRepository.save(vIssue);
 
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(body))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -363,7 +363,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(fileContents).isNotEmpty();
     val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(body))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -386,7 +386,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     val body2 = SdcFileUpload.builder().fileContents(fileContents2).createUser("ABC").fileName("SampleUpload.std").build();
 
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(body2))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -418,7 +418,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(fileContents).isNotEmpty();
     val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(body))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -470,7 +470,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     sdcDuplicateRepository.save(dup);
 
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(body2))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -505,7 +505,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(fileContents).isNotEmpty();
     val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(body))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -532,7 +532,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     val body2 = SdcFileUpload.builder().fileContents(fileContents2).createUser("ABC").fileName("SampleUpload.std").build();
 
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(body2))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -563,7 +563,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(fileContents).isNotEmpty();
     val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
       .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -578,7 +578,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(students).isNotNull();
 
     var resultActions = this.mockMvc.perform(get(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-      .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_COLLECTION")))
+      .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
       .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -601,7 +601,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(fileContents).isNotEmpty();
     val body = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.std").build();
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
       .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
@@ -638,7 +638,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
     String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
     MvcResult apiResponse = this.mockMvc.perform(post(BASE_URL + "/" + cid + "/file")
-      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
       .contentType(APPLICATION_JSON)
@@ -679,7 +679,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
     String cid = sdcSchoolCollection.getSdcSchoolCollectionID().toString();
     MvcResult apiResponse = this.mockMvc.perform(post(BASE_URL + "/" + cid + "/file")
-      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
       .contentType(APPLICATION_JSON)
@@ -705,7 +705,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(fileContents).isNotEmpty();
     val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
     var resultActions = this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
       .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
@@ -731,7 +731,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(fileContents).isNotEmpty();
     val body = SdcFileUpload.builder().createUser("ABC").fileContents(fileContents).fileName("SampleUpload.std").build();
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-      .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+      .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
       .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
@@ -754,7 +754,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
 
     this.mockMvc.perform(post(BASE_URL + "/district/" + districtCollection.getSdcDistrictCollectionID() + "/file")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(body))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -787,7 +787,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(fileContents1).isNotEmpty();
     val body1 = SdcFileUpload.builder().fileContents(fileContents1).createUser("ABC").fileName("SampleUpload1.std").build();
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection1.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(body1))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -803,7 +803,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
     // Get file summary for first sdcSchoolCollection
     var resultActions1 = this.mockMvc.perform(get(BASE_URL + "/" + sdcSchoolCollection1.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(body1))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -828,7 +828,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(fileContents2).isNotEmpty();
     val body2 = SdcFileUpload.builder().fileContents(fileContents2).createUser("DEF").fileName("SampleUpload2.std").build();
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection2.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(body2))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -844,7 +844,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
     // Get file summary for second sdcSchoolCollection
     var resultActions2 = this.mockMvc.perform(get(BASE_URL + "/" + sdcSchoolCollection2.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(body2))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
