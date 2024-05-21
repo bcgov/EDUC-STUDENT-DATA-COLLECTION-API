@@ -257,20 +257,19 @@ public class SdcBatchFileProcessor {
   }
 
   private Pair<List<SdcSchoolCollectionStudentEntity>, List<UUID>> compareAndShoreUpStudentList(SdcSchoolCollectionEntity currentCollection, SdcSchoolCollectionEntity incomingCollection){
-    Map<Integer, SdcSchoolCollectionStudentEntity> currentStudentsHashCodes = new HashMap<>();
     Map<Integer, SdcSchoolCollectionStudentEntity> incomingStudentsHashCodes = new HashMap<>();
     Map<Integer, SdcSchoolCollectionStudentEntity> finalStudentsMap = new HashMap<>();
     List<UUID> removedStudents = new ArrayList<>();
-    currentCollection.getSDCSchoolStudentEntities().forEach(student -> currentStudentsHashCodes.put(student.getUniqueObjectHash(), student));
     incomingCollection.getSDCSchoolStudentEntities().forEach(student -> incomingStudentsHashCodes.put(student.getUniqueObjectHash(), student));
-    log.debug("Found {} current students for collection", currentStudentsHashCodes.size());
+    log.debug("Found {} current students for collection", currentCollection.getSDCSchoolStudentEntities().size());
     log.debug("Found {} incoming students for collection", incomingStudentsHashCodes.size());
 
-    currentStudentsHashCodes.keySet().forEach(currentStudentHash -> {
-      if(incomingStudentsHashCodes.containsKey(currentStudentHash)  && !currentStudentsHashCodes.get(currentStudentHash).getSdcSchoolCollectionStudentStatusCode().equals(SdcSchoolStudentStatus.DELETED.toString())){
-        finalStudentsMap.put(currentStudentHash, currentStudentsHashCodes.get(currentStudentHash));
+    currentCollection.getSDCSchoolStudentEntities().forEach(currentStudent -> {
+      var currentStudentHash = currentStudent.getUniqueObjectHash();
+      if(incomingStudentsHashCodes.containsKey(currentStudentHash)  && !currentStudent.getSdcSchoolCollectionStudentStatusCode().equals(SdcSchoolStudentStatus.DELETED.toString())){
+        finalStudentsMap.put(currentStudentHash, currentStudent);
       }else{
-        removedStudents.add(currentStudentsHashCodes.get(currentStudentHash).getSdcSchoolCollectionStudentID());
+        removedStudents.add(currentStudent.getSdcSchoolCollectionStudentID());
       }
     });
 
