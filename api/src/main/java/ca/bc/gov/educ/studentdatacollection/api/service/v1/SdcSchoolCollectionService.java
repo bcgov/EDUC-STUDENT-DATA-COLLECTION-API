@@ -60,33 +60,22 @@ public class SdcSchoolCollectionService {
     var duplicatesToDelete = this.sdcDuplicateRepository.findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentIDIn(removedStudents);
     this.sdcDuplicateRepository.deleteAll(duplicatesToDelete);
 
+    List<SdcSchoolCollectionStudentEntity> newStudents = finalStudents.stream().filter(sdcSchoolCollectionStudentEntity -> sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID() == null).toList();
+    curSDCSchoolEntity.getSDCSchoolStudentEntities().clear();
+    curSDCSchoolEntity.getSDCSchoolStudentEntities().addAll(finalStudents);
+    curSDCSchoolEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(curSDCSchoolEntity, curSDCSchoolEntity.getUpdateUser()));
+
     log.debug("Removing student history records by sdcSchoolCollectionStudentIDs: {}", removedStudents);
     this.sdcSchoolCollectionStudentHistoryRepository.deleteBySdcSchoolCollectionStudentIDs(removedStudents);
-
-    List<SdcSchoolCollectionStudentEntity> newStudents = finalStudents.stream().filter(sdcSchoolCollectionStudentEntity -> sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID() == null).toList();
-    List<SdcSchoolCollectionStudentEntity> existingStudents = finalStudents.stream().filter(sdcSchoolCollectionStudentEntity -> sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID() != null).toList();
-    curSDCSchoolEntity.getSDCSchoolStudentEntities().clear();
-
-    log.debug("Persisting new students for the collection: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
-    for (SdcSchoolCollectionStudentEntity newStudent : newStudents) {
-      newStudent.setSdcSchoolCollection(curSDCSchoolEntity);
-    }
-    this.sdcSchoolCollectionStudentRepository.saveAll(newStudents);
-
-    curSDCSchoolEntity.getSDCSchoolStudentEntities().addAll(newStudents);
-    curSDCSchoolEntity.getSDCSchoolStudentEntities().addAll(existingStudents);
-    curSDCSchoolEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(curSDCSchoolEntity, curSDCSchoolEntity.getUpdateUser()));
     log.debug("About to save school file data for collection: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
-    var returnedEntity = this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);
+    var returnedEntities = this.sdcSchoolCollectionRepository.save(curSDCSchoolEntity);
 
     log.debug("About to persist history records for students: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
     List<SdcSchoolCollectionStudentHistoryEntity> newHistoryEntities = new ArrayList<>();
-    for (SdcSchoolCollectionStudentEntity newStudent : newStudents) {
-      newHistoryEntities.add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(newStudent, curSDCSchoolEntity.getUpdateUser()));
-    }
+    newStudents.stream().forEach(sdcSchoolCollectionStudentEntity -> newHistoryEntities.add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser())));
     this.sdcSchoolCollectionStudentHistoryRepository.saveAll(newHistoryEntities);
 
-    return returnedEntity;
+    return returnedEntities;
   }
 
   public SdcSchoolCollectionEntity getActiveSdcSchoolCollectionBySchoolID(UUID schoolID) {
