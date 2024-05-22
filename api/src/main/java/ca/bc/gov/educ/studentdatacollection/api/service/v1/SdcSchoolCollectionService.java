@@ -58,7 +58,7 @@ public class SdcSchoolCollectionService {
   public SdcSchoolCollectionEntity saveSdcSchoolCollection(SdcSchoolCollectionEntity curSDCSchoolEntity, List<SdcSchoolCollectionStudentEntity> finalStudents, List<UUID> removedStudents) {
     log.debug("Removing duplicate records by sdcSchoolCollectionStudentIDs: {}", removedStudents);
     var duplicatesToDelete = this.sdcDuplicateRepository.findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentIDIn(removedStudents);
-    log.info("Removing {} duplicate records from SDC school collection: {}", duplicatesToDelete.size(), curSDCSchoolEntity.getSdcSchoolCollectionID());
+    log.debug("Removing {} duplicate records from SDC school collection: {}", duplicatesToDelete.size(), curSDCSchoolEntity.getSdcSchoolCollectionID());
     this.sdcDuplicateRepository.deleteAll(duplicatesToDelete);
 
     List<SdcSchoolCollectionStudentEntity> newStudents = finalStudents.stream().filter(sdcSchoolCollectionStudentEntity -> sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID() == null).toList();
