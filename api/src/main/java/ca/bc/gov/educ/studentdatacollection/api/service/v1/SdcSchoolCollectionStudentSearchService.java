@@ -123,7 +123,12 @@ public class SdcSchoolCollectionStudentSearchService {
         schoolEntitySpecification = sdcSchoolCollectionStudentFilterSpecs.getDateTypeSpecification(key, value, filterOperation);
         break;
       case UUID:
-        schoolEntitySpecification = sdcSchoolCollectionStudentFilterSpecs.getUUIDTypeSpecification(key, value, filterOperation);
+        if (key.equals("sdcSchoolCollection.schoolID")) {
+          UUID schoolID = UUID.fromString(value);
+          schoolEntitySpecification = sdcSchoolCollectionStudentFilterSpecs.getSchoolIDSpecification(schoolID);
+        } else {
+          schoolEntitySpecification = sdcSchoolCollectionStudentFilterSpecs.getUUIDTypeSpecification(key, value, filterOperation);
+        }
         break;
       case BOOLEAN:
         schoolEntitySpecification = sdcSchoolCollectionStudentFilterSpecs.getBooleanTypeSpecification(key, value, filterOperation);
