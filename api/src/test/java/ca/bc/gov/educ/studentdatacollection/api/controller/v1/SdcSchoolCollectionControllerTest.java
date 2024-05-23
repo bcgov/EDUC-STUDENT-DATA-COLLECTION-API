@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
@@ -13,11 +14,14 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentEnrolledProgramRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
@@ -599,4 +603,57 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     assertThat(sdcSchoolCollectionDelete).isEmpty();
   }
 
+  @ParameterizedTest
+  @CsvSource({
+    "WRITE_SDC_COLLECTION",
+    "WRITE_SDC_DISTRICT_COLLECTION",
+    "FAKE_SCOPE"
+  })
+  void testUnsubmitCollection_GivenDoesntHaveBothScopes_ShouldThrowException(String scope) throws Exception {
+    var sdcSchoolCollectionID = UUID.randomUUID();
+
+    this.mockMvc.perform(post(URL.BASE_URL_SCHOOL_COLLECTION + "/unsubmit")
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", scope)))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(SdcSchoolCollection.builder().sdcSchoolCollectionID(String.valueOf(sdcSchoolCollectionID)).build()))
+            .contentType(APPLICATION_JSON)).andExpect(status().isForbidden());
+  }
+
+  @Test
+  void testUnsubmitCollection_GivenDistrictState_ShouldUpdateCorrectly() throws Exception {
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    District district = createMockDistrict();
+
+    School school = createMockSchool();
+    school.setDistrictId(district.getDistrictId());
+
+    SdcDistrictCollectionEntity sdcMockDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+    sdcMockDistrictCollection.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.REVIEWED.getCode());
+    sdcDistrictCollectionRepository.save(sdcMockDistrictCollection);
+
+    SdcSchoolCollectionEntity sdcMockSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    sdcMockSchoolCollection.setSdcDistrictCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID());
+    sdcMockSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
+    sdcSchoolCollectionRepository.save(sdcMockSchoolCollection);
+
+    var mockSchoolCollection = SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchoolCollection);
+    mockSchoolCollection.setCreateDate(null);
+    mockSchoolCollection.setUpdateDate(null);
+
+    this.mockMvc.perform(post(URL.BASE_URL_SCHOOL_COLLECTION + "/unsubmit")
+            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION WRITE_SDC_DISTRICT_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(mockSchoolCollection))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+    var updatedSchoolCollection = sdcSchoolCollectionRepository.findById(sdcMockSchoolCollection.getSdcSchoolCollectionID());
+    var updatedDistrictCollection = sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID());
+    assertThat(updatedSchoolCollection).isPresent();
+    assertThat(updatedSchoolCollection.get().getSdcSchoolCollectionStatusCode()).isEqualTo(SdcSchoolCollectionStatus.DUP_VRFD.getCode());
+    assertThat(updatedDistrictCollection).isPresent();
+    assertThat(updatedDistrictCollection.get().getSdcDistrictCollectionStatusCode()).isEqualTo(SdcDistrictCollectionStatus.LOADED.getCode());
+  }
 }

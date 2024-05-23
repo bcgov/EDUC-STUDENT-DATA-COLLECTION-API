@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionUnsubmit;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -71,5 +72,13 @@ public interface SdcSchoolCollectionEndpoint {
   @Tag(name = "Sdc School Collection", description = "Endpoints to get school collection entity.")
   List<SdcSchoolCollection> getAllSchoolCollections(@RequestParam(name = "schoolID", defaultValue = "") UUID schoolID,
                                                               @RequestParam(name = "sdcDistrictCollectionID", defaultValue = "") UUID sdcDistrictCollectionID);
+
+  @PostMapping("/unsubmit")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION') and hasAuthority('SCOPE_WRITE_SDC_DISTRICT_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional
+  @Tag(name = "Sdc School Collection", description = "Endpoints to unsubmit school collection entity.")
+  @Schema(name = "SdcSchoolCollection", implementation = SdcSchoolCollection.class)
+  SdcSchoolCollection unsubmitSchoolCollection(@RequestBody SdcSchoolCollectionUnsubmit unsubmitData);
 
 }
