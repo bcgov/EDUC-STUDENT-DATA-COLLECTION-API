@@ -137,13 +137,13 @@
             <property name="net.sf.jasperreports.json.field.expression" value="typeOfProgram"/>
             <fieldDescription><![CDATA[programs.typeOfProgram]]></fieldDescription>
         </field>
-        <field name="valueGrade01" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueGrade01"/>
-            <fieldDescription><![CDATA[programs.valueGrade01]]></fieldDescription>
+        <field name="valueHeadcount" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="valueHeadcount"/>
+            <fieldDescription><![CDATA[programs.valueHeadcount]]></fieldDescription>
         </field>
-        <field name="valueGrade02" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueGrade02"/>
-            <fieldDescription><![CDATA[programs.valueGrade02]]></fieldDescription>
+        <field name="valueFTE" class="java.lang.String">
+            <property name="net.sf.jasperreports.json.field.expression" value="valueFTE"/>
+            <fieldDescription><![CDATA[programs.valueFTE]]></fieldDescription>
         </field>
         <field name="isHeading" class="java.lang.String">
             <property name="net.sf.jasperreports.json.field.expression" value="isHeading"/>
@@ -286,7 +286,7 @@
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
-                        <jr:column width="25" uuid="91f36667-bc08-4e19-866b-d83f59a65a51">
+                        <jr:column width="162" uuid="91f36667-bc08-4e19-866b-d83f59a65a51">
                             <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
@@ -318,7 +318,7 @@
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
-                        <jr:column width="25" uuid="91f36667-bc08-4e19-866b-d83f59a65a51">
+                        <jr:column width="163" uuid="91f36667-bc08-4e19-866b-d83f59a65a51">
                             <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
