@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.BandResidenceHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -19,18 +20,19 @@ import net.sf.jasperreports.engine.JasperReport;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @Slf4j
-public abstract class BandOfResidenceHeadcountReportService extends BaseReportGenerationService<BandResidenceHeadcountResult>{
+public class BandOfResidenceHeadcountReportService extends BaseReportGenerationService<BandResidenceHeadcountResult>{
 
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private JasperReport bandOfResidenceHeadcountReport;
 
-    protected BandOfResidenceHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
+    public BandOfResidenceHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
         super(restUtils);
         this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
         this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
@@ -64,5 +66,23 @@ public abstract class BandOfResidenceHeadcountReportService extends BaseReportGe
             log.error("Exception occurred while writing PDF report for band of residence report :: " + e.getMessage());
             throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for band of residence report :: " + e.getMessage());
         }
+    }
+
+    @Override
+    protected HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
+        HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
+        // TODO populate with "bandName - bandCode"
+        // addValuesForSectionToMap(nodeMap, "band x", "band x", "00");
+        addValuesForSectionToMap(nodeMap, "allBands", "All Bands & Students", "00");
+        return nodeMap;
+    }
+
+    private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
+        nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+    }
+
+    @Override
+    protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, BandResidenceHeadcountResult gradeResult) {
+        // TODO set the values for headcount and FTE
     }
 }
