@@ -80,7 +80,6 @@ public class SdcDuplicateEntity {
   }
 
   public int getUniqueObjectHash() {
-
     List<UUID> studentIDs = getSdcDuplicateStudentEntities().stream().map(studentDupe -> studentDupe.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID()).toList();
     UUID smallerID = studentIDs.get(0).compareTo(studentIDs.get(1)) < 0 ? studentIDs.get(1) : studentIDs.get(0);
     UUID largerID = smallerID == studentIDs.get(0) ? studentIDs.get(1) : studentIDs.get(0);
