@@ -23,7 +23,6 @@ public abstract class SdcDuplicateDecorator implements SdcDuplicateMapper {
     var student1 = studentIterator.next().getSdcSchoolCollectionStudentEntity();
     var student2 = studentIterator.next().getSdcSchoolCollectionStudentEntity();
 
-
     duplicate.setSdcSchoolCollectionStudent1Entity(studentMapper.toSdcSchoolStudent(student1));
     duplicate.setSdcSchoolCollectionStudent2Entity(studentMapper.toSdcSchoolStudent(student2));
     duplicate.setRetainedSdcSchoolCollectionStudentEntity(studentMapper.toSdcSchoolStudent(sdcDuplicateEntity.getRetainedSdcSchoolCollectionStudentEntity()));
