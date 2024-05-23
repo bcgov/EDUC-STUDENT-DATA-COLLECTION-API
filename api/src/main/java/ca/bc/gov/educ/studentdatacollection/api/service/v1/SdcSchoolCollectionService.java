@@ -4,12 +4,14 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollecti
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
-import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionUnsubmit;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -17,12 +19,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.FieldError;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static ca.bc.gov.educ.studentdatacollection.api.batch.processor.SdcBatchFileProcessor.INVALID_PAYLOAD_MSG;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Service
 @Slf4j
@@ -188,7 +194,12 @@ public class SdcSchoolCollectionService {
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionID", unsubmitData.getSdcSchoolCollectionID().toString()));
 
     if(!StringUtils.equals(sdcSchoolCollectionEntity.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode())) {
-      throw new InvalidParameterException("Cannot un-submit a SDC School Collection that is not in submitted status.");
+      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
+      var validationError = ValidationUtil.createFieldError("SdcSchoolCollectionId", unsubmitData.getSdcSchoolCollectionID(), "Cannot un-submit a SDC School Collection that is not in submitted status.");
+      List<FieldError> fieldErrorList = new ArrayList<>();
+      fieldErrorList.add(validationError);
+      error.addValidationErrors(fieldErrorList);
+      throw new InvalidPayloadException(error);
     }
 
     Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionOptional = sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(sdcSchoolCollectionEntity.getSdcDistrictCollectionID());

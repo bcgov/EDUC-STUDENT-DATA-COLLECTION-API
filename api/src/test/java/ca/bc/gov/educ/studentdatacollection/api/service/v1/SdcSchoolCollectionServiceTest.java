@@ -3,7 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
-import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
@@ -117,7 +117,7 @@ class SdcSchoolCollectionServiceTest {
     when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
 
     SdcSchoolCollectionUnsubmit sdcSchoolCollectionUnsubmit = SdcSchoolCollectionUnsubmit.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build();
-    assertThrows(InvalidParameterException.class, () -> sdcSchoolCollectionService.unsubmitSchoolCollection(sdcSchoolCollectionUnsubmit));
+    assertThrows(InvalidPayloadException.class, () -> sdcSchoolCollectionService.unsubmitSchoolCollection(sdcSchoolCollectionUnsubmit));
 
     verify(sdcSchoolCollectionRepository, times(1)).findById(sdcSchoolCollectionID);
     verifyNoMoreInteractions(sdcSchoolCollectionRepository, sdcDistrictCollectionRepository, sdcDistrictCollectionService);
