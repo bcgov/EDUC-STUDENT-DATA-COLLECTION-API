@@ -1,13 +1,14 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryEntity;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionUnsubmit;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,10 +42,14 @@ public class SdcSchoolCollectionService {
 
   private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
 
+  private final SdcDistrictCollectionService sdcDistrictCollectionService;
+
   private final CollectionRepository collectionRepository;
 
+  private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
+
   @Autowired
-  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService) {
+  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcDistrictCollectionService sdcDistrictCollectionService) {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
     this.sdcSchoolCollectionHistoryService = sdcSchoolCollectionHistoryService;
@@ -52,6 +58,8 @@ public class SdcSchoolCollectionService {
     this.sdcSchoolCollectionStudentHistoryService = sdcSchoolCollectionStudentHistoryService;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
     this.collectionRepository = collectionRepository;
+    this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
+    this.sdcDistrictCollectionService = sdcDistrictCollectionService;
   }
 
   @Transactional(propagation = Propagation.MANDATORY)
@@ -174,4 +182,30 @@ public class SdcSchoolCollectionService {
     sdcSchoolCollectionRepository.delete(entity);
   }
 
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public SdcSchoolCollectionEntity unsubmitSchoolCollection(SdcSchoolCollectionUnsubmit unsubmitData) {
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = sdcSchoolCollectionRepository.findById(unsubmitData.getSdcSchoolCollectionID());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionID", unsubmitData.getSdcSchoolCollectionID().toString()));
+
+    if(!StringUtils.equals(sdcSchoolCollectionEntity.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode())) {
+      throw new InvalidParameterException("Cannot un-submit a SDC School Collection that is not in submitted status.");
+    }
+
+    Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionOptional = sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(sdcSchoolCollectionEntity.getSdcDistrictCollectionID());
+    SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionID", sdcSchoolCollectionEntity.getSdcDistrictCollectionID() != null ? sdcSchoolCollectionEntity.getSdcDistrictCollectionID().toString() : "null"));
+
+    if(!StringUtils.equals(sdcDistrictCollectionEntity.getSdcDistrictCollectionStatusCode(), SdcDistrictCollectionStatus.LOADED.getCode())) {
+      sdcDistrictCollectionEntity.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.LOADED.getCode());
+      sdcDistrictCollectionEntity.setUpdateDate(LocalDateTime.now());
+      sdcDistrictCollectionEntity.setUpdateUser(unsubmitData.getUpdateUser());
+      sdcDistrictCollectionService.updateSdcDistrictCollection(sdcDistrictCollectionEntity);
+    }
+
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.DUP_VRFD.getCode());
+    sdcSchoolCollectionEntity.setUpdateDate(LocalDateTime.now());
+    sdcSchoolCollectionEntity.setUpdateUser(unsubmitData.getUpdateUser());
+    updateSdcSchoolCollection(sdcSchoolCollectionEntity);
+
+    return sdcSchoolCollectionEntity;
+  }
 }

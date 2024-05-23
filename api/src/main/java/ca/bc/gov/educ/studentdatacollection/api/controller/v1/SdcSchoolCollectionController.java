@@ -8,6 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionUnsubmit;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionValidator;
@@ -91,5 +92,10 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
       sdcSchoolCollectionList.add(mapper.toStructure(entity));
     }
     return sdcSchoolCollectionList;
+  }
+
+  @Override
+  public SdcSchoolCollection unsubmitSchoolCollection(SdcSchoolCollectionUnsubmit unsubmitData) {
+    return mapper.toStructure(sdcSchoolCollectionService.unsubmitSchoolCollection(unsubmitData));
   }
 }
