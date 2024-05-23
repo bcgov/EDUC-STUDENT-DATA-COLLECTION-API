@@ -78,7 +78,9 @@ public class SdcDuplicatesService {
       }
     });
 
+    log.info("Found {} duplicates to delete", dupsToDelete.size());
     sdcDuplicateRepository.deleteAll(dupsToDelete);
+    log.info("Found {} new duplicates to save", finalDuplicatesSet.size());
     sdcDuplicateRepository.saveAll(finalDuplicatesSet);
 
     return finalDuplicatesSet;
