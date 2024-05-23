@@ -82,7 +82,9 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
     }
 
     @Override
-    protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, BandResidenceHeadcountResult gradeResult) {
+    protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, BandResidenceHeadcountResult result) {
         // TODO set the values for headcount and FTE
+        nodeMap.get("allBands").setValueForBand("FTE", result.getFteTotal());
+        nodeMap.get("allBands").setValueForBand("Headcount", result.getHeadcount());
     }
 }

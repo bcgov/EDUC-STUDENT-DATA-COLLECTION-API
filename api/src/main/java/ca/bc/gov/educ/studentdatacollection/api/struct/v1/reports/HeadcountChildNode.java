@@ -80,6 +80,10 @@ public class HeadcountChildNode implements Serializable {
 
   private String valueGradeHS = "0";
 
+  private String valueFTE = "0";
+
+  private String valueBandHeadcount = "0";
+
   private String valueTotal = "0";
 
   private String isHeading;
@@ -264,4 +268,16 @@ public class HeadcountChildNode implements Serializable {
     }
   }
 
+  public void setValueForBand(String type, String value){
+    switch (type){
+      case "FTE":
+        setValueFTE(value);
+        break;
+      case "Headcount":
+        setValueBandHeadcount(value);
+        break;
+      default:
+        break;
+    }
+  }
 }
