@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static ca.bc.gov.educ.studentdatacollection.api.batch.processor.SdcBatchFileProcessor.INVALID_PAYLOAD_MSG;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Service
@@ -53,6 +52,8 @@ public class SdcSchoolCollectionService {
   private final CollectionRepository collectionRepository;
 
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
+
+  private static final String INVALID_PAYLOAD_MSG = "Payload contains invalid data.";
 
   @Autowired
   public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcDistrictCollectionService sdcDistrictCollectionService) {
