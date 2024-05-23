@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.21.1.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
+<!-- Created with Jaspersoft Studio version 6.21.0.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Cherry" pageWidth="792" pageHeight="612" orientation="Landscape" columnWidth="752" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="13acf49e-4913-4d1b-bccc-113817ad15d1">
     <property name="com.jaspersoft.studio.data.defaultdataadapter" value="BandPrograms"/>
     <property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -290,7 +290,7 @@
                             <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
-                                    <reportElement x="0" y="0" width="162" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="cef160dd-2481-49e5-a8a3-386be78ac5eb"/>
+                                    <reportElement x="0" y="0" width="25" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="cef160dd-2481-49e5-a8a3-386be78ac5eb"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
                                         <font fontName="BCSans" size="7"/>
                                     </textElement>
@@ -299,7 +299,7 @@
                             </jr:columnHeader>
                             <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="162" height="10" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
+                                    <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="25" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
@@ -308,7 +308,7 @@
                                     <textFieldExpression><![CDATA[$F{valueHeadcount}]]></textFieldExpression>
                                 </textField>
                                 <textField>
-                                    <reportElement stretchType="ContainerHeight" x="0" y="10" width="162" height="10" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
+                                    <reportElement stretchType="ContainerHeight" x="0" y="0" width="25" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
@@ -322,7 +322,7 @@
                             <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
-                                    <reportElement x="0" y="0" width="163" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="cef160dd-2481-49e5-a8a3-386be78ac5eb"/>
+                                    <reportElement x="0" y="0" width="25" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="cef160dd-2481-49e5-a8a3-386be78ac5eb"/>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
                                         <font fontName="BCSans" size="7"/>
                                     </textElement>
@@ -331,7 +331,7 @@
                             </jr:columnHeader>
                             <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="163" height="10" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
+                                    <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="25" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
@@ -340,7 +340,7 @@
                                     <textFieldExpression><![CDATA[$F{valueFTE}]]></textFieldExpression>
                                 </textField>
                                 <textField>
-                                    <reportElement stretchType="ContainerHeight" x="0" y="10" width="163" height="10" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
+                                    <reportElement stretchType="ContainerHeight" x="0" y="0" width="25" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
