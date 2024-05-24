@@ -27,6 +27,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     private final EllHeadcountReportService ellHeadcountReportService;
     private final SpecialEdHeadcountReportService specialEdHeadcountReportService;
     private final AllStudentLightCollectionGenerateCsvService allStudentLightCollectionGenerateCsvService;
+    private final BandOfResidenceHeadcountReportService bandOfResidenceHeadcountReportService;
 
     @Override
     public DownloadableReportResponse generateSDCReport(UUID collectionID, String reportTypeCode) {
@@ -42,6 +43,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case CAREER_HEADCOUNT -> careerProgramHeadcountReportService.generateCareerProgramHeadcountReport(collectionID);
             case FRENCH_HEADCOUNT -> frenchProgramHeadcountReportService.generateFrenchProgramHeadcountReport(collectionID);
             case INDIGENOUS_HEADCOUNT -> indigenousHeadcountReportService.generateIndigenousHeadcountReport(collectionID);
+            case BAND_RESIDENCE_HEADCOUNT -> bandOfResidenceHeadcountReportService.generateBandOfResdienceReport(collectionID);
             case ELL_HEADCOUNT -> ellHeadcountReportService.generateEllHeadcountReport(collectionID);
             case SPECIAL_EDUCATION_HEADCOUNT -> specialEdHeadcountReportService.generateSpecialEdHeadcountReport(collectionID);
             case ALL_STUDENT_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateFromSdcSchoolCollectionID(collectionID);
