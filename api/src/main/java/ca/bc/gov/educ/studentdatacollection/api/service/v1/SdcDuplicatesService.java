@@ -254,23 +254,4 @@ public class SdcDuplicatesService {
     return student;
   }
 
-  private boolean checkForDuplicates(List<SdcDuplicateEntity> duplicates, UUID sdcSchoolCollectionStudentID1, UUID sdcSchoolCollectionStudentID2){
-    for(SdcDuplicateEntity sdcDuplicateEntity : duplicates){
-      boolean foundStud1 = false;
-      boolean foundStud2 = false;
-      for(SdcDuplicateStudentEntity studentEntity: sdcDuplicateEntity.getSdcDuplicateStudentEntities()){
-        if(studentEntity.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().equals(sdcSchoolCollectionStudentID1)){
-          foundStud1 = true;
-        }
-        if(studentEntity.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().equals(sdcSchoolCollectionStudentID2)){
-          foundStud2 = true;
-        }
-      }
-      if(foundStud1 && foundStud2){
-        return true;
-      }
-    }
-    return false;
-  }
-
 }
