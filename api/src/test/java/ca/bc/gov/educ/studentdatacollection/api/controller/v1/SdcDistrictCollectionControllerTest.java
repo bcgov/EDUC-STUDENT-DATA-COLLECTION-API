@@ -240,6 +240,14 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     });
 
     assertThat(sdcDuplicates).hasSize(2);
+    assertThat(sdcDuplicates.get(0).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
+    assertThat(sdcDuplicates.get(0).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.ENROLLMENT.getCode());
+    assertThat(sdcDuplicates.get(0).getDuplicateSeverityCode()).isEqualTo(DuplicateSeverityCode.ALLOWABLE.getCode());
+
+    assertThat(sdcDuplicates.get(1).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
+    assertThat(sdcDuplicates.get(1).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.PROGRAM.getCode());
+    assertThat(sdcDuplicates.get(1).getDuplicateSeverityCode()).isEqualTo(DuplicateSeverityCode.NON_ALLOWABLE.getCode());
+    assertThat(sdcDuplicates.get(1).getProgramDuplicateTypeCode()).isEqualTo(ProgramDuplicateTypeCode.SPECIAL_ED.getCode());
   }
 
   @Test
@@ -875,12 +883,6 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     });
 
     assertThat(sdcDuplicates).hasSize(4);
-    assertThat(sdcDuplicates.get(0).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
-    assertThat(sdcDuplicates.get(0).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.ENROLLMENT.getCode());
-
-//    Optional<SdcDuplicateEntity> updatedDupe = sdcDuplicateRepository.findById(savedDupe1.getSdcDuplicateID());
-//
-//    assertThat(updatedDupe.get().getDuplicateResolutionCode()).isEqualTo(DuplicateResolutionCode.RESOLVED.getCode());
   }
 
   @Test
