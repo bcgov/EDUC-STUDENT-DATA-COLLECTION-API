@@ -82,7 +82,7 @@ public class HeadcountChildNode implements Serializable {
 
   private String valueFTE = "0";
 
-  private String valueBandHeadcount = "0";
+  private String valueHeadcount = "0";
 
   private String valueTotal = "0";
 
@@ -274,7 +274,7 @@ public class HeadcountChildNode implements Serializable {
         setValueFTE(value);
         break;
       case "Headcount":
-        setValueBandHeadcount(value);
+        setValueHeadcount(value);
         break;
       default:
         break;

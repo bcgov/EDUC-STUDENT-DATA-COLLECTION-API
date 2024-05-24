@@ -36,6 +36,7 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
     private JasperReport bandOfResidenceHeadcountReport;
     private List<BandResidenceHeadcountResult> headcountsList;
     private final CodeTableService codeTableService;
+    private static final String HEADING = "Heading";
 
     public BandOfResidenceHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, CodeTableService codeTableService) {
         super(restUtils);
@@ -92,15 +93,18 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
     }
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-        nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+        nodeMap.put(sectionPrefix + HEADING, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
     }
 
     protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, BandResidenceHeadcountResult result) {
-        String bandKey = result.getBandCode();
-        if (nodeMap.containsKey(bandKey)) {
-            HeadcountChildNode bandNode = nodeMap.get(bandKey);
-            bandNode.setValueForBand("valueFTE", result.getFteTotal());
-            bandNode.setValueForBand("valueHeadcount", result.getHeadcount());
+        if (headcountsList != null) {
+            for (BandResidenceHeadcountResult each : headcountsList) {
+                String bandKey = each.getBandCode();
+                nodeMap.get(bandKey + HEADING).setValueForBand("FTE", result.getFteTotal());
+                nodeMap.get(bandKey + HEADING).setValueForBand("Headcount", result.getHeadcount());
+            }
         }
+        nodeMap.get("allBandsHeading").setValueForBand("FTE", result.getFteTotal());
+        nodeMap.get("allBandsHeading").setValueForBand("Headcount", result.getHeadcount());
     }
 }
