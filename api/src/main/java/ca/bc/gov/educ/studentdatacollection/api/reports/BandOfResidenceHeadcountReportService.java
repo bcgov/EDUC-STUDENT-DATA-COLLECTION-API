@@ -74,7 +74,6 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
         }
     }
 
-    @Override
     protected HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
         HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
         List<BandCodeEntity> allActiveBandCodes = codeTableService.getAllBandCodes();
@@ -96,7 +95,6 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
         nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
     }
 
-    @Override
     protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, BandResidenceHeadcountResult result) {
         String bandKey = result.getBandCode();
         if (nodeMap.containsKey(bandKey)) {
