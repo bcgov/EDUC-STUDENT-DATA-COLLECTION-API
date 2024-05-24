@@ -119,8 +119,7 @@ public class SdcDistrictCollectionService {
       monitorSdcSchoolCollection.setInfoWarnings(monitorSdcSchoolCollectionQueryResponse.getInfoWarnings());
       monitorSdcSchoolCollection.setFundingWarnings(monitorSdcSchoolCollectionQueryResponse.getFundingWarnings());
 
-      monitorSdcSchoolCollection.setDetailsConfirmed(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SCH_D_VRFD.getCode(), SdcSchoolCollectionStatus.SCH_C_VRFD.getCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode()));
-      monitorSdcSchoolCollection.setContactsConfirmed(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SCH_C_VRFD.getCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode()));
+      monitorSdcSchoolCollection.setSchoolStatus(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode());
       monitorSdcSchoolCollection.setSubmittedToDistrict(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode()));
 
       monitorSdcSchoolCollections.add(monitorSdcSchoolCollection);
@@ -132,8 +131,6 @@ public class SdcDistrictCollectionService {
     response.setTotalErrors(monitorSdcSchoolCollections.stream().mapToLong(MonitorSdcSchoolCollection::getErrors).sum());
     response.setTotalInfoWarnings(monitorSdcSchoolCollections.stream().mapToLong(MonitorSdcSchoolCollection::getInfoWarnings).sum());
 
-    response.setSchoolsDetailsConfirmed(monitorSdcSchoolCollections.stream().filter(MonitorSdcSchoolCollection::isDetailsConfirmed).count());
-    response.setSchoolsContactsConfirmed(monitorSdcSchoolCollections.stream().filter(MonitorSdcSchoolCollection::isContactsConfirmed).count());
     response.setSchoolsSubmitted(monitorSdcSchoolCollections.stream().filter(MonitorSdcSchoolCollection::isSubmittedToDistrict).count());
 
     response.setSchoolsWithData(monitorSdcSchoolCollections.stream().filter(collection -> collection.getUploadDate() != null).count());

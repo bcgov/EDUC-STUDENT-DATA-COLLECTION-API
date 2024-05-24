@@ -24,7 +24,6 @@ public class MonitorSdcSchoolCollection implements Serializable {
   long errors;
   long fundingWarnings;
   long infoWarnings;
-  boolean detailsConfirmed;
-  boolean contactsConfirmed;
+  String schoolStatus;
   boolean submittedToDistrict;
 }
