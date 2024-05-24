@@ -3,11 +3,13 @@ package ca.bc.gov.educ.studentdatacollection.api.reports;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.BandCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.BandResidenceHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,11 +34,14 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private JasperReport bandOfResidenceHeadcountReport;
+    private List<BandResidenceHeadcountResult> headcountsList;
+    private final CodeTableService codeTableService;
 
-    public BandOfResidenceHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
+    public BandOfResidenceHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, CodeTableService codeTableService) {
         super(restUtils);
         this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
         this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+        this.codeTableService = codeTableService;
     }
 
     @PostConstruct
@@ -60,7 +66,7 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
             SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
                     new EntityNotFoundException(SdcSchoolCollectionEntity.class, "Collection by Id", collectionID.toString()));
 
-            var headcountsList = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+            this.headcountsList = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
             return generateJasperReport(convertToReportJSONString(headcountsList, sdcSchoolCollectionEntity), bandOfResidenceHeadcountReport, ReportTypeCode.BAND_RESIDENCE_HEADCOUNT);
         } catch (JsonProcessingException e) {
             log.error("Exception occurred while writing PDF report for band of residence report :: " + e.getMessage());
@@ -71,9 +77,18 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
     @Override
     protected HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
         HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
-        // TODO populate with "bandName - bandCode"
-        // addValuesForSectionToMap(nodeMap, "band x", "band x", "00");
-        addValuesForSectionToMap(nodeMap, "allBands", "All Bands & Students", "00");
+        List<BandCodeEntity> allActiveBandCodes = codeTableService.getAllBandCodes();
+        int sequencePrefix = 0;
+        if (headcountsList != null) {
+            for (BandResidenceHeadcountResult result : headcountsList) {
+                String bandKey = result.getBandCode();
+                Optional<BandCodeEntity> entity = allActiveBandCodes.stream().filter(band -> band.getBandCode().equalsIgnoreCase(bandKey)).findFirst();
+                String bandTitle = entity.map(bandCodeEntity -> bandKey + " - " + bandCodeEntity.getLabel()).orElse(bandKey);
+                addValuesForSectionToMap(nodeMap, bandKey, bandTitle, String.valueOf(sequencePrefix));
+                sequencePrefix += 10;
+            }
+        }
+        addValuesForSectionToMap(nodeMap, "allBands", "All Bands & Students", String.valueOf(sequencePrefix));
         return nodeMap;
     }
 
@@ -83,8 +98,11 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
 
     @Override
     protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, BandResidenceHeadcountResult result) {
-        // TODO set the values for headcount and FTE
-        nodeMap.get("allBands").setValueForBand("FTE", result.getFteTotal());
-        nodeMap.get("allBands").setValueForBand("Headcount", result.getHeadcount());
+        String bandKey = result.getBandCode();
+        if (nodeMap.containsKey(bandKey)) {
+            HeadcountChildNode bandNode = nodeMap.get(bandKey);
+            bandNode.setValueForBand("FTE", result.getFteTotal());
+            bandNode.setValueForBand("Headcount", result.getHeadcount());
+        }
     }
 }
