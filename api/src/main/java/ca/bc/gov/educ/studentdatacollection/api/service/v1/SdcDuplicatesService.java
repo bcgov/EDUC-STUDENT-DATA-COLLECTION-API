@@ -61,19 +61,23 @@ public class SdcDuplicatesService {
         for (SdcSchoolCollectionStudentEntity entity2 : sdcSchoolCollectionStudentEntities) {
           if (!entity1.getSdcSchoolCollectionStudentID().equals(entity2.getSdcSchoolCollectionStudentID())) {
             List<SdcDuplicateEntity> duplicateRecords = runDuplicatesCheck(DuplicateLevelCode.IN_DIST, entity1, entity2);
-            var shrunkDuplicates = removeExistingDuplicatesFromFoundDups(finalDuplicatesSet, duplicateRecords);
-            var finalDups = removeExistingDuplicatesFromFoundDups(existingDuplicates, shrunkDuplicates);
+            var shrunkDuplicates = removeBiDirectionalDuplicatesFromFoundDups(finalDuplicatesSet, duplicateRecords);
+            var finalDups = removeBiDirectionalDuplicatesFromFoundDups(existingDuplicates, shrunkDuplicates);
             finalDuplicatesSet.addAll(finalDups);
           }
         }
       }
     }
 
-    List<Integer> finalDuplicatesHashes = finalDuplicatesSet.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
+    HashMap<Integer, SdcDuplicateEntity> finalDuplicatesHashMap = new HashMap<>();
+    finalDuplicatesSet.stream().forEach(entry -> finalDuplicatesHashMap.put(entry.getUniqueObjectHash(), entry));
     List<SdcDuplicateEntity> dupsToDelete = new ArrayList<>();
 
     existingDuplicates.stream().forEach(dup -> {
-      if(!finalDuplicatesHashes.contains(dup.getUniqueObjectHash())){
+      var dupHash = dup.getUniqueObjectHash();
+      if(finalDuplicatesHashMap.keySet().contains(dupHash)){
+        finalDuplicatesHashMap.remove(dupHash);
+      }else{
         dupsToDelete.add(dup);
       }
     });
@@ -86,7 +90,7 @@ public class SdcDuplicatesService {
     return finalDuplicatesSet;
   }
 
-  private List<SdcDuplicateEntity> removeExistingDuplicatesFromFoundDups(List<SdcDuplicateEntity> existingDuplicates, List<SdcDuplicateEntity> foundDuplicates){
+  private List<SdcDuplicateEntity> removeBiDirectionalDuplicatesFromFoundDups(List<SdcDuplicateEntity> existingDuplicates, List<SdcDuplicateEntity> foundDuplicates){
     List<Integer> existingDuplicatesHash = existingDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
     HashMap<Integer, SdcDuplicateEntity> foundDupsMap = new HashMap<>();
     foundDuplicates.stream().forEach(entry -> foundDupsMap.put(entry.getUniqueObjectHash(), entry));
@@ -99,6 +103,7 @@ public class SdcDuplicatesService {
     });
     return finalDups;
   }
+
 
   private List<SdcDuplicateEntity> runDuplicatesCheck(DuplicateLevelCode level, SdcSchoolCollectionStudentEntity entity1, SdcSchoolCollectionStudentEntity entity2){
     List<SdcDuplicateEntity> dups = new ArrayList<>();
