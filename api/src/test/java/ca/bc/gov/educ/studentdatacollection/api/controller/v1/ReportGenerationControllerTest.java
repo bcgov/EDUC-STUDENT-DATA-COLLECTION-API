@@ -102,9 +102,10 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     sdcSchoolCollectionStudentRepository.save(student1);
 
     SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(sdcMockSchool);
-    student1.setIsSchoolAged(false);
-    student1.setIsAdult(true);
-    student1.setFte(new BigDecimal(1.0));
+    student2.setBandCode("0600");
+    student2.setIsSchoolAged(false);
+    student2.setIsAdult(true);
+    student2.setFte(new BigDecimal(2.0));
     sdcSchoolCollectionStudentRepository.save(student2);
 
     this.mockMvc.perform(

@@ -97,14 +97,18 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
     }
 
     protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, BandResidenceHeadcountResult result) {
+        double runningTotalFTE = 0.0;
+        int runningTotalHeadcount = 0;
         if (headcountsList != null) {
             for (BandResidenceHeadcountResult each : headcountsList) {
                 String bandKey = each.getBandCode();
-                nodeMap.get(bandKey + HEADING).setValueForBand("FTE", result.getFteTotal());
-                nodeMap.get(bandKey + HEADING).setValueForBand("Headcount", result.getHeadcount());
+                runningTotalFTE += Double.parseDouble(each.getFteTotal());
+                runningTotalHeadcount += Integer.parseInt(each.getHeadcount());
+                nodeMap.get(bandKey + HEADING).setValueForBand("FTE", each.getFteTotal());
+                nodeMap.get(bandKey + HEADING).setValueForBand("Headcount", each.getHeadcount());
             }
         }
-        nodeMap.get("allBandsHeading").setValueForBand("FTE", result.getFteTotal());
-        nodeMap.get("allBandsHeading").setValueForBand("Headcount", result.getHeadcount());
+        nodeMap.get("allBandsHeading").setValueForBand("FTE", String.valueOf(runningTotalFTE));
+        nodeMap.get("allBandsHeading").setValueForBand("Headcount", String.valueOf(runningTotalHeadcount));
     }
 }
