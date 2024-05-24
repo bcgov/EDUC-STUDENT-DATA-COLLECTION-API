@@ -84,11 +84,11 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
                 String bandKey = result.getBandCode();
                 Optional<BandCodeEntity> entity = allActiveBandCodes.stream().filter(band -> band.getBandCode().equalsIgnoreCase(bandKey)).findFirst();
                 String bandTitle = entity.map(bandCodeEntity -> bandKey + " - " + bandCodeEntity.getLabel()).orElse(bandKey);
-                addValuesForSectionToMap(nodeMap, bandKey, bandTitle, String.valueOf(sequencePrefix));
+                addValuesForSectionToMap(nodeMap, bandKey, bandTitle, sequencePrefix == 0 ? "00" : String.valueOf(sequencePrefix));
                 sequencePrefix += 10;
             }
         }
-        addValuesForSectionToMap(nodeMap, "allBands", "All Bands & Students", String.valueOf(sequencePrefix));
+        addValuesForSectionToMap(nodeMap, "allBands", "All Bands & Students", sequencePrefix == 0 ? "00" : String.valueOf(sequencePrefix));
         return nodeMap;
     }
 
