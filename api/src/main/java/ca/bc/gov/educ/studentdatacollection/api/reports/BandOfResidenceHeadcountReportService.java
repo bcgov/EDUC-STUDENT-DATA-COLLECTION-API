@@ -108,7 +108,7 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
                 nodeMap.get(bandKey + HEADING).setValueForBand("Headcount", each.getHeadcount());
             }
         }
-        nodeMap.get("allBandsHeading").setValueForBand("FTE", String.valueOf(runningTotalFTE));
+        nodeMap.get("allBandsHeading").setValueForBand("FTE", String.format("%.4f", runningTotalFTE));
         nodeMap.get("allBandsHeading").setValueForBand("Headcount", String.valueOf(runningTotalHeadcount));
     }
 }
