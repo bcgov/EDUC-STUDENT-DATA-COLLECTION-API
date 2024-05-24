@@ -85,6 +85,6 @@ public class SdcDuplicateEntity {
     UUID largerID = smallerID == studentIDs.get(0) ? studentIDs.get(1) : studentIDs.get(0);
 
     return Objects.hash(smallerID, largerID, duplicateSeverityCode, duplicateTypeCode, programDuplicateTypeCode, duplicateLevelCode,
-            duplicateErrorDescriptionCode, duplicateResolutionCode);
+            duplicateErrorDescriptionCode);
   }
 }
