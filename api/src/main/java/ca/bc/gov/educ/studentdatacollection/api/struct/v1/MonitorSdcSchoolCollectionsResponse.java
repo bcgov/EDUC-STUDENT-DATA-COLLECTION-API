@@ -22,8 +22,6 @@ public class MonitorSdcSchoolCollectionsResponse implements Serializable {
    long totalErrors;
    long totalFundingWarnings;
    long totalInfoWarnings;
-   long schoolsDetailsConfirmed;
-   long schoolsContactsConfirmed;
    long schoolsSubmitted;
    long totalSchools;
 }

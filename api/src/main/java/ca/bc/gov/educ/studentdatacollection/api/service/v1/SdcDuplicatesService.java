@@ -62,13 +62,13 @@ public class SdcDuplicatesService {
           if (!entity1.getSdcSchoolCollectionStudentID().equals(entity2.getSdcSchoolCollectionStudentID())) {
             List<SdcDuplicateEntity> duplicateRecords = runDuplicatesCheck(DuplicateLevelCode.IN_DIST, entity1, entity2);
             var shrunkDuplicates = removeExistingDuplicatesFromFoundDups(finalDuplicatesSet, duplicateRecords);
-            finalDuplicatesSet.addAll(shrunkDuplicates);
+            var finalDups = removeExistingDuplicatesFromFoundDups(existingDuplicates, shrunkDuplicates);
+            finalDuplicatesSet.addAll(finalDups);
           }
         }
       }
     }
 
-//    resolveDuplicates(existingDuplicates, oldDuplicates);
     List<Integer> finalDuplicatesHashes = finalDuplicatesSet.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
     List<SdcDuplicateEntity> dupsToDelete = new ArrayList<>();
 
@@ -78,7 +78,9 @@ public class SdcDuplicatesService {
       }
     });
 
+    log.info("Found {} duplicates to delete", dupsToDelete.size());
     sdcDuplicateRepository.deleteAll(dupsToDelete);
+    log.info("Found {} new duplicates to save", finalDuplicatesSet.size());
     sdcDuplicateRepository.saveAll(finalDuplicatesSet);
 
     return finalDuplicatesSet;
@@ -96,28 +98,6 @@ public class SdcDuplicatesService {
       }
     });
     return finalDups;
-  }
-
-  private void resolveDuplicates(List<SdcDuplicateEntity> existingDuplicates, List<SdcDuplicateEntity> oldDuplicates){
-    List<Integer> existingDuplicateHashes = existingDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
-    List<Integer> allCurrentDuplicateHashes = oldDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
-
-    List<SdcDuplicateEntity> resolvedDuplicates = new ArrayList<>();
-
-    int index = 0;
-    for(Integer hash : existingDuplicateHashes){
-      if(!allCurrentDuplicateHashes.contains(hash)){
-        SdcDuplicateEntity duplicate = existingDuplicates.get(index);
-
-        if(Objects.equals(duplicate.getDuplicateTypeCode(), DuplicateTypeCode.PROGRAM.getCode())) {
-          duplicate.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
-          resolvedDuplicates.add(duplicate);
-        }
-      }
-      index++;
-    }
-
-    sdcDuplicateRepository.saveAll(resolvedDuplicates);
   }
 
   private List<SdcDuplicateEntity> runDuplicatesCheck(DuplicateLevelCode level, SdcSchoolCollectionStudentEntity entity1, SdcSchoolCollectionStudentEntity entity2){
@@ -272,32 +252,6 @@ public class SdcDuplicatesService {
     student.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     student.setUpdateDate(LocalDateTime.now());
     return student;
-  }
-
-  private boolean duplicateAlreadyExists(List<SdcDuplicateEntity> existingDuplicates, List<SdcDuplicateEntity> foundDups, SdcSchoolCollectionStudentEntity entity1, SdcSchoolCollectionStudentEntity entity2){
-    List<Integer> existingDuplicateHashes = existingDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
-    List<Integer> foundDuplicateHashes = foundDups.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
-
-    return checkForDuplicates(existingDuplicates, entity1.getSdcSchoolCollectionStudentID(), entity2.getSdcSchoolCollectionStudentID());
-  }
-
-  private boolean checkForDuplicates(List<SdcDuplicateEntity> duplicates, UUID sdcSchoolCollectionStudentID1, UUID sdcSchoolCollectionStudentID2){
-    for(SdcDuplicateEntity sdcDuplicateEntity : duplicates){
-      boolean foundStud1 = false;
-      boolean foundStud2 = false;
-      for(SdcDuplicateStudentEntity studentEntity: sdcDuplicateEntity.getSdcDuplicateStudentEntities()){
-        if(studentEntity.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().equals(sdcSchoolCollectionStudentID1)){
-          foundStud1 = true;
-        }
-        if(studentEntity.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().equals(sdcSchoolCollectionStudentID2)){
-          foundStud2 = true;
-        }
-      }
-      if(foundStud1 && foundStud2){
-        return true;
-      }
-    }
-    return false;
   }
 
 }

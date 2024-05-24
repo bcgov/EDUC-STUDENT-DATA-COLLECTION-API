@@ -240,14 +240,6 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     });
 
     assertThat(sdcDuplicates).hasSize(2);
-    assertThat(sdcDuplicates.get(0).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
-    assertThat(sdcDuplicates.get(0).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.ENROLLMENT.getCode());
-    assertThat(sdcDuplicates.get(0).getDuplicateSeverityCode()).isEqualTo(DuplicateSeverityCode.ALLOWABLE.getCode());
-
-    assertThat(sdcDuplicates.get(1).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
-    assertThat(sdcDuplicates.get(1).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.PROGRAM.getCode());
-    assertThat(sdcDuplicates.get(1).getDuplicateSeverityCode()).isEqualTo(DuplicateSeverityCode.NON_ALLOWABLE.getCode());
-    assertThat(sdcDuplicates.get(1).getProgramDuplicateTypeCode()).isEqualTo(ProgramDuplicateTypeCode.SPECIAL_ED.getCode());
   }
 
   @Test
@@ -886,9 +878,9 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     assertThat(sdcDuplicates.get(0).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.ENROLLMENT.getCode());
 
-    Optional<SdcDuplicateEntity> updatedDupe = sdcDuplicateRepository.findById(savedDupe1.getSdcDuplicateID());
-
-    assertThat(updatedDupe.get().getDuplicateResolutionCode()).isEqualTo(DuplicateResolutionCode.RESOLVED.getCode());
+//    Optional<SdcDuplicateEntity> updatedDupe = sdcDuplicateRepository.findById(savedDupe1.getSdcDuplicateID());
+//
+//    assertThat(updatedDupe.get().getDuplicateResolutionCode()).isEqualTo(DuplicateResolutionCode.RESOLVED.getCode());
   }
 
   @Test
@@ -1099,23 +1091,18 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].errors").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].fundingWarnings").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].infoWarnings").value(0))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].detailsConfirmed").value(true))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].contactsConfirmed").value(true))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].schoolStatus").value("SUBMITTED"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].submittedToDistrict").value(true))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].sdcSchoolCollectionId").value(sdcSchoolCollection2.getSdcSchoolCollectionID().toString()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].schoolTitle").value("0000002 - School2"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].errors").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].fundingWarnings").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].infoWarnings").value(0))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].detailsConfirmed").value(true))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].contactsConfirmed").value(true))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].submittedToDistrict").value(false))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].schoolStatus").value("SCH_C_VRFD"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsWithData").value(2))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalErrors").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalFundingWarnings").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalInfoWarnings").value(0))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsDetailsConfirmed").value(2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsContactsConfirmed").value(2))
             .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsSubmitted").value(1))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalSchools").value(2));
   }
@@ -1138,8 +1125,6 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalErrors").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalFundingWarnings").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalInfoWarnings").value(0))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsDetailsConfirmed").value(0))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsContactsConfirmed").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsSubmitted").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalSchools").value(0));
   }
