@@ -52,7 +52,7 @@ class AlternateProgramsCalculatorTest {
     @Test
     void testCalculateFte_NonGraduatedStudentWithNonAlternateProgramAndGradeNotInList() {
         // Given
-        String enrolledGradeCode = SchoolGradeCodes.HOMESCHOOL.getCode();
+        String enrolledGradeCode = SchoolGradeCodes.GRADE09.getCode();
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setIsGraduated(false);
@@ -81,7 +81,7 @@ class AlternateProgramsCalculatorTest {
     @Test
     void testCalculateFte_GraduatedStudentWithAlternateProgramAndGradeNotInList() {
         // Given
-        String enrolledGradeCode = SchoolGradeCodes.HOMESCHOOL.getCode();
+        String enrolledGradeCode = SchoolGradeCodes.GRADE09.getCode();
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setIsGraduated(true);
@@ -110,7 +110,7 @@ class AlternateProgramsCalculatorTest {
     @Test
     void testCalculateFte_NullSchool() {
         // Given
-        String enrolledGradeCode = SchoolGradeCodes.HOMESCHOOL.getCode();
+        String enrolledGradeCode = SchoolGradeCodes.GRADE09.getCode();
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setIsGraduated(true);
@@ -135,7 +135,7 @@ class AlternateProgramsCalculatorTest {
     @Test
     void testCalculateFte_NullIsGraduated() {
         // Given
-        String enrolledGradeCode = SchoolGradeCodes.HOMESCHOOL.getCode();
+        String enrolledGradeCode = SchoolGradeCodes.GRADE09.getCode();
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
@@ -154,6 +154,60 @@ class AlternateProgramsCalculatorTest {
         assertEquals(BigDecimal.ONE, result.getFte());
         assertNull(result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
+    }
+
+    @Test
+    void testCalculateFte_IsNotGraduatedIsAltProgramGradeNotInList() {
+        // Given
+        String enrolledGradeCode = SchoolGradeCodes.GRADE09.getCode();
+
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setEnrolledGradeCode(enrolledGradeCode);
+        student.setIsGraduated(false);
+
+        School school = new School();
+        school.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
+
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
+        studentData.setSchool(school);
+
+        // When
+        FteCalculationResult result = alternateProgramsCalculator.calculateFte(studentData);
+
+        // Then
+        assertEquals(BigDecimal.ONE, result.getFte());
+        assertNull(result.getFteZeroReason());
+        verify(nextCalculator, never()).calculateFte(any());
+    }
+
+    @Test
+    void testCalculateFte_IsNotGraduatedIsAltProgramGradeHS() {
+        // Given
+        String enrolledGradeCode = SchoolGradeCodes.HOMESCHOOL.getCode();
+
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setEnrolledGradeCode(enrolledGradeCode);
+        student.setIsGraduated(true);
+
+        School school = new School();
+        school.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
+
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
+        studentData.setSchool(school);
+
+        // When
+        FteCalculationResult fteValues = new FteCalculationResult();
+        fteValues.setFte(BigDecimal.ZERO);
+        fteValues.setFteZeroReason(null);
+        when(nextCalculator.calculateFte(any())).thenReturn(fteValues);
+        FteCalculationResult result = alternateProgramsCalculator.calculateFte(studentData);
+
+        // Then
+        assertEquals(fteValues.getFte(), result.getFte());
+        assertNull(result.getFteZeroReason());
+        verify(nextCalculator).calculateFte(studentData);
     }
 }
 
