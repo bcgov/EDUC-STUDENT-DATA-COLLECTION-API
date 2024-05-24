@@ -62,8 +62,7 @@ public class SdcDuplicatesService {
           if (!entity1.getSdcSchoolCollectionStudentID().equals(entity2.getSdcSchoolCollectionStudentID())) {
             List<SdcDuplicateEntity> duplicateRecords = runDuplicatesCheck(DuplicateLevelCode.IN_DIST, entity1, entity2);
             var shrunkDuplicates = removeBiDirectionalDuplicatesFromFoundDups(finalDuplicatesSet, duplicateRecords);
-            var finalDups = removeBiDirectionalDuplicatesFromFoundDups(existingDuplicates, shrunkDuplicates);
-            finalDuplicatesSet.addAll(finalDups);
+            finalDuplicatesSet.addAll(shrunkDuplicates);
           }
         }
       }
