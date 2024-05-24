@@ -99,8 +99,8 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
         String bandKey = result.getBandCode();
         if (nodeMap.containsKey(bandKey)) {
             HeadcountChildNode bandNode = nodeMap.get(bandKey);
-            bandNode.setValueForBand("FTE", result.getFteTotal());
-            bandNode.setValueForBand("Headcount", result.getHeadcount());
+            bandNode.setValueForBand("valueFTE", result.getFteTotal());
+            bandNode.setValueForBand("valueHeadcount", result.getHeadcount());
         }
     }
 }
