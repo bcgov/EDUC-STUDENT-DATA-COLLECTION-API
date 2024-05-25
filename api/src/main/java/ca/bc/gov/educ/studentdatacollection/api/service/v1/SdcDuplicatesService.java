@@ -86,7 +86,7 @@ public class SdcDuplicatesService {
     log.info("Found {} new duplicates to save", finalDuplicatesHashMap.values().size());
     sdcDuplicateRepository.saveAll(finalDuplicatesHashMap.values());
 
-    return finalDuplicatesSet;
+    return finalDuplicatesHashMap.values().stream().toList();
   }
 
   private List<SdcDuplicateEntity> removeBiDirectionalDuplicatesFromFoundDups(List<SdcDuplicateEntity> existingDuplicates, List<SdcDuplicateEntity> foundDuplicates){
