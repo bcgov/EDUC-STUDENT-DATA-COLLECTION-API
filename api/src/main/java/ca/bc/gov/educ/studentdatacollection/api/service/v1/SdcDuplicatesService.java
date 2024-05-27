@@ -71,11 +71,13 @@ public class SdcDuplicatesService {
     HashMap<Integer, SdcDuplicateEntity> finalDuplicatesHashMap = new HashMap<>();
     finalDuplicatesSet.stream().forEach(entry -> finalDuplicatesHashMap.put(entry.getUniqueObjectHash(), entry));
     List<SdcDuplicateEntity> dupsToDelete = new ArrayList<>();
+    List<SdcDuplicateEntity> finalReturnList = new ArrayList<>();
 
     existingDuplicates.stream().forEach(dup -> {
       var dupHash = dup.getUniqueObjectHash();
       if(finalDuplicatesHashMap.keySet().contains(dupHash)){
         finalDuplicatesHashMap.remove(dupHash);
+        finalReturnList.add(dup);
       }else{
         dupsToDelete.add(dup);
       }
@@ -84,9 +86,11 @@ public class SdcDuplicatesService {
     log.info("Found {} duplicates to delete", dupsToDelete.size());
     sdcDuplicateRepository.deleteAll(dupsToDelete);
     log.info("Found {} new duplicates to save", finalDuplicatesHashMap.values().size());
-    sdcDuplicateRepository.saveAll(finalDuplicatesHashMap.values());
+    var savedDupes = sdcDuplicateRepository.saveAll(finalDuplicatesHashMap.values());
 
-    return finalDuplicatesHashMap.values().stream().toList();
+    finalReturnList.addAll(savedDupes);
+
+    return finalReturnList;
   }
 
   private List<SdcDuplicateEntity> removeBiDirectionalDuplicatesFromFoundDups(List<SdcDuplicateEntity> existingDuplicates, List<SdcDuplicateEntity> foundDuplicates){
