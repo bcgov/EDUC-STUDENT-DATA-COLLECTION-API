@@ -21,6 +21,7 @@ public class MonitorSdcSchoolCollection implements Serializable {
   LocalDateTime uploadDate;
   UUID sdcSchoolCollectionId;
   String schoolTitle;
+  String schoolId;
   long errors;
   long fundingWarnings;
   long infoWarnings;
