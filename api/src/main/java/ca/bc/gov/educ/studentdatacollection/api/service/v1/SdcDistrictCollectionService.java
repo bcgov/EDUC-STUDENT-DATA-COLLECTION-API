@@ -112,6 +112,7 @@ public class SdcDistrictCollectionService {
       MonitorSdcSchoolCollection monitorSdcSchoolCollection = new MonitorSdcSchoolCollection();
 
       monitorSdcSchoolCollection.setSchoolTitle(school.getMincode() + " - " + school.getDisplayName());
+      monitorSdcSchoolCollection.setSchoolId(school.getSchoolId());
       monitorSdcSchoolCollection.setSdcSchoolCollectionId(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionId());
       monitorSdcSchoolCollection.setUploadDate(monitorSdcSchoolCollectionQueryResponse.getUploadDate());
 
