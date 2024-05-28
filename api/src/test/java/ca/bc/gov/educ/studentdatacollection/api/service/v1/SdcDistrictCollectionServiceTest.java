@@ -221,7 +221,7 @@ class SdcDistrictCollectionServiceTest extends BaseStudentDataCollectionAPITest 
     val student2Entity = programDupe.get().getSdcSchoolCollectionStudent2Entity();
 
     val resolvedDuplicate = sdcDistrictCollectionService.softDeleteEnrollmentDuplicate(UUID.fromString(student1Entity.getSdcDistrictCollectionID()), UUID.fromString(programDupe.get().getSdcDuplicateID()), student1Entity);
-    assertThat(resolvedDuplicate.getDuplicateResolutionCode()).isEqualTo("RESOLVED");
+    assertThat(resolvedDuplicate.getDuplicateResolutionCode()).isEqualTo("RELEASED");
     assertThat(resolvedDuplicate.getRetainedSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().toString()).isEqualTo(student2Entity.getSdcSchoolCollectionStudentID());
 
     val deletedStudent = sdcSchoolCollectionStudentRepository.findById(UUID.fromString(student1Entity.getSdcSchoolCollectionStudentID()));
