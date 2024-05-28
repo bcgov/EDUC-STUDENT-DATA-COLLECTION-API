@@ -3,14 +3,19 @@ package ca.bc.gov.educ.studentdatacollection.api.rules;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolFundingCodes;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -1425,5 +1430,40 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(zeroCoursesValidation).isTrue();
         assertThat(errorAdultWithCourses).isFalse();
         assertThat(testDistOnlineWithNoCoursesValidation).isFalse();
+    }
+
+    @Test
+    void testRefugeeFundingRule() {
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCloseDate(LocalDateTime.now().plusDays(2));
+        collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        collectionRepository.save(collection);
+
+        CollectionEntity collection2 = createMockCollectionEntity();
+        collection2.setCloseDate(LocalDateTime.now().minusDays(5));
+        collection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        collectionRepository.save(collection2);
+
+        School school = createMockSchool();
+        SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+        var sdcSchoolCollectionEntity2 = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection2, UUID.fromString(school.getSchoolId())));
+
+        var stud = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        stud.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+
+        var stud2 = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+        stud2.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+
+
+        // TODO not executing due to V26 -> active funding codes does not include "16" why???
+        var validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(stud2, school));
+        boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_NOT_IN_SEPT_COL.getCode()));
+
+        assertThat(errorRefugeeFunding).isTrue();
     }
 }
