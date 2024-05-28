@@ -137,10 +137,10 @@ public interface CodeTableAPIEndpoint {
     List<ProgramDuplicateTypeCode> getProgramDuplicateTypeCodes();
 
     @PreAuthorize("hasAuthority('SCOPE_READ_COLLECTION_CODES')")
-    @GetMapping(URL.SCHOOL_COLLECTION_STATUS_CODES)
+    @GetMapping(URL.SDC_SCHOOL_COLLECTION_STATUS_CODES)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
     @Transactional(readOnly = true)
     @Tag(name = "School Collection Status Codes", description = "Endpoints to get school collection status codes.")
-    @Schema(name = "SchoolCollectionStatusCodes", implementation = SdcSchoolCollectionStatusCode.class)
+    @Schema(name = "SdcSchoolCollectionStatusCodes", implementation = SdcSchoolCollectionStatusCode.class)
     List<SdcSchoolCollectionStatusCode> getSdcSchoolCollectionStatusCodes();
 }

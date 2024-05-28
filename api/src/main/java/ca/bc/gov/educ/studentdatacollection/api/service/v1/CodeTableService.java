@@ -24,7 +24,6 @@ public class CodeTableService {
   private final SchoolGradeCodeRepository schoolGradeCodeRepository;
   private final SchoolFundingGroupCodeRepository schoolFundingGroupCodeRepository;
   private final ProgramDuplicateTypeCodeRepository programDuplicateTypeCodeRepository;
-
   private final SdcSchoolCollectionStatusCodeRepository sdcSchoolCollectionStatusCodeRepository;
 
   /**
