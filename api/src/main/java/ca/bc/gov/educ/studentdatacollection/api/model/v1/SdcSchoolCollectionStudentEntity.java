@@ -139,6 +139,9 @@ public class SdcSchoolCollectionStudentEntity {
   @Column(name = "SPECIAL_EDUCATION_NON_ELIG_REASON_CODE", length = 10)
   private String specialEducationNonEligReasonCode;
 
+  @Column(name = "REFUGEE_FUNDING_NON_ELIG_REASON_CODE", length = 10)
+  private String refugeeFundingNonEligReasonCode;
+
   @Column(name = "IS_GRADUATED")
   private Boolean isGraduated;
 
