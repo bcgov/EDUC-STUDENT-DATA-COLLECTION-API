@@ -1,13 +1,18 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateLevelCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateResolutionCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -27,21 +32,27 @@ public class SdcDistrictCollectionService {
   private final CollectionRepository collectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private final RestUtils restUtils;
-
+  private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+  private final SdcDuplicateRepository sdcDuplicateRepository;
+  private final SdcDuplicatesService sdcDuplicatesService;
   private static final String SDC_DISTRICT_COLLECTION_ID_KEY = "sdcDistrictCollectionID";
+  private static final SdcSchoolCollectionStudentMapper studentMapper = SdcSchoolCollectionStudentMapper.mapper;
 
   @Autowired
-  public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
+  public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcDuplicateRepository sdcDuplicateRepository, SdcDuplicatesService sdcDuplicatesService) {
     this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.collectionRepository = collectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
     this.restUtils = restUtils;
+      this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
+      this.sdcDuplicateRepository = sdcDuplicateRepository;
+      this.sdcDuplicatesService = sdcDuplicatesService;
   }
 
   public SdcDistrictCollectionEntity getSdcDistrictCollection(UUID sdcDistrictCollectionID) {
-    Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntity =  sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
-    if(sdcDistrictCollectionEntity.isPresent()) {
+    Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntity = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
+    if (sdcDistrictCollectionEntity.isPresent()) {
       return sdcDistrictCollectionEntity.get();
     } else {
       throw new EntityNotFoundException(SdcDistrictCollectionEntity.class, "SdcDistrictCollection for sdcDistrictCollectionID", sdcDistrictCollectionID.toString());
@@ -49,8 +60,8 @@ public class SdcDistrictCollectionService {
   }
 
   public SdcDistrictCollectionEntity getActiveSdcDistrictCollectionByDistrictID(UUID districtID) {
-    Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntity =  sdcDistrictCollectionRepository.findActiveCollectionByDistrictId(districtID);
-    if(sdcDistrictCollectionEntity.isPresent()) {
+    Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntity = sdcDistrictCollectionRepository.findActiveCollectionByDistrictId(districtID);
+    if (sdcDistrictCollectionEntity.isPresent()) {
       return sdcDistrictCollectionEntity.get();
     } else {
       throw new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection for district Id", districtID.toString());
@@ -77,7 +88,7 @@ public class SdcDistrictCollectionService {
   public List<SdcSchoolFileSummary> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
     List<SdcSchoolCollectionEntity> schoolCollectionRecords = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
     List<SdcSchoolFileSummary> fileSummaries = new ArrayList<>();
-    for (SdcSchoolCollectionEntity schoolCollectionRecord:schoolCollectionRecords) {
+    for (SdcSchoolCollectionEntity schoolCollectionRecord : schoolCollectionRecords) {
       UUID schoolCollectionID = schoolCollectionRecord.getSdcSchoolCollectionID();
 
       long totalCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollection_SdcSchoolCollectionID(schoolCollectionID);
@@ -85,7 +96,7 @@ public class SdcDistrictCollectionService {
       var totalProcessed = totalCount - loadedCount;
       int percentageStudentsProcessed = (int) Math.floor((double) totalProcessed / totalCount * 100);
       long positionInQueue = 0;
-      if(totalProcessed == 0) {
+      if (totalProcessed == 0) {
         positionInQueue = sdcSchoolCollectionRepository.findSdcSchoolCollectionsPositionInQueue(schoolCollectionRecord.getUploadDate());
       }
 
@@ -154,5 +165,57 @@ public class SdcDistrictCollectionService {
     } else {
       throw new EntityNotFoundException(SdcDistrictCollectionEntity.class, SDC_DISTRICT_COLLECTION_ID_KEY, sdcDistrictCollectionEntity.getSdcDistrictCollectionID().toString());
     }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRED)
+  public SdcDuplicateEntity updateStudentAndResolveDistrictDuplicates(UUID sdcDistrictCollectionID, UUID sdcDuplicateID, List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent) {
+    final Optional<SdcDuplicateEntity> curSdcDuplicateEntity = sdcDuplicateRepository.findBySdcDuplicateID(sdcDuplicateID);
+    List<SdcSchoolCollectionStudentEntity> updatedStudents = new ArrayList<>();
+    if (curSdcDuplicateEntity.isPresent()) {
+      SdcDuplicateEntity curGetSdcDuplicateEntity = curSdcDuplicateEntity.get();
+      // update student
+      sdcSchoolCollectionStudent.forEach(student -> {
+        RequestUtil.setAuditColumnsForUpdate(student);
+        updatedStudents.add(sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(studentMapper.toSdcSchoolStudentEntity(student)));
+      });
+
+      if (updatedStudents.stream().noneMatch(student -> student.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString()))) {
+        //re-run duplicates
+        List<SdcDuplicateEntity> listOfDuplicates = sdcDuplicatesService.runDuplicatesCheck(DuplicateLevelCode.IN_DIST, updatedStudents.get(0), updatedStudents.get(1));
+        if(listOfDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == curGetSdcDuplicateEntity.getUniqueObjectHash())) {
+          //resolve
+          curGetSdcDuplicateEntity.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
+          TransformUtil.uppercaseFields(curGetSdcDuplicateEntity);
+          return sdcDuplicateRepository.save(curGetSdcDuplicateEntity);
+        }
+      }
+      return curGetSdcDuplicateEntity;
+    } else {
+      throw new EntityNotFoundException(SdcDuplicateEntity.class, "sdcDuplicateID", sdcDuplicateID.toString());
+    }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRED)
+  public SdcDuplicateEntity softDeleteEnrollmentDuplicate(UUID sdcDistrictCollectionID, UUID sdcDuplicateID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+    final Optional<SdcDuplicateEntity> curSdcDuplicateEntity = sdcDuplicateRepository.findBySdcDuplicateID(sdcDuplicateID);
+
+    if (curSdcDuplicateEntity.isPresent()) {
+      SdcDuplicateEntity curGetSdcDuplicateEntity = curSdcDuplicateEntity.get();
+      final SdcDuplicateStudentEntity retainedStudent =
+              curGetSdcDuplicateEntity.getSdcDuplicateStudentEntities().stream()
+                      .filter(student -> !student.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().toString()
+                              .equalsIgnoreCase(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())).findFirst().orElseThrow(() ->
+                              new EntityNotFoundException(SdcDuplicateStudentEntity.class, "Duplicate Student entity", sdcDuplicateID.toString()));;
+      // update student
+      sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(UUID.fromString(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID()));
+      // update duplicate entity
+      curGetSdcDuplicateEntity.setRetainedSdcSchoolCollectionStudentEntity(retainedStudent.getSdcSchoolCollectionStudentEntity());
+      curGetSdcDuplicateEntity.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
+      TransformUtil.uppercaseFields(curGetSdcDuplicateEntity);
+      return sdcDuplicateRepository.save(curGetSdcDuplicateEntity);
+    } else {
+      throw new EntityNotFoundException(SdcDuplicateEntity.class, "sdcDuplicateID", sdcDuplicateID.toString());
+    }
+
   }
 }
