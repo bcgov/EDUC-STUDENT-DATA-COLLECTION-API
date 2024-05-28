@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @DynamicUpdate
 @Entity
+@Builder
 @Table(name = "SDC_SCHOOL_COLLECTION_STATUS_CODE")
 public class SdcSchoolCollectionStatusCodeEntity {
 
