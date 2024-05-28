@@ -71,6 +71,8 @@ public abstract class BaseStudentDataCollectionAPITest {
   CollectionTypeCodeRepository collectionTypeCodeRepository;
   @Autowired
   ProgramDuplicateTypeCodeRepository programDuplicateTypeCodeRepository;
+  @Autowired
+  SdcSchoolCollectionStatusCodeRepository sdcSchoolCollectionStatusCodeRepository;
 
   @BeforeEach
   public void before() {
@@ -97,6 +99,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     schoolFundingGroupCodeRepository.save(createSchoolFundingGroupCodeData());
     collectionTypeCodeRepository.save(createCollectionTypeCodeData());
     programDuplicateTypeCodeRepository.save(createProgramDuplicateTypeCodeData());
+    sdcSchoolCollectionStatusCodeRepository.save(createSdcSchoolCollectionStatusCodeData());
   }
 
   @AfterEach
@@ -141,6 +144,11 @@ public abstract class BaseStudentDataCollectionAPITest {
   public ProgramDuplicateTypeCodeEntity createProgramDuplicateTypeCodeData() {
     return ProgramDuplicateTypeCodeEntity.builder().programDuplicateTypeCode("SPECIAL_ED").label("Special Education").description("Special Education duplicate")
             .displayOrder(10).effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.now().plusYears(10)).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public SdcSchoolCollectionStatusCodeEntity createSdcSchoolCollectionStatusCodeData() {
+    return SdcSchoolCollectionStatusCodeEntity.builder().sdcSchoolCollectionStatusCode("NEW").label("New").description("Collection record has been created")
+            .displayOrder(10).effectiveDate(String.valueOf(LocalDateTime.now())).expiryDate(String.valueOf(LocalDateTime.now().plusYears(10))).createUser("TEST").updateUser("TEST").build();
   }
 
   public IndependentSchoolFundingGroupSnapshotEntity createMockIndependentSchoolFundingGroupSnapshotEntity(UUID schoolID, UUID collectionID){

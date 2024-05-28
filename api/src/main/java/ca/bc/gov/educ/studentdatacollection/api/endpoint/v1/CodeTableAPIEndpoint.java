@@ -135,4 +135,12 @@ public interface CodeTableAPIEndpoint {
     @Tag(name = "Collection Codes", description = "Endpoints to get collection codes.")
     @Schema(name = "ProgramDuplicateTypeCodes", implementation = ZeroFteReasonCode.class)
     List<ProgramDuplicateTypeCode> getProgramDuplicateTypeCodes();
+
+    @PreAuthorize("hasAuthority('SCOPE_READ_COLLECTION_CODES')")
+    @GetMapping(URL.SDC_SCHOOL_COLLECTION_STATUS_CODES)
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
+    @Transactional(readOnly = true)
+    @Tag(name = "School Collection Status Codes", description = "Endpoints to get school collection status codes.")
+    @Schema(name = "SdcSchoolCollectionStatusCodes", implementation = SdcSchoolCollectionStatusCode.class)
+    List<SdcSchoolCollectionStatusCode> getSdcSchoolCollectionStatusCodes();
 }

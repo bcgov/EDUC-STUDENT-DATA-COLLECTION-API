@@ -164,4 +164,14 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].programDuplicateTypeCode").value("SPECIAL_ED"))
             .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
   }
+
+  @Test
+  void testGetSdcSchoolCollectionStatusCodes_ShouldReturnCodes() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(get(URL.BASE_URL + URL.SDC_SCHOOL_COLLECTION_STATUS_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sdcSchoolCollectionStatusCode").value("NEW"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
+  }
 }
