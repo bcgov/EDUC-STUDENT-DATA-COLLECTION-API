@@ -122,7 +122,13 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
     }
 
     @Override
+    public List<SdcSchoolCollectionStatusCode> getSdcSchoolCollectionStatusCodes() {
+        return codeTableService.getSdcSchoolCollectionStatusCodesList().stream().map(mapper::toStructure).toList();
+    }
+
     public List<ProgramDuplicateTypeCode> getProgramDuplicateTypeCodes() {
         return codeTableService.getProgramDuplicateTypeCodes().stream().map(mapper::toStructure).toList();
     }
+
+
 }

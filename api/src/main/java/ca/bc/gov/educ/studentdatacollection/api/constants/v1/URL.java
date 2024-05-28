@@ -31,5 +31,6 @@ public final class URL {
   public static final String PROGRAM_ELIGIBILITY_ISSUE_CODES = "/program-eligibility-issue-codes";
   public static final String DUPLICATE_RESOLUTION_CODES = "/duplicate-resolution-codes";
   public static final String PROGRAM_DUPLICATE_TYPE_CODES = "/program-duplicate-type-codes";
+  public static final String SCHOOL_COLLECTION_STATUS_CODES = "/school-collection-status-codes";
 
 }
