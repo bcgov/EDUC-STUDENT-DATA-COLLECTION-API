@@ -210,7 +210,7 @@ public class SdcDistrictCollectionService {
       sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(UUID.fromString(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID()));
       // update duplicate entity
       curGetSdcDuplicateEntity.setRetainedSdcSchoolCollectionStudentEntity(retainedStudent.getSdcSchoolCollectionStudentEntity());
-      curGetSdcDuplicateEntity.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
+      curGetSdcDuplicateEntity.setDuplicateResolutionCode(DuplicateResolutionCode.RELEASED.getCode());
       TransformUtil.uppercaseFields(curGetSdcDuplicateEntity);
       return sdcDuplicateRepository.save(curGetSdcDuplicateEntity);
     } else {
