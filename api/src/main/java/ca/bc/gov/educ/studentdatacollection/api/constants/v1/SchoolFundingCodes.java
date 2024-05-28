@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 public enum SchoolFundingCodes {
     EDUC_SERVICE_CHILDREN("05"),
     OUT_OF_PROVINCE("14"),
+    NEWCOMER_REFUGEE("16"),
     STATUS_FIRST_NATION("20");
 
     @Getter
