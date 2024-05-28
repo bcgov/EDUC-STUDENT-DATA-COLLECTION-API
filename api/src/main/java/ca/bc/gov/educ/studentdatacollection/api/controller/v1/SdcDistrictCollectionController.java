@@ -1,18 +1,19 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateTypeResolutionCode;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcDistrictCollectionEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDistrictCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionsResponse;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDistrictCollection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicate;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolFileSummary;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcDistrictCollectionValidator;
+import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionStudentValidator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,11 +28,13 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   private final SdcDistrictCollectionService sdcDistrictCollectionService;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
   private final SdcDistrictCollectionValidator sdcDistrictCollectionValidator;
+  private final SdcSchoolCollectionStudentValidator schoolCollectionStudentValidator;
 
-  public SdcDistrictCollectionController(SdcDuplicatesService sdcDuplicatesService, SdcDistrictCollectionService sdcDistrictCollectionService, SdcDistrictCollectionValidator sdcDistrictCollectionValidator) {
+  public SdcDistrictCollectionController(SdcDuplicatesService sdcDuplicatesService, SdcDistrictCollectionService sdcDistrictCollectionService, SdcDistrictCollectionValidator sdcDistrictCollectionValidator, SdcSchoolCollectionStudentValidator schoolCollectionStudentValidator) {
       this.sdcDuplicatesService = sdcDuplicatesService;
       this.sdcDistrictCollectionService = sdcDistrictCollectionService;
       this.sdcDistrictCollectionValidator = sdcDistrictCollectionValidator;
+      this.schoolCollectionStudentValidator = schoolCollectionStudentValidator;
   }
 
   @Override
@@ -77,5 +80,16 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
     ValidationUtil.validatePayload(() -> this.sdcDistrictCollectionValidator.validatePayload(sdcDistrictCollection, false));
     RequestUtil.setAuditColumnsForUpdate(sdcDistrictCollection);
     return mapper.toStructure(sdcDistrictCollectionService.updateSdcDistrictCollection(mapper.toModel(sdcDistrictCollection)));
+  }
+
+  @Override
+  public SdcDuplicate updateStudentAndResolveDistrictDuplicates(UUID sdcDistrictCollectionID, String duplicateTypeCode, UUID sdcDuplicateID, List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent) {
+    sdcSchoolCollectionStudent.forEach(student -> ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(student)));
+    if (DuplicateTypeResolutionCode.PROGRAM.getCode().equalsIgnoreCase(duplicateTypeCode)) {
+      return duplicateMapper.toSdcDuplicate(sdcDistrictCollectionService.updateStudentAndResolveDistrictDuplicates(sdcDistrictCollectionID, sdcDuplicateID, sdcSchoolCollectionStudent));
+    } else if (DuplicateTypeResolutionCode.DELETE_ENROLLMENT_DUPLICATE.getCode().equalsIgnoreCase(duplicateTypeCode) && sdcSchoolCollectionStudent.size() == 1) {
+      return duplicateMapper.toSdcDuplicate(sdcDistrictCollectionService.softDeleteEnrollmentDuplicate(sdcDistrictCollectionID, sdcDuplicateID, sdcSchoolCollectionStudent.get(0)));
+    }
+    return null;
   }
 }
