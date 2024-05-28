@@ -79,7 +79,11 @@ public class SdcDuplicatesService {
         finalDuplicatesHashMap.remove(dupHash);
         finalReturnList.add(dup);
       }else{
-        dupsToDelete.add(dup);
+        if(dup.getDuplicateResolutionCode() == null) {
+          dupsToDelete.add(dup);
+        }else{
+          finalReturnList.add(dup);
+        }
       }
     });
 
