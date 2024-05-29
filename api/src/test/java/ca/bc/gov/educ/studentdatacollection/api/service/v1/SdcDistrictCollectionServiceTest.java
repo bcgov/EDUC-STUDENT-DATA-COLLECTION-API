@@ -23,6 +23,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStu
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionUnsubmit;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.val;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,6 +65,8 @@ class SdcDistrictCollectionServiceTest extends BaseStudentDataCollectionAPITest 
   SdcDuplicatesService sdcDuplicateService;
   @Autowired
   SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  @Autowired
+  SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
 
   @BeforeEach
@@ -71,6 +74,13 @@ class SdcDistrictCollectionServiceTest extends BaseStudentDataCollectionAPITest 
     MockitoAnnotations.openMocks(this);
   }
 
+  @AfterEach
+  public void after() {
+    this.sdcDuplicateRepository.deleteAll();
+    this.collectionRepository.deleteAll();
+    this.sdcSchoolCollectionStudentRepository.deleteAll();
+    this.sdcSchoolCollectionRepository.deleteAll();
+  }
 
   @Test
   void testUpdateStudentAndResolveDistrictDuplicates_typePROGRAM_WithNoValidationError_shouldSetDuplicateStatus_RESOLVED() throws Exception {
@@ -178,7 +188,7 @@ class SdcDistrictCollectionServiceTest extends BaseStudentDataCollectionAPITest 
   }
 
   @Test
-  void testUpdateStudentAndResolveDistrictDuplicates_typeDELETE_ENROLLMENT_DUPLICATE_shouldSetDuplicateStatus_RESOLVED() throws Exception {
+  void testUpdateStudentAndResolveDistrictDuplicates_typeDELETE_ENROLLMENT_DUPLICATE_shouldSetDuplicateStatus_RELEASED() throws Exception {
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
     collectionRepository.save(collection);

@@ -37,6 +37,10 @@ public class StudentDataCollectionTestUtils {
   EnrolledGradeCodeRepository enrolledGradeCodeRepository;
   @Autowired
   GenderCodeRepository genderCodeRepository;
+  @Autowired
+  ProgramDuplicateTypeCodeRepository programDuplicateTypeCodeRepository;
+  @Autowired
+  SdcSchoolCollectionStatusCodeRepository sdcSchoolCollectionStatusCodeRepository;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void cleanDB() {
@@ -54,6 +58,9 @@ public class StudentDataCollectionTestUtils {
     fundingCodeRepository.deleteAll();
     enrolledGradeCodeRepository.deleteAll();
     genderCodeRepository.deleteAll();
+
+    programDuplicateTypeCodeRepository.deleteAll();
+    sdcSchoolCollectionStatusCodeRepository.deleteAll();
   }
 
 }
