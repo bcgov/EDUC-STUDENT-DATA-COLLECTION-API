@@ -81,6 +81,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     homeLanguageSpokenCodeRepository.save(homeLanguageSpokenCodeData());
     bandCodeRepository.saveAll(bandCodeData());
     fundingCodeRepository.save(fundingCodeData());
+    fundingCodeRepository.save(fundingCode16Data());
     fundingCodeRepository.save(fundingCode20Data());
     enrolledGradeCodeRepository.save(enrolledGradeCode01Data());
     enrolledGradeCodeRepository.save(enrolledGradeCodeHSData());
@@ -484,6 +485,12 @@ public abstract class BaseStudentDataCollectionAPITest {
   public SchoolFundingCodeEntity fundingCode20Data() {
     return SchoolFundingCodeEntity.builder().schoolFundingCode("20").description("STATUS INDIAN ON RESERVE")
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("STATUS INDIAN ON RESERVE").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public SchoolFundingCodeEntity fundingCode16Data() {
+    return SchoolFundingCodeEntity.builder().schoolFundingCode("16").description("NEWCOMER/REFUGEE")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("NEWCOMER/REFUGEE").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 
