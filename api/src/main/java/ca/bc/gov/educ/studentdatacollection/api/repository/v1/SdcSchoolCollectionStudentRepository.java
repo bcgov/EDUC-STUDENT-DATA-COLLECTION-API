@@ -214,8 +214,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "ORDER BY sc.schoolID, s.enrolledGradeCode")
   List<FrenchCombinedHeadcountResult> getFrenchHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
-
-
   @Query("SELECT " +
           "s.enrolledGradeCode AS enrolledGradeCode, " +
           "COUNT(DISTINCT CASE WHEN s.isSchoolAged = true AND s.frenchProgramNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '05' THEN s.sdcSchoolCollectionStudentID END) AS schoolAgedFrancophone, " +
