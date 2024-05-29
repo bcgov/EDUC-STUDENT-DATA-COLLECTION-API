@@ -37,21 +37,27 @@ public class SdcSchoolCollectionStudentLightEntity {
     private String studentPen;
 
     @Column(name = "LEGAL_FIRST_NAME")
+    @UpperCase
     private String legalFirstName;
 
     @Column(name = "LEGAL_MIDDLE_NAMES")
+    @UpperCase
     private String legalMiddleNames;
 
     @Column(name = "LEGAL_LAST_NAME")
+    @UpperCase
     private String legalLastName;
 
     @Column(name = "USUAL_FIRST_NAME")
+    @UpperCase
     private String usualFirstName;
 
     @Column(name = "USUAL_MIDDLE_NAMES")
+    @UpperCase
     private String usualMiddleNames;
 
     @Column(name = "USUAL_LAST_NAME")
+    @UpperCase
     private String usualLastName;
 
     @Column(name = "DOB")
