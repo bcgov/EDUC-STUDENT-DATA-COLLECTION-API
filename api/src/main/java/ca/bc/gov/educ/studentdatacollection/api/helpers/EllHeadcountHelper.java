@@ -71,7 +71,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
   }
 
   public void setGradeCodesForDistricts() {
-    gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
+    gradeCodes = SchoolGradeCodes.getNonIndependentKtoSUGrades();
   }
 
   public void setComparisonValues(
