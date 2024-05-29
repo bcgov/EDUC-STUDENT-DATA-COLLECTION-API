@@ -137,9 +137,9 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
                 s.schoolID as schoolId,
                 s.sdcSchoolCollectionStatusCode as sdcSchoolCollectionStatusCode,
                 s.uploadDate as uploadDate,
-                SUM(CASE WHEN i.validationIssueSeverityCode = 'ERROR' THEN 1 ELSE 0 END) as errors,
-                SUM(CASE WHEN i.validationIssueSeverityCode = 'FUNDING_WARNING' THEN 1 ELSE 0 END) as fundingWarnings,
-                SUM(CASE WHEN i.validationIssueSeverityCode = 'INFO_WARNING' THEN 1 ELSE 0 END) as infoWarnings
+                COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'ERROR' THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as errors,
+                COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'FUNDING_WARNING' THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as fundingWarnings,
+                COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'INFO_WARNING' THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as infoWarnings
             FROM SdcSchoolCollectionEntity s
                      LEFT JOIN s.sdcSchoolStudentEntities stu
                      LEFT JOIN stu.sdcStudentValidationIssueEntities i
