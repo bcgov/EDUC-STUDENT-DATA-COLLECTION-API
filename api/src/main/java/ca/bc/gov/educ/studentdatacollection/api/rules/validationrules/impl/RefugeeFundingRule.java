@@ -48,8 +48,8 @@ public class RefugeeFundingRule implements ValidationBaseRule {
 
         var shouldExecute = FteCalculatorUtils.getCollectionTypeCode(studentRuleData).equals(CollectionTypeCodes.FEBRUARY.getTypeCode()) &&
                 StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode()) &&
-                isValidationDependencyResolved("V90", validationErrorsMap) &&
-                studentRuleData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode().equals(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode().equals(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode()) &&
+                isValidationDependencyResolved("V90", validationErrorsMap);
 
         log.debug("In shouldExecute of RefugeeFundingRule-V90: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
                 shouldExecute,
