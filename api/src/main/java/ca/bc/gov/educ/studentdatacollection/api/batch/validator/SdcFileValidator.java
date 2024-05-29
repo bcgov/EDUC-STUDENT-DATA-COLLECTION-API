@@ -16,6 +16,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
 /**
@@ -95,10 +97,28 @@ public class SdcFileValidator {
     }
   }
 
-  public void validateSchoolBelongsToDistrict(@NonNull final String guid, @NonNull final Optional<School> school, final String districtID) throws FileUnProcessableException {
-
+  public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final Optional<School> school, final String districtID) throws FileUnProcessableException {
     if (school.isEmpty()) {
       throw new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, SdcSchoolCollectionStatus.LOAD_FAIL, districtID);
+    }
+
+    var schoolVal = school.get();
+    var currentDate = LocalDateTime.now();
+    LocalDateTime openDate = null;
+    LocalDateTime closeDate = null;
+    try {
+      openDate = LocalDateTime.parse(schoolVal.getOpenedDate());
+      if(schoolVal.getClosedDate() != null) {
+        closeDate = LocalDateTime.parse(schoolVal.getClosedDate());
+      }else{
+        closeDate = LocalDateTime.now().plusDays(5);
+      }
+    } catch (DateTimeParseException e) {
+      throw new FileUnProcessableException(FileError.INVALID_SCHOOL_DATES, guid, SdcSchoolCollectionStatus.LOAD_FAIL, districtID);
+    }
+
+    if (!(openDate.isBefore(currentDate) && closeDate.isAfter(currentDate))) {
+      throw new FileUnProcessableException(FileError.SCHOOL_IS_CLOSED, guid, SdcSchoolCollectionStatus.LOAD_FAIL, districtID);
     }
 
     String schoolDistrictID = school.get().getDistrictId();

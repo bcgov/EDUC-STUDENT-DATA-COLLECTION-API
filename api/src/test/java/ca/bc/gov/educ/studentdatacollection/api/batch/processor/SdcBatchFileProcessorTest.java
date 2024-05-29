@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
@@ -384,6 +385,27 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     var school = this.createMockSchool();
     var districtCollection = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, UUID.randomUUID()));
     sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.std").build();
+
+    String stringDistrictCollectionID = String.valueOf(districtCollection.getSdcDistrictCollectionID());
+
+    assertThrows(InvalidPayloadException.class, () -> this.sdcBatchProcessor.processDistrictSdcBatchFile(fileUpload, stringDistrictCollectionID));
+  }
+
+  @Test
+  @Transactional
+  void testProcessDistrictSdcBatchFileFromTSW_GivenClosedSchool_ShouldThrowInvalidPayloadException() throws IOException {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    school.setOpenedDate(LocalDateTime.now().plusDays(3).toString());
+    var districtID = UUID.randomUUID();
+    var districtCollection = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+    sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
