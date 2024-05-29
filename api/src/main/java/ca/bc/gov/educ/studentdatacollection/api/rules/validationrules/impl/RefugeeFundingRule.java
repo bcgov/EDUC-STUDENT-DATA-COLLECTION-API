@@ -25,7 +25,7 @@ import java.util.UUID;
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
  *  | V90 | WARNING  | Students reported with a Funding Code of 16 must not be reported in   |     V26      |
- *                     September Collection to receive funding
+ *                     September Collection to receive funding in February
  *
  */
 @Component
