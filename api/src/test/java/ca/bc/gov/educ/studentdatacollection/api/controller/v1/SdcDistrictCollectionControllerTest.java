@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
@@ -29,7 +30,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,6 +65,10 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
   @Autowired
   SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+
+  @Autowired
+  SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;
+
   @Autowired
   SdcDuplicatesService sdcDuplicateService;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
@@ -1079,6 +1083,16 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     sdcSchoolCollection2.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SCH_C_VRFD.getCode());
     sdcSchoolCollectionRepository.saveAll(List.of(sdcSchoolCollection1, sdcSchoolCollection2));
 
+    var  student = createMockSchoolStudentEntity(sdcSchoolCollection2);
+    var issue1 = createMockSdcSchoolCollectionStudentValidationIssueEntity(student, StudentValidationIssueSeverityCode.ERROR);
+    var issue2 = createMockSdcSchoolCollectionStudentValidationIssueEntity(student, StudentValidationIssueSeverityCode.ERROR);
+    var issue3 = createMockSdcSchoolCollectionStudentValidationIssueEntity(student, StudentValidationIssueSeverityCode.ERROR);
+    issue2.setValidationIssueFieldCode("SOMEOTHERFIELD"); //same code different field, should NOT register as a unique error
+    issue3.setValidationIssueCode("DIFFERENTCODE"); //different code, should register as a unique error
+
+    sdcSchoolCollectionStudentRepository.save(student);
+    sdcSchoolCollectionStudentValidationIssueRepository.saveAll(List.of(issue1, issue2, issue3));
+
     when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
     when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
 
@@ -1094,12 +1108,12 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].submittedToDistrict").value(true))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].sdcSchoolCollectionId").value(sdcSchoolCollection2.getSdcSchoolCollectionID().toString()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].schoolTitle").value("0000002 - School2"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].errors").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].errors").value(2))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].fundingWarnings").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].infoWarnings").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].schoolStatus").value("SCH_C_VRFD"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsWithData").value(2))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.totalErrors").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalErrors").value(2))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalFundingWarnings").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalInfoWarnings").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsSubmitted").value(1))
