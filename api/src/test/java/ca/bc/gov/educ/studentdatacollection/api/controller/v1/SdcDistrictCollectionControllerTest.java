@@ -85,6 +85,8 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
   public void after() {
     this.sdcDuplicateRepository.deleteAll();
     this.collectionRepository.deleteAll();
+    this.sdcSchoolCollectionStudentRepository.deleteAll();
+    this.sdcSchoolCollectionRepository.deleteAll();
   }
 
   @Test
