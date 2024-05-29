@@ -1473,10 +1473,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         studFeb2.setAssignedStudentId(UUID.randomUUID());
 
         var validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, schoolFeb));
-        boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_NOT_IN_SEPT_COL.getCode()));
+        boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL.getCode()));
 
         var validateNoErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb2, schoolFeb));
-        boolean noErrorRefugeeFunding = validateNoErrorRefugeeFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_NOT_IN_SEPT_COL.getCode()));
+        boolean noErrorRefugeeFunding = validateNoErrorRefugeeFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL.getCode()));
 
         assertThat(errorRefugeeFunding).isTrue();
         assertThat(noErrorRefugeeFunding).isFalse();

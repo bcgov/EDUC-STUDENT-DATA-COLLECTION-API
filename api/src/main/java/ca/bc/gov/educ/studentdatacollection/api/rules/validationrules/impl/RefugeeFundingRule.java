@@ -24,8 +24,8 @@ import java.util.UUID;
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V90 | WARNING  | Students reported with a Funding Code of 16 must be reported in Sept  |     V26      |
- *                     Collection to receive funding
+ *  | V90 | WARNING  | Students reported with a Funding Code of 16 must not be reported in   |     V26      |
+ *                     September Collection to receive funding
  *
  */
 @Component
@@ -66,7 +66,7 @@ public class RefugeeFundingRule implements ValidationBaseRule {
 
         if (Boolean.FALSE.equals(studentInSeptemberCollection(studentRuleData))) {
             log.debug("RefugeeFundingRule-V90: Refugee not reported in September Collection for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SCHOOL_FUNDING_CODE, StudentValidationIssueTypeCode.REFUGEE_NOT_IN_SEPT_COL));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SCHOOL_FUNDING_CODE, StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL));
         }
 
         return errors;
