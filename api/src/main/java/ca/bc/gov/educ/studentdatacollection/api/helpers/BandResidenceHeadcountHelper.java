@@ -126,22 +126,25 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
             Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
             rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
             for (String column : columns) {
-                var result = results.stream()
+                var matchingResults = results.stream()
                         .filter(value -> {
                             String compareKey = Boolean.TRUE.equals(schoolTitles) ? value.getSchoolID() : value.getBandCode();
                             return compareKey.equals(title.getKey());
                         })
-                        .findFirst()
-                        .orElse(null);
+                        .toList();
 
-                if (result != null && column.equalsIgnoreCase(FTE_TITLE)) {
-                    var fteCurrentValue = StringUtils.isNotEmpty(result.getFteTotal()) ? result.getFteTotal(): "0";
-                    fteTotal = fteTotal.add(new BigDecimal(fteCurrentValue));
-                    rowData.put(column, HeadcountHeaderColumn.builder().currentValue(fteCurrentValue).build());
-                } else if (result != null && column.equalsIgnoreCase(HEADCOUNT_TITLE)) {
-                    var headcountCurrentValue = StringUtils.isNotEmpty(result.getHeadcount()) ? result.getHeadcount(): "0";
-                    headcountTotal = headcountTotal.add(new BigDecimal(headcountCurrentValue));
-                    rowData.put(column, HeadcountHeaderColumn.builder().currentValue(headcountCurrentValue).build());
+                if (!matchingResults.isEmpty() && column.equalsIgnoreCase(FTE_TITLE)) {
+                    var fteCurrentValue = matchingResults.stream()
+                            .map(result -> StringUtils.isNotEmpty(result.getFteTotal()) ? new BigDecimal(result.getFteTotal()) : BigDecimal.ZERO)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                    fteTotal = fteTotal.add(fteCurrentValue);
+                    rowData.put(column, HeadcountHeaderColumn.builder().currentValue(fteCurrentValue.toString()).build());
+                } else if (!matchingResults.isEmpty() && column.equalsIgnoreCase(HEADCOUNT_TITLE)) {
+                    var headcountCurrentValue = matchingResults.stream()
+                            .map(result -> StringUtils.isNotEmpty(result.getHeadcount()) ? new BigDecimal(result.getHeadcount()) : BigDecimal.ZERO)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                    headcountTotal = headcountTotal.add(headcountCurrentValue);
+                    rowData.put(column, HeadcountHeaderColumn.builder().currentValue(headcountCurrentValue.toString()).build());
                 } else {
                     rowData.put(column, HeadcountHeaderColumn.builder().currentValue("0").build());
                 }
