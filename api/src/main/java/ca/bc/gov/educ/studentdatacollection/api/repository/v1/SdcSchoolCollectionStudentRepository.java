@@ -210,6 +210,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "LEFT JOIN sc.sdcSchoolStudentEntities s " +
           "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
           "WHERE sc.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
+          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           "GROUP BY sc.schoolID, s.enrolledGradeCode " +
           "ORDER BY sc.schoolID, s.enrolledGradeCode")
   List<FrenchCombinedHeadcountResult> getFrenchHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
