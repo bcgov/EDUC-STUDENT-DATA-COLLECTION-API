@@ -58,10 +58,6 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
   @Autowired
   SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository;
 
-  @BeforeEach
-  public void before() {
-  }
-
   @AfterEach
   public void after() {
     this.sdcDistricCollectionRepository.deleteAll();
