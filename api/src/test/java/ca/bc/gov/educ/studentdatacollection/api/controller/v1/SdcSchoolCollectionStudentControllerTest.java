@@ -24,6 +24,7 @@ import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
@@ -3527,5 +3528,117 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='All Bands & Students')].['FTE'].comparisonValue", contains("0")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0000001 - School1')].['FTE'].comparisonValue", contains("0")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows", hasSize(3)));
+    }
+
+    @Test
+    void testGetSdcDistrictCollectionStudentHeadcounts_bandResidenceTablePerSchool_tableValues() throws Exception {
+        CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+        var districtID = UUID.randomUUID();
+        var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+
+        var school1 = createMockSchool();
+        school1.setDisplayName("School1");
+        school1.setMincode("0000001");
+        school1.setDistrictId(districtID.toString());
+        var school2 = createMockSchool();
+        school2.setDisplayName("School2");
+        school2.setMincode("0000002");
+        school2.setDistrictId(districtID.toString());
+        var school3 = createMockSchool();
+        school3.setDisplayName("School3");
+        school3.setMincode("0000003");
+        school3.setDistrictId(districtID.toString());
+        var school4 = createMockSchool();
+        school4.setDisplayName("School4");
+        school4.setMincode("0000004");
+        school4.setDistrictId(districtID.toString());
+
+        when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+        when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+        when(this.restUtils.getSchoolBySchoolID(school3.getSchoolId())).thenReturn(Optional.of(school3));
+        when(this.restUtils.getSchoolBySchoolID(school4.getSchoolId())).thenReturn(Optional.of(school4));
+
+        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+        firstSchool.setUploadDate(null);
+        firstSchool.setUploadFileName(null);
+        firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+        secondSchool.setUploadDate(null);
+        secondSchool.setUploadFileName(null);
+        secondSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        var thirdSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school3.getSchoolId()));
+        thirdSchool.setUploadDate(null);
+        thirdSchool.setUploadFileName(null);
+        thirdSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        var fourthSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school4.getSchoolId()));
+        fourthSchool.setUploadDate(null);
+        fourthSchool.setUploadFileName(null);
+        fourthSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+
+        sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchool, secondSchool, thirdSchool, fourthSchool));
+
+        final File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+        );
+        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+        });
+        var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+
+        List<SdcSchoolCollectionStudentEntity> students = new ArrayList<>();
+        UUID[] schoolIds = {firstSchool.getSdcSchoolCollectionID(), secondSchool.getSdcSchoolCollectionID(), thirdSchool.getSdcSchoolCollectionID(), fourthSchool.getSdcSchoolCollectionID()};
+        String[] bandCodes = {"0500", "0501", "0600", "0601"};
+
+        for (var model : models) {
+            for (int i = 0; i < schoolIds.length; i++) {
+                var newModel = new SdcSchoolCollectionStudentEntity();
+                BeanUtils.copyProperties(model, newModel);
+                newModel.setSdcSchoolCollection(SdcSchoolCollectionEntity.builder().sdcSchoolCollectionID(schoolIds[i]).build());
+                if (Objects.equals(newModel.getGender(), "F") && i == 2) {
+                    continue;
+                }
+                if (Objects.equals(newModel.getGender(), "M") && i == 3) {
+                    continue;
+                }
+                newModel.setBandCode(bandCodes[i]);
+                students.add(newModel);
+            }
+        }
+
+        var savedStudents = sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        List<SdcSchoolCollectionStudentEnrolledProgramEntity> enrolledPrograms = new ArrayList<>();
+
+        savedStudents.forEach(student -> {
+            var enrolledProg = new SdcSchoolCollectionStudentEnrolledProgramEntity();
+            enrolledProg.setSdcSchoolCollectionStudentEntity(student);
+            enrolledProg.setEnrolledProgramCode("33");
+            enrolledProg.setCreateUser("ABC");
+            enrolledProg.setUpdateUser("ABC");
+            enrolledProg.setCreateDate(LocalDateTime.now());
+            enrolledProg.setUpdateDate(LocalDateTime.now());
+            enrolledPrograms.add(enrolledProg);
+            student.setSchoolFundingCode("20");
+        });
+
+
+        sdcSchoolCollectionStudentEnrolledProgramRepository.saveAll(enrolledPrograms);
+
+        this.mockMvc
+                .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
+                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("type", "band-codes-per-school")
+                        .param("compare", "false")
+                        .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(jsonPath("$.headcountResultsTable.rows[*].['title'].currentValue", containsInAnyOrder("0000001 - School1", "0000002 - School2", "0000003 - School3", "0000004 - School4", "All Bands & Students")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0000001 - School1')].['FTE'].currentValue", contains("5.18")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0000001 - School1')].['Headcount'].currentValue", contains("6")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0000002 - School2')].['FTE'].currentValue", contains("5.18")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0000002 - School2')].['Headcount'].currentValue", contains("6")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0000003 - School3')].['FTE'].currentValue", contains("2.46")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0000003 - School3')].['Headcount'].currentValue", contains("2")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0000004 - School4')].['FTE'].currentValue", contains("2.72")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0000004 - School4')].['Headcount'].currentValue", contains("4")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows", hasSize(5)));
     }
 }
