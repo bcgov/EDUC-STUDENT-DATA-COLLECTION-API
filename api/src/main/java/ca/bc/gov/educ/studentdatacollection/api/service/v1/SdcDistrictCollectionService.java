@@ -216,6 +216,27 @@ public class SdcDistrictCollectionService {
     } else {
       throw new EntityNotFoundException(SdcDuplicateEntity.class, "sdcDuplicateID", sdcDuplicateID.toString());
     }
+  }
 
+  @Transactional(propagation = Propagation.REQUIRED)
+  public SdcDuplicateEntity changeGrade(UUID sdcDistrictCollectionID, UUID sdcDuplicateID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+    final Optional<SdcDuplicateEntity> curSdcDuplicateEntity = sdcDuplicateRepository.findBySdcDuplicateID(sdcDuplicateID);
+
+    if (curSdcDuplicateEntity.isPresent()) {
+      SdcDuplicateEntity curGetSdcDuplicateEntity = curSdcDuplicateEntity.get();
+      // update student
+      RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
+      SdcSchoolCollectionStudentEntity updatedStudent = sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(studentMapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent));
+
+      if (!updatedStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
+          //resolve
+          curGetSdcDuplicateEntity.setDuplicateResolutionCode(DuplicateResolutionCode.GRADE_CHNG.getCode());
+          TransformUtil.uppercaseFields(curGetSdcDuplicateEntity);
+          return sdcDuplicateRepository.save(curGetSdcDuplicateEntity);
+      }
+      return curGetSdcDuplicateEntity;
+    } else {
+      throw new EntityNotFoundException(SdcDuplicateEntity.class, "sdcDuplicateID", sdcDuplicateID.toString());
+    }
   }
 }
