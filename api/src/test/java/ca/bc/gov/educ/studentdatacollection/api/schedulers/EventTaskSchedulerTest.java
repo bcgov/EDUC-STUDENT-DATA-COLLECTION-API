@@ -43,11 +43,6 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
     private SdcSchoolCollectionEntity firstSchoolCollection;
     private SdcSchoolCollectionEntity secondSchoolCollection;
 
-    @BeforeEach
-    public void setUp() {
-        LockAssert.TestHelper.makeAllAssertsPass(true);
-    }
-
     @AfterEach
     void cleanup(){
         sdcDistrictCollectionRepository.deleteAll();
@@ -55,8 +50,6 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         sdcSchoolCollectionStudentRepository.deleteAll();
         sdcSchoolCollectionRepository.deleteAll();
     }
-
-
 
     @Test
     void testFindSchoolCollectionsForSubmission_HasErrorHasDuplicates_shouldSetCollectionStatusToVerified() {

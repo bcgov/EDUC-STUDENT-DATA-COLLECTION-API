@@ -69,11 +69,6 @@ class SdcDistrictCollectionServiceTest extends BaseStudentDataCollectionAPITest 
   SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
 
-  @BeforeEach
-  void setUp() {
-    MockitoAnnotations.openMocks(this);
-  }
-
   @AfterEach
   public void after() {
     this.sdcDuplicateRepository.deleteAll();
