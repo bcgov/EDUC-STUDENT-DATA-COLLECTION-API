@@ -36,6 +36,7 @@ public class SdcDistrictCollectionService {
   private final SdcDuplicateRepository sdcDuplicateRepository;
   private final SdcDuplicatesService sdcDuplicatesService;
   private static final String SDC_DISTRICT_COLLECTION_ID_KEY = "sdcDistrictCollectionID";
+  private static final String SDC_DUPLICATE_ID_KEY = "sdcDuplicateID";
   private static final SdcSchoolCollectionStudentMapper studentMapper = SdcSchoolCollectionStudentMapper.mapper;
 
   @Autowired
@@ -191,7 +192,7 @@ public class SdcDistrictCollectionService {
       }
       return curGetSdcDuplicateEntity;
     } else {
-      throw new EntityNotFoundException(SdcDuplicateEntity.class, "sdcDuplicateID", sdcDuplicateID.toString());
+      throw new EntityNotFoundException(SdcDuplicateEntity.class, SDC_DUPLICATE_ID_KEY, sdcDuplicateID.toString());
     }
   }
 
@@ -214,8 +215,29 @@ public class SdcDistrictCollectionService {
       TransformUtil.uppercaseFields(curGetSdcDuplicateEntity);
       return sdcDuplicateRepository.save(curGetSdcDuplicateEntity);
     } else {
-      throw new EntityNotFoundException(SdcDuplicateEntity.class, "sdcDuplicateID", sdcDuplicateID.toString());
+      throw new EntityNotFoundException(SdcDuplicateEntity.class, SDC_DUPLICATE_ID_KEY, sdcDuplicateID.toString());
     }
+  }
 
+  @Transactional(propagation = Propagation.REQUIRED)
+  public SdcDuplicateEntity changeGrade(UUID sdcDistrictCollectionID, UUID sdcDuplicateID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+    final Optional<SdcDuplicateEntity> curSdcDuplicateEntity = sdcDuplicateRepository.findBySdcDuplicateID(sdcDuplicateID);
+
+    if (curSdcDuplicateEntity.isPresent()) {
+      SdcDuplicateEntity curGetSdcDuplicateEntity = curSdcDuplicateEntity.get();
+      // update student
+      RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
+      SdcSchoolCollectionStudentEntity updatedStudent = sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(studentMapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent));
+
+      if (!updatedStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
+          //resolve
+          curGetSdcDuplicateEntity.setDuplicateResolutionCode(DuplicateResolutionCode.GRADE_CHNG.getCode());
+          TransformUtil.uppercaseFields(curGetSdcDuplicateEntity);
+          return sdcDuplicateRepository.save(curGetSdcDuplicateEntity);
+      }
+      return curGetSdcDuplicateEntity;
+    } else {
+      throw new EntityNotFoundException(SdcDuplicateEntity.class, SDC_DUPLICATE_ID_KEY, sdcDuplicateID.toString());
+    }
   }
 }

@@ -89,6 +89,8 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
       return duplicateMapper.toSdcDuplicate(sdcDistrictCollectionService.updateStudentAndResolveDistrictDuplicates(sdcDistrictCollectionID, sdcDuplicateID, sdcSchoolCollectionStudent));
     } else if (DuplicateTypeResolutionCode.DELETE_ENROLLMENT_DUPLICATE.getCode().equalsIgnoreCase(duplicateTypeCode) && sdcSchoolCollectionStudent.size() == 1) {
       return duplicateMapper.toSdcDuplicate(sdcDistrictCollectionService.softDeleteEnrollmentDuplicate(sdcDistrictCollectionID, sdcDuplicateID, sdcSchoolCollectionStudent.get(0)));
+    } else if (DuplicateTypeResolutionCode.CHANGE_GRADE.getCode().equalsIgnoreCase(duplicateTypeCode) && sdcSchoolCollectionStudent.size() == 1) {
+      return duplicateMapper.toSdcDuplicate(sdcDistrictCollectionService.changeGrade(sdcDistrictCollectionID, sdcDuplicateID, sdcSchoolCollectionStudent.get(0)));
     }
     return null;
   }
