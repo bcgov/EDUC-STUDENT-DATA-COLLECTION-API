@@ -67,22 +67,16 @@ public class SdcFileValidator {
 
   public void validateFileHasCorrectMincode(@NonNull final String guid, @NonNull final DataSet ds, final Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity) throws FileUnProcessableException {
     if (sdcSchoolCollectionEntity.isPresent()) {
+
+      String fileMincode = pluckMincodeFromFile(ds, guid);
+
       String schoolID = sdcSchoolCollectionEntity.get().getSchoolID().toString();
       Optional<School> school = restUtils.getSchoolBySchoolID(schoolID);
 
       if (school.isEmpty()) {
-        throw new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, SdcSchoolCollectionStatus.LOAD_FAIL, schoolID);
+        throw new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, SdcSchoolCollectionStatus.LOAD_FAIL, fileMincode);
       }
 
-      ds.goTop();
-      ds.next();
-
-      Optional<Record> dsHeader = ds.getRecord();
-      if (dsHeader.isEmpty()) {
-        throw new FileUnProcessableException(FileError.MISSING_HEADER, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
-      }
-
-      String fileMincode = dsHeader.get().getString("mincode");
       String mincode = school.get().getMincode();
       if (!fileMincode.equals(mincode)) {
         throw new FileUnProcessableException(
@@ -97,9 +91,12 @@ public class SdcFileValidator {
     }
   }
 
-  public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final Optional<School> school, final String districtID) throws FileUnProcessableException {
+  public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final Optional<School> school, final String districtID, @NonNull final DataSet ds) throws FileUnProcessableException {
+
+    String fileMincode = pluckMincodeFromFile(ds, guid);
+
     if (school.isEmpty()) {
-      throw new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, SdcSchoolCollectionStatus.LOAD_FAIL, districtID);
+      throw new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, SdcSchoolCollectionStatus.LOAD_FAIL, fileMincode);
     }
 
     var schoolVal = school.get();
@@ -108,6 +105,11 @@ public class SdcFileValidator {
     LocalDateTime closeDate = null;
     try {
       openDate = LocalDateTime.parse(schoolVal.getOpenedDate());
+
+      if (openDate.isAfter(currentDate)){
+        throw new FileUnProcessableException(FileError.SCHOOL_IS_OPENING, guid, SdcSchoolCollectionStatus.LOAD_FAIL, districtID);
+      }
+
       if(schoolVal.getClosedDate() != null) {
         closeDate = LocalDateTime.parse(schoolVal.getClosedDate());
       }else{
@@ -134,6 +136,11 @@ public class SdcFileValidator {
   }
 
   public Optional<School> getSchoolUsingMincode(final String guid, @NonNull final DataSet ds) throws FileUnProcessableException{
+    String fileMincode = pluckMincodeFromFile(ds, guid);
+    return restUtils.getSchoolByMincode(fileMincode);
+  }
+
+  public String pluckMincodeFromFile(@NonNull final DataSet ds, final String guid) throws FileUnProcessableException {
     ds.goTop();
     ds.next();
     Optional<Record> dsHeader = ds.getRecord();
@@ -143,9 +150,14 @@ public class SdcFileValidator {
     }
 
     String fileMincode = dsHeader.get().getString("mincode");
+
+    if(fileMincode == null){
+      throw new FileUnProcessableException(FileError.MISSING_MINCODE, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
+    }
+
     ds.goTop();
 
-    return restUtils.getSchoolByMincode(fileMincode);
+    return fileMincode;
   }
 
   private void validateTrailerWhenFileHasLengthErrors(final String guid, final DataSet ds) throws FileUnProcessableException {

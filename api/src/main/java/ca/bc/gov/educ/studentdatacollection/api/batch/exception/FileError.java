@@ -58,15 +58,23 @@ public enum FileError {
   /**
    * No record for the provided school ID was found.
    */
-  INVALID_SCHOOL("Unable to find a school record for ID $?"),
+  INVALID_SCHOOL("Unable to find a school record for mincode $?"),
   /**
-   * No record for the provided school ID was found.
+   * School is closed.
    */
   SCHOOL_IS_CLOSED("Invalid school provided - school is closed."),
+  /**
+   * School is opening.
+   */
+  SCHOOL_IS_OPENING("Invalid school provided - school is not yet open."),
   /**
    * No record for the provided school ID was found.
    */
   INVALID_SCHOOL_DATES("Invalid school dates - this was not expected."),
+  /**
+   * No mincode found in file
+   */
+  MISSING_MINCODE("No mincode found in file."),
   /**
    * The mincode on the uploaded document does not match the collection record.
    */
