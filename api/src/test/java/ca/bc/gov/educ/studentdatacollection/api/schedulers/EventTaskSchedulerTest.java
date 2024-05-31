@@ -83,6 +83,29 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         assertThat(secondSchoolEntity.get().getSdcSchoolCollectionStatusCode()).isEqualTo(SdcSchoolCollectionStatus.LOADED.getCode());
     }
 
+    @Test
+    void testFindSchoolCollectionsForSubmission_WithStatusCode_LOADEDAndERROR_shouldReturn1SchoolForSubmission() {
+        setMockDataForSchoolCollectionsForSubmissionFn();
+
+        var studentID = UUID.randomUUID();
+        var student1 = createMockSchoolStudentEntity(firstSchoolCollection);
+        student1.setAssignedStudentId(studentID);
+        student1.setSdcSchoolCollectionStudentStatusCode("LOADED");
+        sdcSchoolCollectionStudentRepository.save(student1);
+        var student2 = createMockSchoolStudentEntity(firstSchoolCollection);
+        student2.setSdcSchoolCollectionStudentStatusCode("ERROR");
+        student2.setAssignedStudentId(studentID);
+        sdcSchoolCollectionStudentRepository.save(student2);
+
+
+        var studentInSecondSchool = createMockSchoolStudentEntity(secondSchoolCollection);
+        studentInSecondSchool.setAssignedStudentId(UUID.randomUUID());
+        studentInSecondSchool.setSdcSchoolCollectionStudentStatusCode("ERROR");
+        sdcSchoolCollectionStudentRepository.save(studentInSecondSchool);
+
+        final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findSchoolCollectionsWithStudentsNotInLoadedStatus();
+        assertThat(sdcSchoolCollectionEntity).hasSize(1);
+    }
 
 
     public void setMockDataForSchoolCollectionsForSubmissionFn() {
