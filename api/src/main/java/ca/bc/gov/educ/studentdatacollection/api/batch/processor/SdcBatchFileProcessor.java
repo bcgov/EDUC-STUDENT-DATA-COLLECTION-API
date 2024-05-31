@@ -162,7 +162,7 @@ public class SdcBatchFileProcessor {
       var school = this.sdcFileValidator.getSchoolUsingMincode(guid, ds);
 
       var districtCollection = this.sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(UUID.fromString(sdcDistrictCollectionID));
-      this.sdcFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, school, String.valueOf(districtCollection.get().getDistrictID()));
+      this.sdcFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, school, String.valueOf(districtCollection.get().getDistrictID()), ds);
 
       var sdcSchoolCollection = this.sdcSchoolCollectionRepository.findActiveCollectionBySchoolId(UUID.fromString(school.get().getSchoolId()));
       var sdcSchoolCollectionID = sdcSchoolCollection.get().getSdcSchoolCollectionID();
