@@ -72,7 +72,7 @@ public abstract class BaseReportGenerationService<T> {
 
     mappedResults.forEach(headcountResult -> setValueForGrade(nodeMap, headcountResult));
 
-    reportNode.setPrograms(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
+    reportNode.setPrograms(nodeMap.values().stream().sorted(Comparator.comparing(o -> Integer.parseInt(o.getSequence()))).toList());
     mainNode.setReport(reportNode);
     return objectWriter.writeValueAsString(mainNode);
   }
