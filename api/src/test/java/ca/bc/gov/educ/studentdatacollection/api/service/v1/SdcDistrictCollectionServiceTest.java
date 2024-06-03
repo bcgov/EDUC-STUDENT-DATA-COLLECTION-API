@@ -280,6 +280,10 @@ class SdcDistrictCollectionServiceTest extends BaseStudentDataCollectionAPITest 
 
     val resolvedDuplicate = sdcDistrictCollectionService.changeGrade(UUID.fromString(student1Entity.getSdcDistrictCollectionID()), UUID.fromString(programDupe.get().getSdcDuplicateID()), student1Entity);
     assertThat(resolvedDuplicate.getDuplicateResolutionCode()).isEqualTo("GRADE_CHNG");
+
+    val duplicate = sdcDuplicateRepository.findBySdcDuplicateID(UUID.fromString(programDupe.get().getSdcDuplicateID()));
+    assertThat(duplicate.get().getRetainedSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().toString()).isEqualTo(student1Entity.getSdcSchoolCollectionStudentID());
+
   }
 
   @Test
