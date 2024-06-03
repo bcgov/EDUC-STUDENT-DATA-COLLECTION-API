@@ -32,7 +32,7 @@ public class SdcDuplicateEntity {
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   @ManyToOne(optional = true, targetEntity = SdcSchoolCollectionStudentEntity.class)
-  @JoinColumn(name = "RETAINED_SDC_SCHOOL_COLLECTION_STUDENT_ID", referencedColumnName = "SDC_SCHOOL_COLLECTION_STUDENT_ID", updatable = false)
+  @JoinColumn(name = "RETAINED_SDC_SCHOOL_COLLECTION_STUDENT_ID", referencedColumnName = "SDC_SCHOOL_COLLECTION_STUDENT_ID")
   SdcSchoolCollectionStudentEntity retainedSdcSchoolCollectionStudentEntity;
 
   @Column(name = "DUPLICATE_SEVERITY_CODE")

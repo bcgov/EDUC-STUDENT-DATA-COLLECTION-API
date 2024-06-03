@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -186,6 +187,8 @@ public class SdcDistrictCollectionService {
         if(listOfDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == curGetSdcDuplicateEntity.getUniqueObjectHash())) {
           //resolve
           curGetSdcDuplicateEntity.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
+          curGetSdcDuplicateEntity.setUpdateUser(updatedStudents.get(0).getUpdateUser());
+          curGetSdcDuplicateEntity.setUpdateDate(LocalDateTime.now());
           TransformUtil.uppercaseFields(curGetSdcDuplicateEntity);
           return sdcDuplicateRepository.save(curGetSdcDuplicateEntity);
         }
@@ -212,6 +215,8 @@ public class SdcDistrictCollectionService {
       // update duplicate entity
       curGetSdcDuplicateEntity.setRetainedSdcSchoolCollectionStudentEntity(retainedStudent.getSdcSchoolCollectionStudentEntity());
       curGetSdcDuplicateEntity.setDuplicateResolutionCode(DuplicateResolutionCode.RELEASED.getCode());
+      curGetSdcDuplicateEntity.setUpdateUser(sdcSchoolCollectionStudent.getUpdateUser());
+      curGetSdcDuplicateEntity.setUpdateDate(LocalDateTime.now());
       TransformUtil.uppercaseFields(curGetSdcDuplicateEntity);
       return sdcDuplicateRepository.save(curGetSdcDuplicateEntity);
     } else {
@@ -225,6 +230,7 @@ public class SdcDistrictCollectionService {
 
     if (curSdcDuplicateEntity.isPresent()) {
       SdcDuplicateEntity curGetSdcDuplicateEntity = curSdcDuplicateEntity.get();
+
       // update student
       RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
       SdcSchoolCollectionStudentEntity updatedStudent = sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(studentMapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent));
@@ -232,6 +238,9 @@ public class SdcDistrictCollectionService {
       if (!updatedStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
           //resolve
           curGetSdcDuplicateEntity.setDuplicateResolutionCode(DuplicateResolutionCode.GRADE_CHNG.getCode());
+          curGetSdcDuplicateEntity.setRetainedSdcSchoolCollectionStudentEntity(updatedStudent);
+          curGetSdcDuplicateEntity.setUpdateUser(sdcSchoolCollectionStudent.getUpdateUser());
+          curGetSdcDuplicateEntity.setUpdateDate(LocalDateTime.now());
           TransformUtil.uppercaseFields(curGetSdcDuplicateEntity);
           return sdcDuplicateRepository.save(curGetSdcDuplicateEntity);
       }
