@@ -76,7 +76,7 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
     addValuesForSectionToMap(nodeMap, "careerPrep", "Career Preparation", "00");
     addValuesForSectionToMap(nodeMap, "coop", "Co-operative Education", "10");
     addValuesForSectionToMap(nodeMap, "techYouth", "Career Technical or youth Train in Trades", "20");
-    addValuesForSectionToMap(nodeMap, "apprentice", "Apprenticeship", "30");
+    addValuesForSectionToMap(nodeMap, "youthWorkInTrades", "Youth Work in Trades Program", "30");
     addValuesForSectionToMap(nodeMap, "all", "All Career Programs", "40");
 
     return nodeMap;
@@ -129,15 +129,15 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
     nodeMap.get("techYouthXG").setValueForGrade(code, gradeResult.getTechYouthXG());
     nodeMap.get("techYouthXH").setValueForGrade(code, gradeResult.getTechYouthXH());
 
-    nodeMap.get("apprenticeHeading").setValueForGrade(code, gradeResult.getApprenticeTotal());
-    nodeMap.get("apprenticeXA").setValueForGrade(code, gradeResult.getApprenticeXA());
-    nodeMap.get("apprenticeXB").setValueForGrade(code, gradeResult.getApprenticeXB());
-    nodeMap.get("apprenticeXC").setValueForGrade(code, gradeResult.getApprenticeXC());
-    nodeMap.get("apprenticeXD").setValueForGrade(code, gradeResult.getApprenticeXD());
-    nodeMap.get("apprenticeXE").setValueForGrade(code, gradeResult.getApprenticeXE());
-    nodeMap.get("apprenticeXF").setValueForGrade(code, gradeResult.getApprenticeXF());
-    nodeMap.get("apprenticeXG").setValueForGrade(code, gradeResult.getApprenticeXG());
-    nodeMap.get("apprenticeXH").setValueForGrade(code, gradeResult.getApprenticeXH());
+    nodeMap.get("youthWorkInTradesHeading").setValueForGrade(code, gradeResult.getApprenticeTotal());
+    nodeMap.get("youthWorkInTradesXA").setValueForGrade(code, gradeResult.getApprenticeXA());
+    nodeMap.get("youthWorkInTradesXB").setValueForGrade(code, gradeResult.getApprenticeXB());
+    nodeMap.get("youthWorkInTradesXC").setValueForGrade(code, gradeResult.getApprenticeXC());
+    nodeMap.get("youthWorkInTradesXD").setValueForGrade(code, gradeResult.getApprenticeXD());
+    nodeMap.get("youthWorkInTradesXE").setValueForGrade(code, gradeResult.getApprenticeXE());
+    nodeMap.get("youthWorkInTradesXF").setValueForGrade(code, gradeResult.getApprenticeXF());
+    nodeMap.get("youthWorkInTradesXG").setValueForGrade(code, gradeResult.getApprenticeXG());
+    nodeMap.get("youthWorkInTradesXH").setValueForGrade(code, gradeResult.getApprenticeXH());
 
     nodeMap.get("allHeading").setValueForGrade(code, gradeResult.getAllTotal());
     nodeMap.get("allXA").setValueForGrade(code, gradeResult.getAllXA());

@@ -140,7 +140,7 @@ public class AllStudentLightCollectionGenerateCsvService {
                     student.getCareerProgramCode(),
                     enrolledProgramCodesMap.get(EnrolledProgramCodes.CAREER_PREPARATION.getCode()),
                     enrolledProgramCodesMap.get(EnrolledProgramCodes.COOP.getCode()),
-                    enrolledProgramCodesMap.get(EnrolledProgramCodes.APPRENTICESHIP.getCode()),
+                    enrolledProgramCodesMap.get(EnrolledProgramCodes.YOUTH_WORK_IN_TRADES.getCode()),
                     enrolledProgramCodesMap.get(EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()),
                     student.getSpecialEducationCategoryCode()
         ));
@@ -187,7 +187,7 @@ public class AllStudentLightCollectionGenerateCsvService {
                 EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode(),
                 EnrolledProgramCodes.CAREER_PREPARATION.getCode(),
                 EnrolledProgramCodes.COOP.getCode(),
-                EnrolledProgramCodes.APPRENTICESHIP.getCode(),
+                EnrolledProgramCodes.YOUTH_WORK_IN_TRADES.getCode(),
                 EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()
         }).collect(Collectors.toMap(code -> code, code -> ""));
 
