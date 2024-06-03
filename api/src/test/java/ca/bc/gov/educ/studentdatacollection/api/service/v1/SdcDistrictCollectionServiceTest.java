@@ -220,7 +220,6 @@ class SdcDistrictCollectionServiceTest extends BaseStudentDataCollectionAPITest 
     val sdcDuplicates = sdcDuplicateService.getAllInDistrictCollectionDuplicates(sdcDistrictCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
 
     assertThat(sdcDuplicates).hasSize(1);
-
     val programDupe = sdcDuplicates.stream().filter(duplicate -> duplicate.getDuplicateTypeCode().equalsIgnoreCase("ENROLLMENT")).findFirst();
     val student1Entity = programDupe.get().getSdcSchoolCollectionStudent1Entity();
     val student2Entity = programDupe.get().getSdcSchoolCollectionStudent2Entity();
@@ -231,6 +230,9 @@ class SdcDistrictCollectionServiceTest extends BaseStudentDataCollectionAPITest 
 
     val deletedStudent = sdcSchoolCollectionStudentRepository.findById(UUID.fromString(student1Entity.getSdcSchoolCollectionStudentID()));
     assertThat(deletedStudent.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo("DELETED");
+
+    val duplicate = sdcDuplicateRepository.findBySdcDuplicateID(UUID.fromString(programDupe.get().getSdcDuplicateID()));
+    assertThat(duplicate.get().getRetainedSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().toString()).isEqualTo(student2Entity.getSdcSchoolCollectionStudentID());
   }
 
   @Test
