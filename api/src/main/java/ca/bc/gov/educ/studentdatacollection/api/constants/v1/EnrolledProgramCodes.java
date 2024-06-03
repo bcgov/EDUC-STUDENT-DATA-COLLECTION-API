@@ -24,7 +24,7 @@ public enum EnrolledProgramCodes {
     OTHER_APPROVED_NATIVE("36"),
     CAREER_PREPARATION("40"),
     COOP("41"),
-    APPRENTICESHIP("42"),
+    YOUTH_WORK_IN_TRADES("42"),
     CAREER_TECHNICAL_CENTER("43"),
     ADVANCED_PLACEMENT("AD"),
     BACCALAUREATE_C("BC"),
@@ -67,7 +67,7 @@ public enum EnrolledProgramCodes {
         List<String> codes = new ArrayList<>();
         codes.add(CAREER_PREPARATION.getCode());
         codes.add(COOP.getCode());
-        codes.add(APPRENTICESHIP.getCode());
+        codes.add(YOUTH_WORK_IN_TRADES.getCode());
         codes.add(CAREER_TECHNICAL_CENTER.getCode());
         return codes;
     }

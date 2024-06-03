@@ -26,7 +26,7 @@ import java.util.function.Function;
 public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult> {
   private static final String CAREER_PREPARATION_TITLE = "Career Preparation";
   private static final String COOP_EDUCATION_TITLE = "Co-Operative Education";
-  private static final String APPRENTICESHIP_TITLE = "Apprenticeship";
+  private static final String YOUTH_WORK_IN_TRADES_TITLE = "Youth Work in Trades Program";
   private static final String TECH_YOUTH_TITLE = "Career Technical or Youth in Trades";
   private static final String ALL_CAREER_PROGRAM_TITLE = "All Career Programs";
   private static final String XA_CODE_TITLE = "XA - Business & Applied Business";
@@ -136,7 +136,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
             ? sdcSchoolCollectionStudentRepository.getCareerHeadersBySdcDistrictCollectionId(sdcSchoolCollectionID)
             : sdcSchoolCollectionStudentRepository.getCareerHeadersBySchoolId(sdcSchoolCollectionID);
     List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
-    Arrays.asList(CAREER_PREPARATION_TITLE, COOP_EDUCATION_TITLE, APPRENTICESHIP_TITLE, TECH_YOUTH_TITLE).forEach(headerTitle -> {
+    Arrays.asList(CAREER_PREPARATION_TITLE, COOP_EDUCATION_TITLE, YOUTH_WORK_IN_TRADES_TITLE, TECH_YOUTH_TITLE).forEach(headerTitle -> {
       HeadcountHeader headcountHeader = new HeadcountHeader();
       headcountHeader.setColumns(new HashMap<>());
       headcountHeader.setTitle(headerTitle);
@@ -150,7 +150,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
           headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getEligCoopEduc()).build());
           headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedCoopEduc()).build());
         }
-        case APPRENTICESHIP_TITLE -> {
+        case YOUTH_WORK_IN_TRADES_TITLE -> {
           headcountHeader.getColumns().put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getEligApprentice()).build());
           headcountHeader.getColumns().put(REPORTED_TITLE, HeadcountHeaderColumn.builder().currentValue(result.getReportedApprentice()).build());
         }
@@ -247,15 +247,15 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
     sectionTitles.put(TECH_YOUTH_XF_KEY, TECH_YOUTH_TITLE);
     sectionTitles.put(TECH_YOUTH_XG_KEY, TECH_YOUTH_TITLE);
     sectionTitles.put(TECH_YOUTH_XH_KEY, TECH_YOUTH_TITLE);
-    sectionTitles.put(APPRENTICE_TOTAL_KEY, APPRENTICESHIP_TITLE);
-    sectionTitles.put(APPRENTICE_XA_KEY, APPRENTICESHIP_TITLE);
-    sectionTitles.put(APPRENTICE_XB_KEY, APPRENTICESHIP_TITLE);
-    sectionTitles.put(APPRENTICE_XC_KEY, APPRENTICESHIP_TITLE);
-    sectionTitles.put(APPRENTICE_XD_KEY, APPRENTICESHIP_TITLE);
-    sectionTitles.put(APPRENTICE_XE_KEY, APPRENTICESHIP_TITLE);
-    sectionTitles.put(APPRENTICE_XF_KEY, APPRENTICESHIP_TITLE);
-    sectionTitles.put(APPRENTICE_XG_KEY, APPRENTICESHIP_TITLE);
-    sectionTitles.put(APPRENTICE_XH_KEY, APPRENTICESHIP_TITLE);
+    sectionTitles.put(APPRENTICE_TOTAL_KEY, YOUTH_WORK_IN_TRADES_TITLE);
+    sectionTitles.put(APPRENTICE_XA_KEY, YOUTH_WORK_IN_TRADES_TITLE);
+    sectionTitles.put(APPRENTICE_XB_KEY, YOUTH_WORK_IN_TRADES_TITLE);
+    sectionTitles.put(APPRENTICE_XC_KEY, YOUTH_WORK_IN_TRADES_TITLE);
+    sectionTitles.put(APPRENTICE_XD_KEY, YOUTH_WORK_IN_TRADES_TITLE);
+    sectionTitles.put(APPRENTICE_XE_KEY, YOUTH_WORK_IN_TRADES_TITLE);
+    sectionTitles.put(APPRENTICE_XF_KEY, YOUTH_WORK_IN_TRADES_TITLE);
+    sectionTitles.put(APPRENTICE_XG_KEY, YOUTH_WORK_IN_TRADES_TITLE);
+    sectionTitles.put(APPRENTICE_XH_KEY, YOUTH_WORK_IN_TRADES_TITLE);
     sectionTitles.put(ALL_TOTAL_KEY, ALL_CAREER_PROGRAM_TITLE);
     sectionTitles.put(ALL_XA_KEY, ALL_CAREER_PROGRAM_TITLE);
     sectionTitles.put(ALL_XB_KEY, ALL_CAREER_PROGRAM_TITLE);
@@ -297,7 +297,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
     rowTitles.put(TECH_YOUTH_XF_KEY, XF_CODE_TITLE);
     rowTitles.put(TECH_YOUTH_XG_KEY, XG_CODE_TITLE);
     rowTitles.put(TECH_YOUTH_XH_KEY, XH_CODE_TITLE);
-    rowTitles.put(APPRENTICE_TOTAL_KEY, APPRENTICESHIP_TITLE);
+    rowTitles.put(APPRENTICE_TOTAL_KEY, YOUTH_WORK_IN_TRADES_TITLE);
     rowTitles.put(APPRENTICE_XA_KEY, XA_CODE_TITLE);
     rowTitles.put(APPRENTICE_XB_KEY, XB_CODE_TITLE);
     rowTitles.put(APPRENTICE_XC_KEY, XC_CODE_TITLE);
@@ -324,7 +324,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
     rowTitles.put(PREP_TOTAL_KEY, CAREER_PREPARATION_TITLE);
     rowTitles.put(COOP_TOTAL_KEY, COOP_EDUCATION_TITLE);
     rowTitles.put(TECH_YOUTH_TOTAL_KEY, TECH_YOUTH_TITLE);
-    rowTitles.put(APPRENTICE_TOTAL_KEY, APPRENTICESHIP_TITLE);
+    rowTitles.put(APPRENTICE_TOTAL_KEY, YOUTH_WORK_IN_TRADES_TITLE);
     rowTitles.put(ALL_TOTAL_KEY, ALL_CAREER_PROGRAM_TITLE);
     return rowTitles;
   }
