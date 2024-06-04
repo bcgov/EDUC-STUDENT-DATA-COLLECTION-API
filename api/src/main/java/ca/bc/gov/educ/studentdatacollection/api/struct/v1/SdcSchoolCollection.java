@@ -17,4 +17,8 @@ import java.io.Serializable;
 @ToString(callSuper = true)
 public class SdcSchoolCollection extends BaseSdcSchoolCollection implements Serializable {
   private static final long serialVersionUID = 1L;
+
+  private String submissionDueDate;
+
+  private String duplicationResolutionDueDate;
 }

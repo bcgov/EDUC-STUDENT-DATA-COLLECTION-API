@@ -30,6 +30,8 @@ public interface SdcSchoolCollectionMapper {
   @Mapping(target = "collectionTypeCode", source = "sdcSchoolCollectionEntity.collectionEntity.collectionTypeCode")
   @Mapping(target = "collectionOpenDate", source = "sdcSchoolCollectionEntity.collectionEntity.openDate")
   @Mapping(target = "collectionCloseDate", source = "sdcSchoolCollectionEntity.collectionEntity.closeDate")
+  @Mapping(target = "submissionDueDate", source = "sdcSchoolCollectionEntity.collectionEntity.submissionDueDate")
+  @Mapping(target = "duplicationResolutionDueDate", source = "sdcSchoolCollectionEntity.collectionEntity.duplicationResolutionDueDate")
   @Mapping(target = "students", ignore = true)
   SdcSchoolCollection toStructure(SdcSchoolCollectionEntity sdcSchoolCollectionEntity);
 }
