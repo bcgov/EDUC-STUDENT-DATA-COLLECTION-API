@@ -38,4 +38,6 @@ public class SdcDistrictCollection extends BaseRequest {
 
   private String submissionDueDate;
 
+  private String duplicationResolutionDueDate;
+
 }

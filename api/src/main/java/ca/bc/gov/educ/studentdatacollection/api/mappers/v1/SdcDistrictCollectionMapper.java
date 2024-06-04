@@ -21,5 +21,6 @@ public interface SdcDistrictCollectionMapper {
   @Mapping(target = "collectionOpenDate", source = "sdcDistrictCollectionEntity.collectionEntity.openDate")
   @Mapping(target = "collectionCloseDate", source = "sdcDistrictCollectionEntity.collectionEntity.closeDate")
   @Mapping(target = "submissionDueDate", source = "sdcDistrictCollectionEntity.collectionEntity.submissionDueDate")
+  @Mapping(target = "duplicationResolutionDueDate", source = "sdcDistrictCollectionEntity.collectionEntity.duplicationResolutionDueDate")
   SdcDistrictCollection toStructure(SdcDistrictCollectionEntity sdcDistrictCollectionEntity);
 }
