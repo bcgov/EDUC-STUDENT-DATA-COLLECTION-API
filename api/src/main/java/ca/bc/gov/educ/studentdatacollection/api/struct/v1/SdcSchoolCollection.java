@@ -19,6 +19,4 @@ public class SdcSchoolCollection extends BaseSdcSchoolCollection implements Seri
   private static final long serialVersionUID = 1L;
 
   private String submissionDueDate;
-
-  private String duplicationResolutionDueDate;
 }
