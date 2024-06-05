@@ -356,7 +356,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
-    var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, UUID.randomUUID()));
+    sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, UUID.randomUUID()));
 
 
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/monitorIndySdcSchoolCollections").with(mockAuthority))
