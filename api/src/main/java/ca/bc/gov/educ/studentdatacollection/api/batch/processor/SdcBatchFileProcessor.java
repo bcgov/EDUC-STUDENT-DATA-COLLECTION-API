@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFileHeader;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFileTrailer;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcStudentDetails;
 import ca.bc.gov.educ.studentdatacollection.api.batch.validator.SdcFileValidator;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
@@ -23,6 +24,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollect
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDistrictCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
@@ -162,7 +164,8 @@ public class SdcBatchFileProcessor {
       var school = this.sdcFileValidator.getSchoolUsingMincode(guid, ds);
 
       var districtCollection = this.sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(UUID.fromString(sdcDistrictCollectionID));
-      this.sdcFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, school, String.valueOf(districtCollection.get().getDistrictID()), ds);
+      var districtCollectionGet = districtCollection.get();
+      this.sdcFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, school, String.valueOf(districtCollectionGet.getDistrictID()), ds);
 
       var sdcSchoolCollection = this.sdcSchoolCollectionRepository.findActiveCollectionBySchoolId(UUID.fromString(school.get().getSchoolId()));
       var sdcSchoolCollectionID = sdcSchoolCollection.get().getSdcSchoolCollectionID();
@@ -172,6 +175,9 @@ public class SdcBatchFileProcessor {
 
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
+
+      districtCollectionGet.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.NEW.getCode());
+      this.sdcDistrictCollectionRepository.save(districtCollectionGet);
 
       return this.processLoadedRecordsInBatchFile(guid, batchFile, fileUpload, String.valueOf(sdcSchoolCollectionID), true);
     } catch (final FileUnProcessableException fileUnProcessableException) { // system needs to persist the data in this case.
