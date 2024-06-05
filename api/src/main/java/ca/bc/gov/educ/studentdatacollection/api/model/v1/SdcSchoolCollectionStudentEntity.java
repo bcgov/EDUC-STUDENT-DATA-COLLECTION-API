@@ -199,6 +199,6 @@ public class SdcSchoolCollectionStudentEntity {
   }
 
   public int getUniqueObjectHash() {
-    return Objects.hash(localID, studentPen, legalFirstName, legalMiddleNames, legalLastName, usualFirstName, usualMiddleNames, usualLastName, dob, gender, specialEducationCategoryCode, schoolFundingCode, nativeAncestryInd, homeLanguageSpokenCode, otherCourses, supportBlocks, enrolledGradeCode, enrolledProgramCodes, careerProgramCode, numberOfCourses, bandCode, postalCode);
+    return Objects.hash(sdcSchoolCollection.getSdcSchoolCollectionID(), localID, studentPen, legalFirstName, legalMiddleNames, legalLastName, usualFirstName, usualMiddleNames, usualLastName, dob, gender, specialEducationCategoryCode, schoolFundingCode, nativeAncestryInd, homeLanguageSpokenCode, otherCourses, supportBlocks, enrolledGradeCode, enrolledProgramCodes, careerProgramCode, numberOfCourses, bandCode, postalCode);
   }
 }

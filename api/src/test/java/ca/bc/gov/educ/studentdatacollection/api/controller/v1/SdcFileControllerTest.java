@@ -456,7 +456,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     stud1.setUpdateDate(LocalDateTime.now());
 
     SdcDuplicateStudentEntity stud2 = new SdcDuplicateStudentEntity();
-    stud2.setSdcSchoolCollectionID(UUID.randomUUID());
+    stud2.setSdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     stud2.setSdcDuplicateEntity(dup);
     stud2.setSdcSchoolCollectionStudentEntity(students.get(1));
     stud2.setCreateUser("ABC");
