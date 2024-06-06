@@ -62,6 +62,13 @@ public interface CollectionEndpoint {
   @ResponseStatus(NO_CONTENT)
   ResponseEntity<Void> deleteCollection(@PathVariable UUID collectionID);
 
+  @PostMapping("/{collectionID}/in-province-duplicates")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
+  @Tag(name = "Collection Entity", description = "Endpoints for collection entity.")
+  @Transactional
+  ResponseEntity<Void> getProvinceDuplicates(@PathVariable("collectionID") UUID collectionID);
+
   @GetMapping("/{collectionID}/monitorSdcDistrictCollections")
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})

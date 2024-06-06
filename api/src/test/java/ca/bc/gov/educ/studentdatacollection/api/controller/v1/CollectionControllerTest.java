@@ -6,9 +6,11 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDuplicateRepository;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -17,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.val;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -32,6 +35,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,6 +63,8 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   @Autowired
   CollectionTypeCodeRepository CollectionTypeCodeRepository;
   @Autowired
+  SdcDuplicateRepository sdcDuplicateRepository;
+  @Autowired
   SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   @Autowired
   SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;
@@ -76,6 +82,14 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   public void before() {
     this.CollectionTypeCodeRepository.save(this.createMockCollectionCodeEntity());
   }
+
+  @AfterEach
+  public void afterEach() {
+    this.sdcDuplicateRepository.deleteAll();
+    this.collectionRepository.deleteAll();
+    this.sdcDuplicateRepository.deleteAll();
+  }
+
 
   @Test
   void testGetCollection_WithWrongScope_ShouldReturnForbidden() throws Exception {
@@ -210,6 +224,54 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
+  void testPostProvinceDuplicates_ShouldReturnStatusCreated() throws Exception{
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity currentCollection = this.createMockCollectionEntity();
+    currentCollection.setOpenDate(LocalDateTime.now().minusDays(9));
+    this.collectionRepository.save(currentCollection);
+
+    School school1 = this.createMockSchool();
+    SdcSchoolCollectionEntity schoolCollection1 = this.createMockSdcSchoolCollectionEntity(currentCollection, UUID.fromString(school1.getSchoolId()));
+    SdcSchoolCollectionStudentEntity student1 = this.createMockSchoolStudentEntity(schoolCollection1);
+    UUID student1AssignedPen = UUID.randomUUID();
+    student1.setAssignedStudentId(student1AssignedPen);
+    this.sdcSchoolCollectionRepository.save(schoolCollection1);
+    this.sdcSchoolCollectionStudentRepository.save(student1);
+
+    School school2 = this.createMockSchool();
+    school2.setDistrictId(String.valueOf(UUID.randomUUID()));
+    SdcSchoolCollectionEntity schoolCollection2 = this.createMockSdcSchoolCollectionEntity(currentCollection, UUID.fromString(school2.getSchoolId()));
+    SdcSchoolCollectionStudentEntity student2 = this.createMockSchoolStudentEntity(schoolCollection2);
+    student2.setAssignedStudentId(student1AssignedPen);
+    SdcSchoolCollectionStudentEntity student3 = this.createMockSchoolStudentEntity(schoolCollection2);
+    this.sdcSchoolCollectionRepository.save(schoolCollection2);
+    this.sdcSchoolCollectionStudentRepository.saveAll(Arrays.asList(student2, student3));
+
+    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+
+    this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/" + currentCollection.getCollectionID() + "/in-province-duplicates").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
+
+    var dupeStudents = this.sdcDuplicateRepository.findAll();
+    assertThat(dupeStudents).hasSize(1);
+  }
+
+  @Test
+  void testPostProvinceDuplicatesWithIncorrectCollectionID_ShouldRespondWithBadRequest() throws Exception{
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    final CollectionEntity currentCollection = this.createMockCollectionEntity();
+    currentCollection.setOpenDate(LocalDateTime.now().minusDays(9));
+    this.collectionRepository.save(currentCollection);
+
+    this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID() + "/in-province-duplicates").with(mockAuthority))
+            .andDo(print()).andExpect(status().isBadRequest());
+  }
+
   void testGetMonitorSdcDistrictCollectionResponse_WithInValidId_ReturnsNotFound() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
@@ -435,4 +497,5 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsSubmitted").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalSchools").value(0));
   }
+
 }

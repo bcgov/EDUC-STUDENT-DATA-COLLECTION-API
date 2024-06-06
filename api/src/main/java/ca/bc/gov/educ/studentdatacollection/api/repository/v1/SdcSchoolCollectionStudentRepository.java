@@ -55,6 +55,24 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     """)
   List<SdcSchoolCollectionStudentEntity> findAllInDistrictDuplicateStudentsInSdcDistrictCollection(UUID sdcDistrictCollectionID);
 
+  @Query(value = """  
+    SELECT stud
+    FROM SdcSchoolCollectionStudentEntity stud, SdcSchoolCollectionEntity school
+    WHERE stud.assignedStudentId IN (SELECT innerStud.assignedStudentId
+                FROM SdcSchoolCollectionStudentEntity innerStud, SdcSchoolCollectionEntity sdcSchool
+                where sdcSchool.collectionEntity.collectionID = :collectionID
+                and sdcSchool.sdcSchoolCollectionID = innerStud.sdcSchoolCollection.sdcSchoolCollectionID
+                and innerStud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+                and innerStud.assignedStudentId is not null
+                GROUP BY innerStud.assignedStudentId
+                HAVING COUNT(innerStud.assignedStudentId) > 1)
+    and school.sdcSchoolCollectionID = stud.sdcSchoolCollection.sdcSchoolCollectionID
+    and school.collectionEntity.collectionID = :collectionID
+    and stud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+    and stud.assignedStudentId is not null
+    """)
+  List<SdcSchoolCollectionStudentEntity> findAllInProvinceDuplicateStudentsInCollection(UUID collectionID);
+
   long countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollection_SdcSchoolCollectionID(String sdcSchoolCollectionStudentStatusCode, UUID sdcSchoolCollectionID);
 
   @Query(value = """
