@@ -32,7 +32,6 @@ import java.util.*;
 @Slf4j
 public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationService<FrenchCombinedHeadcountResult> {
 
-    private static final String HEADING = "Heading";
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final RestUtils restUtils;
@@ -116,9 +115,9 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix, boolean includeKH){
         if (Objects.equals(sectionPrefix, "allFrench")) {
-            nodeMap.put(sectionPrefix + HEADING, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, false, includeKH));
+            nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, false, includeKH));
         } else {
-            nodeMap.put(sectionPrefix + HEADING, new HeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", false, true, false, includeKH));
+            nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", false, true, false, includeKH));
         }
     }
 
@@ -130,7 +129,7 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
         if (frenchCombinedHeadcountList != null) {
             for (FrenchCombinedHeadcountResult result : frenchCombinedHeadcountList) {
                 String schoolID = result.getSchoolID();
-                nodeMap.get(schoolID + HEADING).setValueForGrade(code , result.getTotalTotals());
+                nodeMap.get(schoolID).setValueForGrade(code , result.getTotalTotals());
             }
         }
     }
