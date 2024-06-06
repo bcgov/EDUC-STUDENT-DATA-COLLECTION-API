@@ -23,5 +23,6 @@ public interface CodeTableMapper {
     CollectionTypeCode toStructure(CollectionTypeCodeEntity entity);
     ProgramDuplicateTypeCode toStructure(ProgramDuplicateTypeCodeEntity entity);
     SdcSchoolCollectionStatusCode toStructure(SdcSchoolCollectionStatusCodeEntity entity);
+    SdcDistrictCollectionStatusCode toStructure(SdcDistrictCollectionStatusCodeEntity entity);
 
 }

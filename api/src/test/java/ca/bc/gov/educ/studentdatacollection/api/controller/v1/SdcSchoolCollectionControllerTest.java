@@ -606,7 +606,6 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
   @ParameterizedTest
   @CsvSource({
     "WRITE_SDC_COLLECTION",
-    "WRITE_SDC_DISTRICT_COLLECTION",
     "FAKE_SCOPE"
   })
   void testUnsubmitCollection_GivenDoesntHaveBothScopes_ShouldThrowException(String scope) throws Exception {
@@ -644,7 +643,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     mockSchoolCollection.setUpdateDate(null);
 
     this.mockMvc.perform(post(URL.BASE_URL_SCHOOL_COLLECTION + "/unsubmit")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_COLLECTION WRITE_SDC_DISTRICT_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_DISTRICT_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(mockSchoolCollection))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());

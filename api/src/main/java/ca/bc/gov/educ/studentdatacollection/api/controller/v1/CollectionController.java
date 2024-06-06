@@ -7,7 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CollectionService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.CollectionPayloadValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +84,16 @@ public class CollectionController implements CollectionEndpoint {
   public ResponseEntity<Void> deleteCollection(UUID collectionID) {
     this.collectionService.deleteCollection(collectionID);
     return ResponseEntity.noContent().build();
+  }
+
+  @Override
+  public List<MonitorSdcDistrictCollection> getMonitorSdcDistrictCollectionResponse(UUID collectionId) {
+    return this.collectionService.getMonitorSdcDistrictCollectionResponse(collectionId);
+  }
+
+  @Override
+  public MonitorIndySdcSchoolCollectionsResponse getMonitorIndySdcSchoolCollectionResponse(UUID collectionId) {
+    return this.collectionService.getMonitorIndySdcSchoolCollectionResponse(collectionId);
   }
 
   private void validatePayload(Supplier<List<FieldError>> validator) {

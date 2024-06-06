@@ -74,7 +74,7 @@ public interface SdcSchoolCollectionEndpoint {
                                                               @RequestParam(name = "sdcDistrictCollectionID", defaultValue = "") UUID sdcDistrictCollectionID);
 
   @PostMapping("/unsubmit")
-  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION') and hasAuthority('SCOPE_WRITE_SDC_DISTRICT_COLLECTION')")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_DISTRICT_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional
   @Tag(name = "Sdc School Collection", description = "Endpoints to unsubmit school collection entity.")
