@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 
 @Component
 @Slf4j
@@ -58,30 +57,6 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         List<BandResidenceHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcDistrictCollectionId(previousCollectionID);
         HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, schoolTitles);
         setResultsTableComparisonValues(currentCollectionData, previousCollectionData);
-    }
-
-    @Override
-    public void setResultsTableComparisonValues(HeadcountResultsTable collectionData, HeadcountResultsTable previousCollectionData) {
-        List<Map<String, HeadcountHeaderColumn>> rows = collectionData.getRows();
-        List<Map<String, HeadcountHeaderColumn>> prevRows = previousCollectionData.getRows();
-        IntStream.range(0, rows.size())
-                .forEach(i -> {
-                    var  currentData = collectionData.getRows().get(i);
-
-                    currentData.forEach((rowName, currentRow) -> {
-                        HeadcountHeaderColumn previousColumn =  prevRows.stream().flatMap(m -> m.entrySet().stream())
-                                .filter(v -> v.getKey().equalsIgnoreCase(TITLE) && v.getValue().getCurrentValue().equalsIgnoreCase(currentRow.getCurrentValue()))
-                                .map(Map.Entry::getValue)
-                                .findFirst()
-                                .orElse(null);
-
-                        if(previousColumn != null) {
-                            currentRow.setComparisonValue(previousColumn.getCurrentValue());
-                        } else {
-                            currentRow.setComparisonValue("0");
-                        }
-                    });
-                });
     }
 
     public void setBandTitles(List<BandResidenceHeadcountResult> result) {
