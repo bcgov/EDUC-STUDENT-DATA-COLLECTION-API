@@ -86,7 +86,7 @@ public class SdcDuplicatesService {
 
     Optional<CollectionEntity> activeCollection = collectionRepository.findActiveCollection();
 
-    if(!activeCollection.get().getCollectionID().equals(collectionID)){
+    if(activeCollection.isPresent() && !activeCollection.get().getCollectionID().equals(collectionID)){
       throw new InvalidParameterException("Provided collectionID does not match currently active collectionID.");
     }
 
