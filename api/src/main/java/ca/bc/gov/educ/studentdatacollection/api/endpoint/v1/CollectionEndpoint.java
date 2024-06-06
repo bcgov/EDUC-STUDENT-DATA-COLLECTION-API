@@ -61,4 +61,12 @@ public interface CollectionEndpoint {
   @Schema(name = "Collection", implementation = Collection.class)
   @ResponseStatus(NO_CONTENT)
   ResponseEntity<Void> deleteCollection(@PathVariable UUID collectionID);
+
+  @PostMapping("/{collectionID}/in-province-duplicates")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
+  @Tag(name = "Collection Entity", description = "Endpoints for collection entity.")
+  @Transactional
+  ResponseEntity<Void> getProvinceDuplicates(@PathVariable("collectionID") UUID collectionID);
+
 }

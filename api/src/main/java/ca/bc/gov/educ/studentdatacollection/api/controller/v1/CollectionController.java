@@ -5,8 +5,10 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CollectionMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CollectionService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.CollectionPayloadValidator;
@@ -32,14 +34,16 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 public class CollectionController implements CollectionEndpoint {
 
   private static final CollectionMapper collectionMapper = CollectionMapper.mapper;
+  private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
 
   private final CollectionPayloadValidator collectionPayloadValidator;
   private final CollectionService collectionService;
+  private final SdcDuplicatesService sdcDuplicatesService;
 
   @Autowired
-  public CollectionController(final CollectionService collectionService, final CollectionPayloadValidator collectionPayloadValidator) {
+  public CollectionController(final CollectionService collectionService, final CollectionPayloadValidator collectionPayloadValidator, final SdcDuplicatesService sdcDuplicatesService) {
     this.collectionService = collectionService;
-
+    this.sdcDuplicatesService = sdcDuplicatesService;
     this.collectionPayloadValidator = collectionPayloadValidator;
   }
 
@@ -93,6 +97,12 @@ public class CollectionController implements CollectionEndpoint {
       error.addValidationErrors(validationResult);
       throw new InvalidPayloadException(error);
     }
+  }
+
+  @Override
+  public ResponseEntity<Void> getProvinceDuplicates(UUID collectionID) {
+    this.sdcDuplicatesService.getAllInProvinceDuplicates(collectionID);
+    return ResponseEntity.ok().build();
   }
 
 }
