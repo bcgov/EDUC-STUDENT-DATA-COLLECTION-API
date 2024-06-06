@@ -27,11 +27,8 @@ class PurgeOldSagaRecordsSchedulerTest extends BaseStudentDataCollectionAPITest 
 
   @Test
   void pollSagaTableAndPurgeOldRecords_givenOldRecordsPresent_shouldBeDeleted() {
-    final var payload = "{\n" +
-        "  \"createUser\": \"ADMIN\",\n" +
-        "  \"updateUser\": \"ADMIN\"\n" +
-        "}";
-    final var saga = this.getSaga(payload, UUID.fromString("ac334a38-715f-1340-8171-607a59d0000a"));
+    final var payload = "{\"createUser\": \"ADMIN\", \"updateUser\": \"ADMIN\"}";
+    final var saga = this.getSaga(payload);
     this.repository.save(saga);
     this.sagaEventRepository.save(this.getSagaEvent(saga,payload));
     this.purgeOldSagaRecordsScheduler.setSagaRecordStaleInDays(0);
@@ -41,7 +38,7 @@ class PurgeOldSagaRecordsSchedulerTest extends BaseStudentDataCollectionAPITest 
   }
 
 
-  private SdcSagaEntity getSaga(final String payload, final UUID penRequestId) {
+  private SdcSagaEntity getSaga(final String payload) {
     return SdcSagaEntity
         .builder()
         .payload(payload)
@@ -49,8 +46,8 @@ class PurgeOldSagaRecordsSchedulerTest extends BaseStudentDataCollectionAPITest 
         .status(SagaStatusEnum.STARTED.toString())
         .sagaState(EventType.INITIATED.toString())
         .createDate(LocalDateTime.now())
-        .createUser("STUDENT_PROFILE_SAGA_API")
-        .updateUser("STUDENT_PROFILE_SAGA_API")
+        .createUser("SDC_API")
+        .updateUser("SDC_API")
         .updateDate(LocalDateTime.now())
         .build();
   }
