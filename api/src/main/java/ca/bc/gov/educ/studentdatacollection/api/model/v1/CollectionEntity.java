@@ -36,6 +36,10 @@ public class CollectionEntity {
   @UpperCase
   private String collectionTypeCode;
 
+  @Column(name = "COLLECTION_STATUS_CODE", nullable = false, length = 10)
+  @UpperCase
+  private String collectionStatusCode;
+
   @Column(name = "OPEN_DATE")
   private LocalDateTime openDate;
 

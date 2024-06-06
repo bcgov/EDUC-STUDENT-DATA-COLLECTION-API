@@ -23,6 +23,9 @@ public class Collection extends BaseRequest implements Serializable {
 
   private String collectionID;
 
+  @NotNull(message = "collectionStatusCode cannot be null")
+  private String collectionStatusCode;
+
   @Size(max = 10)
   @NotNull(message = "collectionTypeCode cannot be null")
   private String collectionTypeCode;
