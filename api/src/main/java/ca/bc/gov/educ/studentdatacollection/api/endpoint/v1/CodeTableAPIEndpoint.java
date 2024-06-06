@@ -143,4 +143,12 @@ public interface CodeTableAPIEndpoint {
     @Tag(name = "School Collection Status Codes", description = "Endpoints to get school collection status codes.")
     @Schema(name = "SdcSchoolCollectionStatusCodes", implementation = SdcSchoolCollectionStatusCode.class)
     List<SdcSchoolCollectionStatusCode> getSdcSchoolCollectionStatusCodes();
+
+    @PreAuthorize("hasAuthority('SCOPE_READ_COLLECTION_CODES')")
+    @GetMapping(URL.SDC_DISTRICT_COLLECTION_STATUS_CODES)
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
+    @Transactional(readOnly = true)
+    @Tag(name = "District Collection Status Codes", description = "Endpoints to get district collection status codes.")
+    @Schema(name = "SdcDistrictCollectionStatusCodes", implementation = SdcDistrictCollectionStatusCode.class)
+    List<SdcDistrictCollectionStatusCode> getSdcDistrictCollectionStatusCodes();
 }

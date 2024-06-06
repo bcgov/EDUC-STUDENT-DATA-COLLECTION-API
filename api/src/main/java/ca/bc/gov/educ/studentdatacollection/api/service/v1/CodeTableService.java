@@ -25,6 +25,7 @@ public class CodeTableService {
   private final SchoolFundingGroupCodeRepository schoolFundingGroupCodeRepository;
   private final ProgramDuplicateTypeCodeRepository programDuplicateTypeCodeRepository;
   private final SdcSchoolCollectionStatusCodeRepository sdcSchoolCollectionStatusCodeRepository;
+  private final SdcDistrictCollectionStatusCodeRepository sdcDistrictCollectionStatusCodeRepository;
 
   /**
    * Instantiates a new Code table service.
@@ -41,10 +42,11 @@ public class CodeTableService {
    * @param schoolGradeCodeRepository
    * @param schoolFundingGroupCodeRepository
    * @param sdcSchoolCollectionStatusCodeRepository
+   * @param sdcDistrictCollectionStatusCodeRepository
    */
   @Autowired
   public CodeTableService(CollectionTypeCodeRepository collectionCodeRepository, EnrolledProgramCodeRepository enrolledProgramCodeRepository, CareerProgramCodeRepository careerProgramCodeRepository, HomeLanguageSpokenCodeRepository homeLanguageSpokenCodeRepository, BandCodeRepository bandCodeRepository, FundingCodeRepository fundingCodeRepository, EnrolledGradeCodeRepository enrolledGradeCodeRepository, SpecialEducationCategoryRepository specialEducationCategoryRepository,
-                          GenderCodeRepository genderCodeRepository, SchoolGradeCodeRepository schoolGradeCodeRepository, SchoolFundingGroupCodeRepository schoolFundingGroupCodeRepository, ProgramDuplicateTypeCodeRepository programDuplicateTypeCodeRepository, SdcSchoolCollectionStatusCodeRepository sdcSchoolCollectionStatusCodeRepository) {
+                          GenderCodeRepository genderCodeRepository, SchoolGradeCodeRepository schoolGradeCodeRepository, SchoolFundingGroupCodeRepository schoolFundingGroupCodeRepository, ProgramDuplicateTypeCodeRepository programDuplicateTypeCodeRepository, SdcSchoolCollectionStatusCodeRepository sdcSchoolCollectionStatusCodeRepository, SdcDistrictCollectionStatusCodeRepository sdcDistrictCollectionStatusCodeRepository) {
     this.collectionCodeRepository = collectionCodeRepository;
     this.enrolledProgramCodeRepository = enrolledProgramCodeRepository;
     this.careerProgramCodeRepository = careerProgramCodeRepository;
@@ -58,6 +60,7 @@ public class CodeTableService {
     this.schoolFundingGroupCodeRepository = schoolFundingGroupCodeRepository;
     this.programDuplicateTypeCodeRepository = programDuplicateTypeCodeRepository;
     this.sdcSchoolCollectionStatusCodeRepository = sdcSchoolCollectionStatusCodeRepository;
+    this.sdcDistrictCollectionStatusCodeRepository = sdcDistrictCollectionStatusCodeRepository;
   }
 
   @Cacheable("enrolledProgramCodes")
@@ -129,4 +132,8 @@ public class CodeTableService {
     return sdcSchoolCollectionStatusCodeRepository.findAll();
   }
 
+  @Cacheable("districtCollectionStatusCodes")
+  public List<SdcDistrictCollectionStatusCodeEntity> getSdcDistrictCollectionStatusCodesList() {
+    return sdcDistrictCollectionStatusCodeRepository.findAll();
+  }
 }
