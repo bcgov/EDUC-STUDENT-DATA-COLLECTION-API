@@ -71,6 +71,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
           "GRADE_ENROLLMENT_HEADCOUNT",
           "CAREER_HEADCOUNT",
           "FRENCH_HEADCOUNT",
+          "DIS_FRENCH_HEADCOUNT",
           "INDIGENOUS_HEADCOUNT",
           "BAND_RESIDENCE_HEADCOUNT",
           "ELL_HEADCOUNT",
