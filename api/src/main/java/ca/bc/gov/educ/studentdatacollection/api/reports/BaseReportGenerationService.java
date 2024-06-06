@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
@@ -110,6 +111,19 @@ public abstract class BaseReportGenerationService<T> {
       reportNode.setShowKH("true");
     }
     return school;
+  }
+
+  protected void setReportTombstoneValuesDis(SdcDistrictCollectionEntity sdcDistrictCollection, HeadcountReportNode reportNode){
+    var district = restUtils.getDistrictByDistrictID(sdcDistrictCollection.getDistrictID().toString());
+    if(district.isEmpty()){
+      log.error("District could not be found while writing PDF report for grade enrollment :: " + sdcDistrictCollection.getDistrictID());
+      throw new EntityNotFoundException(District.class, "District could not be found while writing PDF report for grade enrollment :: ", sdcDistrictCollection.getDistrictID().toString());
+    }
+
+    reportNode.setReportGeneratedDate("Report Generated: " + LocalDate.now().format(formatter));
+    reportNode.setDistrictNumberAndName(district.get().getDistrictNumber() + " - " + district.get().getDisplayName());
+    reportNode.setCollectionNameAndYear(StringUtils.capitalize(sdcDistrictCollection.getCollectionEntity().getCollectionTypeCode().toLowerCase()) + " " + sdcDistrictCollection.getCollectionEntity().getOpenDate().getYear() + " Collection");
+    reportNode.setShowKH("true");
   }
 
   protected boolean isIndependentSchool(School school){
