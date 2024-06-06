@@ -96,6 +96,11 @@ public class HeadcountHelper<T extends HeadcountResult> {
     headcountHeader.setOrderedColumnTitles(newOrderedTitles);
   }
 
+  public void stripPreSchoolSection(HeadcountResultsTable collectionData) {
+    List<Map<String, HeadcountHeaderColumn>> newRows = collectionData.getRows().stream().filter(row -> !row.get("section").getCurrentValue().equalsIgnoreCase("Preschool Aged")).toList();
+    collectionData.setRows(newRows);
+  }
+
   public HeadcountResultsTable convertHeadcountResults(List<T> results) {
     HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
     List<String> columnTitles = new ArrayList<>(gradeCodes);

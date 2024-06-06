@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.batch.processor;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
@@ -356,6 +357,44 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
 
     final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
+  }
+
+  @Test
+  @Transactional
+  void testProcessDistrictSdcBatchFileFromTSW_Given1RowValidFile_ShouldCreateRecordsInDBAndResetDistrictStatus() throws IOException {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    var districtID = UUID.randomUUID();
+    var districtCollectionEntity = createMockSdcDistrictCollectionEntity(collection, districtID);
+    districtCollectionEntity.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.SUBMITTED.getCode());
+    var districtCollection = sdcDistrictCollectionRepository.save(districtCollectionEntity);
+    school.setDistrictId(districtID.toString());
+    sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.std").build();
+
+    var response = this.sdcBatchProcessor.processDistrictSdcBatchFile(fileUpload, districtCollection.getSdcDistrictCollectionID().toString());
+    assertThat(response).isNotNull();
+
+    final var result = this.sdcSchoolCollectionRepository.findAll();
+    assertThat(result).hasSize(1);
+
+    final var entity = result.get(0);
+    assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUpload.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("DIS_UPLOAD");
+
+    final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    assertThat(students).isNotNull();
+
+    var freshDistrict = sdcDistrictCollectionRepository.findById(districtCollection.getSdcDistrictCollectionID());
+    assertThat(freshDistrict).isNotEmpty();
+    assertThat(freshDistrict.get().getSdcDistrictCollectionStatusCode()).isEqualTo(SdcDistrictCollectionStatus.NEW.getCode());
   }
 
   @Test

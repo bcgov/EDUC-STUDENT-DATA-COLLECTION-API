@@ -71,10 +71,8 @@ public class SdcSchoolCollectionService {
 
   @Transactional(propagation = Propagation.MANDATORY)
   public SdcSchoolCollectionEntity saveSdcSchoolCollection(SdcSchoolCollectionEntity curSDCSchoolEntity, List<SdcSchoolCollectionStudentEntity> finalStudents, List<UUID> removedStudents) {
-    log.debug("Removing duplicate records by sdcSchoolCollectionStudentIDs: {}", removedStudents);
-    var duplicatesToDelete = this.sdcDuplicateRepository.findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentIDIn(removedStudents);
-    log.debug("Removing {} duplicate records from SDC school collection: {}", duplicatesToDelete.size(), curSDCSchoolEntity.getSdcSchoolCollectionID());
-    this.sdcDuplicateRepository.deleteAll(duplicatesToDelete);
+    log.debug("Removing duplicate records for SDC school collection: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
+    this.sdcDuplicateRepository.deleteAllBySdcDuplicateStudentEntities_SdcSchoolCollectionID(curSDCSchoolEntity.getSdcSchoolCollectionID());
 
     List<SdcSchoolCollectionStudentEntity> newStudents = finalStudents.stream().filter(sdcSchoolCollectionStudentEntity -> sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID() == null).toList();
     curSDCSchoolEntity.getSDCSchoolStudentEntities().clear();

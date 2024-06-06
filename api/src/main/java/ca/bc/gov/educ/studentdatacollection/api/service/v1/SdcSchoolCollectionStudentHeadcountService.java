@@ -41,6 +41,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
       enrollmentHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList, collectionData);
     }
     enrollmentHeadcountHelper.stripZeroColumns(headcountHeaderList.get(1));
+    enrollmentHeadcountHelper.stripPreSchoolSection(collectionData);
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
   }
 

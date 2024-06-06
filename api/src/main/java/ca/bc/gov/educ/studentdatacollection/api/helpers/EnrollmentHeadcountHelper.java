@@ -169,6 +169,10 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
   }
   private Map<String, String> getSelectionTitles() {
     Map<String, String> sectionTitles = new HashMap<>();
+    sectionTitles.put(UNDER_SCHOOL_AGED_KEY, UNDER_SCHOOL_AGED_TITLE);
+    sectionTitles.put(UNDER_SCHOOL_AGED_HEADCOUNT_KEY, UNDER_SCHOOL_AGED_TITLE);
+    sectionTitles.put(UNDER_SCHOOL_AGED_ELIGIBLEKEY, UNDER_SCHOOL_AGED_TITLE);
+    sectionTitles.put(UNDER_SCHOOL_AGED_FTE_KEY, UNDER_SCHOOL_AGED_TITLE);
     sectionTitles.put(SCHOOL_AGED_KEY, SCHOOL_AGED_TITLE);
     sectionTitles.put(SCHOOL_AGED_HEADCOUNT_KEY, SCHOOL_AGED_TITLE);
     sectionTitles.put(SCHOOL_AGED_ELIGIBLEKEY, SCHOOL_AGED_TITLE);
@@ -185,6 +189,10 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
   }
   private Map<String, String> getRowTitles() {
     Map<String, String> rowTitles = new LinkedHashMap<>();
+    rowTitles.put(UNDER_SCHOOL_AGED_KEY, UNDER_SCHOOL_AGED_TITLE);
+    rowTitles.put(UNDER_SCHOOL_AGED_HEADCOUNT_KEY, HEADCOUNT_TITLE);
+    rowTitles.put(UNDER_SCHOOL_AGED_ELIGIBLEKEY, ELIGIBLE_FTE_TITLE);
+    rowTitles.put(UNDER_SCHOOL_AGED_FTE_KEY, TOTAL_FTE_TITLE);
     rowTitles.put(SCHOOL_AGED_KEY, SCHOOL_AGED_TITLE);
     rowTitles.put(SCHOOL_AGED_HEADCOUNT_KEY, HEADCOUNT_TITLE);
     rowTitles.put(SCHOOL_AGED_ELIGIBLEKEY, ELIGIBLE_FTE_TITLE);

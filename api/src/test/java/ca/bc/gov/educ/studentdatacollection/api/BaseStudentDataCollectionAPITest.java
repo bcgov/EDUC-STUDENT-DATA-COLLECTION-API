@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -113,6 +114,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setCollectionTypeCode("SEPTEMBER");
     sdcEntity.setOpenDate(LocalDateTime.now());
     sdcEntity.setCloseDate(LocalDateTime.now().plusDays(5));
+    sdcEntity.setCollectionStatusCode(CollectionStatus.INPROGRESS.getCode());
     sdcEntity.setSnapshotDate(LocalDate.of(sdcEntity.getOpenDate().getYear(), 9, 29));
     sdcEntity.setSubmissionDueDate(sdcEntity.getSnapshotDate().plusDays(3));
     sdcEntity.setDuplicationResolutionDueDate(sdcEntity.getSnapshotDate().plusDays(6));
@@ -149,7 +151,7 @@ public abstract class BaseStudentDataCollectionAPITest {
 
   public SdcSchoolCollectionStatusCodeEntity createSdcSchoolCollectionStatusCodeData() {
     return SdcSchoolCollectionStatusCodeEntity.builder().sdcSchoolCollectionStatusCode("NEW").label("New").description("Collection record has been created")
-            .displayOrder(10).effectiveDate(String.valueOf(LocalDateTime.now())).expiryDate(String.valueOf(LocalDateTime.now().plusYears(10))).createUser("TEST").updateUser("TEST").build();
+            .displayOrder(10).effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.now().plusYears(10)).createUser("TEST").updateUser("TEST").build();
   }
 
   public IndependentSchoolFundingGroupSnapshotEntity createMockIndependentSchoolFundingGroupSnapshotEntity(UUID schoolID, UUID collectionID){
