@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
@@ -47,6 +48,7 @@ public class SdcService {
   public void startSDCCollection(CollectionTypeCodeEntity collectionCode, List<School> listOfSchools) {
     CollectionEntity collectionEntity = CollectionEntity.builder()
       .collectionTypeCode(collectionCode.getCollectionTypeCode())
+      .collectionStatusCode(CollectionStatus.INPROGRESS.getCode())
       .openDate(collectionCode.getOpenDate())
       .closeDate(collectionCode.getCloseDate())
       .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)

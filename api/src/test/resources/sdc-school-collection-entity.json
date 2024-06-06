@@ -3,6 +3,7 @@
   "collectionEntity": {
     "collectionID": "a31165d9-6246-4d04-90f3-83bf7414b8c7",
     "collectionTypeCode": "JAN",
+    "collectionStatusCode": "INPROGRESS",
     "openDate": "2023-01-01T00:00:00",
     "closeDate": "2023-01-31T23:59:59",
     "createUser": "john_doe",
