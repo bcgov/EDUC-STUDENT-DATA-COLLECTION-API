@@ -141,7 +141,7 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     HeadcountReportNode reportNode = new HeadcountReportNode();
     setReportTombstoneValuesDis(sdcDistrictCollection, reportNode);
 
-    var nodeMap = generateNodeMap(true);
+    var nodeMap = generateNodeMapForDis(true);
 
     mappedResults.forEach(combinedFrenchHeadcountResult -> setValueForGrade(nodeMap, combinedFrenchHeadcountResult));
 
@@ -162,6 +162,17 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     addValuesForSectionToMap(nodeMap, "coreFrench", "Core French", "00", includeKH);
     addValuesForSectionToMap(nodeMap, "earlyFrenchImmersion", "Early French Immersion", "10", includeKH);
     addValuesForSectionToMap(nodeMap, "lateFrenchImmersion", "Late French Immersion", "20", includeKH);
+    addValuesForSectionToMap(nodeMap, "allFrenchPrograms", "All French Programs", "30", includeKH);
+
+    return nodeMap;
+  }
+
+  public HashMap<String, HeadcountChildNode> generateNodeMapForDis(boolean includeKH){
+    HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
+    addValuesForSectionToMap(nodeMap, "coreFrench", "Core French", "00", includeKH);
+    addValuesForSectionToMap(nodeMap, "earlyFrenchImmersion", "Early French Immersion", "10", includeKH);
+    addValuesForSectionToMap(nodeMap, "lateFrenchImmersion", "Late French Immersion", "20", includeKH);
+    addValuesForSectionToMap(nodeMap, "csf", "Programme Francophone", "30", includeKH);
     addValuesForSectionToMap(nodeMap, "allFrenchPrograms", "All French Programs", "40", includeKH);
 
     return nodeMap;
