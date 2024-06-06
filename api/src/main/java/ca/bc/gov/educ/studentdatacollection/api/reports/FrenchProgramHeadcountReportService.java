@@ -143,7 +143,7 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
 
     var nodeMap = generateNodeMap(true);
 
-    mappedResults.forEach(combinedFrenchHeadcountResult -> setValueForGrade(nodeMap, (FrenchHeadcountResult) combinedFrenchHeadcountResult));
+    mappedResults.forEach(combinedFrenchHeadcountResult -> setValueForGrade(nodeMap, combinedFrenchHeadcountResult));
 
     reportNode.setPrograms(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
     mainNode.setReport(reportNode);
@@ -203,6 +203,32 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     nodeMap.get("csfHeading").setValueForGrade(code, frenchHeadcountResult.getTotalFrancophone());
     nodeMap.get("csfSchoolAged").setValueForGrade(code, frenchHeadcountResult.getSchoolAgedFrancophone());
     nodeMap.get("csfAdult").setValueForGrade(code, frenchHeadcountResult.getAdultFrancophone());
+  }
+
+  public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, FrenchCombinedHeadcountResult frenchCombinedHeadcountResult){
+    Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(frenchCombinedHeadcountResult.getEnrolledGradeCode());
+    var code = optionalCode.orElseThrow(() ->
+            new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", frenchCombinedHeadcountResult.getEnrolledGradeCode()));
+
+    nodeMap.get("coreFrenchHeading").setValueForGrade(code, frenchCombinedHeadcountResult.getTotalCoreFrench());
+    nodeMap.get("coreFrenchSchoolAged").setValueForGrade(code, frenchCombinedHeadcountResult.getSchoolAgedCoreFrench());
+    nodeMap.get("coreFrenchAdult").setValueForGrade(code, frenchCombinedHeadcountResult.getAdultCoreFrench());
+
+    nodeMap.get("earlyFrenchImmersionHeading").setValueForGrade(code, frenchCombinedHeadcountResult.getTotalEarlyFrench());
+    nodeMap.get("earlyFrenchImmersionSchoolAged").setValueForGrade(code, frenchCombinedHeadcountResult.getSchoolAgedEarlyFrench());
+    nodeMap.get("earlyFrenchImmersionAdult").setValueForGrade(code, frenchCombinedHeadcountResult.getAdultEarlyFrench());
+
+    nodeMap.get("lateFrenchImmersionHeading").setValueForGrade(code, frenchCombinedHeadcountResult.getTotalLateFrench());
+    nodeMap.get("lateFrenchImmersionSchoolAged").setValueForGrade(code, frenchCombinedHeadcountResult.getSchoolAgedLateFrench());
+    nodeMap.get("lateFrenchImmersionAdult").setValueForGrade(code, frenchCombinedHeadcountResult.getAdultLateFrench());
+
+    nodeMap.get("csfHeading").setValueForGrade(code, frenchCombinedHeadcountResult.getTotalFrancophone());
+    nodeMap.get("csfSchoolAged").setValueForGrade(code, frenchCombinedHeadcountResult.getSchoolAgedFrancophone());
+    nodeMap.get("csfAdult").setValueForGrade(code, frenchCombinedHeadcountResult.getAdultFrancophone());
+
+    nodeMap.get("allFrenchProgramsHeading").setValueForGrade(code, frenchCombinedHeadcountResult.getTotalTotals());
+    nodeMap.get("allFrenchProgramsSchoolAged").setValueForGrade(code, frenchCombinedHeadcountResult.getSchoolAgedTotals());
+    nodeMap.get("allFrenchProgramsAdult").setValueForGrade(code, frenchCombinedHeadcountResult.getAdultTotals());
   }
 
 }
