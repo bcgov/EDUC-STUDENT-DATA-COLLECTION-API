@@ -81,7 +81,7 @@ public class SdcDuplicatesService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void getAllInProvinceDuplicates(UUID collectionID){
+  public void generateAllProvincialDuplicates(UUID collectionID){
     //TODO: add check for collection status to prevent running this multiple times for a single collection
 
     Optional<CollectionEntity> activeCollection = collectionRepository.findActiveCollection();

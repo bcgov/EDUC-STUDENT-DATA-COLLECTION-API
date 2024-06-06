@@ -113,7 +113,7 @@ public class CollectionController implements CollectionEndpoint {
 
   @Override
   public ResponseEntity<Void> getProvinceDuplicates(UUID collectionID) {
-    this.sdcDuplicatesService.getAllInProvinceDuplicates(collectionID);
+    this.sdcDuplicatesService.generateAllProvincialDuplicates(collectionID);
     return ResponseEntity.ok().build();
   }
 
