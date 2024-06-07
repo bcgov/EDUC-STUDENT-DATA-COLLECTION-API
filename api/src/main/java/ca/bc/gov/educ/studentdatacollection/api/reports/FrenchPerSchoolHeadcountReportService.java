@@ -85,7 +85,7 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
         HeadcountReportNode reportNode = new HeadcountReportNode();
         setReportTombstoneValuesDis(sdcDistrictCollection, reportNode);
 
-        var nodeMap = generateNodeMap(true);
+        var nodeMap = generateNodeMap(false);
 
         mappedResults.forEach(combinedFrenchHeadcountResult -> setValueForGrade(nodeMap, combinedFrenchHeadcountResult));
 
@@ -97,8 +97,8 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
     protected HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
         HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
         addValuesForSectionToMap(nodeMap, ALLFRENCH, "All French Programs", "00", includeKH);
+        int sequencePrefix = 10;
 
-        int sequencePrefix = 0;
         if (frenchCombinedHeadcountList != null) {
             for (FrenchCombinedHeadcountResult result : frenchCombinedHeadcountList) {
                 String schoolID = result.getSchoolID();
@@ -106,7 +106,7 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
                 int finalSequencePrefix = sequencePrefix;
                 schoolOptional.ifPresent(school -> {
                     String schoolTitle = school.getMincode() + " - " + school.getDisplayName();
-                    addValuesForSectionToMap(nodeMap, schoolID, schoolTitle, finalSequencePrefix == 0 ? "00" : String.valueOf(finalSequencePrefix), includeKH);
+                    addValuesForSectionToMap(nodeMap, schoolID, schoolTitle, String.valueOf(finalSequencePrefix), includeKH);
                 });
                 sequencePrefix += 10;
             }

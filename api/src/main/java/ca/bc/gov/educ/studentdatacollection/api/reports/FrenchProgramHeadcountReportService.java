@@ -143,7 +143,7 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     HeadcountReportNode reportNode = new HeadcountReportNode();
     setReportTombstoneValuesDis(sdcDistrictCollection, reportNode);
 
-    var nodeMap = generateNodeMapForDis(true);
+    var nodeMap = generateNodeMapForDis(false);
 
     mappedResults.forEach(combinedFrenchHeadcountResult -> setValueForGrade(nodeMap, combinedFrenchHeadcountResult));
 
