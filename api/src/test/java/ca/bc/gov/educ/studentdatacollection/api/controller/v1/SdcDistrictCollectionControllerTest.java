@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -1598,5 +1597,28 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     val duplicate = sdcDuplicateRepository.findBySdcDuplicateID(UUID.fromString(programDupe.get().getSdcDuplicateID()));
     assertThat(duplicate.get().getDuplicateResolutionCode()).isNull();
   }
+  @Test
+  void testUnsubmitCollection_ShouldUpdateCorrectly() throws Exception {
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
 
+    District district = createMockDistrict();
+
+    SdcDistrictCollectionEntity sdcMockDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+    sdcMockDistrictCollection.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.SUBMITTED.getCode());
+    sdcDistrictCollectionRepository.save(sdcMockDistrictCollection);
+
+    var payload = UnsubmitPayload.builder().districtOrSchoolCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID()).updateUser("USER").build();
+
+    this.mockMvc.perform(post(URL.BASE_URL_DISTRICT_COLLECTION + "/unsubmit")
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_DISTRICT_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(payload))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+    var updatedDistrictCollection = sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID());
+    assertThat(updatedDistrictCollection).isPresent();
+    assertThat(updatedDistrictCollection.get().getSdcDistrictCollectionStatusCode()).isEqualTo(SdcDistrictCollectionStatus.D_DUP_VRFD.getCode());
+  }
 }

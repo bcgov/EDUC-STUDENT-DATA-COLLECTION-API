@@ -9,7 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionUnsubmit;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitPayload;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +54,7 @@ public class SdcSchoolCollectionService {
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
 
   private static final String INVALID_PAYLOAD_MSG = "Payload contains invalid data.";
+  private static final String SDC_SCHOOL_COLLECTION_ID_KEY = "sdcSchoolCollectionID";
 
   @Autowired
   public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcDistrictCollectionService sdcDistrictCollectionService) {
@@ -128,7 +129,7 @@ public class SdcSchoolCollectionService {
     final Optional<SdcSchoolCollectionEntity> curSdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
     if (curSdcSchoolCollection.isPresent()) {
       SdcSchoolCollectionEntity curGetSdcSchoolCollection = curSdcSchoolCollection.get();
-      BeanUtils.copyProperties(sdcSchoolCollectionEntity, curGetSdcSchoolCollection, "uploadDate", "uploadFileName", "schoolID", "collectionID", "sdcSchoolCollectionID", "collectionTypeCode", "collectionOpenDate", "collectionCloseDate", "students");
+      BeanUtils.copyProperties(sdcSchoolCollectionEntity, curGetSdcSchoolCollection, "uploadDate", "uploadFileName", "schoolID", "collectionID", SDC_SCHOOL_COLLECTION_ID_KEY, "collectionTypeCode", "collectionOpenDate", "collectionCloseDate", "students");
       TransformUtil.uppercaseFields(curGetSdcSchoolCollection);
       curGetSdcSchoolCollection = this.sdcSchoolCollectionRepository.save(curGetSdcSchoolCollection);
       return curGetSdcSchoolCollection;
@@ -179,7 +180,7 @@ public class SdcSchoolCollectionService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void deleteSdcCollection(UUID sdcSchoolCollectionID) {
     Optional<SdcSchoolCollectionEntity> entityOptional = sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID);
-    SdcSchoolCollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionID", sdcSchoolCollectionID.toString()));
+    SdcSchoolCollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, sdcSchoolCollectionID.toString()));
     List<SdcSchoolCollectionStudentHistoryEntity> schoolHistoryEntities = sdcSchoolCollectionStudentHistoryRepository.findAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
     if(!schoolHistoryEntities.isEmpty()) {
       sdcSchoolCollectionStudentHistoryRepository.deleteAll(schoolHistoryEntities);
@@ -188,30 +189,33 @@ public class SdcSchoolCollectionService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public SdcSchoolCollectionEntity unsubmitSchoolCollection(SdcSchoolCollectionUnsubmit unsubmitData) {
-    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = sdcSchoolCollectionRepository.findById(unsubmitData.getSdcSchoolCollectionID());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionID", unsubmitData.getSdcSchoolCollectionID().toString()));
+  public SdcSchoolCollectionEntity unsubmitSchoolCollection(UnsubmitPayload unsubmitData) {
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = sdcSchoolCollectionRepository.findById(unsubmitData.getDistrictOrSchoolCollectionID());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, unsubmitData.getDistrictOrSchoolCollectionID().toString()));
 
     if(!StringUtils.equals(sdcSchoolCollectionEntity.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode())) {
       ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
-      var validationError = ValidationUtil.createFieldError("SdcSchoolCollectionId", unsubmitData.getSdcSchoolCollectionID(), "Cannot un-submit a SDC School Collection that is not in submitted status.");
+      var validationError = ValidationUtil.createFieldError(SDC_SCHOOL_COLLECTION_ID_KEY, unsubmitData.getDistrictOrSchoolCollectionID(), "Cannot un-submit a SDC School Collection that is not in submitted status.");
       List<FieldError> fieldErrorList = new ArrayList<>();
       fieldErrorList.add(validationError);
       error.addValidationErrors(fieldErrorList);
       throw new InvalidPayloadException(error);
     }
+    if(sdcSchoolCollectionEntity.getSdcDistrictCollectionID() != null) {
+      Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionOptional = sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(sdcSchoolCollectionEntity.getSdcDistrictCollectionID());
+      SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionID", sdcSchoolCollectionEntity.getSdcDistrictCollectionID() != null ? sdcSchoolCollectionEntity.getSdcDistrictCollectionID().toString() : "null"));
 
-    Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionOptional = sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(sdcSchoolCollectionEntity.getSdcDistrictCollectionID());
-    SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionID", sdcSchoolCollectionEntity.getSdcDistrictCollectionID() != null ? sdcSchoolCollectionEntity.getSdcDistrictCollectionID().toString() : "null"));
-
-    if(!StringUtils.equals(sdcDistrictCollectionEntity.getSdcDistrictCollectionStatusCode(), SdcDistrictCollectionStatus.LOADED.getCode())) {
-      sdcDistrictCollectionEntity.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.LOADED.getCode());
-      sdcDistrictCollectionEntity.setUpdateDate(LocalDateTime.now());
-      sdcDistrictCollectionEntity.setUpdateUser(unsubmitData.getUpdateUser());
-      sdcDistrictCollectionService.updateSdcDistrictCollection(sdcDistrictCollectionEntity);
+      if(!StringUtils.equals(sdcDistrictCollectionEntity.getSdcDistrictCollectionStatusCode(), SdcDistrictCollectionStatus.LOADED.getCode())) {
+        sdcDistrictCollectionEntity.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.LOADED.getCode());
+        sdcDistrictCollectionEntity.setUpdateDate(LocalDateTime.now());
+        sdcDistrictCollectionEntity.setUpdateUser(unsubmitData.getUpdateUser());
+        sdcDistrictCollectionService.updateSdcDistrictCollection(sdcDistrictCollectionEntity);
+      }
+      sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.DUP_VRFD.getCode());
+    } else {
+      //indy school
+      sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SCH_C_VRFD.getCode());
     }
-
-    sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.DUP_VRFD.getCode());
     sdcSchoolCollectionEntity.setUpdateDate(LocalDateTime.now());
     sdcSchoolCollectionEntity.setUpdateUser(unsubmitData.getUpdateUser());
     updateSdcSchoolCollection(sdcSchoolCollectionEntity);

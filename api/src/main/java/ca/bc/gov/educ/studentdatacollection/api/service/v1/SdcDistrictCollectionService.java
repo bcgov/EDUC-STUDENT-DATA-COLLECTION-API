@@ -1,12 +1,12 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateLevelCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateResolutionCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
@@ -14,15 +14,20 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.FieldError;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Service
 @Slf4j
@@ -39,6 +44,7 @@ public class SdcDistrictCollectionService {
   private static final String SDC_DISTRICT_COLLECTION_ID_KEY = "sdcDistrictCollectionID";
   private static final String SDC_DUPLICATE_ID_KEY = "sdcDuplicateID";
   private static final SdcSchoolCollectionStudentMapper studentMapper = SdcSchoolCollectionStudentMapper.mapper;
+  private static final String INVALID_PAYLOAD_MSG = "Payload contains invalid data.";
 
   @Autowired
   public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcDuplicateRepository sdcDuplicateRepository, SdcDuplicatesService sdcDuplicatesService) {
@@ -248,5 +254,27 @@ public class SdcDistrictCollectionService {
     } else {
       throw new EntityNotFoundException(SdcDuplicateEntity.class, SDC_DUPLICATE_ID_KEY, sdcDuplicateID.toString());
     }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public SdcDistrictCollectionEntity unsubmitDistrictCollection(UnsubmitPayload unsubmitData) {
+    Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionOptional = sdcDistrictCollectionRepository.findById(unsubmitData.getDistrictOrSchoolCollectionID());
+    SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, SDC_DISTRICT_COLLECTION_ID_KEY, unsubmitData.getDistrictOrSchoolCollectionID().toString()));
+
+    if(!StringUtils.equals(sdcDistrictCollectionEntity.getSdcDistrictCollectionStatusCode(), SdcDistrictCollectionStatus.SUBMITTED.getCode())) {
+      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
+      var validationError = ValidationUtil.createFieldError(SDC_DISTRICT_COLLECTION_ID_KEY, unsubmitData.getDistrictOrSchoolCollectionID(), "Cannot un-submit a SDC District Collection that is not in submitted status.");
+      List<FieldError> fieldErrorList = new ArrayList<>();
+      fieldErrorList.add(validationError);
+      error.addValidationErrors(fieldErrorList);
+      throw new InvalidPayloadException(error);
+    }
+
+    sdcDistrictCollectionEntity.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.D_DUP_VRFD.getCode());
+    sdcDistrictCollectionEntity.setUpdateDate(LocalDateTime.now());
+    sdcDistrictCollectionEntity.setUpdateUser(unsubmitData.getUpdateUser());
+    updateSdcDistrictCollection(sdcDistrictCollectionEntity);
+
+    return sdcDistrictCollectionEntity;
   }
 }
