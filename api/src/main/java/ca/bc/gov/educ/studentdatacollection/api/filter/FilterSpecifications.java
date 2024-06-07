@@ -30,7 +30,12 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
         map.put(FilterOperation.EQUAL, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
             if (filterCriteria.getFieldName().contains(".")) {
                 String[] splits = filterCriteria.getFieldName().split("\\.");
-                return criteriaBuilder.equal(root.join(splits[0]).get(splits[1]), filterCriteria.getConvertedSingleValue());
+                if(splits.length == 2) {
+                    return criteriaBuilder.equal(root.join(splits[0]).get(splits[1]), filterCriteria.getConvertedSingleValue());
+                } else {
+                    return criteriaBuilder.equal(root.join(splits[0]).get(splits[1]).get(splits[2]), filterCriteria.getConvertedSingleValue());
+                }
+
             } else if(filterCriteria.getConvertedSingleValue() == null) {
                 return criteriaBuilder.isNull(root.get(filterCriteria.getFieldName()));
             }
