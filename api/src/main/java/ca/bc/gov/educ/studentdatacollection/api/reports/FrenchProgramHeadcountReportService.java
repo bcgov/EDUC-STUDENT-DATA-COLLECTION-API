@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,6 +41,7 @@ import java.util.UUID;
 @Slf4j
 public class FrenchProgramHeadcountReportService extends BaseReportGenerationService<FrenchHeadcountResult>{
 
+  protected static final String GRADEVALUE = "Grade Value";
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
@@ -167,7 +169,7 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     return nodeMap;
   }
 
-  public HashMap<String, HeadcountChildNode> generateNodeMapForDis(boolean includeKH){
+  public Map<String, HeadcountChildNode> generateNodeMapForDis(boolean includeKH){
     HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
     addValuesForSectionToMap(nodeMap, "coreFrench", "Core French", "00", includeKH);
     addValuesForSectionToMap(nodeMap, "earlyFrenchImmersion", "Early French Immersion", "10", includeKH);
@@ -187,7 +189,7 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
   public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, FrenchHeadcountResult frenchHeadcountResult){
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(frenchHeadcountResult.getEnrolledGradeCode());
     var code = optionalCode.orElseThrow(() ->
-            new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", frenchHeadcountResult.getEnrolledGradeCode()));
+            new EntityNotFoundException(SchoolGradeCodes.class, GRADEVALUE, frenchHeadcountResult.getEnrolledGradeCode()));
 
     nodeMap.get("coreFrenchHeading").setValueForGrade(code, frenchHeadcountResult.getTotalCoreFrench());
     nodeMap.get("coreFrenchSchoolAged").setValueForGrade(code, frenchHeadcountResult.getSchoolAgedCoreFrench());
@@ -209,17 +211,17 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
   private void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, CsfFrenchHeadcountResult frenchHeadcountResult){
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(frenchHeadcountResult.getEnrolledGradeCode());
     var code = optionalCode.orElseThrow(() ->
-            new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", frenchHeadcountResult.getEnrolledGradeCode()));
+            new EntityNotFoundException(SchoolGradeCodes.class, GRADEVALUE, frenchHeadcountResult.getEnrolledGradeCode()));
 
     nodeMap.get("csfHeading").setValueForGrade(code, frenchHeadcountResult.getTotalFrancophone());
     nodeMap.get("csfSchoolAged").setValueForGrade(code, frenchHeadcountResult.getSchoolAgedFrancophone());
     nodeMap.get("csfAdult").setValueForGrade(code, frenchHeadcountResult.getAdultFrancophone());
   }
 
-  public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, FrenchCombinedHeadcountResult frenchCombinedHeadcountResult){
+  public void setValueForGrade(Map<String, HeadcountChildNode> nodeMap, FrenchCombinedHeadcountResult frenchCombinedHeadcountResult){
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(frenchCombinedHeadcountResult.getEnrolledGradeCode());
     var code = optionalCode.orElseThrow(() ->
-            new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", frenchCombinedHeadcountResult.getEnrolledGradeCode()));
+            new EntityNotFoundException(SchoolGradeCodes.class, GRADEVALUE, frenchCombinedHeadcountResult.getEnrolledGradeCode()));
 
     nodeMap.get("coreFrenchHeading").setValueForGrade(code, frenchCombinedHeadcountResult.getTotalCoreFrench());
     nodeMap.get("coreFrenchSchoolAged").setValueForGrade(code, frenchCombinedHeadcountResult.getSchoolAgedCoreFrench());

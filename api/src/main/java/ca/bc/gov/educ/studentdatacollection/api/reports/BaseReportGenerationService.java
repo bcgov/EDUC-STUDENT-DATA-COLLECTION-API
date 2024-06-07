@@ -116,8 +116,8 @@ public abstract class BaseReportGenerationService<T> {
   protected void setReportTombstoneValuesDis(SdcDistrictCollectionEntity sdcDistrictCollection, HeadcountReportNode reportNode){
     var district = restUtils.getDistrictByDistrictID(sdcDistrictCollection.getDistrictID().toString());
     if(district.isEmpty()){
-      log.error("District could not be found while writing PDF report for grade enrollment :: " + sdcDistrictCollection.getDistrictID());
-      throw new EntityNotFoundException(District.class, "District could not be found while writing PDF report for grade enrollment :: ", sdcDistrictCollection.getDistrictID().toString());
+      log.error("District could not be found while writing tombstone for PDF report  :: " + sdcDistrictCollection.getDistrictID());
+      throw new EntityNotFoundException(District.class, "District could not be found while writing tombstone for PDF report :: ", sdcDistrictCollection.getDistrictID().toString());
     }
 
     reportNode.setReportGeneratedDate("Report Generated: " + LocalDate.now().format(formatter));
