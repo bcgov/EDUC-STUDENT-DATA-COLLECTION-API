@@ -123,7 +123,7 @@ public abstract class BaseReportGenerationService<T> {
     reportNode.setReportGeneratedDate("Report Generated: " + LocalDate.now().format(formatter));
     reportNode.setDistrictNumberAndName(district.get().getDistrictNumber() + " - " + district.get().getDisplayName());
     reportNode.setCollectionNameAndYear(StringUtils.capitalize(sdcDistrictCollection.getCollectionEntity().getCollectionTypeCode().toLowerCase()) + " " + sdcDistrictCollection.getCollectionEntity().getOpenDate().getYear() + " Collection");
-    reportNode.setShowKH("true");
+    reportNode.setShowKH(FALSE);
   }
 
   protected boolean isIndependentSchool(School school){
