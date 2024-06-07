@@ -59,6 +59,8 @@ public class SdcSchoolCollectionStudentService {
 
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
+  private final SdcDuplicateRepository sdcDuplicateRepository;
+
   private final SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository;
 
   private final FteCalculatorChainProcessor fteCalculatorChainProcessor;
@@ -388,20 +390,12 @@ public class SdcSchoolCollectionStudentService {
     var curStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
             new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", studentEntity.getSdcSchoolCollectionStudentID().toString()));
 
-    final SdcSchoolCollectionStudentEntity schoolCollectionStudentEntity = new SdcSchoolCollectionStudentEntity();
-    BeanUtils.copyProperties(studentEntity, schoolCollectionStudentEntity, "sdcSchoolCollection", "createUser", "createDate", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
+    sdcDuplicateRepository.deleteAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentID(curStudentEntity.getSdcSchoolCollectionStudentID());
+    curStudentEntity.setPenMatchResult(IN_REVIEW);
+    curStudentEntity.setAssignedStudentId(null);
+    curStudentEntity.setAssignedPen(null);
 
-    schoolCollectionStudentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(schoolCollectionStudentEntity.getEnrolledProgramCodes()));
-    schoolCollectionStudentEntity.setSdcSchoolCollection(curStudentEntity.getSdcSchoolCollection());
-    schoolCollectionStudentEntity.getSDCStudentValidationIssueEntities().clear();
-    schoolCollectionStudentEntity.getSDCStudentValidationIssueEntities().addAll(curStudentEntity.getSDCStudentValidationIssueEntities());
-    schoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
-    schoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().addAll(curStudentEntity.getSdcStudentEnrolledProgramEntities());
-
-    schoolCollectionStudentEntity.setPenMatchResult(IN_REVIEW);
-
-    TransformUtil.uppercaseFields(schoolCollectionStudentEntity);
-    saveSdcStudentWithHistory(schoolCollectionStudentEntity);
+    saveSdcStudentWithHistory(curStudentEntity);
   }
 
   private StudentRuleData createStudentRuleDataForValidation(SdcSchoolCollectionStudentEntity studentEntity) {

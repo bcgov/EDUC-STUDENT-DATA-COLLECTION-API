@@ -2,10 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportingRequirementCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
@@ -70,6 +67,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
     @Autowired
     SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+
+    @Autowired
+    SdcDuplicateRepository sdcDuplicateRepository;
 
     @Autowired
     SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
@@ -2382,6 +2382,89 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         assertThat(studentEntity.getAssignedStudentId()).isNull();
         assertThat(studentEntity.getAssignedPen()).isNull();
         assertThat(studentEntity.getPenMatchResult()).isEqualTo("INREVIEW");
+    }
+
+    @Test
+    void testMarkPENForReview_withWarning_ShouldRemovedAssignedPENAndSaveToDatabaseAndRemoveDuplicates_ReturnStatusOk() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+                grantedAuthority);
+
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
+        when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
+
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
+
+        var studentID = UUID.randomUUID();
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateDate(null);
+        entity.setCreateDate(null);
+        entity.setNumberOfCourses("0400");
+        entity.setAssignedPen("123456789");
+        entity.setAssignedStudentId(studentID);
+        var savedStudent1 = this.sdcSchoolCollectionStudentRepository.save(entity);
+
+        val entity2 = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity2.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity2.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity2.setUpdateDate(null);
+        entity2.setCreateDate(null);
+        entity2.setNumberOfCourses("0400");
+        entity2.setAssignedPen("123456789");
+        entity2.setAssignedStudentId(studentID);
+        var savedStudent2 = this.sdcSchoolCollectionStudentRepository.save(entity2);
+
+        SdcDuplicateEntity dup = new SdcDuplicateEntity();
+        dup.setDuplicateErrorDescriptionCode(DuplicateErrorDescriptionCode.K_TO_7_DUP.getCode());
+        dup.setDuplicateLevelCode(DuplicateLevelCode.IN_DIST.getCode());
+        dup.setDuplicateTypeCode(DuplicateTypeCode.ENROLLMENT.getCode());
+        dup.setDuplicateSeverityCode(DuplicateSeverityCode.ALLOWABLE.getCode());
+
+        SdcDuplicateStudentEntity stud1 = new SdcDuplicateStudentEntity();
+        stud1.setSdcSchoolCollectionID(UUID.randomUUID());
+        stud1.setSdcDuplicateEntity(dup);
+        stud1.setSdcSchoolCollectionStudentEntity(savedStudent1);
+        stud1.setCreateUser("ABC");
+        stud1.setCreateDate(LocalDateTime.now());
+        stud1.setUpdateUser("ABC");
+        stud1.setUpdateDate(LocalDateTime.now());
+
+        SdcDuplicateStudentEntity stud2 = new SdcDuplicateStudentEntity();
+        stud2.setSdcSchoolCollectionID(stud1.getSdcSchoolCollectionID());
+        stud2.setSdcDuplicateEntity(dup);
+        stud2.setSdcSchoolCollectionStudentEntity(savedStudent2);
+        stud2.setCreateUser("ABC");
+        stud2.setCreateDate(LocalDateTime.now());
+        stud2.setUpdateUser("ABC");
+        stud2.setUpdateDate(LocalDateTime.now());
+
+        dup.getSdcDuplicateStudentEntities().add(stud1);
+        dup.getSdcDuplicateStudentEntities().add(stud2);
+
+        sdcDuplicateRepository.save(dup);
+
+        this.mockMvc.perform(
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT +"/mark-for-review")
+                                .contentType(APPLICATION_JSON)
+                                .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
+                                .with(mockAuthority))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
+        assertThat(curStudentEntity).isPresent();
+        var studentEntity = curStudentEntity.get();
+        assertThat(studentEntity.getAssignedStudentId()).isNull();
+        assertThat(studentEntity.getAssignedPen()).isNull();
+        assertThat(studentEntity.getPenMatchResult()).isEqualTo("INREVIEW");
+
+        var dupes = sdcDuplicateRepository.findAll();
+        assertThat(dupes).isEmpty();
     }
 
     @Test
