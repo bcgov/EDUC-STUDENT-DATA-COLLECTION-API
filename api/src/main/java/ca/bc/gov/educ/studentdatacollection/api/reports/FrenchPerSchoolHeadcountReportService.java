@@ -32,6 +32,7 @@ import java.util.*;
 @Slf4j
 public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationService<FrenchCombinedHeadcountResult> {
 
+    protected static final String ALLFRENCH = "allFrench";
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final RestUtils restUtils;
@@ -95,7 +96,7 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
 
     protected HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
         HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
-        addValuesForSectionToMap(nodeMap, "allFrench", "All French Programs", "00", includeKH);
+        addValuesForSectionToMap(nodeMap, ALLFRENCH, "All French Programs", "00", includeKH);
 
         int sequencePrefix = 0;
         if (frenchCombinedHeadcountList != null) {
@@ -114,7 +115,7 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
     }
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix, boolean includeKH){
-        if (Objects.equals(sectionPrefix, "allFrench")) {
+        if (Objects.equals(sectionPrefix, ALLFRENCH)) {
             nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, false, includeKH));
         } else {
             nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", false, true, false, includeKH));
@@ -125,12 +126,21 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
         Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
         var code = optionalCode.orElseThrow(() ->
                 new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
-        // TODO need to deal with total totals
-        if (frenchCombinedHeadcountList != null) {
-            for (FrenchCombinedHeadcountResult result : frenchCombinedHeadcountList) {
-                String schoolID = result.getSchoolID();
-                nodeMap.get(schoolID).setValueForGrade(code , result.getTotalTotals());
-            }
+
+        HeadcountChildNode allFrenchNode = nodeMap.get(ALLFRENCH);
+        if (allFrenchNode.getValueForGrade(code) == null) {
+            allFrenchNode.setValueForGrade(code, "0");
         }
+
+        String schoolID = gradeResult.getSchoolID();
+        if (nodeMap.containsKey(schoolID)) {
+            nodeMap.get(schoolID).setValueForGrade(code, gradeResult.getTotalTotals());
+        } else {
+            log.warn("School ID {} not found in node map", schoolID);
+        }
+
+        int currentTotal = Integer.parseInt(gradeResult.getTotalTotals());
+        int accumulatedTotal = Integer.parseInt(allFrenchNode.getValueForGrade(code));
+        allFrenchNode.setValueForGrade(code, String.valueOf(accumulatedTotal + currentTotal));
     }
 }

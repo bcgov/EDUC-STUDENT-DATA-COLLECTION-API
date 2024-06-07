@@ -268,6 +268,30 @@ public class HeadcountChildNode implements Serializable {
     }
   }
 
+  public String getValueForGrade(SchoolGradeCodes gradeCode) {
+      return switch (gradeCode) {
+          case KINDHALF -> getValueGradeKH();
+          case KINDFULL -> getValueGradeKF();
+          case GRADE01 -> getValueGrade01();
+          case GRADE02 -> getValueGrade02();
+          case GRADE03 -> getValueGrade03();
+          case GRADE04 -> getValueGrade04();
+          case GRADE05 -> getValueGrade05();
+          case GRADE06 -> getValueGrade06();
+          case GRADE07 -> getValueGrade07();
+          case ELEMUNGR -> getValueGradeEU();
+          case GRADE08 -> getValueGrade08();
+          case GRADE09 -> getValueGrade09();
+          case GRADE10 -> getValueGrade10();
+          case GRADE11 -> getValueGrade11();
+          case GRADE12 -> getValueGrade12();
+          case GRADUATED_ADULT -> getValueGradeGA();
+          case HOMESCHOOL -> getValueGradeHS();
+          case SECONDARY_UNGRADED -> getValueGradeSU();
+          default -> null;
+      };
+  }
+
   public void setValueForBand(String type, String value){
     switch (type){
       case "FTE":
