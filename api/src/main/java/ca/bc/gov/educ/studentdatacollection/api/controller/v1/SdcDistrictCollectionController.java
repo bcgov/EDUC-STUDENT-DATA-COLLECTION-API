@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateTypeResolutionCode;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcDistrictCollectionEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
@@ -9,7 +8,6 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEn
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDistrictCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcDistrictCollectionValidator;
@@ -93,5 +91,10 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
       return duplicateMapper.toSdcDuplicate(sdcDistrictCollectionService.changeGrade(sdcDistrictCollectionID, sdcDuplicateID, sdcSchoolCollectionStudent.get(0)));
     }
     return null;
+  }
+
+  @Override
+  public SdcDistrictCollection unsubmitDistrictCollection(UnsubmitPayload unsubmitData) {
+    return mapper.toStructure(sdcDistrictCollectionService.unsubmitDistrictCollection(unsubmitData));
   }
 }

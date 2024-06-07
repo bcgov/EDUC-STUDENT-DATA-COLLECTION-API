@@ -8,7 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEn
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionUnsubmit;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitPayload;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -54,10 +54,8 @@ class SdcSchoolCollectionServiceTest {
 
     when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
     when(sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(sdcDistrictCollectionID)).thenReturn(Optional.of(sdcDistrictCollectionEntity));
-    when(sdcSchoolCollectionRepository.save(any(SdcSchoolCollectionEntity.class))).thenReturn(sdcSchoolCollectionEntity);
-    when(sdcDistrictCollectionService.updateSdcDistrictCollection(any(SdcDistrictCollectionEntity.class))).thenReturn(sdcDistrictCollectionEntity);
 
-    SdcSchoolCollectionEntity result = sdcSchoolCollectionService.unsubmitSchoolCollection(SdcSchoolCollectionUnsubmit.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build());
+    SdcSchoolCollectionEntity result = sdcSchoolCollectionService.unsubmitSchoolCollection(UnsubmitPayload.builder().districtOrSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build());
 
     assertEquals(SdcSchoolCollectionStatus.DUP_VRFD.getCode(), result.getSdcSchoolCollectionStatusCode());
     assertEquals(SdcDistrictCollectionStatus.LOADED.getCode(), sdcDistrictCollectionEntity.getSdcDistrictCollectionStatusCode());
@@ -74,7 +72,7 @@ class SdcSchoolCollectionServiceTest {
 
     when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.empty());
 
-    SdcSchoolCollectionUnsubmit sdcSchoolCollectionUnsubmit = SdcSchoolCollectionUnsubmit.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build();
+    UnsubmitPayload sdcSchoolCollectionUnsubmit = UnsubmitPayload.builder().districtOrSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build();
 
     assertThrows(EntityNotFoundException.class, () -> sdcSchoolCollectionService.unsubmitSchoolCollection(sdcSchoolCollectionUnsubmit));
 
@@ -95,7 +93,7 @@ class SdcSchoolCollectionServiceTest {
     when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
     when(sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(sdcDistrictCollectionID)).thenReturn(Optional.empty());
 
-    SdcSchoolCollectionUnsubmit sdcSchoolCollectionUnsubmit = SdcSchoolCollectionUnsubmit.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build();
+    UnsubmitPayload sdcSchoolCollectionUnsubmit = UnsubmitPayload.builder().districtOrSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build();
 
     assertThrows(EntityNotFoundException.class, () -> sdcSchoolCollectionService.unsubmitSchoolCollection(sdcSchoolCollectionUnsubmit));
 
@@ -116,7 +114,7 @@ class SdcSchoolCollectionServiceTest {
 
     when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
 
-    SdcSchoolCollectionUnsubmit sdcSchoolCollectionUnsubmit = SdcSchoolCollectionUnsubmit.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build();
+    UnsubmitPayload sdcSchoolCollectionUnsubmit = UnsubmitPayload.builder().districtOrSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build();
     assertThrows(InvalidPayloadException.class, () -> sdcSchoolCollectionService.unsubmitSchoolCollection(sdcSchoolCollectionUnsubmit));
 
     verify(sdcSchoolCollectionRepository, times(1)).findById(sdcSchoolCollectionID);
@@ -139,15 +137,34 @@ class SdcSchoolCollectionServiceTest {
 
     when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
     when(sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(sdcDistrictCollectionID)).thenReturn(Optional.of(sdcDistrictCollectionEntity));
-    when(sdcSchoolCollectionRepository.save(any(SdcSchoolCollectionEntity.class))).thenReturn(sdcSchoolCollectionEntity);
 
-    SdcSchoolCollectionEntity result = sdcSchoolCollectionService.unsubmitSchoolCollection(SdcSchoolCollectionUnsubmit.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build());
+    SdcSchoolCollectionEntity result = sdcSchoolCollectionService.unsubmitSchoolCollection(UnsubmitPayload.builder().districtOrSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build());
 
     assertEquals(SdcSchoolCollectionStatus.DUP_VRFD.getCode(), result.getSdcSchoolCollectionStatusCode());
     assertEquals(SdcDistrictCollectionStatus.LOADED.getCode(), sdcDistrictCollectionEntity.getSdcDistrictCollectionStatusCode());
 
     verify(sdcSchoolCollectionRepository, times(2)).findById(sdcSchoolCollectionID);
     verify(sdcDistrictCollectionRepository, times(1)).findBySdcDistrictCollectionID(sdcDistrictCollectionID);
+    verify(sdcSchoolCollectionRepository, times(1)).save(any(SdcSchoolCollectionEntity.class));
+    verifyNoMoreInteractions(sdcDistrictCollectionService);
+  }
+
+  @Test
+  void testUnsubmitSchoolCollection_indySchool() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    SdcSchoolCollectionEntity result = sdcSchoolCollectionService.unsubmitSchoolCollection(UnsubmitPayload.builder().districtOrSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build());
+
+    assertEquals(SdcSchoolCollectionStatus.SCH_C_VRFD.getCode(), result.getSdcSchoolCollectionStatusCode());
+
+    verify(sdcSchoolCollectionRepository, times(2)).findById(sdcSchoolCollectionID);
+    verify(sdcDistrictCollectionRepository, times(0)).findBySdcDistrictCollectionID(any());
     verify(sdcSchoolCollectionRepository, times(1)).save(any(SdcSchoolCollectionEntity.class));
     verifyNoMoreInteractions(sdcDistrictCollectionService);
   }

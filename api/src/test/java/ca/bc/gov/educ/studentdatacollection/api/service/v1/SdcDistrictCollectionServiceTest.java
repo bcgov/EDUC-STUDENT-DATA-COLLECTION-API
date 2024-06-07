@@ -2,8 +2,6 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
@@ -18,22 +16,12 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicate;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionUnsubmit;
-import com.fasterxml.jackson.core.type.TypeReference;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitPayload;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,10 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class SdcDistrictCollectionServiceTest extends BaseStudentDataCollectionAPITest {
 
@@ -331,5 +315,38 @@ class SdcDistrictCollectionServiceTest extends BaseStudentDataCollectionAPITest 
 
     val resolvedDuplicate = sdcDistrictCollectionService.changeGrade(UUID.fromString(student1Entity.getSdcDistrictCollectionID()), UUID.fromString(programDupe.get().getSdcDuplicateID()), student1Entity);
     assertThat(resolvedDuplicate.getDuplicateResolutionCode()).isNull();
+  }
+
+  @Test
+  void testUnsubmitDistrictCollection_success() {
+    var collection = createMockCollectionEntity();
+    collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcDistrictCollectionEntity = createMockSdcDistrictCollectionEntity(collection, UUID.randomUUID());
+    sdcDistrictCollectionEntity.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.SUBMITTED.getCode());
+    sdcDistrictCollectionRepository.save(sdcDistrictCollectionEntity);
+
+    SdcDistrictCollectionEntity result = sdcDistrictCollectionService.unsubmitDistrictCollection(UnsubmitPayload.builder().districtOrSchoolCollectionID(sdcDistrictCollectionEntity.getSdcDistrictCollectionID()).updateUser("USER").build());
+
+    assertEquals(SdcDistrictCollectionStatus.D_DUP_VRFD.getCode(), result.getSdcDistrictCollectionStatusCode());
+  }
+
+  @Test
+  void testUnsubmitDistrictCollection_sdcDistrictCollectionNotFound() {
+    var payload = UnsubmitPayload.builder().districtOrSchoolCollectionID(UUID.randomUUID()).updateUser("USER").build();
+    assertThrows(EntityNotFoundException.class, () -> sdcDistrictCollectionService.unsubmitDistrictCollection(payload));
+  }
+
+  @Test
+  void testUnsubmitDistrictCollection_GivenSdcDistrictCollectionNotSubmittedStatus_ShouldThrowException() {
+    var collection = createMockCollectionEntity();
+    collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcDistrictCollectionEntity = createMockSdcDistrictCollectionEntity(collection, UUID.randomUUID());
+    sdcDistrictCollectionEntity.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.VERIFIED.getCode());
+    sdcDistrictCollectionRepository.save(sdcDistrictCollectionEntity);
+
+    UnsubmitPayload sdcDistrictCollectionUnsubmit = UnsubmitPayload.builder().districtOrSchoolCollectionID(sdcDistrictCollectionEntity.getSdcDistrictCollectionID()).updateUser("USER").build();
+    assertThrows(InvalidPayloadException.class, () -> sdcDistrictCollectionService.unsubmitDistrictCollection(sdcDistrictCollectionUnsubmit));
   }
 }

@@ -3,7 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionUnsubmit;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitPayload;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -79,6 +79,6 @@ public interface SdcSchoolCollectionEndpoint {
   @Transactional
   @Tag(name = "Sdc School Collection", description = "Endpoints to unsubmit school collection entity.")
   @Schema(name = "SdcSchoolCollection", implementation = SdcSchoolCollection.class)
-  SdcSchoolCollection unsubmitSchoolCollection(@RequestBody SdcSchoolCollectionUnsubmit unsubmitData);
+  SdcSchoolCollection unsubmitSchoolCollection(@RequestBody UnsubmitPayload unsubmitData);
 
 }
