@@ -18,4 +18,6 @@ public interface SdcDuplicateRepository extends JpaRepository<SdcDuplicateEntity
 
     void deleteAllBySdcDuplicateStudentEntities_SdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
+    void deleteAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentID(UUID sdcSchoolCollectionStudentID);
+
 }
