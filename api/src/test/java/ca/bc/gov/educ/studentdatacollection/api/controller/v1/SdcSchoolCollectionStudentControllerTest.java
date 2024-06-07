@@ -3753,7 +3753,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
