@@ -90,5 +90,5 @@ public interface SdcDistrictCollectionEndpoint {
   @Transactional
   @Tag(name = "Sdc District Collection", description = "Endpoints to unsubmit district collection entity.")
   @Schema(name = "SdcDistrictCollection", implementation = SdcDistrictCollection.class)
-  SdcDistrictCollection unsubmitDistrictCollection(@RequestBody UnsubmitPayload unsubmitData);
+  SdcDistrictCollection unsubmitDistrictCollection(@RequestBody UnsubmitSdcDistrictCollection unsubmitData);
 }

@@ -1609,7 +1609,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     sdcMockDistrictCollection.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.SUBMITTED.getCode());
     sdcDistrictCollectionRepository.save(sdcMockDistrictCollection);
 
-    var payload = UnsubmitPayload.builder().districtOrSchoolCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID()).updateUser("USER").build();
+    var payload = UnsubmitSdcDistrictCollection.builder().sdcDistrictCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID()).updateUser("USER").build();
 
     this.mockMvc.perform(post(URL.BASE_URL_DISTRICT_COLLECTION + "/unsubmit")
             .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_DISTRICT_COLLECTION")))

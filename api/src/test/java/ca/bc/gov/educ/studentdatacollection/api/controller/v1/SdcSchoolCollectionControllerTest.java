@@ -15,7 +15,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitPayload;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitSdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -639,7 +639,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     sdcMockSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
     sdcSchoolCollectionRepository.save(sdcMockSchoolCollection);
 
-    var payload = UnsubmitPayload.builder().districtOrSchoolCollectionID(sdcMockSchoolCollection.getSdcSchoolCollectionID()).updateUser("USER").build();
+    var payload = UnsubmitSdcSchoolCollection.builder().sdcSchoolCollectionID(sdcMockSchoolCollection.getSdcSchoolCollectionID()).updateUser("USER").build();
 
     this.mockMvc.perform(post(URL.BASE_URL_SCHOOL_COLLECTION + "/unsubmit")
             .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_DISTRICT_COLLECTION")))

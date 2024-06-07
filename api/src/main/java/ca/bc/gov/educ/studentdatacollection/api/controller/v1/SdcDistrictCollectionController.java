@@ -94,7 +94,7 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   }
 
   @Override
-  public SdcDistrictCollection unsubmitDistrictCollection(UnsubmitPayload unsubmitData) {
+  public SdcDistrictCollection unsubmitDistrictCollection(UnsubmitSdcDistrictCollection unsubmitData) {
     return mapper.toStructure(sdcDistrictCollectionService.unsubmitDistrictCollection(unsubmitData));
   }
 }

@@ -257,13 +257,13 @@ public class SdcDistrictCollectionService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public SdcDistrictCollectionEntity unsubmitDistrictCollection(UnsubmitPayload unsubmitData) {
-    Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionOptional = sdcDistrictCollectionRepository.findById(unsubmitData.getDistrictOrSchoolCollectionID());
-    SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, SDC_DISTRICT_COLLECTION_ID_KEY, unsubmitData.getDistrictOrSchoolCollectionID().toString()));
+  public SdcDistrictCollectionEntity unsubmitDistrictCollection(UnsubmitSdcDistrictCollection unsubmitData) {
+    Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionOptional = sdcDistrictCollectionRepository.findById(unsubmitData.getSdcDistrictCollectionID());
+    SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, SDC_DISTRICT_COLLECTION_ID_KEY, unsubmitData.getSdcDistrictCollectionID().toString()));
 
     if(!StringUtils.equals(sdcDistrictCollectionEntity.getSdcDistrictCollectionStatusCode(), SdcDistrictCollectionStatus.SUBMITTED.getCode())) {
       ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
-      var validationError = ValidationUtil.createFieldError(SDC_DISTRICT_COLLECTION_ID_KEY, unsubmitData.getDistrictOrSchoolCollectionID(), "Cannot un-submit a SDC District Collection that is not in submitted status.");
+      var validationError = ValidationUtil.createFieldError(SDC_DISTRICT_COLLECTION_ID_KEY, unsubmitData.getSdcDistrictCollectionID(), "Cannot un-submit a SDC District Collection that is not in submitted status.");
       List<FieldError> fieldErrorList = new ArrayList<>();
       fieldErrorList.add(validationError);
       error.addValidationErrors(fieldErrorList);

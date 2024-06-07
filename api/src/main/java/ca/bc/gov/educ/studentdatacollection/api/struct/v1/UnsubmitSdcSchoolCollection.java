@@ -12,8 +12,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UnsubmitPayload {
+public class UnsubmitSdcSchoolCollection {
   @NotNull
-  UUID districtOrSchoolCollectionID;
+  UUID sdcSchoolCollectionID;
   String updateUser;
 }
