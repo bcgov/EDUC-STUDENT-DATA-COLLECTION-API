@@ -29,7 +29,7 @@ import java.util.UUID;
  *  | V90 | WARNING  | Students reported with a Funding Code of 16 must not be reported in   |     V26      |
  *                     September Collection to receive funding in February. They also must
  *                     be reported in a school with a Facility type of Public: Standard,
- *                     Alt-Progs, Youth, Short-PRP, Long-PRP to receive funding.
+ *                     Alt-Progs, Youth, Short-PRP, Long-PRP to receive Feb funding.
  */
 @Component
 @Slf4j
