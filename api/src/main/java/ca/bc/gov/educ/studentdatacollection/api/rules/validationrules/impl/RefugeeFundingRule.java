@@ -67,7 +67,7 @@ public class RefugeeFundingRule implements ValidationBaseRule {
 
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        List<String> facilityCodes = Arrays.asList(
+        List<String> eligibleFacilityTypeCodes = Arrays.asList(
             FacilityTypeCodes.STANDARD.getCode(),
             FacilityTypeCodes.ALT_PROGS.getCode(),
             FacilityTypeCodes.YOUTH.getCode(),
@@ -75,7 +75,9 @@ public class RefugeeFundingRule implements ValidationBaseRule {
             FacilityTypeCodes.LONG_PRP.getCode()
         );
 
-        if (Boolean.FALSE.equals(studentInSeptemberCollection(studentRuleData)) || facilityCodes.stream().anyMatch(code -> studentRuleData.getSchool().getFacilityTypeCode().contains(code))) {
+        Boolean notEligibleFacilityTypeCode = !eligibleFacilityTypeCodes.contains(studentRuleData.getSchool().getFacilityTypeCode());
+
+        if (Boolean.TRUE.equals(studentInSeptemberCollection(studentRuleData)) || Boolean.TRUE.equals(notEligibleFacilityTypeCode)) {
             log.debug("RefugeeFundingRule-V90: Refugee not reported in September Collection for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SCHOOL_FUNDING_CODE, StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL));
         }
@@ -93,7 +95,8 @@ public class RefugeeFundingRule implements ValidationBaseRule {
         UUID districtId = UUID.fromString(studentRuleData.getSchool().getDistrictId());
         var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
         var previousSeptemberCollections = sdcSchoolCollectionRepository.findSeptemberCollectionsForDistrictForFiscalYearToCurrentCollection(districtId, currentSnapshotDate.minusYears(1).withMonth(9).withDayOfMonth(1), currentSnapshotDate);
+        var previousSeptemberCount = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(assignedStudentId, previousSeptemberCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList());
 
-        return sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(assignedStudentId, previousSeptemberCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
+        return previousSeptemberCount > 0;
     }
 }
