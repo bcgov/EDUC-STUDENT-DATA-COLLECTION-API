@@ -1486,7 +1486,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         SdcSchoolCollectionStudentEntity studFeb = createMockSchoolStudentEntity(sdcMockSchoolFeb);
         studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
-        studFeb.setAssignedStudentId(assignedStudentId); // Ensure the same student ID is used
+        studFeb.setAssignedStudentId(assignedStudentId);
         sdcSchoolCollectionStudentRepository.save(studFeb);
 
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
