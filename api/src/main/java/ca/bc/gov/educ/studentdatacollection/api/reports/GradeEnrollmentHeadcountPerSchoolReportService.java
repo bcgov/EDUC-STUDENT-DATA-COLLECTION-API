@@ -101,7 +101,7 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
     protected HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
         HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
 
-        int sequencePrefix = 0;
+        int sequencePrefix = 10;
         if (gradeEnrollmentHeadcountList != null) {
             for (EnrollmentHeadcountResult result : gradeEnrollmentHeadcountList) {
                 String schoolID = result.getSchoolID();
@@ -109,7 +109,7 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
                 int finalSequencePrefix = sequencePrefix;
                 schoolOptional.ifPresent(school -> {
                     String schoolTitle = school.getMincode() + " - " + school.getDisplayName();
-                    addValuesForSectionToMap(nodeMap, "schoolTitle" + schoolID, schoolTitle, finalSequencePrefix == 0 ? "00" : String.valueOf(finalSequencePrefix), includeKH, true, false);
+                    addValuesForSectionToMap(nodeMap, "schoolTitle" + schoolID, schoolTitle, String.valueOf(finalSequencePrefix), includeKH, true, false);
                     addValuesForSectionToMap(nodeMap, HEADCOUNT + schoolID, "Headcount", String.valueOf(finalSequencePrefix + 1), includeKH, false, false);
                     addValuesForSectionToMap(nodeMap, TOTALFTE + schoolID, "FTE Total", String.valueOf(finalSequencePrefix + 2), includeKH, false, true);
                 });
