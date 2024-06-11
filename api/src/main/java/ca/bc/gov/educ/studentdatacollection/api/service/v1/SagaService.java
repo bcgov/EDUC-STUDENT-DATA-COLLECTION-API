@@ -73,6 +73,17 @@ public class SagaService {
   }
 
   /**
+   * Create saga records.
+   *
+   * @param sagas the sagas
+   * @return the saga
+   */
+  @Transactional(propagation = Propagation.MANDATORY)
+  public List<SdcSagaEntity> createSagaRecords(final List<SdcSagaEntity> sagas) {
+    return this.getSagaRepository().saveAll(sagas);
+  }
+
+  /**
    * no need to do a get here as it is an attached entity
    * first find the child record, if exist do not add. this scenario may occur in replay process,
    * so dont remove this check. removing this check will lead to duplicate records in the child table.
@@ -159,6 +170,11 @@ public class SagaService {
       .updateDate(LocalDateTime.now())
       .build();
     return this.createSagaRecord(saga);
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public List<SdcSagaEntity> createSagaRecordsInDB(final List<SdcSagaEntity> sdcSagaEntities) {
+    return this.createSagaRecords(sdcSagaEntities);
   }
 
   /**

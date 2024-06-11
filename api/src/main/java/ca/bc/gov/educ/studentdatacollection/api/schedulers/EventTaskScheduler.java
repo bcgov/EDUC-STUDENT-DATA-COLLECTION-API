@@ -56,4 +56,11 @@ public class EventTaskScheduler {
     LockAssert.assertLocked();
     this.getTaskSchedulerAsyncService().findSchoolCollectionsForSubmission();
   }
+
+  @Scheduled(cron = "${scheduled.jobs.process.tardy.collection.schools.cron}")
+  @SchedulerLock(name = "NOTIFY_TARDY_SCHOOLS", lockAtLeastFor = "${scheduled.jobs.process.tardy.collection.schools.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.tardy.collection.schools.cron.lockAtMostFor}")
+  public void notifyTardySchoolsToSubmit() {
+    LockAssert.assertLocked();
+    this.getTaskSchedulerAsyncService().findAllUnsubmittedIndependentSchoolsInCurrentCollection();
+  }
 }

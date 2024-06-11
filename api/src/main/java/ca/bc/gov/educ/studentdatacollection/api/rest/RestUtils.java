@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeCriteriaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.struct.CHESEmail;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
@@ -30,6 +31,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -58,7 +60,7 @@ public class RestUtils {
   private static final String CONTENT_TYPE = "Content-Type";
   private final Map<String, School> schoolMap = new ConcurrentHashMap<>();
   private final Map<String, School> schoolMincodeMap = new ConcurrentHashMap<>();
-
+  private final WebClient chesWebClient;
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
   private final WebClient webClient;
@@ -75,10 +77,11 @@ public class RestUtils {
   private final Map<String, List<UUID>> independentAuthorityToSchoolIDMap = new ConcurrentHashMap<>();
 
   @Autowired
-  public RestUtils(WebClient webClient, final ApplicationProperties props, final MessagePublisher messagePublisher) {
-    this.webClient = webClient;
-    this.props = props;
-    this.messagePublisher = messagePublisher;
+  public RestUtils(WebClient chesWebClient, WebClient webClient, final ApplicationProperties props, final MessagePublisher messagePublisher) {
+      this.chesWebClient = chesWebClient;
+      this.webClient = webClient;
+      this.props = props;
+      this.messagePublisher = messagePublisher;
   }
 
   @PostConstruct
@@ -305,6 +308,59 @@ public class RestUtils {
       this.populateSchoolMincodeMap();
     }
     return Optional.ofNullable(this.schoolMincodeMap.get(mincode));
+  }
+
+  public void sendEmail(final String fromEmail, final List<String> toEmail, final String body, final String subject) {
+    this.sendEmail(this.getChesEmail(fromEmail, toEmail, body, subject));
+  }
+
+  public void sendEmail(final CHESEmail chesEmail) {
+    this.chesWebClient
+            .post()
+            .uri(this.props.getChesEndpointURL())
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .body(Mono.just(chesEmail), CHESEmail.class)
+            .retrieve()
+            .bodyToMono(String.class)
+            .doOnError(error -> this.logError(error, chesEmail))
+            .doOnSuccess(success -> this.onSendEmailSuccess(success, chesEmail))
+            .block();
+  }
+
+  private void logError(final Throwable throwable, final CHESEmail chesEmailEntity) {
+    log.error("Error from CHES API call :: {} ", chesEmailEntity, throwable);
+  }
+
+  private void onSendEmailSuccess(final String s, final CHESEmail chesEmailEntity) {
+    log.info("Email sent success :: {} :: {}", chesEmailEntity, s);
+  }
+
+  public CHESEmail getChesEmail(final String fromEmail, final List<String> toEmail, final String body, final String subject) {
+    final CHESEmail chesEmail = new CHESEmail();
+    chesEmail.setBody(body);
+    chesEmail.setBodyType("html");
+    chesEmail.setDelayTS(0);
+    chesEmail.setEncoding("utf-8");
+    chesEmail.setFrom(fromEmail);
+    chesEmail.setPriority("normal");
+    chesEmail.setSubject(subject);
+    chesEmail.setTag("tag");
+    chesEmail.getTo().addAll(toEmail);
+    return chesEmail;
+  }
+
+  public CHESEmail getChesEmail(final String emailAddress, final String body, final String subject) {
+    final CHESEmail chesEmail = new CHESEmail();
+    chesEmail.setBody(body);
+    chesEmail.setBodyType("html");
+    chesEmail.setDelayTS(0);
+    chesEmail.setEncoding("utf-8");
+    chesEmail.setFrom("noreply-edx@gov.bc.ca");
+    chesEmail.setPriority("normal");
+    chesEmail.setSubject(subject);
+    chesEmail.setTag("tag");
+    chesEmail.getTo().add(emailAddress);
+    return chesEmail;
   }
 
   public Optional<District> getDistrictByDistrictID(final String districtID) {
