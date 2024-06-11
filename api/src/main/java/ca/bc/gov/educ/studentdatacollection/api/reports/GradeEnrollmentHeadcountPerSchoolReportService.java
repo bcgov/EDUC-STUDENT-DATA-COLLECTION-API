@@ -124,9 +124,9 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix, boolean includeKH, boolean header, boolean isDoubleRow){
         if (Boolean.TRUE.equals(header)) {
-            nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", isDoubleRow, true, false, includeKH));
+            nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", isDoubleRow, true, true, includeKH));
         } else {
-            nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", isDoubleRow, true, false, includeKH));
+            nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", isDoubleRow, true, true, includeKH));
         }
     }
 
