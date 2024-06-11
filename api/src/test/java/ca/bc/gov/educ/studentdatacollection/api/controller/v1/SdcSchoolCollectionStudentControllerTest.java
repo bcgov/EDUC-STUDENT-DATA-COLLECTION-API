@@ -3759,4 +3759,76 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andReturn();
         this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
     }
+
+    @Test
+    void testUpdatePENStatus_withPenCodeNEW_ShouldUpdateStatusAndReturnStatusOk() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+                grantedAuthority);
+
+        var school = this.createMockSchool();
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
+
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setPenMatchResult("INREVIEW");
+        entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        entity.setUpdateDate(LocalDateTime.now());
+        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateDate(null);
+        entity.setCreateDate(null);
+        this.sdcSchoolCollectionStudentRepository.save(entity);
+
+        this.mockMvc.perform(
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/update-pen/type/" + "NEW")
+                                .contentType(APPLICATION_JSON)
+                                .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
+                                .with(mockAuthority))
+                .andDo(print()).andExpect(status().isOk());
+
+        val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
+        assertThat(curStudentEntity).isPresent();
+        var studentEntity = curStudentEntity.get();
+        assertThat(studentEntity.getPenMatchResult()).isEqualTo("NEW");
+        assertThat(studentEntity.getAssignedPen()).isNull();
+        assertThat(studentEntity.getAssignedStudentId()).isNull();
+    }
+
+    @Test
+    void testUpdatePENStatus_withPenCodeMATCH_ShouldUpdateStatusAndReturnStatusOk() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+                grantedAuthority);
+
+        var school = this.createMockSchool();
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
+        var assignedPenUUID = UUID.randomUUID();
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setPenMatchResult(null);
+        entity.setAssignedStudentId(assignedPenUUID);
+        entity.setAssignedPen("123456789");
+        entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
+        entity.setUpdateDate(LocalDateTime.now());
+        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateDate(null);
+        entity.setCreateDate(null);
+        this.sdcSchoolCollectionStudentRepository.save(entity);
+
+        this.mockMvc.perform(
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/update-pen/type/" + "MATCH")
+                                .contentType(APPLICATION_JSON)
+                                .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
+                                .with(mockAuthority))
+                .andDo(print()).andExpect(status().isOk());
+
+        val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
+        assertThat(curStudentEntity).isPresent();
+        var studentEntity = curStudentEntity.get();
+        assertThat(studentEntity.getPenMatchResult()).isEqualTo("MATCH");
+        assertThat(studentEntity.getAssignedPen()).isEqualTo("123456789");
+        assertThat(studentEntity.getAssignedStudentId()).isEqualTo(assignedPenUUID);
+    }
 }
