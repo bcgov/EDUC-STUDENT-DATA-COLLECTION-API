@@ -75,7 +75,6 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
 
             var programList = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySchoolIdAndBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
             this.gradeEnrollmentHeadcountList = programList;
-            log.debug(convertToGradeEnrollmentProgramReportJSONStringDistrict(programList, sdcDistrictCollectionEntity));
             return generateJasperReport(convertToGradeEnrollmentProgramReportJSONStringDistrict(programList, sdcDistrictCollectionEntity), gradeEnrollmentPerSchoolHeadcountReport, ReportTypeCode.DIS_GRADE_ENROLLMENT_HEADCOUNT_PER_SCHOOL);
         } catch (JsonProcessingException e) {
             log.error("Exception occurred while writing PDF report for dis grade enrollment programs :: " + e.getMessage());
