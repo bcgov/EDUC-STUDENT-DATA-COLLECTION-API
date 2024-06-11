@@ -35,6 +35,8 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
     private static final String HEADCOUNT = "headcount";
     private static final String TOTALFTE = "totalFTE";
     private static final String ALLSCHOOLS = "allSchools";
+    private static final String SCHOOLTITLE = "schoolTitle";
+    private static final String DOUBLE_FORMAT = "%,.4f";
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final RestUtils restUtils;
@@ -108,7 +110,7 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
                 int finalSequencePrefix = sequencePrefix;
                 schoolOptional.ifPresent(school -> {
                     String schoolTitle = school.getMincode() + " - " + school.getDisplayName();
-                    addValuesForSectionToMap(nodeMap, "schoolTitle" + schoolID, schoolTitle, String.valueOf(finalSequencePrefix), includeKH, true, false);
+                    addValuesForSectionToMap(nodeMap, SCHOOLTITLE + schoolID, schoolTitle, String.valueOf(finalSequencePrefix), includeKH, true, false);
                     addValuesForSectionToMap(nodeMap, HEADCOUNT + schoolID, "Headcount", String.valueOf(finalSequencePrefix + 1), includeKH, false, false);
                     addValuesForSectionToMap(nodeMap, TOTALFTE + schoolID, "FTE Total", String.valueOf(finalSequencePrefix + 2), includeKH, false, true);
                 });
@@ -122,11 +124,18 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
     }
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix, boolean includeKH, boolean header, boolean isDoubleRow){
+        HeadcountChildNode node;
         if (Boolean.TRUE.equals(header)) {
-            nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", isDoubleRow, true, true, includeKH));
+            node = new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", isDoubleRow, true, true, includeKH);
         } else {
-            nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", isDoubleRow, true, true, includeKH));
+            node = new HeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", isDoubleRow, true, true, includeKH);
         }
+
+        if (sectionPrefix.startsWith(SCHOOLTITLE) || sectionPrefix.startsWith(ALLSCHOOLS)) {
+            node.setAllValuesToNull();
+        }
+
+        nodeMap.put(sectionPrefix, node);
     }
 
     protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, EnrollmentHeadcountResult gradeResult) {
@@ -136,27 +145,20 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
 
         HeadcountChildNode allSchoolsHeadcountNode = nodeMap.get("headcountallSchools");
         HeadcountChildNode allSchoolsFTENode = nodeMap.get("totalFTEallSchools");
-        if (allSchoolsHeadcountNode.getValueForGrade(code) == null) {
-            allSchoolsHeadcountNode.setValueForGrade(code, "0");
-        }
-        if (allSchoolsFTENode.getValueForGrade(code) == null) {
-            allSchoolsFTENode.setValueForGrade(code, "0.0");
-        }
 
         String schoolID = gradeResult.getSchoolID();
         if (nodeMap.containsKey(HEADCOUNT + schoolID)) {
             nodeMap.get(HEADCOUNT + schoolID).setValueForGrade(code, gradeResult.getTotalHeadcount());
-        } else if (nodeMap.containsKey(TOTALFTE + schoolID)) {
-            nodeMap.get(TOTALFTE + schoolID).setValueForGrade(code, gradeResult.getTotalFteTotal());
-        } else {
-            log.warn("School ID {} not found in node map", schoolID);
+        }
+        if (nodeMap.containsKey(TOTALFTE + schoolID) && gradeResult.getTotalFteTotal() != null) {
+            nodeMap.get(TOTALFTE + schoolID).setValueForGrade(code, String.format(DOUBLE_FORMAT, Double.valueOf(gradeResult.getTotalFteTotal())));
         }
 
         int currentHeadcountTotal = Integer.parseInt(gradeResult.getTotalHeadcount());
-        float currentFTETotal = Float.parseFloat(gradeResult.getTotalFteTotal());
+        double currentFTETotal = Double.parseDouble(gradeResult.getTotalFteTotal());
         int accumulatedHeadcountTotal = Integer.parseInt(allSchoolsHeadcountNode.getValueForGrade(code));
-        float accumulatedFTETotal = Float.parseFloat(allSchoolsFTENode.getValueForGrade(code));
+        double accumulatedFTETotal = Double.parseDouble(allSchoolsFTENode.getValueForGrade(code));
         allSchoolsHeadcountNode.setValueForGrade(code, String.valueOf(accumulatedHeadcountTotal + currentHeadcountTotal));
-        allSchoolsFTENode.setValueForGrade(code, String.valueOf(accumulatedFTETotal + currentFTETotal));
+        allSchoolsFTENode.setValueForGrade(code, String.format(DOUBLE_FORMAT, accumulatedFTETotal + currentFTETotal));
     }
 }
