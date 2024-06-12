@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationField
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolFundingCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -18,6 +19,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,8 +27,9 @@ import java.util.UUID;
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
  *  | V90 | WARNING  | Students reported with a Funding Code of 16 must not be reported in   |     V26      |
- *                     September Collection to receive funding in February
- *
+ *                     September Collection to receive funding in February. They also must
+ *                     be reported in a school with a Facility type of Public: Standard,
+ *                     Alt-Progs, Youth, Short-PRP, Long-PRP to receive Feb funding.
  */
 @Component
 @Slf4j
@@ -64,7 +67,17 @@ public class RefugeeFundingRule implements ValidationBaseRule {
 
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        if (Boolean.FALSE.equals(studentInSeptemberCollection(studentRuleData))) {
+        List<String> eligibleFacilityTypeCodes = Arrays.asList(
+            FacilityTypeCodes.STANDARD.getCode(),
+            FacilityTypeCodes.ALT_PROGS.getCode(),
+            FacilityTypeCodes.YOUTH.getCode(),
+            FacilityTypeCodes.SHORT_PRP.getCode(),
+            FacilityTypeCodes.LONG_PRP.getCode()
+        );
+
+        Boolean notEligibleFacilityTypeCode = !eligibleFacilityTypeCodes.contains(studentRuleData.getSchool().getFacilityTypeCode());
+
+        if (Boolean.TRUE.equals(studentInSeptemberCollection(studentRuleData)) || Boolean.TRUE.equals(notEligibleFacilityTypeCode)) {
             log.debug("RefugeeFundingRule-V90: Refugee not reported in September Collection for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SCHOOL_FUNDING_CODE, StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL));
         }
@@ -82,7 +95,8 @@ public class RefugeeFundingRule implements ValidationBaseRule {
         UUID districtId = UUID.fromString(studentRuleData.getSchool().getDistrictId());
         var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
         var previousSeptemberCollections = sdcSchoolCollectionRepository.findSeptemberCollectionsForDistrictForFiscalYearToCurrentCollection(districtId, currentSnapshotDate.minusYears(1).withMonth(9).withDayOfMonth(1), currentSnapshotDate);
+        var previousSeptemberCount = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(assignedStudentId, previousSeptemberCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList());
 
-        return sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(assignedStudentId, previousSeptemberCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList()) > 0;
+        return previousSeptemberCount > 0;
     }
 }
