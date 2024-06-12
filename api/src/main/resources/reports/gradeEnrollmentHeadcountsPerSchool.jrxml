@@ -335,7 +335,7 @@
                                 <property name="com.jaspersoft.studio.unit.width" value="pixel"/>
                             </jr:columnHeader>
                             <jr:detailCell style="Table 2_TD" height="20">
-                                <textField>
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="100" height="20" isRemoveLineWhenBlank="true" forecolor="#003366" backcolor="#F5F5F5" uuid="86ca9cc7-3544-4ff8-a609-b60b52968b7b">
                                         <property name="com.jaspersoft.studio.unit.x" value="px"/>
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
@@ -346,7 +346,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{typeOfProgram}]]></textFieldExpression>
                                 </textField>
-                                <textField>
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" mode="Transparent" x="0" y="0" width="100" height="20" isRemoveLineWhenBlank="true" forecolor="#003366" backcolor="#EBEBEB" uuid="ef71c97f-1fcf-4353-bf82-0603e3a9f9f0">
                                         <property name="com.jaspersoft.studio.unit.x" value="px"/>
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
