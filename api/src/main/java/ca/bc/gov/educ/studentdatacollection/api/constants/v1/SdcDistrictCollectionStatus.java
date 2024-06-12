@@ -16,6 +16,10 @@ public enum SdcDistrictCollectionStatus {
 
   SUBMITTED("SUBMITTED"),
 
+  P_DUP_POST("P_DUP_POST"),
+
+  P_DUP_VRFD("P_DUP_VRFD"),
+
   COMPLETED("COMPLETED");
 
 
