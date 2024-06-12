@@ -4,8 +4,10 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -36,14 +38,16 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
 
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private JasperReport gradeEnrollmentHeadcountReport;
   private static final String DOUBLE_FORMAT = "%,.4f";
   private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
-  public GradeEnrollmentHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
+  public GradeEnrollmentHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
       super(restUtils);
       this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
       this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+      this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
   }
 
   @PostConstruct
@@ -64,17 +68,31 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
     }
   }
 
-  public DownloadableReportResponse generateGradeEnrollmentHeadcountReport(UUID collectionID){
-    try {
-      Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional =  sdcSchoolCollectionRepository.findById(collectionID);
-      SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
-              new EntityNotFoundException(SdcSchoolCollectionEntity.class, "Collection by Id", collectionID.toString()));
+  public DownloadableReportResponse generateGradeEnrollmentHeadcountReport(UUID collectionID, Boolean isDistrict){
+    if (Boolean.TRUE.equals(isDistrict)) {
+      try {
+        Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional =  sdcDistrictCollectionRepository.findById(collectionID);
+        SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
+                new EntityNotFoundException(SdcSchoolCollectionEntity.class, "Collection by Id", collectionID.toString()));
 
-      var gradeEnrollmentList = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-      return generateJasperReport(convertToGradeEnrollmentReportJSONString(gradeEnrollmentList, sdcSchoolCollectionEntity), gradeEnrollmentHeadcountReport, ReportTypeCode.GRADE_ENROLLMENT_HEADCOUNT);
-    } catch (JsonProcessingException e) {
-      log.error("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
-      throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
+        var gradeEnrollmentList = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+        return generateJasperReport(convertToGradeEnrollmentReportJSONStringDistrict(gradeEnrollmentList, sdcDistrictCollectionEntity), gradeEnrollmentHeadcountReport, ReportTypeCode.DIS_GRADE_ENROLLMENT_HEADCOUNT);
+      } catch (JsonProcessingException e) {
+        log.error("Exception occurred while writing PDF report for grade enrollment dis :: " + e.getMessage());
+        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment dis :: " + e.getMessage());
+      }
+    } else {
+      try {
+        Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional =  sdcSchoolCollectionRepository.findById(collectionID);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
+                new EntityNotFoundException(SdcSchoolCollectionEntity.class, "Collection by Id", collectionID.toString()));
+
+        var gradeEnrollmentList = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+        return generateJasperReport(convertToGradeEnrollmentReportJSONString(gradeEnrollmentList, sdcSchoolCollectionEntity), gradeEnrollmentHeadcountReport, ReportTypeCode.GRADE_ENROLLMENT_HEADCOUNT);
+      } catch (JsonProcessingException e) {
+        log.error("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
+        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
+      }
     }
   }
 
@@ -84,6 +102,24 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
     var school = setReportTombstoneValues(sdcSchoolCollection, reportNode);
 
     var nodeMap = generateNodeMap(isIndependentSchool(school));
+
+    mappedResults.forEach(careerHeadcountResult -> setValueForGrade(nodeMap, careerHeadcountResult));
+
+    nodeMap.get("schoolAgedHeading").setAllValuesToNull();
+    nodeMap.get("adultHeading").setAllValuesToNull();
+    nodeMap.get("allHeading").setAllValuesToNull();
+
+    reportNode.setPrograms(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
+    mainNode.setReport(reportNode);
+    return objectWriter.writeValueAsString(mainNode);
+  }
+
+  private String convertToGradeEnrollmentReportJSONStringDistrict(List<EnrollmentHeadcountResult> mappedResults, SdcDistrictCollectionEntity sdcDistrictCollection) throws JsonProcessingException {
+    HeadcountNode mainNode = new HeadcountNode();
+    HeadcountReportNode reportNode = new HeadcountReportNode();
+    setReportTombstoneValuesDis(sdcDistrictCollection, reportNode);
+
+    var nodeMap = generateNodeMap(false);
 
     mappedResults.forEach(careerHeadcountResult -> setValueForGrade(nodeMap, careerHeadcountResult));
 
