@@ -80,6 +80,14 @@ public class SdcDuplicatesService {
     return finalReturnList;
   }
 
+  public List<SdcDuplicateEntity> getAllProvincialDuplicatesByCollectionID(UUID collectionID) {
+    return sdcDuplicateRepository.findAllProvincialDuplicatesByCollectionID(collectionID);
+  }
+
+  public List<SdcDuplicateEntity> getAllProvincialDuplicatesBySdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
+    return sdcDuplicateRepository.findAllProvincialDuplicatesBySdcDistrictCollectionID(sdcDistrictCollectionID);
+  }
+
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void generateAllProvincialDuplicates(UUID collectionID){
     //TODO: add check for collection status to prevent running this multiple times for a single collection

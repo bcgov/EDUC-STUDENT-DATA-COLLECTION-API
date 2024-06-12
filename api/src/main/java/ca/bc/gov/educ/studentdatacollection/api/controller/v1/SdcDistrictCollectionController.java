@@ -46,6 +46,11 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   }
 
   @Override
+  public List<SdcDuplicate> getDistrictCollectionProvincialDuplicates(UUID sdcDistrictCollectionID) {
+    return this.sdcDuplicatesService.getAllProvincialDuplicatesBySdcDistrictCollectionID(sdcDistrictCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
+  }
+
+  @Override
   public SdcDistrictCollection getActiveDistrictCollectionByDistrictId(UUID districtID) {
     return mapper.toStructure(sdcDistrictCollectionService.getActiveSdcDistrictCollectionByDistrictID(districtID));
   }
