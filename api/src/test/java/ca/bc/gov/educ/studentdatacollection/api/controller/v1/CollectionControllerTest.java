@@ -3,9 +3,11 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplication;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
@@ -14,6 +16,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -34,16 +37,18 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.io.File;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.Month;
+import java.time.Year;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -498,4 +503,176 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalSchools").value(0));
   }
 
+  @Test
+  void testFindDuplicatesInCollection_WithWrongScope_ShouldReturnForbidden() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "WRONG_SCOPE";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID() +"/duplicates").with(mockAuthority)
+            .param("matchedAssignedIDs", ""))
+            .andDo(print())
+            .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void testFindDuplicatesInCollection_WithWrongCollectionID_ShouldReturnStatusNotFound() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + null +"/duplicates").with(mockAuthority)
+            .param("matchedAssignedIDs", ""))
+            .andDo(print()).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testFindDuplicatesInCollection_shouldReturnDuplicateAssignedIds() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    var districtID = UUID.randomUUID();
+    var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+
+    var school1 = createMockSchool();
+    school1.setDisplayName("School1");
+    school1.setMincode("0000001");
+    school1.setDistrictId(districtID.toString());
+    var school2 = createMockSchool();
+    school2.setDisplayName("School2");
+    school2.setMincode("0000002");
+    school2.setDistrictId(districtID.toString());
+
+    var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    firstSchool.setUploadDate(null);
+    firstSchool.setUploadFileName(null);
+    firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+    var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    secondSchool.setUploadDate(null);
+    secondSchool.setUploadFileName(null);
+    secondSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+    secondSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+    sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchool, secondSchool));
+
+    final File file = new File(
+            Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+    );
+    final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+    });
+    var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+    var students = IntStream.range(0, models.size())
+            .mapToObj(i -> {
+              var student = models.get(i);
+              var studentId = UUID.randomUUID();
+
+              student.setAssignedStudentId(studentId);
+              //Even students go to the previous year; odd students to the current year.
+              if (i % 2 == 0) {
+                student.setSdcSchoolCollection(secondSchool);
+              } else {
+                student.setSdcSchoolCollection(firstSchool);
+              }
+              if (i == 1) {
+                student.setEnrolledProgramCodes("9876543210");
+                student.setEllNonEligReasonCode(ProgramEligibilityIssueCode.NOT_ENROLLED_ELL.getCode());
+              }
+              if (i == 3) {
+                student.setEnrolledProgramCodes("9876543217");
+                student.setEllNonEligReasonCode(ProgramEligibilityIssueCode.HOMESCHOOL.getCode());
+              }
+              if (i == 5) {
+                student.setEnrolledProgramCodes("9876543217");
+              }
+              if (i == 7) {
+                student.setEnrolledProgramCodes("9876543217");
+              }
+              return student;
+            })
+            .toList();
+
+    var savedStudents = sdcSchoolCollectionStudentRepository.saveAll(students);
+    var assignedIds = savedStudents.stream().map(s -> s.getAssignedStudentId().toString()).collect(Collectors.joining(","));
+
+    this.mockMvc
+            .perform(get(URL.BASE_URL_COLLECTION + "/"+ collection.getCollectionID() +"/duplicates")
+                    .with(mockAuthority)
+                    .param("matchedAssignedIDs", assignedIds)
+                    .contentType(APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(6)));
+  }
+
+  @Test
+  void testFindDuplicatesInCollection_shouldReturnNoDuplicate() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    var districtID = UUID.randomUUID();
+    var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+
+    var school1 = createMockSchool();
+    school1.setDisplayName("School1");
+    school1.setMincode("0000001");
+    school1.setDistrictId(districtID.toString());
+    var school2 = createMockSchool();
+    school2.setDisplayName("School2");
+    school2.setMincode("0000002");
+    school2.setDistrictId(districtID.toString());
+
+    var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    firstSchool.setUploadDate(null);
+    firstSchool.setUploadFileName(null);
+    firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+    var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    secondSchool.setUploadDate(null);
+    secondSchool.setUploadFileName(null);
+    secondSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+    secondSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+    sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchool, secondSchool));
+
+    final File file = new File(
+            Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+    );
+    final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+    });
+    var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+    var students = IntStream.range(0, models.size())
+            .mapToObj(i -> {
+              var student = models.get(i);
+              var studentId = UUID.randomUUID();
+
+              student.setAssignedStudentId(studentId);
+              //Even students go to the previous year; odd students to the current year.
+              if (i % 2 == 0) {
+                student.setSdcSchoolCollection(secondSchool);
+              } else {
+                student.setSdcSchoolCollection(firstSchool);
+              }
+              if (i == 1) {
+                student.setEnrolledProgramCodes("9876543210");
+                student.setEllNonEligReasonCode(ProgramEligibilityIssueCode.NOT_ENROLLED_ELL.getCode());
+              }
+              if (i == 3) {
+                student.setEnrolledProgramCodes("9876543217");
+                student.setEllNonEligReasonCode(ProgramEligibilityIssueCode.HOMESCHOOL.getCode());
+              }
+              if (i == 5) {
+                student.setEnrolledProgramCodes("9876543217");
+              }
+              if (i == 7) {
+                student.setEnrolledProgramCodes("9876543217");
+              }
+              return student;
+            })
+            .toList();
+
+    sdcSchoolCollectionStudentRepository.saveAll(students);
+    var assignedIds = UUID.randomUUID().toString();
+
+    this.mockMvc
+            .perform(get(URL.BASE_URL_COLLECTION + "/"+ collection.getCollectionID() +"/duplicates")
+                    .with(mockAuthority)
+                    .param("matchedAssignedIDs", assignedIds)
+                    .contentType(APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(0)));
+  }
 }

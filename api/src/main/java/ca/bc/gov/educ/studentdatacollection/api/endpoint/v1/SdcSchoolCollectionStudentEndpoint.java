@@ -83,4 +83,11 @@ public interface SdcSchoolCollectionStudentEndpoint {
   @Tag(name = "Sdc School Collection Student", description = "Endpoints to update PEN status on student entity.")
   ResponseEntity<Void> markPENForReview(@Validated @RequestBody SdcSchoolCollectionStudent sdcSchoolCollectionStudent);
 
+  @PostMapping("/update-pen/type/{penCode}")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional
+  @Tag(name = "Sdc School Collection Student", description = "Endpoints to update PEN status on student entity.")
+  ResponseEntity<Void> updatePENStatus(@PathVariable("penCode") String penCode, @Validated @RequestBody SdcSchoolCollectionStudent sdcSchoolCollectionStudent);
+
 }
