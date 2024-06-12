@@ -5,9 +5,11 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
@@ -28,14 +30,16 @@ public class CollectionService {
   private final CollectionRepository collectionRepository;
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+  private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private final RestUtils restUtils;
 
   @Autowired
-  public CollectionService(CollectionRepository collectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository) {
+  public CollectionService(CollectionRepository collectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
     this.collectionRepository = collectionRepository;
     this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.restUtils = restUtils;
+    this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
   }
 
   public Optional<CollectionEntity> getCollection(UUID collectionID) {
@@ -136,5 +140,11 @@ public class CollectionService {
 
   private boolean isStatusConfirmed(String statusCode, String... confirmedStatuses) {
     return Arrays.asList(confirmedStatuses).contains(statusCode);
+  }
+
+  public List<String> findDuplicatesInCollection(UUID collectionID, List<String> matchedAssignedIDs) {
+    List<UUID> matchedAssignedUUIDs = matchedAssignedIDs.stream().map(UUID::fromString).toList();
+    List<SdcSchoolCollectionStudentEntity> duplicateStudents = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(collectionID, matchedAssignedUUIDs);
+    return duplicateStudents.stream().map(s -> s.getAssignedStudentId().toString()).toList();
   }
 }

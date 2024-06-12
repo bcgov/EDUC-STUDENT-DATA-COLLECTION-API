@@ -102,6 +102,11 @@ public class CollectionController implements CollectionEndpoint {
     return this.collectionService.getMonitorIndySdcSchoolCollectionResponse(collectionId);
   }
 
+  @Override
+  public List<String> findDuplicatesInCollection(UUID collectionID, List<String> matchedAssignedIDs) {
+    return this.collectionService.findDuplicatesInCollection(collectionID, matchedAssignedIDs);
+  }
+
   private void validatePayload(Supplier<List<FieldError>> validator) {
     val validationResult = validator.get();
     if (!validationResult.isEmpty()) {
