@@ -4,7 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -74,6 +74,8 @@ public abstract class BaseStudentDataCollectionAPITest {
   ProgramDuplicateTypeCodeRepository programDuplicateTypeCodeRepository;
   @Autowired
   SdcSchoolCollectionStatusCodeRepository sdcSchoolCollectionStatusCodeRepository;
+  @Autowired
+  SdcDuplicateRepository sdcDuplicateRepository;
 
   @BeforeEach
   public void before() {
@@ -390,6 +392,27 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcSchoolCollectionStudentRepository.save(historicalSdcSchoolCollectionStudentEntity);
 
     return historicalSdcSchoolCollectionEntity.getSdcSchoolCollectionID();
+  }
+
+  public SdcDuplicateEntity createMockSdcDuplicateEntity(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity1, SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity2) {
+    var sdcDuplicateEntity = SdcDuplicateEntity.builder().sdcDuplicateID(UUID.randomUUID())
+            .duplicateErrorDescriptionCode(DuplicateErrorDescriptionCode.K_TO_9_DUP.getCode())
+            .duplicateLevelCode(DuplicateLevelCode.IN_DIST.getCode())
+            .duplicateSeverityCode(DuplicateSeverityCode.NON_ALLOWABLE.getCode())
+            .duplicateTypeCode(DuplicateTypeCode.ENROLLMENT.getCode()).build();
+    var student1 = createMockSdcDuplicateStudentEntity(sdcSchoolCollectionStudentEntity1, sdcDuplicateEntity);
+    var student2 = createMockSdcDuplicateStudentEntity(sdcSchoolCollectionStudentEntity2, sdcDuplicateEntity);
+    sdcDuplicateEntity.getSdcDuplicateStudentEntities().addAll(Arrays.asList(student1, student2));
+    return sdcDuplicateEntity;
+  }
+
+  private static SdcDuplicateStudentEntity createMockSdcDuplicateStudentEntity(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity, SdcDuplicateEntity sdcDuplicateEntity) {
+    return SdcDuplicateStudentEntity.builder()
+            .sdcDuplicateStudentID(UUID.randomUUID())
+            .sdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentEntity)
+            .sdcDistrictCollectionID(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getSdcDistrictCollectionID())
+            .sdcDuplicateEntity(sdcDuplicateEntity)
+            .build();
   }
 
   public static String asJsonString(final Object obj) {
