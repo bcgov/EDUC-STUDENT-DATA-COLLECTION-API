@@ -17,7 +17,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStat
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitPayload;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitSdcDistrictCollection;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -327,14 +327,14 @@ class SdcDistrictCollectionServiceTest extends BaseStudentDataCollectionAPITest 
     sdcDistrictCollectionEntity.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.SUBMITTED.getCode());
     sdcDistrictCollectionRepository.save(sdcDistrictCollectionEntity);
 
-    SdcDistrictCollectionEntity result = sdcDistrictCollectionService.unsubmitDistrictCollection(UnsubmitPayload.builder().districtOrSchoolCollectionID(sdcDistrictCollectionEntity.getSdcDistrictCollectionID()).updateUser("USER").build());
+    SdcDistrictCollectionEntity result = sdcDistrictCollectionService.unsubmitDistrictCollection(UnsubmitSdcDistrictCollection.builder().sdcDistrictCollectionID(sdcDistrictCollectionEntity.getSdcDistrictCollectionID()).updateUser("USER").build());
 
     assertEquals(SdcDistrictCollectionStatus.D_DUP_VRFD.getCode(), result.getSdcDistrictCollectionStatusCode());
   }
 
   @Test
   void testUnsubmitDistrictCollection_sdcDistrictCollectionNotFound() {
-    var payload = UnsubmitPayload.builder().districtOrSchoolCollectionID(UUID.randomUUID()).updateUser("USER").build();
+    var payload = UnsubmitSdcDistrictCollection.builder().sdcDistrictCollectionID(UUID.randomUUID()).updateUser("USER").build();
     assertThrows(EntityNotFoundException.class, () -> sdcDistrictCollectionService.unsubmitDistrictCollection(payload));
   }
 
@@ -347,7 +347,7 @@ class SdcDistrictCollectionServiceTest extends BaseStudentDataCollectionAPITest 
     sdcDistrictCollectionEntity.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.VERIFIED.getCode());
     sdcDistrictCollectionRepository.save(sdcDistrictCollectionEntity);
 
-    UnsubmitPayload sdcDistrictCollectionUnsubmit = UnsubmitPayload.builder().districtOrSchoolCollectionID(sdcDistrictCollectionEntity.getSdcDistrictCollectionID()).updateUser("USER").build();
+    UnsubmitSdcDistrictCollection sdcDistrictCollectionUnsubmit = UnsubmitSdcDistrictCollection.builder().sdcDistrictCollectionID(sdcDistrictCollectionEntity.getSdcDistrictCollectionID()).updateUser("USER").build();
     assertThrows(InvalidPayloadException.class, () -> sdcDistrictCollectionService.unsubmitDistrictCollection(sdcDistrictCollectionUnsubmit));
   }
 }

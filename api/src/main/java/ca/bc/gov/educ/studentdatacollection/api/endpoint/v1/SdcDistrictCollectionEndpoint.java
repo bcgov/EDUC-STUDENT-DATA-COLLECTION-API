@@ -35,6 +35,13 @@ public interface SdcDistrictCollectionEndpoint {
   @Tag(name = "Sdc District Collection", description = "Endpoints to get in district collection duplicates.")
   List<SdcDuplicate> getDistrictCollectionDuplicates(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
+  @GetMapping("/{sdcDistrictCollectionID}/provincial-duplicates")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_DISTRICT_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "Sdc District Collection", description = "Endpoints to get district collection's provincial duplicates.")
+  List<SdcDuplicate> getDistrictCollectionProvincialDuplicates(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
+
   @GetMapping("/search/{districtID}")
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_DISTRICT_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
@@ -90,5 +97,5 @@ public interface SdcDistrictCollectionEndpoint {
   @Transactional
   @Tag(name = "Sdc District Collection", description = "Endpoints to unsubmit district collection entity.")
   @Schema(name = "SdcDistrictCollection", implementation = SdcDistrictCollection.class)
-  SdcDistrictCollection unsubmitDistrictCollection(@RequestBody UnsubmitPayload unsubmitData);
+  SdcDistrictCollection unsubmitDistrictCollection(@RequestBody UnsubmitSdcDistrictCollection unsubmitData);
 }

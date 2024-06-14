@@ -412,4 +412,28 @@ public class SdcSchoolCollectionStudentService {
       throw new EntityNotFoundException(SdcSchoolCollectionEntity.class, "SdcSchoolCollectionEntity", studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID().toString());
     }
   }
+
+  @Transactional(propagation = Propagation.REQUIRED)
+  public void updatePenStatusToNEW(SdcSchoolCollectionStudentEntity studentEntity) {
+    var curStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
+            new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", studentEntity.getSdcSchoolCollectionStudentID().toString()));
+
+    curStudentEntity.setPenMatchResult("NEW");
+    curStudentEntity.setAssignedStudentId(null);
+    curStudentEntity.setAssignedPen(null);
+
+    saveSdcStudentWithHistory(curStudentEntity);
+  }
+
+  @Transactional(propagation = Propagation.REQUIRED)
+  public void updatePenStatusToMATCH(SdcSchoolCollectionStudentEntity studentEntity) {
+    var curStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
+            new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", studentEntity.getSdcSchoolCollectionStudentID().toString()));
+
+    curStudentEntity.setPenMatchResult("MATCH");
+    curStudentEntity.setAssignedStudentId(studentEntity.getAssignedStudentId());
+    curStudentEntity.setAssignedPen(studentEntity.getAssignedPen());
+
+    saveSdcStudentWithHistory(curStudentEntity);
+  }
 }

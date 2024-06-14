@@ -792,4 +792,13 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "GROUP BY s.sdcSchoolCollection.schoolID, s.enrolledGradeCode " +
           "ORDER BY s.sdcSchoolCollection.schoolID, s.enrolledGradeCode")
   List<EllHeadcountResult> getEllHeadcountsByBySchoolIdAndSdcDistrictCollectionId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
+
+  @Query(value = """  
+    SELECT stud
+    FROM SdcSchoolCollectionStudentEntity stud
+    WHERE stud.assignedStudentId IN (:matchedAssignedIDs)
+    and stud.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+    and stud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+    """)
+  List<SdcSchoolCollectionStudentEntity> findAllDuplicateStudentsByCollectionID(UUID collectionID, List<UUID> matchedAssignedIDs);
 }

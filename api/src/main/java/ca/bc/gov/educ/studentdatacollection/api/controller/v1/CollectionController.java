@@ -102,6 +102,11 @@ public class CollectionController implements CollectionEndpoint {
     return this.collectionService.getMonitorIndySdcSchoolCollectionResponse(collectionId);
   }
 
+  @Override
+  public List<String> findDuplicatesInCollection(UUID collectionID, List<String> matchedAssignedIDs) {
+    return this.collectionService.findDuplicatesInCollection(collectionID, matchedAssignedIDs);
+  }
+
   private void validatePayload(Supplier<List<FieldError>> validator) {
     val validationResult = validator.get();
     if (!validationResult.isEmpty()) {
@@ -112,9 +117,14 @@ public class CollectionController implements CollectionEndpoint {
   }
 
   @Override
-  public ResponseEntity<Void> getProvinceDuplicates(UUID collectionID) {
+  public ResponseEntity<Void> generateProvinceDuplicates(UUID collectionID) {
     this.sdcDuplicatesService.generateAllProvincialDuplicates(collectionID);
     return ResponseEntity.ok().build();
+  }
+
+  @Override
+  public List<SdcDuplicate> getProvinceDuplicates(UUID collectionID) {
+    return this.sdcDuplicatesService.getAllProvincialDuplicatesByCollectionID(collectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
   }
 
 }

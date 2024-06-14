@@ -445,6 +445,120 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
             .andDo(print()).andExpect(status().isOk());
   }
 
+  @Test
+  void testEnrollmentHeadcountDistrictReport_ShouldReturnOk() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    var districtMock = this.createMockDistrict();
+    when(this.restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(districtMock));
+    var schoolMock = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolMock));
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(districtMock.getDistrictId()));
+    sdcMockDistrict = sdcDistricCollectionRepository.save(sdcMockDistrict);
+
+    SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolMock.getSchoolId()));
+    sdcMockSchool.setUploadDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setSdcDistrictCollectionID(sdcMockDistrict.getSdcDistrictCollectionID());
+    sdcMockSchool = sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+    SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(sdcMockSchool);
+    student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+    student1.setIsSchoolAged(true);
+    student1.setFte(new BigDecimal(1.0));
+    sdcSchoolCollectionStudentRepository.save(student1);
+
+    SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(sdcMockSchool);
+    student1.setEnrolledGradeCode(SchoolGradeCodes.GRADUATED_ADULT.getCode());
+    student1.setIsSchoolAged(false);
+    student1.setIsAdult(true);
+    student1.setFte(new BigDecimal(1.0));
+    sdcSchoolCollectionStudentRepository.save(student2);
+
+    SdcSchoolCollectionStudentEntity student3 = createMockSchoolStudentEntity(sdcMockSchool);
+    student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE07.getCode());
+    student3.setIsSchoolAged(true);
+    student3.setFte(new BigDecimal(1.0));
+    sdcSchoolCollectionStudentRepository.save(student3);
+
+    SdcSchoolCollectionStudentEntity student4 = createMockSchoolStudentEntity(sdcMockSchool);
+    student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE08.getCode());
+    student3.setIsSchoolAged(true);
+    student3.setFte(new BigDecimal(1.0));
+    sdcSchoolCollectionStudentRepository.save(student4);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_GRADE_ENROLLMENT_HEADCOUNT").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
+  }
+
+  @Test
+  void testEnrollmentHeadcountDistrictReportPerSchool_ShouldReturnOk() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    var districtMock = this.createMockDistrict();
+    when(this.restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(districtMock));
+    var schoolMock = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolMock));
+    var school2Mock = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school2Mock));
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(districtMock.getDistrictId()));
+    sdcMockDistrict = sdcDistricCollectionRepository.save(sdcMockDistrict);
+
+    SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolMock.getSchoolId()));
+    sdcMockSchool.setUploadDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setSdcDistrictCollectionID(sdcMockDistrict.getSdcDistrictCollectionID());
+    sdcMockSchool = sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+    SdcSchoolCollectionEntity sdcMockSchool2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2Mock.getSchoolId()));
+    sdcMockSchool2.setUploadDate(null);
+    sdcMockSchool2.setUploadFileName(null);
+    sdcMockSchool2.setSdcDistrictCollectionID(sdcMockDistrict.getSdcDistrictCollectionID());
+    sdcMockSchool2 = sdcSchoolCollectionRepository.save(sdcMockSchool2);
+
+    SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(sdcMockSchool);
+    student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+    student1.setIsSchoolAged(true);
+    student1.setFte(new BigDecimal(1.0));
+    sdcSchoolCollectionStudentRepository.save(student1);
+
+    SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(sdcMockSchool);
+    student1.setEnrolledGradeCode(SchoolGradeCodes.GRADUATED_ADULT.getCode());
+    student1.setIsSchoolAged(false);
+    student1.setIsAdult(true);
+    student1.setFte(new BigDecimal(1.0));
+    sdcSchoolCollectionStudentRepository.save(student2);
+
+    SdcSchoolCollectionStudentEntity student3 = createMockSchoolStudentEntity(sdcMockSchool2);
+    student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE07.getCode());
+    student3.setIsSchoolAged(true);
+    student3.setFte(new BigDecimal(1.0));
+    sdcSchoolCollectionStudentRepository.save(student3);
+
+    SdcSchoolCollectionStudentEntity student4 = createMockSchoolStudentEntity(sdcMockSchool2);
+    student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE08.getCode());
+    student3.setIsSchoolAged(true);
+    student3.setFte(new BigDecimal(1.0));
+    sdcSchoolCollectionStudentRepository.save(student4);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_GRADE_ENROLLMENT_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
+  }
+
   private void setEnrolledProgramCode(SdcSchoolCollectionStudentEntity studentEntity, String enrolledProgram) {
     var enrolledProgramEntity = new SdcSchoolCollectionStudentEnrolledProgramEntity();
     enrolledProgramEntity.setSdcSchoolCollectionStudentEntity(studentEntity);

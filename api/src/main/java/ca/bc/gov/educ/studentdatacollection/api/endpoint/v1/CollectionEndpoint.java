@@ -67,7 +67,14 @@ public interface CollectionEndpoint {
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
   @Tag(name = "Collection Entity", description = "Endpoints for collection entity.")
   @Transactional
-  ResponseEntity<Void> getProvinceDuplicates(@PathVariable("collectionID") UUID collectionID);
+  ResponseEntity<Void> generateProvinceDuplicates(@PathVariable("collectionID") UUID collectionID);
+
+  @GetMapping("/{collectionID}/in-province-duplicates")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
+  @Tag(name = "Collection Entity", description = "Endpoints for collection entity.")
+  @Transactional
+  List<SdcDuplicate> getProvinceDuplicates(@PathVariable("collectionID") UUID collectionID);
 
   @GetMapping("/{collectionID}/monitorSdcDistrictCollections")
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
@@ -82,4 +89,11 @@ public interface CollectionEndpoint {
   @Transactional(readOnly = true)
   @Tag(name = "Collection Entity", description = "Endpoint to get monitoring objects for all indy sdc school collections in the collection.")
   MonitorIndySdcSchoolCollectionsResponse getMonitorIndySdcSchoolCollectionResponse(@PathVariable("collectionID") UUID collectionID);
+
+  @GetMapping("/{collectionID}/duplicates")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "Collection Entity", description = "Endpoints to find duplicates in collection.")
+  List<String> findDuplicatesInCollection(@PathVariable("collectionID") UUID collectionID, @RequestParam("matchedAssignedIDs") List<String> matchedAssignedIDs);
 }

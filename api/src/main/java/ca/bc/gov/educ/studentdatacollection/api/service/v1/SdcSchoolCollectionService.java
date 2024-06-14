@@ -9,7 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitPayload;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitSdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -189,13 +189,13 @@ public class SdcSchoolCollectionService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public SdcSchoolCollectionEntity unsubmitSchoolCollection(UnsubmitPayload unsubmitData) {
-    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = sdcSchoolCollectionRepository.findById(unsubmitData.getDistrictOrSchoolCollectionID());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, unsubmitData.getDistrictOrSchoolCollectionID().toString()));
+  public SdcSchoolCollectionEntity unsubmitSchoolCollection(UnsubmitSdcSchoolCollection unsubmitData) {
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = sdcSchoolCollectionRepository.findById(unsubmitData.getSdcSchoolCollectionID());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, unsubmitData.getSdcSchoolCollectionID().toString()));
 
     if(!StringUtils.equals(sdcSchoolCollectionEntity.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode())) {
       ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
-      var validationError = ValidationUtil.createFieldError(SDC_SCHOOL_COLLECTION_ID_KEY, unsubmitData.getDistrictOrSchoolCollectionID(), "Cannot un-submit a SDC School Collection that is not in submitted status.");
+      var validationError = ValidationUtil.createFieldError(SDC_SCHOOL_COLLECTION_ID_KEY, unsubmitData.getSdcSchoolCollectionID(), "Cannot un-submit a SDC School Collection that is not in submitted status.");
       List<FieldError> fieldErrorList = new ArrayList<>();
       fieldErrorList.add(validationError);
       error.addValidationErrors(fieldErrorList);
