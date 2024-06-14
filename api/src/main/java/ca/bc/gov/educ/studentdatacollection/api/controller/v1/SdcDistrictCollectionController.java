@@ -4,7 +4,9 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateTypeResolu
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcDistrictCollectionEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDistrictCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
@@ -15,6 +17,7 @@ import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionStu
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +28,7 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   private final SdcDuplicatesService sdcDuplicatesService;
   private final SdcDistrictCollectionService sdcDistrictCollectionService;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
+  private static final SdcSchoolCollectionMapper sdcSchoolCollectionMapper = SdcSchoolCollectionMapper.mapper;
   private final SdcDistrictCollectionValidator sdcDistrictCollectionValidator;
   private final SdcSchoolCollectionStudentValidator schoolCollectionStudentValidator;
 
@@ -71,6 +75,18 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
 
   public List<SdcSchoolFileSummary> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
     return sdcDistrictCollectionService.getSchoolCollectionsInProgress(sdcDistrictCollectionID);
+  }
+
+  @Override
+  public List<SdcSchoolCollection> getSchoolCollectionsInDistrictCollection(UUID sdcDistrictCollectionID){
+    List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities = this.sdcDistrictCollectionService.getSchoolCollectionsInDistrictCollection(sdcDistrictCollectionID);
+
+    List<SdcSchoolCollection> sdcSchoolCollectionList = new ArrayList<>();
+    for (SdcSchoolCollectionEntity entity : sdcSchoolCollectionEntities) {
+      sdcSchoolCollectionList.add(sdcSchoolCollectionMapper.toStructure(entity));
+    }
+    return sdcSchoolCollectionList;
+
   }
 
   @Override
