@@ -156,8 +156,6 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
-
-
   public List<String> getStatusFilters() {
     if (this.statusFilters != null && !this.statusFilters.isEmpty()) {
       return this.statusFilters;

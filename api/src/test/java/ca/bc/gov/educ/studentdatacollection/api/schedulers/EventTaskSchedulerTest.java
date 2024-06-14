@@ -11,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.events.schedulers.EventTaskSchedulerAsyncService;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.AfterEach;
@@ -32,6 +33,9 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
     @Autowired
     EventTaskScheduler eventTaskScheduler;
+
+    @Autowired
+    EventTaskSchedulerAsyncService eventTaskSchedulerAsyncService;
 
     @Autowired
     SagaRepository sagaRepository;
@@ -200,7 +204,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
                 .build();
         sagaRepository.save(saga);
 
-        eventTaskScheduler.notifyIndySchoolsToSubmit();
+        eventTaskSchedulerAsyncService.findAllUnsubmittedIndependentSchoolsInCurrentCollection();
 
         var sagas = sagaRepository.findAll();
         assertThat(sagas).hasSize(2);
