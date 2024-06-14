@@ -12,7 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionReposito
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDuplicateRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -82,12 +82,14 @@ public class SdcDuplicatesService {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void generateAllProvincialDuplicates(UUID collectionID){
-    //TODO: add check for collection status to prevent running this multiple times for a single collection
-
     Optional<CollectionEntity> activeCollection = collectionRepository.findActiveCollection();
 
-    if(activeCollection.isPresent() && !activeCollection.get().getCollectionID().equals(collectionID)){
-      throw new InvalidParameterException("Provided collectionID does not match currently active collectionID.");
+    if(activeCollection.isPresent()){
+      if(!activeCollection.get().getCollectionID().equals(collectionID)) {
+        throw new InvalidParameterException("Provided collectionID does not match currently active collectionID.");
+      }else if(activeCollection.get().getCollectionStatusCode().equals(CollectionStatus.PROVDUPES.getCode())){
+        throw new InvalidParameterException("Provided collectionID has already run provincial duplicates.");
+      }
     }
 
     List<SdcSchoolCollectionStudentEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInCollection(collectionID);
@@ -141,9 +143,9 @@ public class SdcDuplicatesService {
 
   public List<SdcDuplicateEntity> runDuplicatesCheck(DuplicateLevelCode level, SdcSchoolCollectionStudentEntity entity1, SdcSchoolCollectionStudentEntity entity2){
     List<SdcDuplicateEntity> dups = new ArrayList<>();
-    School school1 = restUtils.getSchoolBySchoolID(entity1.getSdcSchoolCollection().getSchoolID().toString()).orElseThrow(() ->
+    SchoolTombstone schoolTombstone1 = restUtils.getSchoolBySchoolID(entity1.getSdcSchoolCollection().getSchoolID().toString()).orElseThrow(() ->
             new StudentDataCollectionAPIRuntimeException("School provided by ID " + entity1.getSdcSchoolCollection().getSchoolID() + "was not found - this is not expected"));
-    School school2 = restUtils.getSchoolBySchoolID(entity2.getSdcSchoolCollection().getSchoolID().toString()).orElseThrow(() ->
+    SchoolTombstone schoolTombstone2 = restUtils.getSchoolBySchoolID(entity2.getSdcSchoolCollection().getSchoolID().toString()).orElseThrow(() ->
             new StudentDataCollectionAPIRuntimeException("School provided by ID " + entity2.getSdcSchoolCollection().getSchoolID() + "was not found - this is not expected"));
     //Is the student an adult?
     if(entity1.getIsAdult() == null) {
@@ -168,25 +170,25 @@ public class SdcDuplicatesService {
     }
 
     //In which grades are the two records reported - 10,11,12,SU Check
-    var isSchool1Independent = SchoolCategoryCodes.INDEPEND.getCode().equals(school1.getSchoolCategoryCode()) || SchoolCategoryCodes.INDP_FNS.getCode().equals(school1.getSchoolCategoryCode());
-    var isSchool2Independent = SchoolCategoryCodes.INDEPEND.getCode().equals(school2.getSchoolCategoryCode()) || SchoolCategoryCodes.INDP_FNS.getCode().equals(school2.getSchoolCategoryCode());
+    var isSchool1Independent = SchoolCategoryCodes.INDEPEND.getCode().equals(schoolTombstone1.getSchoolCategoryCode()) || SchoolCategoryCodes.INDP_FNS.getCode().equals(schoolTombstone1.getSchoolCategoryCode());
+    var isSchool2Independent = SchoolCategoryCodes.INDEPEND.getCode().equals(schoolTombstone2.getSchoolCategoryCode()) || SchoolCategoryCodes.INDP_FNS.getCode().equals(schoolTombstone2.getSchoolCategoryCode());
     if(dups.isEmpty() && SchoolGradeCodes.getGrades10toSU().contains(entity1.getEnrolledGradeCode()) && SchoolGradeCodes.getGrades10toSU().contains(entity2.getEnrolledGradeCode())){
-      if((FacilityTypeCodes.DIST_LEARN.getCode().equals(school1.getFacilityTypeCode()) && SchoolCategoryCodes.INDEPEND.getCode().equals(school1.getSchoolCategoryCode())) ||
-              (FacilityTypeCodes.DIST_LEARN.getCode().equals(school2.getFacilityTypeCode()) && SchoolCategoryCodes.INDEPEND.getCode().equals(school2.getSchoolCategoryCode()))) {
+      if((FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone1.getFacilityTypeCode()) && SchoolCategoryCodes.INDEPEND.getCode().equals(schoolTombstone1.getSchoolCategoryCode())) ||
+              (FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone2.getFacilityTypeCode()) && SchoolCategoryCodes.INDEPEND.getCode().equals(schoolTombstone2.getSchoolCategoryCode()))) {
         addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
       }else if(isSchool1Independent || isSchool2Independent) {
-        if((isSchool1Independent && FacilityTypeCodes.DIST_LEARN.getCode().equals(school2.getFacilityTypeCode())) || (isSchool2Independent && FacilityTypeCodes.DIST_LEARN.getCode().equals(school1.getFacilityTypeCode()))) {
+        if((isSchool1Independent && FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone2.getFacilityTypeCode())) || (isSchool2Independent && FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone1.getFacilityTypeCode()))) {
           addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
         }else{
           addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.ALT_DUP);
         }
-      }else if(school1.getDistrictId().equals(school2.getDistrictId())){
-        if(FacilityTypeCodes.ALT_PROGS.getCode().equals(school1.getFacilityTypeCode()) || FacilityTypeCodes.ALT_PROGS.getCode().equals(school2.getFacilityTypeCode())){
+      }else if(schoolTombstone1.getDistrictId().equals(schoolTombstone2.getDistrictId())){
+        if(FacilityTypeCodes.ALT_PROGS.getCode().equals(schoolTombstone1.getFacilityTypeCode()) || FacilityTypeCodes.ALT_PROGS.getCode().equals(schoolTombstone2.getFacilityTypeCode())){
           addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.ALT_DUP);
         }else{
           addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
         }
-      }else if(FacilityTypeCodes.DIST_LEARN.getCode().equals(school1.getFacilityTypeCode()) || FacilityTypeCodes.DIST_LEARN.getCode().equals(school2.getFacilityTypeCode())){
+      }else if(FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone1.getFacilityTypeCode()) || FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone2.getFacilityTypeCode())){
         addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
       }else{
         addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.ALT_DUP);
@@ -200,10 +202,10 @@ public class SdcDuplicatesService {
     var isStudent2Grade10toSU = SchoolGradeCodes.getGrades10toSU().contains(entity2.getEnrolledGradeCode());
 
     if(dups.isEmpty() && ((isStudent1Grade8or9 && isStudent2Grade10toSU) || (isStudent2Grade8or9 && isStudent1Grade10toSU))){
-      if(FacilityTypeCodes.DIST_LEARN.getCode().equals(school1.getFacilityTypeCode()) && FacilityTypeCodes.DIST_LEARN.getCode().equals(school2.getFacilityTypeCode())) {
+      if(FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone1.getFacilityTypeCode()) && FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone2.getFacilityTypeCode())) {
         addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
-      }else if((isStudent1Grade8or9 && FacilityTypeCodes.STANDARD.getCode().equals(school1.getFacilityTypeCode()) && isStudent2Grade10toSU && FacilityTypeCodes.DIST_LEARN.getCode().equals(school2.getFacilityTypeCode())) ||
-              (isStudent2Grade8or9 && FacilityTypeCodes.STANDARD.getCode().equals(school2.getFacilityTypeCode()) && isStudent1Grade10toSU && FacilityTypeCodes.DIST_LEARN.getCode().equals(school1.getFacilityTypeCode()))){
+      }else if((isStudent1Grade8or9 && FacilityTypeCodes.STANDARD.getCode().equals(schoolTombstone1.getFacilityTypeCode()) && isStudent2Grade10toSU && FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone2.getFacilityTypeCode())) ||
+              (isStudent2Grade8or9 && FacilityTypeCodes.STANDARD.getCode().equals(schoolTombstone2.getFacilityTypeCode()) && isStudent1Grade10toSU && FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone1.getFacilityTypeCode()))){
         addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
       }else {
         addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.IN_8_9_DUP);

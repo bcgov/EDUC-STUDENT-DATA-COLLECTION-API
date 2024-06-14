@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.events.schedulers;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
@@ -8,18 +7,15 @@ import ca.bc.gov.educ.studentdatacollection.api.helpers.LogHelper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.orchestrator.EmailOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.Orchestrator;
-import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.properties.EmailProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ScheduleHandlerService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.EmailSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -32,28 +28,31 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.INITIATED;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.STARTED;
 import static lombok.AccessLevel.PRIVATE;
 
 @Service
 @Slf4j
 public class EventTaskSchedulerAsyncService {
+
+  DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
+
   @Getter(PRIVATE)
   private final EmailProperties emailProperties;
+
+  private final ScheduleHandlerService scheduleHandlerService;
 
   @Getter(PRIVATE)
   private final SagaRepository sagaRepository;
 
   @Getter(PRIVATE)
   private final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository;
-  private final EmailOrchestrator emailOrchestrator;
 
   @Getter(PRIVATE)
   private final Map<String, Orchestrator> sagaOrchestrators = new HashMap<>();
@@ -72,16 +71,16 @@ public class EventTaskSchedulerAsyncService {
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionService sdcSchoolCollectionService;
 
-  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, EmailProperties emailProperties, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, EmailOrchestrator emailOrchestrator, final SdcService sdcService, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionService sdcSchoolCollectionService) {
-      this.emailProperties = emailProperties;
-      this.sagaRepository = sagaRepository;
+  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, EmailProperties emailProperties, ScheduleHandlerService scheduleHandlerService, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, final SdcService sdcService, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionService sdcSchoolCollectionService) {
+    this.emailProperties = emailProperties;
+    this.scheduleHandlerService = scheduleHandlerService;
+    this.sagaRepository = sagaRepository;
     this.sdcSchoolStudentRepository = sdcSchoolStudentRepository;
-      this.emailOrchestrator = emailOrchestrator;
-      this.sdcService = sdcService;
+    this.sdcService = sdcService;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
-      this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
-      this.sdcSchoolCollectionService = sdcSchoolCollectionService;
-      orchestrators.forEach(orchestrator -> this.sagaOrchestrators.put(orchestrator.getSagaName(), orchestrator));
+    this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
+    this.sdcSchoolCollectionService = sdcSchoolCollectionService;
+    orchestrators.forEach(orchestrator -> this.sagaOrchestrators.put(orchestrator.getSagaName(), orchestrator));
   }
 
   @Async("taskExecutor")
@@ -150,39 +149,13 @@ public class EventTaskSchedulerAsyncService {
   @Async("taskExecutor")
   @Transactional
   public void findAllUnsubmittedIndependentSchoolsInCurrentCollection() {
-    final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findAllUnsubmittedIndependentSchoolsInCurrentCollection();
-    log.debug("Found :: {}  schools which have not yet submitted.", sdcSchoolCollectionEntity.size());
-    if (!sdcSchoolCollectionEntity.isEmpty()) {
-      List<SdcSagaEntity> sagaEntities = new ArrayList<>();
-      sdcSchoolCollectionEntity.forEach(sdcSchoolCollection -> {
-        var emailSagaData = EmailSagaData
-                .builder()
-                .fromEmail(emailProperties.getSchoolNotificationEmailFrom())
-                .toEmails()
-                .subject(emailProperties.getEmailSubjectIndependentSchoolNoActivity())
-                .templateName("collection.independent.school.no.activity.notification")
-                .emailFields()
-                .build();
-
-        var payload = JsonUtil.getJsonStringFromObject(emailSagaData);
-        final var saga = SdcSagaEntity
-                .builder()
-                .payload(payload)
-                .sdcSchoolCollectionID(sdcSchoolCollection.getSdcSchoolCollectionID())
-                .sagaName(SagaEnum.EMAIL_SENDING_SAGA.name())
-                .status(STARTED.toString())
-                .sagaState(INITIATED.toString())
-                .createDate(LocalDateTime.now())
-                .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
-                .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
-                .updateDate(LocalDateTime.now())
-                .build();
-        sagaEntities.add(saga);
-      });
-      var savedSagas = this.emailOrchestrator.createSagas(sagaEntities);
-      savedSagas.forEach(sdcSagaEntity -> this.emailOrchestrator.startSaga(sdcSagaEntity));
+    final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities = sdcSchoolCollectionRepository.findAllUnsubmittedIndependentSchoolsInCurrentCollection();
+    log.debug("Found :: {}  schools which have not yet submitted.", sdcSchoolCollectionEntities.size());
+    if (!sdcSchoolCollectionEntities.isEmpty()) {
+      scheduleHandlerService.createAndStartUnsubmittedEmailSagas(sdcSchoolCollectionEntities);
     }
   }
+
 
 
   public List<String> getStatusFilters() {

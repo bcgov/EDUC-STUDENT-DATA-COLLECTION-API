@@ -5,7 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -38,14 +38,14 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         String schoolCategory = "INDEPEND";
         String bandCodeValue = "BAND_CODE_1";
 
-        School school = new School();
-        school.setSchoolCategoryCode(schoolCategory);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode(schoolCategory);
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setBandCode(bandCodeValue);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
@@ -67,15 +67,15 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         String bandCodeValue = "BAND_CODE_1";
         String fundingCode = "21";
 
-        School school = new School();
-        school.setSchoolCategoryCode(schoolCategory);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode(schoolCategory);
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setBandCode(bandCodeValue);
         student.setSchoolFundingCode(fundingCode);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
@@ -98,15 +98,15 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         String bandCodeValue = "BAND_CODE_INVALID";
         String fundingCode = "20";
 
-        School school = new School();
-        school.setSchoolCategoryCode(schoolCategory);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode(schoolCategory);
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setBandCode(bandCodeValue);
         student.setSchoolFundingCode(fundingCode);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
@@ -128,15 +128,15 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         String bandCodeValue = "BAND_CODE_3";
         String fundingCode = "20";
 
-        School school = new School();
-        school.setSchoolCategoryCode(schoolCategory);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode(schoolCategory);
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setBandCode(bandCodeValue);
         student.setSchoolFundingCode(fundingCode);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
 
@@ -158,13 +158,13 @@ class IndependentSchoolAndBandCodeCalculatorTest {
         // Given
         String schoolCategory = "INDEPEND";
 
-        School school = new School();
-        school.setSchoolCategoryCode(schoolCategory);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode(schoolCategory);
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When

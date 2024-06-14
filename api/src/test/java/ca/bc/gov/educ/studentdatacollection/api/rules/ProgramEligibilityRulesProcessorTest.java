@@ -10,7 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionReposito
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepository;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -119,8 +119,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     schoolStudentEntity.setIsAdult(false);
 
-    School localSchool = createMockSchool();
-    localSchool.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+    SchoolTombstone localSchoolTombstone = createMockSchool();
+    localSchoolTombstone.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
     List<ProgramEligibilityIssueCode> listWithoutError = rulesProcessor.processRules(
       createMockStudentRuleData(
         schoolStudentEntity,
@@ -131,12 +131,12 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
       e.equals(ProgramEligibilityIssueCode.OFFSHORE)
     )).isFalse();
 
-    School offshoreSchool = createMockSchool();
-    offshoreSchool.setSchoolCategoryCode(SchoolCategoryCodes.OFFSHORE.getCode());
+    SchoolTombstone offshoreSchoolTombstone = createMockSchool();
+    offshoreSchoolTombstone.setSchoolCategoryCode(SchoolCategoryCodes.OFFSHORE.getCode());
     List<ProgramEligibilityIssueCode> listWithOffshoreError = rulesProcessor.processRules(
       createMockStudentRuleData(
         schoolStudentEntity,
-        offshoreSchool
+              offshoreSchoolTombstone
       )
     );
     assertThat(listWithOffshoreError.size()).isNotZero();
@@ -150,15 +150,15 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     UUID assignedStudentID = UUID.randomUUID();
     LocalDateTime studentCreateDate = LocalDateTime.now();
 
-    School school = this.createMockSchool();
-    school.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
+    SchoolTombstone schoolTombstone = this.createMockSchool();
+    schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
 
     CollectionEntity oneYearOldCollection = collectionRepository.save(createMockCollectionEntity());
     CollectionEntity twoYearOldCollection = collectionRepository.save(createMockCollectionEntity());
 
     SdcSchoolCollectionEntity oneYearOldSchoolCollection = createMockSdcSchoolCollectionEntity(
       oneYearOldCollection,
-      UUID.fromString(school.getSchoolId())
+      UUID.fromString(schoolTombstone.getSchoolId())
     );
     oneYearOldSchoolCollection.setCreateDate(studentCreateDate.minusYears(1));
     this.sdcSchoolCollectionRepository.save(oneYearOldSchoolCollection);
@@ -169,7 +169,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     SdcSchoolCollectionEntity twoYearOldSchoolCollection = createMockSdcSchoolCollectionEntity(
       twoYearOldCollection,
-      UUID.fromString(school.getSchoolId())
+      UUID.fromString(schoolTombstone.getSchoolId())
     );
     twoYearOldSchoolCollection.setCreateDate(studentCreateDate.minusYears(2));
     this.sdcSchoolCollectionRepository.save(twoYearOldSchoolCollection);
@@ -182,7 +182,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionEntity currentSchoolCollection = sdcSchoolCollectionRepository.save(
       createMockSdcSchoolCollectionEntity(
         currentCollection,
-        UUID.fromString(school.getSchoolId())
+        UUID.fromString(schoolTombstone.getSchoolId())
       )
     );
 
@@ -194,7 +194,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setAssignedStudentId(assignedStudentID);
 
     List<ProgramEligibilityIssueCode> errors = rulesProcessor.processRules(
-      createMockStudentRuleData(schoolStudentEntity, school)
+      createMockStudentRuleData(schoolStudentEntity, schoolTombstone)
     );
 
     assertThat(errors.stream().anyMatch(e ->
@@ -207,15 +207,15 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     UUID assignedStudentID = UUID.randomUUID();
     LocalDateTime studentCreateDate = LocalDateTime.now();
 
-    School school = this.createMockSchool();
-    school.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
+    SchoolTombstone schoolTombstone = this.createMockSchool();
+    schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
 
     CollectionEntity oneYearOldCollection = collectionRepository.save(createMockCollectionEntity());
     CollectionEntity twoYearOldCollection = collectionRepository.save(createMockCollectionEntity());
 
     SdcSchoolCollectionEntity oneYearOldSchoolCollection = createMockSdcSchoolCollectionEntity(
       oneYearOldCollection,
-      UUID.fromString(school.getSchoolId())
+      UUID.fromString(schoolTombstone.getSchoolId())
     );
     oneYearOldSchoolCollection.setCreateDate(studentCreateDate.minusYears(1));
     this.sdcSchoolCollectionRepository.save(oneYearOldSchoolCollection);
@@ -226,7 +226,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     SdcSchoolCollectionEntity twoYearOldSchoolCollection = createMockSdcSchoolCollectionEntity(
       twoYearOldCollection,
-      UUID.fromString(school.getSchoolId())
+      UUID.fromString(schoolTombstone.getSchoolId())
     );
     twoYearOldSchoolCollection.setCreateDate(studentCreateDate.minusYears(2));
     this.sdcSchoolCollectionRepository.save(twoYearOldSchoolCollection);
@@ -239,7 +239,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionEntity currentSchoolCollection = sdcSchoolCollectionRepository.save(
       createMockSdcSchoolCollectionEntity(
         currentCollection,
-        UUID.fromString(school.getSchoolId())
+        UUID.fromString(schoolTombstone.getSchoolId())
       )
     );
 
@@ -250,7 +250,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setAssignedStudentId(assignedStudentID);
 
     List<ProgramEligibilityIssueCode> errors = rulesProcessor.processRules(
-      createMockStudentRuleData(schoolStudentEntity, school)
+      createMockStudentRuleData(schoolStudentEntity, schoolTombstone)
     );
 
     assertThat(errors.stream().anyMatch(e ->
@@ -265,8 +265,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     schoolStudentEntity.setIsAdult(false);
 
-    School localSchool = createMockSchool();
-    localSchool.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+    SchoolTombstone localSchoolTombstone = createMockSchool();
+    localSchoolTombstone.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
     List<ProgramEligibilityIssueCode> listWithoutError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, createMockSchool()));
     assertThat(listWithoutError.stream().anyMatch(e -> e.equals(ProgramEligibilityIssueCode.TOO_YOUNG))).isFalse();
 
@@ -430,23 +430,23 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
   @Test
   void testCareerProgramStudentsMustNotBeIndySchool() {
-    School school = this.createMockSchool();
-    school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+    SchoolTombstone schoolTombstone = this.createMockSchool();
+    schoolTombstone.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
     CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
     SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
-            .save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+            .save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone.getSchoolId())));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     schoolStudentEntity.setEnrolledProgramCodes("0540");
 
-    List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, school));
+    List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, schoolTombstone));
     assertThat(listWithoutEnrollmentError.stream().anyMatch(e -> e.equals(ProgramEligibilityIssueCode.ENROLLED_CAREER_INDY_SCHOOL))).isTrue();
 
-    school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
-    listWithoutEnrollmentError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, school));
+    schoolTombstone.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+    listWithoutEnrollmentError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, schoolTombstone));
     assertThat(listWithoutEnrollmentError.stream().anyMatch(e -> e.equals(ProgramEligibilityIssueCode.ENROLLED_CAREER_INDY_SCHOOL))).isFalse();
 
-    school.setSchoolCategoryCode(SchoolCategoryCodes.INDP_FNS.getCode());
-    listWithoutEnrollmentError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, school));
+    schoolTombstone.setSchoolCategoryCode(SchoolCategoryCodes.INDP_FNS.getCode());
+    listWithoutEnrollmentError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, schoolTombstone));
     assertThat(listWithoutEnrollmentError.stream().anyMatch(e -> e.equals(ProgramEligibilityIssueCode.ENROLLED_CAREER_INDY_SCHOOL))).isTrue();
   }
 
@@ -522,15 +522,15 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
             .save(createMockSdcSchoolCollectionEntity(collection, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
-    School school = createMockSchool();
-    school.setSchoolCategoryCode("INDEPEND");
+    SchoolTombstone schoolTombstone = createMockSchool();
+    schoolTombstone.setSchoolCategoryCode("INDEPEND");
 
     schoolStudentEntity.setEnrolledProgramCodes("29");
     schoolStudentEntity.setNativeAncestryInd("Y");
     List<ProgramEligibilityIssueCode> error = rulesProcessor.processRules(
             createMockStudentRuleData(
                     schoolStudentEntity,
-                    school
+                    schoolTombstone
             )
     );
 
@@ -545,15 +545,15 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
             .save(createMockSdcSchoolCollectionEntity(collection, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
-    School school = createMockSchool();
-    school.setSchoolCategoryCode("INDP_FNS");
+    SchoolTombstone schoolTombstone = createMockSchool();
+    schoolTombstone.setSchoolCategoryCode("INDP_FNS");
 
     schoolStudentEntity.setEnrolledProgramCodes("29");
     schoolStudentEntity.setNativeAncestryInd("Y");
     List<ProgramEligibilityIssueCode> error = rulesProcessor.processRules(
             createMockStudentRuleData(
                     schoolStudentEntity,
-                    school
+                    schoolTombstone
             )
     );
 
@@ -578,13 +578,13 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     sdcStudentEllRepository.save(entity);
     schoolStudentEntity.setAssignedStudentId(studentID);
 
-    School school = createMockSchool();
-    school.setSchoolCategoryCode("INDP_FNS");
+    SchoolTombstone schoolTombstone = createMockSchool();
+    schoolTombstone.setSchoolCategoryCode("INDP_FNS");
 
     List<ProgramEligibilityIssueCode> error = rulesProcessor.processRules(
             createMockStudentRuleData(
                     schoolStudentEntity,
-                    school
+                    schoolTombstone
             )
     );
 
@@ -609,13 +609,13 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     sdcStudentEllRepository.save(entity);
     schoolStudentEntity.setAssignedStudentId(studentID);
 
-    School school = createMockSchool();
-    school.setSchoolCategoryCode("INDEPEND");
+    SchoolTombstone schoolTombstone = createMockSchool();
+    schoolTombstone.setSchoolCategoryCode("INDEPEND");
 
     List<ProgramEligibilityIssueCode> error = rulesProcessor.processRules(
             createMockStudentRuleData(
                     schoolStudentEntity,
-                    school
+                    schoolTombstone
             )
     );
 

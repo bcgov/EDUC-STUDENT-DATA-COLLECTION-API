@@ -12,7 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +45,7 @@ public class SdcService {
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void startSDCCollection(CollectionTypeCodeEntity collectionCode, List<School> listOfSchools) {
+  public void startSDCCollection(CollectionTypeCodeEntity collectionCode, List<SchoolTombstone> listOfSchoolTombstones) {
     CollectionEntity collectionEntity = CollectionEntity.builder()
       .collectionTypeCode(collectionCode.getCollectionTypeCode())
       .collectionStatusCode(CollectionStatus.INPROGRESS.getCode())
@@ -59,7 +59,7 @@ public class SdcService {
     collectionRepository.save(collectionEntity);
 
     var sdcDistrictEntityList = new HashMap<UUID, SdcDistrictCollectionEntity>();
-    var listOfDistricts = listOfSchools.stream().map(School::getDistrictId).distinct().toList();
+    var listOfDistricts = listOfSchoolTombstones.stream().map(SchoolTombstone::getDistrictId).distinct().toList();
     listOfDistricts.forEach(districtID -> {
       if(!sdcDistrictEntityList.containsKey(UUID.fromString(districtID))) {
         SdcDistrictCollectionEntity sdcDistrictCollectionEntity = SdcDistrictCollectionEntity.builder().collectionEntity(collectionEntity)
@@ -75,7 +75,7 @@ public class SdcService {
     });
 
     Set<SdcSchoolCollectionEntity> sdcSchoolEntityList = new HashSet<>();
-    listOfSchools.forEach(school -> {
+    listOfSchoolTombstones.forEach(school -> {
 
       UUID sdcDistrictCollectionID = null;
       if(INDEPENDENTS.contains(school.getSchoolCategoryCode())){

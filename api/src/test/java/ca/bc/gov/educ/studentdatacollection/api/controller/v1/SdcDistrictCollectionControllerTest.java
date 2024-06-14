@@ -166,20 +166,20 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     var studentID = UUID.randomUUID();
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
@@ -215,20 +215,20 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     var studentID = UUID.randomUUID();
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
@@ -261,20 +261,20 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     var studentID = UUID.randomUUID();
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
@@ -312,22 +312,22 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    school1.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
-    school1.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    schoolTombstone1.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+    schoolTombstone1.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     var studentID = UUID.randomUUID();
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
@@ -366,22 +366,22 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    school1.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    schoolTombstone1.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    school2.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    schoolTombstone2.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     var studentID = UUID.randomUUID();
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
@@ -420,21 +420,21 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    school1.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    schoolTombstone1.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     var studentID = UUID.randomUUID();
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
@@ -474,21 +474,21 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    school1.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    schoolTombstone1.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     var studentID = UUID.randomUUID();
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
@@ -528,20 +528,20 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     var studentID = UUID.randomUUID();
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
@@ -580,20 +580,20 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     var studentID = UUID.randomUUID();
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
@@ -633,22 +633,22 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    school1.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    schoolTombstone1.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    school2.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    schoolTombstone2.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     var studentID = UUID.randomUUID();
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
@@ -687,22 +687,22 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    school1.setFacilityTypeCode(FacilityTypeCodes.STANDARD.getCode());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    schoolTombstone1.setFacilityTypeCode(FacilityTypeCodes.STANDARD.getCode());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    school2.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    schoolTombstone2.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     var studentID = UUID.randomUUID();
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
@@ -741,20 +741,20 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     // Two student records representing a resolved program dupe
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
@@ -1204,7 +1204,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     mockSdcDistrictCollection.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.REVIEWED.getCode());
 
     this.mockMvc.perform(put(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID().toString())
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_DISTRICT_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_DISTRICT_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(mockSdcDistrictCollection))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
@@ -1230,7 +1230,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     mockSdcDistrictCollection.setSdcDistrictCollectionStatusCode("BAD_STATUS");
 
     this.mockMvc.perform(put(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID().toString())
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "WRITE_SDC_DISTRICT_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_DISTRICT_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(mockSdcDistrictCollection))
             .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
@@ -1249,24 +1249,24 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity mockSdcDistrictCollectionEntity = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
     sdcDistrictCollectionRepository.save(mockSdcDistrictCollectionEntity);
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(district.getDistrictId());
-    School school2 = createMockSchool();
-    school2.setDistrictId(district.getDistrictId());
-    School school3 = createMockSchool();
-    school3.setDistrictId(district.getDistrictId());
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(district.getDistrictId());
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(district.getDistrictId());
+    SchoolTombstone schoolTombstone3 = createMockSchool();
+    schoolTombstone3.setDistrictId(district.getDistrictId());
 
-    SdcSchoolCollectionEntity schoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SdcSchoolCollectionEntity schoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     schoolCollectionEntity2.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
     schoolCollectionEntity2.setSdcSchoolCollectionStatusCode("LOADED");
     sdcSchoolCollectionRepository.save(schoolCollectionEntity2);
 
-    SdcSchoolCollectionEntity schoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SdcSchoolCollectionEntity schoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     schoolCollectionEntity1.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
     schoolCollectionEntity1.setSdcSchoolCollectionStatusCode("NEW");
     sdcSchoolCollectionRepository.save(schoolCollectionEntity1);
 
-    SdcSchoolCollectionEntity schoolCollectionEntity3 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school3.getSchoolId()));
+    SdcSchoolCollectionEntity schoolCollectionEntity3 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone3.getSchoolId()));
     schoolCollectionEntity3.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
     schoolCollectionEntity3.setSdcSchoolCollectionStatusCode("NEW");
     sdcSchoolCollectionRepository.save(schoolCollectionEntity3);
@@ -1291,26 +1291,26 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     student5.setSdcSchoolCollectionStudentStatusCode("LOADED");
     sdcSchoolCollectionStudentRepository.save(student5);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
-    when(this.restUtils.getSchoolBySchoolID(school3.getSchoolId())).thenReturn(Optional.of(school3));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone3.getSchoolId())).thenReturn(Optional.of(schoolTombstone3));
 
     this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID().toString() + "/fileProgress")
-            .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_DISTRICT_COLLECTION")))
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_DISTRICT_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString()))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileName").value(schoolCollectionEntity2.getUploadFileName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].percentageStudentsProcessed").value("100"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolDisplayName").value(school2.getMincode() + " - " + school2.getDisplayName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolDisplayName").value(schoolTombstone2.getMincode() + " - " + schoolTombstone2.getDisplayName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].positionInQueue").value("0"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].fileName").value(schoolCollectionEntity1.getUploadFileName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].percentageStudentsProcessed").value("33"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].schoolDisplayName").value(school1.getMincode() + " - " + school1.getDisplayName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].schoolDisplayName").value(schoolTombstone1.getMincode() + " - " + schoolTombstone1.getDisplayName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].positionInQueue").value("0"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[2].fileName").value(schoolCollectionEntity3.getUploadFileName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[2].percentageStudentsProcessed").value("0"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[2].schoolDisplayName").value(school3.getMincode() + " - " + school3.getDisplayName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[2].schoolDisplayName").value(schoolTombstone3.getMincode() + " - " + schoolTombstone3.getDisplayName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[2].positionInQueue").value("2"))
             .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(3)));
   }
@@ -1327,20 +1327,20 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
     GradStatusResult gradStatusResult = getGradStatusResult();
     gradStatusResult.setProgramCompletionDate("2011-10-10");
     when(this.restUtils.getGradStatusResult(any(),any())).thenReturn(gradStatusResult);
@@ -1388,20 +1388,20 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     var studentID = UUID.randomUUID();
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
@@ -1440,20 +1440,20 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
     when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
@@ -1498,20 +1498,20 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     var studentID = UUID.randomUUID();
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
@@ -1551,20 +1551,20 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
-    School school2 = createMockSchool();
-    school2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
     when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());

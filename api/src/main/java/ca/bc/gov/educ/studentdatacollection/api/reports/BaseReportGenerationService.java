@@ -8,7 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEn
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
@@ -78,27 +78,27 @@ public abstract class BaseReportGenerationService<T> {
     return objectWriter.writeValueAsString(mainNode);
   }
 
-  protected District validateAndReturnDistrict(School school){
-    var district = restUtils.getDistrictByDistrictID(school.getDistrictId());
+  protected District validateAndReturnDistrict(SchoolTombstone schoolTombstone){
+    var district = restUtils.getDistrictByDistrictID(schoolTombstone.getDistrictId());
     if(district.isEmpty()){
-      log.error("District could not be found while writing PDF report for grade enrollment :: " + school.getDistrictId());
-      throw new EntityNotFoundException(District.class, "District could not be found while writing PDF report for grade enrollment :: ", school.getDistrictId());
+      log.error("District could not be found while writing PDF report for grade enrollment :: " + schoolTombstone.getDistrictId());
+      throw new EntityNotFoundException(District.class, "District could not be found while writing PDF report for grade enrollment :: ", schoolTombstone.getDistrictId());
     }
 
     return district.get();
   }
 
-  protected School validateAndReturnSchool(SdcSchoolCollectionEntity sdcSchoolCollection){
+  protected SchoolTombstone validateAndReturnSchool(SdcSchoolCollectionEntity sdcSchoolCollection){
     var school = restUtils.getSchoolBySchoolID(sdcSchoolCollection.getSchoolID().toString());
     if(school.isEmpty()){
       log.error("School could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getSchoolID().toString());
-      throw new EntityNotFoundException(School.class, "School could not be found while writing PDF report for grade enrollment :: ", sdcSchoolCollection.getSchoolID().toString());
+      throw new EntityNotFoundException(SchoolTombstone.class, "School could not be found while writing PDF report for grade enrollment :: ", sdcSchoolCollection.getSchoolID().toString());
     }
 
     return school.get();
   }
 
-  protected School setReportTombstoneValues(SdcSchoolCollectionEntity sdcSchoolCollection, HeadcountReportNode reportNode){
+  protected SchoolTombstone setReportTombstoneValues(SdcSchoolCollectionEntity sdcSchoolCollection, HeadcountReportNode reportNode){
     var school = validateAndReturnSchool(sdcSchoolCollection);
     var district = validateAndReturnDistrict(school);
 
@@ -126,8 +126,8 @@ public abstract class BaseReportGenerationService<T> {
     reportNode.setShowKH(FALSE);
   }
 
-  protected boolean isIndependentSchool(School school){
-    return school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode());
+  protected boolean isIndependentSchool(SchoolTombstone schoolTombstone){
+    return schoolTombstone.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || schoolTombstone.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode());
   }
 
   protected Map<String, Object> getJasperParams(){

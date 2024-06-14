@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.EmailSagaData;
 import lombok.extern.slf4j.Slf4j;
@@ -14,12 +15,13 @@ import java.util.Map;
 @Slf4j
 public class EmailService {
 
-  protected final SagaService sagaService;
+  protected final SagaRepository sagaRepository;
   private final SpringTemplateEngine templateEngine;
   private final Map<String, String> templateConfig;
   private final RestUtils restUtils;
-  public EmailService(final SagaService sagaService, final SpringTemplateEngine templateEngine, final Map<String, String> templateConfig, RestUtils restUtils) {
-    this.sagaService = sagaService;
+
+  public EmailService(final SagaRepository sagaRepository, final SpringTemplateEngine templateEngine, final Map<String, String> templateConfig, RestUtils restUtils) {
+    this.sagaRepository = sagaRepository;
     this.templateEngine = templateEngine;
     this.templateConfig = templateConfig;
     this.restUtils = restUtils;

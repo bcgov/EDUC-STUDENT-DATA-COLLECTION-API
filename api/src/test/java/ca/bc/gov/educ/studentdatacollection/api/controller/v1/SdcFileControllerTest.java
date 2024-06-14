@@ -9,7 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
@@ -126,11 +126,11 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   @Test
   void testProcessSdcFile_givenVerFiletype_ShouldReturnStatusOk() throws Exception {
     CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
-    School school = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    SchoolTombstone schoolTombstone = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
     SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(
       collection,
-      UUID.fromString(school.getSchoolId())
+      UUID.fromString(schoolTombstone.getSchoolId())
     );
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
@@ -163,11 +163,11 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   })
   void testProcessSdcFile_givenStdFiletype_ShouldReturnStatusOk(String fileName) throws Exception {
     CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
-    School school = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    SchoolTombstone schoolTombstone = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
     SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(
       collection,
-      UUID.fromString(school.getSchoolId())
+      UUID.fromString(schoolTombstone.getSchoolId())
     );
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
@@ -199,10 +199,10 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   })
   void testProcessSdcFile_givenInvalidFiletype_ShouldReturnStatusBadRequest(String filename) throws Exception {
     CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
-    School school = this.createMockSchool();
+    SchoolTombstone schoolTombstone = this.createMockSchool();
     SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(
       collection,
-      UUID.fromString(school.getSchoolId())
+      UUID.fromString(schoolTombstone.getSchoolId())
     );
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
@@ -229,10 +229,10 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   @Test
   void testProcessSdcFile_givenMincodeMismatch_ShouldReturnStatusBadRequest() throws Exception {
     CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
-    School school = this.createMockSchool();
+    SchoolTombstone schoolTombstone = this.createMockSchool();
     SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(
       collection,
-      UUID.fromString(school.getSchoolId())
+      UUID.fromString(schoolTombstone.getSchoolId())
     );
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
@@ -617,12 +617,12 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     final String errorMessage
   ) throws Exception {
     CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
-    School school = this.createMockSchool();
+    SchoolTombstone schoolTombstone = this.createMockSchool();
 
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
     SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository
-      .save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+      .save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone.getSchoolId())));
 
     final FileInputStream fis = new FileInputStream(sample);
 
@@ -659,11 +659,11 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   })
   void testProcessSdcFile_givenMalformedDetailRow_ShouldReturnStatusBadRequest(final String sample, final String errorExpression) throws Exception {
     CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
-    School school = this.createMockSchool();
+    SchoolTombstone schoolTombstone = this.createMockSchool();
 
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
-    SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+    SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone.getSchoolId())));
 
     final FileInputStream fis = new FileInputStream(sample);
 

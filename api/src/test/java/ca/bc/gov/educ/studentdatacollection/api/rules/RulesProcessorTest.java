@@ -15,7 +15,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -109,11 +109,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationErrorOldDate.size()).isNotZero();
         assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
-
-//        entity.setDob(null);
-//        val validationErrorNullDate = rulesProcessor.processRules(createMockStudentSagaData(entity, createMockSchool()));
-//        assertThat(validationErrorNullDate.size()).isNotZero();
-//        assertThat(validationErrorNullDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
         entity.setDob("");
         val validationErrorEmptyDate = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
@@ -799,7 +794,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setDob("20180101");
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorOldDate.size()).isZero();
-        //assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("AGELESSTHANFIVE");
 
         entity.setDob("20190101");
         school.setFacilityTypeCode("CONT_ED");
@@ -1444,20 +1438,20 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         collectionFeb.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         collectionRepository.save(collectionFeb);
 
-        School schoolSept = createMockSchool();
-        SdcSchoolCollectionEntity sdcMockSchoolSept = createMockSdcSchoolCollectionEntity(collectionSept, UUID.fromString(schoolSept.getSchoolId()));
+        SchoolTombstone schoolTombstoneSept = createMockSchool();
+        SdcSchoolCollectionEntity sdcMockSchoolSept = createMockSdcSchoolCollectionEntity(collectionSept, UUID.fromString(schoolTombstoneSept.getSchoolId()));
         sdcMockSchoolSept.setUploadDate(null);
         sdcMockSchoolSept.setUploadFileName(null);
         sdcSchoolCollectionRepository.save(sdcMockSchoolSept);
 
-        School schoolFeb = createMockSchool();
-        SdcSchoolCollectionEntity sdcMockSchoolFeb = createMockSdcSchoolCollectionEntity(collectionFeb, UUID.fromString(schoolFeb.getSchoolId()));
+        SchoolTombstone schoolTombstoneFeb = createMockSchool();
+        SdcSchoolCollectionEntity sdcMockSchoolFeb = createMockSdcSchoolCollectionEntity(collectionFeb, UUID.fromString(schoolTombstoneFeb.getSchoolId()));
         sdcMockSchoolFeb.setUploadDate(null);
         sdcMockSchoolFeb.setUploadFileName(null);
         sdcSchoolCollectionRepository.save(sdcMockSchoolFeb);
 
-        var sdcSchoolCollectionEntitySept = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collectionSept, UUID.fromString(schoolSept.getSchoolId())));
-        var sdcSchoolCollectionEntityFeb = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collectionFeb, UUID.fromString(schoolFeb.getSchoolId())));
+        var sdcSchoolCollectionEntitySept = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collectionSept, UUID.fromString(schoolTombstoneSept.getSchoolId())));
+        var sdcSchoolCollectionEntityFeb = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collectionFeb, UUID.fromString(schoolTombstoneFeb.getSchoolId())));
 
         UUID assignedStudentId = UUID.randomUUID();
 
@@ -1472,10 +1466,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
         studFeb2.setAssignedStudentId(UUID.randomUUID());
 
-        var validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, schoolFeb));
+        var validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, schoolTombstoneFeb));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL.getCode()));
 
-        var validateNoErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb2, schoolFeb));
+        var validateNoErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb2, schoolTombstoneFeb));
         boolean noErrorRefugeeFunding = validateNoErrorRefugeeFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL.getCode()));
 
         assertThat(errorRefugeeFunding).isTrue();

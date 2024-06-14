@@ -58,9 +58,8 @@ public class RestUtils {
   public static final String OPEN_DATE = "openedDate";
   public static final String CLOSE_DATE = "closedDate";
   private static final String CONTENT_TYPE = "Content-Type";
-  private final Map<String, School> schoolMap = new ConcurrentHashMap<>();
-  private final Map<String, School> schoolMincodeMap = new ConcurrentHashMap<>();
-  private final WebClient chesWebClient;
+  private final Map<String, SchoolTombstone> schoolMap = new ConcurrentHashMap<>();
+  private final Map<String, SchoolTombstone> schoolMincodeMap = new ConcurrentHashMap<>();
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
   private final WebClient webClient;
@@ -77,8 +76,7 @@ public class RestUtils {
   private final Map<String, List<UUID>> independentAuthorityToSchoolIDMap = new ConcurrentHashMap<>();
 
   @Autowired
-  public RestUtils(WebClient chesWebClient, WebClient webClient, final ApplicationProperties props, final MessagePublisher messagePublisher) {
-      this.chesWebClient = chesWebClient;
+  public RestUtils(WebClient webClient, final ApplicationProperties props, final MessagePublisher messagePublisher) {
       this.webClient = webClient;
       this.props = props;
       this.messagePublisher = messagePublisher;
@@ -148,15 +146,25 @@ public class RestUtils {
     log.info("Loaded  {} school mincodes to memory", this.schoolMincodeMap.values().size());
   }
 
-  public List<School> getSchools() {
+  public List<SchoolTombstone> getSchools() {
     log.info("Calling Institute api to load schools to memory");
     return this.webClient.get()
       .uri(this.props.getInstituteApiURL() + "/school")
       .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
       .retrieve()
-      .bodyToFlux(School.class)
+      .bodyToFlux(SchoolTombstone.class)
       .collectList()
       .block();
+  }
+
+  public School getSchoolDetails(UUID schoolID) {
+    log.debug("Retrieving school by ID: {}", schoolID);
+    return this.webClient.get()
+            .uri(this.props.getInstituteApiURL() + "/school/" + schoolID)
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(School.class)
+            .blockFirst();
   }
 
   public void populateDistrictMap() {
@@ -243,7 +251,7 @@ public class RestUtils {
    * @return list of schools
    */
   @Retryable(retryFor = {Exception.class}, noRetryFor = {StudentDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public List<School> getSchoolListGivenCriteria(List<CollectionCodeCriteriaEntity> collectionCodeCriteria, UUID correlationID) {
+  public List<SchoolTombstone> getSchoolListGivenCriteria(List<CollectionCodeCriteriaEntity> collectionCodeCriteria, UUID correlationID) {
     try {
       final List<Search> searches = new LinkedList<>();
       var currentDate = LocalDateTime.now();
@@ -277,7 +285,7 @@ public class RestUtils {
       }
 
       log.trace("Sys Criteria: {}", searches);
-      final TypeReference<List<School>> ref = new TypeReference<>() {
+      final TypeReference<List<SchoolTombstone>> ref = new TypeReference<>() {
       };
       val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(SEARCH_CRITERIA_LIST.concat("=").concat(
           URLEncoder.encode(this.objectMapper.writeValueAsString(searches), StandardCharsets.UTF_8)).concat("&").concat(PAGE_SIZE).concat("=").concat("100000")).build();
@@ -294,7 +302,7 @@ public class RestUtils {
     }
   }
 
-  public Optional<School> getSchoolBySchoolID(final String schoolID) {
+  public Optional<SchoolTombstone> getSchoolBySchoolID(final String schoolID) {
     if (this.schoolMap.isEmpty()) {
       log.info("School map is empty reloading schools");
       this.populateSchoolMap();
@@ -302,7 +310,7 @@ public class RestUtils {
     return Optional.ofNullable(this.schoolMap.get(schoolID));
   }
 
-  public Optional<School> getSchoolByMincode(final String mincode) {
+  public Optional<SchoolTombstone> getSchoolByMincode(final String mincode) {
     if (this.schoolMincodeMap.isEmpty()) {
       log.info("School mincode map is empty reloading schools");
       this.populateSchoolMincodeMap();
@@ -315,7 +323,7 @@ public class RestUtils {
   }
 
   public void sendEmail(final CHESEmail chesEmail) {
-    this.chesWebClient
+    this.webClient
             .post()
             .uri(this.props.getChesEndpointURL())
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)

@@ -1,4 +1,4 @@
-package ca.bc.gov.educ.studentdatacollection.api.orchestrator;
+package ca.bc.gov.educ.studentdatacollection.api.orchestrator.email;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
@@ -20,11 +20,11 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.
 
 @Component
 @Slf4j
-public class EmailOrchestrator extends BaseOrchestrator<EmailSagaData> {
+public class IndySchoolNoActivityEmailOrchestrator extends BaseOrchestrator<EmailSagaData> {
 
   private final EmailService emailService;
-  protected EmailOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, EmailService emailService) {
-    super(sagaService, messagePublisher, EmailSagaData.class, SagaEnum.EMAIL_SENDING_SAGA.toString(), TopicsEnum.EMAIL_SENDING_SAGA_TOPIC.toString());
+  protected IndySchoolNoActivityEmailOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, EmailService emailService) {
+    super(sagaService, messagePublisher, EmailSagaData.class, SagaEnum.INDY_SCHOOLS_NO_ACTIVITY_EMAIL_SAGA.toString(), TopicsEnum.INDY_SCHOOLS_NO_ACTIVITY_EMAIL_SAGA_TOPIC.toString());
     this.emailService = emailService;
   }
 

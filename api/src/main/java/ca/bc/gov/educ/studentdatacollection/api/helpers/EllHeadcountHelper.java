@@ -9,9 +9,9 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollect
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -62,7 +62,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
     rowTitles = getRowTitles();
   }
 
-  public void setGradeCodes(Optional<School> school) {
+  public void setGradeCodes(Optional<SchoolTombstone> school) {
     if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))) {
       gradeCodes = SchoolGradeCodes.getIndependentKtoSUGrades();
     } else {
@@ -171,7 +171,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
 
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
 
-    List<School> schools = results.stream()
+    List<SchoolTombstone> schoolTombstones = results.stream()
             .map(value ->  restUtils.getSchoolBySchoolID(value.getSchoolID()).orElseThrow(() ->
                     new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", value.toString())
             )).toList();
@@ -180,23 +180,23 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
     titleRow.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ELL_TITLE).build());
     titleRow.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ELL_TITLE).build());
     rows.add(titleRow);
-    schools.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
+    schoolTombstones.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
     createTotalSection(rows, results);
     headcountResultsTable.setRows(rows);
     return headcountResultsTable;
   }
 
-  public void createSectionsBySchool(List<Map<String, HeadcountHeaderColumn>> rows, List<EllHeadcountResult> results, School school) {
+  public void createSectionsBySchool(List<Map<String, HeadcountHeaderColumn>> rows, List<EllHeadcountResult> results, SchoolTombstone schoolTombstone) {
     for (Map.Entry<String, String> title : perSchoolReportRowTitles.entrySet()) {
       Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
-      rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(school.getMincode() + " - " + school.getDisplayName()).build());
+      rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(schoolTombstone.getMincode() + " - " + schoolTombstone.getDisplayName()).build());
 
       BigDecimal total = BigDecimal.ZERO;
       Function<EllHeadcountResult, String> headcountFunction = headcountMethods.get(title.getKey());
       if (headcountFunction != null) {
         for (String gradeCode : gradeCodes) {
           var result = results.stream()
-                  .filter(value -> value.getEnrolledGradeCode().equals(gradeCode) && value.getSchoolID().equals(school.getSchoolId()))
+                  .filter(value -> value.getEnrolledGradeCode().equals(gradeCode) && value.getSchoolID().equals(schoolTombstone.getSchoolId()))
                   .findFirst()
                   .orElse(null);
           String headcount = "0";

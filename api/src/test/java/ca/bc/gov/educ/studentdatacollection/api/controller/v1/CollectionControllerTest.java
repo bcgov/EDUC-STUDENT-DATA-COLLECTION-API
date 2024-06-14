@@ -6,14 +6,12 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDuplicateRepository;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -140,8 +138,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     assertThat(summary).hasSize(1);
 
-    final CollectionEntity newCollection1 = this.collectionRepository.save(
-            this.createMockCollectionEntity());
+    this.collectionRepository.save(this.createMockCollectionEntity());
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_URL_COLLECTION + "/search/" + newCollection.getCreateUser()).with(mockAuthority))
@@ -232,25 +229,25 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     currentCollection.setOpenDate(LocalDateTime.now().minusDays(9));
     this.collectionRepository.save(currentCollection);
 
-    School school1 = this.createMockSchool();
-    SdcSchoolCollectionEntity schoolCollection1 = this.createMockSdcSchoolCollectionEntity(currentCollection, UUID.fromString(school1.getSchoolId()));
+    SchoolTombstone schoolTombstone1 = this.createMockSchool();
+    SdcSchoolCollectionEntity schoolCollection1 = this.createMockSdcSchoolCollectionEntity(currentCollection, UUID.fromString(schoolTombstone1.getSchoolId()));
     SdcSchoolCollectionStudentEntity student1 = this.createMockSchoolStudentEntity(schoolCollection1);
     UUID student1AssignedPen = UUID.randomUUID();
     student1.setAssignedStudentId(student1AssignedPen);
     this.sdcSchoolCollectionRepository.save(schoolCollection1);
     this.sdcSchoolCollectionStudentRepository.save(student1);
 
-    School school2 = this.createMockSchool();
-    school2.setDistrictId(String.valueOf(UUID.randomUUID()));
-    SdcSchoolCollectionEntity schoolCollection2 = this.createMockSdcSchoolCollectionEntity(currentCollection, UUID.fromString(school2.getSchoolId()));
+    SchoolTombstone schoolTombstone2 = this.createMockSchool();
+    schoolTombstone2.setDistrictId(String.valueOf(UUID.randomUUID()));
+    SdcSchoolCollectionEntity schoolCollection2 = this.createMockSdcSchoolCollectionEntity(currentCollection, UUID.fromString(schoolTombstone2.getSchoolId()));
     SdcSchoolCollectionStudentEntity student2 = this.createMockSchoolStudentEntity(schoolCollection2);
     student2.setAssignedStudentId(student1AssignedPen);
     SdcSchoolCollectionStudentEntity student3 = this.createMockSchoolStudentEntity(schoolCollection2);
     this.sdcSchoolCollectionRepository.save(schoolCollection2);
     this.sdcSchoolCollectionStudentRepository.saveAll(Arrays.asList(student2, student3));
 
-    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
+    when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
 
     this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/" + currentCollection.getCollectionID() + "/in-province-duplicates").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk());

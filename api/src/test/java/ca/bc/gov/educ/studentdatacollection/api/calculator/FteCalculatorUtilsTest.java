@@ -9,7 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -81,11 +81,11 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_NoAssignedStudentId_ReturnsFalse() {
         // Given
         StudentRuleData studentRuleData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("PUBLIC");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setDistrictId(UUID.randomUUID().toString());
-        studentRuleData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("PUBLIC");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+        studentRuleData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -100,12 +100,12 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_NoPreviousCollectionsForSchools_ReturnsFalse() {
         // Given
         StudentRuleData studentRuleData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("PUBLIC");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setDistrictId(UUID.randomUUID().toString());
-        school.setSchoolId(UUID.randomUUID().toString());
-        studentRuleData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("PUBLIC");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        studentRuleData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         var collection = createMockCollectionEntity();
         var sdcCollection = createMockSdcSchoolCollectionEntity(collection, null, null);
@@ -130,12 +130,12 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_NoPreviousCollectionsForStudent_ReturnsFalse() {
         // Given
         StudentRuleData studentRuleData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("PUBLIC");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setDistrictId(UUID.randomUUID().toString());
-        school.setSchoolId(UUID.randomUUID().toString());
-        studentRuleData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("PUBLIC");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        studentRuleData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
@@ -162,10 +162,10 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_NullDistrictID_ReturnsFalse() {
         // Given
         StudentRuleData studentRuleData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("PUBLIC");
-        school.setFacilityTypeCode("DIST_LEARN");
-        studentRuleData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("PUBLIC");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        studentRuleData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
@@ -191,11 +191,11 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_StudentHadPreviousCourse_ReturnsTrue() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("PUBLIC");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setDistrictId(UUID.randomUUID().toString());
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("PUBLIC");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
@@ -222,11 +222,11 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_StudentInSpringPrevSeptHS_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("PUBLIC");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setDistrictId(UUID.randomUUID().toString());
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("PUBLIC");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
@@ -253,11 +253,11 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_StudentInMayPrevFebHS_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("PUBLIC");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setDistrictId(UUID.randomUUID().toString());
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("PUBLIC");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
@@ -284,11 +284,11 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_StudentInMayPrevFebNonZeroFTE_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("PUBLIC");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setDistrictId(UUID.randomUUID().toString());
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("PUBLIC");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
@@ -336,11 +336,11 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_GivenDifferentGrades_ReturnExpectedResult(String enrolledGradeCode, boolean expectedResult) {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("PUBLIC");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setDistrictId(UUID.randomUUID().toString());
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("PUBLIC");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
@@ -376,12 +376,12 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInDistrict_GivenDifferentSchoolCategoriesAndFacilities_ReturnExpectedResult(String schoolCategory, String facilityType, boolean expectedResult) {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode(schoolCategory);
-        school.setFacilityTypeCode(facilityType);
-        school.setDistrictId(UUID.randomUUID().toString());
-        school.setSchoolId(UUID.randomUUID().toString());
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode(schoolCategory);
+        schoolTombstone.setFacilityTypeCode(facilityType);
+        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
@@ -407,11 +407,11 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_NoAssignedStudentId_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("INDEPEND");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setIndependentAuthorityId("AUTH_ID");
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("INDEPEND");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setIndependentAuthorityId("AUTH_ID");
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -428,11 +428,11 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_NoPreviousCollectionsForSchools_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("INDEPEND");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setIndependentAuthorityId("AUTH_ID");
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("INDEPEND");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setIndependentAuthorityId("AUTH_ID");
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         var collection = createMockCollectionEntity();
         var sdcCollection = createMockSdcSchoolCollectionEntity(collection, null, null);
@@ -458,11 +458,11 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_NoPreviousCollectionsForStudent_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("INDEPEND");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setIndependentAuthorityId("AUTH_ID");
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("INDEPEND");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setIndependentAuthorityId("AUTH_ID");
+        sdcStudentSagaData.setSchool(schoolTombstone);
         var collection = createMockCollectionEntity();
         var sdcCollection = createMockSdcSchoolCollectionEntity(collection, null, null);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
@@ -490,10 +490,10 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_NullIndependentAuthority_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("INDEPEND");
-        school.setFacilityTypeCode("DIST_LEARN");
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("INDEPEND");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        sdcStudentSagaData.setSchool(schoolTombstone);
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
 
@@ -522,11 +522,11 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_StudentHadPreviousCourse_ReturnsTrue() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("INDEPEND");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setIndependentAuthorityId("AUTH_ID");
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("INDEPEND");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setIndependentAuthorityId("AUTH_ID");
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
@@ -553,11 +553,11 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_StudentInSpringPrevSeptHS_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("INDEPEND");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setIndependentAuthorityId("AUTH_ID");
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("INDEPEND");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setIndependentAuthorityId("AUTH_ID");
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
@@ -584,11 +584,11 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_StudentInMayPrevFebHS_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("INDEPEND");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setIndependentAuthorityId("AUTH_ID");
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("INDEPEND");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setIndependentAuthorityId("AUTH_ID");
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
@@ -615,11 +615,11 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_StudentInMayPrevFebNonZeroFTE_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("INDEPEND");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setIndependentAuthorityId("AUTH_ID");
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("INDEPEND");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setIndependentAuthorityId("AUTH_ID");
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
@@ -647,11 +647,11 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_NoSchoolIdsFound_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode("INDEPEND");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setIndependentAuthorityId("AUTH_ID");
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("INDEPEND");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setIndependentAuthorityId("AUTH_ID");
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
@@ -698,12 +698,12 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_GivenDifferentGrades_ReturnExpectedResult(String enrolledGradeCode, boolean expectedResult) {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolId(UUID.randomUUID().toString());
-        school.setSchoolCategoryCode("INDEPEND");
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setIndependentAuthorityId("AUTH_ID");
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        schoolTombstone.setSchoolCategoryCode("INDEPEND");
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setIndependentAuthorityId("AUTH_ID");
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
@@ -735,12 +735,12 @@ class FteCalculatorUtilsTest {
     void studentPreviouslyReportedInIndependentAuthority_GivenDifferentSchoolCategoriesAndFacilities_ReturnExpectedResult(String schoolCategory, String facilityType, boolean expectedResult) {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolCategoryCode(schoolCategory);
-        school.setFacilityTypeCode(facilityType);
-        school.setIndependentAuthorityId("AUTH_ID");
-        school.setSchoolId(UUID.randomUUID().toString());
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode(schoolCategory);
+        schoolTombstone.setFacilityTypeCode(facilityType);
+        schoolTombstone.setIndependentAuthorityId("AUTH_ID");
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
@@ -813,11 +813,11 @@ class FteCalculatorUtilsTest {
     void testHomeSchoolStudentIsNowOnlineKto9StudentOrHs_GivenDifferentGrades_ReturnExpectedResult(String enrolledGradeCode, boolean expectedResult) {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setSchoolId(UUID.randomUUID().toString());
-        school.setDistrictId(UUID.randomUUID().toString());
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
@@ -855,11 +855,11 @@ class FteCalculatorUtilsTest {
     void testHomeSchoolStudentIsNowOnlineKto9StudentOrHs_GivenDifferentSchoolCategoriesAndFacilities_ReturnExpectedResult(String collectionType, String facilityType, boolean expectedResult) {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setFacilityTypeCode(facilityType);
-        school.setSchoolId(UUID.randomUUID().toString());
-        school.setDistrictId(UUID.randomUUID().toString());
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setFacilityTypeCode(facilityType);
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(collectionType);
@@ -882,10 +882,10 @@ class FteCalculatorUtilsTest {
     void testHomeSchoolStudentIsNowOnlineKto9StudentOrHs_GivenNoAssignedStudentId_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setFacilityTypeCode("DIST_LEARN");
-        school.setSchoolId(UUID.randomUUID().toString());
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
@@ -905,11 +905,11 @@ class FteCalculatorUtilsTest {
     void testHomeSchoolStudentIsNowOnlineKto9StudentOrHs_GivenNoPreviousCollectionForStudent_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setSchoolId(UUID.randomUUID().toString());
-        school.setDistrictId(UUID.randomUUID().toString());
-        school.setFacilityTypeCode("DIST_LEARN");
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         var collection = createMockCollectionEntity();
         var sdcCollection = createMockSdcSchoolCollectionEntity(collection, null, null);
@@ -938,9 +938,9 @@ class FteCalculatorUtilsTest {
         String facilityTypeCode = "DIST_LEARN";
         String numberOfCourses = "0";
 
-        School school = new School();
-        school.setSchoolId(UUID.randomUUID().toString());
-        school.setFacilityTypeCode(facilityTypeCode);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        schoolTombstone.setFacilityTypeCode(facilityTypeCode);
 
         SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
         schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
@@ -962,7 +962,7 @@ class FteCalculatorUtilsTest {
         student.setIsSchoolAged(false);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
@@ -986,9 +986,9 @@ class FteCalculatorUtilsTest {
         String facilityTypeCode = "DIST_LEARN";
         String numberOfCourses = "0000";
 
-        School school = new School();
-        school.setSchoolId(UUID.randomUUID().toString());
-        school.setFacilityTypeCode(facilityTypeCode);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        schoolTombstone.setFacilityTypeCode(facilityTypeCode);
 
         SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
         schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
@@ -1010,7 +1010,7 @@ class FteCalculatorUtilsTest {
         student.setIsSchoolAged(true);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
         student.setSdcSchoolCollection(schoolCollection1);
 
@@ -1035,9 +1035,9 @@ class FteCalculatorUtilsTest {
         String facilityTypeCode = "DIST_LEARN";
         String numberOfCourses = "0000";
 
-        School school = new School();
-        school.setSchoolId(schoolId.toString());
-        school.setFacilityTypeCode(facilityTypeCode);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolId(schoolId.toString());
+        schoolTombstone.setFacilityTypeCode(facilityTypeCode);
 
         SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
         schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
@@ -1059,7 +1059,7 @@ class FteCalculatorUtilsTest {
         student.setIsSchoolAged(true);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
         student.setSdcSchoolCollection(schoolCollection1);
 
@@ -1078,9 +1078,9 @@ class FteCalculatorUtilsTest {
     void noCoursesForStudentInLastTwoYears_NoAssignedStudentId_ReturnsFalse() {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
-        School school = new School();
-        school.setFacilityTypeCode("DIST_LEARN");
-        sdcStudentSagaData.setSchool(school);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -1101,9 +1101,9 @@ class FteCalculatorUtilsTest {
         String facilityTypeCode = "DIST_LEARN";
         String numberOfCourses = "0000";
 
-        School school = new School();
-        school.setSchoolId(schoolId.toString());
-        school.setFacilityTypeCode(facilityTypeCode);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolId(schoolId.toString());
+        schoolTombstone.setFacilityTypeCode(facilityTypeCode);
 
         SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
         schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
@@ -1123,7 +1123,7 @@ class FteCalculatorUtilsTest {
         student.setIsSchoolAged(true);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
         student.setSdcSchoolCollection(schoolCollection1);
 
@@ -1156,9 +1156,9 @@ class FteCalculatorUtilsTest {
         UUID schoolId = UUID.randomUUID();
         LocalDateTime studentCreateDate = LocalDateTime.now();
 
-        School school = new School();
-        school.setSchoolId(UUID.randomUUID().toString());
-        school.setFacilityTypeCode(facilityTypeCode);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        schoolTombstone.setFacilityTypeCode(facilityTypeCode);
 
         SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
         schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
@@ -1180,7 +1180,7 @@ class FteCalculatorUtilsTest {
         student.setIsSchoolAged(true);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
         student.setSdcSchoolCollection(schoolCollection1);
 
@@ -1224,9 +1224,9 @@ class FteCalculatorUtilsTest {
         String facilityTypeCode = "DIST_LEARN";
         String numberOfCourses = "0000";
 
-        School school = new School();
-        school.setSchoolId(UUID.randomUUID().toString());
-        school.setFacilityTypeCode(facilityTypeCode);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        schoolTombstone.setFacilityTypeCode(facilityTypeCode);
 
         SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
         schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
@@ -1248,7 +1248,7 @@ class FteCalculatorUtilsTest {
         student.setIsSchoolAged(true);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
         student.setSdcSchoolCollection(schoolCollection1);
 
@@ -1272,9 +1272,9 @@ class FteCalculatorUtilsTest {
         String enrolledGradeCode = "10";
         String facilityTypeCode = "DIST_LEARN";
 
-        School school = new School();
-        school.setSchoolId(schoolId.toString());
-        school.setFacilityTypeCode(facilityTypeCode);
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolId(schoolId.toString());
+        schoolTombstone.setFacilityTypeCode(facilityTypeCode);
 
         SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
         schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
@@ -1294,7 +1294,7 @@ class FteCalculatorUtilsTest {
         student.setIsSchoolAged(true);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
         student.setAssignedStudentId(UUID.randomUUID());
         student.setSdcSchoolCollection(schoolCollection1);
@@ -1327,7 +1327,7 @@ class FteCalculatorUtilsTest {
         return sdcEntity;
     }
 
-    public SdcSchoolCollectionEntity createMockSdcSchoolCollectionEntity(CollectionEntity entity, UUID schoolID, UUID districtID){
+    public SdcSchoolCollectionEntity createMockSdcSchoolCollectionEntity(CollectionEntity entity, UUID schoolID){
         SdcSchoolCollectionEntity sdcEntity = new SdcSchoolCollectionEntity();
         sdcEntity.setCollectionEntity(entity);
         sdcEntity.setSchoolID(schoolID == null ? UUID.randomUUID() : schoolID);

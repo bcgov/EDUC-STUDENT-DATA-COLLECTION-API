@@ -15,7 +15,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStat
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.support.StudentDataCollectionTestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -329,17 +329,17 @@ public abstract class BaseStudentDataCollectionAPITest {
       .build();
   }
 
-  public School createMockSchool() {
-    final School school = new School();
-    school.setSchoolId(UUID.randomUUID().toString());
-    school.setDistrictId(UUID.randomUUID().toString());
-    school.setDisplayName("Marco's school");
-    school.setMincode("03636018");
-    school.setOpenedDate("1964-09-01T00:00:00");
-    school.setSchoolCategoryCode("PUBLIC");
-    school.setSchoolReportingRequirementCode("REGULAR");
-    school.setFacilityTypeCode("STANDARD");
-    return school;
+  public SchoolTombstone createMockSchool() {
+    final SchoolTombstone schoolTombstone = new SchoolTombstone();
+    schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+    schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+    schoolTombstone.setDisplayName("Marco's school");
+    schoolTombstone.setMincode("03636018");
+    schoolTombstone.setOpenedDate("1964-09-01T00:00:00");
+    schoolTombstone.setSchoolCategoryCode("PUBLIC");
+    schoolTombstone.setSchoolReportingRequirementCode("REGULAR");
+    schoolTombstone.setFacilityTypeCode("STANDARD");
+    return schoolTombstone;
   }
 
   public District createMockDistrict() {
@@ -352,9 +352,9 @@ public abstract class BaseStudentDataCollectionAPITest {
     return district;
   }
 
-  public StudentRuleData createMockStudentRuleData(final SdcSchoolCollectionStudentEntity student, final School school) {
+  public StudentRuleData createMockStudentRuleData(final SdcSchoolCollectionStudentEntity student, final SchoolTombstone schoolTombstone) {
     final StudentRuleData studentRuleData = new StudentRuleData();
-    studentRuleData.setSchool(school);
+    studentRuleData.setSchool(schoolTombstone);
     studentRuleData.setSdcSchoolCollectionStudentEntity(student);
     return studentRuleData;
   }
@@ -528,10 +528,10 @@ public abstract class BaseStudentDataCollectionAPITest {
 
   public PenMatchResult getPenMatchResult(){
       PenMatchResult penMatchResult = new PenMatchResult();
-      PenMatchRecord record = new PenMatchRecord();
-      record.setMatchingPEN("123456789");
-      record.setStudentID(UUID.randomUUID().toString());
-      penMatchResult.setMatchingRecords(Arrays.asList(record));
+      PenMatchRecord penMatchRecord = new PenMatchRecord();
+      penMatchRecord.setMatchingPEN("123456789");
+      penMatchRecord.setStudentID(UUID.randomUUID().toString());
+      penMatchResult.setMatchingRecords(Arrays.asList(penMatchRecord));
       penMatchResult.setPenStatus("AA");
       penMatchResult.setPenStatusMessage("ABC");
       return penMatchResult;

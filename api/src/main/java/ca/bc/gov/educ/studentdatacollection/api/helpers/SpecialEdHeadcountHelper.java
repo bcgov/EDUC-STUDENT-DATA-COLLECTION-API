@@ -10,7 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollect
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import lombok.EqualsAndHashCode;
@@ -76,7 +76,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     rowTitles = getRowTitles();
   }
 
-  public void setGradeCodes(Optional<School> school) {
+  public void setGradeCodes(Optional<SchoolTombstone> school) {
     if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))) {
       gradeCodes = SchoolGradeCodes.getIndependentKtoSUGrades();
     } else {
