@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollect
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
@@ -106,7 +107,7 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
         if (gradeEnrollmentHeadcountList != null) {
             for (EnrollmentHeadcountResult result : gradeEnrollmentHeadcountList) {
                 String schoolID = result.getSchoolID();
-                Optional<School> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
+                Optional<SchoolTombstone> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
                 int finalSequencePrefix = sequencePrefix;
                 schoolOptional.ifPresent(school -> {
                     String schoolTitle = school.getMincode() + " - " + school.getDisplayName();

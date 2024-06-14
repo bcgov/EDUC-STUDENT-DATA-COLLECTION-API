@@ -49,7 +49,7 @@ class FteCalculatorUtilsTest {
         StudentRuleData studentRuleData = new StudentRuleData();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
@@ -67,7 +67,7 @@ class FteCalculatorUtilsTest {
         StudentRuleData studentRuleData = new StudentRuleData();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
@@ -108,7 +108,7 @@ class FteCalculatorUtilsTest {
         studentRuleData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         var collection = createMockCollectionEntity();
-        var sdcCollection = createMockSdcSchoolCollectionEntity(collection, null, null);
+        var sdcCollection = createMockSdcSchoolCollectionEntity(collection, null);
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         student.setSdcSchoolCollection(sdcCollection);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
@@ -139,7 +139,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -169,7 +169,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -199,7 +199,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -230,7 +230,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.HOMESCHOOL.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -261,7 +261,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.HOMESCHOOL.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -292,7 +292,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setFte(BigDecimal.ONE);
@@ -344,7 +344,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(enrolledGradeCode);
         student.setCreateDate(LocalDateTime.now());
@@ -385,7 +385,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -435,7 +435,7 @@ class FteCalculatorUtilsTest {
         sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         var collection = createMockCollectionEntity();
-        var sdcCollection = createMockSdcSchoolCollectionEntity(collection, null, null);
+        var sdcCollection = createMockSdcSchoolCollectionEntity(collection, null);
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         student.setSdcSchoolCollection(sdcCollection);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
@@ -464,7 +464,7 @@ class FteCalculatorUtilsTest {
         schoolTombstone.setIndependentAuthorityId("AUTH_ID");
         sdcStudentSagaData.setSchool(schoolTombstone);
         var collection = createMockCollectionEntity();
-        var sdcCollection = createMockSdcSchoolCollectionEntity(collection, null, null);
+        var sdcCollection = createMockSdcSchoolCollectionEntity(collection, null);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
 
@@ -499,7 +499,7 @@ class FteCalculatorUtilsTest {
 
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -530,7 +530,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -561,7 +561,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.HOMESCHOOL.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -592,7 +592,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.HOMESCHOOL.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -623,7 +623,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.HOMESCHOOL.getCode());
         student.setFte(BigDecimal.ONE);
@@ -655,7 +655,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -707,7 +707,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(enrolledGradeCode);
         student.setCreateDate(LocalDateTime.now());
@@ -744,7 +744,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -770,7 +770,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -821,7 +821,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(enrolledGradeCode);
         student.setCreateDate(LocalDateTime.now());
@@ -863,7 +863,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(collectionType);
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -889,7 +889,7 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -912,7 +912,7 @@ class FteCalculatorUtilsTest {
         sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         var collection = createMockCollectionEntity();
-        var sdcCollection = createMockSdcSchoolCollectionEntity(collection, null, null);
+        var sdcCollection = createMockSdcSchoolCollectionEntity(collection, null);
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         student.setSdcSchoolCollection(sdcCollection);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());

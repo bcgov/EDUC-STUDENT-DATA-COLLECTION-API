@@ -14,6 +14,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -143,7 +144,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     assertThat(summary).hasSize(1);
 
-    final CollectionEntity newCollection1 = this.collectionRepository.save(
+    this.collectionRepository.save(
             this.createMockCollectionEntity());
 
     var resultActions1 = this.mockMvc.perform(
@@ -235,7 +236,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     currentCollection.setOpenDate(LocalDateTime.now().minusDays(9));
     this.collectionRepository.save(currentCollection);
 
-    School school1 = this.createMockSchool();
+    SchoolTombstone school1 = this.createMockSchool();
     SdcSchoolCollectionEntity schoolCollection1 = this.createMockSdcSchoolCollectionEntity(currentCollection, UUID.fromString(school1.getSchoolId()));
     SdcSchoolCollectionStudentEntity student1 = this.createMockSchoolStudentEntity(schoolCollection1);
     UUID student1AssignedPen = UUID.randomUUID();
@@ -243,7 +244,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     this.sdcSchoolCollectionRepository.save(schoolCollection1);
     this.sdcSchoolCollectionStudentRepository.save(student1);
 
-    School school2 = this.createMockSchool();
+    SchoolTombstone school2 = this.createMockSchool();
     school2.setDistrictId(String.valueOf(UUID.randomUUID()));
     SdcSchoolCollectionEntity schoolCollection2 = this.createMockSdcSchoolCollectionEntity(currentCollection, UUID.fromString(school2.getSchoolId()));
     SdcSchoolCollectionStudentEntity student2 = this.createMockSchoolStudentEntity(schoolCollection2);
@@ -691,23 +692,23 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     SdcDistrictCollectionEntity sdcMockDistrict3 = createMockSdcDistrictCollectionEntity(collection, null);
     var sdcDistrictCollectionID3 = sdcDistrictCollectionRepository.save(sdcMockDistrict3).getSdcDistrictCollectionID();
 
-    School school1 = createMockSchool();
+    SchoolTombstone school1 = createMockSchool();
     school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
 
-    School school2 = createMockSchool();
+    SchoolTombstone school2 = createMockSchool();
     school2.setDistrictId(sdcMockDistrict2.getDistrictID().toString());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID2);
 
-    School school3 = createMockSchool();
+    SchoolTombstone school3 = createMockSchool();
     school3.setDistrictId(sdcMockDistrict3.getDistrictID().toString());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity3 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school3.getSchoolId()));
     sdcSchoolCollectionEntity3.setSdcDistrictCollectionID(sdcDistrictCollectionID3);
 
 
-    School school4 = createMockSchool(); //Same district as school1
+    SchoolTombstone school4 = createMockSchool(); //Same district as school1
     school4.setDistrictId(sdcMockDistrict.getDistrictID().toString());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity4 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school4.getSchoolId()));
     sdcSchoolCollectionEntity4.setSdcDistrictCollectionID(sdcDistrictCollectionID);
