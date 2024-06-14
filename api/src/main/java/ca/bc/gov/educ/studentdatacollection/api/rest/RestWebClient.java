@@ -80,6 +80,31 @@ public class RestWebClient {
       .build();
   }
 
+  @Bean
+  WebClient chesWebClient() {
+    val clientRegistryRepo = new InMemoryReactiveClientRegistrationRepository(ClientRegistration
+            .withRegistrationId(this.props.getChesClientID())
+            .tokenUri(this.props.getChesTokenURL())
+            .clientId(this.props.getChesClientID())
+            .clientSecret(this.props.getChesClientSecret())
+            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+            .build());
+    val clientService = new InMemoryReactiveOAuth2AuthorizedClientService(clientRegistryRepo);
+    val authorizedClientManager =
+            new AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(clientRegistryRepo, clientService);
+    val oauthFilter = new ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
+    oauthFilter.setDefaultClientRegistrationId(this.props.getChesClientID());
+    return WebClient.builder()
+            .codecs(configurer -> configurer
+                    .defaultCodecs()
+                    .maxInMemorySize(100 * 1024 * 1024))
+            .filter(this.log())
+            .clientConnector(this.connector)
+            .uriBuilderFactory(this.factory)
+            .filter(oauthFilter)
+            .build();
+  }
+
   private ExchangeFilterFunction log() {
     return (clientRequest, next) ->
       next

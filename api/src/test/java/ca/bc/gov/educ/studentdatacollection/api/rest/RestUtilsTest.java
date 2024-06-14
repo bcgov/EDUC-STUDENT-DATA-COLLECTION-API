@@ -26,6 +26,9 @@ class RestUtilsTest {
     private WebClient webClient;
 
     @Mock
+    private WebClient chesWebClient;
+
+    @Mock
     private MessagePublisher messagePublisher;
 
     @InjectMocks
@@ -37,7 +40,7 @@ class RestUtilsTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        restUtils = spy(new RestUtils(webClient, props, messagePublisher));
+        restUtils = spy(new RestUtils(chesWebClient, webClient, props, messagePublisher));
     }
 
     @Test
@@ -269,7 +272,6 @@ class RestUtilsTest {
         // When
         var result = restUtils.getSchoolByMincode(school1Mincode);
         assertEquals(school1, result.get());
-
     }
 
 }
