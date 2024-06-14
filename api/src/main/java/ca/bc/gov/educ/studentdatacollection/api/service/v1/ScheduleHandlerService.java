@@ -53,7 +53,6 @@ public class ScheduleHandlerService {
   @Transactional
   public void createAndStartUnsubmittedEmailSagas(final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities) {
     List<SdcSagaEntity> sagaEntities = new ArrayList<>();
-    List<SdcSagaEntity> savedSagas = new ArrayList<>();
     for(SdcSchoolCollectionEntity sdcSchoolCollection: sdcSchoolCollectionEntities){
       var emailFields = new HashMap<String, String>();
       emailFields.put("submissionDueDate", formatter.format(sdcSchoolCollection.getCollectionEntity().getSubmissionDueDate()));
@@ -71,8 +70,8 @@ public class ScheduleHandlerService {
         }
         final var saga = createSagaEntity(sdcSchoolCollection.getSdcSchoolCollectionID(), payload, SagaEnum.INDY_SCHOOLS_NO_ACTIVITY_EMAIL_SAGA);
         sagaEntities.add(saga);
-        savedSagas = this.indySchoolNoActivityEmailOrchestrator.createSagas(sagaEntities);
-      }else if(sagaRepository.findBySdcSchoolCollectionIDAndSagaNameAndStatusEquals(sdcSchoolCollection.getSdcSchoolCollectionID(),SagaEnum.INDY_SCHOOLS_NOT_SUBMITTED_EMAIL_SAGA.name(), SagaStatusEnum.COMPLETED.toString()).isEmpty()) {
+      }else if((!sdcSchoolCollection.getSdcSchoolCollectionStatusCode().equals(SdcSchoolCollectionStatus.NEW.getCode())) &&
+              (sagaRepository.findBySdcSchoolCollectionIDAndSagaNameAndStatusEquals(sdcSchoolCollection.getSdcSchoolCollectionID(),SagaEnum.INDY_SCHOOLS_NOT_SUBMITTED_EMAIL_SAGA.name(), SagaStatusEnum.COMPLETED.toString()).isEmpty())) {
         var emailSagaData = createEmailSagaData(sdcSchoolCollection.getSchoolID(), emailProperties.getSchoolNotificationEmailFrom(), emailProperties.getEmailSubjectIndependentSchoolNotSubmitted(), "collection.independent.school.not.submitted.notification", emailFields);
         String payload;
         try {
@@ -82,10 +81,10 @@ public class ScheduleHandlerService {
         }
         final var saga = createSagaEntity(sdcSchoolCollection.getSdcSchoolCollectionID(), payload, SagaEnum.INDY_SCHOOLS_NOT_SUBMITTED_EMAIL_SAGA);
         sagaEntities.add(saga);
-        savedSagas = this.indySchoolNotSubmittedEmailOrchestrator.createSagas(sagaEntities);
       }
     }
-    if(!savedSagas.isEmpty()) {
+    if(!sagaEntities.isEmpty()) {
+      var savedSagas = this.indySchoolNotSubmittedEmailOrchestrator.createSagas(sagaEntities);
       savedSagas.forEach(sdcSagaEntity -> {
         if(sdcSagaEntity.getSagaName().equals(SagaEnum.INDY_SCHOOLS_NO_ACTIVITY_EMAIL_SAGA.name())){
           this.indySchoolNoActivityEmailOrchestrator.startSaga(sdcSagaEntity);
