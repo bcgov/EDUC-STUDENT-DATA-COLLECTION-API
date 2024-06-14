@@ -12,6 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.CareerHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
@@ -104,7 +105,7 @@ public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGene
     if (!careerHeadcounts.isEmpty()) {
       for (CareerHeadcountResult result : careerHeadcounts) {
         String schoolID = result.getSchoolID();
-        Optional<School> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
+        Optional<SchoolTombstone> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
         int finalSequencePrefix = sequencePrefix;
         schoolOptional.ifPresent(school -> {
           String schoolTitle = school.getMincode() + " - " + school.getDisplayName();
