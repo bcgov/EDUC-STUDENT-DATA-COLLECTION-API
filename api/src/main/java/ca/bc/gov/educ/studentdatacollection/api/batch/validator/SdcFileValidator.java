@@ -6,7 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.flatpack.DataError;
@@ -71,7 +71,7 @@ public class SdcFileValidator {
       String fileMincode = pluckMincodeFromFile(ds, guid);
 
       String schoolID = sdcSchoolCollectionEntity.get().getSchoolID().toString();
-      Optional<School> school = restUtils.getSchoolBySchoolID(schoolID);
+      Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID);
 
       if (school.isEmpty()) {
         throw new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, SdcSchoolCollectionStatus.LOAD_FAIL, fileMincode);
@@ -91,7 +91,7 @@ public class SdcFileValidator {
     }
   }
 
-  public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final Optional<School> school, final String districtID, @NonNull final DataSet ds) throws FileUnProcessableException {
+  public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final Optional<SchoolTombstone> school, final String districtID, @NonNull final DataSet ds) throws FileUnProcessableException {
 
     String fileMincode = pluckMincodeFromFile(ds, guid);
 
@@ -135,7 +135,7 @@ public class SdcFileValidator {
 
   }
 
-  public Optional<School> getSchoolUsingMincode(final String guid, @NonNull final DataSet ds) throws FileUnProcessableException{
+  public Optional<SchoolTombstone> getSchoolUsingMincode(final String guid, @NonNull final DataSet ds) throws FileUnProcessableException{
     String fileMincode = pluckMincodeFromFile(ds, guid);
     return restUtils.getSchoolByMincode(fileMincode);
   }

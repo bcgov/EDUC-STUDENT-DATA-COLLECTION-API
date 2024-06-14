@@ -7,7 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -56,14 +56,14 @@ class NewOnlineStudentCalculatorTest {
     })
     void testCalculateFte_homeSchoolStudentIsNowOnlineKto9StudentOrHs_publicDis_ShouldCalculateFteCorrectly(String enrolledGradeCode, String numberOfCourses, String expectedResult) {
         // Given
-        School school = new School();
-        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
         SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudent = new SdcSchoolCollectionStudentEntity();
         sdcSchoolCollectionStudent.setEnrolledGradeCode(enrolledGradeCode);
         sdcSchoolCollectionStudent.setNumberOfCourses(numberOfCourses);
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudent);
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
 
         when(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9StudentOrHs(studentData)).thenReturn(true);
 
@@ -99,14 +99,14 @@ class NewOnlineStudentCalculatorTest {
     })
     void testCalculateFte_homeSchoolStudentIsNowOnlineKto9StudentOrHs_indAuth_ShouldCalculateFteCorrectly(String enrolledGradeCode, String numberOfCourses, String expectedResult) {
         // Given
-        School school = new School();
-        school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
         SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudent = new SdcSchoolCollectionStudentEntity();
         sdcSchoolCollectionStudent.setEnrolledGradeCode(enrolledGradeCode);
         sdcSchoolCollectionStudent.setNumberOfCourses(numberOfCourses);
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudent);
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
 
         when(fteCalculatorUtils.homeSchoolStudentIsNowOnlineKto9StudentOrHs(studentData)).thenReturn(true);
 

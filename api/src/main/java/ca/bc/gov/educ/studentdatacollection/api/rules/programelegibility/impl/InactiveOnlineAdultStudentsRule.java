@@ -9,7 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
@@ -64,11 +64,11 @@ public class InactiveOnlineAdultStudentsRule implements ProgramEligibilityBaseRu
     log.debug("In executeValidation of ProgramEligibilityBaseRule - InactiveOnlineAdultStudentsRule for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
     List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
-    School school = studentRuleData.getSchool();
+    SchoolTombstone schoolTombstone = studentRuleData.getSchool();
     var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
-    List<SdcSchoolCollectionEntity> lastTwoYearsOfCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(UUID.fromString(school.getSchoolId()),student.getSdcSchoolCollection().getSdcSchoolCollectionID());
-    log.debug("In executeValidation of ProgramEligibilityBaseRule - InactiveOnlineAdultStudentsRule: No of collections - {},  for school :: {}" ,lastTwoYearsOfCollections.size(), school.getSchoolId());
+    List<SdcSchoolCollectionEntity> lastTwoYearsOfCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(UUID.fromString(schoolTombstone.getSchoolId()),student.getSdcSchoolCollection().getSdcSchoolCollectionID());
+    log.debug("In executeValidation of ProgramEligibilityBaseRule - InactiveOnlineAdultStudentsRule: No of collections - {},  for school :: {}" ,lastTwoYearsOfCollections.size(), schoolTombstone.getSchoolId());
 
     if (lastTwoYearsOfCollections.isEmpty() || student.getAssignedStudentId() == null
     || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(student.getAssignedStudentId(), lastTwoYearsOfCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(), "0") == 0) {

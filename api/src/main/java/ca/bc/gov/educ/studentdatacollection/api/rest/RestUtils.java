@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeCriteriaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.struct.CHESEmail;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
@@ -30,6 +31,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -56,9 +58,8 @@ public class RestUtils {
   public static final String OPEN_DATE = "openedDate";
   public static final String CLOSE_DATE = "closedDate";
   private static final String CONTENT_TYPE = "Content-Type";
-  private final Map<String, School> schoolMap = new ConcurrentHashMap<>();
-  private final Map<String, School> schoolMincodeMap = new ConcurrentHashMap<>();
-
+  private final Map<String, SchoolTombstone> schoolMap = new ConcurrentHashMap<>();
+  private final Map<String, SchoolTombstone> schoolMincodeMap = new ConcurrentHashMap<>();
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
   private final WebClient webClient;
@@ -76,9 +77,9 @@ public class RestUtils {
 
   @Autowired
   public RestUtils(WebClient webClient, final ApplicationProperties props, final MessagePublisher messagePublisher) {
-    this.webClient = webClient;
-    this.props = props;
-    this.messagePublisher = messagePublisher;
+      this.webClient = webClient;
+      this.props = props;
+      this.messagePublisher = messagePublisher;
   }
 
   @PostConstruct
@@ -145,15 +146,25 @@ public class RestUtils {
     log.info("Loaded  {} school mincodes to memory", this.schoolMincodeMap.values().size());
   }
 
-  public List<School> getSchools() {
+  public List<SchoolTombstone> getSchools() {
     log.info("Calling Institute api to load schools to memory");
     return this.webClient.get()
       .uri(this.props.getInstituteApiURL() + "/school")
       .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
       .retrieve()
-      .bodyToFlux(School.class)
+      .bodyToFlux(SchoolTombstone.class)
       .collectList()
       .block();
+  }
+
+  public School getSchoolDetails(UUID schoolID) {
+    log.debug("Retrieving school by ID: {}", schoolID);
+    return this.webClient.get()
+            .uri(this.props.getInstituteApiURL() + "/school/" + schoolID)
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(School.class)
+            .blockFirst();
   }
 
   public void populateDistrictMap() {
@@ -240,7 +251,7 @@ public class RestUtils {
    * @return list of schools
    */
   @Retryable(retryFor = {Exception.class}, noRetryFor = {StudentDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public List<School> getSchoolListGivenCriteria(List<CollectionCodeCriteriaEntity> collectionCodeCriteria, UUID correlationID) {
+  public List<SchoolTombstone> getSchoolListGivenCriteria(List<CollectionCodeCriteriaEntity> collectionCodeCriteria, UUID correlationID) {
     try {
       final List<Search> searches = new LinkedList<>();
       var currentDate = LocalDateTime.now();
@@ -274,7 +285,7 @@ public class RestUtils {
       }
 
       log.trace("Sys Criteria: {}", searches);
-      final TypeReference<List<School>> ref = new TypeReference<>() {
+      final TypeReference<List<SchoolTombstone>> ref = new TypeReference<>() {
       };
       val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(SEARCH_CRITERIA_LIST.concat("=").concat(
           URLEncoder.encode(this.objectMapper.writeValueAsString(searches), StandardCharsets.UTF_8)).concat("&").concat(PAGE_SIZE).concat("=").concat("100000")).build();
@@ -291,7 +302,7 @@ public class RestUtils {
     }
   }
 
-  public Optional<School> getSchoolBySchoolID(final String schoolID) {
+  public Optional<SchoolTombstone> getSchoolBySchoolID(final String schoolID) {
     if (this.schoolMap.isEmpty()) {
       log.info("School map is empty reloading schools");
       this.populateSchoolMap();
@@ -299,12 +310,65 @@ public class RestUtils {
     return Optional.ofNullable(this.schoolMap.get(schoolID));
   }
 
-  public Optional<School> getSchoolByMincode(final String mincode) {
+  public Optional<SchoolTombstone> getSchoolByMincode(final String mincode) {
     if (this.schoolMincodeMap.isEmpty()) {
       log.info("School mincode map is empty reloading schools");
       this.populateSchoolMincodeMap();
     }
     return Optional.ofNullable(this.schoolMincodeMap.get(mincode));
+  }
+
+  public void sendEmail(final String fromEmail, final List<String> toEmail, final String body, final String subject) {
+    this.sendEmail(this.getChesEmail(fromEmail, toEmail, body, subject));
+  }
+
+  public void sendEmail(final CHESEmail chesEmail) {
+    this.webClient
+            .post()
+            .uri(this.props.getChesEndpointURL())
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .body(Mono.just(chesEmail), CHESEmail.class)
+            .retrieve()
+            .bodyToMono(String.class)
+            .doOnError(error -> this.logError(error, chesEmail))
+            .doOnSuccess(success -> this.onSendEmailSuccess(success, chesEmail))
+            .block();
+  }
+
+  private void logError(final Throwable throwable, final CHESEmail chesEmailEntity) {
+    log.error("Error from CHES API call :: {} ", chesEmailEntity, throwable);
+  }
+
+  private void onSendEmailSuccess(final String s, final CHESEmail chesEmailEntity) {
+    log.info("Email sent success :: {} :: {}", chesEmailEntity, s);
+  }
+
+  public CHESEmail getChesEmail(final String fromEmail, final List<String> toEmail, final String body, final String subject) {
+    final CHESEmail chesEmail = new CHESEmail();
+    chesEmail.setBody(body);
+    chesEmail.setBodyType("html");
+    chesEmail.setDelayTS(0);
+    chesEmail.setEncoding("utf-8");
+    chesEmail.setFrom(fromEmail);
+    chesEmail.setPriority("normal");
+    chesEmail.setSubject(subject);
+    chesEmail.setTag("tag");
+    chesEmail.getTo().addAll(toEmail);
+    return chesEmail;
+  }
+
+  public CHESEmail getChesEmail(final String emailAddress, final String body, final String subject) {
+    final CHESEmail chesEmail = new CHESEmail();
+    chesEmail.setBody(body);
+    chesEmail.setBodyType("html");
+    chesEmail.setDelayTS(0);
+    chesEmail.setEncoding("utf-8");
+    chesEmail.setFrom("noreply-edx@gov.bc.ca");
+    chesEmail.setPriority("normal");
+    chesEmail.setSubject(subject);
+    chesEmail.setTag("tag");
+    chesEmail.getTo().add(emailAddress);
+    return chesEmail;
   }
 
   public Optional<District> getDistrictByDistrictID(final String districtID) {

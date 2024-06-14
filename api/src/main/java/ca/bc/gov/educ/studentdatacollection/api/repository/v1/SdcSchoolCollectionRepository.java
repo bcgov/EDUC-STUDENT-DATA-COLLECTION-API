@@ -191,4 +191,13 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     AND sscs.sdcSchoolCollectionStudentStatusCode  = 'LOADED'
     AND ssc.uploadDate <= :uploadDate""")
     long findSdcSchoolCollectionsPositionInQueue(@Param("uploadDate") LocalDateTime uploadDate);
+
+    @Query("""
+            select ssc from SdcSchoolCollectionEntity ssc, CollectionEntity c
+            where ssc.sdcDistrictCollectionID is null
+            and c.collectionID = ssc.collectionEntity.collectionID
+            and c.collectionStatusCode != 'COMPLETED'
+            and ssc.sdcSchoolCollectionStatusCode != 'SUBMITTED'
+    """)
+    List<SdcSchoolCollectionEntity> findAllUnsubmittedIndependentSchoolsInCurrentCollection();
 }

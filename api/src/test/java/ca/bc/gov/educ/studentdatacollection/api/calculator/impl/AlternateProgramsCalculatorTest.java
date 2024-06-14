@@ -6,7 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -58,12 +58,12 @@ class AlternateProgramsCalculatorTest {
         student.setIsGraduated(false);
         student.setEnrolledGradeCode(enrolledGradeCode);
 
-        School school = new School();
-        school.setFacilityTypeCode(FacilityTypeCodes.DISTONLINE.getCode());
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.DISTONLINE.getCode());
 
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSdcSchoolCollectionStudentEntity(student);
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
 
         // When
         FteCalculationResult fteValues = new FteCalculationResult();
@@ -87,12 +87,12 @@ class AlternateProgramsCalculatorTest {
         student.setIsGraduated(true);
         student.setEnrolledGradeCode(enrolledGradeCode);
 
-        School school = new School();
-        school.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
 
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSdcSchoolCollectionStudentEntity(student);
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
 
         // When
         FteCalculationResult fteValues = new FteCalculationResult();
@@ -140,12 +140,12 @@ class AlternateProgramsCalculatorTest {
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode(enrolledGradeCode);
 
-        School school = new School();
-        school.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
 
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSdcSchoolCollectionStudentEntity(student);
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
 
         // When
         FteCalculationResult result = alternateProgramsCalculator.calculateFte(studentData);
@@ -165,12 +165,12 @@ class AlternateProgramsCalculatorTest {
         student.setEnrolledGradeCode(enrolledGradeCode);
         student.setIsGraduated(false);
 
-        School school = new School();
-        school.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
 
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSdcSchoolCollectionStudentEntity(student);
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
 
         // When
         FteCalculationResult result = alternateProgramsCalculator.calculateFte(studentData);
@@ -190,12 +190,12 @@ class AlternateProgramsCalculatorTest {
         student.setEnrolledGradeCode(enrolledGradeCode);
         student.setIsGraduated(true);
 
-        School school = new School();
-        school.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
 
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSdcSchoolCollectionStudentEntity(student);
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
 
         // When
         FteCalculationResult fteValues = new FteCalculationResult();

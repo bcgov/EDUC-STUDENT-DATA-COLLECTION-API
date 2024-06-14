@@ -8,9 +8,11 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.Orchestrator;
+import ca.bc.gov.educ.studentdatacollection.api.properties.EmailProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ScheduleHandlerService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcService;
@@ -26,7 +28,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -34,6 +40,14 @@ import static lombok.AccessLevel.PRIVATE;
 @Service
 @Slf4j
 public class EventTaskSchedulerAsyncService {
+
+  DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
+
+  @Getter(PRIVATE)
+  private final EmailProperties emailProperties;
+
+  private final ScheduleHandlerService scheduleHandlerService;
+
   @Getter(PRIVATE)
   private final SagaRepository sagaRepository;
 
@@ -57,14 +71,16 @@ public class EventTaskSchedulerAsyncService {
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionService sdcSchoolCollectionService;
 
-  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, final SdcService sdcService, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionService sdcSchoolCollectionService) {
+  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, EmailProperties emailProperties, ScheduleHandlerService scheduleHandlerService, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, final SdcService sdcService, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionService sdcSchoolCollectionService) {
+    this.emailProperties = emailProperties;
+    this.scheduleHandlerService = scheduleHandlerService;
     this.sagaRepository = sagaRepository;
     this.sdcSchoolStudentRepository = sdcSchoolStudentRepository;
     this.sdcService = sdcService;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
-      this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
-      this.sdcSchoolCollectionService = sdcSchoolCollectionService;
-      orchestrators.forEach(orchestrator -> this.sagaOrchestrators.put(orchestrator.getSagaName(), orchestrator));
+    this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
+    this.sdcSchoolCollectionService = sdcSchoolCollectionService;
+    orchestrators.forEach(orchestrator -> this.sagaOrchestrators.put(orchestrator.getSagaName(), orchestrator));
   }
 
   @Async("taskExecutor")
@@ -130,6 +146,15 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
+  @Async("taskExecutor")
+  @Transactional
+  public void findAllUnsubmittedIndependentSchoolsInCurrentCollection() {
+    final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities = sdcSchoolCollectionRepository.findAllUnsubmittedIndependentSchoolsInCurrentCollection();
+    log.debug("Found :: {}  schools which have not yet submitted.", sdcSchoolCollectionEntities.size());
+    if (!sdcSchoolCollectionEntities.isEmpty()) {
+      scheduleHandlerService.createAndStartUnsubmittedEmailSagas(sdcSchoolCollectionEntities);
+    }
+  }
 
   public List<String> getStatusFilters() {
     if (this.statusFilters != null && !this.statusFilters.isEmpty()) {

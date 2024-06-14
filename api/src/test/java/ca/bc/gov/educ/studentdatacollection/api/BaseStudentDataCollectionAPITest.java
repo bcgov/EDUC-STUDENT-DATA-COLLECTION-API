@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionSt
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.EmailSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
@@ -16,6 +17,8 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenM
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolContact;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.support.StudentDataCollectionTestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -331,7 +334,48 @@ public abstract class BaseStudentDataCollectionAPITest {
       .build();
   }
 
-  public School createMockSchool() {
+  @SneakyThrows
+  protected SdcSagaEntity createMockIndyNoActivityEmailSaga(final EmailSagaData emailSagaData) {
+    return SdcSagaEntity.builder()
+            .updateDate(LocalDateTime.now().minusMinutes(15))
+            .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+            .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now().minusMinutes(15))
+            .sagaName(SagaEnum.INDY_SCHOOLS_NO_ACTIVITY_EMAIL_SAGA.toString())
+            .status(SagaStatusEnum.IN_PROGRESS.toString())
+            .sagaState(EventType.INITIATED.toString())
+            .payload(JsonUtil.getJsonStringFromObject(emailSagaData))
+            .build();
+  }
+
+  @SneakyThrows
+  protected SdcSagaEntity createMockIndyNotSubmittedEmailSaga(final EmailSagaData emailSagaData) {
+    return SdcSagaEntity.builder()
+            .updateDate(LocalDateTime.now().minusMinutes(15))
+            .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+            .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now().minusMinutes(15))
+            .sagaName(SagaEnum.INDY_SCHOOLS_NOT_SUBMITTED_EMAIL_SAGA.toString())
+            .status(SagaStatusEnum.IN_PROGRESS.toString())
+            .sagaState(EventType.INITIATED.toString())
+            .payload(JsonUtil.getJsonStringFromObject(emailSagaData))
+            .build();
+  }
+
+  public SchoolTombstone createMockSchool() {
+    final SchoolTombstone schoolTombstone = new SchoolTombstone();
+    schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+    schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+    schoolTombstone.setDisplayName("Marco's school");
+    schoolTombstone.setMincode("03636018");
+    schoolTombstone.setOpenedDate("1964-09-01T00:00:00");
+    schoolTombstone.setSchoolCategoryCode("PUBLIC");
+    schoolTombstone.setSchoolReportingRequirementCode("REGULAR");
+    schoolTombstone.setFacilityTypeCode("STANDARD");
+    return schoolTombstone;
+  }
+
+  public School createMockSchoolDetail() {
     final School school = new School();
     school.setSchoolId(UUID.randomUUID().toString());
     school.setDistrictId(UUID.randomUUID().toString());
@@ -341,6 +385,13 @@ public abstract class BaseStudentDataCollectionAPITest {
     school.setSchoolCategoryCode("PUBLIC");
     school.setSchoolReportingRequirementCode("REGULAR");
     school.setFacilityTypeCode("STANDARD");
+
+    var contactList = new ArrayList<SchoolContact>();
+    SchoolContact contact1 = new SchoolContact();
+    contact1.setEmail("abc@acb.com");
+    contact1.setSchoolContactTypeCode("PRINCIPAL");
+    contactList.add(contact1);
+    school.setContacts(contactList);
     return school;
   }
 
@@ -354,9 +405,9 @@ public abstract class BaseStudentDataCollectionAPITest {
     return district;
   }
 
-  public StudentRuleData createMockStudentRuleData(final SdcSchoolCollectionStudentEntity student, final School school) {
+  public StudentRuleData createMockStudentRuleData(final SdcSchoolCollectionStudentEntity student, final SchoolTombstone schoolTombstone) {
     final StudentRuleData studentRuleData = new StudentRuleData();
-    studentRuleData.setSchool(school);
+    studentRuleData.setSchool(schoolTombstone);
     studentRuleData.setSdcSchoolCollectionStudentEntity(student);
     return studentRuleData;
   }
@@ -551,10 +602,10 @@ public abstract class BaseStudentDataCollectionAPITest {
 
   public PenMatchResult getPenMatchResult(){
       PenMatchResult penMatchResult = new PenMatchResult();
-      PenMatchRecord record = new PenMatchRecord();
-      record.setMatchingPEN("123456789");
-      record.setStudentID(UUID.randomUUID().toString());
-      penMatchResult.setMatchingRecords(Arrays.asList(record));
+      PenMatchRecord penMatchRecord = new PenMatchRecord();
+      penMatchRecord.setMatchingPEN("123456789");
+      penMatchRecord.setStudentID(UUID.randomUUID().toString());
+      penMatchResult.setMatchingRecords(Arrays.asList(penMatchRecord));
       penMatchResult.setPenStatus("AA");
       penMatchResult.setPenStatusMessage("ABC");
       return penMatchResult;

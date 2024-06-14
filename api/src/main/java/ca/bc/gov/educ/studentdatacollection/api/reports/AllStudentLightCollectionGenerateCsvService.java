@@ -4,7 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionA
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -92,9 +92,9 @@ public class AllStudentLightCollectionGenerateCsvService {
         List<Object> csvRowData = new ArrayList<>();
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
-            Optional<School> school = restUtils.getSchoolBySchoolID(schoolID.toString());
+            Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
             String schoolCode = school.isPresent() ? school.get().getMincode() : "No School Code Found";
-            String schoolName = school.map(School::getDisplayName).orElse("No School Name Found");
+            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse("No School Name Found");
             String facilityType = school.isPresent() ? school.get().getFacilityTypeCode() : "No Facility Type Found";
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);

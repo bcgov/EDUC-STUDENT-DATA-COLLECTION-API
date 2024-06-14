@@ -9,7 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollect
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import lombok.EqualsAndHashCode;
@@ -339,22 +339,22 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
 
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
 
-    List<School> schools = results.stream()
+    List<SchoolTombstone> schoolTombstones = results.stream()
             .map(value ->  restUtils.getSchoolBySchoolID(value.getSchoolID()).orElseThrow(() ->
                     new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", value.toString())
             )).toList();
 
-    schools.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
+    schoolTombstones.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
     headcountResultsTable.setRows(rows);
     return headcountResultsTable;
   }
 
-  public void createSectionsBySchool(List<Map<String, HeadcountHeaderColumn>> rows, List<CareerHeadcountResult> results, School school) {
+  public void createSectionsBySchool(List<Map<String, HeadcountHeaderColumn>> rows, List<CareerHeadcountResult> results, SchoolTombstone schoolTombstone) {
     for (Map.Entry<String, String> title : perSchoolRowTitles.entrySet()) {
       Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
 
       if (title.getKey().equals(SCHOOL_NAME_KEY)) {
-        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(school.getMincode() + " - " + school.getDisplayName()).build());
+        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(schoolTombstone.getMincode() + " - " + schoolTombstone.getDisplayName()).build());
       } else {
         rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
       }
@@ -364,7 +364,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
       if (headcountFunction != null) {
         for (String gradeCode : gradeCodes) {
           var result = results.stream()
-                  .filter(value -> value.getEnrolledGradeCode().equals(gradeCode) && value.getSchoolID().equals(school.getSchoolId()))
+                  .filter(value -> value.getEnrolledGradeCode().equals(gradeCode) && value.getSchoolID().equals(schoolTombstone.getSchoolId()))
                   .findFirst()
                   .orElse(null);
           String headcount = "0";
@@ -376,7 +376,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
         }
         rowData.put(TOTAL_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(total)).build());
       }
-      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(school.getMincode() + " - " + school.getDisplayName()).build());
+      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(schoolTombstone.getMincode() + " - " + schoolTombstone.getDisplayName()).build());
       rows.add(rowData);
     }
   }

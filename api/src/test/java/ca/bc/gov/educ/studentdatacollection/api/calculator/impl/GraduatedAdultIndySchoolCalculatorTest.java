@@ -5,7 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,14 +31,14 @@ class GraduatedAdultIndySchoolCalculatorTest {
     @Test
     void testCalculateFte_GraduatedAdultIndySchool() {
         // Given
-        School school = new School();
-        school.setSchoolCategoryCode("INDEPEND");
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("INDEPEND");
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode("GA");
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
@@ -53,8 +53,8 @@ class GraduatedAdultIndySchoolCalculatorTest {
     @Test
     void testCalculateFte_NonGraduatedAdultIndySchool() {
         // Given
-        School school = new School();
-        school.setSchoolCategoryCode("INDEPEND");
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("INDEPEND");
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode("12");
@@ -62,7 +62,7 @@ class GraduatedAdultIndySchoolCalculatorTest {
         student.setIsAdult(false);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
@@ -80,8 +80,8 @@ class GraduatedAdultIndySchoolCalculatorTest {
     @Test
     void testCalculateFte_NonGAisGraduatedAdultIndySchool() {
         // Given
-        School school = new School();
-        school.setSchoolCategoryCode("INDEPEND");
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("INDEPEND");
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode("12");
@@ -89,7 +89,7 @@ class GraduatedAdultIndySchoolCalculatorTest {
         student.setIsAdult(true);
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
@@ -104,14 +104,14 @@ class GraduatedAdultIndySchoolCalculatorTest {
     @Test
     void testCalculateFte_NonGraduatedNonIndySchool() {
         // Given
-        School school = new School();
-        school.setSchoolCategoryCode("DIST_ONLINE");
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("DIST_ONLINE");
 
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setEnrolledGradeCode("GA");
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
 
         // When

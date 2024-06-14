@@ -3,7 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -37,14 +37,14 @@ class StartSDCCollectionsWithOpenDateInThePastProcessorTest extends
 
   @Test
   void testStartSDCCollection_GivenPastOpenDate_ShouldCreateCollectionAndUpdateCollectionCodeOpenDateCloseDateAndCreateSdcSchoolWithHistory() {
-    List<School> listOfSchools = new ArrayList<>();
+    List<SchoolTombstone> listOfSchoolTombstones = new ArrayList<>();
     var school = createMockSchool();
-    listOfSchools.add(school);
+    listOfSchoolTombstones.add(school);
     var district = createMockDistrict();
     school.setDistrictId(district.getDistrictId());
     CollectionTypeCodeEntity collectionTypeCode = this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntity());
 
-    this.sdcService.startSDCCollection(collectionTypeCode, listOfSchools);
+    this.sdcService.startSDCCollection(collectionTypeCode, listOfSchoolTombstones);
 
     List<CollectionEntity> collectionEntities = this.collectionRepository.findAll();
     List<SdcSchoolCollectionEntity> sdcSchoolEntities = this.sdcSchoolRepository.findAll();

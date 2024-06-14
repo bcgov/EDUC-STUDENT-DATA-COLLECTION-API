@@ -12,7 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollect
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.CsfFrenchHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.FrenchCombinedHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.FrenchHeadcountResult;
@@ -31,11 +31,7 @@ import net.sf.jasperreports.engine.JasperReport;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -110,12 +106,12 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     }
   }
 
-  private String convertToCSFFrenchProgramReportJSONString(List<CsfFrenchHeadcountResult> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection, School school) throws JsonProcessingException {
+  private String convertToCSFFrenchProgramReportJSONString(List<CsfFrenchHeadcountResult> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection, SchoolTombstone schoolTombstone) throws JsonProcessingException {
     HeadcountNode mainNode = new HeadcountNode();
     HeadcountReportNode reportNode = new HeadcountReportNode();
     setReportTombstoneValues(sdcSchoolCollection, reportNode);
 
-    var nodeMap = generateNodeMapForCSF(isIndependentSchool(school));
+    var nodeMap = generateNodeMapForCSF(isIndependentSchool(schoolTombstone));
 
     mappedResults.forEach(frenchHeadcountResult -> setValueForGrade(nodeMap, frenchHeadcountResult));
 
@@ -124,12 +120,12 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     return objectWriter.writeValueAsString(mainNode);
   }
 
-  private String convertToFrenchProgramReportJSONString(List<FrenchHeadcountResult> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection, School school) throws JsonProcessingException {
+  private String convertToFrenchProgramReportJSONString(List<FrenchHeadcountResult> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection, SchoolTombstone schoolTombstone) throws JsonProcessingException {
     HeadcountNode mainNode = new HeadcountNode();
     HeadcountReportNode reportNode = new HeadcountReportNode();
     setReportTombstoneValues(sdcSchoolCollection, reportNode);
 
-    var nodeMap = generateNodeMap(isIndependentSchool(school));
+    var nodeMap = generateNodeMap(isIndependentSchool(schoolTombstone));
 
     mappedResults.forEach(frenchHeadcountResult -> setValueForGrade(nodeMap, frenchHeadcountResult));
 

@@ -3,7 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.rest;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,17 +46,17 @@ class RestUtilsTest {
         val school1ID = String.valueOf(UUID.randomUUID());
         val school2ID = String.valueOf(UUID.randomUUID());
         val school3ID = String.valueOf(UUID.randomUUID());
-        val school1 = School.builder()
+        val school1 = SchoolTombstone.builder()
                 .schoolId(school1ID)
                 .displayName("School 1")
                 .independentAuthorityId("Authority 1")
                 .build();
-        val school2 = School.builder()
+        val school2 = SchoolTombstone.builder()
                 .schoolId(school2ID)
                 .displayName("School 2")
                 .independentAuthorityId("Authority 1")
                 .build();
-        val school3 = School.builder()
+        val school3 = SchoolTombstone.builder()
                 .schoolId(school3ID)
                 .displayName("School 3")
                 .independentAuthorityId("Authority 2")
@@ -68,7 +68,7 @@ class RestUtilsTest {
         restUtils.populateSchoolMap();
 
         // Then verify the maps are populated
-        Map<String, School> schoolMap = (Map<String, School>) ReflectionTestUtils.getField(restUtils, "schoolMap");
+        Map<String, SchoolTombstone> schoolMap = (Map<String, SchoolTombstone>) ReflectionTestUtils.getField(restUtils, "schoolMap");
         assertEquals(3, schoolMap.size());
         assertEquals(school1, schoolMap.get(school1ID));
         assertEquals(school2, schoolMap.get(school2ID));
@@ -121,16 +121,16 @@ class RestUtilsTest {
         val school1ID = String.valueOf(UUID.randomUUID());
         val school2ID = String.valueOf(UUID.randomUUID());
         val school3ID = String.valueOf(UUID.randomUUID());
-        val school1 = School.builder()
+        val school1 = SchoolTombstone.builder()
                 .schoolId(school1ID)
                 .displayName("School 1")
                 .independentAuthorityId("Authority 1")
                 .build();
-        val school2 = School.builder()
+        val school2 = SchoolTombstone.builder()
                 .schoolId(school2ID)
                 .displayName("School 2")
                 .build();
-        val school3 = School.builder()
+        val school3 = SchoolTombstone.builder()
                 .schoolId(school3ID)
                 .displayName("School 3")
                 .independentAuthorityId("Authority 2")
@@ -142,7 +142,7 @@ class RestUtilsTest {
         restUtils.populateSchoolMap();
 
         // Then verify the maps are populated
-        Map<String, School> schoolMap = (Map<String, School>) ReflectionTestUtils.getField(restUtils, "schoolMap");
+        Map<String, SchoolTombstone> schoolMap = (Map<String, SchoolTombstone>) ReflectionTestUtils.getField(restUtils, "schoolMap");
         assertEquals(3, schoolMap.size());
         assertEquals(school1, schoolMap.get(school1ID));
         assertEquals(school2, schoolMap.get(school2ID));
@@ -166,7 +166,7 @@ class RestUtilsTest {
         assertDoesNotThrow(() -> restUtils.populateSchoolMap()); //checks exception is handled
 
         // Then Verify that the maps are not populated
-        Map<String, School> schoolMap = (Map<String, School>) ReflectionTestUtils.getField(restUtils, "schoolMap");
+        Map<String, SchoolTombstone> schoolMap = (Map<String, SchoolTombstone>) ReflectionTestUtils.getField(restUtils, "schoolMap");
         assertEquals(0, schoolMap.size());
 
         Map<String, List<UUID>> independentAuthorityToSchoolIDMap = (Map<String, List<UUID>>) ReflectionTestUtils.getField(restUtils, "independentAuthorityToSchoolIDMap");
@@ -210,18 +210,18 @@ class RestUtilsTest {
         val school1Mincode = "97083";
         val school2Mincode = "97084";
         val school3Mincode = "97085";
-        val school1 = School.builder()
+        val school1 = SchoolTombstone.builder()
                 .schoolId(String.valueOf(UUID.randomUUID()))
                 .displayName("School 1")
                 .independentAuthorityId("Authority 1")
                 .mincode(school1Mincode)
                 .build();
-        val school2 = School.builder()
+        val school2 = SchoolTombstone.builder()
                 .schoolId(String.valueOf(UUID.randomUUID()))
                 .displayName("School 2")
                 .mincode(school2Mincode)
                 .build();
-        val school3 = School.builder()
+        val school3 = SchoolTombstone.builder()
                 .schoolId(String.valueOf(UUID.randomUUID()))
                 .displayName("School 3")
                 .mincode(school3Mincode)
@@ -233,7 +233,7 @@ class RestUtilsTest {
         restUtils.populateSchoolMincodeMap();
 
         // Then verify the maps are populated
-        Map<String, School> schoolMincodeMap = (Map<String, School>) ReflectionTestUtils.getField(restUtils, "schoolMincodeMap");
+        Map<String, SchoolTombstone> schoolMincodeMap = (Map<String, SchoolTombstone>) ReflectionTestUtils.getField(restUtils, "schoolMincodeMap");
         assertEquals(3, schoolMincodeMap.size());
         assertEquals(school1, schoolMincodeMap.get(school1Mincode));
         assertEquals(school2, schoolMincodeMap.get(school2Mincode));
@@ -247,18 +247,18 @@ class RestUtilsTest {
         val school1Mincode = "97083";
         val school2Mincode = "97084";
         val school3Mincode = "97085";
-        val school1 = School.builder()
+        val school1 = SchoolTombstone.builder()
                 .schoolId(String.valueOf(UUID.randomUUID()))
                 .displayName("School 1")
                 .independentAuthorityId("Authority 1")
                 .mincode(school1Mincode)
                 .build();
-        val school2 = School.builder()
+        val school2 = SchoolTombstone.builder()
                 .schoolId(String.valueOf(UUID.randomUUID()))
                 .displayName("School 2")
                 .mincode(school2Mincode)
                 .build();
-        val school3 = School.builder()
+        val school3 = SchoolTombstone.builder()
                 .schoolId(String.valueOf(UUID.randomUUID()))
                 .displayName("School 3")
                 .mincode(school3Mincode)

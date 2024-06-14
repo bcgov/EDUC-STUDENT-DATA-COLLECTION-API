@@ -1,20 +1,24 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+import java.util.Map;
+
 @SuperBuilder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class StudentRuleData {
+public class EmailSagaData {
   private static final long serialVersionUID = -2329245910142215178L;
-  private SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity;
-  private SchoolTombstone school;
+  private String fromEmail;
+  private List<String> toEmails;
+  private String subject;
+  private String templateName;
+  private Map<String, String> emailFields;
 }

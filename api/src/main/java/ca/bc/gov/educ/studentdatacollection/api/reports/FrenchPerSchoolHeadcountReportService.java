@@ -9,7 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.FrenchCombinedHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
@@ -102,7 +102,7 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
         if (frenchCombinedHeadcountList != null) {
             for (FrenchCombinedHeadcountResult result : frenchCombinedHeadcountList) {
                 String schoolID = result.getSchoolID();
-                Optional<School> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
+                Optional<SchoolTombstone> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
                 int finalSequencePrefix = sequencePrefix;
                 schoolOptional.ifPresent(school -> {
                     String schoolTitle = school.getMincode() + " - " + school.getDisplayName();

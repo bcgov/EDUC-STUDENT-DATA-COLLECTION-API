@@ -20,6 +20,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -117,11 +118,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationErrorOldDate.size()).isNotZero();
         assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
-
-//        entity.setDob(null);
-//        val validationErrorNullDate = rulesProcessor.processRules(createMockStudentSagaData(entity, createMockSchool()));
-//        assertThat(validationErrorNullDate.size()).isNotZero();
-//        assertThat(validationErrorNullDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
         entity.setDob("");
         val validationErrorEmptyDate = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
@@ -807,7 +803,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setDob("20180101");
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorOldDate.size()).isZero();
-        //assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("AGELESSTHANFIVE");
 
         entity.setDob("20190101");
         school.setFacilityTypeCode("CONT_ED");
@@ -1457,7 +1452,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         collectionFeb.setSnapshotDate(currentSnapshotDate);
         collectionRepository.save(collectionFeb);
 
-        School school = createMockSchool();
+        SchoolTombstone school = createMockSchool();
         District district = createMockDistrict();
         school.setDistrictId(district.getDistrictId());
         UUID schoolId = UUID.fromString(school.getSchoolId());
@@ -1504,7 +1499,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         collectionFeb.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         collectionRepository.save(collectionFeb);
 
-        School schoolFeb = createMockSchool();
+        SchoolTombstone schoolFeb = createMockSchool();
         SdcSchoolCollectionEntity sdcMockSchoolFeb = createMockSdcSchoolCollectionEntity(collectionFeb, UUID.fromString(schoolFeb.getSchoolId()));
         sdcMockSchoolFeb.setUploadDate(null);
         sdcMockSchoolFeb.setUploadFileName(null);
@@ -1529,7 +1524,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         collectionFeb.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         collectionRepository.save(collectionFeb);
 
-        School schoolFeb = createMockSchool();
+        SchoolTombstone schoolFeb = createMockSchool();
         schoolFeb.setFacilityTypeCode(FacilityTypeCodes.JUSTB4PRO.getCode());
         SdcSchoolCollectionEntity sdcMockSchoolFeb = createMockSdcSchoolCollectionEntity(collectionFeb, UUID.fromString(schoolFeb.getSchoolId()));
         sdcMockSchoolFeb.setUploadDate(null);

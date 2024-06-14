@@ -6,7 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,11 +30,11 @@ class OffshoreStudentCalculatorTest {
     @Test
     void testCalculateFte_WithOffshoreSchoolCategory_ReturnsZeroFteWithReason() {
         // Given
-        School school = new School();
-        school.setSchoolCategoryCode(SchoolCategoryCodes.OFFSHORE.getCode());
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode(SchoolCategoryCodes.OFFSHORE.getCode());
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(new SdcSchoolCollectionStudentEntity());
 
         // When
@@ -50,11 +50,11 @@ class OffshoreStudentCalculatorTest {
     @Test
     void testCalculateFte_WithNonOffshoreSchoolCategory_CallsNextFteCalculation() {
         // Given
-        School school = new School();
-        school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
 
         StudentRuleData studentData = new StudentRuleData();
-        studentData.setSchool(school);
+        studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(new SdcSchoolCollectionStudentEntity());
 
         // When

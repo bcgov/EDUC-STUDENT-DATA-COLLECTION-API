@@ -70,6 +70,8 @@ public class SdcSchoolCollectionStudentService {
   private final RestUtils restUtils;
   private static SdcStudentEllMapper sdcStudentEllMapper = SdcStudentEllMapper.mapper;
 
+  private static final String SDC_SCHOOL_COLLECTION_STUDENT_STRING = "SdcSchoolCollectionStudentEntity";
+
   private final RulesProcessor rulesProcessor;
   private static final String SDC_SCHOOL_COLLECTION_STUDENT_ID = "sdcSchoolCollectionStudentId";
   private static final String IN_REVIEW = "INREVIEW";
@@ -113,7 +115,7 @@ public class SdcSchoolCollectionStudentService {
 
       return validateAndProcessSdcSchoolCollectionStudent(sdcSchoolCollectionStudentEntity);
     } else {
-      throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", studentEntity.getSdcSchoolCollectionStudentID().toString());
+      throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, studentEntity.getSdcSchoolCollectionStudentID().toString());
     }
   }
 
@@ -144,20 +146,20 @@ public class SdcSchoolCollectionStudentService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void processSagaStudentRecord(final UUID sdcSchoolCollectionStudentID, School school) {
+  public void processSagaStudentRecord(final UUID sdcSchoolCollectionStudentID, SchoolTombstone schoolTombstone) {
     var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
     if(currentStudentEntity.isPresent()) {
-      saveSdcStudentWithHistory(processStudentRecord(school, currentStudentEntity.get()));
+      saveSdcStudentWithHistory(processStudentRecord(schoolTombstone, currentStudentEntity.get()));
     } else {
-      throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", sdcSchoolCollectionStudentID.toString());
+      throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, sdcSchoolCollectionStudentID.toString());
     }
   }
 
-  private SdcSchoolCollectionStudentEntity processStudentRecord(School school, SdcSchoolCollectionStudentEntity incomingStudentEntity) {
+  private SdcSchoolCollectionStudentEntity processStudentRecord(SchoolTombstone schoolTombstone, SdcSchoolCollectionStudentEntity incomingStudentEntity) {
     StudentRuleData studentRuleData = new StudentRuleData();
     studentRuleData.setSdcSchoolCollectionStudentEntity(incomingStudentEntity);
-    studentRuleData.setSchool(school);
+    studentRuleData.setSchool(schoolTombstone);
 
     clearCalculatedFields(incomingStudentEntity);
     var validationErrors = validateStudent(studentRuleData);
@@ -388,7 +390,7 @@ public class SdcSchoolCollectionStudentService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void markPENForReview(SdcSchoolCollectionStudentEntity studentEntity) {
     var curStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
-            new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "SdcSchoolCollectionStudentEntity", studentEntity.getSdcSchoolCollectionStudentID().toString()));
+            new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, studentEntity.getSdcSchoolCollectionStudentID().toString()));
 
     sdcDuplicateRepository.deleteAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentID(curStudentEntity.getSdcSchoolCollectionStudentID());
     curStudentEntity.setPenMatchResult(IN_REVIEW);
