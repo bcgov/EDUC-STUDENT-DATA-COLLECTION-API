@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.21.0.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
+<!-- Created with Jaspersoft Studio version 6.21.3.final using JasperReports Library version 6.21.3-4a3078d20785ebe464f18037d738d12fc98c13cf  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Cherry" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="13acf49e-4913-4d1b-bccc-113817ad15d1">
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="CareerPrograms"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="CareerAdapter"/>
 	<style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false"/>
 	<style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false"/>
 	<style name="Column header" forecolor="#666666" fontName="Times New Roman" fontSize="14" isBold="true"/>
@@ -309,7 +309,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="42" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
@@ -341,7 +341,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="45" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="f3c6dd40-609a-429a-9a64-20ec328c908e">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
@@ -373,7 +373,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="45" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="303bdc9e-c6b7-465c-9b28-99c2c242d787">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
@@ -408,7 +408,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="54" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="7aa37df7-a5c3-4d9f-871d-54abde163d40">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
@@ -440,7 +440,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="53" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="4568c734-91da-4a97-999a-fb0bf462b035">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
@@ -472,7 +472,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="53" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="4b0a2e31-b8a0-4eea-af0e-4419e3495c3e">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
@@ -507,7 +507,7 @@
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table 2_TD" height="20">
-								<textField>
+								<textField isBlankWhenNull="true">
 									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="39" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="929aec74-fe91-42f2-b954-fe9baaf07dbe">
 										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
 									</reportElement>
