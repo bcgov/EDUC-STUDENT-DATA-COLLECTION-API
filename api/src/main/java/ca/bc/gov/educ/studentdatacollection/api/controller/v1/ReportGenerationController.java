@@ -30,6 +30,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     private final AllStudentLightCollectionGenerateCsvService allStudentLightCollectionGenerateCsvService;
     private final BandOfResidenceHeadcountReportService bandOfResidenceHeadcountReportService;
     private final GradeEnrollmentHeadcountPerSchoolReportService gradeEnrollmentHeadcountPerSchoolReportService;
+    private final CareerProgramHeadcountPerSchoolReportService careerProgramHeadcountPerSchoolReportService;
 
     @Override
     public DownloadableReportResponse generateSDCReport(UUID collectionID, String reportTypeCode) {
@@ -44,7 +45,9 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case GRADE_ENROLLMENT_HEADCOUNT -> gradeEnrollmentHeadcountReportService.generateGradeEnrollmentHeadcountReport(collectionID, false);
             case DIS_GRADE_ENROLLMENT_HEADCOUNT -> gradeEnrollmentHeadcountReportService.generateGradeEnrollmentHeadcountReport(collectionID, true);
             case DIS_GRADE_ENROLLMENT_HEADCOUNT_PER_SCHOOL -> gradeEnrollmentHeadcountPerSchoolReportService.generatePerSchoolReport(collectionID);
-            case CAREER_HEADCOUNT -> careerProgramHeadcountReportService.generateCareerProgramHeadcountReport(collectionID);
+            case CAREER_HEADCOUNT -> careerProgramHeadcountReportService.generateCareerProgramHeadcountReport(collectionID, false);
+            case DIS_CAREER_HEADCOUNT -> careerProgramHeadcountReportService.generateCareerProgramHeadcountReport(collectionID, true);
+            case DIS_CAREER_HEADCOUNT_PER_SCHOOL -> careerProgramHeadcountPerSchoolReportService.generateCareerProgramHeadcountPerSchoolReport(collectionID);
             case FRENCH_HEADCOUNT -> frenchProgramHeadcountReportService.generateFrenchProgramHeadcountReport(collectionID, false);
             case DIS_FRENCH_HEADCOUNT -> frenchProgramHeadcountReportService.generateFrenchProgramHeadcountReport(collectionID, true);
             case DIS_FRENCH_HEADCOUNT_PER_SCHOOL -> frenchPerSchoolHeadcountReportService.generatePerSchoolReport(collectionID);
