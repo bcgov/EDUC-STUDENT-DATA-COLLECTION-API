@@ -119,6 +119,10 @@ public class SdcDistrictCollectionService {
     return fileSummaries;
   }
 
+  public List<SdcSchoolCollectionEntity> getSchoolCollectionsInDistrictCollection(UUID sdcDistrictCollectionID){
+    return sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
+  }
+
   public MonitorSdcSchoolCollectionsResponse getMonitorSdcSchoolCollectionResponse(UUID sdcDistrictCollectionId) {
     Optional<SdcDistrictCollectionEntity> entityOptional = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionId);
     if (entityOptional.isEmpty()) {

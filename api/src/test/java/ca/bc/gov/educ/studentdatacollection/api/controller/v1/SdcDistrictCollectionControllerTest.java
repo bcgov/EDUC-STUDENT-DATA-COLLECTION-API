@@ -1688,4 +1688,37 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .contentType(APPLICATION_JSON)).andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$[0]").value(duplicateMapper.toSdcDuplicate(resultEntity)))
             .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(1)));
   }
+
+  @Test
+  void testGetAllSchoolCollectionsInDistrictCollection_shouldReturnSchoolCollections() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_DISTRICT_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    District district = createMockDistrict();
+    SdcDistrictCollectionEntity sdcMockDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+    sdcDistrictCollectionRepository.save(sdcMockDistrictCollection);
+
+    School school = createMockSchool();
+    SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    sdcMockSchool.setUploadDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setSdcDistrictCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID());
+    sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+    School school2 = createMockSchool();
+    SdcSchoolCollectionEntity sdcMockSchool2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    sdcMockSchool2.setUploadDate(null);
+    sdcMockSchool2.setUploadFileName(null);
+    sdcMockSchool2.setSdcDistrictCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID());
+    sdcSchoolCollectionRepository.save(sdcMockSchool2);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcMockDistrictCollection.getSdcDistrictCollectionID() + "/sdcSchoolCollections").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)));
+  }
+
 }
