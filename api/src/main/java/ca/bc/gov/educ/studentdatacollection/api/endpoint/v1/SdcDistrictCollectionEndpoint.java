@@ -98,4 +98,11 @@ public interface SdcDistrictCollectionEndpoint {
   @Tag(name = "Sdc District Collection", description = "Endpoints to unsubmit district collection entity.")
   @Schema(name = "SdcDistrictCollection", implementation = SdcDistrictCollection.class)
   SdcDistrictCollection unsubmitDistrictCollection(@RequestBody UnsubmitSdcDistrictCollection unsubmitData);
+
+  @GetMapping("/{sdcDistrictCollectionID}/sdcSchoolCollections")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_DISTRICT_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "Sdc District Collection", description = "Endpoint to retrieve all school collections in district collection")
+  List<SdcSchoolCollection> getSchoolCollectionsInDistrictCollection(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 }
