@@ -150,7 +150,7 @@ public class EventTaskSchedulerAsyncService {
   @Transactional
   public void findAllUnsubmittedIndependentSchoolsInCurrentCollection() {
     final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities = sdcSchoolCollectionRepository.findAllUnsubmittedIndependentSchoolsInCurrentCollection();
-    log.debug("Found :: {}  schools which have not yet submitted.", sdcSchoolCollectionEntities.size());
+    log.info("Found :: {} independent schools which have not yet submitted.", sdcSchoolCollectionEntities.size());
     if (!sdcSchoolCollectionEntities.isEmpty()) {
       scheduleHandlerService.createAndStartUnsubmittedEmailSagas(sdcSchoolCollectionEntities);
     }
