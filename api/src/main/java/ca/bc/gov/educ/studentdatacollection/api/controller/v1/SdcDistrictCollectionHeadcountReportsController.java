@@ -52,6 +52,8 @@ public class SdcDistrictCollectionHeadcountReportsController implements SdcDistr
             return sdcDistrictCollectionHeadcountService.getEllHeadcounts(sdcDistrictCollectionEntity, compare);
         } else if (HeadcountReportTypeCodes.ELL_PER_SCHOOL .getCode().equals(type)) {
             return sdcDistrictCollectionHeadcountService.getEllPerSchoolHeadcounts(sdcDistrictCollectionEntity, compare);
+        } else if (HeadcountReportTypeCodes.REFUGEE_PER_SCHOOL .getCode().equals(type)) {
+            return sdcDistrictCollectionHeadcountService.getRefugeePerSchoolHeadcounts(sdcDistrictCollectionEntity, compare);
         }
         return null;
     }
