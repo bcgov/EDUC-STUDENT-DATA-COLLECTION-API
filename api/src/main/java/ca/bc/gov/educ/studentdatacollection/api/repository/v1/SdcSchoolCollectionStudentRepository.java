@@ -272,13 +272,11 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   EllHeadcountHeaderResult getEllHeadersBySchoolId(@Param("sdcSchoolCollectionId") UUID sdcSchoolCollectionId);
 
   @Query("SELECT " +
-          "COUNT(DISTINCT CASE WHEN s.schoolFundingCode = '16' AND NOT EXISTS (" +
-          "  SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si " +
-          "  WHERE si.sdcSchoolCollectionStudentEntity = s AND si.validationIssueCode = 'REFUGEEINSEPTCOL') THEN s.sdcSchoolCollectionStudentID END) AS eligibleStudents, " +
-          "COUNT(DISTINCT CASE WHEN s.schoolFundingCode = '16' THEN s.sdcSchoolCollectionStudentID) AS reportedStudents, " +
+          "COUNT(CASE WHEN s.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = s AND si.validationIssueCode = 'REFUGEEINSEPTCOL') THEN s.sdcSchoolCollectionStudentID ELSE NULL END) AS eligibleStudents, " +
+          "COUNT(CASE WHEN s.schoolFundingCode = '16' THEN s.sdcSchoolCollectionStudentID ELSE NULL END) AS reportedStudents, " +
           "COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents " +
           "FROM SdcSchoolCollectionStudentEntity s " +
-          "WHERE s.sdcSchoolCollection.sdcSchoolID = :sdcSchoolId")
+          "WHERE s.sdcSchoolCollection.schoolID = :sdcSchoolId")
   RefugeeHeadcountHeaderResult getRefugeeHeadersBySchoolId(@Param("sdcSchoolId") UUID sdcSchoolId);
 
   @Query(value="""
@@ -792,10 +790,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   EllHeadcountHeaderResult getEllHeadersBySdcDistrictCollectionId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @Query("SELECT " +
-          "COUNT(DISTINCT CASE WHEN s.schoolFundingCode = '16' AND NOT EXISTS (" +
-          "  SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si " +
-          "  WHERE si.sdcSchoolCollectionStudentEntity = s AND si.validationIssueCode = 'REFUGEEINSEPTCOL') THEN s.sdcSchoolCollectionStudentID END) AS eligibleStudents, " +
-          "COUNT(DISTINCT CASE WHEN s.schoolFundingCode = '16' THEN s.sdcSchoolCollectionStudentID) AS reportedStudents, " +
+          "COUNT(CASE WHEN s.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = s AND si.validationIssueCode = 'REFUGEEINSEPTCOL') THEN s.sdcSchoolCollectionStudentID ELSE NULL END) AS eligibleStudents, " +
+          "COUNT(CASE WHEN s.schoolFundingCode = '16' THEN s.sdcSchoolCollectionStudentID ELSE NULL END) AS reportedStudents, " +
           "COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID")
