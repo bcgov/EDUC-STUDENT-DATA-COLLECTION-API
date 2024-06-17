@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.retry.annotation.Backoff;
@@ -63,6 +64,7 @@ public class RestUtils {
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
   private final WebClient webClient;
+  private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
@@ -76,8 +78,9 @@ public class RestUtils {
   private final Map<String, List<UUID>> independentAuthorityToSchoolIDMap = new ConcurrentHashMap<>();
 
   @Autowired
-  public RestUtils(WebClient webClient, final ApplicationProperties props, final MessagePublisher messagePublisher) {
+  public RestUtils(@Qualifier("chesWebClient") final WebClient chesWebClient, WebClient webClient, final ApplicationProperties props, final MessagePublisher messagePublisher) {
       this.webClient = webClient;
+      this.chesWebClient = chesWebClient;
       this.props = props;
       this.messagePublisher = messagePublisher;
   }
@@ -323,7 +326,7 @@ public class RestUtils {
   }
 
   public void sendEmail(final CHESEmail chesEmail) {
-    this.webClient
+    this.chesWebClient
             .post()
             .uri(this.props.getChesEndpointURL())
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -354,20 +357,6 @@ public class RestUtils {
     chesEmail.setSubject(subject);
     chesEmail.setTag("tag");
     chesEmail.getTo().addAll(toEmail);
-    return chesEmail;
-  }
-
-  public CHESEmail getChesEmail(final String emailAddress, final String body, final String subject) {
-    final CHESEmail chesEmail = new CHESEmail();
-    chesEmail.setBody(body);
-    chesEmail.setBodyType("html");
-    chesEmail.setDelayTS(0);
-    chesEmail.setEncoding("utf-8");
-    chesEmail.setFrom("noreply-edx@gov.bc.ca");
-    chesEmail.setPriority("normal");
-    chesEmail.setSubject(subject);
-    chesEmail.setTag("tag");
-    chesEmail.getTo().add(emailAddress);
     return chesEmail;
   }
 

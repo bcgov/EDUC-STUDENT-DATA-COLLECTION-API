@@ -1702,14 +1702,14 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     SdcDistrictCollectionEntity sdcMockDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
     sdcDistrictCollectionRepository.save(sdcMockDistrictCollection);
 
-    School school = createMockSchool();
+    SchoolTombstone school = createMockSchool();
     SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
     sdcMockSchool.setSdcDistrictCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID());
     sdcSchoolCollectionRepository.save(sdcMockSchool);
 
-    School school2 = createMockSchool();
+    SchoolTombstone school2 = createMockSchool();
     SdcSchoolCollectionEntity sdcMockSchool2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
     sdcMockSchool2.setUploadDate(null);
     sdcMockSchool2.setUploadFileName(null);
