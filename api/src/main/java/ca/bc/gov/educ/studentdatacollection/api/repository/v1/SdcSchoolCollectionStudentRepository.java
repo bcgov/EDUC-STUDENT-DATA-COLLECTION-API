@@ -272,11 +272,11 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   EllHeadcountHeaderResult getEllHeadersBySchoolId(@Param("sdcSchoolCollectionId") UUID sdcSchoolCollectionId);
 
   @Query("SELECT " +
-          "COUNT(DISTINCT CASE WHEN s.schoolFundingCode = '16' AND vi.validationIssueCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS eligibleStudents, " +
+          "COUNT(DISTINCT CASE WHEN s.schoolFundingCode = '16' AND vi.validationIssueCode IS NOT 'REFUGEEINSEPTCOL' THEN s.sdcSchoolCollectionStudentID END) AS eligibleStudents, " +
           "COUNT(DISTINCT CASE WHEN s.schoolFundingCode = '16' THEN s.sdcSchoolCollectionStudentID END) AS reportedStudents, " +
           "COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents " +
           "FROM SdcSchoolCollectionStudentEntity s " +
-          "LEFT JOIN s.sdcSchoolCollectionStudentValidationIssueEntity vi " +
+          "LEFT JOIN s.sdcSchoolCollectionStudentValidationIssueEntities vi " +
           "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionId")
   RefugeeHeadcountHeaderResult getRefugeeHeadersBySchoolId(@Param("sdcSchoolCollectionId") UUID sdcSchoolCollectionId);
 
@@ -791,11 +791,11 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   EllHeadcountHeaderResult getEllHeadersBySdcDistrictCollectionId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @Query("SELECT " +
-          "COUNT(DISTINCT CASE WHEN s.schoolFundingCode = '16' AND vi.validationIssueCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS eligibleStudents, " +
+          "COUNT(DISTINCT CASE WHEN s.schoolFundingCode = '16' AND vi.validationIssueCode IS NOT 'REFUGEEINSEPTCOL' THEN s.sdcSchoolCollectionStudentID END) AS eligibleStudents, " +
           "COUNT(DISTINCT CASE WHEN s.schoolFundingCode = '16' THEN s.sdcSchoolCollectionStudentID END) AS reportedStudents, " +
           "COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents " +
           "FROM SdcSchoolCollectionStudentEntity s " +
-          "LEFT JOIN s.sdcSchoolCollectionStudentValidationIssueEntity vi " +
+          "LEFT JOIN s.sdcSchoolCollectionStudentValidationIssueEntities vi " +
           "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID")
   RefugeeHeadcountHeaderResult getRefugeeHeadersBySdcDistrictCollectionId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
