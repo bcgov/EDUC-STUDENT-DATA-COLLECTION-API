@@ -10,7 +10,6 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollect
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
@@ -136,23 +135,31 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
-    void testGetRefugeeHeadersBySdcDistrictCollectionIdNotEligReportedInSept() {
+    void testGetRefugeeHeadersBySdcDistrictCollectionIdNotEligMockValidationIssue() {
         UUID assignedStudentId = UUID.randomUUID();
-        SdcSchoolCollectionStudentEntity studSept = createMockSchoolStudentEntity(sdcSchoolCollectionEntitySept);
-        studSept.setAssignedStudentId(assignedStudentId);
-        sdcSchoolCollectionStudentRepository.save(studSept);
-
         SdcSchoolCollectionStudentEntity studFeb = createMockSchoolStudentEntity(sdcSchoolCollectionEntityFeb);
         studFeb.setAssignedStudentId(assignedStudentId);
         studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
         sdcSchoolCollectionStudentRepository.save(studFeb);
 
-        helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
-        helper.getHeaders(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID(), true);
+        SdcSchoolCollectionStudentValidationIssueEntity refugeeInSept = new SdcSchoolCollectionStudentValidationIssueEntity();
+
+        refugeeInSept.setSdcSchoolCollectionStudentValidationIssueID(UUID.randomUUID());
+        refugeeInSept.setSdcSchoolCollectionStudentEntity(studFeb);
+        refugeeInSept.setValidationIssueCode("REFUGEEINSEPTCOL");
+        refugeeInSept.setValidationIssueSeverityCode("TEST");
+        refugeeInSept.setValidationIssueFieldCode("TEST");
+        refugeeInSept.setCreateUser("ABC");
+        refugeeInSept.setCreateDate(LocalDateTime.now());
+        refugeeInSept.setUpdateUser("ABC");
+        refugeeInSept.setUpdateDate(LocalDateTime.now());
+
+        studFeb.setSdcStudentValidationIssueEntities(Collections.singleton(refugeeInSept));
+        sdcSchoolCollectionStudentRepository.save(studFeb);
+
         RefugeeHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getRefugeeHeadersBySdcDistrictCollectionId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
         assertEquals("1", result.getAllStudents());
         assertEquals("1", result.getReportedStudents());
-        // this should be 0
-        // assertEquals("0", result.getEligibleStudents());
+        assertEquals("0", result.getEligibleStudents());
     }
 }
