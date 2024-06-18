@@ -30,6 +30,8 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
     private static final List<String> TABLE_COLUMN_TITLES = List.of(TITLE, HEADCOUNT_TITLE, FTE_TITLE, ELL_TITLE);
     private static final String ALL_TITLE = "All Newcomer Refugees";
 
+    private static final Map<String, String> refugeeRowTitles = new HashMap<>();
+
     private final RestUtils restUtils;
 
     public RefugeeHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
@@ -77,8 +79,7 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
         BigDecimal ellTotal = BigDecimal.ZERO;
         List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
 
-
-        for(Map.Entry<String, String> title : rowTitles.entrySet()){
+        for(Map.Entry<String, String> title : refugeeRowTitles.entrySet()){
             Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
             rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
             List<RefugeeHeadcountResult> matchingResults = results.stream()
@@ -99,7 +100,7 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
                 headcountTotal = headcountTotal.add(headcountCurrentValue);
 
                 BigDecimal ellCurrentValue = matchingResults.stream()
-                        .map(result -> new BigDecimal(result.getELL()))
+                        .map(result -> new BigDecimal(result.getEll()))
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
                 rowData.put(ELL_TITLE, HeadcountHeaderColumn.builder().currentValue(ellCurrentValue.toString()).build());
                 ellTotal = ellTotal.add(ellCurrentValue);
@@ -124,14 +125,19 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
     }
 
     public void setSchoolTitles(List<RefugeeHeadcountResult> result) {
+        refugeeRowTitles.clear();
+
         var schoolIdInSchoolCollection = result.stream()
                 .map(RefugeeHeadcountResult::getSchoolID)
                 .filter(Objects::nonNull)
+                .distinct()
                 .toList();
 
         schoolIdInSchoolCollection.forEach(code -> {
             Optional<SchoolTombstone> entity = restUtils.getSchoolBySchoolID(code);
-            entity.ifPresent(school -> rowTitles.put(code, school.getMincode() + " - " + school.getDisplayName()));
+            String displayName = entity.map(school -> school.getMincode() + " - " + school.getDisplayName())
+                    .orElse("Not found in restUtils; schoolID: - " + code);
+            refugeeRowTitles.put(code, displayName);
         });
     }
 }

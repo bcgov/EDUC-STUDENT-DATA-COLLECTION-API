@@ -101,8 +101,6 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
         sdcSchoolCollectionEntityFeb = sdcMockSchoolFeb;
         sdcSchoolCollectionEntitySept = sdcMockSchoolSept;
-
-        helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, studentRepository, sdcDistrictCollectionRepository, restUtils);
     }
 
     @AfterEach
@@ -175,22 +173,28 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
     void testConvertRefugeeHeadcountResults_ShouldReturnTableContents() {
         saveRefugeeStudents();
 
+        helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, studentRepository, sdcDistrictCollectionRepository, restUtils);
+
         List<RefugeeHeadcountResult> results = studentRepository.getRefugeeHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
         HeadcountResultsTable actualResultsTable = helper.convertRefugeeHeadcountResults(results);
+
+        assertEquals("3", results.get(0).getHeadcount());
+        assertEquals("2.00", results.get(0).getFteTotal());
+        assertEquals("1", results.get(0).getEll());
 
         assertTrue(actualResultsTable.getHeaders().contains("Headcount"));
         assertTrue(actualResultsTable.getHeaders().contains("FTE"));
         assertTrue(actualResultsTable.getHeaders().contains("ELL"));
 
-        assertEquals("1001 - School A", actualResultsTable.getRows().get(0).get("title").getCurrentValue());
-        assertEquals("1.5", actualResultsTable.getRows().get(0).get("FTE").getCurrentValue());
+        assertEquals("Not found in restUtils; schoolID: - " + sdcSchoolCollectionEntityFeb.getSchoolID(), actualResultsTable.getRows().get(0).get("title").getCurrentValue());
+        assertEquals("2.00", actualResultsTable.getRows().get(0).get("FTE").getCurrentValue());
         assertEquals("3", actualResultsTable.getRows().get(0).get("Headcount").getCurrentValue());
-        assertEquals("2", actualResultsTable.getRows().get(0).get("ELL").getCurrentValue());
+        assertEquals("1", actualResultsTable.getRows().get(0).get("ELL").getCurrentValue());
 
         assertEquals("All Newcomer Refugees", actualResultsTable.getRows().get(1).get("title").getCurrentValue());
-        assertEquals("1.5", actualResultsTable.getRows().get(1).get("FTE").getCurrentValue());
+        assertEquals("2.00", actualResultsTable.getRows().get(1).get("FTE").getCurrentValue());
         assertEquals("3", actualResultsTable.getRows().get(1).get("Headcount").getCurrentValue());
-        assertEquals("2", actualResultsTable.getRows().get(1).get("ELL").getCurrentValue());
+        assertEquals("1", actualResultsTable.getRows().get(1).get("ELL").getCurrentValue());
     }
 
     void saveRefugeeStudents(){
@@ -216,6 +220,7 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         enrolledProg.setUpdateUser("ABC");
         enrolledProg.setCreateDate(LocalDateTime.now());
         enrolledProg.setUpdateDate(LocalDateTime.now());
-        sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProg);
+        student3.setSdcStudentEnrolledProgramEntities(Collections.singleton(enrolledProg));
+        studentRepository.save(student3);
     }
 }

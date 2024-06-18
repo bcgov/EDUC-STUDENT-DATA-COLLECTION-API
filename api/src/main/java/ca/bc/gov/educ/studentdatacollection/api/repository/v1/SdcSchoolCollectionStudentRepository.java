@@ -821,17 +821,11 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "WHERE s.sdcSchoolCollection.schoolID = :sdcSchoolId")
   RefugeeHeadcountHeaderResult getRefugeeHeadersBySchoolId(@Param("sdcSchoolId") UUID sdcSchoolId);
 
-  @Query("SELECT " +
-          "s.sdcSchoolCollection.schoolID AS schoolID, " +
-          "SUM(CASE WHEN r.eligible THEN s.fte ELSE 0 END) AS fteTotal, " +
-          "COUNT(CASE WHEN r.eligible THEN s.sdcSchoolCollectionStudentID ELSE NULL END) AS headcount, " +
-          "COUNT(DISTINCT CASE WHEN r.eligible AND s.ellNonEligReasonCode IS NULL AND ep.enrolledProgramCode = '17' THEN s.sdcSchoolCollectionStudentID END) AS ell " +
+  @Query("SELECT s.sdcSchoolCollection.schoolID AS schoolID, " +
+          "SUM(CASE WHEN (s.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = s AND si.validationIssueCode = 'REFUGEEINSEPTCOL')) THEN s.fte ELSE 0 END) AS fteTotal, " +
+          "COUNT(CASE WHEN (s.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = s AND si.validationIssueCode = 'REFUGEEINSEPTCOL')) THEN s.sdcSchoolCollectionStudentID ELSE NULL END) AS headcount, " +
+          "COUNT(DISTINCT CASE WHEN (s.schoolFundingCode = '16' AND s.ellNonEligReasonCode IS NULL AND EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentEnrolledProgramEntity ep WHERE ep.sdcSchoolCollectionStudentEntity = s AND ep.enrolledProgramCode = '17') AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = s AND si.validationIssueCode = 'REFUGEEINSEPTCOL')) THEN s.sdcSchoolCollectionStudentID END) AS ell " +
           "FROM SdcSchoolCollectionStudentEntity s " +
-          "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
-          "JOIN (SELECT s1.sdcSchoolCollectionStudentID, " +
-          "CASE WHEN s1.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID = s1.sdcSchoolCollectionStudentID AND si.validationIssueCode = 'REFUGEEINSEPTCOL') THEN true ELSE false END AS eligible " +
-          "FROM SdcSchoolCollectionStudentEntity s1 " +
-          "WHERE s1.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID) r ON s.sdcSchoolCollectionStudentID = r.sdcSchoolCollectionStudentID " +
           "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
           "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           "GROUP BY s.sdcSchoolCollection.schoolID " +
