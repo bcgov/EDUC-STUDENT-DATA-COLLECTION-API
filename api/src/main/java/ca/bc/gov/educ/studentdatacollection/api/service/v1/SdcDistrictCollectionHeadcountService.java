@@ -24,6 +24,7 @@ public class SdcDistrictCollectionHeadcountService {
   private final IndigenousHeadcountHelper indigenousHeadcountHelper;
   private final BandResidenceHeadcountHelper bandResidenceHeadcountHelper;
   private final EllHeadcountHelper ellHeadcountHelper;
+  private final RefugeeHeadcountHelper refugeeHeadcountHelper;
 
   public SdcSchoolCollectionStudentHeadcounts getEnrollmentHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
     var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
@@ -244,6 +245,20 @@ public class SdcDistrictCollectionHeadcountService {
       ellHeadcountHelper.setComparisonValuesForDistrictBySchool(sdcDistrictCollectionEntity, headcountHeaderList, collectionData);
     }
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
+  }
+
+  public SdcSchoolCollectionStudentHeadcounts getRefugeePerSchoolHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
+    var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
+    List<RefugeeHeadcountResult> result = sdcSchoolCollectionStudentRepository.getRefugeeHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionID);
+
+    List<HeadcountHeader> headcountHeaderList = refugeeHeadcountHelper.getHeaders(sdcDistrictCollectionID, true);
+    HeadcountResultsTable headcountResultsTable = refugeeHeadcountHelper.convertRefugeeHeadcountResults(result);
+
+    if (compare) {
+      log.info("compare block refugee per school headcount");
+    }
+
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
   }
 
 }
