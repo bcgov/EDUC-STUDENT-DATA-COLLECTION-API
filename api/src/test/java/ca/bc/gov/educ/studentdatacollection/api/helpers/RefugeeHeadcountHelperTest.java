@@ -8,12 +8,15 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionSt
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentEnrolledProgramRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResultsTable;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.RefugeeHeadcountHeaderResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.RefugeeHeadcountResult;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -24,10 +27,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = StudentDataCollectionApiApplication.class)
@@ -46,6 +51,9 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
     @Autowired
     SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
+
+    @Autowired
+    SdcSchoolCollectionStudentEnrolledProgramRepository sdcSchoolCollectionStudentEnrolledProgramRepository;
 
     @Autowired
     RestUtils restUtils;
@@ -93,6 +101,8 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
         sdcSchoolCollectionEntityFeb = sdcMockSchoolFeb;
         sdcSchoolCollectionEntitySept = sdcMockSchoolSept;
+
+        helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, studentRepository, sdcDistrictCollectionRepository, restUtils);
     }
 
     @AfterEach
@@ -126,8 +136,6 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
         sdcSchoolCollectionStudentRepository.saveAll(students);
 
-        helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
-        helper.getHeaders(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID(), true);
         RefugeeHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getRefugeeHeadersBySdcDistrictCollectionId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
         assertEquals("8", result.getAllStudents());
         assertEquals("8", result.getReportedStudents());
@@ -161,5 +169,53 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         assertEquals("1", result.getAllStudents());
         assertEquals("1", result.getReportedStudents());
         assertEquals("0", result.getEligibleStudents());
+    }
+
+    @Test
+    void testConvertRefugeeHeadcountResults_ShouldReturnTableContents() {
+        saveRefugeeStudents();
+
+        List<RefugeeHeadcountResult> results = studentRepository.getRefugeeHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
+        HeadcountResultsTable actualResultsTable = helper.convertRefugeeHeadcountResults(results);
+
+        assertTrue(actualResultsTable.getHeaders().contains("Headcount"));
+        assertTrue(actualResultsTable.getHeaders().contains("FTE"));
+        assertTrue(actualResultsTable.getHeaders().contains("ELL"));
+
+        assertEquals("1001 - School A", actualResultsTable.getRows().get(0).get("title").getCurrentValue());
+        assertEquals("1.5", actualResultsTable.getRows().get(0).get("FTE").getCurrentValue());
+        assertEquals("3", actualResultsTable.getRows().get(0).get("Headcount").getCurrentValue());
+        assertEquals("2", actualResultsTable.getRows().get(0).get("ELL").getCurrentValue());
+
+        assertEquals("All Newcomer Refugees", actualResultsTable.getRows().get(1).get("title").getCurrentValue());
+        assertEquals("1.5", actualResultsTable.getRows().get(1).get("FTE").getCurrentValue());
+        assertEquals("3", actualResultsTable.getRows().get(1).get("Headcount").getCurrentValue());
+        assertEquals("2", actualResultsTable.getRows().get(1).get("ELL").getCurrentValue());
+    }
+
+    void saveRefugeeStudents(){
+        SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntityFeb);
+        student1.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+        student1.setFte(new BigDecimal("0.5"));
+        studentRepository.save(student1);
+
+        SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntityFeb);
+        student2.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+        student2.setFte(new BigDecimal("1.0"));
+        studentRepository.save(student2);
+
+        SdcSchoolCollectionStudentEntity student3 = createMockSchoolStudentEntity(sdcSchoolCollectionEntityFeb);
+        student3.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+        student3.setFte(new BigDecimal("0.5"));
+        studentRepository.save(student3);
+
+        var enrolledProg = new SdcSchoolCollectionStudentEnrolledProgramEntity();
+        enrolledProg.setEnrolledProgramCode("17");
+        enrolledProg.setSdcSchoolCollectionStudentEntity(student3);
+        enrolledProg.setCreateUser("ABC");
+        enrolledProg.setUpdateUser("ABC");
+        enrolledProg.setCreateDate(LocalDateTime.now());
+        enrolledProg.setUpdateDate(LocalDateTime.now());
+        sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProg);
     }
 }
