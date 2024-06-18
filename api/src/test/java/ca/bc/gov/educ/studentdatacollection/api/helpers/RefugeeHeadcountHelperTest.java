@@ -14,9 +14,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResultsTable;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.RefugeeHeadcountHeaderResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.RefugeeHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -112,6 +110,35 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
+    void testGetHeadersDistrictScope() {
+        setupNoneEligibleOneReported();
+
+        helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, studentRepository, sdcDistrictCollectionRepository, restUtils);
+        List<HeadcountHeader> headers = helper.getHeaders(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID(), true);
+
+        assertEquals(1, headers.size());
+        HeadcountHeader header = headers.get(0);
+        assertEquals("Newcomer Refugees", header.getTitle());
+        Map<String, HeadcountHeaderColumn> columns = header.getColumns();
+        assertEquals("0", columns.get("Eligible").getCurrentValue());
+        assertEquals("1", columns.get("Reported").getCurrentValue());
+    }
+
+    @Test
+    void testGetHeadersSchoolScope() {
+        saveRefugeeStudents();
+        helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, studentRepository, sdcDistrictCollectionRepository, restUtils);
+        List<HeadcountHeader> headers = helper.getHeaders(sdcSchoolCollectionEntityFeb.getSdcSchoolCollectionID(), false);
+
+        assertEquals(1, headers.size());
+        HeadcountHeader header = headers.get(0);
+        assertEquals("Newcomer Refugees", header.getTitle());
+        Map<String, HeadcountHeaderColumn> columns = header.getColumns();
+        assertEquals("3", columns.get("Eligible").getCurrentValue());
+        assertEquals("3", columns.get("Reported").getCurrentValue());
+    }
+
+    @Test
     void testGetRefugeeHeadersBySdcDistrictCollectionIdAllElig() {
         final File file = new File(
                 Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
@@ -142,26 +169,7 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
     @Test
     void testGetRefugeeHeadersBySdcDistrictCollectionIdNotEligMockValidationIssue() {
-        UUID assignedStudentId = UUID.randomUUID();
-        SdcSchoolCollectionStudentEntity studFeb = createMockSchoolStudentEntity(sdcSchoolCollectionEntityFeb);
-        studFeb.setAssignedStudentId(assignedStudentId);
-        studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
-        sdcSchoolCollectionStudentRepository.save(studFeb);
-
-        SdcSchoolCollectionStudentValidationIssueEntity refugeeInSept = new SdcSchoolCollectionStudentValidationIssueEntity();
-
-        refugeeInSept.setSdcSchoolCollectionStudentValidationIssueID(UUID.randomUUID());
-        refugeeInSept.setSdcSchoolCollectionStudentEntity(studFeb);
-        refugeeInSept.setValidationIssueCode("REFUGEEINSEPTCOL");
-        refugeeInSept.setValidationIssueSeverityCode("TEST");
-        refugeeInSept.setValidationIssueFieldCode("TEST");
-        refugeeInSept.setCreateUser("ABC");
-        refugeeInSept.setCreateDate(LocalDateTime.now());
-        refugeeInSept.setUpdateUser("ABC");
-        refugeeInSept.setUpdateDate(LocalDateTime.now());
-
-        studFeb.setSdcStudentValidationIssueEntities(Collections.singleton(refugeeInSept));
-        sdcSchoolCollectionStudentRepository.save(studFeb);
+        setupNoneEligibleOneReported();
 
         RefugeeHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getRefugeeHeadersBySdcDistrictCollectionId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
         assertEquals("1", result.getAllStudents());
@@ -222,5 +230,28 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         enrolledProg.setUpdateDate(LocalDateTime.now());
         student3.setSdcStudentEnrolledProgramEntities(Collections.singleton(enrolledProg));
         studentRepository.save(student3);
+    }
+
+    void setupNoneEligibleOneReported() {
+        UUID assignedStudentId = UUID.randomUUID();
+        SdcSchoolCollectionStudentEntity studFeb = createMockSchoolStudentEntity(sdcSchoolCollectionEntityFeb);
+        studFeb.setAssignedStudentId(assignedStudentId);
+        studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+        sdcSchoolCollectionStudentRepository.save(studFeb);
+
+        SdcSchoolCollectionStudentValidationIssueEntity refugeeInSept = new SdcSchoolCollectionStudentValidationIssueEntity();
+
+        refugeeInSept.setSdcSchoolCollectionStudentValidationIssueID(UUID.randomUUID());
+        refugeeInSept.setSdcSchoolCollectionStudentEntity(studFeb);
+        refugeeInSept.setValidationIssueCode("REFUGEEINSEPTCOL");
+        refugeeInSept.setValidationIssueSeverityCode("TEST");
+        refugeeInSept.setValidationIssueFieldCode("TEST");
+        refugeeInSept.setCreateUser("ABC");
+        refugeeInSept.setCreateDate(LocalDateTime.now());
+        refugeeInSept.setUpdateUser("ABC");
+        refugeeInSept.setUpdateDate(LocalDateTime.now());
+
+        studFeb.setSdcStudentValidationIssueEntities(Collections.singleton(refugeeInSept));
+        sdcSchoolCollectionStudentRepository.save(studFeb);
     }
 }
