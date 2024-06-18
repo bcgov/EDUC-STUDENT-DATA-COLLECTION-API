@@ -88,6 +88,10 @@ public class SdcDuplicatesService {
     return sdcDuplicateRepository.findAllProvincialDuplicatesBySdcDistrictCollectionID(sdcDistrictCollectionID);
   }
 
+  public List<SdcDuplicateEntity> getAllProvincialDuplicatesBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
+    return sdcDuplicateRepository.findAllProvincialDuplicatesBySdcSchoolCollectionID(sdcSchoolCollectionID);
+  }
+
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void generateAllProvincialDuplicates(UUID collectionID){
     Optional<CollectionEntity> activeCollection = collectionRepository.findActiveCollection();
