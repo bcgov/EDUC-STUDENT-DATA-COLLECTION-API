@@ -130,14 +130,11 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
         var schoolIdInSchoolCollection = result.stream()
                 .map(RefugeeHeadcountResult::getSchoolID)
                 .filter(Objects::nonNull)
-                .distinct()
                 .toList();
 
         schoolIdInSchoolCollection.forEach(code -> {
             Optional<SchoolTombstone> entity = restUtils.getSchoolBySchoolID(code);
-            String displayName = entity.map(school -> school.getMincode() + " - " + school.getDisplayName())
-                    .orElse("Not found in restUtils; schoolID: - " + code);
-            refugeeRowTitles.put(code, displayName);
+            entity.ifPresent(school -> refugeeRowTitles.put(code, school.getMincode() + " - " + school.getDisplayName()));
         });
     }
 }

@@ -186,7 +186,7 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         assertTrue(actualResultsTable.getHeaders().contains("FTE"));
         assertTrue(actualResultsTable.getHeaders().contains("ELL"));
 
-        assertEquals("Not found in restUtils; schoolID: - " + sdcSchoolCollectionEntityFeb.getSchoolID(), actualResultsTable.getRows().get(0).get("title").getCurrentValue());
+        assertEquals("03636018 - Marco's school", actualResultsTable.getRows().get(0).get("title").getCurrentValue());
         assertEquals("2.00", actualResultsTable.getRows().get(0).get("FTE").getCurrentValue());
         assertEquals("3", actualResultsTable.getRows().get(0).get("Headcount").getCurrentValue());
         assertEquals("1", actualResultsTable.getRows().get(0).get("ELL").getCurrentValue());
