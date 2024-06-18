@@ -86,6 +86,7 @@ public class CollectionService {
       District district = this.restUtils.getDistrictByDistrictID(monitorSdcDistrictCollectionQueryResponse.getDistrictID().toString()).orElseThrow(() -> new StudentDataCollectionAPIRuntimeException("SdcSchoolCollection :: " + monitorSdcDistrictCollectionQueryResponse.getSdcDistrictCollectionID() + " has invalid districtId :: " + monitorSdcDistrictCollectionQueryResponse.getDistrictID()));
 
       MonitorSdcDistrictCollection monitorSdcDistrictCollection = new MonitorSdcDistrictCollection();
+      monitorSdcDistrictCollection.setDistrictID(UUID.fromString(district.getDistrictId()));
       monitorSdcDistrictCollection.setDistrictTitle(district.getDistrictNumber() + " - " + district.getDisplayName());
       monitorSdcDistrictCollection.setSdcDistrictCollectionStatusCode(monitorSdcDistrictCollectionQueryResponse.getSdcDistrictCollectionStatusCode());
       monitorSdcDistrictCollection.setSdcDistrictCollectionId(monitorSdcDistrictCollectionQueryResponse.getSdcDistrictCollectionID());
