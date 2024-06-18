@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -37,7 +38,9 @@ public class SchoolAgedNoOfCoursesRule implements ValidationBaseRule {
         log.debug("In shouldExecute of SchoolAgedNoOfCoursesRule-V46: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        var shouldExecute = isValidationDependencyResolved("V46", validationErrorsMap);
+        var onlineAndContinuingFacilityCodes = Arrays.asList(FacilityTypeCodes.CONT_ED.getCode(), FacilityTypeCodes.DISTONLINE.getCode(), FacilityTypeCodes.DIST_LEARN.getCode());
+
+        var shouldExecute = isValidationDependencyResolved("V46", validationErrorsMap) && !onlineAndContinuingFacilityCodes.contains(studentRuleData.getSchool().getFacilityTypeCode());
 
         log.debug("In shouldExecute of SchoolAgedNoOfCoursesRule-V46: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
                 shouldExecute,
