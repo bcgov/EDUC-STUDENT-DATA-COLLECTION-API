@@ -118,7 +118,7 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
         totalRowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue(fteTotal.toString()).build());
         totalRowData.put(HEADCOUNT_TITLE, HeadcountHeaderColumn.builder().currentValue(headcountTotal.toString()).build());
         totalRowData.put(ELL_TITLE, HeadcountHeaderColumn.builder().currentValue(ellTotal.toString()).build());
-        rows.add(totalRowData);
+        rows.add(0, totalRowData);
 
         headcountResultsTable.setRows(rows);
         return headcountResultsTable;

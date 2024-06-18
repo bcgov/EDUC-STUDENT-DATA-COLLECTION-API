@@ -165,6 +165,14 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         assertEquals("8", result.getAllStudents());
         assertEquals("8", result.getReportedStudents());
         assertEquals("8", result.getEligibleStudents());
+
+        helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, studentRepository, sdcDistrictCollectionRepository, restUtils);
+        List<HeadcountHeader> headers = helper.getHeaders(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID(), true);
+        assertEquals(1, headers.size());
+        HeadcountHeader header = headers.get(0);
+        assertEquals("Newcomer Refugees", header.getTitle());
+        assertEquals("8", header.getColumns().get("Eligible").getCurrentValue());
+        assertEquals("8", header.getColumns().get("Reported").getCurrentValue());
     }
 
     @Test
@@ -175,6 +183,14 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         assertEquals("1", result.getAllStudents());
         assertEquals("1", result.getReportedStudents());
         assertEquals("0", result.getEligibleStudents());
+
+        helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, studentRepository, sdcDistrictCollectionRepository, restUtils);
+        List<HeadcountHeader> headers = helper.getHeaders(sdcSchoolCollectionEntityFeb.getSdcSchoolCollectionID(), false);
+        assertEquals(1, headers.size());
+        HeadcountHeader header = headers.get(0);
+        assertEquals("Newcomer Refugees", header.getTitle());
+        assertEquals("0", header.getColumns().get("Eligible").getCurrentValue());
+        assertEquals("1", header.getColumns().get("Reported").getCurrentValue());
     }
 
     @Test
@@ -194,12 +210,12 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         assertTrue(actualResultsTable.getHeaders().contains("FTE"));
         assertTrue(actualResultsTable.getHeaders().contains("ELL"));
 
-        assertEquals("03636018 - Marco's school", actualResultsTable.getRows().get(0).get("title").getCurrentValue());
+        assertEquals("All Newcomer Refugees", actualResultsTable.getRows().get(0).get("title").getCurrentValue());
         assertEquals("2.00", actualResultsTable.getRows().get(0).get("FTE").getCurrentValue());
         assertEquals("3", actualResultsTable.getRows().get(0).get("Headcount").getCurrentValue());
         assertEquals("1", actualResultsTable.getRows().get(0).get("ELL").getCurrentValue());
 
-        assertEquals("All Newcomer Refugees", actualResultsTable.getRows().get(1).get("title").getCurrentValue());
+        assertEquals("03636018 - Marco's school", actualResultsTable.getRows().get(1).get("title").getCurrentValue());
         assertEquals("2.00", actualResultsTable.getRows().get(1).get("FTE").getCurrentValue());
         assertEquals("3", actualResultsTable.getRows().get(1).get("Headcount").getCurrentValue());
         assertEquals("1", actualResultsTable.getRows().get(1).get("ELL").getCurrentValue());
