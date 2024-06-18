@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplication;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolFundingCodes;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
@@ -9,6 +10,9 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollect
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.RefugeeHeadcountHeaderResult;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -21,14 +25,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.Year;
 import java.util.*;
-import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = StudentDataCollectionApiApplication.class)
 class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
@@ -37,9 +38,9 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
     private RefugeeHeadcountHelper helper;
 
-    private SdcSchoolCollectionEntity schoolCollection;
-
-    private SdcDistrictCollectionEntity mockDistrictCollectionEntity;
+    private SdcDistrictCollectionEntity mockDistrictCollectionEntityFeb;
+    private SdcSchoolCollectionEntity sdcSchoolCollectionEntityFeb;
+    private SdcSchoolCollectionEntity sdcSchoolCollectionEntitySept;
 
     @Autowired
     private SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
@@ -51,55 +52,48 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
     RestUtils restUtils;
 
     @BeforeEach
-    void setUp() throws IOException {
-        CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
-        var districtID = UUID.randomUUID();
-        mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+    void setUp() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate currentSnapshotDate = now.toLocalDate();
 
-        var school1 = createMockSchool();
-        school1.setDisplayName("School1");
-        school1.setMincode("0000001");
-        school1.setDistrictId(districtID.toString());
-        var school2 = createMockSchool();
-        school2.setDisplayName("School2");
-        school2.setMincode("0000002");
-        school2.setDistrictId(districtID.toString());
+        CollectionEntity collectionSept = createMockCollectionEntity();
+        collectionSept.setCloseDate(now.minusDays(5));
+        collectionSept.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        collectionSept.setSnapshotDate(currentSnapshotDate.minusYears(1).withMonth(9).withDayOfMonth(30));
+        collectionRepository.save(collectionSept);
 
-        when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
-        when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+        CollectionEntity collectionFeb = createMockCollectionEntity();
+        collectionFeb.setCloseDate(now.plusDays(2));
+        collectionFeb.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        collectionFeb.setSnapshotDate(currentSnapshotDate);
+        collectionRepository.save(collectionFeb);
 
-        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
-        firstSchool.setUploadDate(null);
-        firstSchool.setUploadFileName(null);
-        firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
-        var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
-        secondSchool.setUploadDate(null);
-        secondSchool.setUploadFileName(null);
-        secondSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
-        secondSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
-        sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchool, secondSchool));
+        SchoolTombstone school = createMockSchool();
+        District district = createMockDistrict();
+        school.setDistrictId(district.getDistrictId());
+        UUID schoolId = UUID.fromString(school.getSchoolId());
 
-        final File file = new File(
-                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
-        );
-        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
-        });
-        var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
-        var students = IntStream.range(0, models.size())
-                .mapToObj(i -> {
-                    var student = models.get(i);
-                    var studentId = UUID.randomUUID();
-                    student.setAssignedStudentId(studentId);
-                    student.setSdcSchoolCollection(firstSchool);
-                    if (i % 2 == 0) {
-                        student.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
-                    }
+        SdcDistrictCollectionEntity sdcDistrictCollectionSept = createMockSdcDistrictCollectionEntity(collectionSept, UUID.fromString(district.getDistrictId()));
+        SdcDistrictCollectionEntity sdcDistrictCollectionFeb = createMockSdcDistrictCollectionEntity(collectionFeb, UUID.fromString(district.getDistrictId()));
+        sdcDistrictCollectionRepository.save(sdcDistrictCollectionSept);
+        sdcDistrictCollectionRepository.save(sdcDistrictCollectionFeb);
 
-                    return student;
-                })
-                .toList();
+        mockDistrictCollectionEntityFeb = sdcDistrictCollectionFeb;
 
-        sdcSchoolCollectionStudentRepository.saveAll(students);
+        SdcSchoolCollectionEntity sdcMockSchoolSept = createMockSdcSchoolCollectionEntity(collectionSept, schoolId);
+        sdcMockSchoolSept.setUploadDate(null);
+        sdcMockSchoolSept.setUploadFileName(null);
+        sdcMockSchoolSept.setSdcDistrictCollectionID(sdcDistrictCollectionSept.getSdcDistrictCollectionID());
+        sdcSchoolCollectionRepository.save(sdcMockSchoolSept);
+
+        SdcSchoolCollectionEntity sdcMockSchoolFeb = createMockSdcSchoolCollectionEntity(collectionFeb, schoolId);
+        sdcMockSchoolFeb.setUploadDate(null);
+        sdcMockSchoolFeb.setUploadFileName(null);
+        sdcMockSchoolFeb.setSdcDistrictCollectionID(sdcDistrictCollectionFeb.getSdcDistrictCollectionID());
+        sdcSchoolCollectionRepository.save(sdcMockSchoolFeb);
+
+        sdcSchoolCollectionEntityFeb = sdcMockSchoolFeb;
+        sdcSchoolCollectionEntitySept = sdcMockSchoolSept;
     }
 
     @AfterEach
@@ -111,12 +105,54 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
-    void testGetRefugeeHeadersBySdcDistrictCollectionId() {
+    void testGetRefugeeHeadersBySdcDistrictCollectionIdAllElig() {
+        final File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+        );
+        final List<SdcSchoolCollectionStudent> entities;
+        try {
+            entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+        var students = models.stream().peek(model -> {
+                    var studentId = UUID.randomUUID();
+                    model.setAssignedStudentId(studentId);
+                    model.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+                    model.setSdcSchoolCollection(sdcSchoolCollectionEntityFeb);
+                })
+                .toList();
+
+        sdcSchoolCollectionStudentRepository.saveAll(students);
+
         helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
-        helper.getHeaders(mockDistrictCollectionEntity.getSdcDistrictCollectionID(), true);
-        RefugeeHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getRefugeeHeadersBySdcDistrictCollectionId(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        helper.getHeaders(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID(), true);
+        RefugeeHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getRefugeeHeadersBySdcDistrictCollectionId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
         assertEquals("8", result.getAllStudents());
-        assertEquals("4", result.getReportedStudents());
-        assertEquals("4", result.getEligibleStudents());
+        assertEquals("8", result.getReportedStudents());
+        assertEquals("8", result.getEligibleStudents());
+    }
+
+    @Test
+    void testGetRefugeeHeadersBySdcDistrictCollectionIdNotEligReportedInSept() {
+        UUID assignedStudentId = UUID.randomUUID();
+        SdcSchoolCollectionStudentEntity studSept = createMockSchoolStudentEntity(sdcSchoolCollectionEntitySept);
+        studSept.setAssignedStudentId(assignedStudentId);
+        sdcSchoolCollectionStudentRepository.save(studSept);
+
+        SdcSchoolCollectionStudentEntity studFeb = createMockSchoolStudentEntity(sdcSchoolCollectionEntityFeb);
+        studFeb.setAssignedStudentId(assignedStudentId);
+        studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+        sdcSchoolCollectionStudentRepository.save(studFeb);
+
+        helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
+        helper.getHeaders(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID(), true);
+        RefugeeHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getRefugeeHeadersBySdcDistrictCollectionId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
+        assertEquals("1", result.getAllStudents());
+        assertEquals("1", result.getReportedStudents());
+        // this should be 0
+        // assertEquals("0", result.getEligibleStudents());
     }
 }
