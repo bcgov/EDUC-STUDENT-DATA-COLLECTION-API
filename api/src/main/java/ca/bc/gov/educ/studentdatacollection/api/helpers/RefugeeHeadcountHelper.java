@@ -29,6 +29,7 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
     private static final String ELL_TITLE = "ELL";
     private static final List<String> TABLE_COLUMN_TITLES = List.of(TITLE, HEADCOUNT_TITLE, FTE_TITLE, ELL_TITLE);
     private static final String ALL_TITLE = "All Newcomer Refugees";
+    public static final String SECTION="section";
 
     private static final Map<String, String> refugeeRowTitles = new HashMap<>();
 
@@ -82,6 +83,7 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
         for(Map.Entry<String, String> title : refugeeRowTitles.entrySet()){
             Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
             rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
+            rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_TITLE).build());
             List<RefugeeHeadcountResult> matchingResults = results.stream()
                     .filter(result -> result.getSchoolID().equals(title.getKey()))
                     .toList();
@@ -91,23 +93,27 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
                         .map(result -> new BigDecimal(result.getFteTotal()))
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
                 rowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue(fteCurrentValue.toString()).build());
+                rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_TITLE).build());
                 fteTotal = fteTotal.add(fteCurrentValue);
 
                 BigDecimal headcountCurrentValue = matchingResults.stream()
                         .map(result -> new BigDecimal(result.getHeadcount()))
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
                 rowData.put(HEADCOUNT_TITLE, HeadcountHeaderColumn.builder().currentValue(headcountCurrentValue.toString()).build());
+                rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_TITLE).build());
                 headcountTotal = headcountTotal.add(headcountCurrentValue);
 
                 BigDecimal ellCurrentValue = matchingResults.stream()
                         .map(result -> new BigDecimal(result.getEll()))
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
                 rowData.put(ELL_TITLE, HeadcountHeaderColumn.builder().currentValue(ellCurrentValue.toString()).build());
+                rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_TITLE).build());
                 ellTotal = ellTotal.add(ellCurrentValue);
             } else {
                 rowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue("0").build());
                 rowData.put(HEADCOUNT_TITLE, HeadcountHeaderColumn.builder().currentValue("0").build());
                 rowData.put(ELL_TITLE, HeadcountHeaderColumn.builder().currentValue("0").build());
+                rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_TITLE).build());
             }
 
             rows.add(rowData);
@@ -118,6 +124,7 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
         totalRowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue(fteTotal.toString()).build());
         totalRowData.put(HEADCOUNT_TITLE, HeadcountHeaderColumn.builder().currentValue(headcountTotal.toString()).build());
         totalRowData.put(ELL_TITLE, HeadcountHeaderColumn.builder().currentValue(ellTotal.toString()).build());
+        totalRowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_TITLE).build());
         rows.add(0, totalRowData);
 
         headcountResultsTable.setRows(rows);
