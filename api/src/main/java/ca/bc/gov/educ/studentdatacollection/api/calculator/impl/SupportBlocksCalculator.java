@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
@@ -11,11 +12,15 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 @Slf4j
 @Order(14)
 public class SupportBlocksCalculator implements FteCalculator {
+    private static final Set<String> INDEPENDENTS = new HashSet<>(Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode()));
     FteCalculator nextCalculator;
     @Override
     public void setNext(FteCalculator nextCalculator) {
@@ -31,6 +36,9 @@ public class SupportBlocksCalculator implements FteCalculator {
 
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(numCourses.multiply(fteMultiplier).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros());
+            if(INDEPENDENTS.contains(studentData.getSchool().getSchoolCategoryCode())) {
+                fteCalculationResult.setFte(fteCalculationResult.getFte().compareTo(BigDecimal.ONE) > 0 ? BigDecimal.ONE : fteCalculationResult.getFte());
+            }
             fteCalculationResult.setFteZeroReason(null);
             log.debug("SupportBlocksCalculator: Fte result {} calculated for student :: {}", fteCalculationResult.getFte(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return fteCalculationResult;
