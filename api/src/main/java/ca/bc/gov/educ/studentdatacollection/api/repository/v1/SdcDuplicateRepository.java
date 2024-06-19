@@ -32,20 +32,8 @@ public interface SdcDuplicateRepository extends JpaRepository<SdcDuplicateEntity
         """)
     List<SdcDuplicateEntity> findAllProvincialDuplicatesByCollectionID(@Param("collectionID") UUID collectionID);
 
-    @Query("""
-        SELECT sde FROM SdcDuplicateEntity sde
-        JOIN sde.sdcDuplicateStudentEntities sds
-        WHERE (sds.sdcDistrictCollectionID = :sdcDistrictCollectionID)
-        AND sde.duplicateLevelCode = 'PROVINCIAL'
-        """)
-    List<SdcDuplicateEntity> findAllProvincialDuplicatesBySdcDistrictCollectionID(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
+    List<SdcDuplicateEntity> findAllBySdcDuplicateStudentEntities_SdcDistrictCollectionIDAndDuplicateLevelCode(UUID sdcDistrictCollectionID, String duplicateLevelCode);
 
-    @Query("""
-        SELECT sde FROM SdcDuplicateEntity sde
-        JOIN sde.sdcDuplicateStudentEntities sds
-        WHERE (sds.sdcSchoolCollectionID = :sdcSchoolCollectionID)
-        AND sde.duplicateLevelCode = 'PROVINCIAL'
-        """)
-    List<SdcDuplicateEntity> findAllProvincialDuplicatesBySdcSchoolCollectionID(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
+    List<SdcDuplicateEntity> findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionIDAndDuplicateLevelCode(UUID sdcSchoolCollectionID, String duplicateLevelCode);
 
 }
