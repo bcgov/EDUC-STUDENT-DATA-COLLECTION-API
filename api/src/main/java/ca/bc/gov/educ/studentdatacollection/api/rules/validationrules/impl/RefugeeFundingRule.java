@@ -83,7 +83,7 @@ public class RefugeeFundingRule implements ValidationBaseRule {
 
         if (Boolean.TRUE.equals(notEligibleCategoryCode) || Boolean.TRUE.equals(notEligibleFacilityTypeCode) || Boolean.TRUE.equals(studentInPreviousCollection(studentRuleData))) {
             log.debug("RefugeeFundingRule-V90: Refugee not reported in September Collection for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SCHOOL_FUNDING_CODE, StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SCHOOL_FUNDING_CODE, StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL));
         }
 
         return errors;

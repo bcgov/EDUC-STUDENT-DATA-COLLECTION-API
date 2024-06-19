@@ -19,7 +19,6 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import lombok.extern.slf4j.Slf4j;
@@ -1486,7 +1485,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
-                .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL.getCode()));
+                .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
 
         assertThat(errorRefugeeFunding).isTrue();
     }
@@ -1512,7 +1511,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         sdcSchoolCollectionStudentRepository.save(studFeb);
 
         var validateNoErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, schoolFeb));
-        boolean errorRefugeeFunding = validateNoErrorRefugeeFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL.getCode()));
+        boolean errorRefugeeFunding = validateNoErrorRefugeeFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
 
         assertThat(errorRefugeeFunding).isFalse();
     }
@@ -1538,7 +1537,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         sdcSchoolCollectionStudentRepository.save(studFeb);
 
         var validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, schoolFeb));
-        boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL.getCode()));
+        boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
 
         assertThat(errorRefugeeFunding).isTrue();
     }
@@ -1561,7 +1560,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         var validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, schoolFeb));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
-                .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL.getCode()));
+                .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
 
         assertThat(errorRefugeeFunding).isTrue();
     }
@@ -1617,7 +1616,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
-                .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL.getCode()));
+                .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
 
         assertThat(errorRefugeeFunding).isTrue();
     }
@@ -1673,7 +1672,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
-                .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL.getCode()));
+                .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
 
         assertThat(errorRefugeeFunding).isTrue();
     }
@@ -1729,7 +1728,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
-                .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL.getCode()));
+                .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
 
         assertThat(errorRefugeeFunding).isTrue();
     }
