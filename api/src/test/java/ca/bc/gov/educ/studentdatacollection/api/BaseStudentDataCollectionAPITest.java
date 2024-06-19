@@ -462,6 +462,7 @@ public abstract class BaseStudentDataCollectionAPITest {
             .sdcDuplicateStudentID(UUID.randomUUID())
             .sdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentEntity)
             .sdcDistrictCollectionID(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getSdcDistrictCollectionID())
+            .sdcSchoolCollectionID(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID())
             .sdcDuplicateEntity(sdcDuplicateEntity)
             .build();
   }
