@@ -668,6 +668,24 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
+    void testGAGradeRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setEnrolledGradeCode("08");
+
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        assertThat(validationError.size()).isZero();
+
+        entity.setEnrolledProgramCodes("40");
+        entity.setEnrolledGradeCode("GA");
+        val validationCrrGradeErr = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        assertThat(validationCrrGradeErr.size()).isNotZero();
+        val errorCarrGradeErr = validationCrrGradeErr.stream().anyMatch(val -> val.getValidationIssueCode().equals("CAREERCODEGRADEERR"));
+        assertThat(errorCarrGradeErr).isFalse();
+    }
+
+    @Test
     void testCareerProgramCodeRule() {
 
         var collection = collectionRepository.save(createMockCollectionEntity());
