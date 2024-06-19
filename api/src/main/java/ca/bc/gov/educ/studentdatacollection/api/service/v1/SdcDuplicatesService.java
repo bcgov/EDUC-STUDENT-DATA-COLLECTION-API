@@ -85,7 +85,11 @@ public class SdcDuplicatesService {
   }
 
   public List<SdcDuplicateEntity> getAllProvincialDuplicatesBySdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
-    return sdcDuplicateRepository.findAllProvincialDuplicatesBySdcDistrictCollectionID(sdcDistrictCollectionID);
+    return sdcDuplicateRepository.findAllBySdcDuplicateStudentEntities_SdcDistrictCollectionIDAndDuplicateLevelCode(sdcDistrictCollectionID, DuplicateLevelCode.PROVINCIAL.getCode());
+  }
+
+  public List<SdcDuplicateEntity> getAllProvincialDuplicatesBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
+    return sdcDuplicateRepository.findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionIDAndDuplicateLevelCode(sdcSchoolCollectionID, DuplicateLevelCode.PROVINCIAL.getCode());
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
