@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolFundingCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -26,10 +27,12 @@ import java.util.UUID;
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V90 | WARNING  | Students reported with a Funding Code of 16 must not be reported in   |     V26      |
- *                     September Collection to receive funding in February. They also must
- *                     be reported in a school with a Facility type of Public: Standard,
- *                     Alt-Progs, Youth, Short-PRP, Long-PRP to receive Feb funding.
+ *  | V90 | WARNING  | School-aged students reported with a funding code of 16 must not be   |     V26      |
+ *                     reported in any previous collection to receive funding in Feb.
+ *
+ *                     They also must be reported in a school with a facility type of Public:
+ *                     Standard, Alt-Progs, Youth, Short-PRP, Long-PRP to receive funding in
+ *                     Feb.
  */
 @Component
 @Slf4j
@@ -75,28 +78,28 @@ public class RefugeeFundingRule implements ValidationBaseRule {
             FacilityTypeCodes.LONG_PRP.getCode()
         );
 
+        Boolean notEligibleCategoryCode = !SchoolCategoryCodes.PUBLIC.getCode().equals(studentRuleData.getSchool().getSchoolCategoryCode());
         Boolean notEligibleFacilityTypeCode = !eligibleFacilityTypeCodes.contains(studentRuleData.getSchool().getFacilityTypeCode());
 
-        if (Boolean.TRUE.equals(studentInSeptemberCollection(studentRuleData)) || Boolean.TRUE.equals(notEligibleFacilityTypeCode)) {
+        if (Boolean.TRUE.equals(notEligibleCategoryCode) || Boolean.TRUE.equals(notEligibleFacilityTypeCode) || Boolean.TRUE.equals(studentInPreviousCollection(studentRuleData))) {
             log.debug("RefugeeFundingRule-V90: Refugee not reported in September Collection for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SCHOOL_FUNDING_CODE, StudentValidationIssueTypeCode.REFUGEE_IN_SEPT_COL));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SCHOOL_FUNDING_CODE, StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL));
         }
 
         return errors;
     }
 
 
-    private Boolean studentInSeptemberCollection(StudentRuleData studentRuleData){
+    private Boolean studentInPreviousCollection(StudentRuleData studentRuleData){
         UUID assignedStudentId = studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId();
         if (assignedStudentId == null) {
             return false;
         }
 
-        UUID districtId = UUID.fromString(studentRuleData.getSchool().getDistrictId());
         var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
-        var previousSeptemberCollections = sdcSchoolCollectionRepository.findSeptemberCollectionsForDistrictForFiscalYearToCurrentCollection(districtId, currentSnapshotDate.minusYears(1).withMonth(9).withDayOfMonth(1), currentSnapshotDate);
-        var previousSeptemberCount = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(assignedStudentId, previousSeptemberCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList());
+        var allPreviousCollections  = sdcSchoolCollectionRepository.findAllCollectionsForDistrictBeforeCurrentCollection(UUID.fromString(studentRuleData.getSchool().getDistrictId()), currentSnapshotDate);
+        var previousCollectionCount = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(assignedStudentId, allPreviousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList());
 
-        return previousSeptemberCount > 0;
+        return previousCollectionCount > 0;
     }
 }

@@ -259,7 +259,7 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
         refugeeInSept.setSdcSchoolCollectionStudentValidationIssueID(UUID.randomUUID());
         refugeeInSept.setSdcSchoolCollectionStudentEntity(studFeb);
-        refugeeInSept.setValidationIssueCode("REFUGEEINSEPTCOL");
+        refugeeInSept.setValidationIssueCode("REFUGEEINPREVCOL");
         refugeeInSept.setValidationIssueSeverityCode("TEST");
         refugeeInSept.setValidationIssueFieldCode("TEST");
         refugeeInSept.setCreateUser("ABC");
