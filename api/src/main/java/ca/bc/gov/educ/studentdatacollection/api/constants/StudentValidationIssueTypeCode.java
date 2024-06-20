@@ -92,6 +92,7 @@ public enum StudentValidationIssueTypeCode {
   SCHOOL_AGED_ELL("SCHOOLAGEDELL", "Only school-aged students will receive funding for English Language Learning."),
   SCHOOL_AGED_SPED("SCHOOLAGEDSPED", "Only school-aged students or non-graduated adults will receive funding for Special Education."),
   REFUGEE_IN_PREV_COL("REFUGEEINPREVCOL", "School-aged students reported in the previous collection are not eligible for newcomer refugee funding."),
+  REFUGEE_IS_ADULT("REFUGEEISADULT", "Adults are not eligible for February newcomer refugee funding."),
   ;
 
   /**

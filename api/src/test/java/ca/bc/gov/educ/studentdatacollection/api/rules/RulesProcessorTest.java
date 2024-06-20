@@ -1750,4 +1750,30 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         assertThat(errorRefugeeFunding).isTrue();
     }
+
+    @Test
+    void testRefugeeFundingRule_isAdult() {
+        CollectionEntity collectionFeb = createMockCollectionEntity();
+        collectionFeb.setCloseDate(LocalDateTime.now().plusDays(2));
+        collectionFeb.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        collectionRepository.save(collectionFeb);
+
+        SchoolTombstone schoolFeb = createMockSchool();
+        SdcSchoolCollectionEntity sdcMockSchoolFeb = createMockSdcSchoolCollectionEntity(collectionFeb, UUID.fromString(schoolFeb.getSchoolId()));
+        sdcMockSchoolFeb.setUploadDate(null);
+        sdcMockSchoolFeb.setUploadFileName(null);
+        sdcSchoolCollectionRepository.save(sdcMockSchoolFeb);
+
+        var sdcSchoolCollectionEntityFeb = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collectionFeb, UUID.fromString(schoolFeb.getSchoolId())));
+
+        var studFeb = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntityFeb);
+        studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+        studFeb.setIsAdult(true);
+        sdcSchoolCollectionStudentRepository.save(studFeb);
+
+        var validateNoErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, schoolFeb));
+        boolean errorRefugeeFunding = validateNoErrorRefugeeFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IS_ADULT.getCode()));
+
+        assertThat(errorRefugeeFunding).isTrue();
+    }
 }

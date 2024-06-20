@@ -111,7 +111,7 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
     @Test
     void testGetHeadersDistrictScope() {
-        setupNoneEligibleOneReported();
+        setupNoneEligibleOneReported(false);
 
         helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, studentRepository, sdcDistrictCollectionRepository, restUtils);
         List<HeadcountHeader> headers = helper.getHeaders(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID(), true);
@@ -176,8 +176,26 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
-    void testGetRefugeeHeadersBySdcDistrictCollectionIdNotEligMockValidationIssue() {
-        setupNoneEligibleOneReported();
+    void testGetRefugeeHeadersBySdcDistrictCollectionIdNotEligMockValidationIssueInPrevCol() {
+        setupNoneEligibleOneReported(false);
+
+        RefugeeHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getRefugeeHeadersBySdcDistrictCollectionId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
+        assertEquals("1", result.getAllStudents());
+        assertEquals("1", result.getReportedStudents());
+        assertEquals("0", result.getEligibleStudents());
+
+        helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, studentRepository, sdcDistrictCollectionRepository, restUtils);
+        List<HeadcountHeader> headers = helper.getHeaders(sdcSchoolCollectionEntityFeb.getSdcSchoolCollectionID(), false);
+        assertEquals(1, headers.size());
+        HeadcountHeader header = headers.get(0);
+        assertEquals("Newcomer Refugees", header.getTitle());
+        assertEquals("0", header.getColumns().get("Eligible").getCurrentValue());
+        assertEquals("1", header.getColumns().get("Reported").getCurrentValue());
+    }
+
+    @Test
+    void testGetRefugeeHeadersBySdcDistrictCollectionIdNotEligMockValidationIssueRefugeeAdult() {
+        setupNoneEligibleOneReported(true);
 
         RefugeeHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getRefugeeHeadersBySdcDistrictCollectionId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
         assertEquals("1", result.getAllStudents());
@@ -248,7 +266,7 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         studentRepository.save(student3);
     }
 
-    void setupNoneEligibleOneReported() {
+    void setupNoneEligibleOneReported(boolean isAdult) {
         UUID assignedStudentId = UUID.randomUUID();
         SdcSchoolCollectionStudentEntity studFeb = createMockSchoolStudentEntity(sdcSchoolCollectionEntityFeb);
         studFeb.setAssignedStudentId(assignedStudentId);
@@ -259,7 +277,11 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
         refugeeInSept.setSdcSchoolCollectionStudentValidationIssueID(UUID.randomUUID());
         refugeeInSept.setSdcSchoolCollectionStudentEntity(studFeb);
-        refugeeInSept.setValidationIssueCode("REFUGEEINPREVCOL");
+        if (Boolean.TRUE.equals(isAdult)) {
+            refugeeInSept.setValidationIssueCode("REFUGEEISADULT");
+        } else {
+            refugeeInSept.setValidationIssueCode("REFUGEEINPREVCOL");
+        }
         refugeeInSept.setValidationIssueSeverityCode("TEST");
         refugeeInSept.setValidationIssueFieldCode("TEST");
         refugeeInSept.setCreateUser("ABC");
