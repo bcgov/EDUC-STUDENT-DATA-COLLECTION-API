@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
+import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
@@ -61,6 +62,12 @@ public class BirthDateRule implements ValidationBaseRule {
                 log.debug("BirthDateRule-V04: DOB - {} cannot be parsed:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getDob(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 errors.add(setValidationError());
             }
+        }
+        if(errors.isEmpty()){
+            // Update Student age columns
+            String studentDOB = studentRuleData.getSdcSchoolCollectionStudentEntity().getDob();
+            studentRuleData.getSdcSchoolCollectionStudentEntity().setIsAdult(DOBUtil.isAdult(studentDOB));
+            studentRuleData.getSdcSchoolCollectionStudentEntity().setIsSchoolAged(DOBUtil.isSchoolAged(studentDOB));
         }
         return errors;
     }

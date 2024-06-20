@@ -1768,7 +1768,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         var studFeb = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntityFeb);
         studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
-        studFeb.setIsAdult(true);
+        studFeb.setDob("20010101");
         sdcSchoolCollectionStudentRepository.save(studFeb);
 
         var validateNoErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, schoolFeb));
