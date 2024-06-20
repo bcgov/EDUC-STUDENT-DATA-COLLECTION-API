@@ -44,7 +44,7 @@ public class RefugeeSchoolAgedFundingRule implements ValidationBaseRule {
 
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        boolean isAdult = studentRuleData.getSdcSchoolCollectionStudentEntity().getIsAdult();
+        Boolean isAdult = studentRuleData.getSdcSchoolCollectionStudentEntity().getIsAdult();
 
         if (Boolean.TRUE.equals(isAdult)) {
             log.debug("RefugeeSchoolAgedFundingRule-V91: Refugee reported as adult.:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
