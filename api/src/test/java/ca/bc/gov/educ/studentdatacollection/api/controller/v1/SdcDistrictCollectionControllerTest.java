@@ -1366,7 +1366,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     students.add(student1Entity);
     students.add(student2Entity);
 
-    this.mockMvc.perform(post(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates/" + programDupe.get().getSdcDuplicateID() + "/type/PROGRAM")
+    this.mockMvc.perform(post(URL.BASE_URL_DISTRICT_COLLECTION + "/in-district-duplicates/" + programDupe.get().getSdcDuplicateID() + "/type/PROGRAM")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
@@ -1418,7 +1418,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     List<SdcSchoolCollectionStudent> students = new ArrayList();
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
 
-    this.mockMvc.perform(post(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates/" + programDupe.get().getSdcDuplicateID() + "/type/DELETE_ENROLLMENT_DUPLICATE")
+    this.mockMvc.perform(post(URL.BASE_URL_DISTRICT_COLLECTION + "/in-district-duplicates/" + programDupe.get().getSdcDuplicateID() + "/type/DELETE_ENROLLMENT_DUPLICATE")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
@@ -1476,7 +1476,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     List<SdcSchoolCollectionStudent> students = new ArrayList();
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
 
-    this.mockMvc.perform(post(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates/" + programDupe.get().getSdcDuplicateID() + "/type/CHANGE_GRADE")
+    this.mockMvc.perform(post(URL.BASE_URL_DISTRICT_COLLECTION + "/in-district-duplicates/" + programDupe.get().getSdcDuplicateID() + "/type/CHANGE_GRADE")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
@@ -1529,7 +1529,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
 
-    this.mockMvc.perform(post(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates/" + programDupe.get().getSdcDuplicateID() + "/type/DELETE_ENROLLMENT_DUPLICATE")
+    this.mockMvc.perform(post(URL.BASE_URL_DISTRICT_COLLECTION + "/in-district-duplicates/" + programDupe.get().getSdcDuplicateID() + "/type/DELETE_ENROLLMENT_DUPLICATE")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
@@ -1588,7 +1588,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
 
-    this.mockMvc.perform(post(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates/" + programDupe.get().getSdcDuplicateID() + "/type/CHANGE_GRADE")
+    this.mockMvc.perform(post(URL.BASE_URL_DISTRICT_COLLECTION + "/in-district-duplicates/" + programDupe.get().getSdcDuplicateID() + "/type/CHANGE_GRADE")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
