@@ -98,7 +98,7 @@ public class SdcDuplicatesService {
   public SdcDuplicateEntity getSdcDuplicate(UUID sdcDuplicateID) {
     Optional<SdcDuplicateEntity> sdcDuplicateEntity = sdcDuplicateRepository.findById(sdcDuplicateID);
 
-    return sdcDuplicateEntity.orElseThrow(() -> new EntityNotFoundException(SdcDuplicateEntity.class, "sdcDuplicatID", sdcDuplicateID.toString()));
+    return sdcDuplicateEntity.orElseThrow(() -> new EntityNotFoundException(SdcDuplicateEntity.class, "sdcDuplicateID", sdcDuplicateID.toString()));
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
