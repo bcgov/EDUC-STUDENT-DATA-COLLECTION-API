@@ -92,20 +92,17 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
     public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(List<FrenchCombinedHeadcountResult> results) throws EntityNotFoundException {
         HeadcountResultsTable table = new HeadcountResultsTable();
         List<String> headers = new ArrayList<>();
-        Set<String> grades = new HashSet<>(gradeCodes);
         Map<String, Map<String, Integer>> schoolGradeCounts = new HashMap<>();
         Map<String, Integer> totalCounts = new HashMap<>();
         Map<String, String> schoolDetails  = new HashMap<>();
 
         // Collect all grades and initialize school-grade map
         for (FrenchCombinedHeadcountResult result : results) {
-            if (grades.contains(result.getEnrolledGradeCode())) {
-                schoolGradeCounts.computeIfAbsent(result.getSchoolID(), k -> new HashMap<>());
-                schoolDetails.putIfAbsent(result.getSchoolID(),
-                        restUtils.getSchoolBySchoolID(result.getSchoolID())
-                                .map(school -> school.getMincode() + " - " + school.getDisplayName())
-                                .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", result.getSchoolID())));
-            }
+            schoolGradeCounts.computeIfAbsent(result.getSchoolID(), k -> new HashMap<>());
+            schoolDetails.putIfAbsent(result.getSchoolID(),
+                    restUtils.getSchoolBySchoolID(result.getSchoolID())
+                            .map(school -> school.getMincode() + " - " + school.getDisplayName())
+                            .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", result.getSchoolID())));
         }
 
         // Initialize totals for each grade
@@ -148,7 +145,7 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
             rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(schoolDetails.get(schoolID)).build());
             rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
             gradesCount.forEach((grade, count) -> rowData.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
-            rowData.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotals.get(schoolID))).build());
+            rowData.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotals.getOrDefault(schoolID, 0))).build());
             rows.add(rowData);
         });
 
