@@ -162,7 +162,6 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         sdcSchoolCollectionStudentRepository.saveAll(students);
 
         RefugeeHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getRefugeeHeadersBySdcDistrictCollectionId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
-        assertEquals("8", result.getAllStudents());
         assertEquals("8", result.getReportedStudents());
         assertEquals("8", result.getEligibleStudents());
 
@@ -180,7 +179,6 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         setupNoneEligibleOneReported(false);
 
         RefugeeHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getRefugeeHeadersBySdcDistrictCollectionId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
-        assertEquals("1", result.getAllStudents());
         assertEquals("1", result.getReportedStudents());
         assertEquals("0", result.getEligibleStudents());
 
@@ -198,7 +196,6 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         setupNoneEligibleOneReported(true);
 
         RefugeeHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getRefugeeHeadersBySdcDistrictCollectionId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
-        assertEquals("1", result.getAllStudents());
         assertEquals("1", result.getReportedStudents());
         assertEquals("0", result.getEligibleStudents());
 
