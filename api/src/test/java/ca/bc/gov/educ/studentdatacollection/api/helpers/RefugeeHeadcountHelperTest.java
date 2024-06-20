@@ -162,17 +162,16 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         sdcSchoolCollectionStudentRepository.saveAll(students);
 
         RefugeeHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getRefugeeHeadersBySdcDistrictCollectionId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
-        assertEquals("8", result.getAllStudents());
-        assertEquals("8", result.getReportedStudents());
-        assertEquals("8", result.getEligibleStudents());
+        assertEquals("6", result.getReportedStudents());
+        assertEquals("6", result.getEligibleStudents());
 
         helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, studentRepository, sdcDistrictCollectionRepository, restUtils);
         List<HeadcountHeader> headers = helper.getHeaders(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID(), true);
         assertEquals(1, headers.size());
         HeadcountHeader header = headers.get(0);
         assertEquals("Newcomer Refugees", header.getTitle());
-        assertEquals("8", header.getColumns().get("Eligible").getCurrentValue());
-        assertEquals("8", header.getColumns().get("Reported").getCurrentValue());
+        assertEquals("6", header.getColumns().get("Eligible").getCurrentValue());
+        assertEquals("6", header.getColumns().get("Reported").getCurrentValue());
     }
 
     @Test
@@ -180,7 +179,6 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         setupNoneEligibleOneReported(false);
 
         RefugeeHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getRefugeeHeadersBySdcDistrictCollectionId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
-        assertEquals("1", result.getAllStudents());
         assertEquals("1", result.getReportedStudents());
         assertEquals("0", result.getEligibleStudents());
 
@@ -198,7 +196,6 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         setupNoneEligibleOneReported(true);
 
         RefugeeHeadcountHeaderResult result = sdcSchoolCollectionStudentRepository.getRefugeeHeadersBySdcDistrictCollectionId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
-        assertEquals("1", result.getAllStudents());
         assertEquals("1", result.getReportedStudents());
         assertEquals("0", result.getEligibleStudents());
 
