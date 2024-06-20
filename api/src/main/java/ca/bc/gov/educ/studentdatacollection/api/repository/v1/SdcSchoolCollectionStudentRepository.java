@@ -98,7 +98,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   @Query(value="""
     SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE stud.sdcSchoolCollectionStudentID
-    NOT IN (SELECT saga.sdcSchoolCollectionStudentID FROM SdcSagaEntity saga WHERE saga.status != 'COMPLETED')
+    NOT IN (SELECT saga.sdcSchoolCollectionStudentID FROM SdcSagaEntity saga WHERE saga.status != 'COMPLETED'
+    AND saga.sdcSchoolCollectionStudentID IS NOT NULL)
     AND stud.sdcSchoolCollectionStudentStatusCode = 'LOADED'
     order by stud.createDate
     LIMIT :numberOfStudentsToProcess""")
