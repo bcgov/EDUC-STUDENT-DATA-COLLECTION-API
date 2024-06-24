@@ -31,9 +31,11 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -116,7 +118,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED+"?pageSize=2")
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .contentType(APPLICATION_JSON))
                 .andDo(print())
                 .andDo(MvcResult::getAsyncResult)
@@ -147,7 +149,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         final MvcResult result = this.mockMvc
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED+"?pageSize=2")
-                .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
             .andDo(print())
             .andDo(MvcResult::getAsyncResult)
@@ -192,7 +194,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -232,7 +234,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -272,7 +274,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -298,7 +300,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())
-                .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
             .andDo(print()).andExpect(status().isOk()).andExpect(
                 jsonPath("$.sdcSchoolCollectionStudentValidationIssues",
@@ -333,7 +335,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .contentType(APPLICATION_JSON))
                 .andDo(print()).andExpect(status().isOk()).andExpect(
                         jsonPath("$.sdcSchoolCollectionStudentValidationIssues",
@@ -392,7 +394,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -448,7 +450,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -504,7 +506,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -564,7 +566,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -575,7 +577,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     void testReadSdcSchoolCollectionStudentByID_WithInvalidID_ShouldReturnStatusNotFound() throws Exception {
         this.mockMvc
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + UUID.randomUUID())
-                .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
             .andDo(print()).andExpect(status().isNotFound());
     }
@@ -584,7 +586,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     void ErrorAndWarningCountBySdcSchoolCollectionID_WithoutErrorsAndWarnings_ShouldReturnData() throws Exception {
         this.mockMvc
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.ERROR_WARNING_COUNT + "/" + UUID.randomUUID())
-                .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
             .andDo(print())
             .andExpect(status().isOk());
@@ -637,7 +639,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         this.mockMvc
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.ERROR_WARNING_COUNT + "/"
                         + school.getSdcSchoolCollectionID())
-                .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
             .andDo(print())
                 .andExpect(jsonPath("$.[0]severityCode", equalTo("ERROR")))
@@ -952,6 +954,55 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
+    void testUpdateAndValidateSdcSchoolCollectionStudent_updateDOBToError_ShouldReturnStudentAndNotSaveToDatabaseAndReturnWithValidationIssuesSameUpdateDate() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+                grantedAuthority);
+
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
+        when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
+
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
+
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+        var origUpdateDate = LocalDateTime.now();
+        entity.setUpdateDate(origUpdateDate);
+        entity.setCreateDate(origUpdateDate);
+        entity.setSpecialEducationCategoryCode(null);
+        entity.setNumberOfCourses("0400");
+        entity.setEnrolledGradeCode("01");
+        var savedStudent = this.sdcSchoolCollectionStudentRepository.save(entity);
+
+        savedStudent.setCreateDate(null);
+        savedStudent.setUpdateDate(null);
+
+        String dob = "19800101";
+        savedStudent.setDob(dob);
+
+        this.mockMvc.perform(
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
+                                .contentType(APPLICATION_JSON)
+                                .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(savedStudent)))
+                                .with(mockAuthority))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.dob", equalTo(dob)))
+                .andExpect(jsonPath("$.updateDate", containsString(origUpdateDate.toString().substring(0,24))))
+                .andExpect(jsonPath("$.sdcSchoolCollectionStudentValidationIssues", hasSize(2)))
+                .andExpect(jsonPath("$.sdcSchoolCollectionStudentStatusCode", equalTo(SdcSchoolStudentStatus.ERROR.toString())));
+
+        val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
+        assertThat(curStudentEntity).isPresent();
+        var studentEntity = curStudentEntity.get();
+        assertThat(studentEntity.getDob()).isNotEqualTo(dob); //verify that the DOB didn't get updated in the DB.
+    }
+
+    @Test
     void testUpdateAndValidateSdcSchoolCollectionStudent_withWarning_ShouldReturnStudentAndSaveToDatabaseAndReturnStatusOk() throws Exception {
         final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
@@ -1006,7 +1057,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
 
 
-        final var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).collect(Collectors.toList());
+        final var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
         models.forEach(entity -> entity.setSdcSchoolCollection(sdcSchoolCollectionEntity));
         this.sdcSchoolCollectionStudentRepository.saveAll(models);
         final SearchCriteria criteria = SearchCriteria.builder().key("enrolledGradeCode").operation(FilterOperation.IN).value("01,02").valueType(ValueType.STRING).build();
@@ -1036,7 +1087,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -1140,7 +1191,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "enrollment")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -1194,7 +1245,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "enrollment")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -1255,7 +1306,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "french")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -1319,7 +1370,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "french")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -1380,7 +1431,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "french")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -1441,7 +1492,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "career")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -1543,7 +1594,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
-                .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .param("type", "ell")
                 .param("compare", "true")
                 .contentType(APPLICATION_JSON))
@@ -1560,7 +1611,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         UUID collectionID = UUID.randomUUID();
         this.mockMvc
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + collectionID.toString())
-                    .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                    .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                     .param("type", "enrollment")
                     .param("compare", "true")
                     .contentType(APPLICATION_JSON))
@@ -1577,7 +1628,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         sdcSchoolCollectionRepository.save(schoolEntity);
 
         mockMvc.perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + schoolEntity.getSdcSchoolCollectionID())
-                .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .param("type", "invalidType")
                 .param("compare", "true")
                 .contentType(APPLICATION_JSON))
@@ -1612,7 +1663,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -1647,7 +1698,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -1683,7 +1734,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -1718,7 +1769,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -1754,7 +1805,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -1790,7 +1841,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -1827,7 +1878,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -1864,7 +1915,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -1904,7 +1955,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -1941,7 +1992,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -2000,7 +2051,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "indigenous")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -2023,7 +2074,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     @Test
     void testCreateYearsInEll_whenStudentExists_shouldCreateYearsInEll() throws Exception {
         UUID schoolId = UUID.randomUUID();
-        UUID districtId = UUID.randomUUID();
         UUID studentId = UUID.randomUUID();
 
         CollectionEntity collection = this.collectionRepository.save(this.createMockCollectionEntity());
@@ -2060,7 +2110,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     @Test
     void testCreateYearsInEll_whenEllAlreadyExist_shouldReturnExistingElls() throws Exception {
         UUID schoolId = UUID.randomUUID();
-        UUID districtId = UUID.randomUUID();
         UUID studentId = UUID.randomUUID();
 
         CollectionEntity collection = this.collectionRepository.save(this.createMockCollectionEntity());
@@ -2139,7 +2188,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "special-ed")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -2222,7 +2271,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -2269,13 +2318,13 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         stud2, StudentValidationIssueSeverityCode.ERROR));
 
         var enrolledProg3 = new SdcSchoolCollectionStudentEnrolledProgramEntity();
-        enrolledProg2.setSdcSchoolCollectionStudentEntity(stud2);
-        enrolledProg2.setEnrolledProgramCode("CD");
-        enrolledProg2.setCreateUser("ABC");
-        enrolledProg2.setUpdateUser("ABC");
-        enrolledProg2.setCreateDate(LocalDateTime.now());
-        enrolledProg2.setUpdateDate(LocalDateTime.now());
-        sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProg2);
+        enrolledProg3.setSdcSchoolCollectionStudentEntity(stud2);
+        enrolledProg3.setEnrolledProgramCode("CD");
+        enrolledProg3.setCreateUser("ABC");
+        enrolledProg3.setUpdateUser("ABC");
+        enrolledProg3.setCreateDate(LocalDateTime.now());
+        enrolledProg3.setUpdateDate(LocalDateTime.now());
+        sdcSchoolCollectionStudentEnrolledProgramRepository.save(enrolledProg3);
         sdcSchoolCollectionStudentValidationIssueRepository
                 .save(createMockSdcSchoolCollectionStudentValidationIssueEntity(
                         stud2, StudentValidationIssueSeverityCode.ERROR));
@@ -2294,7 +2343,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
         final MvcResult result = this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED)
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
@@ -2519,7 +2568,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "enrollment")
                         .param("compare", "false")
                         .contentType(APPLICATION_JSON))
@@ -2586,7 +2635,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "special-ed")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -2676,7 +2725,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "special-ed-per-school")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -2748,7 +2797,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "grade-enrollment")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -2832,7 +2881,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "career")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -2936,7 +2985,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "french")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -3052,7 +3101,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "french-per-school")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -3145,7 +3194,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "career-per-school")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -3224,7 +3273,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "indigenous")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -3313,7 +3362,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "band-codes")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -3430,7 +3479,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "ell")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -3509,7 +3558,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "indigenous-per-school")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -3595,7 +3644,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "band-codes-per-school")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
@@ -3708,7 +3757,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         this.mockMvc
                 .perform(get(URL.BASE_DISTRICT_HEADCOUNTS + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID())
-                        .with(jwt().jwt((jwt) -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "band-codes-per-school")
                         .param("compare", "false")
                         .contentType(APPLICATION_JSON))
