@@ -17,6 +17,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V91 | WARNING  | Adult students reported with a funding code of 16 are not eligible    |     V26      |
+ *                     for funding in February.
+ */
 @Component
 @Slf4j
 @Order(910)
