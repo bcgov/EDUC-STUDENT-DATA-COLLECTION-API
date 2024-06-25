@@ -2,10 +2,13 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcSchoolCollectionEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicate;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitSdcSchoolCollection;
@@ -24,16 +27,16 @@ import java.util.UUID;
 public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoint {
 
   private static final SdcSchoolCollectionMapper mapper = SdcSchoolCollectionMapper.mapper;
-
   private static final SdcSchoolCollectionStudentMapper studentMapper = SdcSchoolCollectionStudentMapper.mapper;
-
+  private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
+  private final SdcDuplicatesService sdcDuplicatesService;
   private final SdcSchoolCollectionService sdcSchoolCollectionService;
-
   private final SdcSchoolCollectionValidator sdcSchoolCollectionValidator;
 
-  public SdcSchoolCollectionController(SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionValidator sdcSchoolCollectionValidator) {
+  public SdcSchoolCollectionController(SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionValidator sdcSchoolCollectionValidator, SdcDuplicatesService sdcDuplicatesService) {
     this.sdcSchoolCollectionService = sdcSchoolCollectionService;
     this.sdcSchoolCollectionValidator = sdcSchoolCollectionValidator;
+    this.sdcDuplicatesService = sdcDuplicatesService;
   }
 
   @Override
@@ -44,6 +47,11 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   @Override
   public List<SdcSchoolCollectionStudent> getSchoolCollectionDuplicates(UUID sdcSchoolCollectionID) {
     return this.sdcSchoolCollectionService.getAllSchoolCollectionDuplicates(sdcSchoolCollectionID).stream().map(studentMapper::toSdcSchoolStudent).toList();
+  }
+
+  @Override
+  public SdcDuplicate getDuplicateByID(UUID sdcDuplicateID) {
+    return duplicateMapper.toSdcDuplicate(this.sdcDuplicatesService.getSdcDuplicate(sdcDuplicateID));
   }
 
   @Override
@@ -97,5 +105,10 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   @Override
   public SdcSchoolCollection unsubmitSchoolCollection(UnsubmitSdcSchoolCollection unsubmitData) {
     return mapper.toStructure(sdcSchoolCollectionService.unsubmitSchoolCollection(unsubmitData));
+  }
+
+  @Override
+  public List<SdcDuplicate> getSchoolCollectionProvincialDuplicates(UUID sdcSchoolCollectionID) {
+    return this.sdcDuplicatesService.getAllProvincialDuplicatesBySdcSchoolCollectionID(sdcSchoolCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
   }
 }

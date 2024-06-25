@@ -4,12 +4,14 @@ import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -43,6 +45,7 @@ class StudentGraduatedCalculatorTest {
 
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSdcSchoolCollectionStudentEntity(student);
+        studentData.setSchool(createSchool());
 
         // When
         FteCalculationResult result = studentGraduatedCalculator.calculateFte(studentData);
@@ -76,6 +79,30 @@ class StudentGraduatedCalculatorTest {
     }
 
     @Test
+    void testCalculateFte_StudentNotGraduatedWithCourses_ThenFteCalculatedWithSupportBlocks() {
+        // Given
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setIsGraduated(true);
+        student.setNumberOfCourses("900");
+        student.setSupportBlocks("2");
+
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSdcSchoolCollectionStudentEntity(student);
+        var school = createSchool();
+        school.setSchoolCategoryCode("INDEPEND");
+        studentData.setSchool(school);
+
+        // When
+        FteCalculationResult result = studentGraduatedCalculator.calculateFte(studentData);
+
+        // Then
+        BigDecimal expectedFte = new BigDecimal("1");
+        assertEquals(expectedFte, result.getFte());
+        assertNull(result.getFteZeroReason());
+        verify(nextCalculator, never()).calculateFte(any());
+    }
+
+    @Test
     void testCalculateFte_StudentWithNullGraduation_ThenFteCalculatedWithSupportBlocks() {
         // Given
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
@@ -93,5 +120,13 @@ class StudentGraduatedCalculatorTest {
         assertEquals(expectedFte, result.getFte());
         assertNull(result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
+    }
+
+    private SchoolTombstone createSchool(){
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolCategoryCode("PUBLIC");
+        schoolTombstone.setFacilityTypeCode("STANDARD");
+        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+        return schoolTombstone;
     }
 }

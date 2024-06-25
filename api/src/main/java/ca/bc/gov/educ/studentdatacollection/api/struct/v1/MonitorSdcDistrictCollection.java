@@ -17,6 +17,7 @@ import java.util.UUID;
 public class MonitorSdcDistrictCollection implements Serializable {
   private static final long serialVersionUID = 1L;
 
+  UUID districtID;
   UUID sdcDistrictCollectionId;
   String districtTitle;
   String sdcDistrictCollectionStatusCode;

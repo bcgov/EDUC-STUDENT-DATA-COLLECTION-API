@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicate;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitSdcSchoolCollection;
@@ -36,6 +37,13 @@ public interface SdcSchoolCollectionEndpoint {
   @Transactional(readOnly = true)
   @Tag(name = "Sdc School Collection", description = "Endpoints to get school collection duplicates.")
   List<SdcSchoolCollectionStudent>  getSchoolCollectionDuplicates(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
+
+  @GetMapping("/duplicate/{sdcDuplicateID}")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "Sdc Duplicate", description = "Endpoints to get school collection duplicate.")
+  SdcDuplicate getDuplicateByID(@PathVariable("sdcDuplicateID") UUID sdcDuplicateID);
 
   @PutMapping("/{sdcSchoolCollectionID}")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")
@@ -81,4 +89,10 @@ public interface SdcSchoolCollectionEndpoint {
   @Schema(name = "SdcSchoolCollection", implementation = SdcSchoolCollection.class)
   SdcSchoolCollection unsubmitSchoolCollection(@RequestBody UnsubmitSdcSchoolCollection unsubmitData);
 
+  @GetMapping("/{sdcSchoolCollectionID}/provincial-duplicates")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "Sdc School Collection", description = "Endpoints to get school collection's provincial duplicates.")
+  List<SdcDuplicate> getSchoolCollectionProvincialDuplicates(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 }

@@ -111,6 +111,17 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             FROM sdc_school_collection SSC, collection C, sdc_district_collection SSD
             WHERE SSD.district_id=:districtId
             AND SSC.sdc_district_collection_id = SSD.sdc_district_collection_id
+            AND C.collection_id  = SSC.collection_id
+            AND C.snapshot_date < :currentSnapshotDate
+            """
+            , nativeQuery = true)
+    List<SdcSchoolCollectionEntity> findAllCollectionsForDistrictBeforeCurrentCollection(UUID districtId, LocalDate currentSnapshotDate);
+
+    @Query(value = """
+            SELECT SSC.*
+            FROM sdc_school_collection SSC, collection C, sdc_district_collection SSD
+            WHERE SSD.district_id=:districtId
+            AND SSC.sdc_district_collection_id = SSD.sdc_district_collection_id
             AND C.collection_id  = ssc.collection_id
             AND C.snapshot_date >= :fiscalSnapshotDate
             AND C.snapshot_date < :currentSnapshotDate
