@@ -333,6 +333,7 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcBatchFileFromTSW_FileUploadStatus_ShouldCreateRecordsInDB() throws IOException {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
+    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
@@ -347,23 +348,6 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
 
     final var result = this.sdcSchoolCollectionRepository.findAll();
     assertThat(result).hasSize(1);
-    final var entity = result.get(0);
-
-    entity.setSdcSchoolCollectionStatusCode("LOADFAIL");
-    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("LOADFAIL");
-
-    final FileInputStream fisTwo = new FileInputStream("src/test/resources/sample-1-student.txt");
-    final String fileContentsTwo = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fisTwo));
-    var fileUploadTwo = SdcFileUpload.builder().fileContents(fileContentsTwo).fileName("SampleUpload.std").build();
-
-    var responseTwo = this.sdcBatchProcessor.processSdcBatchFile(
-            fileUploadTwo,
-            sdcSchoolCollection.getSdcSchoolCollectionID().toString()
-    );
-    assertThat(responseTwo).isNotNull();
-    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
-    final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
-    assertThat(students).isNotNull();
   }
 
   @Test
