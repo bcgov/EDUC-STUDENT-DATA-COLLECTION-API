@@ -291,6 +291,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcFileReUpload_givenValidPayload_ShouldReturnStatusOk() throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
+    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
@@ -315,6 +316,10 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
     var students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
+    students.forEach(sdcSchoolCollectionStudentEntity -> {
+      sdcSchoolCollectionStudentEntity.setSdcSchoolCollectionStudentStatusCode("ERROR");
+      this.schoolStudentRepository.save(sdcSchoolCollectionStudentEntity);
+    });
 
     var historyStuds = this.sdcSchoolCollectionStudentHistoryRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(historyStuds).isNotNull().hasSize(1);
@@ -352,6 +357,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcFileReUploadCompare_givenValidPayload_ShouldReturnStatusOk() throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
+    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
@@ -376,6 +382,10 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
     var students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
+    students.forEach(sdcSchoolCollectionStudentEntity -> {
+      sdcSchoolCollectionStudentEntity.setSdcSchoolCollectionStudentStatusCode("ERROR");
+      this.schoolStudentRepository.save(sdcSchoolCollectionStudentEntity);
+    });
 
     var historyStuds = this.sdcSchoolCollectionStudentHistoryRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(historyStuds).isNotNull().hasSize(2);
@@ -407,6 +417,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcFileReUploadCompareWithDups_givenValidPayload_ShouldReturnStatusOk() throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
+    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
@@ -431,6 +442,10 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
     var students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull();
+    students.forEach(sdcSchoolCollectionStudentEntity -> {
+      sdcSchoolCollectionStudentEntity.setSdcSchoolCollectionStudentStatusCode("ERROR");
+      this.schoolStudentRepository.save(sdcSchoolCollectionStudentEntity);
+    });
 
     var historyStuds = this.sdcSchoolCollectionStudentHistoryRepository.findAllBySdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(historyStuds).isNotNull().hasSize(2);
@@ -519,6 +534,10 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
     var students = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     assertThat(students).isNotNull().hasSize(2);
+    students.forEach(sdcSchoolCollectionStudentEntity -> {
+      sdcSchoolCollectionStudentEntity.setSdcSchoolCollectionStudentStatusCode("ERROR");
+      this.schoolStudentRepository.save(sdcSchoolCollectionStudentEntity);
+    });
 
     sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(students.get(0).getSdcSchoolCollectionStudentID());
 
