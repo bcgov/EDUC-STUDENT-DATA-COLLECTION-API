@@ -2,8 +2,8 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.processor;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -51,15 +51,13 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     var school = this.createMockSchool();
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
-    Optional<SdcSchoolCollectionEntity> schoolCollectionOptional = Optional.of(sdcSchoolCollection);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.std").build();
 
     var response = this.sdcBatchProcessor.processSdcBatchFile(
       fileUpload,
-      sdcSchoolCollection.getSdcSchoolCollectionID().toString(),
-      schoolCollectionOptional
+      sdcSchoolCollection.getSdcSchoolCollectionID().toString()
     );
     assertThat(response).isNotNull();
 
@@ -83,15 +81,13 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     var school = this.createMockSchool();
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
-    Optional<SdcSchoolCollectionEntity> schoolCollectionOptional = Optional.of(sdcSchoolCollection);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student-enrolledcode-with-whitespace.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUploadEnrolled.std").build();
 
     var response = this.sdcBatchProcessor.processSdcBatchFile(
             fileUpload,
-            sdcSchoolCollection.getSdcSchoolCollectionID().toString(),
-            schoolCollectionOptional
+            sdcSchoolCollection.getSdcSchoolCollectionID().toString()
     );
     assertThat(response).isNotNull();
 
@@ -118,15 +114,13 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     var school = this.createMockSchool();
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
-    Optional<SdcSchoolCollectionEntity> schoolCollectionOptional = Optional.of(sdcSchoolCollection);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student-enrolledcode-with-malformedValue.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUploadEnrolled.std").build();
 
     var response = this.sdcBatchProcessor.processSdcBatchFile(
             fileUpload,
-            sdcSchoolCollection.getSdcSchoolCollectionID().toString(),
-            schoolCollectionOptional
+            sdcSchoolCollection.getSdcSchoolCollectionID().toString()
     );
     assertThat(response).isNotNull();
 
@@ -151,17 +145,70 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcBatchFileFromTSW_EnrolledProgramWithZeros_ShouldCreateRecordsInDB() throws IOException {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
+    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
-    Optional<SdcSchoolCollectionEntity> schoolCollectionOptional = Optional.of(sdcSchoolCollection);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student-enrolledcode-with-allzeros.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUploadEnrolled.std").build();
 
     var response = this.sdcBatchProcessor.processSdcBatchFile(
             fileUpload,
-            sdcSchoolCollection.getSdcSchoolCollectionID().toString(),
-            schoolCollectionOptional
+            sdcSchoolCollection.getSdcSchoolCollectionID().toString()
+    );
+    assertThat(response).isNotNull();
+
+    final var result = this.sdcSchoolCollectionRepository.findAll();
+    assertThat(result).hasSize(1);
+
+    final var entity = result.get(0);
+    assertThat(entity.getSdcSchoolCollectionID()).isNotNull();
+    assertThat(entity.getUploadFileName()).isEqualTo("SampleUploadEnrolled.std");
+    assertThat(entity.getUploadReportDate()).isNotNull();
+    assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");
+
+    final var students = this.sdcSchoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
+    assertThat(students).hasSize(1);
+
+    final var studentEntity = students.get(0);
+    assertThat(studentEntity.getEnrolledProgramCodes()).isBlank();
+  }
+
+  @Test
+  @Transactional
+  void testProcessSdcBatchFileFromTSW_EnrolledProgramWithZeros_ShouldThrowErrorAlreadyBeingUploaded() throws IOException {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    school.setMincode("03636018");
+    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+    var stud = createMockSchoolStudentEntity(sdcSchoolCollection);
+    stud.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.getCode());
+    sdcSchoolStudentRepository.save(stud);
+
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student-enrolledcode-with-allzeros.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUploadEnrolled.std").build();
+
+    assertThrows(InvalidPayloadException.class, () -> this.sdcBatchProcessor.processSdcBatchFile(fileUpload, sdcSchoolCollection.getSdcSchoolCollectionID().toString()));
+
+  }
+
+  @Test
+  @Transactional
+  void testProcessSdcBatchFileFromTSW_EnrolledProgramWithZeros_ShouldThrowErrorInvalidSchool() throws IOException {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student-enrolledcode-with-allzeros.txt");
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUploadEnrolled.std").build();
+
+    var response = this.sdcBatchProcessor.processSdcBatchFile(
+            fileUpload,
+            sdcSchoolCollection.getSdcSchoolCollectionID().toString()
     );
     assertThat(response).isNotNull();
 
@@ -188,15 +235,13 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     var school = this.createMockSchool();
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
-    Optional<SdcSchoolCollectionEntity> schoolCollectionOptional = Optional.of(sdcSchoolCollection);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student-enrolledcode-with-allblanks.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUploadEnrolled.std").build();
 
     var response = this.sdcBatchProcessor.processSdcBatchFile(
             fileUpload,
-            sdcSchoolCollection.getSdcSchoolCollectionID().toString(),
-            schoolCollectionOptional
+            sdcSchoolCollection.getSdcSchoolCollectionID().toString()
     );
     assertThat(response).isNotNull();
 
@@ -221,17 +266,16 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcBatchFileFromTSW_LegalNameWithApostrophes_NoLegalNameRemoved() throws IOException {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
+    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
-    Optional<SdcSchoolCollectionEntity> schoolCollectionOptional = Optional.of(sdcSchoolCollection);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-apostrophe-no-name-remove.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.std").build();
 
     var response = this.sdcBatchProcessor.processSdcBatchFile(
             fileUpload,
-            sdcSchoolCollection.getSdcSchoolCollectionID().toString(),
-            schoolCollectionOptional
+            sdcSchoolCollection.getSdcSchoolCollectionID().toString()
     );
     assertThat(response).isNotNull();
 
@@ -258,15 +302,13 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     var school = this.createMockSchool();
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
-    Optional<SdcSchoolCollectionEntity> schoolCollectionOptional = Optional.of(sdcSchoolCollection);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-apostrophe-name-remove.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.std").build();
 
     var response = this.sdcBatchProcessor.processSdcBatchFile(
             fileUpload,
-            sdcSchoolCollection.getSdcSchoolCollectionID().toString(),
-            schoolCollectionOptional
+            sdcSchoolCollection.getSdcSchoolCollectionID().toString()
     );
     assertThat(response).isNotNull();
 
@@ -293,15 +335,13 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
     var school = this.createMockSchool();
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
-    Optional<SdcSchoolCollectionEntity> schoolCollectionOptional = Optional.of(sdcSchoolCollection);
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     var fileUpload = SdcFileUpload.builder().fileContents(fileContents).fileName("SampleUpload.std").build();
 
     var response = this.sdcBatchProcessor.processSdcBatchFile(
             fileUpload,
-            sdcSchoolCollection.getSdcSchoolCollectionID().toString(),
-            schoolCollectionOptional
+            sdcSchoolCollection.getSdcSchoolCollectionID().toString()
     );
     assertThat(response).isNotNull();
 
@@ -318,8 +358,7 @@ class SdcBatchFileProcessorTest extends BaseStudentDataCollectionAPITest {
 
     var responseTwo = this.sdcBatchProcessor.processSdcBatchFile(
             fileUploadTwo,
-            sdcSchoolCollection.getSdcSchoolCollectionID().toString(),
-            schoolCollectionOptional
+            sdcSchoolCollection.getSdcSchoolCollectionID().toString()
     );
     assertThat(responseTwo).isNotNull();
     assertThat(entity.getSdcSchoolCollectionStatusCode()).isEqualTo("NEW");

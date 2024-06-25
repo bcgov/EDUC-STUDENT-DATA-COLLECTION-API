@@ -303,10 +303,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     return entity;
   }
 
-  public SdcSchoolCollectionStudentValidationIssueEntity createMockSdcSchoolCollectionStudentValidationIssueEntity(
-    SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity,
-    StudentValidationIssueSeverityCode issueSeverityCode
-  ){
+  public SdcSchoolCollectionStudentValidationIssueEntity createMockSdcSchoolCollectionStudentValidationIssueEntity(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity, StudentValidationIssueSeverityCode issueSeverityCode){
     SdcSchoolCollectionStudentValidationIssueEntity sdcSchoolCollectionStudentValidationIssueEntity = new SdcSchoolCollectionStudentValidationIssueEntity();
     sdcSchoolCollectionStudentValidationIssueEntity.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentEntity);
 

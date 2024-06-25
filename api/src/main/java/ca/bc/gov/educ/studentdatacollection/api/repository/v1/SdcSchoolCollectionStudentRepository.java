@@ -35,6 +35,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     """)
   List<SdcSchoolCollectionStudentEntity> findAllDuplicateStudentsInSdcSchoolCollection(UUID sdcSchoolCollectionID);
 
+  long countBySdcSchoolCollection_SdcSchoolCollectionIDAndSdcSchoolCollectionStudentStatusCode(UUID sdcSchoolCollectionID, String sdcSchoolCollectionStatusCode);
+
   @Query(value = """  
     SELECT stud
     FROM SdcSchoolCollectionStudentEntity stud, SdcSchoolCollectionEntity school, SdcDistrictCollectionEntity dist
