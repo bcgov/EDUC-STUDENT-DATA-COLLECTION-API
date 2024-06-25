@@ -102,14 +102,14 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   }
 
   @Override
-  public SdcDuplicate updateStudentAndResolveDistrictDuplicates(UUID sdcDistrictCollectionID, String duplicateTypeCode, UUID sdcDuplicateID, List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent) {
+  public SdcDuplicate updateStudentAndResolveDistrictDuplicates(String duplicateTypeCode, UUID sdcDuplicateID, List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent) {
     sdcSchoolCollectionStudent.forEach(student -> ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(student)));
     if (DuplicateTypeResolutionCode.PROGRAM.getCode().equalsIgnoreCase(duplicateTypeCode)) {
-      return duplicateMapper.toSdcDuplicate(sdcDistrictCollectionService.updateStudentAndResolveDistrictDuplicates(sdcDistrictCollectionID, sdcDuplicateID, sdcSchoolCollectionStudent));
+      return duplicateMapper.toSdcDuplicate(sdcDistrictCollectionService.updateStudentAndResolveDistrictDuplicates(sdcDuplicateID, sdcSchoolCollectionStudent));
     } else if (DuplicateTypeResolutionCode.DELETE_ENROLLMENT_DUPLICATE.getCode().equalsIgnoreCase(duplicateTypeCode) && sdcSchoolCollectionStudent.size() == 1) {
-      return duplicateMapper.toSdcDuplicate(sdcDistrictCollectionService.softDeleteEnrollmentDuplicate(sdcDistrictCollectionID, sdcDuplicateID, sdcSchoolCollectionStudent.get(0)));
+      return duplicateMapper.toSdcDuplicate(sdcDistrictCollectionService.softDeleteEnrollmentDuplicate(sdcDuplicateID, sdcSchoolCollectionStudent.get(0)));
     } else if (DuplicateTypeResolutionCode.CHANGE_GRADE.getCode().equalsIgnoreCase(duplicateTypeCode) && sdcSchoolCollectionStudent.size() == 1) {
-      return duplicateMapper.toSdcDuplicate(sdcDistrictCollectionService.changeGrade(sdcDistrictCollectionID, sdcDuplicateID, sdcSchoolCollectionStudent.get(0)));
+      return duplicateMapper.toSdcDuplicate(sdcDistrictCollectionService.changeGrade(sdcDuplicateID, sdcSchoolCollectionStudent.get(0)));
     }
     return null;
   }

@@ -180,7 +180,7 @@ public class SdcDistrictCollectionService {
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
-  public SdcDuplicateEntity updateStudentAndResolveDistrictDuplicates(UUID sdcDistrictCollectionID, UUID sdcDuplicateID, List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent) {
+  public SdcDuplicateEntity updateStudentAndResolveDistrictDuplicates(UUID sdcDuplicateID, List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent) {
     final Optional<SdcDuplicateEntity> curSdcDuplicateEntity = sdcDuplicateRepository.findBySdcDuplicateID(sdcDuplicateID);
     List<SdcSchoolCollectionStudentEntity> updatedStudents = new ArrayList<>();
     if (curSdcDuplicateEntity.isPresent()) {
@@ -210,7 +210,7 @@ public class SdcDistrictCollectionService {
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
-  public SdcDuplicateEntity softDeleteEnrollmentDuplicate(UUID sdcDistrictCollectionID, UUID sdcDuplicateID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+  public SdcDuplicateEntity softDeleteEnrollmentDuplicate(UUID sdcDuplicateID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
     final Optional<SdcDuplicateEntity> curSdcDuplicateEntity = sdcDuplicateRepository.findBySdcDuplicateID(sdcDuplicateID);
 
     if (curSdcDuplicateEntity.isPresent()) {
@@ -235,7 +235,7 @@ public class SdcDistrictCollectionService {
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
-  public SdcDuplicateEntity changeGrade(UUID sdcDistrictCollectionID, UUID sdcDuplicateID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+  public SdcDuplicateEntity changeGrade(UUID sdcDuplicateID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
     final Optional<SdcDuplicateEntity> curSdcDuplicateEntity = sdcDuplicateRepository.findBySdcDuplicateID(sdcDuplicateID);
 
     if (curSdcDuplicateEntity.isPresent()) {
