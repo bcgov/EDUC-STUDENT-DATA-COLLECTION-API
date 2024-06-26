@@ -1,9 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportingRequirementCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -670,6 +668,74 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_CAREER_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
+  }
+
+  @Test
+  void testRefugeePerSchool_ShouldReturnOk() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    var districtMock = this.createMockDistrict();
+    when(this.restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(districtMock));
+    var schoolMock = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolMock));
+    var schoolMock2 = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolMock2));
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(districtMock.getDistrictId()));
+    sdcMockDistrict = sdcDistricCollectionRepository.save(sdcMockDistrict);
+
+    SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolMock.getSchoolId()));
+    sdcMockSchool.setUploadDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setSdcDistrictCollectionID(sdcMockDistrict.getSdcDistrictCollectionID());
+    sdcMockSchool = sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+    SdcSchoolCollectionEntity sdcMockSchool2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolMock2.getSchoolId()));
+    sdcMockSchool2.setUploadDate(null);
+    sdcMockSchool2.setUploadFileName(null);
+    sdcMockSchool2.setSdcDistrictCollectionID(sdcMockDistrict.getSdcDistrictCollectionID());
+    sdcMockSchool2 = sdcSchoolCollectionRepository.save(sdcMockSchool2);
+
+    SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(sdcMockSchool);
+    student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+    student1.setIsSchoolAged(true);
+    student1.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+    student1.setFte(new BigDecimal(1.0000));
+    sdcSchoolCollectionStudentRepository.save(student1);
+
+    SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(sdcMockSchool);
+    student2.setEnrolledGradeCode(SchoolGradeCodes.GRADE11.getCode());
+    student2.setIsSchoolAged(true);
+    student2.setIsSchoolAged(true);
+    student2.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+    student2.setFte(new BigDecimal(2.0000));
+    sdcSchoolCollectionStudentRepository.save(student2);
+
+    SdcSchoolCollectionStudentEntity student3 = createMockSchoolStudentEntity(sdcMockSchool);
+    student3.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
+    student3.setIsSchoolAged(true);
+    student3.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+    student3.setFte(new BigDecimal(3.3333));
+    sdcSchoolCollectionStudentRepository.save(student3);
+
+    SdcSchoolCollectionStudentEntity student4 = createMockSchoolStudentEntity(sdcMockSchool2);
+    student4.setEnrolledGradeCode(SchoolGradeCodes.GRADE08.getCode());
+    student4.setIsSchoolAged(true);
+    student4.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+    student4.setFte(new BigDecimal(4.2525));
+    sdcSchoolCollectionStudentRepository.save(student4);
+
+    setEnrolledProgramCode(student3, EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode());
+    setEnrolledProgramCode(student4, EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode());
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_REFUGEE_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk());
   }
 
