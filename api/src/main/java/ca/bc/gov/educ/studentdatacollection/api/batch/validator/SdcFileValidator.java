@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileUnProcessabl
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
@@ -36,8 +37,11 @@ public class SdcFileValidator {
 
   private final RestUtils restUtils;
 
-  public SdcFileValidator(RestUtils restUtils) {
+  private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+
+  public SdcFileValidator(RestUtils restUtils, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
     this.restUtils = restUtils;
+    this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
   }
 
   public void validateFileForFormatAndLength(@NonNull final String guid, @NonNull final DataSet ds) throws FileUnProcessableException {
@@ -65,53 +69,51 @@ public class SdcFileValidator {
     }
   }
 
-  public void validateFileHasCorrectMincode(@NonNull final String guid, @NonNull final DataSet ds, final Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity) throws FileUnProcessableException {
-    if (sdcSchoolCollectionEntity.isPresent()) {
-
-      String fileMincode = pluckMincodeFromFile(ds, guid);
-
-      String schoolID = sdcSchoolCollectionEntity.get().getSchoolID().toString();
-      Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID);
-
-      if (school.isEmpty()) {
-        throw new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, SdcSchoolCollectionStatus.LOAD_FAIL, fileMincode);
-      }
-
-      String mincode = school.get().getMincode();
-      if (!fileMincode.equals(mincode)) {
-        throw new FileUnProcessableException(
-          FileError.MINCODE_MISMATCH,
-          guid,
-          SdcSchoolCollectionStatus.LOAD_FAIL,
-          mincode
-        );
-      }
-
-      ds.goTop();
-    }
-  }
-
-  public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final Optional<SchoolTombstone> school, final String districtID, @NonNull final DataSet ds) throws FileUnProcessableException {
-
+  public void validateFileHasCorrectMincode(@NonNull final String guid, @NonNull final DataSet ds, final SdcSchoolCollectionEntity sdcSchoolCollectionEntity) throws FileUnProcessableException {
     String fileMincode = pluckMincodeFromFile(ds, guid);
+
+    String schoolID = sdcSchoolCollectionEntity.getSchoolID().toString();
+    Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID);
 
     if (school.isEmpty()) {
       throw new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, SdcSchoolCollectionStatus.LOAD_FAIL, fileMincode);
     }
 
-    var schoolVal = school.get();
+    String mincode = school.get().getMincode();
+    if (!fileMincode.equals(mincode)) {
+      throw new FileUnProcessableException(
+        FileError.MINCODE_MISMATCH,
+        guid,
+        SdcSchoolCollectionStatus.LOAD_FAIL,
+        mincode
+      );
+    }
+
+    ds.goTop();
+  }
+
+  public void validateFileUploadIsNotInProgress(@NonNull final String guid, @NonNull final DataSet ds,final SdcSchoolCollectionEntity sdcSchoolCollectionEntity) throws FileUnProcessableException {
+      long inFlightCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollection_SdcSchoolCollectionIDAndSdcSchoolCollectionStudentStatusCode(sdcSchoolCollectionEntity.getSdcSchoolCollectionID(), "LOADED");
+
+      if (inFlightCount > 0) {
+        String fileMincode = pluckMincodeFromFile(ds, guid);
+        throw new FileUnProcessableException(FileError.CONFLICT_FILE_ALREADY_IN_FLIGHT, guid, SdcSchoolCollectionStatus.LOAD_FAIL, fileMincode);
+      }
+  }
+
+  public void validateSchoolIsOpenAndBelongsToDistrict(@NonNull final String guid, @NonNull final SchoolTombstone school, final String districtID) throws FileUnProcessableException {
     var currentDate = LocalDateTime.now();
     LocalDateTime openDate = null;
     LocalDateTime closeDate = null;
     try {
-      openDate = LocalDateTime.parse(schoolVal.getOpenedDate());
+      openDate = LocalDateTime.parse(school.getOpenedDate());
 
       if (openDate.isAfter(currentDate)){
         throw new FileUnProcessableException(FileError.SCHOOL_IS_OPENING, guid, SdcSchoolCollectionStatus.LOAD_FAIL, districtID);
       }
 
-      if(schoolVal.getClosedDate() != null) {
-        closeDate = LocalDateTime.parse(schoolVal.getClosedDate());
+      if(school.getClosedDate() != null) {
+        closeDate = LocalDateTime.parse(school.getClosedDate());
       }else{
         closeDate = LocalDateTime.now().plusDays(5);
       }
@@ -123,7 +125,7 @@ public class SdcFileValidator {
       throw new FileUnProcessableException(FileError.SCHOOL_IS_CLOSED, guid, SdcSchoolCollectionStatus.LOAD_FAIL, districtID);
     }
 
-    String schoolDistrictID = school.get().getDistrictId();
+    String schoolDistrictID = school.getDistrictId();
 
     if(StringUtils.compare(schoolDistrictID, districtID) != 0) {
       throw new FileUnProcessableException(
@@ -135,9 +137,12 @@ public class SdcFileValidator {
 
   }
 
-  public Optional<SchoolTombstone> getSchoolUsingMincode(final String guid, @NonNull final DataSet ds) throws FileUnProcessableException{
-    String fileMincode = pluckMincodeFromFile(ds, guid);
-    return restUtils.getSchoolByMincode(fileMincode);
+  public Optional<SchoolTombstone> getSchoolUsingMincode(final String mincode) {
+    return restUtils.getSchoolByMincode(mincode);
+  }
+
+  public String getSchoolMincode(final String guid, @NonNull final DataSet ds) throws FileUnProcessableException{
+    return pluckMincodeFromFile(ds, guid);
   }
 
   public String pluckMincodeFromFile(@NonNull final DataSet ds, final String guid) throws FileUnProcessableException {

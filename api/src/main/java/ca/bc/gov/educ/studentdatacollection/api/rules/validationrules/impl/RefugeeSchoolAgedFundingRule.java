@@ -17,6 +17,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  | ID  | Severity | Rule                                                                  | Dependent On |
+ *  |-----|----------|-----------------------------------------------------------------------|--------------|
+ *  | V91 | WARNING  | Adult students reported with a funding code of 16 are not eligible    |     V26      |
+ *                     for funding in February.
+ */
 @Component
 @Slf4j
 @Order(910)
@@ -44,7 +50,7 @@ public class RefugeeSchoolAgedFundingRule implements ValidationBaseRule {
 
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        boolean isAdult = studentRuleData.getSdcSchoolCollectionStudentEntity().getIsAdult();
+        Boolean isAdult = studentRuleData.getSdcSchoolCollectionStudentEntity().getIsAdult();
 
         if (Boolean.TRUE.equals(isAdult)) {
             log.debug("RefugeeSchoolAgedFundingRule-V91: Refugee reported as adult.:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());

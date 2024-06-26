@@ -50,6 +50,11 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   }
 
   @Override
+  public SdcDuplicate getDuplicateByID(UUID sdcDuplicateID) {
+    return duplicateMapper.toSdcDuplicate(this.sdcDuplicatesService.getSdcDuplicate(sdcDuplicateID));
+  }
+
+  @Override
   public SdcSchoolCollection updateSchoolCollection(SdcSchoolCollection sdcSchoolCollection, UUID sdcSchoolCollectionID) {
     ValidationUtil.validatePayload(() -> this.sdcSchoolCollectionValidator.validatePayload(sdcSchoolCollection, false));
     RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollection);
