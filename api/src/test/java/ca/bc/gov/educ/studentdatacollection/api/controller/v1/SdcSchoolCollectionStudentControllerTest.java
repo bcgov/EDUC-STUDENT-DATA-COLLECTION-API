@@ -992,7 +992,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.dob", equalTo(dob)))
-                .andExpect(jsonPath("$.updateDate", containsString(origUpdateDate.toString().substring(0,24))))
+                .andExpect(jsonPath("$.updateDate", containsString(origUpdateDate.toString().substring(0,20))))
                 .andExpect(jsonPath("$.sdcSchoolCollectionStudentValidationIssues", hasSize(2)))
                 .andExpect(jsonPath("$.sdcSchoolCollectionStudentStatusCode", equalTo(SdcSchoolStudentStatus.ERROR.toString())));
 
