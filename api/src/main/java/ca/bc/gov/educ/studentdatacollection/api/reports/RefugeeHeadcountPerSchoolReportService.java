@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollect
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.RefugeeHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
@@ -31,18 +32,20 @@ import java.util.*;
 @Slf4j
 public class RefugeeHeadcountPerSchoolReportService extends BaseReportGenerationService<RefugeeHeadcountResult> {
 
-    private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+    private final RestUtils restUtils;
     private JasperReport refugeeHeadcountReport;
     private List<RefugeeHeadcountResult> refugeeHeadcounts = new ArrayList<>();
     private final ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+    private static final String HEADING = "Heading";
+    private static final String ALL_REFUGEE_HEADING = "allRefugeeHeading";
 
-    protected RefugeeHeadcountPerSchoolReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
+    protected RefugeeHeadcountPerSchoolReportService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
         super(restUtils);
-        this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
         this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
         this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+        this.restUtils = restUtils;
     }
 
     @PostConstruct
@@ -90,10 +93,50 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
     }
 
     protected HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
-        return null;
+        HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
+
+        int sequencePrefix = 10;
+        if (!refugeeHeadcounts.isEmpty()) {
+            for (RefugeeHeadcountResult result : refugeeHeadcounts) {
+                String schoolID = result.getSchoolID();
+                Optional<SchoolTombstone> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
+                int finalSequencePrefix = sequencePrefix;
+                schoolOptional.ifPresent(school -> {
+                    String schoolTitle = school.getMincode() + " - " + school.getDisplayName();
+                    addValuesForSectionToMap(nodeMap, schoolID, schoolTitle, String.valueOf(finalSequencePrefix));
+                });
+                sequencePrefix += 10;
+            }
+        }
+        addValuesForSectionToMap(nodeMap, "allSchools", "All Newcomer Refugees", "00");
+        return nodeMap;
+    }
+
+    private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
+        if (Objects.equals(sectionPrefix, "allSchools")) {
+            nodeMap.put(sectionPrefix + HEADING, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+        } else {
+            nodeMap.put(sectionPrefix + HEADING, new HeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", false));
+        }
     }
 
     protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, RefugeeHeadcountResult gradeResult) {
-
+        int runningTotalHeadcount = 0;
+        double runningTotalFTE = 0.0;
+        int runningTotalELL = 0;
+        if (refugeeHeadcounts != null) {
+            for (RefugeeHeadcountResult each : refugeeHeadcounts) {
+                String schoolKey = each.getSchoolID();
+                runningTotalHeadcount += Integer.parseInt(each.getHeadcount());
+                runningTotalFTE += Double.parseDouble(each.getFteTotal());
+                runningTotalELL += Integer.parseInt(each.getEll());
+                nodeMap.get(schoolKey + HEADING).setValueForRefugee("Headcount", each.getHeadcount());
+                nodeMap.get(schoolKey + HEADING).setValueForRefugee("FTE", each.getFteTotal());
+                nodeMap.get(schoolKey + HEADING).setValueForRefugee("ELL", each.getEll());
+            }
+        }
+        nodeMap.get(ALL_REFUGEE_HEADING).setValueForRefugee("Headcount", String.valueOf(runningTotalHeadcount));
+        nodeMap.get(ALL_REFUGEE_HEADING).setValueForRefugee("FTE", String.format("%.4f", runningTotalFTE));
+        nodeMap.get(ALL_REFUGEE_HEADING).setValueForRefugee("ELL", String.valueOf(runningTotalELL));
     }
 }
