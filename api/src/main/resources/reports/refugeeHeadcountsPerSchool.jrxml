@@ -227,7 +227,7 @@
                 <textElement>
                     <font fontName="BCSans" size="8"/>
                 </textElement>
-                <textFieldExpression><![CDATA[$F{schoolMincodeAndName}]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$F{schoolMincodeAndName} == null ? "" : $F{schoolMincodeAndName}]]></textFieldExpression>
             </textField>
             <image>
                 <reportElement x="-9" y="-17" width="100" height="44" uuid="c139017e-89b8-438d-b893-49e771231c44"/>
@@ -238,7 +238,14 @@
     <detail>
         <band height="220">
             <componentElement>
-                <reportElement x="66" y="10" width="687" height="200" uuid="f4a9dd19-5486-48d6-b224-82292deeed42"/>
+                <reportElement x="66" y="10" width="687" height="200" uuid="f4a9dd19-5486-48d6-b224-82292deeed42">
+                    <property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+                    <property name="com.jaspersoft.studio.table.style.table_header" value="Table 2_TH"/>
+                    <property name="com.jaspersoft.studio.table.style.column_header" value="Table 2_CH"/>
+                    <property name="com.jaspersoft.studio.table.style.detail" value="Table 2_TD"/>
+                    <property name="com.jaspersoft.studio.components.autoresize.next" value="true"/>
+                    <property name="com.jaspersoft.studio.components.autoresize.proportional" value="true"/>
+                </reportElement>
                 <jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" whenNoDataType="AllSectionsNoDetail">
                     <datasetRun subDataset="RefugeeSet" uuid="6cc83e12-637e-46c7-b038-9f204da9bd0d">
                         <dataSourceExpression><![CDATA[((net.sf.jasperreports.engine.data.JsonDataSource)$P{REPORT_DATA_SOURCE}).subDataSource("programs")]]></dataSourceExpression>
