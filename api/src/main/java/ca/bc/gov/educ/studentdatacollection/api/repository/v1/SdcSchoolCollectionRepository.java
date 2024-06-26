@@ -131,6 +131,7 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     Optional<SdcSchoolCollectionEntity> findLastCollectionByType(UUID schoolID, String collectionTypeCode, UUID currentSdcCollectionID);
 
     List<SdcSchoolCollectionEntity> findAllBySchoolID(UUID schoolID);
+    Optional<SdcSchoolCollectionEntity> findBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
     @Query("""
             SELECT

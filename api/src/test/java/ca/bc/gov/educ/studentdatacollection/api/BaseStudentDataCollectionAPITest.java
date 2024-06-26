@@ -15,10 +15,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolContact;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.support.StudentDataCollectionTestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -359,6 +356,20 @@ public abstract class BaseStudentDataCollectionAPITest {
             .build();
   }
 
+  @SneakyThrows
+  protected SdcSagaEntity createMockProvincialDuplicatesEmailSaga(final EmailSagaData emailSagaData) {
+    return SdcSagaEntity.builder()
+            .updateDate(LocalDateTime.now().minusMinutes(15))
+            .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+            .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now().minusMinutes(15))
+            .sagaName(SagaEnum.PROVINCE_DUPLICATE_PROCESSING_SAGA.toString())
+            .status(SagaStatusEnum.IN_PROGRESS.toString())
+            .sagaState(EventType.INITIATED.toString())
+            .payload(JsonUtil.getJsonStringFromObject(emailSagaData))
+            .build();
+  }
+
   public SchoolTombstone createMockSchool() {
     final SchoolTombstone schoolTombstone = new SchoolTombstone();
     schoolTombstone.setSchoolId(UUID.randomUUID().toString());
@@ -442,12 +453,13 @@ public abstract class BaseStudentDataCollectionAPITest {
     return historicalSdcSchoolCollectionEntity.getSdcSchoolCollectionID();
   }
 
-  public SdcDuplicateEntity createMockSdcDuplicateEntity(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity1, SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity2) {
+  public SdcDuplicateEntity createMockSdcDuplicateEntity(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity1, SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity2, UUID collectionID) {
     var sdcDuplicateEntity = SdcDuplicateEntity.builder().sdcDuplicateID(UUID.randomUUID())
             .duplicateErrorDescriptionCode(DuplicateErrorDescriptionCode.K_TO_9_DUP.getCode())
             .duplicateLevelCode(DuplicateLevelCode.IN_DIST.getCode())
             .duplicateSeverityCode(DuplicateSeverityCode.NON_ALLOWABLE.getCode())
             .duplicateTypeCode(DuplicateTypeCode.ENROLLMENT.getCode()).build();
+    sdcDuplicateEntity.setCollectionID(collectionID);
     var student1 = createMockSdcDuplicateStudentEntity(sdcSchoolCollectionStudentEntity1, sdcDuplicateEntity);
     var student2 = createMockSdcDuplicateStudentEntity(sdcSchoolCollectionStudentEntity2, sdcDuplicateEntity);
     sdcDuplicateEntity.getSdcDuplicateStudentEntities().addAll(Arrays.asList(student1, student2));
@@ -462,6 +474,89 @@ public abstract class BaseStudentDataCollectionAPITest {
             .sdcSchoolCollectionID(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID())
             .sdcDuplicateEntity(sdcDuplicateEntity)
             .build();
+  }
+
+  public EdxUser createMockEdxUser(List<String> edxUserSchoolRoleCodes, List<String> edxUserDistrictRoleCodes, String schoolID, String districtID){
+    EdxUser edxUser = new EdxUser();
+
+    edxUser.setEdxUserID(String.valueOf(UUID.randomUUID()));
+    edxUser.setDigitalIdentityID(String.valueOf(UUID.randomUUID()));
+    edxUser.setFirstName("Test");
+    edxUser.setLastName("1701User");
+    edxUser.setCreateUser("EDX");
+    edxUser.setUpdateUser("EDX");
+    edxUser.setEmail("erin.eckerman@gov.bc.ca");
+
+    List<EdxUserSchool> edxUserSchools = new ArrayList<>();
+    List<EdxUserDistrict> edxUserDistricts = new ArrayList<>();
+
+
+    if (schoolID != null){
+      EdxUserSchool edxUserSchool = createMockEdxUserSchool(edxUserSchoolRoleCodes, schoolID, edxUser.getEdxUserID());
+      edxUserSchools.add(edxUserSchool);
+    }
+
+    if (districtID != null){
+      EdxUserDistrict edxUserDistrict = createMockEdxUserDistrict(edxUserDistrictRoleCodes, districtID, edxUser.getEdxUserID());
+      edxUserDistricts.add(edxUserDistrict);
+    }
+
+    edxUser.setEdxUserSchools(edxUserSchools);
+    edxUser.setEdxUserDistricts(edxUserDistricts);
+
+    return edxUser;
+  }
+
+  private static EdxUserSchool createMockEdxUserSchool(List<String> edxUserSchoolRoleCodes, String schoolID, String edxUserID){
+    EdxUserSchool edxUserSchool = new EdxUserSchool();
+    edxUserSchool.setSchoolID(UUID.fromString(schoolID));
+    edxUserSchool.setEdxUserID(edxUserID);
+    edxUserSchool.setEdxUserSchoolID(String.valueOf(UUID.randomUUID()));
+    edxUserSchool.setExpiryDate(null);
+
+    List<EdxUserSchoolRole> edxUserSchoolRoles = createMockEdxUserSchoolRoles(edxUserSchoolRoleCodes, edxUserSchool.getEdxUserSchoolID());
+    edxUserSchool.setEdxUserSchoolRoles(edxUserSchoolRoles);
+
+    return edxUserSchool;
+  }
+
+  private static List<EdxUserSchoolRole> createMockEdxUserSchoolRoles(List<String> edxUserSchoolRoleCodes, String edxUserSchoolID){
+    List<EdxUserSchoolRole> schoolRoles = new ArrayList<>();
+    edxUserSchoolRoleCodes.forEach(code ->{
+      EdxUserSchoolRole newRole = new EdxUserSchoolRole();
+      newRole.setEdxRoleCode(code);
+      newRole.setEdxUserSchoolID(edxUserSchoolID);
+      newRole.setEdxUserSchoolRoleID(String.valueOf(UUID.randomUUID()));
+
+      schoolRoles.add(newRole);
+    });
+    return schoolRoles;
+  }
+
+  private static EdxUserDistrict createMockEdxUserDistrict(List<String> edxUserDistrictRoleCodes, String districtID, String edxUserID){
+    EdxUserDistrict edxUserDistrict = new EdxUserDistrict();
+    edxUserDistrict.setEdxUserID(edxUserID);
+    edxUserDistrict.setDistrictID(districtID);
+    edxUserDistrict.setEdxUserDistrictID(String.valueOf(UUID.randomUUID()));
+    edxUserDistrict.setExpiryDate(null);
+
+    List<EdxUserDistrictRole> edxUserDistrictRoles = createMockEdxUserDistrictRoles(edxUserDistrictRoleCodes, edxUserDistrict.getEdxUserDistrictID());
+    edxUserDistrict.setEdxUserDistrictRoles(edxUserDistrictRoles);
+
+    return edxUserDistrict;
+  }
+
+  private static List<EdxUserDistrictRole> createMockEdxUserDistrictRoles(List<String> edxUserDistrictRoleCodes, String edxUserDistrictID){
+    List<EdxUserDistrictRole> districtRoles = new ArrayList<>();
+    edxUserDistrictRoleCodes.forEach(code ->{
+      EdxUserDistrictRole newRole = new EdxUserDistrictRole();
+      newRole.setEdxRoleCode(code);
+      newRole.setEdxUserDistrictID(edxUserDistrictID);
+      newRole.setEdxUserDistrictRoleID(String.valueOf(UUID.randomUUID()));
+
+      districtRoles.add(newRole);
+    });
+    return districtRoles;
   }
 
   public static String asJsonString(final Object obj) {

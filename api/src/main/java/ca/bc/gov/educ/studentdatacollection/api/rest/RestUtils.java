@@ -170,6 +170,25 @@ public class RestUtils {
             .blockFirst();
   }
 
+  public List<EdxUser> get1701Users(UUID schoolID, UUID districtID) {
+    log.debug("Retrieving users for school: {}", schoolID);
+    String url;
+    if(schoolID != null && districtID == null){
+      url = this.props.getEdxApiURL() + "/users?schoolID=" + schoolID;
+    } else if (districtID != null && schoolID == null){
+      url = this.props.getEdxApiURL() + "/users?districtID=" + districtID;
+    } else {
+      return null;
+    }
+    return this.webClient.get()
+            .uri(url)
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(EdxUser.class)
+            .collectList()
+            .block();
+  }
+
   public void populateDistrictMap() {
     val writeLock = this.districtLock.writeLock();
     try {

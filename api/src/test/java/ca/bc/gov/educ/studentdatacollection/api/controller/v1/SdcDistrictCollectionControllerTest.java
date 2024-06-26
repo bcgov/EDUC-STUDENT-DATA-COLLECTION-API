@@ -1670,15 +1670,15 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2, sdcSchoolCollectionStudent3, sdcSchoolCollectionStudent4));
 
     //Same district, won't be provincial dupe
-    var inDistDupe = createMockSdcDuplicateEntity(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent4);
+    var inDistDupe = createMockSdcDuplicateEntity(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent4, collection.getCollectionID());
 
     //Provincial dup for our district will return
-    var provincialDuplicate = createMockSdcDuplicateEntity(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2);
+    var provincialDuplicate = createMockSdcDuplicateEntity(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2, collection.getCollectionID());
     provincialDuplicate.setDuplicateLevelCode(DuplicateLevelCode.PROVINCIAL.getCode());
     var resultEntity = sdcDuplicateRepository.save(provincialDuplicate);
 
     //Provincial dup not in our district, so won't return
-    var outOfDistrictDuplicate = createMockSdcDuplicateEntity(sdcSchoolCollectionStudent2, sdcSchoolCollectionStudent3);
+    var outOfDistrictDuplicate = createMockSdcDuplicateEntity(sdcSchoolCollectionStudent2, sdcSchoolCollectionStudent3, collection.getCollectionID());
     outOfDistrictDuplicate.setDuplicateLevelCode(DuplicateLevelCode.PROVINCIAL.getCode());
     sdcDuplicateRepository.saveAll(List.of(inDistDupe, outOfDistrictDuplicate));
 

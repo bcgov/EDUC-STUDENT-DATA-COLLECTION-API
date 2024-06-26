@@ -9,12 +9,14 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.email.IndySchoolNoActivityEmailOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.email.IndySchoolNotSubmittedEmailOrchestrator;
+import ca.bc.gov.educ.studentdatacollection.api.orchestrator.email.ProvincialDupliatesEmailOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.properties.EmailProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.EmailSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolContact;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection1701Users;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.INITIATED;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.STARTED;
@@ -40,13 +39,15 @@ public class ScheduleHandlerService {
   private final RestUtils restUtils;
   private final IndySchoolNoActivityEmailOrchestrator indySchoolNoActivityEmailOrchestrator;
   private final IndySchoolNotSubmittedEmailOrchestrator indySchoolNotSubmittedEmailOrchestrator;
+  private final ProvincialDupliatesEmailOrchestrator provincialDupliatesEmailOrchestrator;
   private final EmailProperties emailProperties;
 
-  public ScheduleHandlerService(final SagaRepository sagaRepository, RestUtils restUtils, IndySchoolNoActivityEmailOrchestrator indySchoolNoActivityEmailOrchestrator, IndySchoolNotSubmittedEmailOrchestrator indySchoolNotSubmittedEmailOrchestrator, EmailProperties emailProperties) {
+  public ScheduleHandlerService(final SagaRepository sagaRepository, RestUtils restUtils, IndySchoolNoActivityEmailOrchestrator indySchoolNoActivityEmailOrchestrator, IndySchoolNotSubmittedEmailOrchestrator indySchoolNotSubmittedEmailOrchestrator, ProvincialDupliatesEmailOrchestrator provincialDupliatesEmailOrchestrator, EmailProperties emailProperties) {
     this.sagaRepository = sagaRepository;
     this.restUtils = restUtils;
     this.indySchoolNoActivityEmailOrchestrator = indySchoolNoActivityEmailOrchestrator;
     this.indySchoolNotSubmittedEmailOrchestrator = indySchoolNotSubmittedEmailOrchestrator;
+    this.provincialDupliatesEmailOrchestrator = provincialDupliatesEmailOrchestrator;
     this.emailProperties = emailProperties;
   }
 
@@ -95,11 +96,49 @@ public class ScheduleHandlerService {
     }
   }
 
+  @Transactional
+  public void createAndStartProvinceDuplicateEmailSagas(Map<UUID, SdcSchoolCollection1701Users> schoolCollectionEmailMap){
+    List<SdcSagaEntity> sagaEntities = new ArrayList<>();
+    for(Map.Entry<UUID, SdcSchoolCollection1701Users> entry : schoolCollectionEmailMap.entrySet()){
+      var emailFields = new HashMap<String, String>();
+      emailFields.put("schoolName", entry.getValue().getSchoolDisplayName());
+
+      var emailSagaData = createProvincialDuplicateEmailSagaData(emailProperties.getSchoolNotificationEmailFrom(),
+              entry.getValue().getEmails(), emailProperties.getEmailSubjectProvincialDuplicates(),
+              "collection.provincial.duplicates.notification", emailFields);
+
+      String payload;
+      try {
+        payload = JsonUtil.getJsonStringFromObject(emailSagaData);
+      } catch (JsonProcessingException e) {
+        throw new StudentDataCollectionAPIRuntimeException("Exception occurred processing emailSagaData: " + e.getMessage());
+      }
+
+      final var saga = createSagaEntity(entry.getKey(), payload, SagaEnum.PROVINCE_DUPLICATE_PROCESSING_SAGA);
+      sagaEntities.add(saga);
+    }
+    if(!sagaEntities.isEmpty()) {
+      var savedSagas = this.provincialDupliatesEmailOrchestrator.createSagas(sagaEntities);
+      savedSagas.forEach(this.provincialDupliatesEmailOrchestrator::startSaga);
+    }
+  }
+
   private EmailSagaData createEmailSagaData(UUID schoolID, String fromEmail, String subject, String templateName, HashMap<String,String> emailFields){
     return EmailSagaData
             .builder()
             .fromEmail(fromEmail)
             .toEmails(getPrincipalEmailsForSchool(schoolID))
+            .subject(subject)
+            .templateName(templateName)
+            .emailFields(emailFields)
+            .build();
+  }
+
+  private EmailSagaData createProvincialDuplicateEmailSagaData(String fromEmail, Set<String> emailList, String subject, String templateName, HashMap<String, String> emailFields){
+    return EmailSagaData
+            .builder()
+            .fromEmail(fromEmail)
+            .toEmails(new ArrayList<>(emailList))
             .subject(subject)
             .templateName(templateName)
             .emailFields(emailFields)
