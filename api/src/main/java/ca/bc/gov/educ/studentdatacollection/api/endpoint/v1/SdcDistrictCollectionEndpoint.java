@@ -84,12 +84,12 @@ public interface SdcDistrictCollectionEndpoint {
   @Schema(name = "SdcDistrictCollection", implementation = SdcDistrictCollection.class)
   SdcDistrictCollection updateDistrictCollection(@Validated @RequestBody SdcDistrictCollection sdcDistrictCollection, @PathVariable UUID sdcDistrictCollectionID);
 
-  @PostMapping("/{sdcDistrictCollectionID}/in-district-duplicates/{sdcDuplicateID}/type/{duplicateTypeCode}")
+  @PostMapping("/in-district-duplicates/{sdcDuplicateID}/type/{duplicateTypeCode}")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_DISTRICT_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional
   @Tag(name = "Sdc District Collection", description = "Endpoints to edit and resolve in district duplicates.")
-  SdcDuplicate updateStudentAndResolveDistrictDuplicates(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID, @PathVariable("duplicateTypeCode") String duplicateTypeCode, @PathVariable("sdcDuplicateID") UUID sdcDuplicateID, @Validated @RequestBody List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent);
+  SdcDuplicate updateStudentAndResolveDistrictDuplicates(@PathVariable("duplicateTypeCode") String duplicateTypeCode, @PathVariable("sdcDuplicateID") UUID sdcDuplicateID, @Validated @RequestBody List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent);
 
   @PostMapping("/unsubmit")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_DISTRICT_COLLECTION')")

@@ -109,7 +109,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
 
     @Override
     public SdcSchoolCollectionStudentHeadcounts getSdcSchoolCollectionStudentHeadcounts(UUID sdcSchoolCollectionID, String type, boolean compare) {
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findBySdcSchoolCollectionID(sdcSchoolCollectionID).orElseThrow(() ->
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID).orElseThrow(() ->
                 new EntityNotFoundException(SdcSchoolCollectionStudent.class, "sdcSchoolCollectionID", sdcSchoolCollectionID.toString()));
         if (HeadcountReportTypeCodes.ENROLLMENT.getCode().equals(type)) {
             return sdcSchoolCollectionStudentHeadcountService.getEnrollmentHeadcounts(sdcSchoolCollectionEntity, compare);
