@@ -24,7 +24,7 @@ public interface SdcDuplicateRepository extends JpaRepository<SdcDuplicateEntity
 
     @Query("""
         SELECT sde FROM SdcDuplicateEntity sde
-        WHERE sde.collectionID = (SELECT C.collectionID FROM CollectionEntity C WHERE C.openDate <= CURRENT_TIMESTAMP AND C.closeDate >= CURRENT_TIMESTAMP)
+        WHERE sde.collectionID = (SELECT C.collectionID FROM CollectionEntity C WHERE C.collectionStatusCode = 'INPROGRESS')
         AND sde.duplicateLevelCode = 'PROVINCIAL'
         """)
     List<SdcDuplicateEntity> findAllProvincialDuplicatesForCurrentCollection();
