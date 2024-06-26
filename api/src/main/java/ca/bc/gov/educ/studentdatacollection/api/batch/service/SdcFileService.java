@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 import static lombok.AccessLevel.PRIVATE;
 
 @Service
@@ -28,10 +26,7 @@ public class SdcFileService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload, String sdcSchoolCollectionID) {
     log.info("Uploaded file contents for school collection ID: {}", sdcSchoolCollectionID);
-
-    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = this.getSdcBatchProcessor().resetFileUploadMetadata(sdcSchoolCollectionID);
-
-    return this.getSdcBatchProcessor().processSdcBatchFile(sdcFileUpload, sdcSchoolCollectionID, sdcSchoolCollectionOptional);
+    return this.getSdcBatchProcessor().processSdcBatchFile(sdcFileUpload, sdcSchoolCollectionID);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -39,6 +34,5 @@ public class SdcFileService {
     log.info("Uploaded file contents for district collection ID: {}", sdcDistrictCollectionID);
     return this.getSdcBatchProcessor().processDistrictSdcBatchFile(sdcFileUpload, sdcDistrictCollectionID);
   }
-
 
 }

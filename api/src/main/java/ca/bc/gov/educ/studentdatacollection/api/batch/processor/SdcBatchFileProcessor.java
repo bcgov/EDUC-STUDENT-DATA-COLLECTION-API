@@ -24,7 +24,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollect
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDistrictCollection;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
@@ -104,10 +104,11 @@ public class SdcBatchFileProcessor {
   }
 
   @Transactional(propagation = Propagation.MANDATORY)
-  public SdcSchoolCollectionEntity processSdcBatchFile(@NonNull final SdcFileUpload fileUpload, String sdcSchoolCollectionID, Optional<SdcSchoolCollectionEntity> sdcSchoolCollection) {
+  public SdcSchoolCollectionEntity processSdcBatchFile(@NonNull final SdcFileUpload fileUpload, String sdcSchoolCollectionID) {
     val stopwatch = Stopwatch.createStarted();
     final var guid = UUID.randomUUID().toString(); // this guid will be used throughout the logs for easy tracking.
     log.info("Started processing SDC file with school collection ID :: {} and correlation guid :: {}", sdcSchoolCollectionID, guid);
+
     val batchFile = new SdcBatchFile();
     Optional<Reader> batchFileReaderOptional = Optional.empty();
     try (final Reader mapperReader = new FileReader(Objects.requireNonNull(this.getClass().getClassLoader().getResource("mapper.xml")).getFile())) {
@@ -115,9 +116,15 @@ public class SdcBatchFileProcessor {
       batchFileReaderOptional = Optional.of(new InputStreamReader(byteArrayOutputStream));
       final DataSet ds = DefaultParserFactory.getInstance().newFixedLengthParser(mapperReader, batchFileReaderOptional.get()).setStoreRawDataToDataError(true).setStoreRawDataToDataSet(true).setNullEmptyStrings(true).parse();
 
-      this.sdcFileValidator.validateFileHasCorrectExtension(sdcSchoolCollectionID, fileUpload);
+      this.sdcFileValidator.validateFileHasCorrectExtension(guid, fileUpload);
       this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
+
+      var schoolGet = getSchoolFromFileMincodeField(guid, ds);
+      var sdcSchoolCollection = this.retrieveSdcSchoolCollectionByID(sdcSchoolCollectionID, schoolGet.getMincode());
+      this.resetFileUploadMetadata(sdcSchoolCollection);
+
       this.sdcFileValidator.validateFileHasCorrectMincode(guid, ds, sdcSchoolCollection);
+      this.sdcFileValidator.validateFileUploadIsNotInProgress(guid, ds, sdcSchoolCollection);
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
 
@@ -161,21 +168,21 @@ public class SdcBatchFileProcessor {
 
       this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
 
-      var school = this.sdcFileValidator.getSchoolUsingMincode(guid, ds);
+      var schoolGet = getSchoolFromFileMincodeField(guid, ds);
 
       var districtCollection = this.sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(UUID.fromString(sdcDistrictCollectionID));
       var districtCollectionGet = districtCollection.get();
-      this.sdcFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, school, String.valueOf(districtCollectionGet.getDistrictID()), ds);
+      this.sdcFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, schoolGet, String.valueOf(districtCollectionGet.getDistrictID()));
 
-      var sdcSchoolCollection = this.sdcSchoolCollectionRepository.findActiveCollectionBySchoolId(UUID.fromString(school.get().getSchoolId()));
-      var sdcSchoolCollectionID = sdcSchoolCollection.get().getSdcSchoolCollectionID();
+      var sdcSchoolCollection = this.retrieveSdcSchoolCollectionBySchoolID(schoolGet.getSchoolId(), schoolGet.getMincode());
+      var sdcSchoolCollectionID = sdcSchoolCollection.getSdcSchoolCollectionID();
 
-      this.resetFileUploadMetadata(String.valueOf(sdcSchoolCollectionID));
+      this.resetFileUploadMetadata(sdcSchoolCollection);
       this.sdcFileValidator.validateFileHasCorrectExtension(String.valueOf(sdcSchoolCollectionID), fileUpload);
 
       this.populateBatchFile(guid, ds, batchFile);
       this.sdcFileValidator.validateStudentCountForMismatchAndSize(guid, batchFile);
-
+      this.sdcFileValidator.validateFileUploadIsNotInProgress(guid, ds, sdcSchoolCollection);
       districtCollectionGet.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.NEW.getCode());
       this.sdcDistrictCollectionRepository.save(districtCollectionGet);
 
@@ -203,6 +210,11 @@ public class SdcBatchFileProcessor {
     }
   }
 
+  private SchoolTombstone getSchoolFromFileMincodeField(final String guid, final DataSet ds) throws FileUnProcessableException {
+    var mincode = this.sdcFileValidator.getSchoolMincode(guid, ds);
+    var school = this.sdcFileValidator.getSchoolUsingMincode(mincode);
+    return school.orElseThrow(() -> new FileUnProcessableException(FileError.INVALID_SCHOOL, guid, SdcSchoolCollectionStatus.LOAD_FAIL, mincode));
+  }
 
   /**
    * Close batch file reader.
@@ -402,17 +414,33 @@ public class SdcBatchFileProcessor {
     }
   }
 
-  public Optional<SdcSchoolCollectionEntity> resetFileUploadMetadata(String sdcSchoolCollectionID){
-    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = this.sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
+  public void resetFileUploadMetadata(SdcSchoolCollectionEntity sdcSchoolCollection){
+    sdcSchoolCollection.setUploadFileName(null);
+    sdcSchoolCollection.setUploadDate(null);
+    sdcSchoolCollection.setUploadReportDate(null);
+  }
 
-    if (sdcSchoolCollectionOptional.isPresent() && StringUtils.isNotEmpty(sdcSchoolCollectionOptional.get().getUploadFileName())) {
-      SdcSchoolCollectionEntity sdcSchoolCollection = sdcSchoolCollectionOptional.get();
-      sdcSchoolCollection.setUploadFileName(null);
-      sdcSchoolCollection.setUploadDate(null);
-      sdcSchoolCollection.setUploadReportDate(null);
+  public SdcSchoolCollectionEntity retrieveSdcSchoolCollectionByID(String sdcSchoolCollectionID, final String mincode){
+    var sdcSchoolCollection = sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
+    return getSdcSchoolCollectionOrThrow(sdcSchoolCollection, mincode);
+  }
+
+  public SdcSchoolCollectionEntity retrieveSdcSchoolCollectionBySchoolID(String schoolID, final String mincode){
+    var sdcSchoolCollection = sdcSchoolCollectionRepository.findActiveCollectionBySchoolId(UUID.fromString(schoolID));
+    return getSdcSchoolCollectionOrThrow(sdcSchoolCollection, mincode);
+  }
+
+  private SdcSchoolCollectionEntity getSdcSchoolCollectionOrThrow(final Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity, final String mincode){
+    if(sdcSchoolCollectionEntity.isEmpty()){
+      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
+      var validationError = ValidationUtil.createFieldError(SDC_FILE_UPLOAD, mincode, FileError.INVALID_SDC_SCHOOL_COLLECTION_ID.getMessage());
+      List<FieldError> fieldErrorList = new ArrayList<>();
+      fieldErrorList.add(validationError);
+      error.addValidationErrors(fieldErrorList);
+      throw new InvalidPayloadException(error);
     }
 
-    return sdcSchoolCollectionOptional;
+    return sdcSchoolCollectionEntity.get();
   }
 }
 
