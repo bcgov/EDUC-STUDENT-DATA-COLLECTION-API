@@ -333,7 +333,7 @@
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
                                         <font fontName="BCSans" size="8" isBold="true"/>
                                     </textElement>
-                                    <textFieldExpression><![CDATA[$F{valueFTE}]]></textFieldExpression>
+                                    <textFieldExpression><![CDATA[new java.text.DecimalFormat("#0.0000").format(Double.valueOf($F{valueFTE}))]]></textFieldExpression>
                                 </textField>
                                 <textField>
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="162" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
@@ -342,7 +342,7 @@
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
                                         <font fontName="BCSans" size="8"/>
                                     </textElement>
-                                    <textFieldExpression><![CDATA[$F{valueFTE}]]></textFieldExpression>
+                                    <textFieldExpression><![CDATA[new java.text.DecimalFormat("#0.0000").format(Double.valueOf($F{valueFTE}))]]></textFieldExpression>
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
