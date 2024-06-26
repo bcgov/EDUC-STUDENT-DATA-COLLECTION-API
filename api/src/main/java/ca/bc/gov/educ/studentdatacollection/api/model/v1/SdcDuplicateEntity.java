@@ -63,6 +63,9 @@ public class SdcDuplicateEntity {
   @Column(name = "UPDATE_USER", length = 32)
   private String updateUser;
 
+  @Column(name="COLLECTION_ID")
+  private UUID collectionID;
+
   @PastOrPresent
   @Column(name = "UPDATE_DATE")
   private LocalDateTime updateDate;

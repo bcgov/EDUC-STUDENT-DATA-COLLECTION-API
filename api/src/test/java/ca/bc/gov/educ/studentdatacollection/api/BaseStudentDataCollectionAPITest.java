@@ -453,12 +453,13 @@ public abstract class BaseStudentDataCollectionAPITest {
     return historicalSdcSchoolCollectionEntity.getSdcSchoolCollectionID();
   }
 
-  public SdcDuplicateEntity createMockSdcDuplicateEntity(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity1, SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity2) {
+  public SdcDuplicateEntity createMockSdcDuplicateEntity(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity1, SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity2, UUID collectionID) {
     var sdcDuplicateEntity = SdcDuplicateEntity.builder().sdcDuplicateID(UUID.randomUUID())
             .duplicateErrorDescriptionCode(DuplicateErrorDescriptionCode.K_TO_9_DUP.getCode())
             .duplicateLevelCode(DuplicateLevelCode.IN_DIST.getCode())
             .duplicateSeverityCode(DuplicateSeverityCode.NON_ALLOWABLE.getCode())
             .duplicateTypeCode(DuplicateTypeCode.ENROLLMENT.getCode()).build();
+    sdcDuplicateEntity.setCollectionID(collectionID);
     var student1 = createMockSdcDuplicateStudentEntity(sdcSchoolCollectionStudentEntity1, sdcDuplicateEntity);
     var student2 = createMockSdcDuplicateStudentEntity(sdcSchoolCollectionStudentEntity2, sdcDuplicateEntity);
     sdcDuplicateEntity.getSdcDuplicateStudentEntities().addAll(Arrays.asList(student1, student2));

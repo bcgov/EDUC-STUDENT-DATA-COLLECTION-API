@@ -90,7 +90,7 @@ public class SdcDuplicatesService {
   }
 
   public List<SdcDuplicateEntity> getAllProvincialDuplicatesByCollectionID(UUID collectionID) {
-    return sdcDuplicateRepository.findAllProvincialDuplicatesByCollectionID(collectionID);
+    return sdcDuplicateRepository.findAllDuplicatesByCollectionIDAndDuplicateLevelCode(collectionID, "PROVINCIAL");
   }
 
   public List<SdcDuplicateEntity> getAllProvincialDuplicatesBySdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
