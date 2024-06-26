@@ -69,7 +69,7 @@ public class SdcFileController implements SdcFileEndpoint {
     catch (final ObjectOptimisticLockingFailureException objectOptimisticLockingFailureException) {
       log.error("Unable to persist records :: {}", objectOptimisticLockingFailureException);
       ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
-      var validationError = ValidationUtil.createFieldError("sdcFileUpload", sdcDistrictCollectionID, "Unable to upload file. Please try again later");
+      var validationError = ValidationUtil.createFieldError("sdcFileUpload", sdcDistrictCollectionID, "File upload failure: Records you are trying to update are stale. Please try again later");
       List<FieldError> fieldErrorList = new ArrayList<>();
       fieldErrorList.add(validationError);
       error.addValidationErrors(fieldErrorList);
