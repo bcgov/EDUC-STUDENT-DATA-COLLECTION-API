@@ -195,18 +195,14 @@
                 <text><![CDATA[Eligible Newcomer Refugees per School Report]]></text>
             </staticText>
             <textField>
-                <reportElement x="630" y="35" width="120" height="15" uuid="7ff4950d-6279-413e-8200-a450eb831f90">
-                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
-                </reportElement>
+                <reportElement x="630" y="35" width="120" height="15" uuid="7ff4950d-6279-413e-8200-a450eb831f90"/>
                 <textElement>
                     <font fontName="BCSans" size="8"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{collectionNameAndYear}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement x="630" y="50" width="120" height="15" uuid="bd23ceca-07d5-4e6a-a266-8dda73c09239">
-                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
-                </reportElement>
+                <reportElement x="630" y="50" width="120" height="15" uuid="bd23ceca-07d5-4e6a-a266-8dda73c09239"/>
                 <textElement>
                     <font fontName="BCSans" size="8"/>
                 </textElement>
@@ -220,18 +216,14 @@
                 <text><![CDATA[Ministry of Education and Child Care]]></text>
             </staticText>
             <textField>
-                <reportElement x="0" y="40" width="280" height="15" uuid="8650a750-21b2-4c0f-8b34-49b5a5815d49">
-                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
-                </reportElement>
+                <reportElement x="0" y="40" width="280" height="15" uuid="8650a750-21b2-4c0f-8b34-49b5a5815d49"/>
                 <textElement>
                     <font fontName="BCSans" size="8"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{districtNumberAndName}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement x="0" y="55" width="280" height="15" uuid="5e29d86f-8976-4bf4-8822-22fadb4759de">
-                    <property name="com.jaspersoft.studio.unit.height" value="px"/>
-                </reportElement>
+                <reportElement x="0" y="55" width="280" height="15" uuid="5e29d86f-8976-4bf4-8822-22fadb4759de"/>
                 <textElement>
                     <font fontName="BCSans" size="8"/>
                 </textElement>
@@ -246,143 +238,93 @@
     <detail>
         <band height="220">
             <componentElement>
-                <reportElement x="66" y="10" width="551" height="200" uuid="f4a9dd19-5486-48d6-b224-82292deeed42">
-                    <property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
-                    <property name="com.jaspersoft.studio.table.style.table_header" value="Table 2_TH"/>
-                    <property name="com.jaspersoft.studio.table.style.column_header" value="Table 2_CH"/>
-                    <property name="com.jaspersoft.studio.table.style.detail" value="Table 2_TD"/>
-                    <property name="com.jaspersoft.studio.components.autoresize.next" value="true"/>
-                    <property name="com.jaspersoft.studio.components.autoresize.proportional" value="true"/>
-                </reportElement>
+                <reportElement x="66" y="10" width="687" height="200" uuid="f4a9dd19-5486-48d6-b224-82292deeed42"/>
                 <jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" whenNoDataType="AllSectionsNoDetail">
                     <datasetRun subDataset="RefugeeSet" uuid="6cc83e12-637e-46c7-b038-9f204da9bd0d">
                         <dataSourceExpression><![CDATA[((net.sf.jasperreports.engine.data.JsonDataSource)$P{REPORT_DATA_SOURCE}).subDataSource("programs")]]></dataSourceExpression>
                     </datasetRun>
-                    <jr:columnGroup width="525" uuid="982787d0-c53b-4594-8c5d-0a8f78b2972e">
-                        <property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [4]"/>
-                        <jr:column width="200" uuid="696344ff-7fad-4a01-b447-2d775933ee8a">
-                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
-                            <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
-                                <property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+                    <jr:columnGroup width="687" uuid="982787d0-c53b-4594-8c5d-0a8f78b2972e">
+                        <!-- Type of Program Column -->
+                        <jr:column width="172" uuid="0ee2646c-38e1-4272-bd80-d4fb5d150c3e">
+                            <jr:columnHeader style="Table 2_CH" height="20">
+                                <textField>
+                                    <reportElement x="0" y="0" width="172" height="20" uuid="a44e8d9c-9f00-4651-a16e-409b153a172c"/>
+                                    <textElement>
+                                        <font fontName="BCSans" size="8"/>
+                                    </textElement>
+                                    <textFieldExpression><![CDATA["Type of Program"]]></textFieldExpression>
+                                </textField>
                             </jr:columnHeader>
                             <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="200" height="20" isRemoveLineWhenBlank="true" forecolor="#003366" backcolor="#F5F5F5" uuid="86ca9cc7-3544-4ff8-a609-b60b52968b7b">
-                                        <property name="com.jaspersoft.studio.unit.x" value="px"/>
-                                        <printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
-                                    </reportElement>
-                                    <box leftPadding="5"/>
-                                    <textElement textAlignment="Left" verticalAlignment="Middle" markup="none">
-                                        <font fontName="BCSans" size="8" isBold="true"/>
-                                    </textElement>
-                                    <textFieldExpression><![CDATA[$F{typeOfProgram}]]></textFieldExpression>
-                                </textField>
-                                <textField>
-                                    <reportElement stretchType="ContainerHeight" mode="Transparent" x="0" y="0" width="200" height="20" isRemoveLineWhenBlank="true" forecolor="#003366" backcolor="#EBEBEB" uuid="ef71c97f-1fcf-4353-bf82-0603e3a9f9f0">
-                                        <property name="com.jaspersoft.studio.unit.x" value="px"/>
-                                        <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
-                                    </reportElement>
-                                    <box leftPadding="25"/>
-                                    <textElement textAlignment="Left" verticalAlignment="Middle" markup="none">
-                                        <font fontName="BCSans" size="8" isBold="false"/>
+                                    <reportElement x="0" y="0" width="172" height="20" uuid="2fe9461a-34c7-47a9-a7c6-7d8489abf1bd"/>
+                                    <textElement>
+                                        <font fontName="BCSans" size="8"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{typeOfProgram}]]></textFieldExpression>
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
-                        <jr:column width="162" uuid="91f36667-bc08-4e19-866b-d83f59a65a51">
-                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
-                            <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
-                                <staticText>
-                                    <reportElement x="0" y="0" width="162" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="cef160dd-2481-49e5-a8a3-386be78ac5eb"/>
-                                    <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font fontName="BCSans" size="7"/>
+                        <!-- Headcount Column -->
+                        <jr:column width="172" uuid="4b0f110d-e4d5-401b-a529-1bd09f1a253d">
+                            <jr:columnHeader style="Table 2_CH" height="20">
+                                <textField>
+                                    <reportElement x="0" y="0" width="172" height="20" uuid="1c9a8d07-c166-4c15-b237-621ebbdb3b94"/>
+                                    <textElement>
+                                        <font fontName="BCSans" size="8"/>
                                     </textElement>
-                                    <text><![CDATA[Headcount]]></text>
-                                </staticText>
+                                    <textFieldExpression><![CDATA["Headcount"]]></textFieldExpression>
+                                </textField>
                             </jr:columnHeader>
                             <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="162" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
-                                        <printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
-                                    </reportElement>
-                                    <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font fontName="BCSans" size="8" isBold="true"/>
-                                    </textElement>
-                                    <textFieldExpression><![CDATA[$F{valueHeadcount}]]></textFieldExpression>
-                                </textField>
-                                <textField>
-                                    <reportElement stretchType="ContainerHeight" x="0" y="0" width="162" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
-                                        <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
-                                    </reportElement>
-                                    <textElement textAlignment="Center" verticalAlignment="Middle">
+                                    <reportElement x="0" y="0" width="172" height="20" uuid="7632d7ab-6e56-4a74-b9d5-2145432fec88"/>
+                                    <textElement>
                                         <font fontName="BCSans" size="8"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueHeadcount}]]></textFieldExpression>
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
-                        <jr:column width="163" uuid="91f36667-bc08-4e19-866b-d83f59a65a51">
-                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
-                            <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
-                                <staticText>
-                                    <reportElement x="0" y="0" width="163" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="cef160dd-2481-49e5-a8a3-386be78ac5eb"/>
-                                    <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font fontName="BCSans" size="7"/>
+                        <!-- FTE Column -->
+                        <jr:column width="172" uuid="b2d2e8ad-a8df-4ef8-b454-1c1546c8887f">
+                            <jr:columnHeader style="Table 2_CH" height="20">
+                                <textField>
+                                    <reportElement x="0" y="0" width="172" height="20" uuid="5bbfa36a-25df-4024-a763-9de0295465cb"/>
+                                    <textElement>
+                                        <font fontName="BCSans" size="8"/>
                                     </textElement>
-                                    <text><![CDATA[FTE]]></text>
-                                </staticText>
+                                    <textFieldExpression><![CDATA["FTE"]]></textFieldExpression>
+                                </textField>
                             </jr:columnHeader>
                             <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="163" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
-                                        <printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
-                                    </reportElement>
-                                    <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font fontName="BCSans" size="8" isBold="true"/>
-                                    </textElement>
-                                    <textFieldExpression><![CDATA[$F{valueFTE}]]></textFieldExpression>
-                                </textField>
-                                <textField>
-                                    <reportElement stretchType="ContainerHeight" x="0" y="0" width="163" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
-                                        <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
-                                    </reportElement>
-                                    <textElement textAlignment="Center" verticalAlignment="Middle">
+                                    <reportElement x="0" y="0" width="172" height="20" uuid="8de0b3d9-32a4-49cd-a920-ef54c1a7d26e"/>
+                                    <textElement>
                                         <font fontName="BCSans" size="8"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueFTE}]]></textFieldExpression>
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
-                        <jr:column width="162" uuid="91f36667-bc08-4e19-866b-d83f59a65a51">
-                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
-                            <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
-                                <staticText>
-                                    <reportElement x="0" y="0" width="162" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="cef160dd-2481-49e5-a8a3-386be78ac5eb"/>
-                                    <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font fontName="BCSans" size="7"/>
+                        <!-- ELL Column -->
+                        <jr:column width="171" uuid="3208b5f8-0586-4e57-8c1d-8786abc76d2e">
+                            <jr:columnHeader style="Table 2_CH" height="20">
+                                <textField>
+                                    <reportElement x="0" y="0" width="171" height="20" uuid="13be5bf4-0e02-41ec-928b-93bc2ae0c241"/>
+                                    <textElement>
+                                        <font fontName="BCSans" size="8"/>
                                     </textElement>
-                                    <text><![CDATA[ELL]]></text>
-                                </staticText>
+                                    <textFieldExpression><![CDATA["ELL"]]></textFieldExpression>
+                                </textField>
                             </jr:columnHeader>
                             <jr:detailCell style="Table 2_TD" height="20">
                                 <textField>
-                                    <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="162" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
-                                        <printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
-                                    </reportElement>
-                                    <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font fontName="BCSans" size="8" isBold="true"/>
+                                    <reportElement x="0" y="0" width="171" height="20" uuid="8a41e6f7-5764-4b93-a1a1-44c7f268aafb"/>
+                                    <textElement>
+                                        <font fontName="BCSans" size="8"/>
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueELL}]]></textFieldExpression>
-                                </textField>
-                                <textField>
-                                    <reportElement stretchType="ContainerHeight" x="0" y="0" width="162" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
-                                        <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
-                                    </reportElement>
-                                    <textElement textAlignment="Center" verticalAlignment="Middle">
-                                        <font fontName="BCSans" size="8"/>
-                                    </textElement>
-                                    <textFieldExpression><![CDATA[$F{CDATA}]]></textFieldExpression>
                                 </textField>
                             </jr:detailCell>
                         </jr:column>
