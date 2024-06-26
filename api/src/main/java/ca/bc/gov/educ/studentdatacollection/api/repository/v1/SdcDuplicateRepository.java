@@ -27,6 +27,17 @@ public interface SdcDuplicateRepository extends JpaRepository<SdcDuplicateEntity
         JOIN sde.sdcDuplicateStudentEntities sds
         LEFT JOIN SdcDistrictCollectionEntity sdd ON sds.sdcDistrictCollectionID = sdd.sdcDistrictCollectionID
         LEFT JOIN SdcSchoolCollectionEntity sss ON sds.sdcSchoolCollectionID = sss.sdcSchoolCollectionID
+        WHERE (sdd.collectionEntity.collectionID = (SELECT C.collectionID FROM CollectionEntity C WHERE C.openDate <= CURRENT_TIMESTAMP AND C.closeDate >= CURRENT_TIMESTAMP)
+        OR sss.collectionEntity.collectionID = (SELECT C.collectionID FROM CollectionEntity C WHERE C.openDate <= CURRENT_TIMESTAMP AND C.closeDate >= CURRENT_TIMESTAMP))
+        AND sde.duplicateLevelCode = 'PROVINCIAL'
+        """)
+    List<SdcDuplicateEntity> findAllProvincialDuplicatesForCurrentCollection();
+
+    @Query("""
+        SELECT sde FROM SdcDuplicateEntity sde
+        JOIN sde.sdcDuplicateStudentEntities sds
+        LEFT JOIN SdcDistrictCollectionEntity sdd ON sds.sdcDistrictCollectionID = sdd.sdcDistrictCollectionID
+        LEFT JOIN SdcSchoolCollectionEntity sss ON sds.sdcSchoolCollectionID = sss.sdcSchoolCollectionID
         WHERE (sdd.collectionEntity.collectionID = :collectionID OR sss.collectionEntity.collectionID = :collectionID)
         AND sde.duplicateLevelCode = 'PROVINCIAL'
         """)

@@ -10,12 +10,10 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDuplicateRepository;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -253,14 +251,25 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     this.sdcSchoolCollectionRepository.save(schoolCollection2);
     this.sdcSchoolCollectionStudentRepository.saveAll(Arrays.asList(student2, student3));
 
+    List<String> sdcSchoolRoleCodes = Arrays.asList("SCHOOL_SDC");
+    EdxUser school1EdxUser1 = createMockEdxUser(sdcSchoolRoleCodes, null, school1.getSchoolId(), null);
+    List<EdxUser> school1Users = Arrays.asList(school1EdxUser1);
+
+    List<String> sdcDistrictRoleCodes = Arrays.asList("DISTRICT_SDC");
+    EdxUser school2EdxUser = createMockEdxUser(null, sdcDistrictRoleCodes, null, school2.getDistrictId());
+    List<EdxUser> school2Users = Arrays.asList(school2EdxUser);
+
     when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
     when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.get1701Users(UUID.fromString(school1.getSchoolId()), null)).thenReturn(school1Users);
+    when(this.restUtils.get1701Users(null, UUID.fromString(school2.getDistrictId()))).thenReturn(school2Users);
 
     this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/" + currentCollection.getCollectionID() + "/in-province-duplicates").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk());
 
     var dupeStudents = this.sdcDuplicateRepository.findAll();
     assertThat(dupeStudents).hasSize(1);
+    assertThat(dupeStudents.get(0).getDuplicateLevelCode()).isEqualTo("PROVINCIAL");
   }
 
   @Test

@@ -1,0 +1,1 @@
+ALTER TABLE sdc_duplicate_student ALTER COLUMN sdc_district_collection_id DROP NOT NULL;

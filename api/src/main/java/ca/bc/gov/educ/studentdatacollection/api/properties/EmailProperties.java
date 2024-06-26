@@ -17,6 +17,9 @@ public class EmailProperties {
   @Value("${email.subject.collection.independent.school.not.submitted.notification}")
   private String emailSubjectIndependentSchoolNotSubmitted;
 
+  @Value("${email.subject.collection.provincial.duplicates.notification}")
+  private String emailSubjectProvincialDuplicates;
+
 }
 
 

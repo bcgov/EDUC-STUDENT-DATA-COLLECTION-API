@@ -59,6 +59,8 @@ public class ApplicationProperties {
   private Integer maxParallelSagas;
   @Value("${url.api.institute}")
   private String instituteApiURL;
+  @Value("${url.api.edx}")
+  private String edxApiURL;
   @Value("${number.students.process.saga}")
   private String numberOfStudentsToProcessInSaga;
   @Value("${ches.endpoint.url}")
