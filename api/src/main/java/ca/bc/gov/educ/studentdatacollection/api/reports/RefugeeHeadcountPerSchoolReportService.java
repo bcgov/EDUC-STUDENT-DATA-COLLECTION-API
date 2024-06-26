@@ -35,9 +35,10 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final RestUtils restUtils;
     private JasperReport refugeeHeadcountReport;
-    private List<RefugeeHeadcountResult> refugeeHeadcounts = new ArrayList<>();
+    private List<RefugeeHeadcountResult> refugeeHeadcounts;
     private final ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
     private static final String HEADING = "Heading";
+    private static final String HEADCOUNT = "Headcount";
     private static final String ALL_REFUGEE_HEADING = "allRefugeeHeading";
 
     protected RefugeeHeadcountPerSchoolReportService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
@@ -121,33 +122,24 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
     }
 
     protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, RefugeeHeadcountResult gradeResult) {
-        int totalHeadcount = 0;
-        double totalFTE = 0.0;
-        int totalELL = 0;
+        int runningTotalHeadcount = 0;
+        double runningTotalFTE = 0.0000;
+        int runningTotalELL = 0;
 
-        for (RefugeeHeadcountResult each : refugeeHeadcounts) {
-            String schoolKey = each.getSchoolID();
-            int headcount = Integer.parseInt(each.getHeadcount());
-            double fte = Double.parseDouble(each.getFteTotal());
-            int ell = Integer.parseInt(each.getEll());
-
-            HeadcountChildNode node = nodeMap.get(schoolKey + HEADING);
-            if (node != null) {
-                node.setValueForRefugee("Headcount", String.valueOf(headcount));
-                node.setValueForRefugee("FTE", String.format("%.4f", fte));
-                node.setValueForRefugee("ELL", String.valueOf(ell));
+        if (refugeeHeadcounts != null) {
+            for (RefugeeHeadcountResult each : refugeeHeadcounts) {
+                String schoolKey = each.getSchoolID();
+                runningTotalHeadcount += Integer.parseInt(each.getHeadcount());
+                runningTotalFTE += Double.parseDouble(each.getFteTotal());
+                runningTotalELL += Integer.parseInt(each.getEll());
+                nodeMap.get(schoolKey + HEADING).setValueForBand(HEADCOUNT, each.getHeadcount());
+                nodeMap.get(schoolKey + HEADING).setValueForBand("FTE", each.getFteTotal());
+                nodeMap.get(schoolKey + HEADING).setValueForBand("ELL", each.getEll());
             }
-
-            totalHeadcount += headcount;
-            totalFTE += fte;
-            totalELL += ell;
         }
 
-        HeadcountChildNode allRefugeesNode = nodeMap.get(ALL_REFUGEE_HEADING);
-        if (allRefugeesNode != null) {
-            allRefugeesNode.setValueForRefugee("Headcount", String.valueOf(totalHeadcount));
-            allRefugeesNode.setValueForRefugee("FTE", String.format("%.4f", totalFTE));
-            allRefugeesNode.setValueForRefugee("ELL", String.valueOf(totalELL));
-        }
+        nodeMap.get(ALL_REFUGEE_HEADING).setValueForBand(HEADCOUNT, String.valueOf(runningTotalHeadcount));
+        nodeMap.get(ALL_REFUGEE_HEADING).setValueForBand("FTE", String.format("%.4f", runningTotalFTE));
+        nodeMap.get(ALL_REFUGEE_HEADING).setValueForBand(HEADCOUNT, String.valueOf(runningTotalELL));
     }
 }
