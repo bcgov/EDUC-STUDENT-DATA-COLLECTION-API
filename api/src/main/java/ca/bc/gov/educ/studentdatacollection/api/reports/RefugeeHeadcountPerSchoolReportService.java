@@ -6,7 +6,6 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionA
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
@@ -94,21 +93,22 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
 
     protected HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
         HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
+        addValuesForSectionToMap(nodeMap, "allRefugee", "All Newcomer Refugees", "00");
 
         int sequencePrefix = 10;
         if (!refugeeHeadcounts.isEmpty()) {
             for (RefugeeHeadcountResult result : refugeeHeadcounts) {
                 String schoolID = result.getSchoolID();
-                Optional<SchoolTombstone> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
-                int finalSequencePrefix = sequencePrefix;
-                schoolOptional.ifPresent(school -> {
+                SchoolTombstone school = restUtils.getSchoolBySchoolID(schoolID).orElse(null);
+
+                if (school != null) {
                     String schoolTitle = school.getMincode() + " - " + school.getDisplayName();
-                    addValuesForSectionToMap(nodeMap, schoolID, schoolTitle, String.valueOf(finalSequencePrefix));
-                });
+                    addValuesForSectionToMap(nodeMap, schoolID, schoolTitle, String.valueOf(sequencePrefix));
+                }
+
                 sequencePrefix += 10;
             }
         }
-        addValuesForSectionToMap(nodeMap, "allSchools", "All Newcomer Refugees", "00");
         return nodeMap;
     }
 
@@ -121,22 +121,33 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
     }
 
     protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, RefugeeHeadcountResult gradeResult) {
-        int runningTotalHeadcount = 0;
-        double runningTotalFTE = 0.0;
-        int runningTotalELL = 0;
-        if (refugeeHeadcounts != null) {
-            for (RefugeeHeadcountResult each : refugeeHeadcounts) {
-                String schoolKey = each.getSchoolID();
-                runningTotalHeadcount += Integer.parseInt(each.getHeadcount());
-                runningTotalFTE += Double.parseDouble(each.getFteTotal());
-                runningTotalELL += Integer.parseInt(each.getEll());
-                nodeMap.get(schoolKey + HEADING).setValueForRefugee("Headcount", each.getHeadcount());
-                nodeMap.get(schoolKey + HEADING).setValueForRefugee("FTE", each.getFteTotal());
-                nodeMap.get(schoolKey + HEADING).setValueForRefugee("ELL", each.getEll());
+        int totalHeadcount = 0;
+        double totalFTE = 0.0;
+        int totalELL = 0;
+
+        for (RefugeeHeadcountResult each : refugeeHeadcounts) {
+            String schoolKey = each.getSchoolID();
+            int headcount = Integer.parseInt(each.getHeadcount());
+            double fte = Double.parseDouble(each.getFteTotal());
+            int ell = Integer.parseInt(each.getEll());
+
+            HeadcountChildNode node = nodeMap.get(schoolKey + HEADING);
+            if (node != null) {
+                node.setValueForRefugee("Headcount", String.valueOf(headcount));
+                node.setValueForRefugee("FTE", String.format("%.4f", fte));
+                node.setValueForRefugee("ELL", String.valueOf(ell));
             }
+
+            totalHeadcount += headcount;
+            totalFTE += fte;
+            totalELL += ell;
         }
-        nodeMap.get(ALL_REFUGEE_HEADING).setValueForRefugee("Headcount", String.valueOf(runningTotalHeadcount));
-        nodeMap.get(ALL_REFUGEE_HEADING).setValueForRefugee("FTE", String.format("%.4f", runningTotalFTE));
-        nodeMap.get(ALL_REFUGEE_HEADING).setValueForRefugee("ELL", String.valueOf(runningTotalELL));
+
+        HeadcountChildNode allRefugeesNode = nodeMap.get(ALL_REFUGEE_HEADING);
+        if (allRefugeesNode != null) {
+            allRefugeesNode.setValueForRefugee("Headcount", String.valueOf(totalHeadcount));
+            allRefugeesNode.setValueForRefugee("FTE", String.format("%.4f", totalFTE));
+            allRefugeesNode.setValueForRefugee("ELL", String.valueOf(totalELL));
+        }
     }
 }
