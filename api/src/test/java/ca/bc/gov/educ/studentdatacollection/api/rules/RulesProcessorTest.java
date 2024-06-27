@@ -1833,4 +1833,123 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         assertThat(errorRefugeeFunding).isTrue();
     }
+
+    @Test
+    void testRefugeeFundingRule_inPreviousSeptTwoYearsAgo_inDiffDistrictAndDiffSchool() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate currentSnapshotDate = now.toLocalDate();
+
+        CollectionEntity collectionSeptTwoYearsAgo = createMockCollectionEntity();
+        collectionSeptTwoYearsAgo.setCloseDate(now.minusYears(2).minusDays(5));
+        collectionSeptTwoYearsAgo.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        collectionSeptTwoYearsAgo.setSnapshotDate(currentSnapshotDate.minusYears(2).withMonth(9).withDayOfMonth(30));
+        collectionRepository.save(collectionSeptTwoYearsAgo);
+
+        CollectionEntity collectionFeb = createMockCollectionEntity();
+        collectionFeb.setCloseDate(now.plusDays(2));
+        collectionFeb.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        collectionFeb.setSnapshotDate(currentSnapshotDate);
+        collectionRepository.save(collectionFeb);
+
+        SchoolTombstone school = createMockSchool();
+        SchoolTombstone  school2 = createMockSchool();
+        District district = createMockDistrict();
+        District district2 = createMockDistrict();
+        school.setDistrictId(district.getDistrictId());
+        school2.setDistrictId(district2.getDistrictId());
+        UUID schoolId = UUID.fromString(school.getSchoolId());
+        UUID schoolId2 = UUID.fromString(school2.getSchoolId());
+
+        SdcDistrictCollectionEntity sdcDistrictCollectionSeptTwoYearsAgo = createMockSdcDistrictCollectionEntity(collectionSeptTwoYearsAgo, UUID.fromString(district2.getDistrictId()));
+        SdcDistrictCollectionEntity sdcDistrictCollectionFeb = createMockSdcDistrictCollectionEntity(collectionFeb, UUID.fromString(district.getDistrictId()));
+        sdcDistrictCollectionRepository.save(sdcDistrictCollectionSeptTwoYearsAgo);
+        sdcDistrictCollectionRepository.save(sdcDistrictCollectionFeb);
+
+        SdcSchoolCollectionEntity sdcMockSchoolSeptTwoYearsAgo = createMockSdcSchoolCollectionEntity(collectionSeptTwoYearsAgo, schoolId2);
+        sdcMockSchoolSeptTwoYearsAgo.setUploadDate(null);
+        sdcMockSchoolSeptTwoYearsAgo.setUploadFileName(null);
+        sdcMockSchoolSeptTwoYearsAgo.setSdcDistrictCollectionID(sdcDistrictCollectionSeptTwoYearsAgo.getSdcDistrictCollectionID());
+        sdcSchoolCollectionRepository.save(sdcMockSchoolSeptTwoYearsAgo);
+
+        SdcSchoolCollectionEntity sdcMockSchoolFeb = createMockSdcSchoolCollectionEntity(collectionFeb, schoolId);
+        sdcMockSchoolFeb.setUploadDate(null);
+        sdcMockSchoolFeb.setUploadFileName(null);
+        sdcMockSchoolFeb.setSdcDistrictCollectionID(sdcDistrictCollectionFeb.getSdcDistrictCollectionID());
+        sdcSchoolCollectionRepository.save(sdcMockSchoolFeb);
+
+        UUID assignedStudentId = UUID.randomUUID();
+        SdcSchoolCollectionStudentEntity studSeptTwoYearsAgo = createMockSchoolStudentEntity(sdcMockSchoolSeptTwoYearsAgo);
+        studSeptTwoYearsAgo.setAssignedStudentId(assignedStudentId);
+        sdcSchoolCollectionStudentRepository.save(studSeptTwoYearsAgo);
+
+        SdcSchoolCollectionStudentEntity studFeb = createMockSchoolStudentEntity(sdcMockSchoolFeb);
+        studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+        studFeb.setAssignedStudentId(assignedStudentId);
+        sdcSchoolCollectionStudentRepository.save(studFeb);
+
+        List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
+        boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
+                .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
+
+        assertThat(errorRefugeeFunding).isTrue();
+    }
+
+    @Test
+    void testRefugeeFundingRule_inPreviousSeptTwoYearsAgo_inDiffSchoolSameDis() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate currentSnapshotDate = now.toLocalDate();
+
+        CollectionEntity collectionSeptTwoYearsAgo = createMockCollectionEntity();
+        collectionSeptTwoYearsAgo.setCloseDate(now.minusYears(2).minusDays(5));
+        collectionSeptTwoYearsAgo.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        collectionSeptTwoYearsAgo.setSnapshotDate(currentSnapshotDate.minusYears(2).withMonth(9).withDayOfMonth(30));
+        collectionRepository.save(collectionSeptTwoYearsAgo);
+
+        CollectionEntity collectionFeb = createMockCollectionEntity();
+        collectionFeb.setCloseDate(now.plusDays(2));
+        collectionFeb.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        collectionFeb.setSnapshotDate(currentSnapshotDate);
+        collectionRepository.save(collectionFeb);
+
+        SchoolTombstone school = createMockSchool();
+        SchoolTombstone school2 = createMockSchool();
+        District district = createMockDistrict();
+        school.setDistrictId(district.getDistrictId());
+        school2.setDistrictId(district.getDistrictId());
+        UUID schoolId = UUID.fromString(school.getSchoolId());
+        UUID schoolId2 = UUID.fromString(school2.getSchoolId());
+
+        SdcDistrictCollectionEntity sdcDistrictCollectionSeptTwoYearsAgo = createMockSdcDistrictCollectionEntity(collectionSeptTwoYearsAgo, UUID.fromString(district.getDistrictId()));
+        SdcDistrictCollectionEntity sdcDistrictCollectionFeb = createMockSdcDistrictCollectionEntity(collectionFeb, UUID.fromString(district.getDistrictId()));
+        sdcDistrictCollectionRepository.save(sdcDistrictCollectionSeptTwoYearsAgo);
+        sdcDistrictCollectionRepository.save(sdcDistrictCollectionFeb);
+
+        SdcSchoolCollectionEntity sdcMockSchoolSeptTwoYearsAgo = createMockSdcSchoolCollectionEntity(collectionSeptTwoYearsAgo, schoolId);
+        sdcMockSchoolSeptTwoYearsAgo.setUploadDate(null);
+        sdcMockSchoolSeptTwoYearsAgo.setUploadFileName(null);
+        sdcMockSchoolSeptTwoYearsAgo.setSdcDistrictCollectionID(sdcDistrictCollectionSeptTwoYearsAgo.getSdcDistrictCollectionID());
+        sdcSchoolCollectionRepository.save(sdcMockSchoolSeptTwoYearsAgo);
+
+        SdcSchoolCollectionEntity sdcMockSchoolFeb = createMockSdcSchoolCollectionEntity(collectionFeb, schoolId2);
+        sdcMockSchoolFeb.setUploadDate(null);
+        sdcMockSchoolFeb.setUploadFileName(null);
+        sdcMockSchoolFeb.setSdcDistrictCollectionID(sdcDistrictCollectionFeb.getSdcDistrictCollectionID());
+        sdcSchoolCollectionRepository.save(sdcMockSchoolFeb);
+
+        UUID assignedStudentId = UUID.randomUUID();
+        SdcSchoolCollectionStudentEntity studSeptTwoYearsAgo = createMockSchoolStudentEntity(sdcMockSchoolSeptTwoYearsAgo);
+        studSeptTwoYearsAgo.setAssignedStudentId(assignedStudentId);
+        sdcSchoolCollectionStudentRepository.save(studSeptTwoYearsAgo);
+
+        SdcSchoolCollectionStudentEntity studFeb = createMockSchoolStudentEntity(sdcMockSchoolFeb);
+        studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+        studFeb.setAssignedStudentId(assignedStudentId);
+        sdcSchoolCollectionStudentRepository.save(studFeb);
+
+        List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
+        boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
+                .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
+
+        assertThat(errorRefugeeFunding).isTrue();
+    }
 }
