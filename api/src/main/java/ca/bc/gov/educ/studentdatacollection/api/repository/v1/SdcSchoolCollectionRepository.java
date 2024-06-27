@@ -99,11 +99,14 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     @Query(value = """
         SELECT SSC.*
         FROM sdc_school_collection SSC
+        JOIN sdc_school_collection_student SSCS ON SSCS.sdc_school_collection_id = SSC.sdc_school_collection_id
         JOIN collection C ON C.collection_id = SSC.collection_id
-        WHERE C.snapshot_date < :currentSnapshotDate
+        WHERE SSCS.assigned_student_id = :assignedStudentId
+        AND C.snapshot_date < :currentSnapshotDate
         """
             , nativeQuery = true)
-    List<SdcSchoolCollectionEntity> findAllCollectionsBeforeCurrentCollection(LocalDate currentSnapshotDate);
+    List<SdcSchoolCollectionEntity> findAllPreviousCollectionsForStudent(UUID assignedStudentId, LocalDate currentSnapshotDate);
+
 
 
     @Query(value = """
