@@ -114,7 +114,7 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
     }
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-        if (Objects.equals(sectionPrefix, "allSchools")) {
+        if (Objects.equals(sectionPrefix, "allRefugee")) {
             nodeMap.put(sectionPrefix + HEADING, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
         } else {
             nodeMap.put(sectionPrefix + HEADING, new HeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", false));
