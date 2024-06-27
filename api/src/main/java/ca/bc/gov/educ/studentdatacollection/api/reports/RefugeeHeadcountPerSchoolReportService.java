@@ -122,24 +122,31 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
     }
 
     protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, RefugeeHeadcountResult gradeResult) {
-        int runningTotalHeadcount = 0;
-        double runningTotalFTE = 0.0000;
-        int runningTotalELL = 0;
+        int totalHeadcount = 0;
+        double totalFTE = 0.0;
+        int totalELL = 0;
 
-        if (refugeeHeadcounts != null) {
-            for (RefugeeHeadcountResult each : refugeeHeadcounts) {
-                String schoolKey = each.getSchoolID();
-                runningTotalHeadcount += Integer.parseInt(each.getHeadcount());
-                runningTotalFTE += Double.parseDouble(each.getFteTotal());
-                runningTotalELL += Integer.parseInt(each.getEll());
-                nodeMap.get(schoolKey + HEADING).setValueForBand(HEADCOUNT, each.getHeadcount());
-                nodeMap.get(schoolKey + HEADING).setValueForBand("FTE", each.getFteTotal());
-                nodeMap.get(schoolKey + HEADING).setValueForBand("ELL", each.getEll());
-            }
+        for (RefugeeHeadcountResult each : refugeeHeadcounts) {
+            String schoolKey = each.getSchoolID();
+            int schoolHeadcount = Integer.parseInt(each.getHeadcount());
+            double schoolFTE = Double.parseDouble(each.getFteTotal());
+            int schoolELL = Integer.parseInt(each.getEll());
+
+            totalHeadcount += schoolHeadcount;
+            totalFTE += schoolFTE;
+            totalELL += schoolELL;
+
+            HeadcountChildNode node = nodeMap.getOrDefault(schoolKey + HEADING, new HeadcountChildNode());
+            node.setValueForRefugee(HEADCOUNT, String.valueOf(schoolHeadcount));
+            node.setValueForRefugee("FTE", String.format("%.4f", schoolFTE));
+            node.setValueForRefugee("ELL", String.valueOf(schoolELL));
+            nodeMap.put(schoolKey + HEADING, node);
         }
 
-        nodeMap.get(ALL_REFUGEE_HEADING).setValueForBand(HEADCOUNT, String.valueOf(runningTotalHeadcount));
-        nodeMap.get(ALL_REFUGEE_HEADING).setValueForBand("FTE", String.format("%.4f", runningTotalFTE));
-        nodeMap.get(ALL_REFUGEE_HEADING).setValueForBand(HEADCOUNT, String.valueOf(runningTotalELL));
+        HeadcountChildNode totalNode = nodeMap.getOrDefault(ALL_REFUGEE_HEADING, new HeadcountChildNode());
+        totalNode.setValueForRefugee(HEADCOUNT, String.valueOf(totalHeadcount));
+        totalNode.setValueForRefugee("FTE", String.format("%.4f", totalFTE));
+        totalNode.setValueForRefugee("ELL", String.valueOf(totalELL));
+        nodeMap.put(ALL_REFUGEE_HEADING, totalNode);
     }
 }
