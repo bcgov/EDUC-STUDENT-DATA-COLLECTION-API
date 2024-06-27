@@ -84,6 +84,8 @@ public class HeadcountChildNode implements Serializable {
 
   private String valueHeadcount = "0";
 
+  private String valueELL = "0";
+
   private String valueTotal = "0";
 
   private String isHeading;
@@ -299,6 +301,22 @@ public class HeadcountChildNode implements Serializable {
         break;
       case "Headcount":
         setValueHeadcount(value);
+        break;
+      default:
+        break;
+    }
+  }
+
+  public void setValueForRefugee(String type, String value){
+    switch (type){
+      case "FTE":
+        setValueFTE(value);
+        break;
+      case "Headcount":
+        setValueHeadcount(value);
+        break;
+      case "ELL":
+        setValueELL(value);
         break;
       default:
         break;
