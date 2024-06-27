@@ -155,7 +155,6 @@ public class SdcDuplicatesService {
     return finalDuplicatesSet;
   }
 
-//  @Async("taskExecutor")
   @Transactional
   public void sendEmailNotificationsForProvinceDuplicates(){
     Map<UUID, SdcSchoolCollection1701Users> emailList = generateEmailListForProvinceDuplicates();
@@ -395,6 +394,7 @@ public class SdcDuplicatesService {
     dupe.setProgramDuplicateTypeCode(programDuplicateTypeCode != null ? programDuplicateTypeCode.getCode() : null);
     dupe.setDuplicateLevelCode(levelCode.getCode());
     dupe.setDuplicateErrorDescriptionCode(duplicateErrorDescriptionCode != null ? duplicateErrorDescriptionCode.getCode() : null);
+    dupe.setCollectionID(entity1.getSdcSchoolCollection().getCollectionEntity().getCollectionID());
 
     List<SdcDuplicateStudentEntity> studs = new ArrayList<>();
     studs.add(createSdcDuplicateStudent(entity1, dupe));
