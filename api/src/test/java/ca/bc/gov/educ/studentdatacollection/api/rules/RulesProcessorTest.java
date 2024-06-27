@@ -1461,6 +1461,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         collectionSept.setCloseDate(now.minusDays(5));
         collectionSept.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
         collectionSept.setSnapshotDate(currentSnapshotDate.minusYears(1).withMonth(9).withDayOfMonth(30));
+        collectionSept.setCollectionStatusCode("COMPLETED");
         collectionRepository.save(collectionSept);
 
         CollectionEntity collectionFeb = createMockCollectionEntity();
@@ -1592,6 +1593,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         collectionSeptTwoYearsAgo.setCloseDate(now.minusYears(2).minusDays(5));
         collectionSeptTwoYearsAgo.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
         collectionSeptTwoYearsAgo.setSnapshotDate(currentSnapshotDate.minusYears(2).withMonth(9).withDayOfMonth(30));
+        collectionSeptTwoYearsAgo.setCollectionStatusCode("COMPLETED");
         collectionRepository.save(collectionSeptTwoYearsAgo);
 
         CollectionEntity collectionFeb = createMockCollectionEntity();
@@ -1640,6 +1642,62 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
+    void testRefugeeFundingRule_inPreviousSeptTwoYearsAgo_septCollectionNotCompleted() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate currentSnapshotDate = now.toLocalDate();
+
+        CollectionEntity collectionSeptTwoYearsAgo = createMockCollectionEntity();
+        collectionSeptTwoYearsAgo.setCloseDate(now.minusYears(2).minusDays(5));
+        collectionSeptTwoYearsAgo.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        collectionSeptTwoYearsAgo.setSnapshotDate(currentSnapshotDate.minusYears(2).withMonth(9).withDayOfMonth(30));
+        collectionRepository.save(collectionSeptTwoYearsAgo);
+
+        CollectionEntity collectionFeb = createMockCollectionEntity();
+        collectionFeb.setCloseDate(now.plusDays(2));
+        collectionFeb.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        collectionFeb.setSnapshotDate(currentSnapshotDate);
+        collectionRepository.save(collectionFeb);
+
+        SchoolTombstone school = createMockSchool();
+        District district = createMockDistrict();
+        school.setDistrictId(district.getDistrictId());
+        UUID schoolId = UUID.fromString(school.getSchoolId());
+
+        SdcDistrictCollectionEntity sdcDistrictCollectionSeptTwoYearsAgo = createMockSdcDistrictCollectionEntity(collectionSeptTwoYearsAgo, UUID.fromString(district.getDistrictId()));
+        SdcDistrictCollectionEntity sdcDistrictCollectionFeb = createMockSdcDistrictCollectionEntity(collectionFeb, UUID.fromString(district.getDistrictId()));
+        sdcDistrictCollectionRepository.save(sdcDistrictCollectionSeptTwoYearsAgo);
+        sdcDistrictCollectionRepository.save(sdcDistrictCollectionFeb);
+
+        SdcSchoolCollectionEntity sdcMockSchoolSeptTwoYearsAgo = createMockSdcSchoolCollectionEntity(collectionSeptTwoYearsAgo, schoolId);
+        sdcMockSchoolSeptTwoYearsAgo.setUploadDate(null);
+        sdcMockSchoolSeptTwoYearsAgo.setUploadFileName(null);
+        sdcMockSchoolSeptTwoYearsAgo.setSdcDistrictCollectionID(sdcDistrictCollectionSeptTwoYearsAgo.getSdcDistrictCollectionID());
+        sdcSchoolCollectionRepository.save(sdcMockSchoolSeptTwoYearsAgo);
+
+        SdcSchoolCollectionEntity sdcMockSchoolFeb = createMockSdcSchoolCollectionEntity(collectionFeb, schoolId);
+        sdcMockSchoolFeb.setUploadDate(null);
+        sdcMockSchoolFeb.setUploadFileName(null);
+        sdcMockSchoolFeb.setSdcDistrictCollectionID(sdcDistrictCollectionFeb.getSdcDistrictCollectionID());
+        sdcSchoolCollectionRepository.save(sdcMockSchoolFeb);
+
+        UUID assignedStudentId = UUID.randomUUID();
+        SdcSchoolCollectionStudentEntity studSeptTwoYearsAgo = createMockSchoolStudentEntity(sdcMockSchoolSeptTwoYearsAgo);
+        studSeptTwoYearsAgo.setAssignedStudentId(assignedStudentId);
+        sdcSchoolCollectionStudentRepository.save(studSeptTwoYearsAgo);
+
+        SdcSchoolCollectionStudentEntity studFeb = createMockSchoolStudentEntity(sdcMockSchoolFeb);
+        studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+        studFeb.setAssignedStudentId(assignedStudentId);
+        sdcSchoolCollectionStudentRepository.save(studFeb);
+
+        List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
+        boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
+                .noneMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
+
+        assertThat(errorRefugeeFunding).isTrue();
+    }
+
+    @Test
     void testRefugeeFundingRule_inJuly() {
         LocalDateTime now = LocalDateTime.now();
         LocalDate currentSnapshotDate = now.toLocalDate();
@@ -1648,6 +1706,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         collectionSept.setCloseDate(now.minusDays(5));
         collectionSept.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
         collectionSept.setSnapshotDate(currentSnapshotDate.minusYears(1).withMonth(9).withDayOfMonth(30));
+        collectionSept.setCollectionStatusCode("COMPLETED");
         collectionRepository.save(collectionSept);
 
         CollectionEntity collectionFeb = createMockCollectionEntity();
@@ -1704,6 +1763,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         collectionSept.setCloseDate(now.minusDays(5));
         collectionSept.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
         collectionSept.setSnapshotDate(currentSnapshotDate.minusYears(1).withMonth(9).withDayOfMonth(30));
+        collectionSept.setCollectionStatusCode("COMPLETED");
         collectionRepository.save(collectionSept);
 
         CollectionEntity collectionFeb = createMockCollectionEntity();
@@ -1786,6 +1846,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         collectionSept.setCloseDate(now.minusDays(5));
         collectionSept.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
         collectionSept.setSnapshotDate(currentSnapshotDate.minusYears(1).withMonth(9).withDayOfMonth(30));
+        collectionSept.setCollectionStatusCode("COMPLETED");
         collectionRepository.save(collectionSept);
 
         CollectionEntity collectionFeb = createMockCollectionEntity();
@@ -1843,6 +1904,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         collectionSeptTwoYearsAgo.setCloseDate(now.minusYears(2).minusDays(5));
         collectionSeptTwoYearsAgo.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
         collectionSeptTwoYearsAgo.setSnapshotDate(currentSnapshotDate.minusYears(2).withMonth(9).withDayOfMonth(30));
+        collectionSeptTwoYearsAgo.setCollectionStatusCode("COMPLETED");
         collectionRepository.save(collectionSeptTwoYearsAgo);
 
         CollectionEntity collectionFeb = createMockCollectionEntity();
@@ -1903,6 +1965,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         collectionSeptTwoYearsAgo.setCloseDate(now.minusYears(2).minusDays(5));
         collectionSeptTwoYearsAgo.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
         collectionSeptTwoYearsAgo.setSnapshotDate(currentSnapshotDate.minusYears(2).withMonth(9).withDayOfMonth(30));
+        collectionSeptTwoYearsAgo.setCollectionStatusCode("COMPLETED");
         collectionRepository.save(collectionSeptTwoYearsAgo);
 
         CollectionEntity collectionFeb = createMockCollectionEntity();

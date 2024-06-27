@@ -103,6 +103,7 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
         JOIN collection C ON C.collection_id = SSC.collection_id
         WHERE SSCS.assigned_student_id = :assignedStudentId
         AND C.snapshot_date < :currentSnapshotDate
+        AND C.collection_status_code != 'INPROGRESS'
         """
             , nativeQuery = true)
     List<SdcSchoolCollectionEntity> findAllPreviousCollectionsForStudent(UUID assignedStudentId, LocalDate currentSnapshotDate);
