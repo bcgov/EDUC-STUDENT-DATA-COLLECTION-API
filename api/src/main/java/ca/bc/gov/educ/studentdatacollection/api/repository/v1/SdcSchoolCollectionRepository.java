@@ -107,8 +107,6 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             , nativeQuery = true)
     List<SdcSchoolCollectionEntity> findAllPreviousCollectionsForStudent(UUID assignedStudentId, LocalDate currentSnapshotDate);
 
-
-
     @Query(value = """
             SELECT SSC.*
             FROM sdc_school_collection SSC, collection C, sdc_district_collection SSD
