@@ -125,7 +125,7 @@ public class ValidationRulesService {
     private void setStudentYearsInEll(SdcSchoolCollectionStudentEntity student){
         student.setYearsInEll(null);
         if(student.getAssignedStudentId() != null) {
-            final var yearsInEll = this.getStudentYearsInEll(student.getSdcSchoolCollectionStudentID());
+            final var yearsInEll = this.getStudentYearsInEll(student.getAssignedStudentId());
             log.debug("Student years in ELL found for SDC student {} :: is {}", student.getSdcSchoolCollectionStudentID(), yearsInEll);
             if(yearsInEll.isPresent()){
                 student.setYearsInEll(yearsInEll.get().getYearsInEll());
