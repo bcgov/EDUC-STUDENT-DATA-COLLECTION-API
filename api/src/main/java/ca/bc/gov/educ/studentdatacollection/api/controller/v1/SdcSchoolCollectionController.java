@@ -8,10 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionSt
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicate;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitSdcSchoolCollection;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionValidator;
@@ -105,6 +102,11 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   @Override
   public SdcSchoolCollection unsubmitSchoolCollection(UnsubmitSdcSchoolCollection unsubmitData) {
     return mapper.toStructure(sdcSchoolCollectionService.unsubmitSchoolCollection(unsubmitData));
+  }
+
+  @Override
+  public SdcSchoolCollection reportZeroEnrollment(ReportZeroEnrollmentSdcSchoolCollection reportZeroEnrollmentData) {
+    return mapper.toStructure(sdcSchoolCollectionService.reportZeroEnrollment(reportZeroEnrollmentData));
   }
 
   @Override
