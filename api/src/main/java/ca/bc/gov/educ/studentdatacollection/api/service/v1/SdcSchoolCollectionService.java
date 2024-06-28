@@ -8,6 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ReportZeroEnrollmentSdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitSdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
@@ -219,6 +220,14 @@ public class SdcSchoolCollectionService {
     sdcSchoolCollectionEntity.setUpdateDate(LocalDateTime.now());
     sdcSchoolCollectionEntity.setUpdateUser(unsubmitData.getUpdateUser());
     updateSdcSchoolCollection(sdcSchoolCollectionEntity);
+
+    return sdcSchoolCollectionEntity;
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public SdcSchoolCollectionEntity reportZeroEnrollment(ReportZeroEnrollmentSdcSchoolCollection reportZeroEnrollmentData) {
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = sdcSchoolCollectionRepository.findById(reportZeroEnrollmentData.getSdcSchoolCollectionID());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, reportZeroEnrollmentData.getSdcSchoolCollectionID().toString()));
 
     return sdcSchoolCollectionEntity;
   }
