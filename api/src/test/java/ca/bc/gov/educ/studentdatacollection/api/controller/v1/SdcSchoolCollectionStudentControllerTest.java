@@ -157,7 +157,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         String yearsInEll = "$.content[?(@.assignedStudentId=='"
             + mockStudentEntity.getAssignedStudentId().toString()
-            + "')].yearsInELL";
+            + "')].yearsInEll";
         this.mockMvc.perform(asyncDispatch(result))
             .andDo(print())
             .andExpect(status().isOk())

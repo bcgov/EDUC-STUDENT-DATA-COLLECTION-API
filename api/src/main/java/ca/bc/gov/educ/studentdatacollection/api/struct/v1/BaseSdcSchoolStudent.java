@@ -141,5 +141,5 @@ public class BaseSdcSchoolStudent extends BaseRequest {
 
   private String penMatchResult;
 
-  private String yearsInELL;
+  private String yearsInEll;
 }
