@@ -109,7 +109,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorInvalidCharDate.size()).isNotZero();
         assertThat(validationErrorInvalidCharDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd");
         entity.setDob(format.format(LocalDate.now().plusDays(2)));
         val validationErrorFutureDate = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationErrorFutureDate.size()).isNotZero();
