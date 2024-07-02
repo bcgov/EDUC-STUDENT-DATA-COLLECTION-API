@@ -183,7 +183,36 @@ class SdcSchoolCollectionServiceTest {
   }
 
   @Test
-  void testReportZeroEnrollment_setToSubmitted() {
+  void testReportZeroEnrollment_NonExistentSchoolCollection() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.empty());
+
+    ReportZeroEnrollmentSdcSchoolCollection input = ReportZeroEnrollmentSdcSchoolCollection.builder()
+            .sdcSchoolCollectionID(sdcSchoolCollectionID)
+            .updateUser("USER")
+            .build();
+
+    assertThrows(EntityNotFoundException.class, () -> {
+      sdcSchoolCollectionService.reportZeroEnrollment(input);
+    });
+  }
+
+  @Test
+  void testReportZeroEnrollment_EmptyStudentSet() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+    sdcSchoolCollectionEntity.setSdcSchoolStudentEntities(new HashSet<>());
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    SdcSchoolCollectionEntity result = sdcSchoolCollectionService.reportZeroEnrollment(ReportZeroEnrollmentSdcSchoolCollection.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build());
+
+    assertTrue(result.getSDCSchoolStudentEntities().isEmpty());
+  }
+
+  @Test
+  void testReportZeroEnrollment_SetToSubmitted() {
     UUID sdcSchoolCollectionID = UUID.randomUUID();
 
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
@@ -198,7 +227,7 @@ class SdcSchoolCollectionServiceTest {
   }
 
   @Test
-  void testReportZeroEnrollment_removeStudents() {
+  void testReportZeroEnrollment_RemoveStudents() {
     UUID sdcSchoolCollectionID = UUID.randomUUID();
 
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
