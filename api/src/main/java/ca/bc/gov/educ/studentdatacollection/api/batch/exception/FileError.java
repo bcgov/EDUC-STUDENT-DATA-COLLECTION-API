@@ -55,7 +55,7 @@ public enum FileError {
 
   NO_FILE_EXTENSION("No file extension provided. Files must be of type \".ver\" or \".std\"."),
 
-  CONFLICT_FILE_ALREADY_IN_FLIGHT("File is already being processed for this school. Mincode is: $"),
+  CONFLICT_FILE_ALREADY_IN_FLIGHT("File is already being processed for this school. Mincode is: $?"),
 
   INVALID_SDC_SCHOOL_COLLECTION_ID("Unable to find a school collection for mincode $?"),
   /**
