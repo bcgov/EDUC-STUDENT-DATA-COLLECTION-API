@@ -23,10 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -228,6 +225,21 @@ public class SdcSchoolCollectionService {
   public SdcSchoolCollectionEntity reportZeroEnrollment(ReportZeroEnrollmentSdcSchoolCollection reportZeroEnrollmentData) {
     Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = sdcSchoolCollectionRepository.findById(reportZeroEnrollmentData.getSdcSchoolCollectionID());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, reportZeroEnrollmentData.getSdcSchoolCollectionID().toString()));
+
+    sdcSchoolCollectionStudentHistoryRepository.deleteBySdcSchoolCollectionStudentIDs(
+            sdcSchoolCollectionEntity.getSDCSchoolStudentEntities().stream().map(SdcSchoolCollectionStudentEntity::getSdcSchoolCollectionStudentID).toList()
+    );
+
+    sdcSchoolCollectionStudentRepository.deleteAll(sdcSchoolCollectionEntity.getSDCSchoolStudentEntities());
+    sdcSchoolCollectionEntity.getSDCSchoolStudentEntities().clear();
+
+    sdcSchoolCollectionEntity.setUploadFileName(null);
+    sdcSchoolCollectionEntity.setUploadDate(null);
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
+    sdcSchoolCollectionEntity.setUpdateDate(LocalDateTime.now());
+    sdcSchoolCollectionEntity.setUpdateUser(reportZeroEnrollmentData.getUpdateUser());
+
+    updateSdcSchoolCollection(sdcSchoolCollectionEntity);
 
     return sdcSchoolCollectionEntity;
   }
