@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,6 +58,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     @Autowired
     RestUtils restUtils;
+    private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT);
 
     @Test
     void testGenderRule() {
@@ -107,7 +109,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorInvalidCharDate.size()).isNotZero();
         assertThat(validationErrorInvalidCharDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd");
         entity.setDob(format.format(LocalDate.now().plusDays(2)));
         val validationErrorFutureDate = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationErrorFutureDate.size()).isNotZero();
@@ -749,7 +750,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorFuturePersonDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
         school.setFacilityTypeCode(FacilityTypeCodes.POST_SEC.getCode());
-        entity.setDob("19890101");
+        entity.setDob(LocalDate.now().minusYears(20).format(DateTimeFormatter.ofPattern("yyyyMMdd")));
         entity.setNumberOfCourses("0000");
         entity.setEnrolledGradeCode("10");
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
@@ -759,7 +760,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorOldDate.get(0).getValidationIssueCode()).isEqualTo("ADULTZEROCOURSES");
         school.setFacilityTypeCode("DISTONLINE");
 
-        entity.setDob("19890101");
+        entity.setDob(LocalDate.now().minusYears(20).format(DateTimeFormatter.ofPattern("yyyyMMdd")));
         entity.setNumberOfCourses("0100");
         entity.setEnrolledGradeCode("01");
         val validationErrorGrade = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
@@ -767,7 +768,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val errorInd = validationErrorGrade.stream().anyMatch(val -> val.getValidationIssueCode().equals("ADULTINCORRECTGRADE"));
         assertThat(errorInd).isTrue();
 
-        entity.setDob("19890101");
+        entity.setDob(LocalDate.now().minusYears(20).format(DateTimeFormatter.ofPattern("yyyyMMdd")));
         entity.setNumberOfCourses("0100");
         entity.setEnrolledGradeCode("01");
         val validationErrorOnlineGrade = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
@@ -821,20 +822,20 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorOldDate.size()).isZero();
 
-        entity.setDob("20190101");
+        entity.setDob(LocalDate.now().minusYears(4).format(format));
         school.setFacilityTypeCode("CONT_ED");
         val validationErrorContEd = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorContEd.size()).isNotZero();
         val errorContEd = validationErrorContEd.stream().anyMatch(val -> val.getValidationIssueCode().equals("CONTEDERR"));
         assertThat(errorContEd).isTrue();
 
-        entity.setDob("20220101");
+        entity.setDob(LocalDate.now().minusYears(1).format(format));
         val validationErrorTooYoung = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorTooYoung.size()).isNotZero();
         val errorTooYoung = validationErrorTooYoung.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.AGE_LESS_THAN_FIVE.getCode()));
         assertThat(errorTooYoung).isTrue();
 
-        entity.setDob("20150101");
+        entity.setDob(LocalDate.now().minusYears(8).format(format));
         school.setFacilityTypeCode("DIST_LEARN");
         entity.setNumberOfCourses("0400");
         val validationErrorDist = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
@@ -867,13 +868,13 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("HS");
 
-        entity.setDob("20190101");
+        entity.setDob(LocalDateTime.now().minusYears(4).format(format));
         val validationErrorAdult = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationErrorAdult.size()).isNotZero();
         val errorContEd = validationErrorAdult.stream().anyMatch(val -> val.getValidationIssueCode().equals("HSNOTSCHOOLAGE"));
         assertThat(errorContEd).isTrue();
 
-        entity.setDob("20160101");
+        entity.setDob(LocalDateTime.now().minusYears(6).format(format));
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("HSNOTSCHOOLAGE"));
         assertThat(error).isFalse();
@@ -940,9 +941,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         val entity2 = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledProgramCodes("33");
-        entity.setDob("19890101");
+        entity.setDob(LocalDateTime.now().minusYears(20).format(format));
         entity2.setEnrolledProgramCodes("33");
-        entity2.setDob("20230101");
+        entity2.setDob(LocalDateTime.now().minusYears(4).format(format));
 
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT.getCode())
@@ -968,9 +969,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         val entity2 = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledProgramCodes("17");
-        entity.setDob("19890101");
+        entity.setDob(LocalDateTime.now().minusYears(20).format(format));
         entity2.setEnrolledProgramCodes("17");
-        entity2.setDob("20230101");
+        entity2.setDob(LocalDateTime.now().minusYears(4).format(format));
 
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_ELL.getCode())
@@ -996,19 +997,19 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         var graduatedAdult = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         graduatedAdult.setSpecialEducationCategoryCode("A");
-        graduatedAdult.setDob("19890101");
+        graduatedAdult.setDob(LocalDateTime.now().minusYears(20).format(format));
         graduatedAdult.setIsGraduated(true);
         graduatedAdult.setEnrolledGradeCode("10");
 
         var nonGraduatedAdultInGA = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         nonGraduatedAdultInGA.setSpecialEducationCategoryCode("A");
-        nonGraduatedAdultInGA.setDob("19890101");
+        nonGraduatedAdultInGA.setDob(LocalDateTime.now().minusYears(20).format(format));
         nonGraduatedAdultInGA.setIsGraduated(false);
         nonGraduatedAdultInGA.setEnrolledGradeCode("GA");
 
         var notSchoolAged = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         notSchoolAged.setSpecialEducationCategoryCode("A");
-        notSchoolAged.setDob("20230101");
+        notSchoolAged.setDob(LocalDateTime.now().minusYears(2).format(format));
 
         var validationErrorGraduatedAdult = rulesProcessor.processRules(createMockStudentRuleData(graduatedAdult, createMockSchool()));
         boolean errorGraduatedAdult = validationErrorGraduatedAdult.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode()));
@@ -1032,7 +1033,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val school = createMockSchool();
         school.setFacilityTypeCode("SUMMER");
 
-        entity.setDob("19890101");
+        entity.setDob(LocalDateTime.now().minusYears(20).format(format));
         val saga = createMockStudentRuleData(entity, school);
         saga.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
@@ -1054,7 +1055,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val school = createMockSchool();
         school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
 
-        entity.setDob("19890101");
+        entity.setDob(LocalDateTime.now().minusYears(20).format(format));
         val saga = createMockStudentRuleData(entity, school);
         saga.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
@@ -1076,7 +1077,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val school = createMockSchool();
         school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
 
-        entity.setDob("20100101");
+        entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         val saga = createMockStudentRuleData(entity, school);
         collection.setCollectionTypeCode(JULY.getTypeCode());
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
@@ -1098,7 +1099,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val school = createMockSchool();
         school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
 
-        entity.setDob("20100101");
+        entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setEnrolledGradeCode("10");
         val saga = createMockStudentRuleData(entity, school);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
@@ -1130,7 +1131,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val school = createMockSchool();
         school.setFacilityTypeCode("SUMMER");
 
-        entity.setDob("19890101");
+        entity.setDob(LocalDateTime.now().minusYears(20).format(format));
         val saga = createMockStudentRuleData(entity, school);
         collection.setCollectionTypeCode(JULY.getTypeCode());
 
@@ -1139,7 +1140,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val error = validationErrorDOB.stream().anyMatch(val -> val.getValidationIssueCode().equals("STUDENTADULTERR"));
         assertThat(error).isTrue();
 
-        entity.setDob("20150101");
+        entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setSupportBlocks("1");
         val saga2 = createMockStudentRuleData(entity, school);
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -1149,7 +1150,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val error1 = validationErrorSupportBlock.stream().anyMatch(val -> val.getValidationIssueCode().equals("SUMMERSUPPORTBLOCKSNA"));
         assertThat(error1).isTrue();
 
-        entity.setDob("20150101");
+        entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setSupportBlocks("0");
         entity.setEnrolledGradeCode("HS");
         val saga3 = createMockStudentRuleData(entity, school);
@@ -1233,7 +1234,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val error1 = validationErrorInd.stream().noneMatch(val -> val.getValidationIssueCode().equals("SUPPORTFACILITYNA"));
         assertThat(error1).isTrue();
 
-        entity.setDob("20160107");
+        entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setEnrolledGradeCode("GA");
         val validationDOB = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationDOB.size()).isNotZero();
@@ -1281,7 +1282,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setIsAdult(true);
         entity.setIsSchoolAged(false);
-        entity.setDob("20040605");
+        entity.setDob(LocalDateTime.now().minusYears(20).format(format));
         entity.setEnrolledGradeCode("10");
         entity.setSpecialEducationCategoryCode(null);
         val validationNoErrorAdultWithClasses = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
@@ -1342,7 +1343,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val school = createMockSchool();
         school.setFacilityTypeCode("DISTONLINE");
 
-        entity.setDob("19890101");
+        entity.setDob(LocalDateTime.now().minusYears(20).format(format));
         entity.setNumberOfCourses("0100");
         entity.setEnrolledGradeCode("08");
         val validationErrorGrade = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
@@ -1361,7 +1362,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val school = createMockSchool();
         school.setFacilityTypeCode("STANDARD");
 
-        entity.setDob("20150101");
+        entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setNumberOfCourses("0000");
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationError.size()).isNotZero();
@@ -1378,7 +1379,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val school = createMockSchool();
         school.setFacilityTypeCode("STANDARD");
 
-        entity.setDob("20150101");
+        entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setNumberOfCourses(null);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationError.size()).isNotZero();
@@ -1394,7 +1395,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val school = createMockSchool();
         school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
 
-        entity.setDob("20020101");
+        entity.setDob(LocalDateTime.now().minusYears(20).format(format));
         entity.setEnrolledGradeCode("10");
         entity.setSpecialEducationCategoryCode(null);
         val saga = createMockStudentRuleData(entity, school);
@@ -1422,21 +1423,21 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         school.setFacilityTypeCode(FacilityTypeCodes.POST_SEC.getCode());
 
         var adultWithoutCoursesSet = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-        adultWithoutCoursesSet.setDob("19890101");
+        adultWithoutCoursesSet.setDob(LocalDateTime.now().minusYears(20).format(format));
         adultWithoutCoursesSet.setEnrolledGradeCode("10");
         adultWithoutCoursesSet.setNumberOfCourses("");
         var testNullCourses = rulesProcessor.processRules((createMockStudentRuleData(adultWithoutCoursesSet, school)));
         boolean nullCoursesValidation = testNullCourses.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.ADULT_ZERO_COURSES.getCode()));
 
         var adultWithoutCourses = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-        adultWithoutCourses.setDob("19890101");
+        adultWithoutCourses.setDob(LocalDateTime.now().minusYears(20).format(format));
         adultWithoutCourses.setEnrolledGradeCode("10");
         adultWithoutCourses.setNumberOfCourses("0");
         var testZeroCourses = rulesProcessor.processRules((createMockStudentRuleData(adultWithoutCourses, school)));
         boolean zeroCoursesValidation = testZeroCourses.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.ADULT_ZERO_COURSES.getCode()));
 
         var adultWithCourses = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-        adultWithCourses.setDob("19890101");
+        adultWithCourses.setDob(LocalDateTime.now().minusYears(20).format(format));
         adultWithCourses.setEnrolledGradeCode("10");
         adultWithCourses.setNumberOfCourses("3");
         var validationErrorAdultWithCourses = rulesProcessor.processRules(createMockStudentRuleData(adultWithCourses, school));
@@ -1828,7 +1829,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         var studFeb = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntityFeb);
         studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
-        studFeb.setDob("20010101");
+        studFeb.setDob(LocalDateTime.now().minusYears(20).format(format));
         sdcSchoolCollectionStudentRepository.save(studFeb);
 
         var validateNoErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, schoolFeb));
@@ -1885,7 +1886,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         SdcSchoolCollectionStudentEntity studFeb = createMockSchoolStudentEntity(sdcMockSchoolFeb);
         studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
         studFeb.setAssignedStudentId(assignedStudentId);
-        studFeb.setDob("20010101");
+        studFeb.setDob(LocalDateTime.now().minusYears(20).format(format));
         sdcSchoolCollectionStudentRepository.save(studFeb);
 
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));

@@ -31,13 +31,12 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.AND;
@@ -93,6 +92,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
     @Autowired
     RestUtils restUtils;
+    private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT);
 
     @AfterEach
     void cleanup(){
@@ -2374,7 +2374,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.toString());
-        entity.setDob("20040701");
+        entity.setDob(LocalDateTime.now().minusYears(19).format(format));
         entity.setSchoolFundingCode("20");
         entity.setNativeAncestryInd("Y");
         entity.setEnrolledGradeCode("01");
