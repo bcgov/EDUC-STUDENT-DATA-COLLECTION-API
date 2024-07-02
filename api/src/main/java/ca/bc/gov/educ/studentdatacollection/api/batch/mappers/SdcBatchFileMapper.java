@@ -30,7 +30,7 @@ public interface SdcBatchFileMapper {
   @Mapping(target = "sdcSchoolCollectionStatusCode", ignore = true)
   @Mapping(target = "sdcSchoolCollectionID", ignore = true)
   @Mapping(target = "uploadDate", expression = "java(java.time.LocalDateTime.now() )")
-  @Mapping(target = "updateUser", constant = STUDENT_DATA_COLLECTION_API)
+  @Mapping(target = "updateUser", source = "upload.updateUser")
   @Mapping(target = "updateDate", expression = "java(java.time.LocalDateTime.now() )")
   @Mapping(target = "createUser", constant = STUDENT_DATA_COLLECTION_API)
   @Mapping(target = "createDate",expression = "java(java.time.LocalDateTime.now() )")

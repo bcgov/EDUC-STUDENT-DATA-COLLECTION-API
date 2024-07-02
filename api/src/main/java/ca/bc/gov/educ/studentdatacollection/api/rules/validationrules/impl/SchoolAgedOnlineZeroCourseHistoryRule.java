@@ -19,8 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes.DISTONLINE;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes.DIST_LEARN;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes.*;
 
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
@@ -62,8 +61,9 @@ public class SchoolAgedOnlineZeroCourseHistoryRule implements ValidationBaseRule
         boolean isAdult = DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
         String schoolType = studentRuleData.getSchool().getFacilityTypeCode();
         boolean isOnline = Objects.equals(schoolType, String.valueOf(DIST_LEARN)) || Objects.equals(schoolType, String.valueOf(DISTONLINE));
+        boolean isContEd = Objects.equals(schoolType, String.valueOf(CONT_ED));
 
-        if(!isAdult && isOnline){
+        if((!isAdult && isOnline) || (!isAdult && isContEd)){
 
             var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
