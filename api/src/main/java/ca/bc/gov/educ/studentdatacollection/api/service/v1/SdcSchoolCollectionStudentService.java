@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateLevelCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
@@ -116,8 +117,10 @@ public class SdcSchoolCollectionStudentService {
       sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
       sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().addAll(getCurStudentEntity.getSdcStudentEnrolledProgramEntities());
 
-      // TODO where exactly do we want to check this??
-      List<SdcDuplicateEntity> duplicates = sdcDuplicatesService.runDuplicatesCheck(DuplicateLevelCode.PROVINCIAL, getCurStudentEntity, sdcSchoolCollectionStudentEntity);
+      // TODO where exactly do we want to check this?? Maybe only on submitted??
+      if (Objects.equals(studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode())) {
+        List<SdcDuplicateEntity> duplicates = sdcDuplicatesService.runDuplicatesCheck(DuplicateLevelCode.PROVINCIAL, getCurStudentEntity, sdcSchoolCollectionStudentEntity);
+      }
 
       return validateAndProcessSdcSchoolCollectionStudent(sdcSchoolCollectionStudentEntity, getCurStudentEntity);
     } else {
