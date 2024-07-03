@@ -226,6 +226,8 @@ public class SdcSchoolCollectionService {
     Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = sdcSchoolCollectionRepository.findById(reportZeroEnrollmentData.getSdcSchoolCollectionID());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, reportZeroEnrollmentData.getSdcSchoolCollectionID().toString()));
 
+    sdcSchoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, reportZeroEnrollmentData.getUpdateUser()));
+
     sdcSchoolCollectionStudentHistoryRepository.deleteBySdcSchoolCollectionStudentIDs(
             sdcSchoolCollectionEntity.getSDCSchoolStudentEntities().stream().map(SdcSchoolCollectionStudentEntity::getSdcSchoolCollectionStudentID).toList()
     );

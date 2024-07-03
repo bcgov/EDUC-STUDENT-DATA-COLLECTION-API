@@ -6,11 +6,9 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionHistoryEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentHistoryRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ReportZeroEnrollmentSdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitSdcSchoolCollection;
 import org.junit.jupiter.api.Test;
@@ -47,6 +45,9 @@ class SdcSchoolCollectionServiceTest {
 
   @Mock
   SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
+
+  @Mock
+  SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService;
 
   @InjectMocks
   private SdcSchoolCollectionService sdcSchoolCollectionService;
@@ -244,5 +245,27 @@ class SdcSchoolCollectionServiceTest {
     SdcSchoolCollectionEntity result = sdcSchoolCollectionService.reportZeroEnrollment(ReportZeroEnrollmentSdcSchoolCollection.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build());
 
     assertTrue(result.getSDCSchoolStudentEntities().isEmpty());
+  }
+
+  @Test
+  void testReportZeroEnrollment_HistoryIsWritten() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+    String updateUser = "USER";
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionHistoryEntities(new HashSet<>());
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    SdcSchoolCollectionHistoryEntity mockHistoryEntity = new SdcSchoolCollectionHistoryEntity();
+    when(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, updateUser)).thenReturn(mockHistoryEntity);
+
+    ReportZeroEnrollmentSdcSchoolCollection input = ReportZeroEnrollmentSdcSchoolCollection.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser(updateUser).build();
+    SdcSchoolCollectionEntity result = sdcSchoolCollectionService.reportZeroEnrollment(input);
+
+    verify(sdcSchoolCollectionHistoryService).createSDCSchoolHistory(sdcSchoolCollectionEntity, updateUser);
+
+    assertTrue(result.getSdcSchoolCollectionHistoryEntities().contains(mockHistoryEntity), "The history entity should be added to the school collection");
   }
 }
