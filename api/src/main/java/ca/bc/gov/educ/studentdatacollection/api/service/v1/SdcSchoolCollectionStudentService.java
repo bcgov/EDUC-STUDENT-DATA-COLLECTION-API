@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateLevelCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
@@ -67,6 +68,8 @@ public class SdcSchoolCollectionStudentService {
 
   private final ProgramEligibilityRulesProcessor programEligibilityRulesProcessor;
 
+  private final SdcDuplicatesService sdcDuplicatesService;
+
   private final RestUtils restUtils;
   private static SdcStudentEllMapper sdcStudentEllMapper = SdcStudentEllMapper.mapper;
 
@@ -112,6 +115,9 @@ public class SdcSchoolCollectionStudentService {
       sdcSchoolCollectionStudentEntity.getSDCStudentValidationIssueEntities().addAll(getCurStudentEntity.getSDCStudentValidationIssueEntities());
       sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
       sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().addAll(getCurStudentEntity.getSdcStudentEnrolledProgramEntities());
+
+      // TODO where exactly do we want to check this??
+      List<SdcDuplicateEntity> duplicates = sdcDuplicatesService.runDuplicatesCheck(DuplicateLevelCode.PROVINCIAL, getCurStudentEntity, sdcSchoolCollectionStudentEntity);
 
       return validateAndProcessSdcSchoolCollectionStudent(sdcSchoolCollectionStudentEntity, getCurStudentEntity);
     } else {
