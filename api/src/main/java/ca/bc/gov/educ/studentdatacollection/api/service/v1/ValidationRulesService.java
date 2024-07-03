@@ -163,7 +163,7 @@ public class ValidationRulesService {
 
 
         var listOfNumCoursesLastTwoYears = getSdcSchoolStudentRepository().getCollectionHistory(UUID.fromString(school.getSchoolId()),
-                student.getStudentPen(), student.getSdcSchoolCollection().getCollectionEntity().getOpenDate(), FteCalculatorUtils.getCollectionTypeCode(studentRuleData), twoYearsAgo);
+                student.getAssignedStudentId(), student.getSdcSchoolCollection().getCollectionEntity().getOpenDate(), FteCalculatorUtils.getCollectionTypeCode(studentRuleData), twoYearsAgo);
 
         for (String numString : listOfNumCoursesLastTwoYears) {
             try {
