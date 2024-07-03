@@ -278,11 +278,11 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
            SELECT SSCS.numberOfCourses FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS WHERE SSC.schoolID = :schoolID
             AND C.collectionID = SSC.collectionEntity.collectionID
             AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
-            AND SSCS.studentPen = :pen
+            AND SSCS.assignedStudentId = :assignedStudentID
             AND C.openDate < :currentOpenDate
             AND C.openDate >= (SELECT C.openDate FROM CollectionEntity C WHERE C.collectionTypeCode = :collectionTypeCode AND EXTRACT(YEAR FROM C.openDate) = :targetYear)
             """)
-  List<String> getCollectionHistory(UUID schoolID, String pen, LocalDateTime currentOpenDate, String collectionTypeCode, Integer targetYear);
+  List<String> getCollectionHistory(UUID schoolID, UUID assignedStudentID, LocalDateTime currentOpenDate, String collectionTypeCode, Integer targetYear);
 
   @Query("SELECT " +
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '08' AND s.frenchProgramNonEligReasonCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS totalCoreFrench, " +

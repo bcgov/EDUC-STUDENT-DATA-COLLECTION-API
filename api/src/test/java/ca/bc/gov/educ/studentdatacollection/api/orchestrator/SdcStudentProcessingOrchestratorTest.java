@@ -11,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -31,9 +32,10 @@ import java.time.LocalDateTime;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCESS_SDC_STUDENT;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.COMPLETED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atMost;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -120,6 +122,8 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
 
     val saga = this.createMockSaga(entity);
     this.sagaRepository.save(saga);
+
+    when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
 
     final SdcStudentSagaData sagaData = SdcStudentSagaData.builder()
             .sdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity))
