@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentHistoryRepository;
@@ -395,11 +396,11 @@ class SdcSchoolCollectionStudentServiceTest {
         when(sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(collectionID, Collections.singletonList(studentID)))
                 .thenReturn(Collections.singletonList(existingDuplicate));
 
-        // When
-        SdcSchoolCollectionStudentEntity result = sdcSchoolCollectionStudentService.validateAndProcessSdcSchoolCollectionStudent(studentEntity, studentEntity);
+        // When and assert
+        assertThrows(StudentDataCollectionAPIRuntimeException.class, () -> {
+            sdcSchoolCollectionStudentService.validateAndProcessSdcSchoolCollectionStudent(studentEntity, studentEntity);
+        }, "SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicate.");
 
-        // Assert
-        assertSame(studentEntity, result);
         verify(sdcSchoolCollectionStudentRepository, never()).save(studentEntity);
     }
 }

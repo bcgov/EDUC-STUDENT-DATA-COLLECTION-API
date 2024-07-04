@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcStudentEllMapper;
@@ -134,24 +135,21 @@ public class SdcSchoolCollectionStudentService {
         }
         return processedSdcSchoolCollectionStudent;
       }
-      if (Objects.equals(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionStatusCode(), CollectionStatus.PROVDUPES.getCode()) &&
-              handleDuplicateCheck(originalAssignedPen, currentStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID())) {
-          return currentStudentEntity;
-        }
+      if (sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionStatusCode().equals( CollectionStatus.PROVDUPES.getCode())) {
+        hasDuplicateInCollection(originalAssignedPen, currentStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID());
+      }
 
     return saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
   }
 
-  public boolean handleDuplicateCheck(UUID originalAssignedPen, UUID collectionID) {
+  public void hasDuplicateInCollection(UUID originalAssignedPen, UUID collectionID) {
     List<UUID> studentAssignedIdList = Collections.singletonList(originalAssignedPen);
     List<SdcSchoolCollectionStudentEntity> duplicateStudentsList = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(collectionID, studentAssignedIdList);
 
     if (!duplicateStudentsList.isEmpty()) {
-      log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicated on save :: {}", studentAssignedIdList.stream().findFirst());
-      return true;
+      log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicate on save :: {}", studentAssignedIdList.stream().findFirst());
+      throw new StudentDataCollectionAPIRuntimeException("SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicate.");
     }
-
-    return false;
   }
 
   public SdcSchoolCollectionStudentEntity saveSdcStudentWithHistory(SdcSchoolCollectionStudentEntity studentEntity) {
