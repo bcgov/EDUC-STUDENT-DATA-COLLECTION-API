@@ -1276,9 +1276,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         school.setFacilityTypeCode(String.valueOf(DISTONLINE));
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setAssignedStudentId(UUID.randomUUID());
 
-        UUID oneYearOldCollectionID = createMockHistoricalCollection(1, entity.getSdcSchoolCollection().getSchoolID(), entity.getCreateDate(), String.valueOf(SEPTEMBER));
-        UUID twoYearOldCollectionID = createMockHistoricalCollection(2, entity.getSdcSchoolCollection().getSchoolID(), entity.getCreateDate(), String.valueOf(JULY));
+        UUID oneYearOldCollectionID = createMockHistoricalCollection(1, entity.getSdcSchoolCollection().getSchoolID(), entity.getCreateDate(), String.valueOf(SEPTEMBER), entity.getAssignedStudentId());
+        UUID twoYearOldCollectionID = createMockHistoricalCollection(2, entity.getSdcSchoolCollection().getSchoolID(), entity.getCreateDate(), String.valueOf(JULY), entity.getAssignedStudentId());
 
         entity.setIsAdult(true);
         entity.setIsSchoolAged(false);
@@ -1307,9 +1308,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         school.setFacilityTypeCode(String.valueOf(DIST_LEARN));
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setAssignedStudentId(UUID.randomUUID());
 
-        UUID oneYearOldCollectionID = createMockHistoricalCollection(1, entity.getSdcSchoolCollection().getSchoolID(), entity.getCreateDate(), String.valueOf(SEPTEMBER));
-        UUID twoYearOldCollectionID = createMockHistoricalCollection(2, entity.getSdcSchoolCollection().getSchoolID(), entity.getCreateDate(), String.valueOf(JULY));
+        UUID oneYearOldCollectionID = createMockHistoricalCollection(1, entity.getSdcSchoolCollection().getSchoolID(), entity.getCreateDate(), String.valueOf(SEPTEMBER), entity.getAssignedStudentId());
+        UUID twoYearOldCollectionID = createMockHistoricalCollection(2, entity.getSdcSchoolCollection().getSchoolID(), entity.getCreateDate(), String.valueOf(JULY), entity.getAssignedStudentId());
 
         entity.setIsAdult(false);
         entity.setIsSchoolAged(true);

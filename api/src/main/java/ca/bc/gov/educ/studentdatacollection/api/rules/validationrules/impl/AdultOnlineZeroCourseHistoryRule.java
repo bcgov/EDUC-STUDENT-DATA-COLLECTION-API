@@ -60,14 +60,16 @@ public class AdultOnlineZeroCourseHistoryRule implements ValidationBaseRule {
         log.debug("In executeValidation of ZeroCoursesReportedRule-V34 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
+        var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
+        if(student.getIsGraduated() == null){
+            validationRulesService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
+        }
+
         boolean isAdult = DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
         String schoolType = studentRuleData.getSchool().getFacilityTypeCode();
         boolean isOnline = Objects.equals(schoolType, String.valueOf(CONT_ED)) || Objects.equals(schoolType, String.valueOf(DIST_LEARN)) || Objects.equals(schoolType, String.valueOf(DISTONLINE));
 
         if(isAdult && isOnline){
-
-            var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
-
             final String courseCountStr = student.getNumberOfCourses();
             final Double courseCount = TransformUtil.parseNumberOfCourses(courseCountStr, student.getSdcSchoolCollection().getSdcSchoolCollectionID());
 

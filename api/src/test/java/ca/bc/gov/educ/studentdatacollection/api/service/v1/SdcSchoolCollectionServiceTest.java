@@ -6,8 +6,10 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionHistoryEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ReportZeroEnrollmentSdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitSdcSchoolCollection;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,10 +17,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -34,6 +39,15 @@ class SdcSchoolCollectionServiceTest {
 
   @Mock
   private SdcDistrictCollectionService sdcDistrictCollectionService;
+
+  @Mock
+  private SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+
+  @Mock
+  SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
+
+  @Mock
+  SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService;
 
   @InjectMocks
   private SdcSchoolCollectionService sdcSchoolCollectionService;
@@ -167,5 +181,91 @@ class SdcSchoolCollectionServiceTest {
     verify(sdcDistrictCollectionRepository, times(0)).findBySdcDistrictCollectionID(any());
     verify(sdcSchoolCollectionRepository, times(1)).save(any(SdcSchoolCollectionEntity.class));
     verifyNoMoreInteractions(sdcDistrictCollectionService);
+  }
+
+  @Test
+  void testReportZeroEnrollment_NonExistentSchoolCollection() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.empty());
+
+    ReportZeroEnrollmentSdcSchoolCollection input = ReportZeroEnrollmentSdcSchoolCollection.builder()
+            .sdcSchoolCollectionID(sdcSchoolCollectionID)
+            .updateUser("USER")
+            .build();
+
+    assertThrows(EntityNotFoundException.class, () -> {
+      sdcSchoolCollectionService.reportZeroEnrollment(input);
+    });
+  }
+
+  @Test
+  void testReportZeroEnrollment_EmptyStudentSet() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+    sdcSchoolCollectionEntity.setSdcSchoolStudentEntities(new HashSet<>());
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    SdcSchoolCollectionEntity result = sdcSchoolCollectionService.reportZeroEnrollment(ReportZeroEnrollmentSdcSchoolCollection.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build());
+
+    assertTrue(result.getSDCSchoolStudentEntities().isEmpty());
+  }
+
+  @Test
+  void testReportZeroEnrollment_SetToSubmitted() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    SdcSchoolCollectionEntity result = sdcSchoolCollectionService.reportZeroEnrollment(ReportZeroEnrollmentSdcSchoolCollection.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build());
+
+    assertEquals(SdcSchoolCollectionStatus.SUBMITTED.getCode(), result.getSdcSchoolCollectionStatusCode());
+  }
+
+  @Test
+  void testReportZeroEnrollment_RemoveStudents() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+
+    Set<SdcSchoolCollectionStudentEntity> studentEntities = new HashSet<>();
+    SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+    mockStudentEntity.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+    studentEntities.add(mockStudentEntity);
+    sdcSchoolCollectionEntity.setSdcSchoolStudentEntities(studentEntities);
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    SdcSchoolCollectionEntity result = sdcSchoolCollectionService.reportZeroEnrollment(ReportZeroEnrollmentSdcSchoolCollection.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build());
+
+    assertTrue(result.getSDCSchoolStudentEntities().isEmpty());
+  }
+
+  @Test
+  void testReportZeroEnrollment_HistoryIsWritten() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+    String updateUser = "USER";
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionHistoryEntities(new HashSet<>());
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    SdcSchoolCollectionHistoryEntity mockHistoryEntity = new SdcSchoolCollectionHistoryEntity();
+    when(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, updateUser)).thenReturn(mockHistoryEntity);
+
+    ReportZeroEnrollmentSdcSchoolCollection input = ReportZeroEnrollmentSdcSchoolCollection.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser(updateUser).build();
+    SdcSchoolCollectionEntity result = sdcSchoolCollectionService.reportZeroEnrollment(input);
+
+    verify(sdcSchoolCollectionHistoryService).createSDCSchoolHistory(sdcSchoolCollectionEntity, updateUser);
+
+    assertTrue(result.getSdcSchoolCollectionHistoryEntities().contains(mockHistoryEntity), "The history entity should be added to the school collection");
   }
 }
