@@ -185,6 +185,7 @@ public class SdcSchoolCollectionService {
     if(!schoolHistoryEntities.isEmpty()) {
       sdcSchoolCollectionStudentHistoryRepository.deleteAll(schoolHistoryEntities);
     }
+    this.sdcDuplicateRepository.deleteAllBySdcDuplicateStudentEntities_SdcSchoolCollectionID(sdcSchoolCollectionID);
     sdcSchoolCollectionRepository.delete(entity);
   }
 
