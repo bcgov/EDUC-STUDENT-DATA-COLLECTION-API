@@ -5,9 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateLevelCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
@@ -24,7 +22,6 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
@@ -68,8 +65,6 @@ public class SdcSchoolCollectionStudentService {
   private final FteCalculatorChainProcessor fteCalculatorChainProcessor;
 
   private final ProgramEligibilityRulesProcessor programEligibilityRulesProcessor;
-
-  private final SdcDuplicatesService sdcDuplicatesService;
 
   private final RestUtils restUtils;
   private static SdcStudentEllMapper sdcStudentEllMapper = SdcStudentEllMapper.mapper;
@@ -117,11 +112,6 @@ public class SdcSchoolCollectionStudentService {
       sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
       sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().addAll(getCurStudentEntity.getSdcStudentEnrolledProgramEntities());
 
-      // TODO where exactly do we want to check this?? Maybe only on submitted??
-      if (Objects.equals(studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode())) {
-        List<SdcDuplicateEntity> duplicates = sdcDuplicatesService.runDuplicatesCheck(DuplicateLevelCode.PROVINCIAL, getCurStudentEntity, sdcSchoolCollectionStudentEntity);
-      }
-
       return validateAndProcessSdcSchoolCollectionStudent(sdcSchoolCollectionStudentEntity, getCurStudentEntity);
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, studentEntity.getSdcSchoolCollectionStudentID().toString());
@@ -131,6 +121,12 @@ public class SdcSchoolCollectionStudentService {
   public SdcSchoolCollectionStudentEntity validateAndProcessSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity, SdcSchoolCollectionStudentEntity currentStudentEntity) {
       TransformUtil.uppercaseFields(sdcSchoolCollectionStudentEntity);
       var studentRuleData = createStudentRuleDataForValidation(sdcSchoolCollectionStudentEntity);
+
+      //todo
+      // check after validation - if errors dont check
+      // check if in prov duplicates - check assigned pen
+      // if not in prov dup dont do anything
+
 
       var processedSdcSchoolCollectionStudent = processStudentRecord(studentRuleData.getSchool(), sdcSchoolCollectionStudentEntity);
       if (processedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
