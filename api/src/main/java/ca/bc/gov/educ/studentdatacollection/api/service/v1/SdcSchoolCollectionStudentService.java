@@ -120,6 +120,8 @@ public class SdcSchoolCollectionStudentService {
   }
 
   public SdcSchoolCollectionStudentEntity validateAndProcessSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity, SdcSchoolCollectionStudentEntity currentStudentEntity) {
+      UUID originalAssignedPen = sdcSchoolCollectionStudentEntity.getAssignedStudentId();
+
       TransformUtil.uppercaseFields(sdcSchoolCollectionStudentEntity);
       var studentRuleData = createStudentRuleDataForValidation(sdcSchoolCollectionStudentEntity);
 
@@ -131,21 +133,25 @@ public class SdcSchoolCollectionStudentService {
           processedSdcSchoolCollectionStudent.setUpdateUser(currentStudentEntity.getUpdateUser());
         }
         return processedSdcSchoolCollectionStudent;
-      } else if (Objects.equals(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionStatusCode(), CollectionStatus.PROVDUPES.getCode())) {
-        //todo
-        // check after validation - if errors dont check
-        // check if in prov duplicates - check assigned pen
-        // if not in prov dup dont do anything
-        List<UUID> studentAssignedIdList = Collections.singletonList(sdcSchoolCollectionStudentEntity.getAssignedStudentId());
-        List<SdcSchoolCollectionStudentEntity> duplicateStudentsList = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID(), studentAssignedIdList);
-
-        if (!duplicateStudentsList.isEmpty()) {
-          log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicated on save :: {}", sdcSchoolCollectionStudentEntity);
-          // what do we want to return??
-          return sdcSchoolCollectionStudentEntity;
-        }
       }
-      return saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
+      if (Objects.equals(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionStatusCode(), CollectionStatus.PROVDUPES.getCode()) &&
+              handleDuplicateCheck(originalAssignedPen, currentStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID())) {
+          return currentStudentEntity;
+        }
+
+    return saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
+  }
+
+  public boolean handleDuplicateCheck(UUID originalAssignedPen, UUID collectionID) {
+    List<UUID> studentAssignedIdList = Collections.singletonList(originalAssignedPen);
+    List<SdcSchoolCollectionStudentEntity> duplicateStudentsList = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(collectionID, studentAssignedIdList);
+
+    if (!duplicateStudentsList.isEmpty()) {
+      log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicated on save :: {}", studentAssignedIdList.stream().findFirst());
+      return true;
+    }
+
+    return false;
   }
 
   public SdcSchoolCollectionStudentEntity saveSdcStudentWithHistory(SdcSchoolCollectionStudentEntity studentEntity) {
