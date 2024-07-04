@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
@@ -122,12 +123,6 @@ public class SdcSchoolCollectionStudentService {
       TransformUtil.uppercaseFields(sdcSchoolCollectionStudentEntity);
       var studentRuleData = createStudentRuleDataForValidation(sdcSchoolCollectionStudentEntity);
 
-      //todo
-      // check after validation - if errors dont check
-      // check if in prov duplicates - check assigned pen
-      // if not in prov dup dont do anything
-
-
       var processedSdcSchoolCollectionStudent = processStudentRecord(studentRuleData.getSchool(), sdcSchoolCollectionStudentEntity);
       if (processedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
         log.debug("SdcSchoolCollectionStudent was not saved to the database because it has errors :: {}", processedSdcSchoolCollectionStudent);
@@ -136,9 +131,21 @@ public class SdcSchoolCollectionStudentService {
           processedSdcSchoolCollectionStudent.setUpdateUser(currentStudentEntity.getUpdateUser());
         }
         return processedSdcSchoolCollectionStudent;
-      } else {
-        return saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
+      } else if (Objects.equals(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionStatusCode(), CollectionStatus.PROVDUPES.getCode())) {
+        //todo
+        // check after validation - if errors dont check
+        // check if in prov duplicates - check assigned pen
+        // if not in prov dup dont do anything
+        List<UUID> studentAssignedIdList = Collections.singletonList(sdcSchoolCollectionStudentEntity.getAssignedStudentId());
+        List<SdcSchoolCollectionStudentEntity> duplicateStudentsList = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID(), studentAssignedIdList);
+
+        if (!duplicateStudentsList.isEmpty()) {
+          log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicated on save :: {}", sdcSchoolCollectionStudentEntity);
+          // what do we want to return??
+          return sdcSchoolCollectionStudentEntity;
+        }
       }
+      return saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
   }
 
   public SdcSchoolCollectionStudentEntity saveSdcStudentWithHistory(SdcSchoolCollectionStudentEntity studentEntity) {
