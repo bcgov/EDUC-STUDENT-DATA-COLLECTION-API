@@ -5,9 +5,12 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcStudentEllMapper;
@@ -22,19 +25,21 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.FieldError;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -120,6 +125,8 @@ public class SdcSchoolCollectionStudentService {
   }
 
   public SdcSchoolCollectionStudentEntity validateAndProcessSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity, SdcSchoolCollectionStudentEntity currentStudentEntity) {
+      UUID originalAssignedPen = sdcSchoolCollectionStudentEntity.getAssignedStudentId();
+
       TransformUtil.uppercaseFields(sdcSchoolCollectionStudentEntity);
       var studentRuleData = createStudentRuleDataForValidation(sdcSchoolCollectionStudentEntity);
 
@@ -131,9 +138,38 @@ public class SdcSchoolCollectionStudentService {
           processedSdcSchoolCollectionStudent.setUpdateUser(currentStudentEntity.getUpdateUser());
         }
         return processedSdcSchoolCollectionStudent;
-      } else {
-        return saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
       }
+      if (sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionStatusCode().equals( CollectionStatus.PROVDUPES.getCode())) {
+        hasDuplicateInCollection(originalAssignedPen, currentStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID());
+      }
+
+    return saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
+  }
+
+  public void hasDuplicateInCollection(UUID originalAssignedPen, UUID collectionID) {
+    List<UUID> studentAssignedIdList = Collections.singletonList(originalAssignedPen);
+    List<SdcSchoolCollectionStudentEntity> duplicateStudentsList = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(collectionID, studentAssignedIdList);
+
+    if (!duplicateStudentsList.isEmpty()) {
+      log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicate on save :: {}", studentAssignedIdList.stream().findFirst());
+
+      ApiError error = ApiError.builder()
+              .timestamp(LocalDateTime.now())
+              .message("SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicate.")
+              .status(HttpStatus.BAD_REQUEST)
+              .build();
+
+      var validationError = ValidationUtil.createFieldError(
+              "sdcSchoolCollectionStudent",
+              originalAssignedPen.toString(),
+              "Duplicate provincial ID found in the collection"
+      );
+
+      List<FieldError> fieldErrorList = new ArrayList<>();
+      fieldErrorList.add(validationError);
+
+      error.addValidationErrors(fieldErrorList);
+      throw new InvalidPayloadException(error);    }
   }
 
   public SdcSchoolCollectionStudentEntity saveSdcStudentWithHistory(SdcSchoolCollectionStudentEntity studentEntity) {
