@@ -139,7 +139,7 @@ public class SdcSchoolCollectionStudentService {
         }
         return processedSdcSchoolCollectionStudent;
       }
-      if (sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionStatusCode().equals( CollectionStatus.PROVDUPES.getCode())) {
+      if (currentStudentEntity != null && sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionStatusCode().equals( CollectionStatus.PROVDUPES.getCode())) {
         hasDuplicateInCollection(originalAssignedPen, currentStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID());
       }
 
