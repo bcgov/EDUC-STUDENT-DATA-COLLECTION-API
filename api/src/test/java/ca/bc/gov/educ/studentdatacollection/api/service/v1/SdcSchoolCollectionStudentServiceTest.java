@@ -5,7 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
-import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentHistoryRepository;
@@ -397,9 +397,12 @@ class SdcSchoolCollectionStudentServiceTest {
                 .thenReturn(Collections.singletonList(existingDuplicate));
 
         // When and assert
-        assertThrows(StudentDataCollectionAPIRuntimeException.class, () -> {
+        InvalidPayloadException thrown = assertThrows(InvalidPayloadException.class, () -> {
             sdcSchoolCollectionStudentService.validateAndProcessSdcSchoolCollectionStudent(studentEntity, studentEntity);
         }, "SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicate.");
+
+        assertNotNull(thrown.getError());
+        assertEquals("SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicate.", thrown.getError().getMessage());
 
         verify(sdcSchoolCollectionStudentRepository, never()).save(studentEntity);
     }
