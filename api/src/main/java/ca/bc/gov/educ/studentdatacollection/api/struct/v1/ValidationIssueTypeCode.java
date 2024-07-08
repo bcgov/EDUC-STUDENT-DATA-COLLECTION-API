@@ -17,4 +17,5 @@ public class ValidationIssueTypeCode implements Serializable {
 
   private String validationIssueTypeCode;
   private String message;
+  private String severityTypeCode;
 }
