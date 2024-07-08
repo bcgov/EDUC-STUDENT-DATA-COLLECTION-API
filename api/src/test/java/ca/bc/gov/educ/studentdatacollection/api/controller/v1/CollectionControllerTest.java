@@ -270,6 +270,17 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     var dupeStudents = this.sdcDuplicateRepository.findAll();
     assertThat(dupeStudents).hasSize(1);
     assertThat(dupeStudents.get(0).getDuplicateLevelCode()).isEqualTo("PROVINCIAL");
+
+    var schoolCollections = this.sdcSchoolCollectionRepository.findAll();
+    schoolCollections.forEach(schoolCollection -> {
+      assertThat(schoolCollection.getSdcSchoolCollectionStatusCode()).isEqualTo("P_DUP_POST");
+    });
+
+    var districtCollections = this.sdcDistrictCollectionRepository.findAll();
+    districtCollections.forEach(districtCollection -> {
+      assertThat(districtCollection.getSdcDistrictCollectionStatusCode()).isEqualTo("P_DUP_POST");
+    });
+
   }
 
   @Test

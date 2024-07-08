@@ -171,6 +171,11 @@ public class ScheduleHandlerService {
   private List<String> getPrincipalEmailsForSchool(UUID schoolID){
     var school = restUtils.getSchoolDetails(schoolID);
     var contacts = school.getContacts().stream().filter(schoolContact -> schoolContact.getSchoolContactTypeCode().equals("PRINCIPAL")).toList();
+
+    if (contacts.isEmpty()){
+      throw new StudentDataCollectionAPIRuntimeException("Exception occurred processing emailSagaData: no Principal found for school with ID " + schoolID);
+    }
+
     return contacts.stream().map(SchoolContact::getEmail).toList();
   }
 }
