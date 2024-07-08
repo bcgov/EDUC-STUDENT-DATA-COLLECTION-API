@@ -121,7 +121,7 @@ public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGene
     nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
     nodeMap.put(sectionPrefix + "careerPrep", new HeadcountChildNode("Career Preparation", FALSE, sequencePrefix + "1", false));
     nodeMap.put(sectionPrefix + "coop", new HeadcountChildNode("Co-operative Education", FALSE, sequencePrefix + "2", false));
-    nodeMap.put(sectionPrefix + "techYouth", new HeadcountChildNode("Career Technical or youth Train in Trades", FALSE, sequencePrefix + "3", false));
+    nodeMap.put(sectionPrefix + "techYouth", new HeadcountChildNode("Career Technical or Youth Train in Trades", FALSE, sequencePrefix + "3", false));
     nodeMap.put(sectionPrefix + "youthWorkInTrades", new HeadcountChildNode("Youth Work in Trades Program", FALSE, sequencePrefix + "4", false));
     nodeMap.put(sectionPrefix + "all", new HeadcountChildNode("All Career Programs", FALSE, sequencePrefix + "5", false));
   }

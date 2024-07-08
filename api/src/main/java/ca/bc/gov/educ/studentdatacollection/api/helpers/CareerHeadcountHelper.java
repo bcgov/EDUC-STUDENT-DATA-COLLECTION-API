@@ -27,7 +27,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
   private static final String CAREER_PREPARATION_TITLE = "Career Preparation";
   private static final String COOP_EDUCATION_TITLE = "Co-Operative Education";
   private static final String YOUTH_WORK_IN_TRADES_TITLE = "Youth Work in Trades Program";
-  private static final String TECH_YOUTH_TITLE = "Career Technical or Youth in Trades";
+  private static final String TECH_YOUTH_TITLE = "Career Technical or Youth Train in Trades";
   private static final String ALL_CAREER_PROGRAM_TITLE = "All Career Programs";
   private static final String XA_CODE_TITLE = "XA - Business & Applied Business";
   private static final String XB_CODE_TITLE = "XB - Fine Arts, Design, & Media";
