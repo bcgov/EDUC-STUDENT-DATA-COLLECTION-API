@@ -11,16 +11,14 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStud
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ReportZeroEnrollmentSdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitSdcSchoolCollection;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValidationIssueTypeCode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,6 +46,9 @@ class SdcSchoolCollectionServiceTest {
 
   @Mock
   SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService;
+
+  @Mock
+  SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;
 
   @InjectMocks
   private SdcSchoolCollectionService sdcSchoolCollectionService;
@@ -267,5 +268,50 @@ class SdcSchoolCollectionServiceTest {
     verify(sdcSchoolCollectionHistoryService).createSDCSchoolHistory(sdcSchoolCollectionEntity, updateUser);
 
     assertTrue(result.getSdcSchoolCollectionHistoryEntities().contains(mockHistoryEntity), "The history entity should be added to the school collection");
+  }
+
+  @Test
+  void testGetStudentValidationIssueCodes_withValidCodes() {
+    List<String> issueCodes = List.of("LOCALIDBLANK", "DOBBLANK");
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+    when(sdcSchoolCollectionStudentValidationIssueRepository.findAllValidationIssueCodesBySdcSchoolCollectionID(sdcSchoolCollectionID)).thenReturn(issueCodes);
+
+    List<ValidationIssueTypeCode> result = sdcSchoolCollectionService.getStudentValidationIssueCodes(sdcSchoolCollectionID);
+
+    assertEquals(2, result.size());
+    assertEquals("DOBBLANK", result.get(0).getValidationIssueTypeCode());
+    assertEquals("Birthdate cannot be blank.", result.get(0).getMessage());
+    assertEquals("ERROR", result.get(0).getSeverityTypeCode());
+    assertEquals("LOCALIDBLANK", result.get(1).getValidationIssueTypeCode());
+    assertEquals("Local identifier number is blank.", result.get(1).getMessage());
+    assertEquals("INFO_WARNING", result.get(1).getSeverityTypeCode());
+
+  }
+
+  @Test
+  void testGetStudentValidationIssueCodes_withNullCodes() {
+    List<String> issueCodes = List.of("LOCALIDBLANK", "DOBBLANK", "FAKECODE");
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+    when(sdcSchoolCollectionStudentValidationIssueRepository.findAllValidationIssueCodesBySdcSchoolCollectionID(sdcSchoolCollectionID)).thenReturn(issueCodes);
+
+    List<ValidationIssueTypeCode> result = sdcSchoolCollectionService.getStudentValidationIssueCodes(sdcSchoolCollectionID);
+
+    assertEquals(2, result.size());
+    assertEquals("DOBBLANK", result.get(0).getValidationIssueTypeCode());
+    assertEquals("Birthdate cannot be blank.", result.get(0).getMessage());
+    assertEquals("ERROR", result.get(0).getSeverityTypeCode());
+    assertEquals("LOCALIDBLANK", result.get(1).getValidationIssueTypeCode());
+    assertEquals("Local identifier number is blank.", result.get(1).getMessage());
+    assertEquals("INFO_WARNING", result.get(1).getSeverityTypeCode());
+  }
+
+  @Test
+  void testGetStudentValidationIssueCodes_withEmptyList() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+    when(sdcSchoolCollectionStudentValidationIssueRepository.findAllValidationIssueCodesBySdcSchoolCollectionID(sdcSchoolCollectionID)).thenReturn(List.of());
+
+    List<ValidationIssueTypeCode> result = sdcSchoolCollectionService.getStudentValidationIssueCodes(sdcSchoolCollectionID);
+
+    assertEquals(0, result.size());
   }
 }

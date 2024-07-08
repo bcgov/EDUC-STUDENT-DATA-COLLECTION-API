@@ -113,4 +113,8 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   public List<SdcDuplicate> getSchoolCollectionProvincialDuplicates(UUID sdcSchoolCollectionID) {
     return this.sdcDuplicatesService.getAllProvincialDuplicatesBySdcSchoolCollectionID(sdcSchoolCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
   }
+  @Override
+  public List<ValidationIssueTypeCode> getStudentValidationIssueCodes(UUID sdcSchoolCollectionID) {
+    return this.sdcSchoolCollectionService.getStudentValidationIssueCodes(sdcSchoolCollectionID);
+  }
 }
