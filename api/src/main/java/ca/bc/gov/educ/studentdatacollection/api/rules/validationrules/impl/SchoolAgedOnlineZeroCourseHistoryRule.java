@@ -25,9 +25,9 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityType
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
  *  | V47 | WARNING  | For school-aged student enrolled in grade 8, 9, 10, 11, 12, or SU,    | V28, V04, V29 |
- *                     reported by a provincial or district online school with Number of
- *                     Courses = 0, must have been reported by the school in the last 2 years
- *                     with Number of Courses > 0.
+ *                     reported by a provincial or district online school with Number of     | V05, V06, V07 |
+ *                     Courses = 0, must have been reported by the school in the last 2 years| V08, V09, V10 |
+ *                     with Number of Courses > 0.                                           | V11, V12      |
  */
 @Component
 @Slf4j
