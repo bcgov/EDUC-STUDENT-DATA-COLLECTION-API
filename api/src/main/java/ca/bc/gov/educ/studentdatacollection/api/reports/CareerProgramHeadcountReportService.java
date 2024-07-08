@@ -110,7 +110,7 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
     HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
     addValuesForSectionToMap(nodeMap, "careerPrep", "Career Preparation", "00");
     addValuesForSectionToMap(nodeMap, "coop", "Co-operative Education", "10");
-    addValuesForSectionToMap(nodeMap, "techYouth", "Career Technical or youth Train in Trades", "20");
+    addValuesForSectionToMap(nodeMap, "techYouth", "Career Technical or Youth Train in Trades", "20");
     addValuesForSectionToMap(nodeMap, "youthWorkInTrades", "Youth Work in Trades Program", "30");
     addValuesForSectionToMap(nodeMap, "all", "All Career Programs", "40");
 
