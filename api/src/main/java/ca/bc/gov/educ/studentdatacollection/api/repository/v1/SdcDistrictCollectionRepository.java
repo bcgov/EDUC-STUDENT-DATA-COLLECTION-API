@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcDistrictCollectionQueryResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -48,4 +49,8 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
                 GROUP BY s.sdcDistrictCollectionID
             """)
   List<MonitorSdcDistrictCollectionQueryResponse> findAllSdcDistrictCollectionMonitoringByCollectionID(UUID collectionID);
+
+  @Modifying
+  @Query(value = "UPDATE SdcDistrictCollectionEntity sdc SET sdc.sdcDistrictCollectionStatusCode = :sdcDistrictCollectionStatusCode WHERE sdc.collectionEntity.collectionID = :collectionID")
+  void updateAllDistrictCollectionStatus(UUID collectionID, String sdcDistrictCollectionStatusCode);
 }

@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorIndySdcSchoolCollectionQueryResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionQueryResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -202,4 +203,8 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             and ssc.sdcSchoolCollectionStatusCode != 'SUBMITTED'
     """)
     List<SdcSchoolCollectionEntity> findAllUnsubmittedIndependentSchoolsInCurrentCollection();
+
+    @Modifying
+    @Query(value = "UPDATE SdcSchoolCollectionEntity ssc SET ssc.sdcSchoolCollectionStatusCode = :sdcSchoolCollectionStatusCode WHERE ssc.collectionEntity.collectionID = :collectionID")
+    void updateAllSchoolCollectionStatus(UUID collectionID, String sdcSchoolCollectionStatusCode);
 }
