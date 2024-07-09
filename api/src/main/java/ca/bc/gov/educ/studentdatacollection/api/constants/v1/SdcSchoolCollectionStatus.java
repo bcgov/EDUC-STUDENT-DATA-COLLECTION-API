@@ -26,7 +26,11 @@ public enum SdcSchoolCollectionStatus {
 
   LOADED("LOADED"),
 
-  DUP_VRFD("DUP_VRFD");
+  DUP_VRFD("DUP_VRFD"),
+
+  P_DUP_POST("P_DUP_POST"),
+
+  P_DUP_VRFD("P_DUP_VRFD");
 
   /**
    * The Code.
