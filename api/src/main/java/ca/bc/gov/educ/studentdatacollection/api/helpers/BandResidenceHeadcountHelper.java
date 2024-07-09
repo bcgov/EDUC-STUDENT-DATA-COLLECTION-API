@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -147,5 +148,32 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         headcountMethods.put(BAND_CODE, BandResidenceHeadcountResult::getBandCode);
 
         return headcountMethods;
+    }
+
+    @Override
+    public void setResultsTableComparisonValues(HeadcountResultsTable currentCollectionData, HeadcountResultsTable previousCollectionData) {
+        Map<String, Map<String, HeadcountHeaderColumn>> previousRowsMap = previousCollectionData.getRows().stream()
+                .collect(Collectors.toMap(
+                        row -> row.get(TITLE).getCurrentValue(),
+                        Function.identity()
+                ));
+
+        for (Map<String, HeadcountHeaderColumn> currentRow : currentCollectionData.getRows()) {
+            HeadcountHeaderColumn titleColumn = currentRow.get(TITLE);
+            if (titleColumn != null && previousRowsMap.containsKey(titleColumn.getCurrentValue())) {
+                Map<String, HeadcountHeaderColumn> previousRow = previousRowsMap.get(titleColumn.getCurrentValue());
+
+                currentRow.forEach((key, currentColumn) -> {
+                    if (previousRow.containsKey(key)) {
+                        HeadcountHeaderColumn previousColumn = previousRow.get(key);
+                        currentColumn.setComparisonValue(previousColumn.getCurrentValue());
+                    } else {
+                        currentColumn.setComparisonValue("0");
+                    }
+                });
+            } else {
+                currentRow.values().forEach(column -> column.setComparisonValue("0"));
+            }
+        }
     }
 }
