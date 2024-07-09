@@ -134,7 +134,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
   public HeadcountResultsTable convertHeadcountResults(List<T> results) {
     HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
     List<String> columnTitles = new ArrayList<>(gradeCodes);
-    columnTitles.add(0, "title");
+    columnTitles.add(0, TITLE);
     columnTitles.add("Total");
     headcountResultsTable.setHeaders(columnTitles);
     headcountResultsTable.setRows(new ArrayList<>());
@@ -143,7 +143,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
     for (Map.Entry<String, String> title : rowTitles.entrySet()) {
       Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
 
-      rowData.put("title", HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
+      rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
       BigDecimal total = BigDecimal.ZERO;
 
       Function<T, String> headcountFunction = headcountMethods.get(title.getKey());
