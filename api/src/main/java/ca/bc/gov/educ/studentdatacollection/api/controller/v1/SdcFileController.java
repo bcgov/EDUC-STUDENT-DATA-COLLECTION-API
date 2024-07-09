@@ -13,6 +13,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionFileValidator;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.StaleStateException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.validation.FieldError;
@@ -60,16 +61,16 @@ public class SdcFileController implements SdcFileEndpoint {
   @Override
   public ResponseEntity<SdcSchoolCollection> processDistrictSdcBatchFile(SdcFileUpload fileUpload, String sdcDistrictCollectionID, String correlationID) {
     try {
-    log.info("Running file load for file: " + fileUpload.getFileName());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcFileService.runDistrictFileLoad(fileUpload, sdcDistrictCollectionID);
-    log.info("File data committed for file: " + fileUpload.getFileName());
-    var mapped = SdcSchoolCollectionMapper.mapper.toStructure(sdcSchoolCollectionEntity);
-    return ResponseEntity.ok(mapped);
-  }
-    catch (final ObjectOptimisticLockingFailureException objectOptimisticLockingFailureException) {
-      log.error("Unable to persist records :: {}", objectOptimisticLockingFailureException);
+      log.info("Running file load for file: " + fileUpload.getFileName());
+      SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcFileService.runDistrictFileLoad(fileUpload, sdcDistrictCollectionID);
+      log.info("File data committed for file: " + fileUpload.getFileName());
+      var mapped = SdcSchoolCollectionMapper.mapper.toStructure(sdcSchoolCollectionEntity);
+      return ResponseEntity.ok(mapped);
+    }
+    catch (final StaleStateException | ObjectOptimisticLockingFailureException dbFailureException) {
+      log.error("Unable to persist records :: {}", dbFailureException);
       ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
-      var validationError = ValidationUtil.createFieldError("sdcFileUpload", sdcDistrictCollectionID, "File upload failure: Records you are trying to update are stale. Please try again later");
+      var validationError = ValidationUtil.createFieldError("sdcFileUpload", sdcDistrictCollectionID, "File upload failed due to other operations in flight - please try again later.");
       List<FieldError> fieldErrorList = new ArrayList<>();
       fieldErrorList.add(validationError);
       error.addValidationErrors(fieldErrorList);
