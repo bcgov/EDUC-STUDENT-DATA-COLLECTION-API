@@ -74,25 +74,32 @@ public class HeadcountHelper<T extends HeadcountResult> {
             .filter(row -> row.containsKey(TITLE) && row.get(TITLE) != null)
             .collect(Collectors.toMap(
                     row -> row.get(TITLE).getCurrentValue(),
-                    Function.identity()
+                    Function.identity(),
+                    (existing, replacement) -> existing
             ));
 
-    for (Map<String, HeadcountHeaderColumn> currentRow : currentCollectionData.getRows()) {
-      HeadcountHeaderColumn titleColumn = currentRow.get(TITLE);
-      if (titleColumn != null && previousRowsMap.containsKey(titleColumn.getCurrentValue())) {
-        Map<String, HeadcountHeaderColumn> previousRow = previousRowsMap.get(titleColumn.getCurrentValue());
+    Map<String, Map<String, HeadcountHeaderColumn>> allTitles = new LinkedHashMap<>();
 
-        currentRow.forEach((key, currentColumn) -> {
-          if (previousRow.containsKey(key)) {
-            HeadcountHeaderColumn previousColumn = previousRow.get(key);
-            currentColumn.setComparisonValue(previousColumn.getCurrentValue());
-          } else {
-            currentColumn.setComparisonValue("0");
-          }
-        });
-      } else {
-        currentRow.values().forEach(column -> column.setComparisonValue("0"));
-      }
+    currentCollectionData.getRows().forEach(row -> allTitles.put(row.get(TITLE).getCurrentValue(), row));
+    previousRowsMap.keySet().forEach(title -> allTitles.putIfAbsent(title, new HashMap<>()));
+
+    for (Map.Entry<String, Map<String, HeadcountHeaderColumn>> entry : allTitles.entrySet()) {
+      String title = entry.getKey();
+      Map<String, HeadcountHeaderColumn> currentRow = entry.getValue();
+      Map<String, HeadcountHeaderColumn> previousRow = previousRowsMap.getOrDefault(title, new HashMap<>());
+
+      currentRow.forEach((key, currentColumn) -> {
+        if (previousRow.containsKey(key)) {
+          currentColumn.setComparisonValue(previousRow.get(key).getCurrentValue());
+        } else {
+          currentColumn.setComparisonValue("0");
+        }
+      });
+
+      previousRow.keySet().forEach(columnKey -> {
+        currentRow.putIfAbsent(columnKey, new HeadcountHeaderColumn("0", "0"));
+        currentRow.get(columnKey).setComparisonValue(previousRow.get(columnKey).getCurrentValue());
+      });
     }
   }
 
