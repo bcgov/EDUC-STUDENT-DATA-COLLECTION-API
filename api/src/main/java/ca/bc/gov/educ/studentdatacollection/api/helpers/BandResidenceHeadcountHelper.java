@@ -52,14 +52,14 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
         List<BandResidenceHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(previousCollectionID);
         HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, false);
-        setResultsTableComparisonValues(currentCollectionData, previousCollectionData);
+        setResultsTableComparisonValuesDynamic(currentCollectionData, previousCollectionData);
     }
 
     public void setBandResultsTableComparisonValuesDistrict(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, HeadcountResultsTable currentCollectionData, Boolean schoolTitles) {
         UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
         List<BandResidenceHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcDistrictCollectionId(previousCollectionID);
         HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, schoolTitles);
-        setResultsTableComparisonValues(currentCollectionData, previousCollectionData);
+        setResultsTableComparisonValuesDynamic(currentCollectionData, previousCollectionData);
     }
 
     public void setBandTitles(List<BandResidenceHeadcountResult> result) {
@@ -148,32 +148,5 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         headcountMethods.put(BAND_CODE, BandResidenceHeadcountResult::getBandCode);
 
         return headcountMethods;
-    }
-
-    @Override
-    public void setResultsTableComparisonValues(HeadcountResultsTable currentCollectionData, HeadcountResultsTable previousCollectionData) {
-        Map<String, Map<String, HeadcountHeaderColumn>> previousRowsMap = previousCollectionData.getRows().stream()
-                .collect(Collectors.toMap(
-                        row -> row.get(TITLE).getCurrentValue(),
-                        Function.identity()
-                ));
-
-        for (Map<String, HeadcountHeaderColumn> currentRow : currentCollectionData.getRows()) {
-            HeadcountHeaderColumn titleColumn = currentRow.get(TITLE);
-            if (titleColumn != null && previousRowsMap.containsKey(titleColumn.getCurrentValue())) {
-                Map<String, HeadcountHeaderColumn> previousRow = previousRowsMap.get(titleColumn.getCurrentValue());
-
-                currentRow.forEach((key, currentColumn) -> {
-                    if (previousRow.containsKey(key)) {
-                        HeadcountHeaderColumn previousColumn = previousRow.get(key);
-                        currentColumn.setComparisonValue(previousColumn.getCurrentValue());
-                    } else {
-                        currentColumn.setComparisonValue("0");
-                    }
-                });
-            } else {
-                currentRow.values().forEach(column -> column.setComparisonValue("0"));
-            }
-        }
     }
 }

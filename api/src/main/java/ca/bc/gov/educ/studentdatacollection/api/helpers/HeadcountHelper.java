@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Component
@@ -28,6 +29,8 @@ public class HeadcountHelper<T extends HeadcountResult> {
   protected Map<String, String> sectionTitles;
   protected Map<String, String> rowTitles;
   protected List<String> gradeCodes;
+
+  private static final String TITLE = "title";
 
   public HeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
       this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
@@ -64,6 +67,33 @@ public class HeadcountHelper<T extends HeadcountResult> {
                 currentData.forEach((rowName, currentRow) -> currentRow.setComparisonValue("0"));
               }
             });
+  }
+
+  public void setResultsTableComparisonValuesDynamic(HeadcountResultsTable currentCollectionData, HeadcountResultsTable previousCollectionData) {
+    Map<String, Map<String, HeadcountHeaderColumn>> previousRowsMap = previousCollectionData.getRows().stream()
+            .filter(row -> row.containsKey(TITLE) && row.get(TITLE) != null)
+            .collect(Collectors.toMap(
+                    row -> row.get(TITLE).getCurrentValue(),
+                    Function.identity()
+            ));
+
+    for (Map<String, HeadcountHeaderColumn> currentRow : currentCollectionData.getRows()) {
+      HeadcountHeaderColumn titleColumn = currentRow.get(TITLE);
+      if (titleColumn != null && previousRowsMap.containsKey(titleColumn.getCurrentValue())) {
+        Map<String, HeadcountHeaderColumn> previousRow = previousRowsMap.get(titleColumn.getCurrentValue());
+
+        currentRow.forEach((key, currentColumn) -> {
+          if (previousRow.containsKey(key)) {
+            HeadcountHeaderColumn previousColumn = previousRow.get(key);
+            currentColumn.setComparisonValue(previousColumn.getCurrentValue());
+          } else {
+            currentColumn.setComparisonValue("0");
+          }
+        });
+      } else {
+        currentRow.values().forEach(column -> column.setComparisonValue("0"));
+      }
+    }
   }
 
   public UUID getPreviousSeptemberCollectionID(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
