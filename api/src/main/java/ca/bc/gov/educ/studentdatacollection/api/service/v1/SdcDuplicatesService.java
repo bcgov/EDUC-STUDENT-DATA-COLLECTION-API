@@ -121,11 +121,11 @@ public class SdcDuplicatesService {
     List<SdcDuplicateEntity> finalDuplicatesSet =  generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
     sdcDuplicateRepository.saveAll(finalDuplicatesSet);
 
+    sendEmailNotificationsForProvinceDuplicates();
+
     this.collectionRepository.updateCollectionStatus(collectionID, String.valueOf(CollectionStatus.PROVDUPES));
     sdcSchoolCollectionRepository.updateAllSchoolCollectionStatus(collectionID, String.valueOf(SdcSchoolCollectionStatus.P_DUP_POST));
     sdcDistrictCollectionRepository.updateAllDistrictCollectionStatus(collectionID, String.valueOf(SdcDistrictCollectionStatus.P_DUP_POST));
-
-    sendEmailNotificationsForProvinceDuplicates();
   }
 
   private List<SdcDuplicateEntity> generateFinalDuplicatesSet(List<SdcSchoolCollectionStudentEntity> duplicateStudentEntities, DuplicateLevelCode duplicateLevelCode){
