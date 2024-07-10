@@ -98,7 +98,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
     List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcSchoolCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
-    setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
+    setResultsTableComparisonValues(collectionData, previousCollectionData);
   }
 
   public void setComparisonValuesForDistrictReporting(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
@@ -123,7 +123,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawDataForHeadcount);
     List<HeadcountHeader> previousHeadcountHeaderList = this.getHeaders(previousCollectionID, true);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
-    setResultsTableComparisonValues(collectionData, previousCollectionData);
+    setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
   }
 
   public List<HeadcountHeader> getHeaders(UUID sdcCollectionID, Boolean isDistrict) {

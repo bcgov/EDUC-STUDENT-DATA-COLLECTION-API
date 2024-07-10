@@ -78,28 +78,24 @@ public class HeadcountHelper<T extends HeadcountResult> {
                     (existing, replacement) -> existing
             ));
 
-    Map<String, Map<String, HeadcountHeaderColumn>> allTitles = new LinkedHashMap<>();
+    for (Map<String, HeadcountHeaderColumn> currentRow : currentCollectionData.getRows()) {
+      String currentTitle = currentRow.get(TITLE).getCurrentValue();
+      Map<String, HeadcountHeaderColumn> previousRow = previousRowsMap.get(currentTitle);
 
-    currentCollectionData.getRows().forEach(row -> allTitles.put(row.get(TITLE).getCurrentValue(), row));
-    previousRowsMap.keySet().forEach(title -> allTitles.putIfAbsent(title, new HashMap<>()));
+      if (previousRow != null) {
+        for (Map.Entry<String, HeadcountHeaderColumn> entry : currentRow.entrySet()) {
+          String key = entry.getKey();
+          HeadcountHeaderColumn currentColumn = entry.getValue();
 
-    for (Map.Entry<String, Map<String, HeadcountHeaderColumn>> entry : allTitles.entrySet()) {
-      String title = entry.getKey();
-      Map<String, HeadcountHeaderColumn> currentRow = entry.getValue();
-      Map<String, HeadcountHeaderColumn> previousRow = previousRowsMap.getOrDefault(title, new HashMap<>());
-
-      currentRow.forEach((key, currentColumn) -> {
-        if (previousRow.containsKey(key)) {
-          currentColumn.setComparisonValue(previousRow.get(key).getCurrentValue());
-        } else {
-          currentColumn.setComparisonValue("0");
+          if (previousRow.containsKey(key)) {
+            currentColumn.setComparisonValue(previousRow.get(key).getCurrentValue());
+          } else {
+            currentColumn.setComparisonValue("0");
+          }
         }
-      });
-
-      previousRow.keySet().forEach(columnKey -> {
-        currentRow.putIfAbsent(columnKey, new HeadcountHeaderColumn("0", "0"));
-        currentRow.get(columnKey).setComparisonValue(previousRow.get(columnKey).getCurrentValue());
-      });
+      } else {
+        currentRow.values().forEach(column -> column.setComparisonValue("0"));
+      }
     }
   }
 
