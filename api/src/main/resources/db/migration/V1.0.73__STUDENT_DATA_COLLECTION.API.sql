@@ -3,6 +3,7 @@ CREATE TABLE SDC_DISTRICT_COLLECTION_SUBMISSION_SIGNATURE
     SDC_DISTRICT_SUBMISSION_SIGNATURE_ID        UUID                                NOT NULL,
     SDC_DISTRICT_COLLECTION_ID                  UUID                                NOT NULL,
     DISTRICT_SIGNATORY_USER_ID                  VARCHAR(100)                        NOT NULL,
+    SIGNATURE_DATE                              TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CREATE_USER                                 VARCHAR(100)                        NOT NULL,
     CREATE_DATE                                 TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     UPDATE_USER                                 VARCHAR(100)                        NOT NULL,
