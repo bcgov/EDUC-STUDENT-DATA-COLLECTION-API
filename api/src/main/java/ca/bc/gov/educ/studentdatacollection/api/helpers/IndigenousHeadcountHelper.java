@@ -91,17 +91,14 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
         UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
         List<IndigenousHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcDistrictCollectionId(previousCollectionID);
         HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
-        setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
+        setResultsTableComparisonValues(collectionData, previousCollectionData);
     }
 
-    public void setComparisonValuesForDistrictBySchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
+    public void setComparisonValuesForDistrictBySchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, HeadcountResultsTable collectionData) {
         UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
         List<IndigenousHeadcountResult> collectionRawDataForHeadcount = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(previousCollectionID);
-
-        HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawDataForHeadcount);
-        List<HeadcountHeader> previousHeadcountHeaderList = this.getHeaders(previousCollectionID, true);
-        setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
-        setResultsTableComparisonValues(collectionData, previousCollectionData);
+        HeadcountResultsTable previousCollectionData = convertHeadcountResultsToSchoolGradeTable(collectionRawDataForHeadcount);
+        setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
     }
 
     @Override
