@@ -104,7 +104,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
     List<EllHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getEllHeadcountsByBySchoolIdAndSdcDistrictCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertEllBySchoolHeadcountResults(collectionRawData);
-    setResultsTableComparisonValues(collectionData, previousCollectionData);
+    setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 

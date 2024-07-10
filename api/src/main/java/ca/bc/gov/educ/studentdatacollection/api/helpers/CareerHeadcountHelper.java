@@ -121,7 +121,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
     List<CareerHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySchoolIdAndBySdcDistrictCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertCareerBySchoolHeadcountResults(collectionRawData);
-    setResultsTableComparisonValues(collectionData, previousCollectionData);
+    setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 

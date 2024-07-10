@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Component
@@ -28,6 +29,8 @@ public class HeadcountHelper<T extends HeadcountResult> {
   protected Map<String, String> sectionTitles;
   protected Map<String, String> rowTitles;
   protected List<String> gradeCodes;
+
+  private static final String TITLE = "title";
 
   public HeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
       this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
@@ -64,6 +67,40 @@ public class HeadcountHelper<T extends HeadcountResult> {
                 currentData.forEach((rowName, currentRow) -> currentRow.setComparisonValue("0"));
               }
             });
+  }
+
+  public void setResultsTableComparisonValuesDynamic(HeadcountResultsTable currentCollectionData, HeadcountResultsTable previousCollectionData) {
+    Map<String, Map<String, HeadcountHeaderColumn>> previousRowsMap = previousCollectionData.getRows().stream()
+            .filter(row -> row.containsKey(TITLE) && row.get(TITLE) != null)
+            .collect(Collectors.toMap(
+                    row -> row.get(TITLE).getCurrentValue(),
+                    Function.identity(),
+                    (existing, replacement) -> existing
+            ));
+
+    Map<String, Map<String, HeadcountHeaderColumn>> allTitles = new LinkedHashMap<>();
+
+    currentCollectionData.getRows().forEach(row -> allTitles.put(row.get(TITLE).getCurrentValue(), row));
+    previousRowsMap.keySet().forEach(title -> allTitles.putIfAbsent(title, new HashMap<>()));
+
+    for (Map.Entry<String, Map<String, HeadcountHeaderColumn>> entry : allTitles.entrySet()) {
+      String title = entry.getKey();
+      Map<String, HeadcountHeaderColumn> currentRow = entry.getValue();
+      Map<String, HeadcountHeaderColumn> previousRow = previousRowsMap.getOrDefault(title, new HashMap<>());
+
+      currentRow.forEach((key, currentColumn) -> {
+        if (previousRow.containsKey(key)) {
+          currentColumn.setComparisonValue(previousRow.get(key).getCurrentValue());
+        } else {
+          currentColumn.setComparisonValue("0");
+        }
+      });
+
+      previousRow.keySet().forEach(columnKey -> {
+        currentRow.putIfAbsent(columnKey, new HeadcountHeaderColumn("0", "0"));
+        currentRow.get(columnKey).setComparisonValue(previousRow.get(columnKey).getCurrentValue());
+      });
+    }
   }
 
   public UUID getPreviousSeptemberCollectionID(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
@@ -104,7 +141,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
   public HeadcountResultsTable convertHeadcountResults(List<T> results) {
     HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
     List<String> columnTitles = new ArrayList<>(gradeCodes);
-    columnTitles.add(0, "title");
+    columnTitles.add(0, TITLE);
     columnTitles.add("Total");
     headcountResultsTable.setHeaders(columnTitles);
     headcountResultsTable.setRows(new ArrayList<>());
@@ -113,7 +150,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
     for (Map.Entry<String, String> title : rowTitles.entrySet()) {
       Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
 
-      rowData.put("title", HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
+      rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
       BigDecimal total = BigDecimal.ZERO;
 
       Function<T, String> headcountFunction = headcountMethods.get(title.getKey());

@@ -3376,6 +3376,172 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
+    void testGetSdcSchoolCollectionStudentHeadcounts_bandHeadcounts_WithCompare() throws Exception {
+
+        CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+        collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        collection.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.FEBRUARY, 7, 0, 0));
+        CollectionEntity collection2 = collectionRepository.save(createMockCollectionEntity());
+        collection2.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        collection2.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+
+        var districtID = UUID.randomUUID();
+        var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+
+        var school1 = createMockSchool();
+        school1.setDisplayName("School1");
+        school1.setMincode("0000001");
+        school1.setDistrictId(districtID.toString());
+
+        when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+
+        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+        firstSchool.setUploadDate(null);
+        firstSchool.setUploadFileName(null);
+        firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        firstSchool.setCollectionEntity(collection);
+        firstSchool.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.FEBRUARY, 7, 0, 0));
+        var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+        secondSchool.setUploadDate(null);
+        secondSchool.setUploadFileName(null);
+        secondSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        secondSchool.setCollectionEntity(collection2);
+        secondSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+        sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchool, secondSchool));
+
+        final File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+        );
+        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+        });
+        var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+        var students = IntStream.range(0, models.size())
+                .mapToObj(i -> {
+                    models.get(i).setNativeAncestryInd("Y");
+                    if (i % 2 == 0) {
+                        models.get(i).setSdcSchoolCollection(secondSchool);
+                        models.get(i).setBandCode("0500");
+                    } else {
+                        models.get(i).setFte(BigDecimal.TEN);
+                        models.get(i).setSdcSchoolCollection(firstSchool);
+                        models.get(i).setBandCode("0500");
+                    }
+                    return models.get(i);
+                })
+                .toList();
+
+        sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        this.mockMvc
+                .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("type", "band-codes")
+                        .param("compare", "true")
+                        .contentType(APPLICATION_JSON))
+                .andDo(print())
+                //this is correct two of the students are in deleted - total of 6 is correct
+                .andExpect(jsonPath("$.headcountResultsTable.rows[*].['title'].currentValue", containsInAnyOrder("0500 - KWANLIN DUN", "All Bands & Students")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['Headcount'].currentValue", contains("2")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['FTE'].currentValue", contains("20.00")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].comparisonValue=='0500 - KWANLIN DUN')].['Headcount'].comparisonValue", contains("4")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].comparisonValue=='0500 - KWANLIN DUN')].['FTE'].comparisonValue", contains("2.72")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows", hasSize(2)));
+    }
+
+    @Test
+    void testGetSdcSchoolCollectionStudentHeadcounts_bandHeadcountsManyPrevBands_WithCompare() throws Exception {
+
+        CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+        collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        collection.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.FEBRUARY, 7, 0, 0));
+        CollectionEntity collection2 = collectionRepository.save(createMockCollectionEntity());
+        collection2.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        collection2.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+
+        var districtID = UUID.randomUUID();
+        var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+
+        var school1 = createMockSchool();
+        school1.setDisplayName("School1");
+        school1.setMincode("0000001");
+        school1.setDistrictId(districtID.toString());
+
+        when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+
+        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+        firstSchool.setUploadDate(null);
+        firstSchool.setUploadFileName(null);
+        firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        firstSchool.setCollectionEntity(collection);
+        firstSchool.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.FEBRUARY, 7, 0, 0));
+        var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+        secondSchool.setUploadDate(null);
+        secondSchool.setUploadFileName(null);
+        secondSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        secondSchool.setCollectionEntity(collection2);
+        secondSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+        sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchool, secondSchool));
+
+        final File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+        );
+        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+        });
+        var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+        var students = IntStream.range(0, models.size())
+                .mapToObj(i -> {
+                    models.get(i).setNativeAncestryInd("Y");
+                    models.get(i).setSdcSchoolCollectionStudentStatusCode("CREATED");
+                    if (i == 0) {
+                        models.get(i).setSdcSchoolCollection(firstSchool);
+                        models.get(i).setBandCode("0500");
+                    } else if (i == 1) {
+                        models.get(i).setSdcSchoolCollection(secondSchool);
+                        models.get(i).setBandCode("0500");
+                    } else if (i == 2) {
+                        models.get(i).setSdcSchoolCollection(secondSchool);
+                        models.get(i).setBandCode("0501");
+                    } else if (i == 3) {
+                        models.get(i).setSdcSchoolCollection(secondSchool);
+                        models.get(i).setBandCode("0502");
+                    } else if (i == 4) {
+                        models.get(i).setSdcSchoolCollection(secondSchool);
+                        models.get(i).setBandCode("0503");
+                    } else if (i == 5) {
+                        models.get(i).setSdcSchoolCollection(secondSchool);
+                        models.get(i).setBandCode("0504");
+                    } else if (i == 6) {
+                        models.get(i).setSdcSchoolCollection(secondSchool);
+                        models.get(i).setBandCode("0505");
+                    } else if (i == 7) {
+                        models.get(i).setSdcSchoolCollection(secondSchool);
+                        models.get(i).setBandCode("0506");
+                    } else if (i == 8) {
+                        models.get(i).setSdcSchoolCollection(secondSchool);
+                        models.get(i).setBandCode("0507");
+                    }
+                    return models.get(i);
+                })
+                .toList();
+
+        sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        this.mockMvc
+                .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.HEADCOUNTS + "/" + firstSchool.getSdcSchoolCollectionID())
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("type", "band-codes")
+                        .param("compare", "true")
+                        .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(jsonPath("$.headcountResultsTable.rows[*].['title'].currentValue", containsInAnyOrder("0500 - KWANLIN DUN", "All Bands & Students")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['Headcount'].currentValue", contains("1")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['FTE'].currentValue", contains("0.79")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].comparisonValue=='0500 - KWANLIN DUN')].['Headcount'].comparisonValue", contains("1")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].comparisonValue=='0500 - KWANLIN DUN')].['FTE'].comparisonValue", contains("1.23")))
+                .andExpect(jsonPath("$.headcountResultsTable.rows", hasSize(2)));
+    }
+
+    @Test
     void testGetSdcDistrictCollectionStudentHeadcounts_ellHeadCounts_WithCompare() throws Exception {
 
         CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
