@@ -174,28 +174,28 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
         for (IndigenousHeadcountResult result : results) {
             grades.add(result.getEnrolledGradeCode());
             schoolGradeCounts.computeIfAbsent(result.getSchoolID(), k -> new HashMap<>());
-            schoolDetails .putIfAbsent(result.getSchoolID(),
+            schoolDetails.putIfAbsent(result.getSchoolID(),
                     restUtils.getSchoolBySchoolID(result.getSchoolID())
                             .map(school -> school.getMincode() + " - " + school.getDisplayName())
                             .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", result.getSchoolID())));
         }
 
         // Initialize totals for each grade
-        for (String grade : gradeCodes) {
+        grades.forEach(grade -> {
             totalCounts.put(grade, 0);
             schoolGradeCounts.values().forEach(school -> school.putIfAbsent(grade, 0));
-        }
+        });
 
         // Sort grades and add to headers
         headers.add(TITLE);
-        headers.addAll(gradeCodes);
+        headers.addAll(grades);
         headers.add(TOTAL);
         table.setHeaders(headers);
 
         // Populate counts for each school and grade, and calculate row totals
         Map<String, Integer> schoolTotals = new HashMap<>();
         for (IndigenousHeadcountResult result : results) {
-            if (gradeCodes.contains(result.getEnrolledGradeCode())) {
+            if (grades.contains(result.getEnrolledGradeCode())) {
                 Map<String, Integer> gradeCounts = schoolGradeCounts.get(result.getSchoolID());
                 String grade = result.getEnrolledGradeCode();
                 int count = getCountFromResult(result);
@@ -211,7 +211,8 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
         totalRow.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
         totalRow.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
         totalCounts.forEach((grade, count) -> totalRow.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
-        totalRow.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotals.values().stream().mapToInt(Integer::intValue).sum())).build());
+        int allSchoolsTotal = schoolTotals.values().stream().mapToInt(Integer::intValue).sum();
+        totalRow.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(allSchoolsTotal)).build());
         rows.add(totalRow);
 
         // Create rows for the table, including school names
@@ -220,7 +221,8 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
             rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(schoolDetails.get(schoolID)).build());
             rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
             gradesCount.forEach((grade, count) -> rowData.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
-            rowData.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotals.get(schoolID))).build());
+            int schoolTotal = gradesCount.values().stream().mapToInt(Integer::intValue).sum();
+            rowData.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotal)).build());
             rows.add(rowData);
         });
 
@@ -229,12 +231,7 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
     }
 
     private int getCountFromResult(IndigenousHeadcountResult result) {
-        try {
-            return Integer.parseInt(result.getAllSupportProgramTotal());
-        } catch (NumberFormatException e) {
-            log.error("Error parsing count from result for SchoolID {}: {}", result.getSchoolID(), e.getMessage());
-            return 0;
-        }
+        return Optional.ofNullable(result.getAllSupportProgramTotal()).map(Integer::parseInt).orElse(0);
     }
 
     private Map<String, Function<IndigenousHeadcountResult, String>> getHeadcountMethods() {
