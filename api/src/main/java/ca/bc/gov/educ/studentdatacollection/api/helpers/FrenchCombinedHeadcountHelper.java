@@ -83,7 +83,7 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
         UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
         List<FrenchCombinedHeadcountResult> collectionRawDataForHeadcount = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(previousCollectionID);
 
-        HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawDataForHeadcount);
+        HeadcountResultsTable previousCollectionData = convertHeadcountResultsToSchoolGradeTable(collectionRawDataForHeadcount);
         List<HeadcountHeader> previousHeadcountHeaderList = this.getHeaders(previousCollectionID);
         setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
         setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
