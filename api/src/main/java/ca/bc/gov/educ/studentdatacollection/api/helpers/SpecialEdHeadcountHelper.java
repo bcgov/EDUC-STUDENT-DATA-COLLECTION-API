@@ -113,7 +113,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
-    setResultsTableComparisonValues(collectionData, previousCollectionData);
+    setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
   }
 
   public void setComparisonValuesForDistrictBySchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
