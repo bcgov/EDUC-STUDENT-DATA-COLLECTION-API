@@ -124,7 +124,7 @@ class EnrollmentHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
         List<EnrollmentHeadcountResult> result = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySchoolIdAndBySdcDistrictCollectionId(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
         helper.setGradeCodesForDistricts();
-        HeadcountResultsTable actualResultsTable = helper.convertEnrollmentBySchoolHeadcountResults(result);
+        HeadcountResultsTable actualResultsTable = helper.convertEnrollmentBySchoolHeadcountResults(mockDistrictCollectionEntity.getSdcDistrictCollectionID(), result);
         var schoolSection = actualResultsTable.getRows().stream().map(row -> row.get("section")).toList();
 
         var titles = actualResultsTable.getRows().stream().filter(row -> row.get("section").getCurrentValue().equals("All Schools") &&
