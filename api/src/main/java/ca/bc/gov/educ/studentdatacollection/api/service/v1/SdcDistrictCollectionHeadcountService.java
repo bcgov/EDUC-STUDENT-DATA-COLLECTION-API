@@ -107,7 +107,7 @@ public class SdcDistrictCollectionHeadcountService {
 
     collectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionID);
     headcountHeaderList = frenchCombinedHeadcountHelper.getHeaders(sdcDistrictCollectionID);
-    collectionData = frenchCombinedHeadcountHelper.convertHeadcountResultsToSchoolGradeTable(collectionRawData);
+    collectionData = frenchCombinedHeadcountHelper.convertHeadcountResultsToSchoolGradeTable(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawData);
 
     if (compare) {
       frenchCombinedHeadcountHelper.setComparisonValuesForDistrictBySchool(sdcDistrictCollectionEntity, headcountHeaderList, collectionData);
