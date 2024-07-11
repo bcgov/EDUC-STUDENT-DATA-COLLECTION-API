@@ -11,10 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeaderColumn;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResultsTable;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -59,7 +56,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
   protected Map<String, String> allSchoolRowTitles;
 
   public EnrollmentHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
-    super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
+    super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository, restUtils);
       this.restUtils = restUtils;
       headcountMethods = getHeadcountMethods();
       sectionTitles = getSelectionTitles();
@@ -108,10 +105,10 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
     List<EnrollmentHeadcountResult> prevCollectionRawData = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySchoolIdAndBySdcDistrictCollectionId(previousCollectionID);
 
     HeadcountResultsTable previousCollectionData = convertHeadcountResults(previousCollectionRawDataForHeadcounts);
-    HeadcountResultsTable prevCollectionRawDataForTable = convertEnrollmentBySchoolHeadcountResults(prevCollectionRawData);
+    HeadcountResultsTable prevCollectionRawDataForTable = convertEnrollmentBySchoolHeadcountResults(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), prevCollectionRawData);
     List<HeadcountHeader> previousHeadcountHeaderList = Arrays.asList(getStudentsHeadcountTotals(previousCollectionData), getGradesHeadcountTotals(previousCollectionData));
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
-    setResultsTableComparisonValues(collectionData, prevCollectionRawDataForTable);
+    setResultsTableComparisonValuesDynamicNested(collectionData, prevCollectionRawDataForTable);
   }
 
 
@@ -235,7 +232,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
     return rowTitles;
   }
 
-  public HeadcountResultsTable convertEnrollmentBySchoolHeadcountResults(List<EnrollmentHeadcountResult> results) {
+  public HeadcountResultsTable convertEnrollmentBySchoolHeadcountResults(UUID sdcDistrictCollectionID, List<EnrollmentHeadcountResult> results) {
     HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
     List<String> columnTitles = new ArrayList<>(gradeCodes);
     columnTitles.add(0, TITLE);
@@ -245,12 +242,17 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
 
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
 
-    List<SchoolTombstone> schoolTombstones = results.stream()
-            .map(value ->  restUtils.getSchoolBySchoolID(value.getSchoolID()).orElseThrow(() ->
-                            new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", value.toString())
+    List<SchoolTombstone> allSchoolsTobmstones = getAllSchoolTombstones(sdcDistrictCollectionID);
+
+    List<SchoolTombstone> schoolResultsTombstones = results.stream()
+            .map(value ->  restUtils.getSchoolBySchoolID(value.getSchoolID())
+                    .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", value.toString())
             )).toList();
 
-    schoolTombstones.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
+    Set<SchoolTombstone> uniqueSchoolTombstones = new HashSet<>(schoolResultsTombstones);
+    uniqueSchoolTombstones.addAll(allSchoolsTobmstones);
+
+    uniqueSchoolTombstones.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
     createAllSchoolSection(rows, results);
     headcountResultsTable.setRows(rows);
     return headcountResultsTable;

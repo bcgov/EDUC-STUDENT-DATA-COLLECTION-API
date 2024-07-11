@@ -41,7 +41,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
 
     public BandResidenceHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository,
                                         CodeTableService codeTableService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
-        super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
+        super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository, restUtils);
         this.codeTableService = codeTableService;
         this.restUtils = restUtils;
         headcountMethods = getHeadcountMethods();

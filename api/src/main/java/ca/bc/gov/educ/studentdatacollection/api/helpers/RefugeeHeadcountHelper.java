@@ -33,13 +33,9 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
 
     private static final Map<String, String> refugeeRowTitles = new HashMap<>();
 
-    private final RestUtils restUtils;
-
     public RefugeeHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
-        super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
-        this.restUtils = restUtils;
+        super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository, restUtils);
     }
-
 
     public List<HeadcountHeader> getHeaders(UUID sdcSchoolCollectionID, boolean isDistrict) {
         RefugeeHeadcountHeaderResult result = isDistrict
@@ -69,11 +65,11 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
         return headcountHeaderList;
     }
 
-    public HeadcountResultsTable convertRefugeeHeadcountResults(List<RefugeeHeadcountResult> results) {
+    public HeadcountResultsTable convertRefugeeHeadcountResults(UUID sdcDistrictCollectionID, List<RefugeeHeadcountResult> results) {
         HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
         headcountResultsTable.setHeaders(TABLE_COLUMN_TITLES);
         headcountResultsTable.setRows(new ArrayList<>());
-        setSchoolTitles(results);
+        setSchoolTitles(sdcDistrictCollectionID);
 
         BigDecimal fteTotal = BigDecimal.ZERO;
         BigDecimal headcountTotal = BigDecimal.ZERO;
@@ -131,17 +127,11 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
         return headcountResultsTable;
     }
 
-    public void setSchoolTitles(List<RefugeeHeadcountResult> result) {
+    public void setSchoolTitles(UUID sdcDistrictCollectionID) {
         refugeeRowTitles.clear();
 
-        var schoolIdInSchoolCollection = result.stream()
-                .map(RefugeeHeadcountResult::getSchoolID)
-                .filter(Objects::nonNull)
-                .toList();
+        List<SchoolTombstone> allSchools = getAllSchoolTombstones(sdcDistrictCollectionID);
 
-        schoolIdInSchoolCollection.forEach(code -> {
-            Optional<SchoolTombstone> entity = restUtils.getSchoolBySchoolID(code);
-            entity.ifPresent(school -> refugeeRowTitles.put(code, school.getMincode() + " - " + school.getDisplayName()));
-        });
+        allSchools.forEach(school -> refugeeRowTitles.put(school.getSchoolId(), school.getMincode() + " - " + school.getDisplayName()));
     }
 }

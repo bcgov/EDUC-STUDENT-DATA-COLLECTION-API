@@ -30,7 +30,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = StudentDataCollectionApiApplication.class)
@@ -206,34 +205,6 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         assertEquals("Newcomer Refugees", header.getTitle());
         assertEquals("0", header.getColumns().get("Eligible").getCurrentValue());
         assertEquals("1", header.getColumns().get("Reported").getCurrentValue());
-    }
-
-    @Test
-    void testConvertRefugeeHeadcountResults_ShouldReturnTableContents() {
-        saveRefugeeStudents();
-
-        helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, studentRepository, sdcDistrictCollectionRepository, restUtils);
-
-        List<RefugeeHeadcountResult> results = studentRepository.getRefugeeHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
-        HeadcountResultsTable actualResultsTable = helper.convertRefugeeHeadcountResults(results);
-
-        assertEquals("3", results.get(0).getHeadcount());
-        assertEquals("2.00", results.get(0).getFteTotal());
-        assertEquals("1", results.get(0).getEll());
-
-        assertTrue(actualResultsTable.getHeaders().contains("Headcount"));
-        assertTrue(actualResultsTable.getHeaders().contains("FTE"));
-        assertTrue(actualResultsTable.getHeaders().contains("ELL"));
-
-        assertEquals("All Newcomer Refugees", actualResultsTable.getRows().get(0).get("title").getCurrentValue());
-        assertEquals("2.00", actualResultsTable.getRows().get(0).get("FTE").getCurrentValue());
-        assertEquals("3", actualResultsTable.getRows().get(0).get("Headcount").getCurrentValue());
-        assertEquals("1", actualResultsTable.getRows().get(0).get("ELL").getCurrentValue());
-
-        assertEquals("03636018 - Marco's school", actualResultsTable.getRows().get(1).get("title").getCurrentValue());
-        assertEquals("2.00", actualResultsTable.getRows().get(1).get("FTE").getCurrentValue());
-        assertEquals("3", actualResultsTable.getRows().get(1).get("Headcount").getCurrentValue());
-        assertEquals("1", actualResultsTable.getRows().get(1).get("ELL").getCurrentValue());
     }
 
     void saveRefugeeStudents(){

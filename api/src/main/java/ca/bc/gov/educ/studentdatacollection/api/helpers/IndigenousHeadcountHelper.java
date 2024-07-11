@@ -49,7 +49,7 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
 
     public IndigenousHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository,
                                      SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
-        super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
+        super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository, restUtils);
         this.restUtils = restUtils;
         headcountMethods = getHeadcountMethods();
         sectionTitles = getSelectionTitles();
@@ -97,7 +97,7 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
     public void setComparisonValuesForDistrictBySchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, HeadcountResultsTable collectionData) {
         UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
         List<IndigenousHeadcountResult> collectionRawDataForHeadcount = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(previousCollectionID);
-        HeadcountResultsTable previousCollectionData = convertHeadcountResultsToSchoolGradeTable(collectionRawDataForHeadcount);
+        HeadcountResultsTable previousCollectionData = convertHeadcountResultsToSchoolGradeTable(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawDataForHeadcount);
         setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
     }
 
@@ -162,13 +162,15 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
         return headcountHeaderList;
     }
 
-    public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(List<IndigenousHeadcountResult> results) throws EntityNotFoundException {
+    public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(UUID sdcDistrictCollectionID, List<IndigenousHeadcountResult> results) throws EntityNotFoundException {
         HeadcountResultsTable table = new HeadcountResultsTable();
         List<String> headers = new ArrayList<>();
         Set<String> grades = new HashSet<>(gradeCodes);
         Map<String, Map<String, Integer>> schoolGradeCounts = new HashMap<>();
         Map<String, Integer> totalCounts = new HashMap<>();
         Map<String, String> schoolDetails  = new HashMap<>();
+
+        List<SchoolTombstone> allSchools = getAllSchoolTombstones(sdcDistrictCollectionID);
 
         // Collect all grades and initialize school-grade map
         for (IndigenousHeadcountResult result : results) {
@@ -178,6 +180,11 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
                     restUtils.getSchoolBySchoolID(result.getSchoolID())
                             .map(school -> school.getMincode() + " - " + school.getDisplayName())
                             .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", result.getSchoolID())));
+        }
+
+        for (SchoolTombstone school : allSchools) {
+            schoolGradeCounts.computeIfAbsent(school.getSchoolId(), k -> new HashMap<>());
+            schoolDetails.putIfAbsent(school.getSchoolId(), school.getMincode() + " - " + school.getDisplayName());
         }
 
         // Initialize totals for each grade

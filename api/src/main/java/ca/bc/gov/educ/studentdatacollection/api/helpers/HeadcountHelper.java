@@ -1,11 +1,15 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeader;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountHeaderColumn;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResult;
@@ -31,11 +35,14 @@ public class HeadcountHelper<T extends HeadcountResult> {
   protected List<String> gradeCodes;
 
   private static final String TITLE = "title";
+  public static final String SECTION="section";
+  private final RestUtils restUtils;
 
-  public HeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
+  public HeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
       this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
       this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
       this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
+      this.restUtils = restUtils;
   }
 
   public void setComparisonValues(List<HeadcountHeader> headcountHeaderList, List<HeadcountHeader> previousHeadcountHeaderList) {
@@ -103,6 +110,36 @@ public class HeadcountHelper<T extends HeadcountResult> {
     }
   }
 
+  public void setResultsTableComparisonValuesDynamicNested(HeadcountResultsTable currentCollectionData, HeadcountResultsTable previousCollectionData) {
+    Map<String, Map<String, HeadcountHeaderColumn>> previousRowsMap = previousCollectionData.getRows().stream()
+            .filter(row -> row.containsKey(SECTION) && row.get(SECTION) != null && row.containsKey(TITLE))
+            .collect(Collectors.toMap(
+                    row -> row.get(SECTION).getCurrentValue() + "-" + row.get(TITLE).getCurrentValue(),
+                    Function.identity(),
+                    (existing, replacement) -> existing
+            ));
+
+    Map<String, Map<String, HeadcountHeaderColumn>> allTitles = new LinkedHashMap<>();
+
+    currentCollectionData.getRows().forEach(row -> {
+      if (row.containsKey(SECTION) && row.get(SECTION) != null && row.containsKey(TITLE)) {
+        String key = row.get(SECTION).getCurrentValue() + "-" + row.get(TITLE).getCurrentValue();
+        allTitles.put(key, row);
+      }
+    });
+
+    allTitles.forEach((key, currentRow) -> {
+      Map<String, HeadcountHeaderColumn> previousRow = previousRowsMap.getOrDefault(key, new HashMap<>());
+      currentRow.forEach((columnKey, currentColumn) -> {
+        if (previousRow.containsKey(columnKey)) {
+          currentColumn.setComparisonValue(previousRow.get(columnKey).getCurrentValue());
+        } else {
+          currentColumn.setComparisonValue("0");
+        }
+      });
+    });
+  }
+
   public UUID getPreviousSeptemberCollectionID(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
     var septemberCollection = sdcSchoolCollectionRepository.findLastCollectionByType(sdcSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
     if(septemberCollection.isPresent()) {
@@ -134,7 +171,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
   }
 
   public void stripPreSchoolSection(HeadcountResultsTable collectionData) {
-    List<Map<String, HeadcountHeaderColumn>> newRows = collectionData.getRows().stream().filter(row -> !row.get("section").getCurrentValue().equalsIgnoreCase("Preschool Aged")).toList();
+    List<Map<String, HeadcountHeaderColumn>> newRows = collectionData.getRows().stream().filter(row -> !row.get(SECTION).getCurrentValue().equalsIgnoreCase("Preschool Aged")).toList();
     collectionData.setRows(newRows);
   }
 
@@ -170,10 +207,19 @@ public class HeadcountHelper<T extends HeadcountResult> {
         }
         rowData.put("Total", HeadcountHeaderColumn.builder().currentValue(String.valueOf(total)).build());
       }
-      rowData.put("section", HeadcountHeaderColumn.builder().currentValue(section).build());
+      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(section).build());
       rows.add(rowData);
     }
     headcountResultsTable.setRows(rows);
     return headcountResultsTable;
+  }
+
+  public List<SchoolTombstone> getAllSchoolTombstones(UUID sdcDistrictCollectionID) {
+    List<SdcSchoolCollectionEntity> allSchoolCollections = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
+
+    return allSchoolCollections.stream()
+            .map(schoolCollection -> restUtils.getSchoolBySchoolID(schoolCollection.getSchoolID().toString())
+                    .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", schoolCollection.getSchoolID().toString())))
+            .toList();
   }
 }

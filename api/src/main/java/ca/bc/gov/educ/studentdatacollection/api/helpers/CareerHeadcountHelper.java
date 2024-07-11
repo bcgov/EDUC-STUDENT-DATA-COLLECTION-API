@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -93,7 +94,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
   private static final String TOTAL_TITLE = "Total";
 
   public CareerHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
-    super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
+    super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository, restUtils);
     this.restUtils = restUtils;
     headcountMethods = getHeadcountMethods();
     sectionTitles = getSelectionTitles();
@@ -120,8 +121,8 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
     UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
     List<CareerHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySchoolIdAndBySdcDistrictCollectionId(previousCollectionID);
-    HeadcountResultsTable previousCollectionData = convertCareerBySchoolHeadcountResults(collectionRawData);
-    setResultsTableComparisonValues(collectionData, previousCollectionData);
+    HeadcountResultsTable previousCollectionData = convertCareerBySchoolHeadcountResults(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawData);
+    setResultsTableComparisonValuesDynamicNested(collectionData, previousCollectionData);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 
@@ -329,7 +330,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
     return rowTitles;
   }
 
-  public HeadcountResultsTable convertCareerBySchoolHeadcountResults(List<CareerHeadcountResult> results) {
+  public HeadcountResultsTable convertCareerBySchoolHeadcountResults(UUID sdcDistrictCollectionID, List<CareerHeadcountResult> results) {
     HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
     List<String> columnTitles = new ArrayList<>(gradeCodes);
     columnTitles.add(0, TITLE);
@@ -339,12 +340,17 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
 
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
 
-    List<SchoolTombstone> schoolTombstones = results.stream()
+    List<SchoolTombstone> allSchoolsTobmstones = getAllSchoolTombstones(sdcDistrictCollectionID);
+
+    List<SchoolTombstone> schoolResultsTombstones = results.stream()
             .map(value ->  restUtils.getSchoolBySchoolID(value.getSchoolID()).orElseThrow(() ->
                     new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", value.toString())
             )).toList();
 
-    schoolTombstones.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
+    Set<SchoolTombstone> uniqueSchoolTombstones = new HashSet<>(schoolResultsTombstones);
+    uniqueSchoolTombstones.addAll(allSchoolsTobmstones);
+
+    uniqueSchoolTombstones.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
     headcountResultsTable.setRows(rows);
     return headcountResultsTable;
   }

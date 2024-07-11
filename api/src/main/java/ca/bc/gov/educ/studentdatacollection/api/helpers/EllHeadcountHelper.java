@@ -54,7 +54,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
           SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository,
           SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils
   ) {
-    super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
+    super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository, restUtils);
     this.restUtils = restUtils;
     headcountMethods = getHeadcountMethods();
     perSchoolReportRowTitles = getPerSchoolReportRowTitles();
@@ -103,7 +103,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
     UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
     List<EllHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getEllHeadcountsByBySchoolIdAndSdcDistrictCollectionId(previousCollectionID);
-    HeadcountResultsTable previousCollectionData = convertEllBySchoolHeadcountResults(collectionRawData);
+    HeadcountResultsTable previousCollectionData = convertEllBySchoolHeadcountResults(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawData);
     setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
@@ -161,7 +161,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
     return rowTitles;
   }
 
-  public HeadcountResultsTable convertEllBySchoolHeadcountResults(List<EllHeadcountResult> results) {
+  public HeadcountResultsTable convertEllBySchoolHeadcountResults(UUID sdcDistrictCollectionID, List<EllHeadcountResult> results) {
     HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
     List<String> columnTitles = new ArrayList<>(gradeCodes);
     columnTitles.add(0, TITLE);
@@ -171,16 +171,21 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
 
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
 
-    List<SchoolTombstone> schoolTombstones = results.stream()
+    List<SchoolTombstone> allSchoolsTobmstones = getAllSchoolTombstones(sdcDistrictCollectionID);
+
+    List<SchoolTombstone> schoolResultsTombstones = results.stream()
             .map(value ->  restUtils.getSchoolBySchoolID(value.getSchoolID()).orElseThrow(() ->
                     new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", value.toString())
             )).toList();
+
+    Set<SchoolTombstone> uniqueSchoolTombstones = new HashSet<>(schoolResultsTombstones);
+    uniqueSchoolTombstones.addAll(allSchoolsTobmstones);
 
     Map<String, HeadcountHeaderColumn> titleRow = new LinkedHashMap<>();
     titleRow.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ELL_TITLE).build());
     titleRow.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ELL_TITLE).build());
     rows.add(titleRow);
-    schoolTombstones.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
+    uniqueSchoolTombstones.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
     createTotalSection(rows, results);
     headcountResultsTable.setRows(rows);
     return headcountResultsTable;
