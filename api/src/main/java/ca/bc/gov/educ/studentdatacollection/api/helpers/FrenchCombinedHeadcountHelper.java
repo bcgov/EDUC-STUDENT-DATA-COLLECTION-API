@@ -102,7 +102,7 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
         List<SdcSchoolCollectionEntity> allSchoolCollections = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
         List<SchoolTombstone> allSchools = allSchoolCollections.stream()
                 .map(schoolCollection -> restUtils.getSchoolBySchoolID(schoolCollection.getSchoolID().toString())
-                        .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", schoolCollection.getSchoolID().toString())))
+                .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", schoolCollection.getSchoolID().toString())))
                 .toList();
 
         // Collect all grades and initialize school-grade map

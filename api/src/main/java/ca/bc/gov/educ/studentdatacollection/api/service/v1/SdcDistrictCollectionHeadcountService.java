@@ -180,7 +180,7 @@ public class SdcDistrictCollectionHeadcountService {
     indigenousHeadcountHelper.setGradeCodesForDistricts();
 
     List<IndigenousHeadcountResult> result = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionID);
-    HeadcountResultsTable headcountResultsTable = indigenousHeadcountHelper.convertHeadcountResultsToSchoolGradeTable(result);
+    HeadcountResultsTable headcountResultsTable = indigenousHeadcountHelper.convertHeadcountResultsToSchoolGradeTable(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), result);
     List<HeadcountHeader> headcountHeaderList = indigenousHeadcountHelper.getHeaders(sdcDistrictCollectionID, true);
 
     if (compare) {
