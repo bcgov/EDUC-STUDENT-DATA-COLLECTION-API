@@ -109,7 +109,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   }
 
   public void compareWithPrevCollection(List<SpecialEdHeadcountResult> previousCollectionRawData, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData, SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
-    HeadcountResultsTable previousCollectionData = convertHeadcountResultsToSchoolGradeTable(previousCollectionRawData);
+    HeadcountResultsTable previousCollectionData = convertHeadcountResultsToSchoolGradeTable(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), previousCollectionRawData);
     UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
@@ -120,7 +120,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
     List<SpecialEdHeadcountResult> collectionRawDataForHeadcount = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySchoolIdAndBySdcDistrictCollectionId(previousCollectionID);
 
-    HeadcountResultsTable previousCollectionData = convertHeadcountResultsToSchoolGradeTable(collectionRawDataForHeadcount);
+    HeadcountResultsTable previousCollectionData = convertHeadcountResultsToSchoolGradeTable(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawDataForHeadcount);
     List<HeadcountHeader> previousHeadcountHeaderList = this.getHeaders(previousCollectionID, true);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
     setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
@@ -195,13 +195,19 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     return headcountHeaderList;
   }
 
-  public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(List<SpecialEdHeadcountResult> results) throws EntityNotFoundException {
+  public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(UUID sdcDistrictCollectionID, List<SpecialEdHeadcountResult> results) throws EntityNotFoundException {
     HeadcountResultsTable table = new HeadcountResultsTable();
     List<String> headers = new ArrayList<>();
     Set<String> grades = new HashSet<>(gradeCodes);
     Map<String, Map<String, Integer>> schoolGradeCounts = new HashMap<>();
     Map<String, Integer> totalCounts = new HashMap<>();
     Map<String, String> schoolDetails  = new HashMap<>();
+
+    List<SdcSchoolCollectionEntity> allSchoolCollections = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
+    List<SchoolTombstone> allSchools = allSchoolCollections.stream()
+            .map(schoolCollection -> restUtils.getSchoolBySchoolID(schoolCollection.getSchoolID().toString())
+            .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", schoolCollection.getSchoolID().toString())))
+            .toList();
 
     // Collect all grades and initialize school-grade map
     for (SpecialEdHeadcountResult result : results) {
@@ -211,6 +217,11 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
               restUtils.getSchoolBySchoolID(result.getSchoolID())
                       .map(school -> school.getMincode() + " - " + school.getDisplayName())
                       .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", result.getSchoolID())));
+    }
+
+    for (SchoolTombstone school : allSchools) {
+      schoolGradeCounts.computeIfAbsent(school.getSchoolId(), k -> new HashMap<>());
+      schoolDetails.putIfAbsent(school.getSchoolId(), school.getMincode() + " - " + school.getDisplayName());
     }
 
     // Initialize totals for each grade
@@ -254,7 +265,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
       rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(schoolDetails.get(schoolID)).build());
       rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
       gradesCount.forEach((grade, count) -> rowData.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
-      rowData.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotals.get(schoolID))).build());
+      rowData.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotals.getOrDefault(schoolID, 0))).build());
       rows.add(rowData);
     });
 
