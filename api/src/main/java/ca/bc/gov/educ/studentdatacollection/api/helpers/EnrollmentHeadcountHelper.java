@@ -359,6 +359,4 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
       });
     });
   }
-
-
 }

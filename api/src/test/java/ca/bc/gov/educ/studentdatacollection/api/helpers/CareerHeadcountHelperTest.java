@@ -12,7 +12,6 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.CareerHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResultsTable;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -118,7 +117,7 @@ class CareerHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
         List<CareerHeadcountResult> result = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySchoolIdAndBySdcDistrictCollectionId(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
 
-        HeadcountResultsTable actualResultsTable = helper.convertCareerBySchoolHeadcountResults(result);
+        HeadcountResultsTable actualResultsTable = helper.convertCareerBySchoolHeadcountResults(mockDistrictCollectionEntity.getSdcDistrictCollectionID(), result);
         var schoolSection = actualResultsTable.getRows().stream().map(row -> row.get("section")).toList();
 
         var titles = actualResultsTable.getRows().stream().filter(row -> row.get("section").getCurrentValue().equals("0000002 - School2") &&

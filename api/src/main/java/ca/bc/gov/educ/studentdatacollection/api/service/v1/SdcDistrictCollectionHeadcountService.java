@@ -150,7 +150,7 @@ public class SdcDistrictCollectionHeadcountService {
 
     List<CareerHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySchoolIdAndBySdcDistrictCollectionId(sdcDistrictCollectionID);
 
-    HeadcountResultsTable collectionData = careerHeadcountHelper.convertCareerBySchoolHeadcountResults(collectionRawData);
+    HeadcountResultsTable collectionData = careerHeadcountHelper.convertCareerBySchoolHeadcountResults(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawData);
     List<HeadcountHeader> headcountHeaderList = careerHeadcountHelper.getHeaders(sdcDistrictCollectionID, true);
 
     if(compare) {

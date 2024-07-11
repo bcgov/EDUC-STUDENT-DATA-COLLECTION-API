@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -120,8 +121,8 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
     UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
     List<CareerHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySchoolIdAndBySdcDistrictCollectionId(previousCollectionID);
-    HeadcountResultsTable previousCollectionData = convertCareerBySchoolHeadcountResults(collectionRawData);
-    setResultsTableComparisonValues(collectionData, previousCollectionData);
+    HeadcountResultsTable previousCollectionData = convertCareerBySchoolHeadcountResults(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawData);
+    setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 
@@ -329,7 +330,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
     return rowTitles;
   }
 
-  public HeadcountResultsTable convertCareerBySchoolHeadcountResults(List<CareerHeadcountResult> results) {
+  public HeadcountResultsTable convertCareerBySchoolHeadcountResults(UUID sdcDistrictCollectionID, List<CareerHeadcountResult> results) {
     HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
     List<String> columnTitles = new ArrayList<>(gradeCodes);
     columnTitles.add(0, TITLE);
@@ -339,12 +340,22 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
 
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
 
-    List<SchoolTombstone> schoolTombstones = results.stream()
+    List<SdcSchoolCollectionEntity> allSchoolCollections = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
+
+    List<SchoolTombstone> allSchoolsTobmstones = allSchoolCollections.stream()
+            .map(schoolCollection -> restUtils.getSchoolBySchoolID(schoolCollection.getSchoolID().toString())
+                    .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", schoolCollection.getSchoolID().toString())))
+            .toList();
+
+    List<SchoolTombstone> schoolResultsTombstones = results.stream()
             .map(value ->  restUtils.getSchoolBySchoolID(value.getSchoolID()).orElseThrow(() ->
                     new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", value.toString())
             )).toList();
 
-    schoolTombstones.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
+    Set<SchoolTombstone> uniqueSchoolTombstones = new HashSet<>(schoolResultsTombstones);
+    uniqueSchoolTombstones.addAll(allSchoolsTobmstones);
+
+    uniqueSchoolTombstones.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
     headcountResultsTable.setRows(rows);
     return headcountResultsTable;
   }
@@ -379,5 +390,36 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
       rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(schoolTombstone.getMincode() + " - " + schoolTombstone.getDisplayName()).build());
       rows.add(rowData);
     }
+  }
+
+  @Override
+  public void setResultsTableComparisonValuesDynamic(HeadcountResultsTable currentCollectionData, HeadcountResultsTable previousCollectionData) {
+    Map<String, Map<String, HeadcountHeaderColumn>> previousRowsMap = previousCollectionData.getRows().stream()
+            .filter(row -> row.containsKey(SECTION) && row.get(SECTION) != null && row.containsKey(TITLE))
+            .collect(Collectors.toMap(
+                    row -> row.get(SECTION).getCurrentValue() + "-" + row.get(TITLE).getCurrentValue(),
+                    Function.identity(),
+                    (existing, replacement) -> existing
+            ));
+
+    Map<String, Map<String, HeadcountHeaderColumn>> allTitles = new LinkedHashMap<>();
+
+    currentCollectionData.getRows().forEach(row -> {
+      if (row.containsKey(SECTION) && row.get(SECTION) != null && row.containsKey(TITLE)) {
+        String key = row.get(SECTION).getCurrentValue() + "-" + row.get(TITLE).getCurrentValue();
+        allTitles.put(key, row);
+      }
+    });
+
+    allTitles.forEach((key, currentRow) -> {
+      Map<String, HeadcountHeaderColumn> previousRow = previousRowsMap.getOrDefault(key, new HashMap<>());
+      currentRow.forEach((columnKey, currentColumn) -> {
+        if (previousRow.containsKey(columnKey)) {
+          currentColumn.setComparisonValue(previousRow.get(columnKey).getCurrentValue());
+        } else {
+          currentColumn.setComparisonValue("0");
+        }
+      });
+    });
   }
 }
