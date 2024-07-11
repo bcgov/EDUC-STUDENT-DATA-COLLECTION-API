@@ -31,6 +31,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
   protected List<String> gradeCodes;
 
   private static final String TITLE = "title";
+  public static final String SECTION="section";
 
   public HeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
       this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
@@ -103,6 +104,36 @@ public class HeadcountHelper<T extends HeadcountResult> {
     }
   }
 
+  public void setResultsTableComparisonValuesDynamicNested(HeadcountResultsTable currentCollectionData, HeadcountResultsTable previousCollectionData) {
+    Map<String, Map<String, HeadcountHeaderColumn>> previousRowsMap = previousCollectionData.getRows().stream()
+            .filter(row -> row.containsKey(SECTION) && row.get(SECTION) != null && row.containsKey(TITLE))
+            .collect(Collectors.toMap(
+                    row -> row.get(SECTION).getCurrentValue() + "-" + row.get(TITLE).getCurrentValue(),
+                    Function.identity(),
+                    (existing, replacement) -> existing
+            ));
+
+    Map<String, Map<String, HeadcountHeaderColumn>> allTitles = new LinkedHashMap<>();
+
+    currentCollectionData.getRows().forEach(row -> {
+      if (row.containsKey(SECTION) && row.get(SECTION) != null && row.containsKey(TITLE)) {
+        String key = row.get(SECTION).getCurrentValue() + "-" + row.get(TITLE).getCurrentValue();
+        allTitles.put(key, row);
+      }
+    });
+
+    allTitles.forEach((key, currentRow) -> {
+      Map<String, HeadcountHeaderColumn> previousRow = previousRowsMap.getOrDefault(key, new HashMap<>());
+      currentRow.forEach((columnKey, currentColumn) -> {
+        if (previousRow.containsKey(columnKey)) {
+          currentColumn.setComparisonValue(previousRow.get(columnKey).getCurrentValue());
+        } else {
+          currentColumn.setComparisonValue("0");
+        }
+      });
+    });
+  }
+
   public UUID getPreviousSeptemberCollectionID(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
     var septemberCollection = sdcSchoolCollectionRepository.findLastCollectionByType(sdcSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
     if(septemberCollection.isPresent()) {
@@ -134,7 +165,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
   }
 
   public void stripPreSchoolSection(HeadcountResultsTable collectionData) {
-    List<Map<String, HeadcountHeaderColumn>> newRows = collectionData.getRows().stream().filter(row -> !row.get("section").getCurrentValue().equalsIgnoreCase("Preschool Aged")).toList();
+    List<Map<String, HeadcountHeaderColumn>> newRows = collectionData.getRows().stream().filter(row -> !row.get(SECTION).getCurrentValue().equalsIgnoreCase("Preschool Aged")).toList();
     collectionData.setRows(newRows);
   }
 
@@ -170,7 +201,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
         }
         rowData.put("Total", HeadcountHeaderColumn.builder().currentValue(String.valueOf(total)).build());
       }
-      rowData.put("section", HeadcountHeaderColumn.builder().currentValue(section).build());
+      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(section).build());
       rows.add(rowData);
     }
     headcountResultsTable.setRows(rows);

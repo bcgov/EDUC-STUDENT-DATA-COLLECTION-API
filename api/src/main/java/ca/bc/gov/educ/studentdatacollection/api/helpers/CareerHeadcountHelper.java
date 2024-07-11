@@ -122,7 +122,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
     List<CareerHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySchoolIdAndBySdcDistrictCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertCareerBySchoolHeadcountResults(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawData);
-    setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
+    setResultsTableComparisonValuesDynamicNested(collectionData, previousCollectionData);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 
@@ -390,36 +390,5 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
       rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(schoolTombstone.getMincode() + " - " + schoolTombstone.getDisplayName()).build());
       rows.add(rowData);
     }
-  }
-
-  @Override
-  public void setResultsTableComparisonValuesDynamic(HeadcountResultsTable currentCollectionData, HeadcountResultsTable previousCollectionData) {
-    Map<String, Map<String, HeadcountHeaderColumn>> previousRowsMap = previousCollectionData.getRows().stream()
-            .filter(row -> row.containsKey(SECTION) && row.get(SECTION) != null && row.containsKey(TITLE))
-            .collect(Collectors.toMap(
-                    row -> row.get(SECTION).getCurrentValue() + "-" + row.get(TITLE).getCurrentValue(),
-                    Function.identity(),
-                    (existing, replacement) -> existing
-            ));
-
-    Map<String, Map<String, HeadcountHeaderColumn>> allTitles = new LinkedHashMap<>();
-
-    currentCollectionData.getRows().forEach(row -> {
-      if (row.containsKey(SECTION) && row.get(SECTION) != null && row.containsKey(TITLE)) {
-        String key = row.get(SECTION).getCurrentValue() + "-" + row.get(TITLE).getCurrentValue();
-        allTitles.put(key, row);
-      }
-    });
-
-    allTitles.forEach((key, currentRow) -> {
-      Map<String, HeadcountHeaderColumn> previousRow = previousRowsMap.getOrDefault(key, new HashMap<>());
-      currentRow.forEach((columnKey, currentColumn) -> {
-        if (previousRow.containsKey(columnKey)) {
-          currentColumn.setComparisonValue(previousRow.get(columnKey).getCurrentValue());
-        } else {
-          currentColumn.setComparisonValue("0");
-        }
-      });
-    });
   }
 }
