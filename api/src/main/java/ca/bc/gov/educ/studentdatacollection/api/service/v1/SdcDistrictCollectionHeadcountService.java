@@ -240,7 +240,7 @@ public class SdcDistrictCollectionHeadcountService {
     ellHeadcountHelper.setGradeCodesForDistricts();
 
     List<EllHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getEllHeadcountsByBySchoolIdAndSdcDistrictCollectionId(sdcDistrictCollectionID);
-    HeadcountResultsTable collectionData = ellHeadcountHelper.convertEllBySchoolHeadcountResults(collectionRawData);
+    HeadcountResultsTable collectionData = ellHeadcountHelper.convertEllBySchoolHeadcountResults(sdcDistrictCollectionID, collectionRawData);
     List<HeadcountHeader> headcountHeaderList = ellHeadcountHelper.getHeaders(sdcDistrictCollectionID, true);
     if (compare) {
       ellHeadcountHelper.setComparisonValuesForDistrictBySchool(sdcDistrictCollectionEntity, headcountHeaderList, collectionData);

@@ -175,7 +175,7 @@ class EllHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         helper.setGradeCodesForDistricts();
         List<EllHeadcountResult> result = sdcSchoolCollectionStudentRepository.getEllHeadcountsByBySchoolIdAndSdcDistrictCollectionId(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
 
-        HeadcountResultsTable actualResultsTable = helper.convertEllBySchoolHeadcountResults(result);
+        HeadcountResultsTable actualResultsTable = helper.convertEllBySchoolHeadcountResults(mockDistrictCollectionEntity.getSdcDistrictCollectionID(), result);
 
         var titles = actualResultsTable.getRows().stream().filter(row ->
                 row.get("title").getCurrentValue().equals("0000002 - School2")).findAny();
