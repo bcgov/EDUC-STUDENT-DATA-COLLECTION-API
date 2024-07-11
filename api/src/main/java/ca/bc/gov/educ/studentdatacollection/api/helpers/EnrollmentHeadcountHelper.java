@@ -245,8 +245,6 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
 
     List<SdcSchoolCollectionEntity> allSchoolCollections = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
 
-    log.debug(String.valueOf(allSchoolCollections.size()));
-
     List<SchoolTombstone> allSchoolsTobmstones = allSchoolCollections.stream()
             .map(schoolCollection -> restUtils.getSchoolBySchoolID(schoolCollection.getSchoolID().toString())
                     .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", schoolCollection.getSchoolID().toString())))
@@ -257,8 +255,6 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
                     .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", value.toString())
             )).toList();
 
-    log.debug(String.valueOf(allSchoolsTobmstones.size()));
-    log.debug(String.valueOf(schoolResultsTombstones.size()));
     Set<SchoolTombstone> uniqueSchoolTombstones = new HashSet<>(schoolResultsTombstones);
     uniqueSchoolTombstones.addAll(allSchoolsTobmstones);
 
