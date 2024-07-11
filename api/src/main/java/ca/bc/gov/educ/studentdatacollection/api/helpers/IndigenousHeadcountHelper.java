@@ -49,7 +49,7 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
 
     public IndigenousHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository,
                                      SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
-        super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
+        super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository, restUtils);
         this.restUtils = restUtils;
         headcountMethods = getHeadcountMethods();
         sectionTitles = getSelectionTitles();
@@ -170,11 +170,7 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
         Map<String, Integer> totalCounts = new HashMap<>();
         Map<String, String> schoolDetails  = new HashMap<>();
 
-        List<SdcSchoolCollectionEntity> allSchoolCollections = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
-        List<SchoolTombstone> allSchools = allSchoolCollections.stream()
-                .map(schoolCollection -> restUtils.getSchoolBySchoolID(schoolCollection.getSchoolID().toString())
-                .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", schoolCollection.getSchoolID().toString())))
-                .toList();
+        List<SchoolTombstone> allSchools = getAllSchoolTombstones(sdcDistrictCollectionID);
 
         // Collect all grades and initialize school-grade map
         for (IndigenousHeadcountResult result : results) {

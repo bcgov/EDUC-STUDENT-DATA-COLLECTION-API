@@ -54,7 +54,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
           SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository,
           SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils
   ) {
-    super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository);
+    super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository, restUtils);
     this.restUtils = restUtils;
     headcountMethods = getHeadcountMethods();
     perSchoolReportRowTitles = getPerSchoolReportRowTitles();
@@ -171,12 +171,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
 
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
 
-    List<SdcSchoolCollectionEntity> allSchoolCollections = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
-
-    List<SchoolTombstone> allSchoolsTobmstones = allSchoolCollections.stream()
-            .map(schoolCollection -> restUtils.getSchoolBySchoolID(schoolCollection.getSchoolID().toString())
-                    .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", schoolCollection.getSchoolID().toString())))
-            .toList();
+    List<SchoolTombstone> allSchoolsTobmstones = getAllSchoolTombstones(sdcDistrictCollectionID);
 
     List<SchoolTombstone> schoolResultsTombstones = results.stream()
             .map(value ->  restUtils.getSchoolBySchoolID(value.getSchoolID()).orElseThrow(() ->
