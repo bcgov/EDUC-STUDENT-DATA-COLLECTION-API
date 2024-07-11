@@ -215,7 +215,7 @@ class RefugeeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         helper = new RefugeeHeadcountHelper(sdcSchoolCollectionRepository, studentRepository, sdcDistrictCollectionRepository, restUtils);
 
         List<RefugeeHeadcountResult> results = studentRepository.getRefugeeHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID());
-        HeadcountResultsTable actualResultsTable = helper.convertRefugeeHeadcountResults(results);
+        HeadcountResultsTable actualResultsTable = helper.convertRefugeeHeadcountResults(mockDistrictCollectionEntityFeb.getSdcDistrictCollectionID(), results);
 
         assertEquals("3", results.get(0).getHeadcount());
         assertEquals("2.00", results.get(0).getFteTotal());

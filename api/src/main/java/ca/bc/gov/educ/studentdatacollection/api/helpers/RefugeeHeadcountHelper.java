@@ -1,10 +1,13 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -69,11 +72,11 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
         return headcountHeaderList;
     }
 
-    public HeadcountResultsTable convertRefugeeHeadcountResults(List<RefugeeHeadcountResult> results) {
+    public HeadcountResultsTable convertRefugeeHeadcountResults(UUID sdcDistrictCollectionID, List<RefugeeHeadcountResult> results) {
         HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
         headcountResultsTable.setHeaders(TABLE_COLUMN_TITLES);
         headcountResultsTable.setRows(new ArrayList<>());
-        setSchoolTitles(results);
+        setSchoolTitles(sdcDistrictCollectionID);
 
         BigDecimal fteTotal = BigDecimal.ZERO;
         BigDecimal headcountTotal = BigDecimal.ZERO;
@@ -131,17 +134,15 @@ public class RefugeeHeadcountHelper extends HeadcountHelper<RefugeeHeadcountResu
         return headcountResultsTable;
     }
 
-    public void setSchoolTitles(List<RefugeeHeadcountResult> result) {
+    public void setSchoolTitles(UUID sdcDistrictCollectionID) {
         refugeeRowTitles.clear();
 
-        var schoolIdInSchoolCollection = result.stream()
-                .map(RefugeeHeadcountResult::getSchoolID)
-                .filter(Objects::nonNull)
+        List<SdcSchoolCollectionEntity> allSchoolCollections = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
+        List<SchoolTombstone> allSchools = allSchoolCollections.stream()
+                .map(schoolCollection -> restUtils.getSchoolBySchoolID(schoolCollection.getSchoolID().toString())
+                        .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", schoolCollection.getSchoolID().toString())))
                 .toList();
 
-        schoolIdInSchoolCollection.forEach(code -> {
-            Optional<SchoolTombstone> entity = restUtils.getSchoolBySchoolID(code);
-            entity.ifPresent(school -> refugeeRowTitles.put(code, school.getMincode() + " - " + school.getDisplayName()));
-        });
+        allSchools.forEach(school -> refugeeRowTitles.put(school.getSchoolId(), school.getMincode() + " - " + school.getDisplayName()));
     }
 }

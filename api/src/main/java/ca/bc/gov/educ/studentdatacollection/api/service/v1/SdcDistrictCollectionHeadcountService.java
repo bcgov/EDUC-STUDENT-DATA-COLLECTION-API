@@ -253,7 +253,7 @@ public class SdcDistrictCollectionHeadcountService {
     List<RefugeeHeadcountResult> result = sdcSchoolCollectionStudentRepository.getRefugeeHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionID);
 
     List<HeadcountHeader> headcountHeaderList = refugeeHeadcountHelper.getHeaders(sdcDistrictCollectionID, true);
-    HeadcountResultsTable headcountResultsTable = refugeeHeadcountHelper.convertRefugeeHeadcountResults(result);
+    HeadcountResultsTable headcountResultsTable = refugeeHeadcountHelper.convertRefugeeHeadcountResults(sdcDistrictCollectionID, result);
 
     if (compare) {
       log.info("compare block refugee per school headcount");
