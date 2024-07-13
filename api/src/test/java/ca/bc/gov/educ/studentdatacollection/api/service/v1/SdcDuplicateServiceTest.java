@@ -139,10 +139,6 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     student1.setSpecialEducationCategoryCode(null);
     student1.setEnrolledProgramCodes("0817");
     student1.setIsAdult(false);
-    /*student1.setSdcStudentEnrolledProgramEntities(Set.of(
-      SdcSchoolCollectionStudentEnrolledProgramEntity.builder().sdcSchoolCollectionStudentEntity(student1).enrolledProgramCode("08").build(),
-      SdcSchoolCollectionStudentEnrolledProgramEntity.builder().sdcSchoolCollectionStudentEntity(student1).enrolledProgramCode("17").build()
-    ));*/
     sdcSchoolCollectionStudentRepository.save(student1).getSdcSchoolCollectionStudentID();
     var student2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
     student2.setAssignedStudentId(studentID);
@@ -150,10 +146,6 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     student2.setEnrolledProgramCodes("0817");
     student2.setIsAdult(false);
     student2.setEnrolledGradeCode("10");
-    /*student2.setSdcStudentEnrolledProgramEntities(Set.of(
-            SdcSchoolCollectionStudentEnrolledProgramEntity.builder().sdcSchoolCollectionStudentEntity(student2).enrolledProgramCode("08").build(),
-            SdcSchoolCollectionStudentEnrolledProgramEntity.builder().sdcSchoolCollectionStudentEntity(student2).enrolledProgramCode("17").build()
-    ));*/
     sdcSchoolCollectionStudentRepository.save(student2);
 
     val sdcDuplicates = sdcDuplicateService.getAllInDistrictCollectionDuplicates(sdcDistrictCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
