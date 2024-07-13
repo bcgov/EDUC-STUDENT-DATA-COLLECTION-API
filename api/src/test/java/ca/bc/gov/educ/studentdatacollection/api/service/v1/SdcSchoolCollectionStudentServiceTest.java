@@ -354,7 +354,7 @@ class SdcSchoolCollectionStudentServiceTest {
                 .thenReturn(Collections.emptyList());
 
         // When
-        SdcSchoolCollectionStudentEntity result = sdcSchoolCollectionStudentService.validateAndProcessSdcSchoolCollectionStudent(studentEntity, studentEntity);
+        SdcSchoolCollectionStudentEntity result = sdcSchoolCollectionStudentService.validateAndProcessSdcSchoolCollectionStudent(studentEntity, studentEntity, false);
 
         // Assert
         assertNotSame(studentEntity, result);
@@ -398,7 +398,7 @@ class SdcSchoolCollectionStudentServiceTest {
 
         // When and assert
         InvalidPayloadException thrown = assertThrows(InvalidPayloadException.class, () -> {
-            sdcSchoolCollectionStudentService.validateAndProcessSdcSchoolCollectionStudent(studentEntity, studentEntity);
+            sdcSchoolCollectionStudentService.validateAndProcessSdcSchoolCollectionStudent(studentEntity, studentEntity, false);
         }, "SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicate.");
 
         assertNotNull(thrown.getError());
