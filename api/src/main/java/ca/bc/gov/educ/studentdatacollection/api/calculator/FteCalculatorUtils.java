@@ -106,7 +106,7 @@ public class FteCalculatorUtils {
         }
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         var school = studentRuleData.getSchool();
-        var isIndependentOnlineSchool = school != null && StringUtils.equals(school.getSchoolCategoryCode(), SchoolCategoryCodes.INDEPEND.getCode()) && StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode());
+        var isIndependentOnlineSchool = school != null && SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode()) && StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode());
         var isStudentInDistrictFundedGrade = SchoolGradeCodes.getDistrictFundingGrades().contains(student.getEnrolledGradeCode());
 
         long countAllByAssignedStudentIdAndSdcSchoolCollectionSdcSchoolCollectionIDIn = 0;
@@ -153,7 +153,7 @@ public class FteCalculatorUtils {
             var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
             List<SdcSchoolCollectionEntity> previousCollections = null;
 
-            if (StringUtils.equals(studentRuleData.getSchool().getSchoolCategoryCode(), SchoolCategoryCodes.INDEPEND.getCode())) {
+            if (SchoolCategoryCodes.INDEPENDENTS.contains(studentRuleData.getSchool().getSchoolCategoryCode())) {
                 var schoolIds = restUtils.getSchoolIDsByIndependentAuthorityID(studentRuleData.getSchool().getIndependentAuthorityId());
                 if (schoolIds.isPresent()) {
                     previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(schoolIds.get(), fiscalSnapshotDate, currentSnapshotDate);

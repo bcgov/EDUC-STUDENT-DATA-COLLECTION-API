@@ -26,7 +26,7 @@ public class IndependentSchoolAndBandCodeCalculator implements FteCalculator {
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
         log.debug("IndependentSchoolAndBandCodeCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        var isIndependentSchool = studentData.getSchool() != null && (StringUtils.equals(studentData.getSchool().getSchoolCategoryCode(), SchoolCategoryCodes.INDEPEND.getCode()) || StringUtils.equals(studentData.getSchool().getSchoolCategoryCode(), SchoolCategoryCodes.INDP_FNS.getCode()));
+        var isIndependentSchool = studentData.getSchool() != null && SchoolCategoryCodes.INDEPENDENTS.contains(studentData.getSchool().getSchoolCategoryCode());
         var hasBandCode = StringUtils.isNotBlank(studentData.getSdcSchoolCollectionStudentEntity().getBandCode());
         var fundingCode = studentData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode();
 

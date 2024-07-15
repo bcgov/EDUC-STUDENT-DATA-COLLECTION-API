@@ -42,8 +42,7 @@ public class IndependentSchoolGraduateStudentRule extends BaseAdultSchoolAgeRule
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
         var shouldExecute = !FteCalculatorUtils.getCollectionTypeCode(studentRuleData).equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
-                && (studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) ||
-                studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))
+                && (SchoolCategoryCodes.INDEPENDENTS.contains(studentRuleData.getSchool().getSchoolCategoryCode()))
                 && isValidationDependencyResolved("V49", validationErrorsMap)
                 && DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
 

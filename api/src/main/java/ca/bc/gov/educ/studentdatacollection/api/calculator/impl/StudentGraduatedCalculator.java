@@ -20,7 +20,6 @@ import java.util.Set;
 @Slf4j
 @Order(15)
 public class StudentGraduatedCalculator implements FteCalculator {
-    private static final Set<String> INDEPENDENTS = new HashSet<>(Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode()));
     @Override
     public void setNext(FteCalculator nextCalculator) {
         // This is a final node of the decision tree, so there is no next to set
@@ -36,7 +35,7 @@ public class StudentGraduatedCalculator implements FteCalculator {
         if (Boolean.TRUE.equals(studentData.getSdcSchoolCollectionStudentEntity().getIsGraduated())) {
             log.debug("StudentGraduatedCalculator: calculating for a graduated student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             fteCalculationResult.setFte(numCourses.multiply(fteMultiplier).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros());
-            if(INDEPENDENTS.contains(studentData.getSchool().getSchoolCategoryCode())) {
+            if(SchoolCategoryCodes.INDEPENDENTS.contains(studentData.getSchool().getSchoolCategoryCode())) {
                 fteCalculationResult.setFte(fteCalculationResult.getFte().compareTo(BigDecimal.ONE) > 0 ? BigDecimal.ONE : fteCalculationResult.getFte());
             }
         } else {

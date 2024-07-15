@@ -67,7 +67,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
   }
 
   public void setGradeCodes(Optional<SchoolTombstone> school) {
-    if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))) {
+    if(school.isPresent() && SchoolCategoryCodes.INDEPENDENTS.contains(school.get().getSchoolCategoryCode())) {
       gradeCodes = Arrays.stream(SchoolGradeCodes.values()).map(SchoolGradeCodes::getCode).toList();
     } else {
       gradeCodes = SchoolGradeCodes.getNonIndependentSchoolGrades();

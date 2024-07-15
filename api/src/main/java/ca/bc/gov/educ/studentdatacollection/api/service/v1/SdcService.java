@@ -38,7 +38,6 @@ public class SdcService {
   private final CollectionRepository collectionRepository;
   private final CollectionTypeCodeRepository collectionCodeRepository;
   private final SdcSchoolCollectionHistoryService sdcSchoolHistoryService;
-  private static final Set<String> INDEPENDENTS = new HashSet<>(Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode()));
 
   private final Executor paginatedQueryExecutor = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
@@ -78,7 +77,7 @@ public class SdcService {
     listOfSchoolTombstones.forEach(school -> {
 
       UUID sdcDistrictCollectionID = null;
-      if(INDEPENDENTS.contains(school.getSchoolCategoryCode())){
+      if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())){
         sdcDistrictCollectionID = sdcDistrictEntityList.get(UUID.fromString(school.getDistrictId())).getSdcDistrictCollectionID();
       }
 

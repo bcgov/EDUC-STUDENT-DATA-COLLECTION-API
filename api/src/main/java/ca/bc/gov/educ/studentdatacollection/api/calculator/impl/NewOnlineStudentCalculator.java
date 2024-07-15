@@ -50,7 +50,7 @@ public class NewOnlineStudentCalculator implements FteCalculator {
             } else if (student.getEnrolledGradeCode().equals(SchoolGradeCodes.HOMESCHOOL.getCode())) {
                 log.debug("NewOnlineStudentCalculator: Fte result {} calculated with zero reason '{}' for student :: {}", fteCalculationResult.getFte(), fteCalculationResult.getFteZeroReason(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 fteCalculationResult.setFte(BigDecimal.ZERO);
-                if (studentData.getSchool().getSchoolCategoryCode().equals(SchoolCategoryCodes.INDEPEND.getCode())) {
+                if (SchoolCategoryCodes.INDEPENDENTS.contains(studentData.getSchool().getSchoolCategoryCode())) {
                     fteCalculationResult.setFteZeroReason(IND_AUTH_DUPLICATE_FUNDING.getCode());
                 } else {
                     fteCalculationResult.setFteZeroReason(DISTRICT_DUPLICATE_FUNDING.getCode());

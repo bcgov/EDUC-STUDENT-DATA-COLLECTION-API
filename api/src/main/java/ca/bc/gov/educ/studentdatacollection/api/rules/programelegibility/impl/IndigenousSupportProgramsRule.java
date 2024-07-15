@@ -53,7 +53,7 @@ public class IndigenousSupportProgramsRule implements ProgramEligibilityBaseRule
       errors.add(ProgramEligibilityIssueCode.INDIGENOUS_ADULT);
     } else if (StringUtils.isEmpty(ancestryData) || ancestryData.equalsIgnoreCase("N")) {
       errors.add(ProgramEligibilityIssueCode.NO_INDIGENOUS_ANCESTRY);
-    } else if (studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode())) {
+    } else if (SchoolCategoryCodes.INDEPENDENTS.contains(studentRuleData.getSchool().getSchoolCategoryCode())) {
       errors.add(ProgramEligibilityIssueCode.INDIGENOUS_INDY_SCHOOL);
     }
     return errors;
