@@ -32,22 +32,21 @@ import java.util.*;
 @Slf4j
 public class RefugeeHeadcountPerSchoolReportService extends BaseReportGenerationService<RefugeeHeadcountResult> {
 
-    private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final RestUtils restUtils;
     private JasperReport refugeeHeadcountReport;
     private List<RefugeeHeadcountResult> refugeeHeadcounts;
+    private List<SchoolTombstone> allSchoolsTombstones;
     private final ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
     private static final String HEADING = "Heading";
     private static final String HEADCOUNT = "Headcount";
     private static final String ALL_REFUGEE_HEADING = "allRefugeeHeading";
 
-    protected RefugeeHeadcountPerSchoolReportService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository1, RestUtils restUtils) {
+    protected RefugeeHeadcountPerSchoolReportService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, RestUtils restUtils) {
         super(restUtils, sdcSchoolCollectionRepository);
         this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
         this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
-        this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository1;
         this.restUtils = restUtils;
     }
 
@@ -74,6 +73,7 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
                     new EntityNotFoundException(SdcDistrictCollectionEntity.class, "CollectionId", collectionID.toString()));
 
             refugeeHeadcounts = sdcSchoolCollectionStudentRepository.getRefugeeHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+            this.allSchoolsTombstones = getAllSchoolTombstones(collectionID);
             return generateJasperReport(convertToRefugeeReportJSONStringDistrict(refugeeHeadcounts, sdcDistrictCollectionEntity), refugeeHeadcountReport, ReportTypeCode.DIS_REFUGEE_HEADCOUNT_PER_SCHOOL);
         } catch (JsonProcessingException e) {
             log.error("Exception occurred while writing PDF report for band of residence report :: " + e.getMessage());
@@ -97,6 +97,7 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
 
     protected HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
         HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
+        Set<String> includedSchoolIDs = new HashSet<>();
         addValuesForSectionToMap(nodeMap, "allRefugee", "All Newcomer Refugees", "00");
 
         int sequencePrefix = 10;
@@ -106,6 +107,7 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
                 SchoolTombstone school = restUtils.getSchoolBySchoolID(schoolID).orElse(null);
 
                 if (school != null) {
+                    includedSchoolIDs.add(school.getSchoolId());
                     String schoolTitle = school.getMincode() + " - " + school.getDisplayName();
                     addValuesForSectionToMap(nodeMap, schoolID, schoolTitle, String.valueOf(sequencePrefix));
                 }
@@ -113,6 +115,15 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
                 sequencePrefix += 10;
             }
         }
+
+        for (SchoolTombstone school : allSchoolsTombstones) {
+            if (!includedSchoolIDs.contains(school.getSchoolId())) {
+                String schoolTitle = school.getMincode() + " - " + school.getDisplayName();
+                addValuesForSectionToMap(nodeMap, school.getSchoolId(), schoolTitle, String.valueOf(sequencePrefix));
+                sequencePrefix += 10;
+            }
+        }
+
         return nodeMap;
     }
 
