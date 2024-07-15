@@ -82,7 +82,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
          if(StringUtils.isNotBlank(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())) {
              RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
             return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent
-                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
+                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent), false));
         } else {
              RequestUtil.setAuditColumnsForCreate(sdcSchoolCollectionStudent);
             return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.createSdcSchoolCollectionStudent
