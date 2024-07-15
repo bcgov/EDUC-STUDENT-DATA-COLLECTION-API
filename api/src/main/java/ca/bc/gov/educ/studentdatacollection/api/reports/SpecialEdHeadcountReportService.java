@@ -34,7 +34,7 @@ public class SpecialEdHeadcountReportService extends BaseReportGenerationService
   private JasperReport specialEdHeadcountReport;
 
   public SpecialEdHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
-      super(restUtils);
+      super(restUtils, sdcSchoolCollectionRepository);
       this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
       this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
   }

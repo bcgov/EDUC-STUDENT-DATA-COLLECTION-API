@@ -36,7 +36,7 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
     private static final String HEADING = "Heading";
 
     public BandOfResidenceHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, CodeTableService codeTableService) {
-        super(restUtils);
+        super(restUtils, sdcSchoolCollectionRepository);
         this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
         this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
         this.codeTableService = codeTableService;

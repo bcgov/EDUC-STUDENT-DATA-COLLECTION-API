@@ -6,9 +6,11 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
@@ -33,14 +35,17 @@ import java.util.*;
 public abstract class BaseReportGenerationService<T> {
 
   private final RestUtils restUtils;
+  private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+
   DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
   protected static final String FALSE = "false";
 
   private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
-  protected BaseReportGenerationService(RestUtils restUtils) {
+  protected BaseReportGenerationService(RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository) {
     this.restUtils = restUtils;
+    this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
   }
 
   protected DownloadableReportResponse generateJasperReport(String reportJSON, JasperReport jasperReport, ReportTypeCode reportTypeCode){
@@ -139,4 +144,12 @@ public abstract class BaseReportGenerationService<T> {
     return params;
   }
 
+  public List<SchoolTombstone> getAllSchoolTombstones(UUID sdcDistrictCollectionID) {
+    List<SdcSchoolCollectionEntity> allSchoolCollections = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
+
+    return allSchoolCollections.stream()
+            .map(schoolCollection -> restUtils.getSchoolBySchoolID(schoolCollection.getSchoolID().toString())
+                    .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollection.class, "SchoolID", schoolCollection.getSchoolID().toString())))
+            .toList();
+  }
 }

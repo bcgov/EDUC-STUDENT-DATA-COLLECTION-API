@@ -36,17 +36,16 @@ import java.util.*;
 @Slf4j
 public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGenerationService<CareerHeadcountResult>{
 
-  private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
-  private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
+    private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private JasperReport careerProgramHeadcountPerSchoolReport;
   private final RestUtils restUtils;
   private List<CareerHeadcountResult> careerHeadcounts = new ArrayList<>();
+  private List<SchoolTombstone> allSchoolsTombstones;
   private final  ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
   public CareerProgramHeadcountPerSchoolReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils1) {
-      super(restUtils);
-      this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
+      super(restUtils, sdcSchoolCollectionRepository);
       this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
       this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
       this.restUtils = restUtils1;
@@ -77,6 +76,7 @@ public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGene
                 new EntityNotFoundException(SdcDistrictCollectionEntity.class, "CollectionId", collectionID.toString()));
 
         careerHeadcounts = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySchoolIdAndBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+        this.allSchoolsTombstones = getAllSchoolTombstones(collectionID);
         return generateJasperReport(convertToCareerProgramReportJSONStringDistrict(careerHeadcounts, sdcDistrictCollectionEntity), careerProgramHeadcountPerSchoolReport, ReportTypeCode.DIS_CAREER_HEADCOUNT_PER_SCHOOL);
       } catch (JsonProcessingException e) {
         log.error("Exception occurred while writing PDF report for grade enrollment dis :: " + e.getMessage());
@@ -100,6 +100,7 @@ public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGene
 
   public HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH){
     HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
+    Set<String> includedSchoolIDs = new HashSet<>();
 
     int sequencePrefix = 10;
     if (!careerHeadcounts.isEmpty()) {
@@ -108,12 +109,22 @@ public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGene
         Optional<SchoolTombstone> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
         int finalSequencePrefix = sequencePrefix;
         schoolOptional.ifPresent(school -> {
+          includedSchoolIDs.add(school.getSchoolId());
           String schoolTitle = school.getMincode() + " - " + school.getDisplayName();
           addValuesForSectionToMap(nodeMap, schoolID, schoolTitle, String.valueOf(finalSequencePrefix));
         });
         sequencePrefix += 10;
       }
     }
+
+    for (SchoolTombstone school : allSchoolsTombstones) {
+      if (!includedSchoolIDs.contains(school.getSchoolId())) {
+        String schoolTitle = school.getMincode() + " - " + school.getDisplayName();
+        addValuesForSectionToMap(nodeMap, school.getSchoolId(), schoolTitle, String.valueOf(sequencePrefix));
+        sequencePrefix += 10;
+      }
+    }
+
     return nodeMap;
   }
 
