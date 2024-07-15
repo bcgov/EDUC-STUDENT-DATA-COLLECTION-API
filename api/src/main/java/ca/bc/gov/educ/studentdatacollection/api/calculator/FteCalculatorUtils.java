@@ -46,6 +46,14 @@ public class FteCalculatorUtils {
     }
 
     /**
+     * Returns true if the collection is a February or May collection; otherwise it is false
+     */
+    public boolean isFebruaryCollection(StudentRuleData studentRuleData) {
+        var collectionTypeCode = getCollectionTypeCode(studentRuleData);
+        return StringUtils.equals(collectionTypeCode, CollectionTypeCodes.FEBRUARY.getTypeCode());
+    }
+
+    /**
      * Returns true if the collection is a May collection; otherwise it is false
      */
     public boolean isMayCollection(StudentRuleData studentRuleData) {
@@ -112,16 +120,6 @@ public class FteCalculatorUtils {
         long countAllByAssignedStudentIdAndSdcSchoolCollectionSdcSchoolCollectionIDIn = 0;
 
         if(isSpringCollection(studentRuleData) && isIndependentOnlineSchool && isStudentInDistrictFundedGrade && (StringUtils.isNotBlank(school.getIndependentAuthorityId()))) {
-            var schoolIDs = restUtils.getSchoolIDsByIndependentAuthorityID(school.getIndependentAuthorityId());
-            if (schoolIDs.isPresent()) {
-                var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
-                var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
-                var previousCollections = sdcSchoolCollectionRepository.findSeptemberCollectionsForSchoolsForFiscalYearToCurrentCollection(schoolIDs.get(), fiscalSnapshotDate, currentSnapshotDate);
-                countAllByAssignedStudentIdAndSdcSchoolCollectionSdcSchoolCollectionIDIn += sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInExcludingHomeschool(student.getAssignedStudentId(), previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList());
-            }
-        }
-
-        if(isMayCollection(studentRuleData) && isIndependentOnlineSchool && isStudentInDistrictFundedGrade && (StringUtils.isNotBlank(school.getIndependentAuthorityId()))) {
             var schoolIDs = restUtils.getSchoolIDsByIndependentAuthorityID(school.getIndependentAuthorityId());
             if (schoolIDs.isPresent()) {
                 var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
