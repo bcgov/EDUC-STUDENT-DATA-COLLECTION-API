@@ -34,19 +34,18 @@ import java.util.*;
 public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationService<FrenchCombinedHeadcountResult> {
 
     protected static final String ALLFRENCH = "allFrench";
-    private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final RestUtils restUtils;
+    private List<SchoolTombstone> allSchoolsTombstones;
     private List<FrenchCombinedHeadcountResult> frenchCombinedHeadcountList;
     private JasperReport frenchPerSchoolHeadcountReport;
     private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
-    public FrenchPerSchoolHeadcountReportService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository1, RestUtils restUtils) {
+    public FrenchPerSchoolHeadcountReportService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository , RestUtils restUtils) {
         super(restUtils, sdcSchoolCollectionRepository);
         this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
         this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
-        this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository1;
         this.restUtils = restUtils;
     }
 
@@ -74,6 +73,7 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
             SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
                     new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection by Id", collectionID.toString()));
 
+            this.allSchoolsTombstones = getAllSchoolTombstones(collectionID);
             var programList = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
             this.frenchCombinedHeadcountList = programList;
             return generateJasperReport(convertToFrenchProgramReportJSONStringDistrict(programList, sdcDistrictCollectionEntity), frenchPerSchoolHeadcountReport, ReportTypeCode.DIS_FRENCH_HEADCOUNT_PER_SCHOOL);
@@ -99,6 +99,7 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
 
     protected HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
         HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
+        Set<String> includedSchoolIDs = new HashSet<>();
         addValuesForSectionToMap(nodeMap, ALLFRENCH, "All French Programs", "00", includeKH);
         int sequencePrefix = 10;
 
@@ -108,12 +109,22 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
                 Optional<SchoolTombstone> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
                 int finalSequencePrefix = sequencePrefix;
                 schoolOptional.ifPresent(school -> {
+                    includedSchoolIDs.add(school.getSchoolId());
                     String schoolTitle = school.getMincode() + " - " + school.getDisplayName();
                     addValuesForSectionToMap(nodeMap, schoolID, schoolTitle, String.valueOf(finalSequencePrefix), includeKH);
                 });
                 sequencePrefix += 10;
             }
         }
+
+        for (SchoolTombstone school : allSchoolsTombstones) {
+            if (!includedSchoolIDs.contains(school.getSchoolId())) {
+                String schoolTitle = school.getMincode() + " - " + school.getDisplayName();
+                addValuesForSectionToMap(nodeMap, school.getSchoolId(), schoolTitle, String.valueOf(sequencePrefix), includeKH);
+                sequencePrefix += 10;
+            }
+        }
+
         return nodeMap;
     }
 
