@@ -383,11 +383,11 @@ public class SdcDuplicatesService {
     }
 
     //In which grades are the two records reported - 10,11,12,SU Check
-    var isSchool1Independent = SchoolCategoryCodes.INDEPEND.getCode().equals(schoolTombstone1.getSchoolCategoryCode()) || SchoolCategoryCodes.INDP_FNS.getCode().equals(schoolTombstone1.getSchoolCategoryCode());
-    var isSchool2Independent = SchoolCategoryCodes.INDEPEND.getCode().equals(schoolTombstone2.getSchoolCategoryCode()) || SchoolCategoryCodes.INDP_FNS.getCode().equals(schoolTombstone2.getSchoolCategoryCode());
+    var isSchool1Independent = SchoolCategoryCodes.INDEPENDENTS.contains(schoolTombstone1.getSchoolCategoryCode());
+    var isSchool2Independent = SchoolCategoryCodes.INDEPENDENTS.contains(schoolTombstone2.getSchoolCategoryCode());
     if(dups.isEmpty() && SchoolGradeCodes.getGrades10toSU().contains(entity1.getEnrolledGradeCode()) && SchoolGradeCodes.getGrades10toSU().contains(entity2.getEnrolledGradeCode())){
-      if((FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone1.getFacilityTypeCode()) && SchoolCategoryCodes.INDEPEND.getCode().equals(schoolTombstone1.getSchoolCategoryCode())) ||
-              (FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone2.getFacilityTypeCode()) && SchoolCategoryCodes.INDEPEND.getCode().equals(schoolTombstone2.getSchoolCategoryCode()))) {
+      if((FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone1.getFacilityTypeCode()) && isSchool1Independent) ||
+              (FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone2.getFacilityTypeCode()) && isSchool2Independent)) {
         addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
       }else if(isSchool1Independent || isSchool2Independent) {
         if((isSchool1Independent && FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone2.getFacilityTypeCode())) || (isSchool2Independent && FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone1.getFacilityTypeCode()))) {

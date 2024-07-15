@@ -57,7 +57,7 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
     }
 
     public void setGradeCodes(Optional<SchoolTombstone> school) {
-      if(school.isPresent() && (school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || school.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode()))) {
+      if(school.isPresent() && SchoolCategoryCodes.INDEPENDENTS.contains(school.get().getSchoolCategoryCode())) {
         gradeCodes = SchoolGradeCodes.getIndependentKtoSUGrades();
       } else {
         gradeCodes = SchoolGradeCodes.getNonIndependentKtoSUGrades();

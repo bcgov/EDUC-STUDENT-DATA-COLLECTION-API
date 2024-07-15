@@ -127,7 +127,7 @@ public abstract class BaseReportGenerationService<T> {
   }
 
   protected boolean isIndependentSchool(SchoolTombstone schoolTombstone){
-    return schoolTombstone.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || schoolTombstone.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode());
+    return SchoolCategoryCodes.INDEPENDENTS.contains(schoolTombstone.getSchoolCategoryCode());
   }
 
   protected Map<String, Object> getJasperParams(){

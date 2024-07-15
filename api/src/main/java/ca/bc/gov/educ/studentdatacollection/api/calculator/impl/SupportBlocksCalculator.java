@@ -20,7 +20,6 @@ import java.util.Set;
 @Slf4j
 @Order(14)
 public class SupportBlocksCalculator implements FteCalculator {
-    private static final Set<String> INDEPENDENTS = new HashSet<>(Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode()));
     FteCalculator nextCalculator;
     @Override
     public void setNext(FteCalculator nextCalculator) {
@@ -36,7 +35,7 @@ public class SupportBlocksCalculator implements FteCalculator {
 
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(numCourses.multiply(fteMultiplier).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros());
-            if(INDEPENDENTS.contains(studentData.getSchool().getSchoolCategoryCode())) {
+            if(SchoolCategoryCodes.INDEPENDENTS.contains(studentData.getSchool().getSchoolCategoryCode())) {
                 fteCalculationResult.setFte(fteCalculationResult.getFte().compareTo(BigDecimal.ONE) > 0 ? BigDecimal.ONE : fteCalculationResult.getFte());
             }
             fteCalculationResult.setFteZeroReason(null);

@@ -45,7 +45,7 @@ public class CareerProgramStudentsMustBeEnrolledRule implements ProgramEligibili
     log.debug("ProgramEligibilityBaseRule - CareerProgramStudentsMustBeEnrolledRule: Enrolled Programs - {} for sdcSchoolCollectionStudentID :: {}", studentPrograms, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
     if (EnrolledProgramCodes.getCareerProgramCodes().stream().noneMatch(studentPrograms::contains)) {
       errors.add(ProgramEligibilityIssueCode.NOT_ENROLLED_CAREER);
-    } else if (studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDEPEND.getCode()) || studentRuleData.getSchool().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.INDP_FNS.getCode())) {
+    } else if (SchoolCategoryCodes.INDEPENDENTS.contains(studentRuleData.getSchool().getSchoolCategoryCode())) {
       log.debug("ProgramEligibilityBaseRule - CareerProgramStudentsMustBeEnrolledRule: adding error for having career program codes in an indy school - for sdcSchoolCollectionStudentID :: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
       errors.add(ProgramEligibilityIssueCode.ENROLLED_CAREER_INDY_SCHOOL);
     }
