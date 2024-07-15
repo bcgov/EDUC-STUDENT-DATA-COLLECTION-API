@@ -231,13 +231,17 @@ public class SdcSchoolCollectionService {
     Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = sdcSchoolCollectionRepository.findById(reportZeroEnrollmentData.getSdcSchoolCollectionID());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, reportZeroEnrollmentData.getSdcSchoolCollectionID().toString()));
 
-    sdcSchoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, reportZeroEnrollmentData.getUpdateUser()));
+    log.debug("Removing duplicate records for SDC school collection for report zero enrollment: {}", sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+    this.sdcDuplicateRepository.deleteAllBySdcDuplicateStudentEntities_SdcSchoolCollectionID(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
 
-    sdcSchoolCollectionStudentHistoryRepository.deleteBySdcSchoolCollectionStudentIDs(
+    log.debug("Removing student history records for report zero enrollment");
+    sdcSchoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, reportZeroEnrollmentData.getUpdateUser()));
+    this.sdcSchoolCollectionStudentHistoryRepository.deleteBySdcSchoolCollectionStudentIDs(
             sdcSchoolCollectionEntity.getSDCSchoolStudentEntities().stream().map(SdcSchoolCollectionStudentEntity::getSdcSchoolCollectionStudentID).toList()
     );
 
-    sdcSchoolCollectionStudentRepository.deleteAll(sdcSchoolCollectionEntity.getSDCSchoolStudentEntities());
+    log.debug("Deleting student records for report zero enrollment");
+    this.sdcSchoolCollectionStudentRepository.deleteAll(sdcSchoolCollectionEntity.getSDCSchoolStudentEntities());
     sdcSchoolCollectionEntity.getSDCSchoolStudentEntities().clear();
 
     sdcSchoolCollectionEntity.setUploadFileName(null);
