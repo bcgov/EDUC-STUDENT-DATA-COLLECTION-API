@@ -34,7 +34,7 @@ public class EllHeadcountReportService extends BaseReportGenerationService<EllHe
   private JasperReport ellHeadcountReport;
 
   public EllHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
-      super(restUtils);
+      super(restUtils, sdcSchoolCollectionRepository);
       this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
       this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
   }

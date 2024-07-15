@@ -7,9 +7,9 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionA
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
@@ -34,21 +34,26 @@ import java.util.*;
 public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGenerationService<EnrollmentHeadcountResult> {
 
     private static final String HEADCOUNT = "headcount";
+    private static final String HEADCOUNTTITLE = "Headcount";
+    private static final String FTETOTALTITLE = "FTE Total";
     private static final String TOTALFTE = "totalFTE";
     private static final String ALLSCHOOLS = "allSchools";
     private static final String SCHOOLTITLE = "schoolTitle";
     private static final String DOUBLE_FORMAT = "%,.4f";
+    private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final RestUtils restUtils;
     private List<EnrollmentHeadcountResult> gradeEnrollmentHeadcountList;
+    private List<SchoolTombstone> allSchoolsTombstones;
     private JasperReport gradeEnrollmentPerSchoolHeadcountReport;
     private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
-    public GradeEnrollmentHeadcountPerSchoolReportService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
-        super(restUtils);
+    public GradeEnrollmentHeadcountPerSchoolReportService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository1, RestUtils restUtils) {
+        super(restUtils, sdcSchoolCollectionRepository);
         this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
         this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+        this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository1;
         this.restUtils = restUtils;
     }
 
@@ -76,6 +81,7 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
             SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
                     new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection by Id", collectionID.toString()));
 
+            this.allSchoolsTombstones = getAllSchoolTombstones(collectionID);
             var programList = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySchoolIdAndBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
             this.gradeEnrollmentHeadcountList = programList;
             return generateJasperReport(convertToGradeEnrollmentProgramReportJSONStringDistrict(programList, sdcDistrictCollectionEntity), gradeEnrollmentPerSchoolHeadcountReport, ReportTypeCode.DIS_GRADE_ENROLLMENT_HEADCOUNT_PER_SCHOOL);
@@ -102,6 +108,7 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
 
     protected HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
         HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
+        Set<String> includedSchoolIDs = new HashSet<>();
 
         int sequencePrefix = 10;
         if (gradeEnrollmentHeadcountList != null) {
@@ -110,17 +117,29 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
                 Optional<SchoolTombstone> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
                 int finalSequencePrefix = sequencePrefix;
                 schoolOptional.ifPresent(school -> {
+                    includedSchoolIDs.add(school.getSchoolId());
                     String schoolTitle = school.getMincode() + " - " + school.getDisplayName();
                     addValuesForSectionToMap(nodeMap, SCHOOLTITLE + schoolID, schoolTitle, String.valueOf(finalSequencePrefix), includeKH, true, false);
-                    addValuesForSectionToMap(nodeMap, HEADCOUNT + schoolID, "Headcount", String.valueOf(finalSequencePrefix + 1), includeKH, false, false);
-                    addValuesForSectionToMap(nodeMap, TOTALFTE + schoolID, "FTE Total", String.valueOf(finalSequencePrefix + 2), includeKH, false, true);
+                    addValuesForSectionToMap(nodeMap, HEADCOUNT + schoolID, HEADCOUNTTITLE, String.valueOf(finalSequencePrefix + 1), includeKH, false, false);
+                    addValuesForSectionToMap(nodeMap, TOTALFTE + schoolID, FTETOTALTITLE, String.valueOf(finalSequencePrefix + 2), includeKH, false, true);
                 });
                 sequencePrefix += 10;
             }
         }
+
+        for (SchoolTombstone school : allSchoolsTombstones) {
+            if (!includedSchoolIDs.contains(school.getSchoolId())) {
+                String schoolTitle = school.getMincode() + " - " + school.getDisplayName();
+                addValuesForSectionToMap(nodeMap, SCHOOLTITLE + school.getSchoolId(), schoolTitle, String.valueOf(sequencePrefix), includeKH, true, false);
+                addValuesForSectionToMap(nodeMap, HEADCOUNT + school.getSchoolId(), HEADCOUNTTITLE, String.valueOf(sequencePrefix + 1), includeKH, false, false);
+                addValuesForSectionToMap(nodeMap, TOTALFTE + school.getSchoolId(), FTETOTALTITLE, String.valueOf(sequencePrefix + 2), includeKH, false, true);
+                sequencePrefix += 10;
+            }
+        }
+
         addValuesForSectionToMap(nodeMap, ALLSCHOOLS, "All Schools", String.valueOf(sequencePrefix), includeKH, true, false);
-        addValuesForSectionToMap(nodeMap, HEADCOUNT + ALLSCHOOLS, "Headcount", String.valueOf(sequencePrefix + 1), includeKH, false, false);
-        addValuesForSectionToMap(nodeMap, TOTALFTE + ALLSCHOOLS, "FTE Total", String.valueOf(sequencePrefix + 2), includeKH, false, true);
+        addValuesForSectionToMap(nodeMap, HEADCOUNT + ALLSCHOOLS, HEADCOUNTTITLE, String.valueOf(sequencePrefix + 1), includeKH, false, false);
+        addValuesForSectionToMap(nodeMap, TOTALFTE + ALLSCHOOLS, FTETOTALTITLE, String.valueOf(sequencePrefix + 2), includeKH, false, true);
         return nodeMap;
     }
 

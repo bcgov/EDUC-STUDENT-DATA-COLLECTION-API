@@ -34,7 +34,7 @@ public class IndigenousHeadcountReportService extends BaseReportGenerationServic
   private JasperReport indigenousHeadcountReport;
 
   public IndigenousHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
-      super(restUtils);
+      super(restUtils, sdcSchoolCollectionRepository);
       this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
       this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
   }

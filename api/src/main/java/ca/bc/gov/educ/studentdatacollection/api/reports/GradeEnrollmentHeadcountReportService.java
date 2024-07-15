@@ -44,7 +44,7 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
   private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
   public GradeEnrollmentHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
-      super(restUtils);
+      super(restUtils, sdcSchoolCollectionRepository);
       this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
       this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
       this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;

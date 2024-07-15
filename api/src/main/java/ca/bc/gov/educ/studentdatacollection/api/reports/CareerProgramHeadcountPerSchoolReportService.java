@@ -45,7 +45,7 @@ public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGene
   private final  ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
   public CareerProgramHeadcountPerSchoolReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils1) {
-      super(restUtils);
+      super(restUtils, sdcSchoolCollectionRepository);
       this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
       this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
       this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
