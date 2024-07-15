@@ -50,6 +50,9 @@ class SdcSchoolCollectionServiceTest {
   @Mock
   SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;
 
+  @Mock
+  SdcDuplicateRepository sdcDuplicateRepository;
+
   @InjectMocks
   private SdcSchoolCollectionService sdcSchoolCollectionService;
 
