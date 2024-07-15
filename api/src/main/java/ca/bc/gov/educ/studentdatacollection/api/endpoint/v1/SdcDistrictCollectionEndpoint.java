@@ -98,4 +98,11 @@ public interface SdcDistrictCollectionEndpoint {
   @Transactional(readOnly = true)
   @Tag(name = "Sdc District Collection", description = "Endpoint to retrieve all school collections in district collection")
   List<SdcSchoolCollection> getSchoolCollectionsInDistrictCollection(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
+
+  @PostMapping("/{sdcDistrictCollectionID}/sign-off")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_DISTRICT_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional
+  @Schema(name = "SdcDistrictCollectionSubmissionSignature", implementation = SdcDistrictCollectionSubmissionSignature.class)
+  ResponseEntity<Void> signDistrictCollectionForSubmission(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID, @RequestBody SdcDistrictCollectionSubmissionSignature signature);
 }

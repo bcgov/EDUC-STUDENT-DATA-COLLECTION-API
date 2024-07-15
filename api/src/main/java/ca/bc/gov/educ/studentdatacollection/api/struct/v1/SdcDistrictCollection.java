@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -41,5 +43,7 @@ public class SdcDistrictCollection extends BaseRequest {
   private String duplicationResolutionDueDate;
 
   private String signOffDueDate;
+
+  private List<SdcDistrictCollectionSubmissionSignature> submissionSignatures;
 
 }
