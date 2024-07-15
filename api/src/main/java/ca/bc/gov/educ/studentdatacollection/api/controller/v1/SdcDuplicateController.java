@@ -25,13 +25,13 @@ public class SdcDuplicateController implements SdcDuplicateEndpoint {
   }
 
   @Override
-  public SdcDuplicate updateStudentAndResolveDuplicates(String duplicateTypeCode, UUID sdcDuplicateID, List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent) {
+  public SdcDuplicate updateStudentAndResolveDuplicates(String duplicateTypeResolutionCode, UUID sdcDuplicateID, List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent) {
     sdcSchoolCollectionStudent.forEach(student -> ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(student)));
-    if (DuplicateTypeResolutionCode.PROGRAM.getCode().equalsIgnoreCase(duplicateTypeCode)) {
+    if (DuplicateTypeResolutionCode.PROGRAM.getCode().equalsIgnoreCase(duplicateTypeResolutionCode)) {
       return duplicateMapper.toSdcDuplicate(sdcDuplicatesService.updateStudentAndResolveDuplicates(sdcDuplicateID, sdcSchoolCollectionStudent));
-    } else if (DuplicateTypeResolutionCode.DELETE_ENROLLMENT_DUPLICATE.getCode().equalsIgnoreCase(duplicateTypeCode) && sdcSchoolCollectionStudent.size() == 1) {
+    } else if (DuplicateTypeResolutionCode.DELETE_ENROLLMENT_DUPLICATE.getCode().equalsIgnoreCase(duplicateTypeResolutionCode) && sdcSchoolCollectionStudent.size() == 1) {
       return duplicateMapper.toSdcDuplicate(sdcDuplicatesService.softDeleteEnrollmentDuplicate(sdcDuplicateID, sdcSchoolCollectionStudent.get(0)));
-    } else if (DuplicateTypeResolutionCode.CHANGE_GRADE.getCode().equalsIgnoreCase(duplicateTypeCode) && sdcSchoolCollectionStudent.size() == 1) {
+    } else if (DuplicateTypeResolutionCode.CHANGE_GRADE.getCode().equalsIgnoreCase(duplicateTypeResolutionCode) && sdcSchoolCollectionStudent.size() == 1) {
       return duplicateMapper.toSdcDuplicate(sdcDuplicatesService.changeGrade(sdcDuplicateID, sdcSchoolCollectionStudent.get(0)));
     }
     return null;
