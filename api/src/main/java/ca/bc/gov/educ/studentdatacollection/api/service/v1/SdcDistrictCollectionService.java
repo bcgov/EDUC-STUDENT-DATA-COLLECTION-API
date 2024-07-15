@@ -36,14 +36,18 @@ public class SdcDistrictCollectionService {
   private final RestUtils restUtils;
   private static final String SDC_DISTRICT_COLLECTION_ID_KEY = "sdcDistrictCollectionID";
   private static final String INVALID_PAYLOAD_MSG = "Payload contains invalid data.";
+  private final SdcDistrictCollectionSubmissionSignatureRepository sdcDistrictCollectionSubmissionSignatureRepository;
 
   @Autowired
-  public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
+  public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionSubmissionSignatureRepository sdcDistrictCollectionSubmissionSignatureRepository) {
+
     this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.collectionRepository = collectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
     this.restUtils = restUtils;
+    this.sdcDistrictCollectionSubmissionSignatureRepository = sdcDistrictCollectionSubmissionSignatureRepository;
+
   }
 
   public SdcDistrictCollectionEntity getSdcDistrictCollection(UUID sdcDistrictCollectionID) {
@@ -187,5 +191,16 @@ public class SdcDistrictCollectionService {
     updateSdcDistrictCollection(sdcDistrictCollectionEntity);
 
     return sdcDistrictCollectionEntity;
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void signDistrictCollectionForSubmission(UUID sdcDistrictCollectionID, SdcDistrictCollectionSubmissionSignatureEntity signatureEntity) {
+    Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionOptional = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
+    SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, SDC_DISTRICT_COLLECTION_ID_KEY, sdcDistrictCollectionID.toString()));
+
+    signatureEntity.setSignatureDate(LocalDateTime.now());
+    signatureEntity.setSdcDistrictCollection(sdcDistrictCollectionEntity);
+    TransformUtil.uppercaseFields(signatureEntity);
+    sdcDistrictCollectionSubmissionSignatureRepository.save(signatureEntity);
   }
 }

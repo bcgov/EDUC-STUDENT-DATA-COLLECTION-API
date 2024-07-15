@@ -10,6 +10,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -55,5 +56,10 @@ public class SdcDistrictCollectionEntity {
   @PastOrPresent
   @Column(name = "UPDATE_DATE")
   private LocalDateTime updateDate;
+
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  @OneToMany(mappedBy = "sdcDistrictCollection", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcDistrictCollectionSubmissionSignatureEntity.class)
+  Set<SdcDistrictCollectionSubmissionSignatureEntity> sdcDistrictCollectionSubmissionSignatureEntities;
 
 }

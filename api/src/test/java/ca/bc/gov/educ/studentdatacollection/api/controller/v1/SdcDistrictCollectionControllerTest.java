@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionSubmissionSignatureMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
@@ -1433,6 +1434,36 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcMockDistrictCollection.getSdcDistrictCollectionID() + "/sdcSchoolCollections").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)));
+  }
+
+  @Test
+  void testCreateSdcDistrictCollectionSubmissionSignature_WithValidPayload_ShouldReturnStatusOkWithData() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_DISTRICT_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    District district = createMockDistrict();
+    SdcDistrictCollectionEntity sdcMockDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+    sdcDistrictCollectionRepository.save(sdcMockDistrictCollection);
+
+    SdcDistrictCollectionSubmissionSignatureEntity signature = new SdcDistrictCollectionSubmissionSignatureEntity();
+    signature.setSdcDistrictCollection(sdcMockDistrictCollection);
+    signature.setSignatureDate(LocalDateTime.now());
+    signature.setDistrictSignatoryRole("DIS_SDC_EDIT");
+    signature.setDistrictSignatoryUserID("EDX/testUserId");
+    signature.setCreateDate(LocalDateTime.now());
+    signature.setUpdateDate(LocalDateTime.now());
+
+    this.mockMvc.perform(
+                    post(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcMockDistrictCollection.getSdcDistrictCollectionID().toString() + "/sign-off")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .content(asJsonString(SdcDistrictCollectionSubmissionSignatureMapper.mapper.toStructure(signature)))
+                            .with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
   }
 
 }

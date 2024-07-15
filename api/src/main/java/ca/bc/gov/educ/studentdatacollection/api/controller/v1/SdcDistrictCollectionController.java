@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcDistrictCollectionEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionSubmissionSignatureMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
@@ -28,7 +29,7 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
   private static final SdcSchoolCollectionMapper sdcSchoolCollectionMapper = SdcSchoolCollectionMapper.mapper;
   private final SdcDistrictCollectionValidator sdcDistrictCollectionValidator;
-
+  private static final SdcDistrictCollectionSubmissionSignatureMapper signatureMapper = SdcDistrictCollectionSubmissionSignatureMapper.mapper;
   public SdcDistrictCollectionController(SdcDuplicatesService sdcDuplicatesService, SdcDistrictCollectionService sdcDistrictCollectionService, SdcDistrictCollectionValidator sdcDistrictCollectionValidator) {
       this.sdcDuplicatesService = sdcDuplicatesService;
       this.sdcDistrictCollectionService = sdcDistrictCollectionService;
@@ -37,7 +38,7 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
 
   @Override
   public SdcDistrictCollection getDistrictCollection(UUID sdcDistrictCollectionID) {
-    return mapper.toStructure(sdcDistrictCollectionService.getSdcDistrictCollection(sdcDistrictCollectionID));
+    return mapper.toStructureWithSubmissionSignatures(sdcDistrictCollectionService.getSdcDistrictCollection(sdcDistrictCollectionID));
   }
 
   @Override
@@ -100,5 +101,12 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   @Override
   public SdcDistrictCollection unsubmitDistrictCollection(UnsubmitSdcDistrictCollection unsubmitData) {
     return mapper.toStructure(sdcDistrictCollectionService.unsubmitDistrictCollection(unsubmitData));
+  }
+
+  @Override
+  public ResponseEntity<Void> signDistrictCollectionForSubmission(UUID sdcDistrictCollectionID, SdcDistrictCollectionSubmissionSignature signature) {
+    RequestUtil.setAuditColumnsForCreateIfBlank(signature);
+    sdcDistrictCollectionService.signDistrictCollectionForSubmission(sdcDistrictCollectionID, signatureMapper.toModel(signature));
+    return ResponseEntity.ok().build();
   }
 }
