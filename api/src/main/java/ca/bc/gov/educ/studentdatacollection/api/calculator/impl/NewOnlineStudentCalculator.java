@@ -24,6 +24,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReaso
 @Order(11)
 public class NewOnlineStudentCalculator implements FteCalculator {
     FteCalculator nextCalculator;
+    @Autowired
     FteCalculatorUtils fteCalculatorUtils;
 
     @Override
