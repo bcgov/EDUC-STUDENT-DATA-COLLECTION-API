@@ -59,7 +59,7 @@ public class SdcDistrictCollectionEntity {
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  @OneToMany(mappedBy = "sdcDistrictCollection", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = SdcDistrictCollectionSubmissionSignatureEntity.class)
+  @OneToMany(mappedBy = "sdcDistrictCollection", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcDistrictCollectionSubmissionSignatureEntity.class)
   Set<SdcDistrictCollectionSubmissionSignatureEntity> sdcDistrictCollectionSubmissionSignatureEntities;
 
 }
