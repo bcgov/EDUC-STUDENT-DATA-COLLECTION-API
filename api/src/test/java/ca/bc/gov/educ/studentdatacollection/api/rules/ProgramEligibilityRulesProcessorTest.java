@@ -713,6 +713,31 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
   }
 
   @Test
+  void testSpecialEdStudentSchoolAgedAdultGANotEligible() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
+            .save(createMockSdcSchoolCollectionEntity(collection, null));
+    SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+    schoolStudentEntity.setDob("20040101");
+    schoolStudentEntity.setSpecialEducationCategoryCode("A");
+    schoolStudentEntity.setEnrolledGradeCode("GA");
+    schoolStudentEntity.setNumberOfCourses("1");
+    schoolStudentEntity.setIsSchoolAged(false);
+    schoolStudentEntity.setIsAdult(true);
+
+    List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
+            createMockStudentRuleData(
+                    schoolStudentEntity,
+                    createMockSchool()
+            )
+    );
+
+    assertThat(listWithoutEnrollmentError.stream().anyMatch(e ->
+            e.equals(ProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION)
+    )).isTrue();
+  }
+
+  @Test
   void testIndigenousStudentsMustBeSchoolAged() {
     CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
     SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
