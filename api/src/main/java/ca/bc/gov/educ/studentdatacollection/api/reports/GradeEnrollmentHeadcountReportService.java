@@ -27,10 +27,8 @@ import net.sf.jasperreports.engine.JasperReport;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.text.ParseException;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -40,7 +38,6 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private JasperReport gradeEnrollmentHeadcountReport;
-  private static final String DOUBLE_FORMAT = "%,.4f";
   private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
   public GradeEnrollmentHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
@@ -148,22 +145,27 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
     nodeMap.put(sectionPrefix + "FTETotal", new HeadcountChildNode("FTE Total", FALSE, sequencePrefix + "3", true, true, true, includeKH));
   }
 
-  public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, EnrollmentHeadcountResult gradeResult){
+  public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, EnrollmentHeadcountResult gradeResult) {
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
     var code = optionalCode.orElseThrow(() ->
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
 
-    nodeMap.get("schoolAgedHeadcount").setValueForGrade(code, gradeResult.getSchoolAgedHeadcount());
-    nodeMap.get("schoolAgedEligibleForFTE").setValueForGrade(code, gradeResult.getSchoolAgedEligibleForFte());
-    nodeMap.get("schoolAgedFTETotal").setValueForGrade(code, String.format(DOUBLE_FORMAT, Double.valueOf(gradeResult.getSchoolAgedFteTotal())));
+    try {
+      nodeMap.get("schoolAgedHeadcount").setValueForGrade(code, gradeResult.getSchoolAgedHeadcount());
+      nodeMap.get("schoolAgedEligibleForFTE").setValueForGrade(code, gradeResult.getSchoolAgedEligibleForFte());
+      nodeMap.get("schoolAgedFTETotal").setValueForGrade(code, String.format("%.4f", numberFormat.parse(gradeResult.getSchoolAgedFteTotal()).doubleValue()));
 
-    nodeMap.get("adultHeadcount").setValueForGrade(code, gradeResult.getAdultHeadcount());
-    nodeMap.get("adultEligibleForFTE").setValueForGrade(code, gradeResult.getAdultEligibleForFte());
-    nodeMap.get("adultFTETotal").setValueForGrade(code, String.format(DOUBLE_FORMAT, Double.valueOf(gradeResult.getAdultFteTotal())));
+      nodeMap.get("adultHeadcount").setValueForGrade(code, gradeResult.getAdultHeadcount());
+      nodeMap.get("adultEligibleForFTE").setValueForGrade(code, gradeResult.getAdultEligibleForFte());
+      nodeMap.get("adultFTETotal").setValueForGrade(code, String.format("%.4f", numberFormat.parse(gradeResult.getAdultFteTotal()).doubleValue()));
 
-    nodeMap.get("allHeadcount").setValueForGrade(code, gradeResult.getTotalHeadcount());
-    nodeMap.get("allEligibleForFTE").setValueForGrade(code, gradeResult.getTotalEligibleForFte());
-    nodeMap.get("allFTETotal").setValueForGrade(code, String.format(DOUBLE_FORMAT, Double.valueOf(gradeResult.getTotalFteTotal())));
+      nodeMap.get("allHeadcount").setValueForGrade(code, gradeResult.getTotalHeadcount());
+      nodeMap.get("allEligibleForFTE").setValueForGrade(code, gradeResult.getTotalEligibleForFte());
+      nodeMap.get("allFTETotal").setValueForGrade(code, String.format("%.4f", numberFormat.parse(gradeResult.getTotalFteTotal()).doubleValue()));
+    } catch (ParseException e) {
+      log.error("Exception occurred while writing PDF report for grade enrollment dis - parse error :: " + e.getMessage());
+      throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment dis - parse error :: " + e.getMessage());
+    }
   }
 
 }

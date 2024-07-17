@@ -26,6 +26,7 @@ import net.sf.jasperreports.engine.JasperReport;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.*;
 
 @Service
@@ -141,20 +142,25 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
         int totalELL = 0;
 
         for (RefugeeHeadcountResult each : refugeeHeadcounts) {
-            String schoolKey = each.getSchoolID();
-            int schoolHeadcount = Integer.parseInt(each.getHeadcount());
-            double schoolFTE = Double.parseDouble(each.getFteTotal());
-            int schoolELL = Integer.parseInt(each.getEll());
+            try {
+                String schoolKey = each.getSchoolID();
+                int schoolHeadcount = numberFormat.parse(each.getHeadcount()).intValue();
+                double schoolFTE = numberFormat.parse(each.getFteTotal()).doubleValue();
+                int schoolELL = numberFormat.parse(each.getEll()).intValue();
 
-            totalHeadcount += schoolHeadcount;
-            totalFTE += schoolFTE;
-            totalELL += schoolELL;
+                totalHeadcount += schoolHeadcount;
+                totalFTE += schoolFTE;
+                totalELL += schoolELL;
 
-            HeadcountChildNode node = nodeMap.getOrDefault(schoolKey + HEADING, new HeadcountChildNode());
-            node.setValueForRefugee(HEADCOUNT, String.valueOf(schoolHeadcount));
-            node.setValueForRefugee("FTE", String.format("%.4f", schoolFTE));
-            node.setValueForRefugee("ELL", String.valueOf(schoolELL));
-            nodeMap.put(schoolKey + HEADING, node);
+                HeadcountChildNode node = nodeMap.getOrDefault(schoolKey + HEADING, new HeadcountChildNode());
+                node.setValueForRefugee(HEADCOUNT, String.valueOf(schoolHeadcount));
+                node.setValueForRefugee("FTE", String.format("%.4f", schoolFTE));
+                node.setValueForRefugee("ELL", String.valueOf(schoolELL));
+                nodeMap.put(schoolKey + HEADING, node);
+            } catch (ParseException e) {
+                log.error("Error parsing number in setValueForGrade - Refugee Report: " + e.getMessage());
+                throw new StudentDataCollectionAPIRuntimeException("Error parsing number in setValueForGrade - Refugee Report: " + e.getMessage());
+            }
         }
 
         HeadcountChildNode totalNode = nodeMap.getOrDefault(ALL_REFUGEE_HEADING, new HeadcountChildNode());

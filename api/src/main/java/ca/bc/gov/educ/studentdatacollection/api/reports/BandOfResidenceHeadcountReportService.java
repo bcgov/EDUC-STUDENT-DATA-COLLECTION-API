@@ -22,6 +22,7 @@ import net.sf.jasperreports.engine.JasperReport;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.*;
 
 @Service
@@ -102,11 +103,20 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
         int runningTotalHeadcount = 0;
         if (headcountsList != null) {
             for (BandResidenceHeadcountResult each : headcountsList) {
-                String bandKey = each.getBandCode();
-                runningTotalFTE += Double.parseDouble(each.getFteTotal());
-                runningTotalHeadcount += Integer.parseInt(each.getHeadcount());
-                nodeMap.get(bandKey + HEADING).setValueForBand("FTE", each.getFteTotal());
-                nodeMap.get(bandKey + HEADING).setValueForBand("Headcount", each.getHeadcount());
+                try {
+                    String bandKey = each.getBandCode();
+                    double fteTotal = numberFormat.parse(each.getFteTotal()).doubleValue();
+                    int headcountTotal = numberFormat.parse(each.getHeadcount()).intValue();
+
+                    runningTotalFTE += fteTotal;
+                    runningTotalHeadcount += headcountTotal;
+
+                    nodeMap.get(bandKey + HEADING).setValueForBand("FTE", String.format("%.4f", fteTotal));
+                    nodeMap.get(bandKey + HEADING).setValueForBand("Headcount", String.valueOf(headcountTotal));
+                } catch (ParseException e) {
+                    log.error("Error parsing number in setValueForGrade - Band of Residence Report: " + e.getMessage());
+                    throw new StudentDataCollectionAPIRuntimeException("Error parsing number in setValueForGrade - Band of Residence Report: " + e.getMessage());
+                }
             }
         }
         nodeMap.get("allBandsHeading").setValueForBand("FTE", String.format("%.4f", runningTotalFTE));
