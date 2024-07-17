@@ -44,15 +44,15 @@ public class SpecialEducationProgramsRule implements ProgramEligibilityBaseRule 
 
     List<String> activeSpecialEdPrograms = validationRulesService.getActiveSpecialEducationCategoryCodes().stream().map(SpecialEducationCategoryCode::getSpecialEducationCategoryCode).toList();
 
-    Boolean isGraduated = student.getIsGraduated();
     Boolean isSchoolAged = student.getIsSchoolAged();
+    Boolean isGraduated = student.getIsGraduated();
     Boolean isAdult = student.getIsAdult();
-    boolean isNonGraduatedAdult = Boolean.FALSE.equals(isGraduated) && Boolean.TRUE.equals(isAdult);
+    Boolean isGA = "GA".equals(student.getEnrolledGradeCode());
 
     if (StringUtils.isEmpty(student.getSpecialEducationCategoryCode()) || !activeSpecialEdPrograms.contains(student.getSpecialEducationCategoryCode())) {
       log.debug("ProgramEligibilityBaseRule - SpecialEducationProgramsRule: Sped code value - {} for sdcSchoolCollectionStudentID :: {}", student.getSpecialEducationCategoryCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
       errors.add(ProgramEligibilityIssueCode.NOT_ENROLLED_SPECIAL_ED);
-    } else if (Boolean.FALSE.equals(isSchoolAged) || isNonGraduatedAdult) {
+    } else if (Boolean.FALSE.equals(isSchoolAged) && (isGraduated || (isAdult && isGA))) {
       log.debug("ProgramEligibilityBaseRule - SpecialEducationProgramsRule: Is school aged - {}, Is non graduated adult - {}, for sdcSchoolCollectionStudentID :: {}", student.getIsSchoolAged(), student.getIsGraduated(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
       errors.add(ProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION);
     }
