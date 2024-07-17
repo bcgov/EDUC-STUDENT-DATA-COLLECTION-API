@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibility.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -47,7 +48,7 @@ public class SpecialEducationProgramsRule implements ProgramEligibilityBaseRule 
     Boolean isSchoolAged = student.getIsSchoolAged();
     Boolean isGraduated = student.getIsGraduated();
     Boolean isAdult = student.getIsAdult();
-    Boolean isGA = "GA".equals(student.getEnrolledGradeCode());
+    Boolean isGA = SchoolGradeCodes.GRADUATED_ADULT.getCode().equals(student.getEnrolledGradeCode());
 
     if (StringUtils.isEmpty(student.getSpecialEducationCategoryCode()) || !activeSpecialEdPrograms.contains(student.getSpecialEducationCategoryCode())) {
       log.debug("ProgramEligibilityBaseRule - SpecialEducationProgramsRule: Sped code value - {} for sdcSchoolCollectionStudentID :: {}", student.getSpecialEducationCategoryCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
