@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -40,6 +41,7 @@ public abstract class BaseReportGenerationService<T> {
   DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
   protected static final String FALSE = "false";
+  protected static final NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
 
   private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 

@@ -27,6 +27,7 @@ import net.sf.jasperreports.engine.JasperReport;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.*;
 
 @Service
@@ -39,7 +40,6 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
     private static final String TOTALFTE = "totalFTE";
     private static final String ALLSCHOOLS = "allSchools";
     private static final String SCHOOLTITLE = "schoolTitle";
-    private static final String DOUBLE_FORMAT = "%,.4f";
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final RestUtils restUtils;
@@ -165,18 +165,28 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
         HeadcountChildNode allSchoolsFTENode = nodeMap.get("totalFTEallSchools");
 
         String schoolID = gradeResult.getSchoolID();
-        if (nodeMap.containsKey(HEADCOUNT + schoolID)) {
-            nodeMap.get(HEADCOUNT + schoolID).setValueForGrade(code, gradeResult.getTotalHeadcount());
-        }
-        if (nodeMap.containsKey(TOTALFTE + schoolID) && gradeResult.getTotalFteTotal() != null) {
-            nodeMap.get(TOTALFTE + schoolID).setValueForGrade(code, String.format(DOUBLE_FORMAT, Double.valueOf(gradeResult.getTotalFteTotal())));
-        }
 
-        int currentHeadcountTotal = Integer.parseInt(gradeResult.getTotalHeadcount());
-        double currentFTETotal = Double.parseDouble(gradeResult.getTotalFteTotal());
-        int accumulatedHeadcountTotal = Integer.parseInt(allSchoolsHeadcountNode.getValueForGrade(code));
-        double accumulatedFTETotal = Double.parseDouble(allSchoolsFTENode.getValueForGrade(code));
-        allSchoolsHeadcountNode.setValueForGrade(code, String.valueOf(accumulatedHeadcountTotal + currentHeadcountTotal));
-        allSchoolsFTENode.setValueForGrade(code, String.format(DOUBLE_FORMAT, accumulatedFTETotal + currentFTETotal));
+        try {
+            if (nodeMap.containsKey(HEADCOUNT + schoolID)) {
+                nodeMap.get(HEADCOUNT + schoolID).setValueForGrade(code, gradeResult.getTotalHeadcount());
+            }
+
+            if (nodeMap.containsKey(TOTALFTE + schoolID) && gradeResult.getTotalFteTotal() != null) {
+                double fteTotal = numberFormat.parse(gradeResult.getTotalFteTotal()).doubleValue();
+                nodeMap.get(TOTALFTE + schoolID).setValueForGrade(code, String.format("%.4f", fteTotal));
+            }
+
+            int currentHeadcountTotal = Integer.parseInt(gradeResult.getTotalHeadcount().replace(",", ""));
+            double currentFTETotal = numberFormat.parse(gradeResult.getTotalFteTotal()).doubleValue();
+
+            int accumulatedHeadcountTotal = Integer.parseInt(allSchoolsHeadcountNode.getValueForGrade(code).replace(",", ""));
+            double accumulatedFTETotal = numberFormat.parse(allSchoolsFTENode.getValueForGrade(code)).doubleValue();
+
+            allSchoolsHeadcountNode.setValueForGrade(code, String.valueOf(accumulatedHeadcountTotal + currentHeadcountTotal));
+            allSchoolsFTENode.setValueForGrade(code, String.format("%.4f", accumulatedFTETotal + currentFTETotal));
+        } catch (ParseException e) {
+            log.error("Exception occurred while writing PDF report for grade enrollment dis per school - parse error :: " + e.getMessage());
+            throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment dis per school - parse error:: " + e.getMessage());
+        }
     }
 }
