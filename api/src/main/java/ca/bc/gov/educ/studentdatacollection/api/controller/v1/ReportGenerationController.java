@@ -3,15 +3,27 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.ReportGenerationEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
 import ca.bc.gov.educ.studentdatacollection.api.reports.*;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionHistoryService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.summary.StudentDifference;
+import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -32,6 +44,9 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     private final GradeEnrollmentHeadcountPerSchoolReportService gradeEnrollmentHeadcountPerSchoolReportService;
     private final CareerProgramHeadcountPerSchoolReportService careerProgramHeadcountPerSchoolReportService;
     private final RefugeeHeadcountPerSchoolReportService refugeeHeadcountPerSchoolReportService;
+    private final SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService;
+    private final SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService;
+    private static final SdcSchoolCollectionStudentMapper sdcSchoolCollectionStudentMapper = SdcSchoolCollectionStudentMapper.mapper;
 
     @Override
     public DownloadableReportResponse generateSDCReport(UUID collectionID, String reportTypeCode) {
@@ -63,5 +78,42 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
         };
     }
 
+    @Override
+    public List<StudentDifference> getStudentDifferences(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
+        final List<Sort.Order> sorts = new ArrayList<>();
+        Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs = sdcSchoolCollectionStudentSearchService
+                .setSpecificationAndSortCriteria(
+                        sortCriteriaJson,
+                        searchCriteriaListJson,
+                        JsonUtil.mapper,
+                        sorts
+                );
+        try {
+            var studentsWithDiffAndCriteria = this.sdcSchoolCollectionStudentSearchService.findAll(studentSpecs, pageNumber, pageSize, sorts).get();
+            var currentStudentsMap = studentsWithDiffAndCriteria.stream().collect(Collectors.toMap(
+                    stud -> stud.getSdcSchoolCollectionStudentID(),
+                    stud -> stud
+            ));
+            var historyRecords = sdcSchoolCollectionHistoryService.getFirstHistoryRecordsForStudentIDs(currentStudentsMap.keySet());
+            var historyRecordsMap = historyRecords.stream().collect(Collectors.toMap(
+                    stud -> stud.getSdcSchoolCollectionStudentID(),
+                    stud -> stud
+            ));
+            return getDifferencesList(currentStudentsMap, historyRecordsMap);
+        } catch (Exception e) {
+            throw new StudentDataCollectionAPIRuntimeException("Error occurred making pagination call: " + e.getMessage());
+        }
+    }
+
+    private List<StudentDifference> getDifferencesList(Map<UUID, SdcSchoolCollectionStudentPaginationEntity> currentStudents, Map<UUID, SdcSchoolCollectionStudentHistoryEntity> originalStudents){
+        List<StudentDifference> differences = new ArrayList<>();
+        originalStudents.values().stream().forEach(stud -> {
+            StudentDifference diff = new StudentDifference();
+            diff.setOriginalStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentHistory(stud));
+            diff.setCurrentStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudent(currentStudents.get(stud.getSdcSchoolCollectionStudentID())));
+            differences.add(diff);
+        });
+        return differences;
+    }
 
 }

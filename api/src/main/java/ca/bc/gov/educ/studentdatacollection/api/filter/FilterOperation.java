@@ -11,6 +11,10 @@ public enum FilterOperation {
    */
   EQUAL("eq"),
   /**
+   * Equal Other Field filter operation.
+   */
+  NOT_EQUAL_OTHER_COLUMN("eqf"),
+  /**
    * Not equal filter operation.
    */
   NOT_EQUAL("neq"),

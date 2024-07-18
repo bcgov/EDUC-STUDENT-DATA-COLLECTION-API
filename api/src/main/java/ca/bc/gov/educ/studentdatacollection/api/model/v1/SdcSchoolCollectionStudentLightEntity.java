@@ -4,7 +4,9 @@ import ca.bc.gov.educ.studentdatacollection.api.util.UpperCase;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Table;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.*;
 
@@ -144,6 +146,12 @@ public class SdcSchoolCollectionStudentLightEntity {
 
     @Column(name = "YEARS_IN_ELL")
     private Integer yearsInEll;
+
+    @Column(name = "ORIGINAL_DEMOG_HASH")
+    private Integer originalDemogHash;
+
+    @Column(name = "CURRENT_DEMOG_HASH")
+    private Integer currentDemogHash;
 
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)
