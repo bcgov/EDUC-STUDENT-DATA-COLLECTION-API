@@ -2,13 +2,12 @@ package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.util.UpperCase;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Table;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
-import org.hibernate.annotations.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -159,6 +158,12 @@ public class SdcSchoolCollectionStudentEntity {
 
   @Column(name = "YEARS_IN_ELL")
   private Integer yearsInEll;
+
+  @Column(name = "ORIGINAL_DEMOG_HASH")
+  private Integer originalDemogHash;
+
+  @Column(name = "CURRENT_DEMOG_HASH")
+  private Integer currentDemogHash;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;

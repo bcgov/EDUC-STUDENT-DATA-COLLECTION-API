@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.filter;
 
+import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -40,6 +41,16 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
                 return criteriaBuilder.isNull(root.get(filterCriteria.getFieldName()));
             }
             return criteriaBuilder.equal(root.get(filterCriteria.getFieldName()), filterCriteria.getConvertedSingleValue());
+        });
+
+        map.put(FilterOperation.NOT_EQUAL_OTHER_COLUMN, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
+            if (filterCriteria.getFieldName().contains(",")) {
+                String[] splits = filterCriteria.getFieldName().split(",");
+                if(splits.length == 2) {
+                    return criteriaBuilder.notEqual(root.get(splits[0]), root.get(splits[1]));
+                }
+            }
+            throw new StudentDataCollectionAPIRuntimeException("Invalid search criteria provided");
         });
 
         map.put(FilterOperation.NOT_EQUAL, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {

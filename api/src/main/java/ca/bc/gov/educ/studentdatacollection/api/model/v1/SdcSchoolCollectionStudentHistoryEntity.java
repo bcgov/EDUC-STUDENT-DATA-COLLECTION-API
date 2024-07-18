@@ -4,7 +4,10 @@ import ca.bc.gov.educ.studentdatacollection.api.util.UpperCase;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.PastOrPresent;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
@@ -153,6 +156,12 @@ public class SdcSchoolCollectionStudentHistoryEntity extends AbstractPersistable
 
   @Column(name = "PEN_MATCH_RESULT")
   private String penMatchResult;
+
+  @Column(name = "ORIGINAL_DEMOG_HASH")
+  private Integer originalDemogHash;
+
+  @Column(name = "CURRENT_DEMOG_HASH")
+  private Integer currentDemogHash;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;

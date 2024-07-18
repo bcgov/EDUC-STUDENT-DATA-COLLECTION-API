@@ -2,13 +2,22 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionHistoryEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryEntity;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentHistoryRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class SdcSchoolCollectionHistoryService {
+
+  private final SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
 
   public SdcSchoolCollectionHistoryEntity createSDCSchoolHistory(SdcSchoolCollectionEntity curSDCSchoolEntity, String updateUser) {
     final SdcSchoolCollectionHistoryEntity sdcSchoolHistoryEntity = new SdcSchoolCollectionHistoryEntity();
@@ -21,5 +30,9 @@ public class SdcSchoolCollectionHistoryService {
     sdcSchoolHistoryEntity.setUpdateDate(LocalDateTime.now());
 
     return sdcSchoolHistoryEntity;
+  }
+
+  public List<SdcSchoolCollectionStudentHistoryEntity> getFirstHistoryRecordsForStudentIDs(Set<UUID> sdcSchoolStudentIDs){
+    return sdcSchoolCollectionStudentHistoryRepository.findOrginalHistoryRecordsForStudentIDList(sdcSchoolStudentIDs);
   }
 }
