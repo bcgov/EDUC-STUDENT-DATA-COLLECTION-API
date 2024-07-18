@@ -102,6 +102,8 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new StudentDataCollectionAPIRuntimeException("Error occurred making pagination call: " + e.getMessage());
+        } catch (Exception e) {
+            throw new StudentDataCollectionAPIRuntimeException("Error occurred making pagination call: " + e.getMessage());
         }
     }
 
