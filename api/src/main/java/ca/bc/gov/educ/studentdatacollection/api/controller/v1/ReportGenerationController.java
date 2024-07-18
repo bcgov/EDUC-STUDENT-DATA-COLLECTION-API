@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -100,7 +99,8 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
                     stud -> stud
             ));
             return getDifferencesList(currentStudentsMap, historyRecordsMap);
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new StudentDataCollectionAPIRuntimeException("Error occurred making pagination call: " + e.getMessage());
         }
     }
