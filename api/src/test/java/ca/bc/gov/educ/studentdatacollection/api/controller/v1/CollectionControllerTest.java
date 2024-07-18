@@ -10,6 +10,10 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDuplicateRepository;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
@@ -18,11 +22,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.val;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
+import lombok.val;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,12 +39,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -50,6 +57,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
 @ActiveProfiles("test")
@@ -72,17 +80,16 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;
   @Autowired
   RestUtils restUtils;
+  @Autowired
+  CodeTableService codeTableService;
+  @Autowired
+  ValidationRulesService validationRulesService;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
   protected final static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
-  }
-
-  @BeforeEach
-  public void before() {
-    this.CollectionTypeCodeRepository.save(this.createMockCollectionCodeEntity());
   }
 
   @AfterEach
@@ -762,5 +769,136 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0]").value(duplicateMapper.toSdcDuplicate(provincialDuplicateEntity)))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1]").value(duplicateMapper.toSdcDuplicate(outOfDistrictDuplicateEntity)))
             .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)));
+  }
+
+  @Test
+  void testAutoResolveProvincialDuplicates() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection.setCollectionStatusCode("PROVDUPES");
+    collection = collectionRepository.save(collection);
+
+    //Create Districts
+    District mockDistrict = createMockDistrict();
+    SdcDistrictCollectionEntity sdcMockDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(mockDistrict.getDistrictId()));
+    var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrictCollection).getSdcDistrictCollectionID();
+
+    District mockDistrict2 = createMockDistrict();
+    SdcDistrictCollectionEntity sdcMockDistrictCollection2 = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(mockDistrict2.getDistrictId()));
+    var sdcDistrictCollectionID2 = sdcDistrictCollectionRepository.save(sdcMockDistrictCollection2).getSdcDistrictCollectionID();
+
+    District mockDistrict3 = createMockDistrict();
+    SdcDistrictCollectionEntity sdcMockDistrictCollection3 = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(mockDistrict3.getDistrictId()));
+    var sdcDistrictCollectionID3 = sdcDistrictCollectionRepository.save(sdcMockDistrictCollection3).getSdcDistrictCollectionID();
+
+    // Create schools
+    SchoolTombstone school1 = createMockSchool();
+    school1.setDistrictId(sdcMockDistrictCollection.getDistrictID().toString());
+    school1.setFacilityTypeCode(FacilityTypeCodes.ALT_PROGS.getCode());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+
+    SchoolTombstone school2 = createMockSchool();
+    school2.setDistrictId(sdcMockDistrictCollection2.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID2);
+
+    SchoolTombstone school3 = createMockSchool();
+    school3.setDistrictId(sdcMockDistrictCollection3.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity3 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school3.getSchoolId()));
+    sdcSchoolCollectionEntity3.setSdcDistrictCollectionID(sdcDistrictCollectionID3);
+
+
+    SchoolTombstone school4 = createMockSchool(); //Same district as school1
+    school4.setDistrictId(sdcMockDistrictCollection.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity4 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school4.getSchoolId()));
+    sdcSchoolCollectionEntity4.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+
+    sdcSchoolCollectionRepository.saveAll(List.of(sdcSchoolCollectionEntity1, sdcSchoolCollectionEntity2, sdcSchoolCollectionEntity3, sdcSchoolCollectionEntity4));
+
+    // Create students
+    var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+    sdcSchoolCollectionStudent1.setFte(BigDecimal.ONE);
+
+    var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity3);
+    sdcSchoolCollectionStudent2.setFte(BigDecimal.valueOf(.50));
+
+    var sdcSchoolCollectionStudent3 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity3);
+    sdcSchoolCollectionStudent3.setSchoolFundingCode(null);
+    sdcSchoolCollectionStudent3.setSpecialEducationCategoryCode(null);
+    sdcSchoolCollectionStudent3.setBandCode(null);
+    sdcSchoolCollectionStudent3.setFte(BigDecimal.valueOf(.50));
+    sdcSchoolCollectionStudent3.setEnrolledProgramCodes("2942");
+    sdcSchoolCollectionStudent3.setNumberOfCoursesDec(BigDecimal.valueOf(10.00));
+
+    var sdcSchoolCollectionStudent4 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity4);
+    sdcSchoolCollectionStudent4.setEnrolledGradeCode(SchoolGradeCodes.GRADE04.getCode());
+    sdcSchoolCollectionStudent4.setSchoolFundingCode(null);
+    sdcSchoolCollectionStudent4.setSpecialEducationCategoryCode(null);
+    sdcSchoolCollectionStudent4.setBandCode(null);
+    sdcSchoolCollectionStudent4.setNumberOfCoursesDec(BigDecimal.valueOf(12.50));
+    sdcSchoolCollectionStudent4.setEnrolledProgramCodes("29");
+
+    var sdcSchoolCollectionStudent5 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+
+    var sdcSchoolCollectionStudent6 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity4);
+
+    sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2, sdcSchoolCollectionStudent3, sdcSchoolCollectionStudent4, sdcSchoolCollectionStudent5, sdcSchoolCollectionStudent6));
+
+    // Create dupes
+    var provincialDuplicate = createMockSdcDuplicateEntity(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2, collection.getCollectionID());
+    provincialDuplicate.setDuplicateLevelCode(DuplicateLevelCode.PROVINCIAL.getCode());
+    var provincialDuplicateEntity = sdcDuplicateRepository.save(provincialDuplicate);
+
+    var outOfDistrictDuplicate = createMockSdcDuplicateEntity(sdcSchoolCollectionStudent5, sdcSchoolCollectionStudent6, collection.getCollectionID());
+    outOfDistrictDuplicate.setDuplicateLevelCode(DuplicateLevelCode.PROVINCIAL.getCode());
+    var outOfDistrictDuplicateEntity = sdcDuplicateRepository.save(outOfDistrictDuplicate);
+
+//    var programDuplicate = createMockSdcDuplicateEntity(sdcSchoolCollectionStudent3, sdcSchoolCollectionStudent4, collection.getCollectionID());
+//    programDuplicate.setDuplicateLevelCode(DuplicateLevelCode.PROVINCIAL.getCode());
+//    programDuplicate.setDuplicateTypeCode(DuplicateTypeCode.PROGRAM.getCode());
+//    programDuplicate.setProgramDuplicateTypeCode(ProgramDuplicateTypeCode.INDIGENOUS.getCode());
+//    var programDuplicateEntity = sdcDuplicateRepository.save(programDuplicate);
+
+    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(school3.getSchoolId())).thenReturn(Optional.of(school3));
+    when(this.restUtils.getSchoolBySchoolID(school4.getSchoolId())).thenReturn(Optional.of(school4));
+    when(this.restUtils.getDistrictByDistrictID(String.valueOf(mockDistrict.getDistrictId()))).thenReturn(Optional.of(mockDistrict));
+    when(this.restUtils.getDistrictByDistrictID(String.valueOf(mockDistrict2.getDistrictId()))).thenReturn(Optional.of(mockDistrict2));
+    when(this.restUtils.getDistrictByDistrictID(String.valueOf(mockDistrict3.getDistrictId()))).thenReturn(Optional.of(mockDistrict3));
+
+    String penStatus = "AA";
+    String penStatusMessage = "test";
+    PenMatchRecord penMatchRecord = new PenMatchRecord();
+    penMatchRecord.setMatchingPEN(String.valueOf(UUID.randomUUID()));
+    penMatchRecord.setStudentID(String.valueOf(UUID.randomUUID()));
+    PenMatchResult penMatchResult = new PenMatchResult(Arrays.asList(penMatchRecord), penStatus, penStatusMessage);
+    when(this.restUtils.getPenMatchResult(any(UUID.class), any(SdcSchoolCollectionStudentEntity.class), any(String.class))).thenReturn(penMatchResult);
+
+    this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/resolve-duplicates")
+            .with(mockAuthority)
+            .header("correlationID", UUID.randomUUID().toString())
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+    var dupeStudents = this.sdcDuplicateRepository.findAll();
+    assertThat(dupeStudents).hasSize(2);
+
+    assertThat(dupeStudents.get(0).getDuplicateLevelCode()).isEqualTo("PROVINCIAL");
+    assertThat(dupeStudents.get(0).getDuplicateResolutionCode()).isEqualTo("RELEASED");
+    assertThat(dupeStudents.get(0).getRetainedSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID()).isEqualTo(sdcSchoolCollectionStudent1.getSdcSchoolCollectionStudentID());
+
+    assertThat(dupeStudents.get(1).getDuplicateLevelCode()).isEqualTo("PROVINCIAL");
+    assertThat(dupeStudents.get(1).getDuplicateResolutionCode()).isEqualTo("RELEASED");
+    assertThat(dupeStudents.get(1).getRetainedSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID()).isEqualTo(sdcSchoolCollectionStudent6.getSdcSchoolCollectionStudentID());
+
+//    assertThat(dupeStudents.get(2).getDuplicateLevelCode()).isEqualTo("PROVINCIAL");
+//    assertThat(dupeStudents.get(2).getDuplicateResolutionCode()).isEqualTo("RESOLVED");
+
+    var currentCollection = this.collectionRepository.findAll();
+    assertThat(currentCollection.get(0).getCollectionStatusCode()).isEqualTo("DUPES_RES");
   }
 }

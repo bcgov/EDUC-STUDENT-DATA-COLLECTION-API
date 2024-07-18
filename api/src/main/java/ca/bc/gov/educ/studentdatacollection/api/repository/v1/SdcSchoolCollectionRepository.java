@@ -207,4 +207,8 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     @Modifying
     @Query(value = "UPDATE SdcSchoolCollectionEntity ssc SET ssc.sdcSchoolCollectionStatusCode = :sdcSchoolCollectionStatusCode WHERE ssc.collectionEntity.collectionID = :collectionID")
     void updateAllSchoolCollectionStatus(UUID collectionID, String sdcSchoolCollectionStatusCode);
+
+    @Modifying
+    @Query(value = "UPDATE SdcSchoolCollectionEntity ssc SET ssc.sdcSchoolCollectionStatusCode = 'COMPLETED' WHERE ssc.collectionEntity.collectionID = :collectionID AND ssc.sdcSchoolCollectionStatusCode != 'COMPLETED'")
+    void updateCollectionsToCompleted(UUID collectionID);
 }

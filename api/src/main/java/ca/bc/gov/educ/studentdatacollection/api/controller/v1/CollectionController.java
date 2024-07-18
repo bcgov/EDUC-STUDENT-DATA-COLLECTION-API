@@ -127,4 +127,10 @@ public class CollectionController implements CollectionEndpoint {
     return this.sdcDuplicatesService.getAllProvincialDuplicatesByCollectionID(collectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
   }
 
+  @Override
+  public ResponseEntity<Void> resolveRemainingDuplicates(UUID collectionID){
+    this.sdcDuplicatesService.resolveRemainingDuplicates(collectionID);
+    return ResponseEntity.ok().build();
+  }
+
 }

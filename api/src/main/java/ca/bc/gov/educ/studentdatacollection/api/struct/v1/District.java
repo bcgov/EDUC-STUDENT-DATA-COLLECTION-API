@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
@@ -30,6 +31,7 @@ public class District extends BaseRequest implements Serializable {
 
   @Size(max = 3)
   @NotNull(message = "districtNumber can not be null.")
+  @Getter
   private String districtNumber;
 
   @Size(max = 10)
