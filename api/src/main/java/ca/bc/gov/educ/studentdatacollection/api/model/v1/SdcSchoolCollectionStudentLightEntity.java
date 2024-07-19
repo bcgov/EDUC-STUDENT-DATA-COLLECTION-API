@@ -148,10 +148,10 @@ public class SdcSchoolCollectionStudentLightEntity {
     private Integer yearsInEll;
 
     @Column(name = "ORIGINAL_DEMOG_HASH")
-    private Integer originalDemogHash;
+    private String originalDemogHash;
 
     @Column(name = "CURRENT_DEMOG_HASH")
-    private Integer currentDemogHash;
+    private String currentDemogHash;
 
     @ManyToOne
     @NotFound(action = NotFoundAction.IGNORE)

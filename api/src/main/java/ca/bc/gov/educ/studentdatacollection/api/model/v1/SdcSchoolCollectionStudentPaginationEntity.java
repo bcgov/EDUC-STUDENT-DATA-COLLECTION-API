@@ -159,10 +159,10 @@ public class SdcSchoolCollectionStudentPaginationEntity {
   private Integer yearsInEll;
 
   @Column(name = "ORIGINAL_DEMOG_HASH")
-  private Integer originalDemogHash;
+  private String originalDemogHash;
 
   @Column(name = "CURRENT_DEMOG_HASH")
-  private Integer currentDemogHash;
+  private String currentDemogHash;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
