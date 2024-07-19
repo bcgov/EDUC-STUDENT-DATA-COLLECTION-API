@@ -36,8 +36,7 @@ public class SdcDistrictCollectionService {
   private final RestUtils restUtils;
   private static final String SDC_DISTRICT_COLLECTION_ID_KEY = "sdcDistrictCollectionID";
   private static final String INVALID_PAYLOAD_MSG = "Payload contains invalid data.";
-  private final SdcDistrictCollectionSubmissionSignatureRepository sdcDistrictCollectionSubmissionSignatureRepository;
-  public static final String[] allowedRoles = new String[]{"DIS_SDC_EDIT", "SUPERINT", "SECR_TRES"};
+  private static final String[] allowedRoles = new String[]{"DIS_SDC_EDIT", "SUPERINT", "SECR_TRES"};
 
   @Autowired
   public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionSubmissionSignatureRepository sdcDistrictCollectionSubmissionSignatureRepository) {
@@ -47,8 +46,6 @@ public class SdcDistrictCollectionService {
     this.collectionRepository = collectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
     this.restUtils = restUtils;
-    this.sdcDistrictCollectionSubmissionSignatureRepository = sdcDistrictCollectionSubmissionSignatureRepository;
-
   }
 
   public SdcDistrictCollectionEntity getSdcDistrictCollection(UUID sdcDistrictCollectionID) {

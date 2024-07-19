@@ -13,8 +13,8 @@ import java.util.List;
 @Component
 public class SdcDistrictCollectionSubmissionSignatureValidator {
 
-    public static final String[] allowedRoles = new String[]{"DIS_SDC_EDIT", "SUPERINT", "SECR_TRES"};
-    public static final String DISTRICT_SIGNATORY_ROLE = "districtSignatoryRole";
+    private static final String[] allowedRoles = new String[]{"DIS_SDC_EDIT", "SUPERINT", "SECR_TRES"};
+    private static final String DISTRICT_SIGNATORY_ROLE = "districtSignatoryRole";
 
     public List<FieldError> validatePayload(SdcDistrictCollectionSubmissionSignature signature) {
 
