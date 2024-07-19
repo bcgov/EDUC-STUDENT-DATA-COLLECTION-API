@@ -39,7 +39,7 @@ public interface SdcSchoolCollectionEndpoint {
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional(readOnly = true)
-  @Tag(name = "Sdc School Collection", description = "Endpoints to get all school collection duplicates.")
+  @Tag(name = "Sdc School Collection", description = "Endpoints to get all school collection sdc duplicates.")
   List<SdcDuplicate>  getSchoolCollectionSdcDuplicates(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
   @GetMapping("/duplicate/{sdcDuplicateID}")
