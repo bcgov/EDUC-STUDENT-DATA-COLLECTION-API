@@ -35,4 +35,7 @@ public interface SdcDistrictCollectionMapper {
   @Mapping(target = "duplicationResolutionDueDate", source = "sdcDistrictCollectionEntity.collectionEntity.duplicationResolutionDueDate")
   @Mapping(target = "signOffDueDate", source = "sdcDistrictCollectionEntity.collectionEntity.signOffDueDate")
   SdcDistrictCollection toStructureWithSubmissionSignatures(SdcDistrictCollectionEntity sdcDistrictCollectionEntity);
+
+  @Mapping(target = "sdcDistrictCollectionSubmissionSignatureEntities", source= "submissionSignatures")
+  SdcDistrictCollectionEntity toModelWithSubmissionSignatures(SdcDistrictCollection sdcDistrictCollection);
 }
