@@ -12,6 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
+import ca.bc.gov.educ.studentdatacollection.api.validator.SdcDistrictCollectionSubmissionSignatureValidator;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcDistrictCollectionValidator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,11 +30,13 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
   private static final SdcSchoolCollectionMapper sdcSchoolCollectionMapper = SdcSchoolCollectionMapper.mapper;
   private final SdcDistrictCollectionValidator sdcDistrictCollectionValidator;
+  private final SdcDistrictCollectionSubmissionSignatureValidator sdcDistrictCollectionSubmissionSignatureValidator;
   private static final SdcDistrictCollectionSubmissionSignatureMapper signatureMapper = SdcDistrictCollectionSubmissionSignatureMapper.mapper;
-  public SdcDistrictCollectionController(SdcDuplicatesService sdcDuplicatesService, SdcDistrictCollectionService sdcDistrictCollectionService, SdcDistrictCollectionValidator sdcDistrictCollectionValidator) {
+  public SdcDistrictCollectionController(SdcDuplicatesService sdcDuplicatesService, SdcDistrictCollectionService sdcDistrictCollectionService, SdcDistrictCollectionValidator sdcDistrictCollectionValidator, SdcDistrictCollectionSubmissionSignatureValidator sdcDistrictCollectionSubmissionSignatureValidator) {
       this.sdcDuplicatesService = sdcDuplicatesService;
       this.sdcDistrictCollectionService = sdcDistrictCollectionService;
       this.sdcDistrictCollectionValidator = sdcDistrictCollectionValidator;
+      this.sdcDistrictCollectionSubmissionSignatureValidator = sdcDistrictCollectionSubmissionSignatureValidator;
   }
 
   @Override
@@ -104,9 +107,14 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   }
 
   @Override
-  public ResponseEntity<Void> signDistrictCollectionForSubmission(UUID sdcDistrictCollectionID, SdcDistrictCollectionSubmissionSignature signature) {
-    RequestUtil.setAuditColumnsForCreateIfBlank(signature);
-    sdcDistrictCollectionService.signDistrictCollectionForSubmission(sdcDistrictCollectionID, signatureMapper.toModel(signature));
+  public ResponseEntity<Void> signDistrictCollectionForSubmission(UUID sdcDistrictCollectionID, SdcDistrictCollection sdcDistrictCollection) {
+    sdcDistrictCollection.getSubmissionSignatures().forEach(sign -> {
+      ValidationUtil.validatePayload(() -> this.sdcDistrictCollectionSubmissionSignatureValidator.validatePayload(sign));
+      if(sign.getSdcDistrictSubmissionSignatureID() == null) {
+        RequestUtil.setAuditColumnsForCreateIfBlank(sign);
+      }
+    });
+    sdcDistrictCollectionService.signDistrictCollectionForSubmission(sdcDistrictCollectionID, mapper.toModelWithSubmissionSignatures(sdcDistrictCollection));
     return ResponseEntity.ok().build();
   }
 }

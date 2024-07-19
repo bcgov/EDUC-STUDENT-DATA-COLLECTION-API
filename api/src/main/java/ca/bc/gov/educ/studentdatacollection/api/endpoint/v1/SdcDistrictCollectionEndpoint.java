@@ -104,5 +104,5 @@ public interface SdcDistrictCollectionEndpoint {
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional
   @Schema(name = "SdcDistrictCollectionSubmissionSignature", implementation = SdcDistrictCollectionSubmissionSignature.class)
-  ResponseEntity<Void> signDistrictCollectionForSubmission(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID, @RequestBody SdcDistrictCollectionSubmissionSignature signature);
+  ResponseEntity<Void> signDistrictCollectionForSubmission(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID, @RequestBody SdcDistrictCollection sdcDistrictCollection);
 }

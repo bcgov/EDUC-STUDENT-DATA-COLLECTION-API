@@ -37,6 +37,7 @@ public class SdcDistrictCollectionService {
   private static final String SDC_DISTRICT_COLLECTION_ID_KEY = "sdcDistrictCollectionID";
   private static final String INVALID_PAYLOAD_MSG = "Payload contains invalid data.";
   private final SdcDistrictCollectionSubmissionSignatureRepository sdcDistrictCollectionSubmissionSignatureRepository;
+  public static final String[] allowedRoles = new String[]{"DIS_SDC_EDIT", "SUPERINT", "SECR_TRES"};
 
   @Autowired
   public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionSubmissionSignatureRepository sdcDistrictCollectionSubmissionSignatureRepository) {
@@ -194,13 +195,33 @@ public class SdcDistrictCollectionService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void signDistrictCollectionForSubmission(UUID sdcDistrictCollectionID, SdcDistrictCollectionSubmissionSignatureEntity signatureEntity) {
+  public void signDistrictCollectionForSubmission(UUID sdcDistrictCollectionID, SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
     Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionOptional = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
-    SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, SDC_DISTRICT_COLLECTION_ID_KEY, sdcDistrictCollectionID.toString()));
+    SdcDistrictCollectionEntity curDistrictCollectionEntity = sdcDistrictCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, SDC_DISTRICT_COLLECTION_ID_KEY, sdcDistrictCollectionID.toString()));
 
-    signatureEntity.setSignatureDate(LocalDateTime.now());
-    signatureEntity.setSdcDistrictCollection(sdcDistrictCollectionEntity);
-    TransformUtil.uppercaseFields(signatureEntity);
-    sdcDistrictCollectionSubmissionSignatureRepository.save(signatureEntity);
+    BeanUtils.copyProperties(sdcDistrictCollectionEntity, curDistrictCollectionEntity, "sdcDistrictCollectionSubmissionSignatureEntities");
+    curDistrictCollectionEntity.getSdcDistrictCollectionSubmissionSignatureEntities().clear();
+    curDistrictCollectionEntity.getSdcDistrictCollectionSubmissionSignatureEntities().addAll(sdcDistrictCollectionEntity.getSdcDistrictCollectionSubmissionSignatureEntities());
+
+    curDistrictCollectionEntity.getSdcDistrictCollectionSubmissionSignatureEntities().forEach(sign -> {
+      if(sign.getSdcDistrictSubmissionSignatureID() == null) {
+        sign.setSdcDistrictCollection(curDistrictCollectionEntity);
+        sign.setSignatureDate(LocalDateTime.now());
+        TransformUtil.uppercaseFields(sign);
+      }
+    });
+    var savedEntities = sdcDistrictCollectionRepository.save(curDistrictCollectionEntity);
+
+    List<String> signedRoles = savedEntities.getSdcDistrictCollectionSubmissionSignatureEntities().stream().map(SdcDistrictCollectionSubmissionSignatureEntity::getDistrictSignatoryRole).toList();
+    boolean hasAllRoles = new HashSet<>(signedRoles).equals(new HashSet<>(List.of(allowedRoles)));
+    if(signedRoles.size() == 3 && hasAllRoles) {
+      List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
+      sdcSchoolCollectionEntities.forEach(entity -> entity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.COMPLETED.getCode()));
+      sdcSchoolCollectionRepository.saveAll(sdcSchoolCollectionEntities);
+
+      sdcDistrictCollectionEntity.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.COMPLETED.getCode());
+      sdcDistrictCollectionRepository.save(sdcDistrictCollectionEntity);
+    }
+
   }
 }

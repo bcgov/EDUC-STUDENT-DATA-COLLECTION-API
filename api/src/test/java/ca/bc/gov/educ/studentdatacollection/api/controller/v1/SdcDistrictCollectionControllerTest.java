@@ -4,7 +4,6 @@ import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionSubmissionSignatureMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
@@ -1447,7 +1446,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     District district = createMockDistrict();
     SdcDistrictCollectionEntity sdcMockDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
-    sdcDistrictCollectionRepository.save(sdcMockDistrictCollection);
+    var savedDistrictColl = sdcDistrictCollectionRepository.save(sdcMockDistrictCollection);
 
     SdcDistrictCollectionSubmissionSignatureEntity signature = new SdcDistrictCollectionSubmissionSignatureEntity();
     signature.setSdcDistrictCollection(sdcMockDistrictCollection);
@@ -1457,11 +1456,13 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     signature.setCreateDate(LocalDateTime.now());
     signature.setUpdateDate(LocalDateTime.now());
 
+    savedDistrictColl.setSdcDistrictCollectionSubmissionSignatureEntities(new HashSet<>(List.of(signature)));
+
     this.mockMvc.perform(
                     post(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcMockDistrictCollection.getSdcDistrictCollectionID().toString() + "/sign-off")
                             .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON)
-                            .content(asJsonString(SdcDistrictCollectionSubmissionSignatureMapper.mapper.toStructure(signature)))
+                            .content(asJsonString(SdcDistrictCollectionMapper.mapper.toStructureWithSubmissionSignatures(savedDistrictColl)))
                             .with(mockAuthority))
             .andDo(print()).andExpect(status().isOk());
   }
