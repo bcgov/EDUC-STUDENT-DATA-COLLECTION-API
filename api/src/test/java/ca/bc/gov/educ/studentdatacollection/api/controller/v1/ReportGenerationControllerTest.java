@@ -871,8 +871,8 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     student1.setFte(new BigDecimal(1.0000));
     student1.setAssignedStudentId(studentID);
     student1.setAssignedPen("123456789");
-    student1.setOriginalDemogHash(123);
-    student1.setCurrentDemogHash(123);
+    student1.setOriginalDemogHash("123");
+    student1.setCurrentDemogHash("123");
     student1 = sdcSchoolCollectionStudentRepository.save(student1);
     sdcSchoolCollectionStudentHistoryRepository.save(createSDCSchoolStudentHistory(student1, "ABC"));
 
@@ -882,8 +882,8 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     student2.setIsSchoolAged(true);
     student2.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
     student2.setFte(new BigDecimal(2.0000));
-    student2.setOriginalDemogHash(123);
-    student2.setCurrentDemogHash(123);
+    student2.setOriginalDemogHash("123");
+    student2.setCurrentDemogHash("123");
     sdcSchoolCollectionStudentRepository.save(student2);
     sdcSchoolCollectionStudentHistoryRepository.save(createSDCSchoolStudentHistory(student2, "ABC"));
 
@@ -892,8 +892,8 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     student3.setIsSchoolAged(true);
     student3.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
     student3.setFte(new BigDecimal(3.3333));
-    student3.setOriginalDemogHash(123);
-    student3.setCurrentDemogHash(123);
+    student3.setOriginalDemogHash("123");
+    student3.setCurrentDemogHash("123");
     sdcSchoolCollectionStudentRepository.save(student3);
     sdcSchoolCollectionStudentHistoryRepository.save(createSDCSchoolStudentHistory(student3, "ABC"));
 
@@ -902,8 +902,8 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     student4.setIsSchoolAged(true);
     student4.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
     student4.setFte(new BigDecimal(4.2525));
-    student4.setOriginalDemogHash(123);
-    student4.setCurrentDemogHash(321);
+    student4.setOriginalDemogHash("123");
+    student4.setCurrentDemogHash("321");
     sdcSchoolCollectionStudentRepository.save(student4);
     student4.setLegalFirstName("JIMBO");
     sdcSchoolCollectionStudentHistoryRepository.save(createSDCSchoolStudentHistory(student4, "ABC"));

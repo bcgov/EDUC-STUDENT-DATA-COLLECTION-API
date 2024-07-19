@@ -75,7 +75,7 @@ public abstract class SdcBatchFileDecorator implements SdcBatchFileMapper {
     entity.setNumberOfCourses(StringMapper.trimAndUppercase(studentDetails.getNumberOfCourses()));
     entity.setBandCode(StringMapper.trimAndUppercase(studentDetails.getBandCode()));
 
-    var hash = entity.getUniqueObjectHash();
+    var hash = Integer.toString(entity.getUniqueObjectHash());
     entity.setOriginalDemogHash(hash);
     entity.setCurrentDemogHash(hash);
 

@@ -97,7 +97,7 @@ public class SdcSchoolCollectionStudentService {
     if(sdcSchoolCollection.isPresent()) {
       studentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(studentEntity.getEnrolledProgramCodes()));
       studentEntity.setSdcSchoolCollection(sdcSchoolCollection.get());
-      studentEntity.setOriginalDemogHash(studentEntity.getUniqueObjectHash());
+      studentEntity.setOriginalDemogHash(Integer.toString(studentEntity.getUniqueObjectHash()));
       return validateAndProcessSdcSchoolCollectionStudent(studentEntity, null, false);
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionEntity.class, "SdcSchoolCollectionEntity", studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID().toString());
@@ -144,7 +144,7 @@ public class SdcSchoolCollectionStudentService {
       hasDuplicateInCollection(originalAssignedPen, currentStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID());
     }
 
-    processedSdcSchoolCollectionStudent.setCurrentDemogHash(processedSdcSchoolCollectionStudent.getUniqueObjectHash());
+    processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
     return saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
   }
 
