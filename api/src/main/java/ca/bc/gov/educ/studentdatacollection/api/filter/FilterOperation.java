@@ -13,7 +13,7 @@ public enum FilterOperation {
   /**
    * Equal Other Field filter operation.
    */
-  NOT_EQUAL_OTHER_COLUMN("eqf"),
+  NOT_EQUAL_OTHER_COLUMN("neqc"),
   /**
    * Not equal filter operation.
    */
