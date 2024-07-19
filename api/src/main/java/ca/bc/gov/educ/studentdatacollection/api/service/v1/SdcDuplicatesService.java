@@ -105,6 +105,10 @@ public class SdcDuplicatesService {
     return sdcDuplicateRepository.findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionIDAndDuplicateLevelCode(sdcSchoolCollectionID, DuplicateLevelCode.PROVINCIAL.getCode());
   }
 
+  public List<SdcDuplicateEntity> getAllDuplicatesBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
+    return sdcDuplicateRepository.findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionID(sdcSchoolCollectionID);
+  }
+
   public SdcDuplicateEntity getSdcDuplicate(UUID sdcDuplicateID) {
     Optional<SdcDuplicateEntity> sdcDuplicateEntity = sdcDuplicateRepository.findById(sdcDuplicateID);
 

@@ -47,6 +47,11 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   }
 
   @Override
+  public List<SdcDuplicate> getSchoolCollectionSdcDuplicates(UUID sdcSchoolCollectionID) {
+    return this.sdcDuplicatesService.getAllDuplicatesBySdcSchoolCollectionID(sdcSchoolCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
+  }
+
+  @Override
   public SdcDuplicate getDuplicateByID(UUID sdcDuplicateID) {
     return duplicateMapper.toSdcDuplicate(this.sdcDuplicatesService.getSdcDuplicate(sdcDuplicateID));
   }
