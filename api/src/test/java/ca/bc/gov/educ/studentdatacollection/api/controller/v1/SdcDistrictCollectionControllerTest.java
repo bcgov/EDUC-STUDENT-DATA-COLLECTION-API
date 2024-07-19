@@ -1467,4 +1467,88 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .andDo(print()).andExpect(status().isOk());
   }
 
+  @Test
+  void testCreateSdcDistrictCollectionSubmissionSignature_WithInValidPayload_ShouldReturnStatusBadRequest() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_DISTRICT_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    District district = createMockDistrict();
+    SdcDistrictCollectionEntity sdcMockDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+    var savedDistrictColl = sdcDistrictCollectionRepository.save(sdcMockDistrictCollection);
+
+    SdcDistrictCollectionSubmissionSignatureEntity signature = new SdcDistrictCollectionSubmissionSignatureEntity();
+    signature.setSdcDistrictCollection(sdcMockDistrictCollection);
+    signature.setSignatureDate(LocalDateTime.now());
+    signature.setDistrictSignatoryRole("TEST_ROLE");
+    signature.setDistrictSignatoryUserID("EDX/testUserId");
+    signature.setCreateDate(LocalDateTime.now());
+    signature.setUpdateDate(LocalDateTime.now());
+
+    savedDistrictColl.setSdcDistrictCollectionSubmissionSignatureEntities(new HashSet<>(List.of(signature)));
+
+    this.mockMvc.perform(
+                    post(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcMockDistrictCollection.getSdcDistrictCollectionID().toString() + "/sign-off")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .content(asJsonString(SdcDistrictCollectionMapper.mapper.toStructureWithSubmissionSignatures(savedDistrictColl)))
+                            .with(mockAuthority))
+            .andDo(print()).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testCreateSdcDistrictCollectionSubmissionSignature_WithValidPayload_AllSignaturesAcquired_Should_COMPLETE_DistrictCollection() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_DISTRICT_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    District district = createMockDistrict();
+    SdcDistrictCollectionEntity sdcMockDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+    var savedDistrictColl = sdcDistrictCollectionRepository.save(sdcMockDistrictCollection);
+
+    SdcDistrictCollectionSubmissionSignatureEntity signature = new SdcDistrictCollectionSubmissionSignatureEntity();
+    signature.setSdcDistrictCollection(sdcMockDistrictCollection);
+    signature.setSignatureDate(LocalDateTime.now());
+    signature.setDistrictSignatoryRole("DIS_SDC_EDIT");
+    signature.setDistrictSignatoryUserID("EDX/testUserId");
+    signature.setCreateDate(LocalDateTime.now());
+    signature.setUpdateDate(LocalDateTime.now());
+
+    SdcDistrictCollectionSubmissionSignatureEntity signature2 = new SdcDistrictCollectionSubmissionSignatureEntity();
+    signature2.setSdcDistrictCollection(sdcMockDistrictCollection);
+    signature2.setSignatureDate(LocalDateTime.now());
+    signature2.setDistrictSignatoryRole("SUPERINT");
+    signature2.setDistrictSignatoryUserID("EDX/testUserId");
+    signature2.setCreateDate(LocalDateTime.now());
+    signature2.setUpdateDate(LocalDateTime.now());
+
+    SdcDistrictCollectionSubmissionSignatureEntity signature3 = new SdcDistrictCollectionSubmissionSignatureEntity();
+    signature3.setSdcDistrictCollection(sdcMockDistrictCollection);
+    signature3.setSignatureDate(LocalDateTime.now());
+    signature3.setDistrictSignatoryRole("SECR_TRES");
+    signature3.setDistrictSignatoryUserID("EDX/testUserId");
+    signature3.setCreateDate(LocalDateTime.now());
+    signature3.setUpdateDate(LocalDateTime.now());
+
+    savedDistrictColl.setSdcDistrictCollectionSubmissionSignatureEntities(new HashSet<>(List.of(signature, signature2, signature3)));
+
+    this.mockMvc.perform(
+                    post(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcMockDistrictCollection.getSdcDistrictCollectionID().toString() + "/sign-off")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .content(asJsonString(SdcDistrictCollectionMapper.mapper.toStructureWithSubmissionSignatures(savedDistrictColl)))
+                            .with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
+
+    var updatedDistrictColl = sdcDistrictCollectionRepository.findById(sdcMockDistrictCollection.getSdcDistrictCollectionID());
+    assertThat(updatedDistrictColl).isPresent();
+    assertThat(updatedDistrictColl.get().getSdcDistrictCollectionStatusCode()).isEqualTo("COMPLETED");
+  }
+
 }
