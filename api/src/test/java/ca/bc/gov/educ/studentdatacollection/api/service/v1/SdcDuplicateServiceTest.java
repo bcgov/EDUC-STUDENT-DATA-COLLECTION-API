@@ -409,22 +409,22 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     student5.setNumberOfCoursesDec(BigDecimal.valueOf(10.00));
 
     SdcSchoolCollectionStudentEntity studentToEdit1 = sdcDuplicateService.identifyStudentToEdit(student1, student2, schoolTombstone1, schoolTombstone2);
-    assertThat(studentToEdit1).isEqualTo(student1);
+    assertThat(studentToEdit1.getSdcSchoolCollectionStudentID()).isEqualTo(student1.getSdcSchoolCollectionStudentID());
 
     SdcSchoolCollectionStudentEntity studentToEdit2 = sdcDuplicateService.identifyStudentToEdit(student1, student3, schoolTombstone1, schoolTombstone2);
-    assertThat(studentToEdit2).isEqualTo(student3);
+    assertThat(studentToEdit2.getSdcSchoolCollectionStudentID()).isEqualTo(student3.getSdcSchoolCollectionStudentID());
 
     SdcSchoolCollectionStudentEntity studentToEdit3 = sdcDuplicateService.identifyStudentToEdit(student3, student1, schoolTombstone2, schoolTombstone1);
-    assertThat(studentToEdit3).isEqualTo(student3);
+    assertThat(studentToEdit3.getSdcSchoolCollectionStudentID()).isEqualTo(student3.getSdcSchoolCollectionStudentID());
 
     SdcSchoolCollectionStudentEntity studentToEdit4 = sdcDuplicateService.identifyStudentToEdit(student3, student4, schoolTombstone2, schoolTombstone3);
-    assertThat(studentToEdit4).isEqualTo(student4);
+    assertThat(studentToEdit4.getSdcSchoolCollectionStudentID()).isEqualTo(student4.getSdcSchoolCollectionStudentID());
 
     SdcSchoolCollectionStudentEntity studentToEdit5 = sdcDuplicateService.identifyStudentToEdit(student4, student3, schoolTombstone3, schoolTombstone2);
-    assertThat(studentToEdit5).isEqualTo(student4);
+    assertThat(studentToEdit5.getSdcSchoolCollectionStudentID()).isEqualTo(student4.getSdcSchoolCollectionStudentID());
 
     SdcSchoolCollectionStudentEntity studentToEdit6 = sdcDuplicateService.identifyStudentToEdit(student5, student1, schoolTombstone4, schoolTombstone1);
-    assertThat(studentToEdit6).isEqualTo(student5);
+    assertThat(studentToEdit6.getSdcSchoolCollectionStudentID()).isEqualTo(student5.getSdcSchoolCollectionStudentID());
 
   }
 }
