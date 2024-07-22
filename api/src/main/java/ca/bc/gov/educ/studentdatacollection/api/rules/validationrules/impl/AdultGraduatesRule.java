@@ -25,12 +25,12 @@ import java.util.List;
  *  | V48 | ERROR    | Adult graduates must be reported in grade GA.                         | V28,V04,V05  |
  *                                                                                             V06,V07,V08
  *                                                                                             V09,V10,V11
- *                                                                                             V12
+ *                                                                                             V12,V02,V03
  */
 @Component
 @Slf4j
 @Order(700)
-public class AdultGraduatesRule extends BaseAdultSchoolAgeRule implements ValidationBaseRule {
+public class AdultGraduatesRule extends BasePENRule implements ValidationBaseRule {
 
     public AdultGraduatesRule(ValidationRulesService validationRulesService) {
         super(validationRulesService);

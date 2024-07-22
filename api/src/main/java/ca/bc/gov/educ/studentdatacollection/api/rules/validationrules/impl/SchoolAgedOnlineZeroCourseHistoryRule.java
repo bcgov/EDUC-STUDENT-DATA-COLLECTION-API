@@ -27,14 +27,16 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityType
  *  | V47 | WARNING  | For school-aged student enrolled in grade 8, 9, 10, 11, 12, or SU,    | V28, V04, V29 |
  *                     reported by a provincial or district online school with Number of     | V05, V06, V07 |
  *                     Courses = 0, must have been reported by the school in the last 2 years| V08, V09, V10 |
- *                     with Number of Courses > 0.                                           | V11, V12      |
+ *                     with Number of Courses > 0.                                           | V11, V12, V03 |
+ *                                                                                           | V02
  */
 @Component
 @Slf4j
 @Order(300)
-public class SchoolAgedOnlineZeroCourseHistoryRule implements ValidationBaseRule {
+public class SchoolAgedOnlineZeroCourseHistoryRule extends BasePENRule implements ValidationBaseRule {
     private final ValidationRulesService validationRulesService;
     public SchoolAgedOnlineZeroCourseHistoryRule(ValidationRulesService validationRulesService) {
+        super(validationRulesService);
         this.validationRulesService = validationRulesService;
     }
 
@@ -59,9 +61,7 @@ public class SchoolAgedOnlineZeroCourseHistoryRule implements ValidationBaseRule
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
-        if(student.getIsGraduated() == null){
-            validationRulesService.updatePenMatchAndGradStatusColumns(student, studentRuleData.getSchool().getMincode());
-        }
+        setupGraduateValues(studentRuleData);
 
         boolean isAdult = DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
         String schoolType = studentRuleData.getSchool().getFacilityTypeCode();
