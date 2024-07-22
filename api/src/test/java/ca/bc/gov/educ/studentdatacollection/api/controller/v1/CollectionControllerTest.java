@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest
 import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplication;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramDuplicateTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
@@ -12,8 +13,6 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCode
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDuplicateRepository;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
@@ -93,7 +92,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @AfterEach
-  public void afterEach() {
+  public void after() {
     this.sdcDuplicateRepository.deleteAll();
     this.collectionRepository.deleteAll();
     this.sdcDuplicateRepository.deleteAll();
@@ -857,11 +856,11 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     outOfDistrictDuplicate.setDuplicateLevelCode(DuplicateLevelCode.PROVINCIAL.getCode());
     var outOfDistrictDuplicateEntity = sdcDuplicateRepository.save(outOfDistrictDuplicate);
 
-//    var programDuplicate = createMockSdcDuplicateEntity(sdcSchoolCollectionStudent3, sdcSchoolCollectionStudent4, collection.getCollectionID());
-//    programDuplicate.setDuplicateLevelCode(DuplicateLevelCode.PROVINCIAL.getCode());
-//    programDuplicate.setDuplicateTypeCode(DuplicateTypeCode.PROGRAM.getCode());
-//    programDuplicate.setProgramDuplicateTypeCode(ProgramDuplicateTypeCode.INDIGENOUS.getCode());
-//    var programDuplicateEntity = sdcDuplicateRepository.save(programDuplicate);
+    var programDuplicate = createMockSdcDuplicateEntity(sdcSchoolCollectionStudent3, sdcSchoolCollectionStudent4, collection.getCollectionID());
+    programDuplicate.setDuplicateLevelCode(DuplicateLevelCode.PROVINCIAL.getCode());
+    programDuplicate.setDuplicateTypeCode(DuplicateTypeCode.PROGRAM.getCode());
+    programDuplicate.setProgramDuplicateTypeCode(ProgramDuplicateTypeCode.INDIGENOUS.getCode());
+    var programDuplicateEntity = sdcDuplicateRepository.save(programDuplicate);
 
     when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
     when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
@@ -871,21 +870,13 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     when(this.restUtils.getDistrictByDistrictID(String.valueOf(mockDistrict2.getDistrictId()))).thenReturn(Optional.of(mockDistrict2));
     when(this.restUtils.getDistrictByDistrictID(String.valueOf(mockDistrict3.getDistrictId()))).thenReturn(Optional.of(mockDistrict3));
 
-    String penStatus = "AA";
-    String penStatusMessage = "test";
-    PenMatchRecord penMatchRecord = new PenMatchRecord();
-    penMatchRecord.setMatchingPEN(String.valueOf(UUID.randomUUID()));
-    penMatchRecord.setStudentID(String.valueOf(UUID.randomUUID()));
-    PenMatchResult penMatchResult = new PenMatchResult(Arrays.asList(penMatchRecord), penStatus, penStatusMessage);
-    when(this.restUtils.getPenMatchResult(any(UUID.class), any(SdcSchoolCollectionStudentEntity.class), any(String.class))).thenReturn(penMatchResult);
-
     this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/resolve-duplicates")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
 
     var dupeStudents = this.sdcDuplicateRepository.findAll();
-    assertThat(dupeStudents).hasSize(2);
+    assertThat(dupeStudents).hasSize(3);
 
     assertThat(dupeStudents.get(0).getDuplicateLevelCode()).isEqualTo("PROVINCIAL");
     assertThat(dupeStudents.get(0).getDuplicateResolutionCode()).isEqualTo("RELEASED");
@@ -895,8 +886,8 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(dupeStudents.get(1).getDuplicateResolutionCode()).isEqualTo("RELEASED");
     assertThat(dupeStudents.get(1).getRetainedSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID()).isEqualTo(sdcSchoolCollectionStudent6.getSdcSchoolCollectionStudentID());
 
-//    assertThat(dupeStudents.get(2).getDuplicateLevelCode()).isEqualTo("PROVINCIAL");
-//    assertThat(dupeStudents.get(2).getDuplicateResolutionCode()).isEqualTo("RESOLVED");
+    assertThat(dupeStudents.get(2).getDuplicateLevelCode()).isEqualTo("PROVINCIAL");
+    assertThat(dupeStudents.get(2).getDuplicateResolutionCode()).isEqualTo("RESOLVED");
 
     var currentCollection = this.collectionRepository.findAll();
     assertThat(currentCollection.get(0).getCollectionStatusCode()).isEqualTo("DUPES_RES");
