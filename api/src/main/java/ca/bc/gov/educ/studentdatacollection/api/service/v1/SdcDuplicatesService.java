@@ -251,7 +251,7 @@ public class SdcDuplicatesService {
     return finalDuplicatesSet;
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional(propagation = Propagation.REQUIRED)
   public void resolveRemainingDuplicates(UUID collectionID){
     Optional<CollectionEntity> activeCollection = collectionRepository.findActiveCollection();
 
@@ -412,8 +412,13 @@ public class SdcDuplicatesService {
     if(independentSchoolCategoryCodes.contains(school.getSchoolCategoryCode())){
       instituteNumber = Integer.parseInt(school.getMincode());
     } else {
-      District district1 = restUtils.getDistrictByDistrictID(school.getDistrictId()).get();
-      instituteNumber = Integer.parseInt(district1.getDistrictNumber());
+      Optional<District> district = restUtils.getDistrictByDistrictID(school.getDistrictId());
+
+      if(district.isPresent()){
+        instituteNumber = Integer.parseInt(district.get().getDistrictNumber());
+      } else {
+        throw new EntityNotFoundException(District.class, "districtID", school.getDistrictId());
+      }
     }
     return instituteNumber;
   }
