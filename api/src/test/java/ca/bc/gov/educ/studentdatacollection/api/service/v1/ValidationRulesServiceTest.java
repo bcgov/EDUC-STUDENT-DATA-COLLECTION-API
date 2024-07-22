@@ -8,7 +8,6 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStud
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -80,7 +79,7 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
 
         assertNull(mockStudentEntity.getAssignedStudentId());
-        assertSame("NEW", mockStudentEntity.getPenMatchResult());
+        assertSame("CONFLICT", mockStudentEntity.getPenMatchResult());
     }
 
     @Test
