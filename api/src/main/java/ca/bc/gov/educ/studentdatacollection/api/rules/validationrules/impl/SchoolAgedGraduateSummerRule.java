@@ -24,12 +24,12 @@ import java.util.List;
  *  | V53 | ERROR    | School-aged students, reported in the                                 | V28,V04,V05  |
  *                     summer collection, cannot be graduated.                                 V06,V07,V08
  *                                                                                             V09,V10,V11
- *                                                                                             V12
+ *                                                                                             V12,V02,V03
  */
 @Component
 @Slf4j
 @Order(720)
-public class SchoolAgedGraduateSummerRule extends BaseAdultSchoolAgeRule implements ValidationBaseRule {
+public class SchoolAgedGraduateSummerRule extends BasePENRule implements ValidationBaseRule {
 
     public SchoolAgedGraduateSummerRule(ValidationRulesService validationRulesService) {
         super(validationRulesService);

@@ -25,12 +25,13 @@ import java.util.List;
  *  | V69 | WARNING  | Graduated school-aged students in grade 10, 11, 12, or SU,            | V28,V04,V05  |
  *                     should not be reported with support blocks.                             V06,V07,V08
  *                                                                                             V09,V10,V11
- *                                                                                             V12, V67
+ *                                                                                             V12,V67,V02
+ *                                                                                             V03
  */
 @Component
 @Slf4j
 @Order(740)
-public class SchoolAgedGraduateSupportBlockRule extends BaseAdultSchoolAgeRule implements ValidationBaseRule {
+public class SchoolAgedGraduateSupportBlockRule extends BasePENRule implements ValidationBaseRule {
 
     public SchoolAgedGraduateSupportBlockRule(ValidationRulesService validationRulesService) {
         super(validationRulesService);

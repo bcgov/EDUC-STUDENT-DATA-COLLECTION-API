@@ -24,13 +24,13 @@ import java.util.List;
  *  | V49 | WARNING  | Adult students, reported by Independent or                            | V28,V04,V05  |
  *                     Independent First Nations schools cannot be graduated.                  V06,V07,V08
  *                                                                                             V09,V10,V11
- *                                                                                             V12
+ *                                                                                             V12,V02,V03
  *
  */
 @Component
 @Slf4j
 @Order(710)
-public class IndependentSchoolGraduateStudentRule extends BaseAdultSchoolAgeRule implements ValidationBaseRule {
+public class IndependentSchoolGraduateStudentRule extends BasePENRule implements ValidationBaseRule {
 
     public IndependentSchoolGraduateStudentRule(ValidationRulesService validationRulesService) {
         super(validationRulesService);
