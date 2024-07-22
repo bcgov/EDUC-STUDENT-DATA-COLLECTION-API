@@ -25,7 +25,7 @@ public enum StudentValidationIssueTypeCode {
 
   DOB_BLANK("DOBBLANK", "Birthdate cannot be blank.", ERROR),
   DOB_INVALID_FORMAT("DOBINVALIDFORMAT", "Student's birthdate must be a valid calendar date that is not in the future.", ERROR),
-  STUDENT_PEN_BLANK("STUDENTPENBLANK", "Students in Summer School must be reported with a PEN.", ERROR),
+  STUDENT_PEN_BLANK("STUDENTPENBLANK", "Students must be reported with a PEN.", ERROR),
   STUDENT_PEN_DUPLICATE("STUDENTPENDUPLICATE", "PEN reported more than once. Correct the PEN or remove the appropriate student from the submission.", ERROR),
   LEGAL_LAST_NAME_BLANK("LEGALLASTNAMEBLANK", "Legal surname cannot be blank. If student only has one name, it must be placed in the surname field and the given name field can be left blank.", ERROR),
   LEGAL_FIRST_NAME_CHAR_FIX("LEGALFIRSTNAMECHARFIX", "Legal given name contains characters that are not yet supported by legacy systems. Please remove or replace any special characters in this field.", ERROR),
