@@ -116,7 +116,7 @@ public class ValidationRulesService {
         } else if (StringUtils.isNotEmpty(penMatchResultCode) && multiPenMatchResults.contains(penMatchResultCode)) {
             student.setPenMatchResult("MULTI");
         } else {
-            student.setPenMatchResult("NEW");
+            student.setPenMatchResult("CONFLICT");
         }
         setGraduationStatus(student);
         setStudentYearsInEll(student);
