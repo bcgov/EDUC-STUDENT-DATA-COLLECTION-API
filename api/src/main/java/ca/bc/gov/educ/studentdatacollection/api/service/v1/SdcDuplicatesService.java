@@ -398,6 +398,7 @@ public class SdcDuplicatesService {
     if (Objects.equals(programDuplicateTypeCode, ProgramDuplicateTypeCode.CAREER.getCode())){
       List<String> studentCareerProgramCodes = EnrolledProgramCodes.getCareerProgramCodes().stream().filter(enrolledPrograms::contains).toList();
       enrolledPrograms.removeAll(studentCareerProgramCodes);
+      student.setCareerProgramCode(null);
     } else if (Objects.equals(programDuplicateTypeCode, ProgramDuplicateTypeCode.INDIGENOUS.getCode())){
       List<String> studentIndigenousProgramCodes = EnrolledProgramCodes.getIndigenousProgramCodes().stream().filter(enrolledPrograms::contains).toList();
       enrolledPrograms.removeAll(studentIndigenousProgramCodes);
@@ -406,6 +407,7 @@ public class SdcDuplicatesService {
       enrolledPrograms.removeAll(studentLanguageProgramCodes);
     } else if (Objects.equals(programDuplicateTypeCode, ProgramDuplicateTypeCode.SPECIAL_ED.getCode())){
       enrolledPrograms.remove(student.getSpecialEducationCategoryCode());
+      student.setSpecialEducationCategoryCode(null);
     }
 
     student.setEnrolledProgramCodes(String.join("", enrolledPrograms));
