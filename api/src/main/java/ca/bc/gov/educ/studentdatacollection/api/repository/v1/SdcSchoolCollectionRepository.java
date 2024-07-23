@@ -204,9 +204,27 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     """)
     List<SdcSchoolCollectionEntity> findAllUnsubmittedIndependentSchoolsInCurrentCollection();
 
-    @Modifying
-    @Query(value = "UPDATE SdcSchoolCollectionEntity ssc SET ssc.sdcSchoolCollectionStatusCode = :sdcSchoolCollectionStatusCode WHERE ssc.collectionEntity.collectionID = :collectionID")
-    void updateAllSchoolCollectionStatus(UUID collectionID, String sdcSchoolCollectionStatusCode);
+    @Query("""
+    SELECT ssc FROM SdcSchoolCollectionEntity ssc
+    WHERE ssc.sdcSchoolCollectionID NOT IN (
+        SELECT sds.sdcSchoolCollectionID FROM SdcDuplicateStudentEntity sds
+        WHERE sds.sdcDuplicateEntity.duplicateResolutionCode IS NULL AND
+        sds.sdcDuplicateEntity.collectionID = :collectionID AND 
+        sds.sdcDuplicateEntity.duplicateLevelCode = 'PROVINCIAL')
+    AND ssc.collectionEntity.collectionID = :collectionID
+    """)
+    List<SdcSchoolCollectionEntity> findAllSchoolCollectionsWithoutProvincialDupes(UUID collectionID);
+
+    @Query("""
+    SELECT ssc FROM SdcSchoolCollectionEntity ssc
+    WHERE ssc.sdcSchoolCollectionID IN (
+        SELECT sds.sdcSchoolCollectionID FROM SdcDuplicateStudentEntity sds
+        WHERE sds.sdcDuplicateEntity.duplicateResolutionCode IS NULL AND
+        sds.sdcDuplicateEntity.collectionID = :collectionID AND 
+        sds.sdcDuplicateEntity.duplicateLevelCode = 'PROVINCIAL')
+    AND ssc.collectionEntity.collectionID = :collectionID
+    """)
+    List<SdcSchoolCollectionEntity> findAllSchoolCollectionsWithProvincialDupes(UUID collectionID);
 
     @Query(value = "SELECT ssc FROM SdcSchoolCollectionEntity ssc WHERE ssc.collectionEntity.collectionID = :collectionID AND ssc.sdcSchoolCollectionStatusCode != 'COMPLETED'")
     List<SdcSchoolCollectionEntity> findUncompletedSchoolCollections(UUID collectionID);

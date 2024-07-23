@@ -227,7 +227,13 @@ public class SdcDuplicatesService {
     sendEmailNotificationsForProvinceDuplicates();
 
     this.collectionRepository.updateCollectionStatus(collectionID, String.valueOf(CollectionStatus.PROVDUPES));
-    sdcSchoolCollectionRepository.updateAllSchoolCollectionStatus(collectionID, String.valueOf(SdcSchoolCollectionStatus.P_DUP_POST));
+
+    List<SdcSchoolCollectionEntity> schoolCollectionsWithoutDupes = sdcSchoolCollectionRepository.findAllSchoolCollectionsWithoutProvincialDupes(collectionID);
+    List<SdcSchoolCollectionEntity> schoolCollectionsWithDupes = sdcSchoolCollectionRepository.findAllSchoolCollectionsWithProvincialDupes(collectionID);
+
+    updateSchoolCollectionStatuses(schoolCollectionsWithoutDupes, SdcSchoolCollectionStatus.COMPLETED.getCode());
+    updateSchoolCollectionStatuses(schoolCollectionsWithDupes, SdcSchoolCollectionStatus.P_DUP_POST.getCode());
+
     sdcDistrictCollectionRepository.updateAllDistrictCollectionStatus(collectionID, String.valueOf(SdcDistrictCollectionStatus.P_DUP_POST));
   }
 
@@ -289,13 +295,7 @@ public class SdcDuplicatesService {
     }
 
     List<SdcSchoolCollectionEntity> schoolCollections = sdcSchoolCollectionRepository.findUncompletedSchoolCollections(collectionID);
-
-    for (SdcSchoolCollectionEntity schoolCollection : schoolCollections) {
-      schoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.COMPLETED.getCode());
-      SdcSchoolCollectionHistoryEntity schoolCollectionHistoryRecord = sdcSchoolCollectionHistoryService.createSDCSchoolHistory(schoolCollection, ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-      sdcSchoolCollectionHistoryRepository.save(schoolCollectionHistoryRecord);
-      sdcSchoolCollectionRepository.save(schoolCollection);
-    }
+    updateSchoolCollectionStatuses(schoolCollections, SdcSchoolCollectionStatus.COMPLETED.getCode());
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
@@ -451,6 +451,15 @@ public class SdcDuplicatesService {
     if(!emailList.isEmpty()){
       scheduleHandlerService.createAndStartProvinceDuplicateEmailSagas(emailList);
     }
+  }
+
+  public void updateSchoolCollectionStatuses(List<SdcSchoolCollectionEntity> schoolCollections, String schoolCollectionStatus){
+    schoolCollections.forEach(schoolCollection -> {
+      schoolCollection.setSdcSchoolCollectionStatusCode(schoolCollectionStatus);
+      SdcSchoolCollectionHistoryEntity schoolCollectionHistoryRecord = sdcSchoolCollectionHistoryService.createSDCSchoolHistory(schoolCollection, ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      sdcSchoolCollectionHistoryRepository.save(schoolCollectionHistoryRecord);
+      sdcSchoolCollectionRepository.save(schoolCollection);
+    });
   }
 
   public Map<UUID, SdcSchoolCollection1701Users> generateEmailListForProvinceDuplicates(){
