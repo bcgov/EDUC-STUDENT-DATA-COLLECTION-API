@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateClassLookup;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumMap;

@@ -850,17 +850,17 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     // Create dupes
     var provincialDuplicate = createMockSdcDuplicateEntity(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2, collection.getCollectionID());
     provincialDuplicate.setDuplicateLevelCode(DuplicateLevelCode.PROVINCIAL.getCode());
-    var provincialDuplicateEntity = sdcDuplicateRepository.save(provincialDuplicate);
+    sdcDuplicateRepository.save(provincialDuplicate);
 
     var outOfDistrictDuplicate = createMockSdcDuplicateEntity(sdcSchoolCollectionStudent5, sdcSchoolCollectionStudent6, collection.getCollectionID());
     outOfDistrictDuplicate.setDuplicateLevelCode(DuplicateLevelCode.PROVINCIAL.getCode());
-    var outOfDistrictDuplicateEntity = sdcDuplicateRepository.save(outOfDistrictDuplicate);
+    sdcDuplicateRepository.save(outOfDistrictDuplicate);
 
     var programDuplicate = createMockSdcDuplicateEntity(sdcSchoolCollectionStudent3, sdcSchoolCollectionStudent4, collection.getCollectionID());
     programDuplicate.setDuplicateLevelCode(DuplicateLevelCode.PROVINCIAL.getCode());
     programDuplicate.setDuplicateTypeCode(DuplicateTypeCode.PROGRAM.getCode());
     programDuplicate.setProgramDuplicateTypeCode(ProgramDuplicateTypeCode.INDIGENOUS.getCode());
-    var programDuplicateEntity = sdcDuplicateRepository.save(programDuplicate);
+    sdcDuplicateRepository.save(programDuplicate);
 
     when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
     when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
