@@ -251,6 +251,7 @@ public class SdcDuplicatesService {
     return finalDuplicatesSet;
   }
 
+  @Transactional
   public void resolveRemainingDuplicates(UUID collectionID){
     Optional<CollectionEntity> activeCollection = collectionRepository.findActiveCollection();
 
@@ -273,7 +274,12 @@ public class SdcDuplicatesService {
 
     resolveProgramDuplicates();
 
-    collectionRepository.updateCollectionStatus(collectionID, CollectionStatus.DUPES_RES.getCode());
+    CollectionEntity collection = collectionRepository.findById(collectionID).orElse(null);
+    if (collection != null) {
+      collection.setCollectionStatusCode(String.valueOf(CollectionStatus.DUPES_RES.getCode()));
+      collectionRepository.save(collection);
+    }
+
     sdcSchoolCollectionRepository.updateCollectionsToCompleted(collectionID);
   }
 
