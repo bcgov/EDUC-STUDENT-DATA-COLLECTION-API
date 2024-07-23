@@ -30,6 +30,24 @@ public interface SdcDuplicateRepository extends JpaRepository<SdcDuplicateEntity
         """)
     List<SdcDuplicateEntity> findAllProvincialDuplicatesForCurrentCollection();
 
+    @Query("""
+        SELECT sde FROM SdcDuplicateEntity sde
+        WHERE sde.collectionID = (SELECT C.collectionID FROM CollectionEntity C WHERE C.collectionStatusCode = 'PROVDUPES')
+        and sde.duplicateResolutionCode is null
+        and sde.duplicateTypeCode = 'ENROLLMENT'
+        and sde.duplicateSeverityCode = 'NON_ALLOW'
+        """)
+    List<SdcDuplicateEntity> findAllUnresolvedNonAllowableEnrollmentDuplicatesForCurrentCollection();
+
+    @Query("""
+        SELECT sde FROM SdcDuplicateEntity sde
+        WHERE sde.collectionID = (SELECT C.collectionID FROM CollectionEntity C WHERE C.collectionStatusCode = 'PROVDUPES')
+        and sde.duplicateResolutionCode is null
+        and sde.duplicateTypeCode = 'PROGRAM'
+        and sde.duplicateSeverityCode = 'NON_ALLOW'
+        """)
+    List<SdcDuplicateEntity> findAllUnresolvedNonAllowableProgramDuplicatesForCurrentCollection();
+
     List<SdcDuplicateEntity> findAllDuplicatesByCollectionIDAndDuplicateLevelCode(UUID collectionID, String duplicateLevelCode);
 
     List<SdcDuplicateEntity> findAllBySdcDuplicateStudentEntities_SdcDistrictCollectionIDAndDuplicateLevelCode(UUID sdcDistrictCollectionID, String duplicateLevelCode);

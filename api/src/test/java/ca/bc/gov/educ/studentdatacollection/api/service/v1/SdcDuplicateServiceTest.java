@@ -16,6 +16,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -368,5 +369,62 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
     val resolvedDuplicate = sdcDuplicateService.changeGrade(UUID.fromString(programDupe.get().getSdcDuplicateID()), student1Entity);
     assertThat(resolvedDuplicate.getDuplicateResolutionCode()).isNull();
+  }
+
+  @Test
+  void testIdentifyingStudentToEdit_ShouldCorrectlyIdentifyStudent(){
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    SchoolTombstone schoolTombstone1 = createMockSchool();
+    schoolTombstone1.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
+
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
+
+    SchoolTombstone schoolTombstone3 = createMockSchool();
+    schoolTombstone3.setFacilityTypeCode(FacilityTypeCodes.POST_SEC.getCode());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity3 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone3.getSchoolId()));
+
+    SchoolTombstone schoolTombstone4 = createMockSchool();
+    schoolTombstone4.setSchoolCategoryCode(SchoolCategoryCodes.INDP_FNS.getCode());
+    schoolTombstone4.setMincode("03636019");
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity4 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone4.getSchoolId()));
+
+    SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    student1.setNumberOfCoursesDec(BigDecimal.valueOf(10.00));
+
+    SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+    student2.setNumberOfCoursesDec(BigDecimal.valueOf(12.00));
+
+    SdcSchoolCollectionStudentEntity student3 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+    student3.setNumberOfCoursesDec(BigDecimal.valueOf(10.00));
+
+    SdcSchoolCollectionStudentEntity student4 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity3);
+    student4.setNumberOfCoursesDec(BigDecimal.valueOf(10.00));
+
+    SdcSchoolCollectionStudentEntity student5 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity4);
+    student5.setNumberOfCoursesDec(BigDecimal.valueOf(10.00));
+
+    SdcSchoolCollectionStudentEntity studentToEdit1 = sdcDuplicateService.identifyStudentToEdit(student1, student2, schoolTombstone1, schoolTombstone2);
+    assertThat(studentToEdit1.getSdcSchoolCollectionStudentID()).isEqualTo(student1.getSdcSchoolCollectionStudentID());
+
+    SdcSchoolCollectionStudentEntity studentToEdit2 = sdcDuplicateService.identifyStudentToEdit(student1, student3, schoolTombstone1, schoolTombstone2);
+    assertThat(studentToEdit2.getSdcSchoolCollectionStudentID()).isEqualTo(student3.getSdcSchoolCollectionStudentID());
+
+    SdcSchoolCollectionStudentEntity studentToEdit3 = sdcDuplicateService.identifyStudentToEdit(student3, student1, schoolTombstone2, schoolTombstone1);
+    assertThat(studentToEdit3.getSdcSchoolCollectionStudentID()).isEqualTo(student3.getSdcSchoolCollectionStudentID());
+
+    SdcSchoolCollectionStudentEntity studentToEdit4 = sdcDuplicateService.identifyStudentToEdit(student3, student4, schoolTombstone2, schoolTombstone3);
+    assertThat(studentToEdit4.getSdcSchoolCollectionStudentID()).isEqualTo(student4.getSdcSchoolCollectionStudentID());
+
+    SdcSchoolCollectionStudentEntity studentToEdit5 = sdcDuplicateService.identifyStudentToEdit(student4, student3, schoolTombstone3, schoolTombstone2);
+    assertThat(studentToEdit5.getSdcSchoolCollectionStudentID()).isEqualTo(student4.getSdcSchoolCollectionStudentID());
+
+    SdcSchoolCollectionStudentEntity studentToEdit6 = sdcDuplicateService.identifyStudentToEdit(student5, student1, schoolTombstone4, schoolTombstone1);
+    assertThat(studentToEdit6.getSdcSchoolCollectionStudentID()).isEqualTo(student5.getSdcSchoolCollectionStudentID());
+
   }
 }
