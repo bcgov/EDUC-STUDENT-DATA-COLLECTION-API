@@ -68,6 +68,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setEnrolledGradeCode("08");
 
         entity.setGender("M");
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationErrorM = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationErrorM.size()).isZero();
 
@@ -125,6 +127,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorEmptyDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
         entity.setDob("20170420");
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationErrorCorrectDate = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationErrorCorrectDate.size()).isZero();
     }
@@ -153,7 +157,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setEnrolledGradeCode("08");
         val school = createMockSchool();
         school.setFacilityTypeCode("STANDARD");
-
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationError.size()).isZero();
 
@@ -256,7 +261,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
-
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isZero();
 
@@ -319,7 +325,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
-
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isZero();
 
@@ -401,6 +408,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val school = createMockSchool();
 
         entity.setEnrolledProgramCodes("40407");
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationError.size()).isNotZero();
         assertThat(validationError.get(0).getValidationIssueCode()).isNotEqualTo(StudentValidationIssueTypeCode.ENROLLED_CODE_DUP_ERR.getCode());
@@ -480,6 +489,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(dupePenCount).isEqualTo(1);
 
         entity.setStudentPen("120164447");
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationErrorDupe = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationErrorDupe.size()).isNotZero();
     }
@@ -548,6 +559,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setEnrolledGradeCode("08");
 
         entity.setSchoolFundingCode("20");
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isZero();
 
@@ -609,7 +622,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
-
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isZero();
 
@@ -673,7 +687,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
-
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isZero();
 
@@ -753,6 +768,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setDob(LocalDate.now().minusYears(20).format(DateTimeFormatter.ofPattern("yyyyMMdd")));
         entity.setNumberOfCourses("0000");
         entity.setEnrolledGradeCode("10");
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationErrorOldDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorOldDate.size()).isNotZero();
         val zeroCoursesInd = validationErrorOldDate.stream().anyMatch(val -> val.getValidationIssueCode().equals("ADULTZEROCOURSES"));
@@ -785,6 +802,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setEnrolledGradeCode("08");
         entity.setHomeLanguageSpokenCode(null);
+
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationErrorInvalidDate = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationErrorInvalidDate.size()).isZero();
 
@@ -814,6 +834,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationErrorDeadPersonDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
 
         entity.setDob(LocalDate.now().plusYears(2).format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
         val validationErrorFuturePersonDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorFuturePersonDate.size()).isNotZero();
         assertThat(validationErrorFuturePersonDate.get(0).getValidationIssueCode()).isEqualTo("DOBINVALIDFORMAT");
@@ -869,6 +892,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setEnrolledGradeCode("HS");
 
         entity.setDob(LocalDateTime.now().minusYears(4).format(format));
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationErrorAdult = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationErrorAdult.size()).isNotZero();
         val errorContEd = validationErrorAdult.stream().anyMatch(val -> val.getValidationIssueCode().equals("HSNOTSCHOOLAGE"));
@@ -889,6 +914,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setSchoolFundingCode("14");
         entity.setBandCode(null);
         entity.setEnrolledProgramCodes("05");
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
 
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isNotZero();
@@ -923,7 +950,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setSchoolFundingCode("14");
         entity.setBandCode(null);
         entity.setSpecialEducationCategoryCode("A");
-
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isEqualTo(2);
         val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.ENROLLED_CODE_SP_ED_ERR.getCode())
@@ -1134,7 +1162,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setDob(LocalDateTime.now().minusYears(20).format(format));
         val saga = createMockStudentRuleData(entity, school);
         collection.setCollectionTypeCode(JULY.getTypeCode());
-
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationErrorDOB = rulesProcessor.processRules(saga);
         assertThat(validationErrorDOB.size()).isNotZero();
         val error = validationErrorDOB.stream().anyMatch(val -> val.getValidationIssueCode().equals("STUDENTADULTERR"));
@@ -1196,6 +1225,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
         entity.setPostalCode(null);
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isNotZero();
         val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("MISSINGPOSTALCODE"));
@@ -1348,6 +1379,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setDob(LocalDateTime.now().minusYears(20).format(format));
         entity.setNumberOfCourses("0100");
         entity.setEnrolledGradeCode("08");
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationErrorGrade = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorGrade.size()).isNotZero();
         val errorInd = validationErrorGrade.stream().anyMatch(val -> val.getValidationIssueCode().equals("ADULTINCORRECTGRADE"));
@@ -1383,6 +1416,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setNumberOfCourses(null);
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationError.size()).isNotZero();
         val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("SCHOOLAGEZEROCOURSES"));
@@ -1504,7 +1539,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
         studFeb.setAssignedStudentId(assignedStudentId);
         sdcSchoolCollectionStudentRepository.save(studFeb);
-
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
                 .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
@@ -1557,7 +1593,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var studFeb = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntityFeb);
         studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
         sdcSchoolCollectionStudentRepository.save(studFeb);
-
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         var validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, schoolFeb));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
 
@@ -1693,6 +1730,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         studFeb.setAssignedStudentId(assignedStudentId);
         sdcSchoolCollectionStudentRepository.save(studFeb);
 
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
                 .noneMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
@@ -1749,7 +1789,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
         studFeb.setAssignedStudentId(assignedStudentId);
         sdcSchoolCollectionStudentRepository.save(studFeb);
-
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
                 .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));

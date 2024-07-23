@@ -34,10 +34,9 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityType
 @Component
 @Slf4j
 @Order(290)
-public class AdultOnlineZeroCourseHistoryRule extends BasePENRule implements ValidationBaseRule {
+public class AdultOnlineZeroCourseHistoryRule implements ValidationBaseRule {
     private final ValidationRulesService validationRulesService;
     public AdultOnlineZeroCourseHistoryRule(ValidationRulesService validationRulesService) {
-        super(validationRulesService);
         this.validationRulesService = validationRulesService;
     }
 
@@ -63,7 +62,7 @@ public class AdultOnlineZeroCourseHistoryRule extends BasePENRule implements Val
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
-        setupGraduateValues(studentRuleData);
+        validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
 
         boolean isAdult = DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
         String schoolType = studentRuleData.getSchool().getFacilityTypeCode();

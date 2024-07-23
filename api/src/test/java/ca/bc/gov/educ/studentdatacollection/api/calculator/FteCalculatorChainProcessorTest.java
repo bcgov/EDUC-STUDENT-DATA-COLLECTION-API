@@ -39,7 +39,7 @@ class FteCalculatorChainProcessorTest {
         studentRuleData.setSdcSchoolCollectionStudentEntity(studentEntity);
         studentRuleData.setSchool(new SchoolTombstone());
 
-        doNothing().when(validationRulesService).updatePenMatchAndGradStatusColumns(any(), any());
+        doNothing().when(validationRulesService).runAndSetPenMatch(any(), any());
         when(fteCalculator.calculateFte(any())).thenReturn(new FteCalculationResult());
 
 
@@ -47,6 +47,6 @@ class FteCalculatorChainProcessorTest {
         fteCalculatorChainProcessor.processFteCalculator(studentRuleData);
 
         // Then
-        verify(validationRulesService).updatePenMatchAndGradStatusColumns(studentEntity, null);
+        verify(validationRulesService).runAndSetPenMatch(studentEntity, null);
     }
 }

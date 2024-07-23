@@ -94,7 +94,20 @@ public class ValidationRulesService {
         return sdcStudentEllRepository.findByStudentID(studentID);
     }
 
-    public void updatePenMatchAndGradStatusColumns(SdcSchoolCollectionStudentEntity student, String mincode) throws EntityNotFoundException {
+    public void setupPENMatchAndEllAndGraduateValues(StudentRuleData studentRuleData) {
+        var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
+        if(student.getPenMatchResult() == null){
+            runAndSetPenMatch(student, studentRuleData.getSchool().getMincode());
+        }
+        if(student.getIsGraduated() == null){
+            setGraduationStatus(student);
+        }
+        if(student.getYearsInEll() == null){
+            setStudentYearsInEll(student);
+        }
+    }
+
+    public void runAndSetPenMatch(SdcSchoolCollectionStudentEntity student, String mincode) throws EntityNotFoundException {
         var penMatchResult = this.restUtils.getPenMatchResult(UUID.randomUUID(), student, mincode);
         val penMatchResultCode = penMatchResult.getPenStatus();
         var validPenMatchResults = Arrays.asList("AA", "B1", "C1", "D1", "F1");
@@ -118,11 +131,9 @@ public class ValidationRulesService {
         } else {
             student.setPenMatchResult("CONFLICT");
         }
-        setGraduationStatus(student);
-        setStudentYearsInEll(student);
     }
 
-    private void setStudentYearsInEll(SdcSchoolCollectionStudentEntity student){
+    public void setStudentYearsInEll(SdcSchoolCollectionStudentEntity student){
         student.setYearsInEll(null);
         if(student.getAssignedStudentId() != null) {
             final var yearsInEll = this.getStudentYearsInEll(student.getAssignedStudentId());
@@ -133,7 +144,7 @@ public class ValidationRulesService {
         }
     }
 
-    private void setGraduationStatus(SdcSchoolCollectionStudentEntity student){
+    public void setGraduationStatus(SdcSchoolCollectionStudentEntity student){
         student.setIsGraduated(false);
         if(student.getAssignedStudentId() != null) {
             final var gradResult = this.restUtils.getGradStatusResult(UUID.randomUUID(), SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(student));

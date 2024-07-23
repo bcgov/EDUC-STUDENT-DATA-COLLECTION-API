@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,7 +42,7 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         penMatchResult.setPenStatus("DM");
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
 
-        validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
+        validationRulesService.runAndSetPenMatch(mockStudentEntity, "123456789");
 
         assertNull(mockStudentEntity.getAssignedStudentId());
         assertSame("MULTI", mockStudentEntity.getPenMatchResult());
@@ -55,7 +56,7 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         penMatchResult.setMatchingRecords(new ArrayList<>());
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
 
-        assertThrows(StudentDataCollectionAPIRuntimeException.class, () -> validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789"));
+        assertThrows(StudentDataCollectionAPIRuntimeException.class, () -> validationRulesService.runAndSetPenMatch(mockStudentEntity, "123456789"));
     }
 
     @Test
@@ -66,7 +67,7 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         penMatchResult.setMatchingRecords(null);
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
 
-        assertThrows(StudentDataCollectionAPIRuntimeException.class, () -> validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789"));
+        assertThrows(StudentDataCollectionAPIRuntimeException.class, () -> validationRulesService.runAndSetPenMatch(mockStudentEntity, "123456789"));
     }
 
     @Test
@@ -76,7 +77,7 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         penMatchResult.setPenStatus("D0");
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
 
-        validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
+        validationRulesService.runAndSetPenMatch(mockStudentEntity, "123456789");
 
         assertNull(mockStudentEntity.getAssignedStudentId());
         assertSame("CONFLICT", mockStudentEntity.getPenMatchResult());
@@ -95,7 +96,7 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         schoolCollectionEntity.setCollectionEntity(collectionEntity);
         mockStudentEntity.setSdcSchoolCollection(schoolCollectionEntity);
 
-        validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
+        validationRulesService.runAndSetPenMatch(mockStudentEntity, "123456789");
 
         assertEquals(mockStudentEntity.getAssignedStudentId().toString(), penMatchResult.getMatchingRecords().get(0).getStudentID());
         assertSame("MATCH", mockStudentEntity.getPenMatchResult());
@@ -114,8 +115,9 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         collectionEntity.setSnapshotDate(LocalDate.now());
         schoolCollectionEntity.setCollectionEntity(collectionEntity);
         mockStudentEntity.setSdcSchoolCollection(schoolCollectionEntity);
+        mockStudentEntity.setAssignedStudentId(UUID.randomUUID());
 
-        assertThrows(StudentDataCollectionAPIRuntimeException.class, () -> validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789"));
+        assertThrows(StudentDataCollectionAPIRuntimeException.class, () -> validationRulesService.setGraduationStatus(mockStudentEntity));
     }
 
     @Test
@@ -131,8 +133,9 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         collectionEntity.setSnapshotDate(LocalDate.now());
         schoolCollectionEntity.setCollectionEntity(collectionEntity);
         mockStudentEntity.setSdcSchoolCollection(schoolCollectionEntity);
+        mockStudentEntity.setAssignedStudentId(UUID.randomUUID());
 
-        assertThrows(StudentDataCollectionAPIRuntimeException.class, () -> validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789"));
+        assertThrows(StudentDataCollectionAPIRuntimeException.class, () -> validationRulesService.setGraduationStatus(mockStudentEntity));
     }
 
     @Test
@@ -150,7 +153,11 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         schoolCollectionEntity.setCollectionEntity(collectionEntity);
         mockStudentEntity.setSdcSchoolCollection(schoolCollectionEntity);
 
-        validationRulesService.updatePenMatchAndGradStatusColumns(mockStudentEntity, "123456789");
+        mockStudentEntity.setAssignedStudentId(UUID.randomUUID());
+
+        validationRulesService.runAndSetPenMatch(mockStudentEntity, UUID.randomUUID().toString());
+
+        validationRulesService.setGraduationStatus(mockStudentEntity);
 
         assertEquals(mockStudentEntity.getAssignedStudentId().toString(), penMatchResult.getMatchingRecords().get(0).getStudentID());
         assertSame("MATCH", mockStudentEntity.getPenMatchResult());
