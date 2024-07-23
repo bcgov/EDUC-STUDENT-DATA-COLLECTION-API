@@ -36,10 +36,12 @@ public class SdcDuplicatesService {
   private final CollectionRepository collectionRepository;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
+  private final SdcSchoolCollectionHistoryRepository sdcSchoolCollectionHistoryRepository;
   private final ValidationRulesService validationRulesService;
   private final DuplicateClassNumberGenerationService duplicateClassNumberGenerationService;
   private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
   private final ScheduleHandlerService scheduleHandlerService;
+  private final SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService;
   private static final SdcSchoolCollectionMapper sdcSchoolCollectionMapper = SdcSchoolCollectionMapper.mapper;
   private static final SdcSchoolCollectionStudentMapper sdcSchoolCollectionStudentMapper = SdcSchoolCollectionStudentMapper.mapper;
   private final RestUtils restUtils;
@@ -48,14 +50,16 @@ public class SdcDuplicatesService {
 
 
   @Autowired
-  public SdcDuplicatesService(SdcDuplicateRepository sdcDuplicateRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, ValidationRulesService validationRulesService, ScheduleHandlerService scheduleHandlerService, DuplicateClassNumberGenerationService duplicateClassNumberGenerationService, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, CollectionRepository collectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
+  public SdcDuplicatesService(SdcDuplicateRepository sdcDuplicateRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryRepository sdcSchoolCollectionHistoryRepository, ValidationRulesService validationRulesService, ScheduleHandlerService scheduleHandlerService, DuplicateClassNumberGenerationService duplicateClassNumberGenerationService, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
       this.sdcDuplicateRepository = sdcDuplicateRepository;
       this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
       this.collectionRepository = collectionRepository;
       this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
       this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
+      this.sdcSchoolCollectionHistoryRepository = sdcSchoolCollectionHistoryRepository;
       this.validationRulesService = validationRulesService;
       this.scheduleHandlerService = scheduleHandlerService;
+      this.sdcSchoolCollectionHistoryService = sdcSchoolCollectionHistoryService;
       this.duplicateClassNumberGenerationService = duplicateClassNumberGenerationService;
       this.restUtils = restUtils;
       this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
@@ -280,7 +284,14 @@ public class SdcDuplicatesService {
       collectionRepository.save(collection);
     }
 
-    sdcSchoolCollectionRepository.updateCollectionsToCompleted(collectionID);
+    List<SdcSchoolCollectionEntity> schoolCollections = sdcSchoolCollectionRepository.findUncompletedSchoolCollections(collectionID);
+
+    for (SdcSchoolCollectionEntity schoolCollection : schoolCollections) {
+      schoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.COMPLETED.getCode());
+      SdcSchoolCollectionHistoryEntity schoolCollectionHistoryRecord = sdcSchoolCollectionHistoryService.createSDCSchoolHistory(schoolCollection, ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      sdcSchoolCollectionHistoryRepository.save(schoolCollectionHistoryRecord);
+      sdcSchoolCollectionRepository.save(schoolCollection);
+    }
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
