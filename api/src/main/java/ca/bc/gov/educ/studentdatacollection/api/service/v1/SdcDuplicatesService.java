@@ -251,7 +251,7 @@ public class SdcDuplicatesService {
     return finalDuplicatesSet;
   }
 
-  @Transactional(propagation = Propagation.REQUIRED)
+  @Transactional
   public void resolveRemainingDuplicates(UUID collectionID){
     Optional<CollectionEntity> activeCollection = collectionRepository.findActiveCollection();
 
@@ -277,7 +277,6 @@ public class SdcDuplicatesService {
     collectionRepository.updateCollectionStatus(collectionID, CollectionStatus.DUPES_RES.getCode());
     sdcSchoolCollectionRepository.updateCollectionsToCompleted(collectionID);
   }
-
 
   public void resolveEnrollmentDuplicates(){
     List<SdcDuplicateEntity> unresolvedDupes = sdcDuplicateRepository.findAllUnresolvedNonAllowableEnrollmentDuplicatesForCurrentCollection();
