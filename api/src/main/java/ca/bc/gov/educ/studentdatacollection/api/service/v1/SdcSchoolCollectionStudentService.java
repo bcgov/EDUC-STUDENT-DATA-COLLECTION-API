@@ -472,6 +472,9 @@ public class SdcSchoolCollectionStudentService {
     curStudentEntity.setPenMatchResult("MATCH");
     curStudentEntity.setAssignedStudentId(studentEntity.getAssignedStudentId());
     curStudentEntity.setAssignedPen(studentEntity.getAssignedPen());
+    if(StringUtils.isBlank(curStudentEntity.getStudentPen())){
+      curStudentEntity.setStudentPen(studentEntity.getAssignedPen());
+    }
     var ruleData = createStudentRuleDataForValidation(curStudentEntity);
     saveSdcStudentWithHistory(processStudentRecord(ruleData.getSchool(), curStudentEntity, false));
   }
