@@ -26,4 +26,8 @@ public enum FacilityTypeCodes {
 
     private final String code;
     FacilityTypeCodes(String code) { this.code = code; }
+
+    public static String[] getFacilityCodesWithoutOLAndCE(){
+        return new String[]{ALT_PROGS.getCode(), JUSTB4PRO.getCode(), LONG_PRP.getCode(), POST_SEC.getCode(), SHORT_PRP.getCode(), STANDARD.getCode(), STRONG_CEN.getCode(), STRONG_OUT.getCode(), SUMMER.getCode(), YOUTH.getCode()};
+    }
 }

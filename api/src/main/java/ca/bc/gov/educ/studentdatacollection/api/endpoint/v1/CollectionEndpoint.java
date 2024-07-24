@@ -95,4 +95,10 @@ public interface CollectionEndpoint {
   @Transactional(readOnly = true)
   @Tag(name = "Collection Entity", description = "Endpoints to find duplicates in collection.")
   List<String> findDuplicatesInCollection(@PathVariable("collectionID") UUID collectionID, @RequestParam("matchedAssignedIDs") List<String> matchedAssignedIDs);
+
+  @PostMapping("/{collectionID}/resolve-duplicates")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
+  @Tag(name = "Collection Entity", description = "Endpoints for collection entity.")
+  ResponseEntity<Void> resolveRemainingDuplicates(@PathVariable("collectionID") UUID collectionID);
 }

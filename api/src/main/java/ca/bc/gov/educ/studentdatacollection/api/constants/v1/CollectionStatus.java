@@ -6,6 +6,7 @@ public enum CollectionStatus {
 
   INPROGRESS("INPROGRESS"),
   PROVDUPES("PROVDUPES"),
+  DUPES_RES("DUPES_RES"),
 
   COMPLETED("COMPLETED");
 
