@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramDuplicateTyp
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
@@ -27,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -45,8 +48,11 @@ public class SdcDuplicatesService {
   private final SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService;
   private static final SdcSchoolCollectionMapper sdcSchoolCollectionMapper = SdcSchoolCollectionMapper.mapper;
   private static final SdcSchoolCollectionStudentMapper sdcSchoolCollectionStudentMapper = SdcSchoolCollectionStudentMapper.mapper;
+  private static final SdcDuplicateMapper sdcDuplicateMapper = SdcDuplicateMapper.mapper;
   private final RestUtils restUtils;
   private static final String SDC_DUPLICATE_ID_KEY = "sdcDuplicateID";
+  private static final String COLLECTION_ID_NOT_ACTIVE_MSG = "Provided collectionID does not match currently active collectionID.";
+  private static final String COLLECTION_DUPLICATES_ALREADY_RUN_MSG = "Provided collectionID has already run provincial duplicates.";
   private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
   private static final List<String> independentSchoolCategoryCodes =Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode());
 
@@ -142,7 +148,7 @@ public class SdcDuplicatesService {
       var updatedStudents = curGetSdcDuplicateEntity.getSdcDuplicateStudentEntities().stream().map(SdcDuplicateStudentEntity::getSdcSchoolCollectionStudentEntity).toList();
       if (curGetSdcDuplicateEntity.getSdcDuplicateStudentEntities().stream().map(SdcDuplicateStudentEntity::getSdcSchoolCollectionStudentEntity).noneMatch(student -> student.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString()))) {
         //re-run duplicates
-        List<SdcDuplicateEntity> listOfDuplicates = runDuplicatesCheck(DuplicateLevelCode.valueOf(curGetSdcDuplicateEntity.getDuplicateLevelCode()), updatedStudents.get(0), updatedStudents.get(1));
+        List<SdcDuplicateEntity> listOfDuplicates = runDuplicatesCheck(DuplicateLevelCode.valueOf(curGetSdcDuplicateEntity.getDuplicateLevelCode()), sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(updatedStudents.get(0)), sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(updatedStudents.get(1)));
         if (listOfDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == curGetSdcDuplicateEntity.getUniqueObjectHash())) {
           //resolve
           curGetSdcDuplicateEntity.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
@@ -209,19 +215,94 @@ public class SdcDuplicatesService {
     }
   }
 
+  public Map<UUID, SdcDuplicatesByInstituteID> getInFlightProvincialDuplicates(UUID collectionID, boolean isIndySchoolView) {
+    Optional<CollectionEntity> activeCollection = collectionRepository.findActiveCollection();
+
+    if (activeCollection.isPresent()) {
+      if (!activeCollection.get().getCollectionID().equals(collectionID)) {
+        throw new InvalidParameterException(COLLECTION_ID_NOT_ACTIVE_MSG);
+      } else if (activeCollection.get().getCollectionStatusCode().equals(CollectionStatus.PROVDUPES.getCode())) {
+        throw new InvalidParameterException(COLLECTION_DUPLICATES_ALREADY_RUN_MSG);
+      }
+    } else {
+      throw new InvalidParameterException(COLLECTION_ID_NOT_ACTIVE_MSG);
+    }
+    List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInCollection(collectionID);
+    List<SdcDuplicateEntity> generatedDuplicates = generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
+
+    Map<UUID, List<SdcDuplicateEntity>> groupedByInstituteID;
+    if(isIndySchoolView) {
+      groupedByInstituteID = filterToSchoolView(generatedDuplicates);
+    } else {
+      groupedByInstituteID = filterToDistrictView(generatedDuplicates);
+    }
+
+    Map<UUID, SdcDuplicatesByInstituteID> sdcDuplicatesMappedByInstituteID = new HashMap<>();
+    for (Map.Entry<UUID, List<SdcDuplicateEntity>> entry : groupedByInstituteID.entrySet()) {
+      UUID instituteID = entry.getKey();
+      List<SdcDuplicateEntity> duplicates = entry.getValue();
+
+      SdcDuplicatesByInstituteID sdcDuplicatesByInstituteID = new SdcDuplicatesByInstituteID();
+      List<SdcDuplicate> sdcDuplicateList = duplicates.stream()
+              .map(sdcDuplicateMapper::toSdcDuplicate).toList();
+
+      sdcDuplicatesByInstituteID.setSdcDuplicates(sdcDuplicateList);
+      AtomicInteger numProgramDuplicates = new AtomicInteger();
+      AtomicInteger numEnrollmentDuplicates = new AtomicInteger();
+
+      duplicates.forEach(dup -> {
+        if(dup.getDuplicateTypeCode().equals(DuplicateTypeCode.ENROLLMENT.getCode())) {
+          numEnrollmentDuplicates.getAndIncrement();
+        } else {
+          numProgramDuplicates.getAndIncrement();
+        }
+      });
+
+      sdcDuplicatesByInstituteID.setNumProgramDuplicates(numProgramDuplicates.intValue());
+      sdcDuplicatesByInstituteID.setNumEnrollmentDuplicates(numEnrollmentDuplicates.intValue());
+
+      sdcDuplicatesMappedByInstituteID.put(instituteID, sdcDuplicatesByInstituteID);
+    }
+    return sdcDuplicatesMappedByInstituteID;
+  }
+
+  private Map<UUID, List<SdcDuplicateEntity>> filterToDistrictView(List<SdcDuplicateEntity> duplicates) {
+    return duplicates.stream()
+            .filter(sdcDuplicateEntity ->
+              sdcDuplicateEntity.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode())
+              && sdcDuplicateEntity.getSdcDuplicateStudentEntities().stream().map(SdcDuplicateStudentEntity::getSdcDistrictCollectionID).distinct().count() > 1
+            )
+            .flatMap(sdcDuplicateEntity -> sdcDuplicateEntity.getSdcDuplicateStudentEntities().stream()
+                    .filter(sdcDuplicateStudentEntity -> sdcDuplicateStudentEntity.getSdcDistrictCollectionID() != null)
+                    .map(sdcDuplicateStudentEntity -> new AbstractMap.SimpleEntry<>(sdcDuplicateStudentEntity.getSdcDistrictCollectionID(), sdcDuplicateEntity)))
+            .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
+  }
+
+  private Map<UUID, List<SdcDuplicateEntity>> filterToSchoolView(List<SdcDuplicateEntity> duplicates) {
+    return duplicates.stream()
+              .filter(sdcDuplicateEntity ->
+                      sdcDuplicateEntity.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode())
+                              && sdcDuplicateEntity.getSdcDuplicateStudentEntities().stream().map(SdcDuplicateStudentEntity::getSdcSchoolCollectionID).distinct().count() > 1
+              )
+              .flatMap(sdcDuplicateEntity -> sdcDuplicateEntity.getSdcDuplicateStudentEntities().stream()
+                      .filter(sdcDuplicateStudentEntity -> sdcDuplicateStudentEntity.getSdcDistrictCollectionID() == null)
+                      .map(sdcDuplicateStudentEntity -> new AbstractMap.SimpleEntry<>(sdcDuplicateStudentEntity.getSdcSchoolCollectionID(), sdcDuplicateEntity)))
+              .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
+  }
+
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void generateAllProvincialDuplicates(UUID collectionID){
     Optional<CollectionEntity> activeCollection = collectionRepository.findActiveCollection();
 
     if(activeCollection.isPresent()){
       if(!activeCollection.get().getCollectionID().equals(collectionID)) {
-        throw new InvalidParameterException("Provided collectionID does not match currently active collectionID.");
+        throw new InvalidParameterException(COLLECTION_ID_NOT_ACTIVE_MSG);
       }else if(activeCollection.get().getCollectionStatusCode().equals(CollectionStatus.PROVDUPES.getCode())){
-        throw new InvalidParameterException("Provided collectionID has already run provincial duplicates.");
+        throw new InvalidParameterException(COLLECTION_DUPLICATES_ALREADY_RUN_MSG);
       }
     }
 
-    List<SdcSchoolCollectionStudentEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInCollection(collectionID);
+    List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInCollection(collectionID);
 
     List<SdcDuplicateEntity> finalDuplicatesSet =  generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
     sdcDuplicateRepository.saveAll(finalDuplicatesSet);
@@ -239,27 +320,21 @@ public class SdcDuplicatesService {
     sdcDistrictCollectionRepository.updateAllDistrictCollectionStatus(collectionID, String.valueOf(SdcDistrictCollectionStatus.P_DUP_POST));
   }
 
-  private List<SdcDuplicateEntity> generateFinalDuplicatesSet(List<SdcSchoolCollectionStudentEntity> duplicateStudentEntities, DuplicateLevelCode duplicateLevelCode){
-    HashMap<UUID, List<SdcSchoolCollectionStudentEntity>> groupedDups = new HashMap<>();
+  private List<SdcDuplicateEntity> generateFinalDuplicatesSet(List<SdcSchoolCollectionStudentLightEntity> duplicateStudentEntities, DuplicateLevelCode duplicateLevelCode) {
+    HashMap<UUID, List<SdcSchoolCollectionStudentLightEntity>> groupedDups = new HashMap<>();
 
-    duplicateStudentEntities.forEach(student -> {
-      if (!groupedDups.containsKey(student.getAssignedStudentId())) {
-        groupedDups.put(student.getAssignedStudentId(), new ArrayList<>(List.of(student)));
-      } else {
-        groupedDups.get(student.getAssignedStudentId()).add(student);
-      }
-    });
-
+    for (SdcSchoolCollectionStudentLightEntity student : duplicateStudentEntities) {
+      groupedDups.computeIfAbsent(student.getAssignedStudentId(), k -> new ArrayList<>()).add(student);
+    }
     List<SdcDuplicateEntity> finalDuplicatesSet = new ArrayList<>();
 
-    for (List<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntities : groupedDups.values()){
-      for (SdcSchoolCollectionStudentEntity entity1 : sdcSchoolCollectionStudentEntities) {
-        for (SdcSchoolCollectionStudentEntity entity2 : sdcSchoolCollectionStudentEntities) {
-          if (!entity1.getSdcSchoolCollectionStudentID().equals(entity2.getSdcSchoolCollectionStudentID())) {
-            List<SdcDuplicateEntity> duplicateRecords = runDuplicatesCheck(duplicateLevelCode, entity1, entity2);
-            var shrunkDuplicates = removeBiDirectionalDuplicatesFromFoundDups(finalDuplicatesSet, duplicateRecords);
-            finalDuplicatesSet.addAll(shrunkDuplicates);
-          }
+    for (List<SdcSchoolCollectionStudentLightEntity> group : groupedDups.values()) {
+      for (int i = 0; i < group.size(); i++) {
+        SdcSchoolCollectionStudentLightEntity entity1 = group.get(i);
+        for (int j = i + 1; j < group.size(); j++) {
+          SdcSchoolCollectionStudentLightEntity entity2 = group.get(j);
+          List<SdcDuplicateEntity> duplicateRecords = runDuplicatesCheck(duplicateLevelCode, entity1, entity2);
+          finalDuplicatesSet.addAll(duplicateRecords);
         }
       }
     }
@@ -273,7 +348,7 @@ public class SdcDuplicatesService {
 
     if(activeCollection.isPresent()){
       if(!activeCollection.get().getCollectionID().equals(collectionID)) {
-        throw new InvalidParameterException("Provided collectionID does not match currently active collectionID.");
+        throw new InvalidParameterException(COLLECTION_ID_NOT_ACTIVE_MSG);
       }else if(activeCollection.get().getCollectionStatusCode().equals(CollectionStatus.INPROGRESS.getCode())){
         throw new InvalidParameterException("Provided collectionID has not yet run provincial duplicates.");
       }else if(activeCollection.get().getCollectionStatusCode().equals(CollectionStatus.DUPES_RES.getCode())){
@@ -284,7 +359,7 @@ public class SdcDuplicatesService {
     resolveEnrollmentDuplicates();
 
     // Generate new program dupes
-    List<SdcSchoolCollectionStudentEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInCollection(collectionID);
+    List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInCollection(collectionID);
     List<SdcDuplicateEntity> finalDuplicatesSet =  generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
     sdcDuplicateRepository.saveAll(finalDuplicatesSet);
 
@@ -548,27 +623,12 @@ public class SdcDuplicatesService {
     return emailSet;
   }
 
-  private List<SdcDuplicateEntity> removeBiDirectionalDuplicatesFromFoundDups(List<SdcDuplicateEntity> existingDuplicates, List<SdcDuplicateEntity> foundDuplicates){
-    List<Integer> existingDuplicatesHash = existingDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).toList();
-    HashMap<Integer, SdcDuplicateEntity> foundDupsMap = new HashMap<>();
-    foundDuplicates.forEach(entry -> foundDupsMap.put(entry.getUniqueObjectHash(), entry));
-    List<SdcDuplicateEntity> finalDups = new ArrayList<>();
-
-    foundDupsMap.keySet().forEach(dupHash -> {
-      if(!existingDuplicatesHash.contains(dupHash)){
-        finalDups.add(foundDupsMap.get(dupHash));
-      }
-    });
-    return finalDups;
-  }
-
-
-  public List<SdcDuplicateEntity> runDuplicatesCheck(DuplicateLevelCode level, SdcSchoolCollectionStudentEntity entity1, SdcSchoolCollectionStudentEntity entity2){
+  public List<SdcDuplicateEntity> runDuplicatesCheck(DuplicateLevelCode level, SdcSchoolCollectionStudentLightEntity entity1, SdcSchoolCollectionStudentLightEntity entity2){
     List<SdcDuplicateEntity> dups = new ArrayList<>();
-    SchoolTombstone schoolTombstone1 = restUtils.getSchoolBySchoolID(entity1.getSdcSchoolCollection().getSchoolID().toString()).orElseThrow(() ->
-            new StudentDataCollectionAPIRuntimeException("School provided by ID " + entity1.getSdcSchoolCollection().getSchoolID() + "was not found - this is not expected"));
-    SchoolTombstone schoolTombstone2 = restUtils.getSchoolBySchoolID(entity2.getSdcSchoolCollection().getSchoolID().toString()).orElseThrow(() ->
-            new StudentDataCollectionAPIRuntimeException("School provided by ID " + entity2.getSdcSchoolCollection().getSchoolID() + "was not found - this is not expected"));
+    SchoolTombstone schoolTombstone1 = restUtils.getSchoolBySchoolID(entity1.getSdcSchoolCollectionEntitySchoolID().toString()).orElseThrow(() ->
+            new StudentDataCollectionAPIRuntimeException("School provided by ID " + entity1.getSdcSchoolCollectionEntitySchoolID() + "was not found - this is not expected"));
+    SchoolTombstone schoolTombstone2 = restUtils.getSchoolBySchoolID(entity2.getSdcSchoolCollectionEntitySchoolID().toString()).orElseThrow(() ->
+            new StudentDataCollectionAPIRuntimeException("School provided by ID " + entity2.getSdcSchoolCollectionEntitySchoolID() + "was not found - this is not expected"));
     //Is the student an adult?
     if(entity1.getIsAdult() == null) {
       entity1.setIsAdult(DOBUtil.isAdult(entity1.getDob()));
@@ -637,7 +697,7 @@ public class SdcDuplicatesService {
     return dups;
   }
 
-  private List<SdcDuplicateEntity> runProgramDuplicates(List<SdcDuplicateEntity> newDuplicates, SdcSchoolCollectionStudentEntity student1, SdcSchoolCollectionStudentEntity student2, DuplicateLevelCode level){
+  private List<SdcDuplicateEntity> runProgramDuplicates(List<SdcDuplicateEntity> newDuplicates, SdcSchoolCollectionStudentLightEntity student1, SdcSchoolCollectionStudentLightEntity student2, DuplicateLevelCode level){
     var dups = new ArrayList<>(newDuplicates);
     for(SdcDuplicateEntity duplicateEntity: dups){
       if(duplicateEntity.getDuplicateSeverityCode().equals(DuplicateSeverityCode.ALLOWABLE.getCode())){
@@ -675,16 +735,16 @@ public class SdcDuplicatesService {
     return newDuplicates;
   }
 
-  private void addAllowableDuplicateWithProgramDups(List<SdcDuplicateEntity> newDuplicates, DuplicateLevelCode levelCode, SdcSchoolCollectionStudentEntity entity1, SdcSchoolCollectionStudentEntity entity2, DuplicateTypeCode typeCode, ProgramDuplicateTypeCode programDuplicateTypeCode){
+  private void addAllowableDuplicateWithProgramDups(List<SdcDuplicateEntity> newDuplicates, DuplicateLevelCode levelCode, SdcSchoolCollectionStudentLightEntity entity1, SdcSchoolCollectionStudentLightEntity entity2, DuplicateTypeCode typeCode, ProgramDuplicateTypeCode programDuplicateTypeCode){
     newDuplicates.add(generateDuplicateEntity(levelCode,entity1,entity2,typeCode,DuplicateSeverityCode.ALLOWABLE,programDuplicateTypeCode,null));
     runProgramDuplicates(newDuplicates,entity1,entity2,levelCode);
   }
 
-  private void addNonAllowableDuplicate(List<SdcDuplicateEntity> newDuplicates, DuplicateLevelCode levelCode, SdcSchoolCollectionStudentEntity entity1, SdcSchoolCollectionStudentEntity entity2, DuplicateTypeCode typeCode, ProgramDuplicateTypeCode programDuplicateTypeCode, DuplicateErrorDescriptionCode duplicateErrorDescriptionCode){
+  private void addNonAllowableDuplicate(List<SdcDuplicateEntity> newDuplicates, DuplicateLevelCode levelCode, SdcSchoolCollectionStudentLightEntity entity1, SdcSchoolCollectionStudentLightEntity entity2, DuplicateTypeCode typeCode, ProgramDuplicateTypeCode programDuplicateTypeCode, DuplicateErrorDescriptionCode duplicateErrorDescriptionCode){
     newDuplicates.add(generateDuplicateEntity(levelCode,entity1,entity2,typeCode,DuplicateSeverityCode.NON_ALLOWABLE,programDuplicateTypeCode,duplicateErrorDescriptionCode));
   }
 
-  private SdcDuplicateEntity generateDuplicateEntity(DuplicateLevelCode levelCode, SdcSchoolCollectionStudentEntity entity1, SdcSchoolCollectionStudentEntity entity2, DuplicateTypeCode typeCode, DuplicateSeverityCode severityCode, ProgramDuplicateTypeCode programDuplicateTypeCode, DuplicateErrorDescriptionCode duplicateErrorDescriptionCode){
+  private SdcDuplicateEntity generateDuplicateEntity(DuplicateLevelCode levelCode, SdcSchoolCollectionStudentLightEntity entity1, SdcSchoolCollectionStudentLightEntity entity2, DuplicateTypeCode typeCode, DuplicateSeverityCode severityCode, ProgramDuplicateTypeCode programDuplicateTypeCode, DuplicateErrorDescriptionCode duplicateErrorDescriptionCode){
     SdcDuplicateEntity dupe = new SdcDuplicateEntity();
     dupe.setCreateDate(LocalDateTime.now());
     dupe.setUpdateDate(LocalDateTime.now());
@@ -695,7 +755,7 @@ public class SdcDuplicatesService {
     dupe.setProgramDuplicateTypeCode(programDuplicateTypeCode != null ? programDuplicateTypeCode.getCode() : null);
     dupe.setDuplicateLevelCode(levelCode.getCode());
     dupe.setDuplicateErrorDescriptionCode(duplicateErrorDescriptionCode != null ? duplicateErrorDescriptionCode.getCode() : null);
-    dupe.setCollectionID(entity1.getSdcSchoolCollection().getCollectionEntity().getCollectionID());
+    dupe.setCollectionID(entity1.getSdcSchoolCollectionEntity().getCollectionEntity().getCollectionID());
 
     List<SdcDuplicateStudentEntity> studs = new ArrayList<>();
     studs.add(createSdcDuplicateStudent(entity1, dupe));
@@ -705,12 +765,12 @@ public class SdcDuplicatesService {
     return dupe;
   }
 
-  private SdcDuplicateStudentEntity createSdcDuplicateStudent(SdcSchoolCollectionStudentEntity studentEntity, SdcDuplicateEntity dupe){
+  private SdcDuplicateStudentEntity createSdcDuplicateStudent(SdcSchoolCollectionStudentLightEntity studentEntity, SdcDuplicateEntity dupe){
     SdcDuplicateStudentEntity student = new SdcDuplicateStudentEntity();
-    student.setSdcDistrictCollectionID(studentEntity.getSdcSchoolCollection().getSdcDistrictCollectionID());
-    student.setSdcSchoolCollectionID(studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID());
+    student.setSdcDistrictCollectionID(studentEntity.getSdcSchoolCollectionEntity().getSdcDistrictCollectionID());
+    student.setSdcSchoolCollectionID(studentEntity.getSdcSchoolCollectionEntity().getSdcSchoolCollectionID());
     student.setSdcDuplicateEntity(dupe);
-    student.setSdcSchoolCollectionStudentEntity(studentEntity);
+    student.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentEntity(studentEntity));
     student.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
     student.setCreateDate(LocalDateTime.now());
     student.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);

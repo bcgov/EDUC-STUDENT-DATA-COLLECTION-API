@@ -1,8 +1,10 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
@@ -10,6 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicatesByInstituteID;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
@@ -19,9 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
@@ -426,5 +429,207 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     SdcSchoolCollectionStudentEntity studentToEdit6 = sdcDuplicateService.identifyStudentToEdit(student5, student1, schoolTombstone4, schoolTombstone1);
     assertThat(studentToEdit6.getSdcSchoolCollectionStudentID()).isEqualTo(student5.getSdcSchoolCollectionStudentID());
 
+  }
+
+  @Test
+  void testGetInFlightProvincialDuplicates_ActiveCollectionNotFound() {
+    UUID collectionID = UUID.randomUUID();
+
+    assertThrows(InvalidParameterException.class, () -> {
+      sdcDuplicateService.getInFlightProvincialDuplicates(collectionID, false);
+    });
+  }
+
+  @Test
+  void testGetInFlightProvincialDuplicates_InvalidCollectionID() {
+    UUID collectionID = UUID.randomUUID();
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collectionRepository.save(collection);
+
+    assertThrows(InvalidParameterException.class, () -> {
+      sdcDuplicateService.getInFlightProvincialDuplicates(collectionID, false);
+    });
+  }
+
+  @Test
+  void testGetInFlightProvincialDuplicates_DuplicatesAlreadyRun() {
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
+    UUID collectionID = collectionRepository.save(collection).getCollectionID();
+
+    assertThrows(InvalidParameterException.class, () -> {
+      sdcDuplicateService.getInFlightProvincialDuplicates(collectionID, false);
+    });
+  }
+
+  @Test
+  void testGetInFlightProvincialDuplicates_Districts_Success() {
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection = collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
+    var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
+
+    SdcDistrictCollectionEntity sdcMockDistrict2 = createMockSdcDistrictCollectionEntity(collection, null);
+    var sdcDistrictCollectionID2 = sdcDistrictCollectionRepository.save(sdcMockDistrict2).getSdcDistrictCollectionID();
+
+    SdcDistrictCollectionEntity sdcMockDistrict3 = createMockSdcDistrictCollectionEntity(collection, null);
+    var sdcDistrictCollectionID3 = sdcDistrictCollectionRepository.save(sdcMockDistrict3).getSdcDistrictCollectionID();
+
+    SchoolTombstone school1 = createMockSchool();
+    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+
+    SchoolTombstone school2 = createMockSchool();
+    school2.setDistrictId(sdcMockDistrict2.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID2);
+
+    SchoolTombstone school3 = createMockSchool();
+    school3.setDistrictId(sdcMockDistrict3.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity3 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school3.getSchoolId()));
+    sdcSchoolCollectionEntity3.setSdcDistrictCollectionID(sdcDistrictCollectionID3);
+
+
+    SchoolTombstone school4 = createMockSchool(); //Same district as school1
+    school4.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity4 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school4.getSchoolId()));
+    sdcSchoolCollectionEntity4.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+
+    SchoolTombstone indySchool = createMockSchool();
+    indySchool.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+    SdcSchoolCollectionEntity indySchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(indySchool.getSchoolId()));
+
+    SchoolTombstone indySchool2 = createMockSchool();
+    indySchool.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+    SdcSchoolCollectionEntity indySchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(indySchool2.getSchoolId()));
+
+    sdcSchoolCollectionRepository.saveAll(List.of(sdcSchoolCollectionEntity1, sdcSchoolCollectionEntity2, sdcSchoolCollectionEntity3, sdcSchoolCollectionEntity4, indySchoolCollectionEntity, indySchoolCollectionEntity2));
+
+    //Same district, so not provincial dup
+    var assignedStudentID1 = UUID.randomUUID();
+    var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    sdcSchoolCollectionStudent1.setAssignedStudentId(assignedStudentID1);
+    var sdcSchoolCollectionStudent4 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity4);
+    sdcSchoolCollectionStudent4.setAssignedStudentId(assignedStudentID1);
+
+    //Is provincial dup
+    var assignedStudentID2 = UUID.randomUUID();
+    var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+    sdcSchoolCollectionStudent2.setAssignedStudentId(assignedStudentID2);
+    var sdcSchoolCollectionStudent3 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity3);
+    sdcSchoolCollectionStudent3.setAssignedStudentId(assignedStudentID2);
+
+    //Both indy, so not a dup
+    var assignedStudentID3 = UUID.randomUUID();
+    var indySchoolStudent = createMockSchoolStudentEntity(indySchoolCollectionEntity);
+    indySchoolStudent.setAssignedStudentId(assignedStudentID3);
+    var indySchoolStudent2 = createMockSchoolStudentEntity(indySchoolCollectionEntity2);
+    indySchoolStudent2.setAssignedStudentId(assignedStudentID3);
+
+    sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2, sdcSchoolCollectionStudent3, sdcSchoolCollectionStudent4, indySchoolStudent, indySchoolStudent2));
+
+    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(school3.getSchoolId())).thenReturn(Optional.of(school3));
+    when(this.restUtils.getSchoolBySchoolID(school4.getSchoolId())).thenReturn(Optional.of(school4));
+    when(this.restUtils.getSchoolBySchoolID(indySchool.getSchoolId())).thenReturn(Optional.of(indySchool));
+    when(this.restUtils.getSchoolBySchoolID(indySchool2.getSchoolId())).thenReturn(Optional.of(indySchool2));
+
+    Map<UUID, SdcDuplicatesByInstituteID> result = sdcDuplicateService.getInFlightProvincialDuplicates(collection.getCollectionID(), false);
+
+    assertThat(result).hasSize(2);
+    assertThat(result.get(sdcDistrictCollectionID2)).isNotNull();
+    assertThat(result.get(sdcDistrictCollectionID2).getNumEnrollmentDuplicates()).isEqualTo(1);
+    assertThat(result.get(sdcDistrictCollectionID3)).isNotNull();
+    assertThat(result.get(sdcDistrictCollectionID3).getNumEnrollmentDuplicates()).isEqualTo(1);
+  }
+
+  @Test
+  void testGetInFlightProvincialDuplicates_IndySchools_Success() {
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection = collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
+    var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
+
+    SdcDistrictCollectionEntity sdcMockDistrict2 = createMockSdcDistrictCollectionEntity(collection, null);
+    var sdcDistrictCollectionID2 = sdcDistrictCollectionRepository.save(sdcMockDistrict2).getSdcDistrictCollectionID();
+
+    SdcDistrictCollectionEntity sdcMockDistrict3 = createMockSdcDistrictCollectionEntity(collection, null);
+    var sdcDistrictCollectionID3 = sdcDistrictCollectionRepository.save(sdcMockDistrict3).getSdcDistrictCollectionID();
+
+    SchoolTombstone school1 = createMockSchool();
+    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+
+    SchoolTombstone school2 = createMockSchool();
+    school2.setDistrictId(sdcMockDistrict2.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID2);
+
+    SchoolTombstone school3 = createMockSchool();
+    school3.setDistrictId(sdcMockDistrict3.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity3 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school3.getSchoolId()));
+    sdcSchoolCollectionEntity3.setSdcDistrictCollectionID(sdcDistrictCollectionID3);
+
+
+    SchoolTombstone school4 = createMockSchool(); //Same district as school1
+    school4.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity4 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school4.getSchoolId()));
+    sdcSchoolCollectionEntity4.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+
+    SchoolTombstone indySchool = createMockSchool();
+    indySchool.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+    SdcSchoolCollectionEntity indySchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(indySchool.getSchoolId()));
+
+    SchoolTombstone indySchool2 = createMockSchool();
+    indySchool.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+    SdcSchoolCollectionEntity indySchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(indySchool2.getSchoolId()));
+
+    sdcSchoolCollectionRepository.saveAll(List.of(sdcSchoolCollectionEntity1, sdcSchoolCollectionEntity2, sdcSchoolCollectionEntity3, sdcSchoolCollectionEntity4, indySchoolCollectionEntity, indySchoolCollectionEntity2));
+
+    //Same district, so not provincial dup
+    var assignedStudentID1 = UUID.randomUUID();
+    var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    sdcSchoolCollectionStudent1.setAssignedStudentId(assignedStudentID1);
+    var sdcSchoolCollectionStudent4 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity4);
+    sdcSchoolCollectionStudent4.setAssignedStudentId(assignedStudentID1);
+
+    //Is provincial dup
+    var assignedStudentID2 = UUID.randomUUID();
+    var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+    sdcSchoolCollectionStudent2.setAssignedStudentId(assignedStudentID2);
+    var sdcSchoolCollectionStudent3 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity3);
+    sdcSchoolCollectionStudent3.setAssignedStudentId(assignedStudentID2);
+
+    //Both indy, so not a dup
+    var assignedStudentID3 = UUID.randomUUID();
+    var indySchoolStudent = createMockSchoolStudentEntity(indySchoolCollectionEntity);
+    indySchoolStudent.setAssignedStudentId(assignedStudentID3);
+    var indySchoolStudent2 = createMockSchoolStudentEntity(indySchoolCollectionEntity2);
+    indySchoolStudent2.setAssignedStudentId(assignedStudentID3);
+
+    sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2, sdcSchoolCollectionStudent3, sdcSchoolCollectionStudent4, indySchoolStudent, indySchoolStudent2));
+
+    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(school3.getSchoolId())).thenReturn(Optional.of(school3));
+    when(this.restUtils.getSchoolBySchoolID(school4.getSchoolId())).thenReturn(Optional.of(school4));
+    when(this.restUtils.getSchoolBySchoolID(indySchool.getSchoolId())).thenReturn(Optional.of(indySchool));
+    when(this.restUtils.getSchoolBySchoolID(indySchool2.getSchoolId())).thenReturn(Optional.of(indySchool2));
+
+    Map<UUID, SdcDuplicatesByInstituteID> result = sdcDuplicateService.getInFlightProvincialDuplicates(collection.getCollectionID(), true);
+
+    assertThat(result).hasSize(2);
+    assertThat(result.get(indySchoolCollectionEntity.getSdcSchoolCollectionID())).isNotNull();
+    assertThat(result.get(indySchoolCollectionEntity.getSdcSchoolCollectionID()).getNumEnrollmentDuplicates()).isEqualTo(1);
+    assertThat(result.get(indySchoolCollectionEntity2.getSdcSchoolCollectionID())).isNotNull();
+    assertThat(result.get(indySchoolCollectionEntity2.getSdcSchoolCollectionID()).getNumEnrollmentDuplicates()).isEqualTo(1);
   }
 }

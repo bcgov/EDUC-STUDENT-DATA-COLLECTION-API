@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ICountValidationIssuesBySeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,41 +40,41 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   @Query(value = """  
     SELECT stud
-    FROM SdcSchoolCollectionStudentEntity stud, SdcSchoolCollectionEntity school, SdcDistrictCollectionEntity dist
+    FROM SdcSchoolCollectionStudentLightEntity stud, SdcSchoolCollectionEntity school, SdcDistrictCollectionEntity dist
     WHERE stud.assignedStudentId IN (SELECT innerStud.assignedStudentId
-                FROM SdcSchoolCollectionStudentEntity innerStud, SdcSchoolCollectionEntity sdcSchool, SdcDistrictCollectionEntity sdcDist
+                FROM SdcSchoolCollectionStudentLightEntity innerStud, SdcSchoolCollectionEntity sdcSchool, SdcDistrictCollectionEntity sdcDist
                 where sdcDist.sdcDistrictCollectionID = :sdcDistrictCollectionID
                 and sdcDist.sdcDistrictCollectionID = sdcSchool.sdcDistrictCollectionID
-                and sdcSchool.sdcSchoolCollectionID = innerStud.sdcSchoolCollection.sdcSchoolCollectionID
+                and sdcSchool.sdcSchoolCollectionID = innerStud.sdcSchoolCollectionEntity.sdcSchoolCollectionID
                 and innerStud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
                 and innerStud.assignedStudentId is not null
                 GROUP BY innerStud.assignedStudentId
                 HAVING COUNT(innerStud.assignedStudentId) > 1)
     and dist.sdcDistrictCollectionID = :sdcDistrictCollectionID
     and dist.sdcDistrictCollectionID = school.sdcDistrictCollectionID
-    and school.sdcSchoolCollectionID = stud.sdcSchoolCollection.sdcSchoolCollectionID
+    and school.sdcSchoolCollectionID = stud.sdcSchoolCollectionEntity.sdcSchoolCollectionID
     and stud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
     and stud.assignedStudentId is not null
     """)
-  List<SdcSchoolCollectionStudentEntity> findAllInDistrictDuplicateStudentsInSdcDistrictCollection(UUID sdcDistrictCollectionID);
+  List<SdcSchoolCollectionStudentLightEntity> findAllInDistrictDuplicateStudentsInSdcDistrictCollection(UUID sdcDistrictCollectionID);
 
   @Query(value = """  
     SELECT stud
-    FROM SdcSchoolCollectionStudentEntity stud, SdcSchoolCollectionEntity school
+    FROM SdcSchoolCollectionStudentLightEntity stud, SdcSchoolCollectionEntity school
     WHERE stud.assignedStudentId IN (SELECT innerStud.assignedStudentId
-                FROM SdcSchoolCollectionStudentEntity innerStud, SdcSchoolCollectionEntity sdcSchool
+                FROM SdcSchoolCollectionStudentLightEntity innerStud, SdcSchoolCollectionEntity sdcSchool
                 where sdcSchool.collectionEntity.collectionID = :collectionID
-                and sdcSchool.sdcSchoolCollectionID = innerStud.sdcSchoolCollection.sdcSchoolCollectionID
+                and sdcSchool.sdcSchoolCollectionID = innerStud.sdcSchoolCollectionEntity.sdcSchoolCollectionID
                 and innerStud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
                 and innerStud.assignedStudentId is not null
                 GROUP BY innerStud.assignedStudentId
                 HAVING COUNT(innerStud.assignedStudentId) > 1)
-    and school.sdcSchoolCollectionID = stud.sdcSchoolCollection.sdcSchoolCollectionID
+    and school.sdcSchoolCollectionID = stud.sdcSchoolCollectionEntity.sdcSchoolCollectionID
     and school.collectionEntity.collectionID = :collectionID
     and stud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
     and stud.assignedStudentId is not null
     """)
-  List<SdcSchoolCollectionStudentEntity> findAllInProvinceDuplicateStudentsInCollection(UUID collectionID);
+  List<SdcSchoolCollectionStudentLightEntity> findAllInProvinceDuplicateStudentsInCollection(UUID collectionID);
 
   long countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollection_SdcSchoolCollectionID(String sdcSchoolCollectionStudentStatusCode, UUID sdcSchoolCollectionID);
 
