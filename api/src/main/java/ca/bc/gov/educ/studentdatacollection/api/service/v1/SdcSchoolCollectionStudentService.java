@@ -131,7 +131,7 @@ public class SdcSchoolCollectionStudentService {
     TransformUtil.uppercaseFields(sdcSchoolCollectionStudentEntity);
     var studentRuleData = createStudentRuleDataForValidation(sdcSchoolCollectionStudentEntity);
 
-    var processedSdcSchoolCollectionStudent = processStudentRecord(studentRuleData.getSchool(), sdcSchoolCollectionStudentEntity);
+    var processedSdcSchoolCollectionStudent = processStudentRecord(studentRuleData.getSchool(), sdcSchoolCollectionStudentEntity, true);
     if (processedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
       log.debug("SdcSchoolCollectionStudent was not saved to the database because it has errors :: {}", processedSdcSchoolCollectionStudent);
       if(currentStudentEntity != null) {
@@ -192,18 +192,18 @@ public class SdcSchoolCollectionStudentService {
     var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
     if(currentStudentEntity.isPresent()) {
-      saveSdcStudentWithHistory(processStudentRecord(schoolTombstone, currentStudentEntity.get()));
+      saveSdcStudentWithHistory(processStudentRecord(schoolTombstone, currentStudentEntity.get(), true));
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, sdcSchoolCollectionStudentID.toString());
     }
   }
 
-  private SdcSchoolCollectionStudentEntity processStudentRecord(SchoolTombstone schoolTombstone, SdcSchoolCollectionStudentEntity incomingStudentEntity) {
+  private SdcSchoolCollectionStudentEntity processStudentRecord(SchoolTombstone schoolTombstone, SdcSchoolCollectionStudentEntity incomingStudentEntity, boolean wipePENMatch) {
     StudentRuleData studentRuleData = new StudentRuleData();
     studentRuleData.setSdcSchoolCollectionStudentEntity(incomingStudentEntity);
     studentRuleData.setSchool(schoolTombstone);
 
-    clearCalculatedFields(incomingStudentEntity);
+    clearCalculatedFields(incomingStudentEntity, wipePENMatch);
     var validationErrors = validateStudent(studentRuleData);
     if(validationErrors.stream().noneMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString()))){
       calculateAdditionalStudentAttributes(studentRuleData);
@@ -212,14 +212,17 @@ public class SdcSchoolCollectionStudentService {
     return studentRuleData.getSdcSchoolCollectionStudentEntity();
   }
 
-  private void clearCalculatedFields(SdcSchoolCollectionStudentEntity incomingStudentEntity){
-    incomingStudentEntity.setAssignedStudentId(null);
-    incomingStudentEntity.setAssignedPen(null);
+  private void clearCalculatedFields(SdcSchoolCollectionStudentEntity incomingStudentEntity, boolean wipePENMatch){
+    if(wipePENMatch) {
+      incomingStudentEntity.setAssignedStudentId(null);
+      incomingStudentEntity.setAssignedPen(null);
+      incomingStudentEntity.setPenMatchResult(null);
+    }
+
     incomingStudentEntity.setFte(null);
     incomingStudentEntity.setIsGraduated(null);
     incomingStudentEntity.setIsSchoolAged(null);
     incomingStudentEntity.setIsAdult(null);
-    incomingStudentEntity.setPenMatchResult(null);
     incomingStudentEntity.setYearsInEll(null);
     incomingStudentEntity.setNumberOfCoursesDec(null);
     incomingStudentEntity.setFteZeroReasonCode(null);
@@ -469,7 +472,7 @@ public class SdcSchoolCollectionStudentService {
     curStudentEntity.setPenMatchResult("MATCH");
     curStudentEntity.setAssignedStudentId(studentEntity.getAssignedStudentId());
     curStudentEntity.setAssignedPen(studentEntity.getAssignedPen());
-
-    saveSdcStudentWithHistory(curStudentEntity);
+    var ruleData = createStudentRuleDataForValidation(curStudentEntity);
+    saveSdcStudentWithHistory(processStudentRecord(ruleData.getSchool(), curStudentEntity, false));
   }
 }

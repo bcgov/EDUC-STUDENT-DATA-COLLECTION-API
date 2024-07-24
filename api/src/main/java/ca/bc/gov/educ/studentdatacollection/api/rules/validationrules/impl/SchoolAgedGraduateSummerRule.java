@@ -29,10 +29,12 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(720)
-public class SchoolAgedGraduateSummerRule extends BasePENRule implements ValidationBaseRule {
+public class SchoolAgedGraduateSummerRule implements ValidationBaseRule {
+
+    private final ValidationRulesService validationRulesService;
 
     public SchoolAgedGraduateSummerRule(ValidationRulesService validationRulesService) {
-        super(validationRulesService);
+        this.validationRulesService = validationRulesService;
     }
 
     @Override
@@ -57,7 +59,7 @@ public class SchoolAgedGraduateSummerRule extends BasePENRule implements Validat
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
-        this.setupGraduateValues(studentRuleData);
+        validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
 
         if (DOBUtil.isSchoolAged(student.getDob()) && Boolean.TRUE.equals(student.getIsGraduated())) {
             log.debug("SchoolAgedGraduateSummerRule-V53: Incorrect dob value and graduated flag for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());

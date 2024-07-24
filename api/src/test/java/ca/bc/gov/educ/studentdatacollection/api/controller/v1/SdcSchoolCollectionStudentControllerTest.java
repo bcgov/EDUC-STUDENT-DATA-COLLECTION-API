@@ -4020,7 +4020,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
         var assignedPenUUID = UUID.randomUUID();
-        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        SdcSchoolCollectionStudentEntity entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setPenMatchResult(null);
         entity.setAssignedStudentId(assignedPenUUID);
         entity.setAssignedPen("123456789");
@@ -4030,7 +4030,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
-        this.sdcSchoolCollectionStudentRepository.save(entity);
+        entity = this.sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
                         post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/update-pen/type/" + "MATCH")

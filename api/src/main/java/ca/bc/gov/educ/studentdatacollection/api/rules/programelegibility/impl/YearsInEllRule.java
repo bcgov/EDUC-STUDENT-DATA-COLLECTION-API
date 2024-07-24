@@ -5,7 +5,6 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.EnrolledProgramCode
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
-import ca.bc.gov.educ.studentdatacollection.api.rules.validationrules.impl.BasePENRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import lombok.extern.slf4j.Slf4j;
@@ -18,11 +17,10 @@ import java.util.List;
 @Component
 @Slf4j
 @Order
-public class YearsInEllRule extends BasePENRule implements ProgramEligibilityBaseRule {
+public class YearsInEllRule implements ProgramEligibilityBaseRule {
   private final ValidationRulesService validationRulesService;
 
   public YearsInEllRule(ValidationRulesService validationRulesService) {
-      super(validationRulesService);
       this.validationRulesService = validationRulesService;
   }
 
@@ -51,7 +49,7 @@ public class YearsInEllRule extends BasePENRule implements ProgramEligibilityBas
     }
 
     //Ensure that PEN Match has been run for the student.
-    setupGraduateValues(studentRuleData);
+    validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
 
     var totalYearsInEll = student.getYearsInEll() != null ? student.getYearsInEll(): 0;
 

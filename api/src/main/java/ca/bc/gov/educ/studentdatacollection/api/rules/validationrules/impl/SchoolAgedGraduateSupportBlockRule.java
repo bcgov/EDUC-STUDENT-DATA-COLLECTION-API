@@ -31,10 +31,11 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(740)
-public class SchoolAgedGraduateSupportBlockRule extends BasePENRule implements ValidationBaseRule {
+public class SchoolAgedGraduateSupportBlockRule implements ValidationBaseRule {
+    private final ValidationRulesService validationRulesService;
 
     public SchoolAgedGraduateSupportBlockRule(ValidationRulesService validationRulesService) {
-        super(validationRulesService);
+        this.validationRulesService = validationRulesService;
     }
 
     @Override
@@ -59,7 +60,7 @@ public class SchoolAgedGraduateSupportBlockRule extends BasePENRule implements V
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
-        this.setupGraduateValues(studentRuleData);
+        validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
 
         if (DOBUtil.isSchoolAged(student.getDob()) && Boolean.TRUE.equals(student.getIsGraduated())
                 && (StringUtils.isNotEmpty(student.getSupportBlocks()) && !student.getSupportBlocks().equals("0"))) {

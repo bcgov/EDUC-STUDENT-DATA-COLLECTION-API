@@ -12,15 +12,13 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,18 +27,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@ActiveProfiles("test")
 class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollectionAPITest {
 
     @Autowired
@@ -71,6 +65,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSchool().setSchoolCategoryCode("OFFSHORE");
 
         // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(this.studentData);
 
         // Then
@@ -87,6 +83,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSdcSchoolCollectionStudentEntity().setSchoolFundingCode("14");
 
         // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then
@@ -104,6 +102,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSdcSchoolCollectionStudentEntity().setDob(format.format(LocalDate.now().minusYears(3)));
 
         // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then
@@ -121,6 +121,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("GA");
 
         // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then
@@ -139,6 +141,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSdcSchoolCollectionStudentEntity().setSchoolFundingCode("20");
 
         // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then
@@ -150,7 +154,6 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     }
 
     @Test
-    @Transactional(rollbackFor = Exception.class)
     void testProcessFteCalculator_NoCoursesInLastTwoYears() throws IOException {
         // Given
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
@@ -169,12 +172,22 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         sdcSchoolCollection.setCreateDate(LocalDateTime.now().minusYears(1));
 
         var collection = collectionRepository.save(sdcSchoolCollection.getCollectionEntity());
-        sdcSchoolCollection.getCollectionEntity().setCollectionID(collection.getCollectionID());
+        sdcSchoolCollection.setCollectionEntity(collection);
+        collection.setSdcSchoolCollectionEntities(new HashSet<>());
+        collection.getSdcSchoolCollectionEntities().add(sdcSchoolCollection);
+        sdcSchoolCollection.getSDCSchoolStudentEntities().add(this.studentData.getSdcSchoolCollectionStudentEntity());
         sdcSchoolCollection.getSdcSchoolCollectionHistoryEntities().forEach(hist -> hist.setSdcSchoolCollection(sdcSchoolCollection));
-        sdcSchoolCollectionRepository.save(sdcSchoolCollection);
-        this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
         this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollection);
+
+        this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
+
+        var savedColl = collectionRepository.save(collection);
+        studentData.setSdcSchoolCollectionStudentEntity(savedColl.getSdcSchoolCollectionEntities().stream().findFirst().get().getSDCSchoolStudentEntities().stream().findFirst().get());
         // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedPen());
+        penMatchResult.getMatchingRecords().get(0).setStudentID(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId().toString());
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then
@@ -186,8 +199,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     }
 
     @Test
-    @Transactional(rollbackFor = Exception.class)
-    void testProcessFteCalculator_DistrictDoubleReported() throws IOException {
+    void testProcessFteCalculator_DistrictDoubleReported() {
         // Given
         this.studentData.getSchool().setSchoolCategoryCode("PUBLIC");
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
@@ -229,6 +241,10 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         sdcSchoolCollectionStudentRepository.save(oneYearAgoCollectionStudent);
 
         // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN(oneYearAgoCollectionStudent.getAssignedPen());
+        penMatchResult.getMatchingRecords().get(0).setStudentID(oneYearAgoCollectionStudent.getAssignedStudentId().toString());
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then
@@ -240,8 +256,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     }
 
     @Test
-    @Transactional(rollbackFor = Exception.class)
-    void testProcessFteCalculator_IndAuthorityDoubleReported() throws IOException {
+    void testProcessFteCalculator_IndAuthorityDoubleReported() {
         // Given
         this.studentData.getSchool().setSchoolCategoryCode("INDEPEND");
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
@@ -277,7 +292,10 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         sdcSchoolCollectionStudentRepository.save(oneYearAgoCollectionStudent);
 
         when(restUtils.getSchoolIDsByIndependentAuthorityID(anyString())).thenReturn(Optional.of(Collections.singletonList(sdcSchoolCollection.getSchoolID())));
-
+        PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN(oneYearAgoCollectionStudent.getAssignedPen());
+        penMatchResult.getMatchingRecords().get(0).setStudentID(oneYearAgoCollectionStudent.getAssignedStudentId().toString());
+        when(restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         // When
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
@@ -300,6 +318,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0500");
 
         // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then
@@ -318,6 +338,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0700");
 
         // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then
@@ -326,7 +348,6 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     }
 
     @Test
-    @Transactional(rollbackFor = Exception.class)
     void testProcessFteCalculator_NewOnlineStudent() {
         var school = this.createMockSchool();
         var district = this.createMockDistrict();
@@ -376,6 +397,10 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         sdcSchoolCollectionStudentRepository.save(oneYearAgoCollectionStudent);
 
         // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN(oneYearAgoCollectionStudent.getAssignedPen());
+        penMatchResult.getMatchingRecords().get(0).setStudentID(oneYearAgoCollectionStudent.getAssignedStudentId().toString());
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then
@@ -394,6 +419,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSdcSchoolCollectionStudentEntity().setIsGraduated(false);
         this.studentData.getSchool().setFacilityTypeCode("ALT_PROGS");
 
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         assertEquals(BigDecimal.ONE, result.getFte());
@@ -410,6 +437,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("KH");
 
         // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then
@@ -428,6 +457,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0900");
 
         // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then
@@ -446,6 +477,8 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("1100");
 
         // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then

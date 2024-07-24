@@ -30,10 +30,12 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(700)
-public class AdultGraduatesRule extends BasePENRule implements ValidationBaseRule {
+public class AdultGraduatesRule implements ValidationBaseRule {
+
+    private final ValidationRulesService validationRulesService;
 
     public AdultGraduatesRule(ValidationRulesService validationRulesService) {
-        super(validationRulesService);
+        this.validationRulesService = validationRulesService;
     }
 
     @Override
@@ -59,7 +61,7 @@ public class AdultGraduatesRule extends BasePENRule implements ValidationBaseRul
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
-        this.setupGraduateValues(studentRuleData);
+        validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
 
         if (Boolean.TRUE.equals(student.getIsGraduated()) && !student.getEnrolledGradeCode().equalsIgnoreCase(SchoolGradeCodes.GRADUATED_ADULT.getCode())) {
             log.debug("AdultGraduatesRule-V48: Incorrect graduated value and grade value for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
