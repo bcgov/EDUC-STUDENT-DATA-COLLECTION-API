@@ -97,11 +97,12 @@ public class ScheduleHandlerService {
   }
 
   @Transactional
-  public void createAndStartProvinceDuplicateEmailSagas(Map<UUID, SdcSchoolCollection1701Users> schoolCollectionEmailMap){
+  public void createAndStartProvinceDuplicateEmailSagas(Map<UUID, SdcSchoolCollection1701Users> schoolCollectionEmailMap, String dueDate){
     List<SdcSagaEntity> sagaEntities = new ArrayList<>();
     for(Map.Entry<UUID, SdcSchoolCollection1701Users> entry : schoolCollectionEmailMap.entrySet()){
       var emailFields = new HashMap<String, String>();
       emailFields.put("schoolName", entry.getValue().getSchoolDisplayName());
+      emailFields.put("duplicateResolutionDueDate", dueDate);
 
       var emailSagaData = createProvincialDuplicateEmailSagaData(emailProperties.getSchoolNotificationEmailFrom(),
               entry.getValue().getEmails(), emailProperties.getEmailSubjectProvincialDuplicates(),
