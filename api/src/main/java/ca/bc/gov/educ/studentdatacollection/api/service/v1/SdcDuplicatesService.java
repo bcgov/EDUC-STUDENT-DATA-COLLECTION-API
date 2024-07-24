@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -46,6 +47,7 @@ public class SdcDuplicatesService {
   private static final SdcSchoolCollectionStudentMapper sdcSchoolCollectionStudentMapper = SdcSchoolCollectionStudentMapper.mapper;
   private final RestUtils restUtils;
   private static final String SDC_DUPLICATE_ID_KEY = "sdcDuplicateID";
+  private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
   private static final List<String> independentSchoolCategoryCodes =Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode());
 
 
@@ -224,7 +226,7 @@ public class SdcDuplicatesService {
     List<SdcDuplicateEntity> finalDuplicatesSet =  generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
     sdcDuplicateRepository.saveAll(finalDuplicatesSet);
 
-    sendEmailNotificationsForProvinceDuplicates();
+    sendEmailNotificationsForProvinceDuplicates(formatter.format(activeCollection.get().getDuplicationResolutionDueDate()));
 
     this.collectionRepository.updateCollectionStatus(collectionID, String.valueOf(CollectionStatus.PROVDUPES));
 
@@ -446,10 +448,10 @@ public class SdcDuplicatesService {
   }
 
   @Transactional
-  public void sendEmailNotificationsForProvinceDuplicates(){
+  public void sendEmailNotificationsForProvinceDuplicates(String dueDate){
     Map<UUID, SdcSchoolCollection1701Users> emailList = generateEmailListForProvinceDuplicates();
     if(!emailList.isEmpty()){
-      scheduleHandlerService.createAndStartProvinceDuplicateEmailSagas(emailList);
+      scheduleHandlerService.createAndStartProvinceDuplicateEmailSagas(emailList, dueDate);
     }
   }
 
