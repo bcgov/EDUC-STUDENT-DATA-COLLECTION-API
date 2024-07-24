@@ -101,8 +101,6 @@ public class ValidationRulesService {
         }
         if(student.getIsGraduated() == null){
             setGraduationStatus(student);
-        }
-        if(student.getYearsInEll() == null){
             setStudentYearsInEll(student);
         }
     }
