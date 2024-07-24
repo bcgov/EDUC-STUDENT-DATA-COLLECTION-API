@@ -114,6 +114,7 @@ public class SdcSchoolCollectionStudentService {
 
       sdcSchoolCollectionStudentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes()));
       sdcSchoolCollectionStudentEntity.setSdcSchoolCollection(getCurStudentEntity.getSdcSchoolCollection());
+      sdcSchoolCollectionStudentEntity.setOriginalDemogHash(getCurStudentEntity.getOriginalDemogHash());
       sdcSchoolCollectionStudentEntity.getSDCStudentValidationIssueEntities().clear();
       sdcSchoolCollectionStudentEntity.getSDCStudentValidationIssueEntities().addAll(getCurStudentEntity.getSDCStudentValidationIssueEntities());
       sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
