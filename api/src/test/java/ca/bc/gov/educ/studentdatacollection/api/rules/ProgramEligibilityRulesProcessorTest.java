@@ -10,6 +10,8 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionReposito
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepository;
+import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -22,6 +24,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
@@ -36,6 +40,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
   SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   @Autowired
   SdcStudentEllRepository sdcStudentEllRepository;
+  @Autowired
+  RestUtils restUtils;
 
   @AfterEach
   void purgeData() {
@@ -54,6 +60,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     schoolStudentEntity.setEnrolledGradeCode(SchoolGradeCodes.GRADE07.getCode());
     schoolStudentEntity.setIsAdult(true);
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     List<ProgramEligibilityIssueCode> listWithoutError = rulesProcessor.processRules(
       createMockStudentRuleData(
         schoolStudentEntity,
@@ -86,6 +94,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     schoolStudentEntity.setSchoolFundingCode(SchoolFundingCodes.STATUS_FIRST_NATION.getCode());
     schoolStudentEntity.setIsAdult(true);
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     assertThat(rulesProcessor.processRules(
       createMockStudentRuleData(
         schoolStudentEntity,
@@ -121,6 +131,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
 
     SchoolTombstone localSchoolTombstone = createMockSchool();
     localSchoolTombstone.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     List<ProgramEligibilityIssueCode> listWithoutError = rulesProcessor.processRules(
       createMockStudentRuleData(
         schoolStudentEntity,
@@ -149,7 +161,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
   void testNoInactiveOnlineAdultStudentsRule() {
     UUID assignedStudentID = UUID.randomUUID();
     LocalDateTime studentCreateDate = LocalDateTime.now();
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     SchoolTombstone schoolTombstone = this.createMockSchool();
     schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
 
@@ -206,7 +219,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
   void testNoInactiveOnlineMinorStudentsRule() {
     UUID assignedStudentID = UUID.randomUUID();
     LocalDateTime studentCreateDate = LocalDateTime.now();
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     SchoolTombstone schoolTombstone = this.createMockSchool();
     schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
 
@@ -264,7 +278,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     schoolStudentEntity.setIsAdult(false);
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     SchoolTombstone localSchoolTombstone = createMockSchool();
     localSchoolTombstone.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
     List<ProgramEligibilityIssueCode> listWithoutError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, createMockSchool()));
@@ -284,7 +299,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     .save(createMockSdcSchoolCollectionEntity(collection, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     schoolStudentEntity.setEnrolledProgramCodes("05");
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
       createMockStudentRuleData(
         schoolStudentEntity,
@@ -317,7 +333,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     .save(createMockSdcSchoolCollectionEntity(collection, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     schoolStudentEntity.setEnrolledProgramCodes("4017000000000005");
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
       createMockStudentRuleData(
         schoolStudentEntity,
@@ -352,7 +369,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setYearsInEll(4);
     schoolStudentEntity.setEnrolledProgramCodes("4017000000000005");
     schoolStudentEntity.setIsSchoolAged(false);
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
       createMockStudentRuleData(
         schoolStudentEntity,
@@ -417,6 +435,10 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     .save(createMockSdcSchoolCollectionEntity(collection, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     schoolStudentEntity.setEnrolledProgramCodes("0540");
+
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
+
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, createMockSchool()));
 
     assertThat(listWithoutEnrollmentError.stream().anyMatch(e -> e.equals(ProgramEligibilityIssueCode.NOT_ENROLLED_CAREER))).isFalse();
@@ -437,7 +459,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
             .save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone.getSchoolId())));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     schoolStudentEntity.setEnrolledProgramCodes("0540");
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(createMockStudentRuleData(schoolStudentEntity, schoolTombstone));
     assertThat(listWithoutEnrollmentError.stream().anyMatch(e -> e.equals(ProgramEligibilityIssueCode.ENROLLED_CAREER_INDY_SCHOOL))).isTrue();
 
@@ -457,7 +480,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
             .save(createMockSdcSchoolCollectionEntity(collection, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     schoolStudentEntity.setEnrolledProgramCodes(null);
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
             createMockStudentRuleData(
                     schoolStudentEntity,
@@ -489,7 +513,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
     .save(createMockSdcSchoolCollectionEntity(collection, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     schoolStudentEntity.setEnrolledProgramCodes("3900000000002917");
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
       createMockStudentRuleData(
@@ -524,7 +549,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     SchoolTombstone schoolTombstone = createMockSchool();
     schoolTombstone.setSchoolCategoryCode("INDEPEND");
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     schoolStudentEntity.setEnrolledProgramCodes("29");
     schoolStudentEntity.setNativeAncestryInd("Y");
     List<ProgramEligibilityIssueCode> error = rulesProcessor.processRules(
@@ -547,7 +573,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     SchoolTombstone schoolTombstone = createMockSchool();
     schoolTombstone.setSchoolCategoryCode("INDP_FNS");
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     schoolStudentEntity.setEnrolledProgramCodes("29");
     schoolStudentEntity.setNativeAncestryInd("Y");
     List<ProgramEligibilityIssueCode> error = rulesProcessor.processRules(
@@ -570,7 +597,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     schoolStudentEntity.setEnrolledProgramCodes("4017000000000005");
     schoolStudentEntity.setIsSchoolAged(true);
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     UUID studentID = UUID.randomUUID();
     schoolStudentEntity.setAssignedStudentId(studentID);
     SdcStudentEllEntity entity = createMockStudentEllEntity(schoolStudentEntity);
@@ -601,7 +629,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     schoolStudentEntity.setEnrolledProgramCodes("4017000000000005");
     schoolStudentEntity.setIsSchoolAged(true);
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     UUID studentID = UUID.randomUUID();
     schoolStudentEntity.setAssignedStudentId(studentID);
     SdcStudentEllEntity entity = createMockStudentEllEntity(schoolStudentEntity);
@@ -630,7 +659,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
     .save(createMockSdcSchoolCollectionEntity(collection, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
       createMockStudentRuleData(
         schoolStudentEntity,
@@ -661,7 +691,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository
     .save(createMockSdcSchoolCollectionEntity(collection, null));
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     List<ProgramEligibilityIssueCode> listFromSchoolAgedStudent = rulesProcessor.processRules(
       createMockStudentRuleData(
         schoolStudentEntity,
@@ -724,7 +755,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     schoolStudentEntity.setNumberOfCourses("1");
     schoolStudentEntity.setIsSchoolAged(false);
     schoolStudentEntity.setIsAdult(true);
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
             createMockStudentRuleData(
                     schoolStudentEntity,
@@ -745,7 +777,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     schoolStudentEntity.setEnrolledProgramCodes("3900000000002917");
     schoolStudentEntity.setNativeAncestryInd("Y");
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     List<ProgramEligibilityIssueCode> listWithoutAgeError = rulesProcessor.processRules(
       createMockStudentRuleData(
         schoolStudentEntity,
@@ -777,7 +810,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
     schoolStudentEntity.setEnrolledProgramCodes("3900000000002917");
     schoolStudentEntity.setNativeAncestryInd("Y");
-
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
     List<ProgramEligibilityIssueCode> listWithoutAncestryError = rulesProcessor.processRules(
       createMockStudentRuleData(
         schoolStudentEntity,

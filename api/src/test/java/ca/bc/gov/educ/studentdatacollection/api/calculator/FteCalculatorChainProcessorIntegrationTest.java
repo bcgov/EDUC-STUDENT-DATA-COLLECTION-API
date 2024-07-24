@@ -19,7 +19,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
@@ -200,7 +199,6 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     }
 
     @Test
-    @Transactional(rollbackFor = Exception.class)
     void testProcessFteCalculator_DistrictDoubleReported() {
         // Given
         this.studentData.getSchool().setSchoolCategoryCode("PUBLIC");
@@ -258,7 +256,6 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     }
 
     @Test
-    @Transactional(rollbackFor = Exception.class)
     void testProcessFteCalculator_IndAuthorityDoubleReported() {
         // Given
         this.studentData.getSchool().setSchoolCategoryCode("INDEPEND");
@@ -351,7 +348,6 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     }
 
     @Test
-    @Transactional(rollbackFor = Exception.class)
     void testProcessFteCalculator_NewOnlineStudent() {
         var school = this.createMockSchool();
         var district = this.createMockDistrict();
