@@ -21,7 +21,8 @@ public class SdcDuplicateController implements SdcDuplicateEndpoint {
   private final SdcDuplicatesService sdcDuplicatesService;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
   private final SdcSchoolCollectionStudentValidator schoolCollectionStudentValidator;
-
+  public static final String INDY_SCHOOLS = "school";
+  public static final String DISTRICTS = "district";
 
   public SdcDuplicateController(SdcDuplicatesService sdcDuplicatesService, SdcSchoolCollectionStudentValidator schoolCollectionStudentValidator) {
       this.sdcDuplicatesService = sdcDuplicatesService;
@@ -44,9 +45,9 @@ public class SdcDuplicateController implements SdcDuplicateEndpoint {
   @Override
   public Map<UUID, SdcDuplicatesByInstituteID> getInFlightProvincialDuplicates(UUID collectionID, String instituteType) {
     Map<UUID, SdcDuplicatesByInstituteID> duplicatesByInstituteIDMap;
-    if(instituteType.equalsIgnoreCase("school")) {
+    if(instituteType.equalsIgnoreCase(INDY_SCHOOLS)) {
       duplicatesByInstituteIDMap = sdcDuplicatesService.getInFlightProvincialDuplicates(collectionID, true);
-    } else if(instituteType.equalsIgnoreCase("district")) {
+    } else if(instituteType.equalsIgnoreCase(DISTRICTS)) {
       duplicatesByInstituteIDMap = sdcDuplicatesService.getInFlightProvincialDuplicates(collectionID, false);
     } else {
       log.error("Invalid type for getInFlightProvincialDuplicates::" + instituteType);
