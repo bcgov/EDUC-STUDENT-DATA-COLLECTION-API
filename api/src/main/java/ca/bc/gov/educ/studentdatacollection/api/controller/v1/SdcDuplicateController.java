@@ -2,16 +2,20 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateTypeResolutionCode;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcDuplicateEndpoint;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionStudentValidator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 public class SdcDuplicateController implements SdcDuplicateEndpoint {
   private final SdcDuplicatesService sdcDuplicatesService;
@@ -35,5 +39,19 @@ public class SdcDuplicateController implements SdcDuplicateEndpoint {
       return duplicateMapper.toSdcDuplicate(sdcDuplicatesService.changeGrade(sdcDuplicateID, sdcSchoolCollectionStudent.get(0)));
     }
     return null;
+  }
+
+  @Override
+  public Map<UUID, SdcDuplicatesByInstituteID> getInFlightProvincialDuplicates(UUID collectionID, String instituteType) {
+    Map<UUID, SdcDuplicatesByInstituteID> duplicatesByInstituteIDMap;
+    if(instituteType.equalsIgnoreCase("school")) {
+      duplicatesByInstituteIDMap = sdcDuplicatesService.getInFlightProvincialDuplicates(collectionID, true);
+    } else if(instituteType.equalsIgnoreCase("district")) {
+      duplicatesByInstituteIDMap = sdcDuplicatesService.getInFlightProvincialDuplicates(collectionID, false);
+    } else {
+      log.error("Invalid type for getInFlightProvincialDuplicates::" + instituteType);
+      throw new InvalidParameterException(instituteType);
+    }
+    return duplicatesByInstituteIDMap;
   }
 }
