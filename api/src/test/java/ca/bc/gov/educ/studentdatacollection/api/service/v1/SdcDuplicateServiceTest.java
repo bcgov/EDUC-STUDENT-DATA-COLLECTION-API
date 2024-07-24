@@ -528,7 +528,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     var indySchoolStudent = createMockSchoolStudentEntity(indySchoolCollectionEntity);
     indySchoolStudent.setAssignedStudentId(assignedStudentID3);
     var indySchoolStudent2 = createMockSchoolStudentEntity(indySchoolCollectionEntity2);
-    indySchoolStudent.setAssignedStudentId(assignedStudentID2);
+    indySchoolStudent2.setAssignedStudentId(assignedStudentID3);
 
     sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2, sdcSchoolCollectionStudent3, sdcSchoolCollectionStudent4, indySchoolStudent, indySchoolStudent2));
 
