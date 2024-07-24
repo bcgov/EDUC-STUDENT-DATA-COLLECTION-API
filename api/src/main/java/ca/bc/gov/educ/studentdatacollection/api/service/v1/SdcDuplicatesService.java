@@ -222,6 +222,8 @@ public class SdcDuplicatesService {
       } else if (activeCollection.get().getCollectionStatusCode().equals(CollectionStatus.PROVDUPES.getCode())) {
         throw new InvalidParameterException(COLLECTION_DUPLICATES_ALREADY_RUN_MSG);
       }
+    } else {
+      throw new InvalidParameterException(COLLECTION_ID_NOT_ACTIVE_MSG);
     }
     List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInCollection(collectionID);
     List<SdcDuplicateEntity> generatedDuplicates = generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
@@ -262,7 +264,7 @@ public class SdcDuplicatesService {
     return sdcDuplicatesMappedByInstituteID;
   }
 
-  public Map<UUID, List<SdcDuplicateEntity>> filterToDistrictView(List<SdcDuplicateEntity> duplicates) {
+  private Map<UUID, List<SdcDuplicateEntity>> filterToDistrictView(List<SdcDuplicateEntity> duplicates) {
     return duplicates.stream()
             .filter(sdcDuplicateEntity ->
               sdcDuplicateEntity.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode())
@@ -274,7 +276,7 @@ public class SdcDuplicatesService {
             .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
   }
 
-  public Map<UUID, List<SdcDuplicateEntity>> filterToSchoolView(List<SdcDuplicateEntity> duplicates) {
+  private Map<UUID, List<SdcDuplicateEntity>> filterToSchoolView(List<SdcDuplicateEntity> duplicates) {
     return duplicates.stream()
               .filter(sdcDuplicateEntity ->
                       sdcDuplicateEntity.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode())
