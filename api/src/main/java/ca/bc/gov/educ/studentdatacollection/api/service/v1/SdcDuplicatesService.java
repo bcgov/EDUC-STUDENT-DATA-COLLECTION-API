@@ -226,7 +226,7 @@ public class SdcDuplicatesService {
     List<SdcDuplicateEntity> finalDuplicatesSet =  generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
     sdcDuplicateRepository.saveAll(finalDuplicatesSet);
 
-    sendEmailNotificationsForProvinceDuplicates(formatter.format(activeCollection.get().getDuplicationResolutionDueDate()));
+    activeCollection.ifPresent(collectionEntity -> sendEmailNotificationsForProvinceDuplicates(formatter.format(collectionEntity.getDuplicationResolutionDueDate())));
 
     this.collectionRepository.updateCollectionStatus(collectionID, String.valueOf(CollectionStatus.PROVDUPES));
 
