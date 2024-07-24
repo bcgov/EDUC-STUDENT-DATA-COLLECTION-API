@@ -22,7 +22,7 @@ public class FteCalculatorChainProcessor {
 
     public FteCalculationResult processFteCalculator(StudentRuleData studentRuleData) {
        log.debug("Starting FTE calculation for student :: {} with data :: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID(), studentRuleData);
-        validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
+       validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
 
        for (int i = 0; i < fteCalculators.size() - 1; i++) {
            FteCalculator currentCalculator = fteCalculators.get(i);

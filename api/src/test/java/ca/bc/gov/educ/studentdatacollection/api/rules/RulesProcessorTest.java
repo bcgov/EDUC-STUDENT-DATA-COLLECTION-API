@@ -1308,7 +1308,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setAssignedStudentId(UUID.randomUUID());
-
+        PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN(entity.getAssignedPen());
+        penMatchResult.getMatchingRecords().get(0).setStudentID(entity.getAssignedStudentId().toString());
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         UUID oneYearOldCollectionID = createMockHistoricalCollection(1, entity.getSdcSchoolCollection().getSchoolID(), entity.getCreateDate(), String.valueOf(SEPTEMBER), entity.getAssignedStudentId());
         UUID twoYearOldCollectionID = createMockHistoricalCollection(2, entity.getSdcSchoolCollection().getSchoolID(), entity.getCreateDate(), String.valueOf(JULY), entity.getAssignedStudentId());
 
@@ -1340,7 +1343,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setAssignedStudentId(UUID.randomUUID());
-
+        PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN("123456789");
+        penMatchResult.getMatchingRecords().get(0).setStudentID(entity.getAssignedStudentId().toString());
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         UUID oneYearOldCollectionID = createMockHistoricalCollection(1, entity.getSdcSchoolCollection().getSchoolID(), entity.getCreateDate(), String.valueOf(SEPTEMBER), entity.getAssignedStudentId());
         UUID twoYearOldCollectionID = createMockHistoricalCollection(2, entity.getSdcSchoolCollection().getSchoolID(), entity.getCreateDate(), String.valueOf(JULY), entity.getAssignedStudentId());
 
@@ -1358,7 +1364,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         sdcSchoolCollectionRepository.deleteById(oneYearOldCollectionID);
         sdcSchoolCollectionRepository.deleteById(twoYearOldCollectionID);
-
         val validationErrorSchlAged = rulesProcessor.processRules((createMockStudentRuleData(entity, school)));
         val errorSchlAged = validationErrorSchlAged.stream().anyMatch(val -> val.getValidationIssueCode().equals("SCHOOLAGEDZEROCOURSEH"));
         assertThat(errorSchlAged).isTrue();
@@ -1540,6 +1545,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         studFeb.setAssignedStudentId(assignedStudentId);
         sdcSchoolCollectionStudentRepository.save(studFeb);
         PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN("123456789");
+        penMatchResult.getMatchingRecords().get(0).setStudentID(assignedStudentId.toString());
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
@@ -1674,6 +1681,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         studFeb.setAssignedStudentId(assignedStudentId);
         sdcSchoolCollectionStudentRepository.save(studFeb);
 
+        PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN(studFeb.getAssignedPen());
+        penMatchResult.getMatchingRecords().get(0).setStudentID(studFeb.getAssignedStudentId().toString());
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
                 .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
@@ -1790,6 +1801,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         studFeb.setAssignedStudentId(assignedStudentId);
         sdcSchoolCollectionStudentRepository.save(studFeb);
         PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN("123456789");
+        penMatchResult.getMatchingRecords().get(0).setStudentID(assignedStudentId.toString());
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
@@ -1847,6 +1860,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
         studFeb.setAssignedStudentId(assignedStudentId);
         sdcSchoolCollectionStudentRepository.save(studFeb);
+        PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN("123456789");
+        penMatchResult.getMatchingRecords().get(0).setStudentID(assignedStudentId.toString());
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
 
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
@@ -1993,6 +2010,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         studFeb.setAssignedStudentId(assignedStudentId);
         sdcSchoolCollectionStudentRepository.save(studFeb);
 
+        PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN("123456789");
+        penMatchResult.getMatchingRecords().get(0).setStudentID(assignedStudentId.toString());
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
                 .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
@@ -2053,6 +2074,10 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         studFeb.setAssignedStudentId(assignedStudentId);
         sdcSchoolCollectionStudentRepository.save(studFeb);
 
+        PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN("123456789");
+        penMatchResult.getMatchingRecords().get(0).setStudentID(assignedStudentId.toString());
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
                 .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));

@@ -47,6 +47,6 @@ class FteCalculatorChainProcessorTest {
         fteCalculatorChainProcessor.processFteCalculator(studentRuleData);
 
         // Then
-        verify(validationRulesService).runAndSetPenMatch(studentEntity, null);
+        verify(validationRulesService).setupPENMatchAndEllAndGraduateValues(studentRuleData);
     }
 }
