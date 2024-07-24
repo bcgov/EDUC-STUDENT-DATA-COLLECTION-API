@@ -155,7 +155,6 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     }
 
     @Test
-    @Transactional(rollbackFor = Exception.class)
     void testProcessFteCalculator_NoCoursesInLastTwoYears() throws IOException {
         // Given
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
@@ -180,7 +179,6 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         sdcSchoolCollection.getSDCSchoolStudentEntities().add(this.studentData.getSdcSchoolCollectionStudentEntity());
         sdcSchoolCollection.getSdcSchoolCollectionHistoryEntities().forEach(hist -> hist.setSdcSchoolCollection(sdcSchoolCollection));
         this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollection);
-
 
         this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
 
