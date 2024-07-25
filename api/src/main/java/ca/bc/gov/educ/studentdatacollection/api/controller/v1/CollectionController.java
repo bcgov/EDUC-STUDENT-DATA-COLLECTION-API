@@ -1,5 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.CollectionEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
@@ -11,6 +13,7 @@ import ca.bc.gov.educ.studentdatacollection.api.orchestrator.CloseCollectionOrch
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CollectionService;
 
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.CollectionSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
@@ -47,13 +50,15 @@ public class CollectionController implements CollectionEndpoint {
   private final CollectionService collectionService;
   private final SdcDuplicatesService sdcDuplicatesService;
   private final CloseCollectionOrchestrator closeCollectionOrchestrator;
+  private final SagaService sagaService;
 
   @Autowired
-  public CollectionController(final CollectionService collectionService, final CollectionPayloadValidator collectionPayloadValidator, final SdcDuplicatesService sdcDuplicatesService, CloseCollectionOrchestrator closeCollectionOrchestrator) {
+  public CollectionController(final CollectionService collectionService, final CollectionPayloadValidator collectionPayloadValidator, final SdcDuplicatesService sdcDuplicatesService, CloseCollectionOrchestrator closeCollectionOrchestrator, SagaService sagaService) {
     this.collectionService = collectionService;
     this.sdcDuplicatesService = sdcDuplicatesService;
     this.collectionPayloadValidator = collectionPayloadValidator;
     this.closeCollectionOrchestrator = closeCollectionOrchestrator;
+      this.sagaService = sagaService;
   }
 
   @Override
@@ -136,10 +141,15 @@ public class CollectionController implements CollectionEndpoint {
 
   @Override
   public ResponseEntity<String> closeCollection(CollectionSagaData collectionSagaData) throws JsonProcessingException {
-    RequestUtil.setAuditColumnsForCreate(collectionSagaData);
-    val saga = this.closeCollectionOrchestrator.createSaga(JsonUtil.getJsonStringFromObject(collectionSagaData), null, null, ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-    this.closeCollectionOrchestrator.startSaga(saga);
-    return ResponseEntity.status(HttpStatus.ACCEPTED).body(saga.getSagaId().toString());
+    final var sagaInProgress = this.sagaService.findBySagaNameAndStatusNot(SagaEnum.CLOSE_COLLECTION_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
+    if (sagaInProgress.isPresent()) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    } else {
+      RequestUtil.setAuditColumnsForCreate(collectionSagaData);
+      val saga = this.closeCollectionOrchestrator.createSaga(JsonUtil.getJsonStringFromObject(collectionSagaData), null, null, ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      this.closeCollectionOrchestrator.startSaga(saga);
+      return ResponseEntity.status(HttpStatus.ACCEPTED).body(saga.getSagaId().toString());
+    }
   }
   @Override
   public ResponseEntity<Void> resolveRemainingDuplicates(UUID collectionID){
