@@ -179,19 +179,21 @@ public class EventTaskSchedulerAsyncService {
     Set<UUID> existingSchoolIds = activeSchoolCollections.stream()
             .map(SdcSchoolCollectionEntity::getSchoolID).collect(Collectors.toSet());
 
-    List<SchoolTombstone> newSchoolsTombstones = schoolTombstones.stream()
-            .filter(tombstone -> !existingSchoolIds.contains(UUID.fromString(tombstone.getSchoolId()))).toList();
-
-    List<SdcSchoolCollectionEntity> newSchoolCollections = new ArrayList<>();
-    for (SchoolTombstone newSchoolTombstone : newSchoolsTombstones) {
-      //todo new school must be open
-      SdcSchoolCollectionEntity newSdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
-
-      newSdcSchoolCollectionEntity.setCollectionEntity(activeCollection);
-      newSdcSchoolCollectionEntity.setSchoolID(UUID.fromString(newSchoolTombstone.getSchoolId()));
-
-      newSchoolCollections.add(newSdcSchoolCollectionEntity);
-    }
+    List<SdcSchoolCollectionEntity> newSchoolCollections = schoolTombstones.stream()
+            .filter(tombstone -> !existingSchoolIds.contains(UUID.fromString(tombstone.getSchoolId())))
+            .filter(tombstone -> tombstone.getClosedDate() == null
+                    && LocalDateTime.parse(tombstone.getOpenedDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")).isBefore(LocalDateTime.now()))
+            .map(tombstone -> {
+              SdcSchoolCollectionEntity newEntity = new SdcSchoolCollectionEntity();
+              newEntity.setCollectionEntity(activeCollection);
+              newEntity.setSchoolID(UUID.fromString(tombstone.getSchoolId()));
+              newEntity.setCreateUser("NEW_SCHOOLS_CRON");
+              newEntity.setCreateDate(LocalDateTime.now());
+              newEntity.setUpdateUser("NEW_SCHOOLS_CRON");
+              newEntity.setUpdateDate(LocalDateTime.now());
+              return newEntity;
+            })
+            .toList();
 
     if (!newSchoolCollections.isEmpty()) {
       sdcSchoolCollectionRepository.saveAll(newSchoolCollections);
