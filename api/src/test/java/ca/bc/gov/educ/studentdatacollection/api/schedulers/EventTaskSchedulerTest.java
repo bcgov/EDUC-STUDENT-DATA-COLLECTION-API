@@ -12,6 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.events.schedulers.EventTaskSchedulerAsyncService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.AfterEach;
@@ -21,13 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
@@ -210,6 +208,24 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         assertThat(sagas).hasSize(2);
     }
 
+    @Test
+    void testFindsNewSchoolAndAddsSdcSchoolCollection() {
+        setMockDataForSchoolCollectionsForSubmissionFn();
+
+        SchoolTombstone newSchool = createMockSchoolTombstone();
+        UUID newSchoolUUID = UUID.randomUUID();
+        newSchool.setSchoolId(newSchoolUUID.toString());
+        List<SchoolTombstone> mockSchools = List.of(newSchool);
+        when(restUtils.getSchools()).thenReturn(mockSchools);
+
+        eventTaskSchedulerAsyncService.findNewSchoolsAndAddSdcSchoolCollection();
+
+        List<SdcSchoolCollectionEntity> savedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(newSchoolUUID);
+
+        assertThat(savedSchoolCollections).isNotEmpty();
+        assertThat(savedSchoolCollections.get(0).getSchoolID()).isEqualTo(newSchoolUUID);
+    }
+
     public void setMockDataForSchoolCollectionsForSubmissionFn() {
         CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
         var districtID = UUID.randomUUID();
@@ -241,5 +257,4 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         secondSchoolCollection.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
         sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchoolCollection, secondSchoolCollection));
     }
-
 }

@@ -63,4 +63,23 @@ public class EventTaskScheduler {
     LockAssert.assertLocked();
     this.getTaskSchedulerAsyncService().findAllUnsubmittedIndependentSchoolsInCurrentCollection();
   }
+
+  // TODO change lock times
+  @Scheduled(cron = "-")
+  @SchedulerLock(name = "ADD_NEW_SCHOOLS_TO_COLLECTION", lockAtLeastFor = "${scheduled.jobs.process.tardy.collection.schools.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.tardy.collection.schools.cron.lockAtMostFor}")
+  public void findNewSchoolsAndAddSdcSchoolCollection() {
+    LockAssert.assertLocked();
+    this.getTaskSchedulerAsyncService().findNewSchoolsAndAddSdcSchoolCollection();
+  }
+
+  /*
+  TODO
+
+
+  closing of a collection and opening collection schedulers should be similar - by derek and john
+
+  check school cache, check against sdcSchoolCollections by criteria, add a new one if we need
+
+
+   */
 }
