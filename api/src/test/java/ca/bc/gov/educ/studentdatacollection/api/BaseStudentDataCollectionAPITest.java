@@ -9,10 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionSt
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.struct.CollectionSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.EmailSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
@@ -382,6 +379,20 @@ public abstract class BaseStudentDataCollectionAPITest {
             .status(SagaStatusEnum.STARTED.toString())
             .sagaState(EventType.INITIATED.toString())
             .payload(JsonUtil.getJsonStringFromObject(sagaData))
+            .build();
+  }
+
+  @SneakyThrows
+  protected SdcSagaEntity createMockUpdateStudentDownstreamSaga(final UpdateStudentSagaData updateStudentSagaData) {
+    return SdcSagaEntity.builder()
+            .updateDate(LocalDateTime.now().minusMinutes(15))
+            .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+            .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now().minusMinutes(15))
+            .sagaName(SagaEnum.UPDATE_STUDENT_DOWNSTREAM_SAGA.toString())
+            .status(SagaStatusEnum.STARTED.toString())
+            .sagaState(EventType.INITIATED.toString())
+            .payload(JsonUtil.getJsonStringFromObject(updateStudentSagaData))
             .build();
   }
 

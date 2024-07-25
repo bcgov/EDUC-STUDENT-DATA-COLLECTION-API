@@ -81,7 +81,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         final Event nextEvent = Event.builder().sagaId(saga.getSagaId())
                 .eventType(UPDATE_STUDENT)
                 .replyTo(this.getTopicToSubscribe())
-                .eventPayload(JsonUtil.getJsonStringFromObject(studentDataFromEventResponse))
+                .eventPayload(JsonUtil.getJsonStringFromObject(updateStudentSagaData))
                 .build();
         this.postMessageToTopic(STUDENT_API_TOPIC.toString(), nextEvent);
         log.info("message sent to STUDENT_API_TOPIC for UPDATE_STUDENT Event.");
