@@ -129,7 +129,7 @@ public class CloseCollectionService {
         Set<SdcSchoolCollectionEntity> sdcSchoolEntityList = new HashSet<>();
         listOfSchoolTombstones.forEach(school -> {
             UUID sdcDistrictCollectionID = null;
-            if(!SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())){
+            if(!SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(school.getSchoolCategoryCode())){
                 sdcDistrictCollectionID = sdcDistrictEntityList.get(UUID.fromString(school.getDistrictId())).getSdcDistrictCollectionID();
             }
             SdcSchoolCollectionEntity sdcSchoolEntity = SdcSchoolCollectionEntity.builder().collectionEntity(collectionEntity)
