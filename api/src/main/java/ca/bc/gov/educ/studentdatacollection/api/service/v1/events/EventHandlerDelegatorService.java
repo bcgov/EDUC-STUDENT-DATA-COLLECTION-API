@@ -59,7 +59,12 @@ public class EventHandlerDelegatorService implements EventHandler {
         log.debug("Received read from topic event :: ");
         log.trace(PAYLOAD_LOG, event.getEventPayload());
         this.getEventHandlerService().handleReadFromTopicEvent(event); // no response in this event.
-      } else {
+      } else if(event.getEventType() == EventType.UPDATE_STUDENTS_DEMOG_DOWNSTREAM) {
+        log.debug("Received read from topic event :: ");
+        log.trace(PAYLOAD_LOG, event.getEventPayload());
+        this.getEventHandlerService().handleUpdateDemogEvent(event); // no response in this event.
+      }
+      else {
         log.debug("Silently ignoring other event :: {}", event);
       }
     } catch (final Exception e) {

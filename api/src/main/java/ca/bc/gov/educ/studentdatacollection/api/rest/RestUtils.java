@@ -14,6 +14,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.CHESEmail;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.GradeCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -53,6 +54,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class RestUtils {
   public static final String SEARCH_CRITERIA_LIST = "searchCriteriaList";
   public static final String SCHOOL_CATEGORY_CODE = "schoolCategoryCode";
+  public static final String GRADE_CODES = "gradeCodes";
   public static final String NATS_TIMEOUT = "Either NATS timed out or the response is null , correlationID :: ";
   public static final String SCHOOL_REPORTING_REQUIREMENT_CODE = "schoolReportingRequirementCode";
   public static final String FACILITY_TYPE_CODE = "facilityTypeCode";
@@ -62,6 +64,7 @@ public class RestUtils {
   private final Map<String, SchoolTombstone> schoolMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMincodeMap = new ConcurrentHashMap<>();
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
+  private final Map<String, List<GradeCode>> gradeCodesMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
   private final WebClient webClient;
   private final WebClient chesWebClient;
@@ -69,6 +72,7 @@ public class RestUtils {
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
   private final ReadWriteLock districtLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock gradeLock = new ReentrantReadWriteLock();
   @Getter
   private final ApplicationProperties props;
 
@@ -397,5 +401,28 @@ public class RestUtils {
       this.populateSchoolMap();
     }
     return Optional.ofNullable(this.independentAuthorityToSchoolIDMap.get(independentAuthorityID));
+  }
+
+  public void setGradeCodesMap() {
+    val writeLock = this.gradeLock.writeLock();
+    try {
+      writeLock.lock();
+      this.gradeCodesMap.clear();
+      final List<GradeCode> gradeCodes = this.webClient.get().uri(this.props.getStudentApiURL(), uri -> uri.path("/grade-codes").build()).header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).retrieve().bodyToFlux(GradeCode.class).collectList().block();
+      this.gradeCodesMap.put(GRADE_CODES, gradeCodes);
+    }
+    catch (Exception ex) {
+      log.error("Unable to load map cache gradeCodes {}", ex);
+    }
+    finally {
+      writeLock.unlock();
+    }
+  }
+
+  public List<GradeCode> getGradeCodes() {
+    if(this.gradeCodesMap.isEmpty() || this.gradeCodesMap.get(GRADE_CODES) == null || this.gradeCodesMap.get(GRADE_CODES).isEmpty()) {
+      setGradeCodesMap();
+    }
+    return this.gradeCodesMap.get(GRADE_CODES);
   }
 }
