@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
+import ca.bc.gov.educ.studentdatacollection.api.struct.CollectionSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,8 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.*;
 
 @RequestMapping(URL.BASE_URL_COLLECTION)
 public interface CollectionEndpoint {
@@ -95,6 +95,12 @@ public interface CollectionEndpoint {
   @Transactional(readOnly = true)
   @Tag(name = "Collection Entity", description = "Endpoints to find duplicates in collection.")
   List<String> findDuplicatesInCollection(@PathVariable("collectionID") UUID collectionID, @RequestParam("matchedAssignedIDs") List<String> matchedAssignedIDs);
+
+  @PostMapping("/close-collection")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "202", description = "ACCEPTED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST."), @ApiResponse(responseCode = "409", description = "CONFLICT.")})
+  @ResponseStatus(ACCEPTED)
+  ResponseEntity<String> closeCollection(@Validated @RequestBody CollectionSagaData collectionSagaData) throws JsonProcessingException;
 
   @PostMapping("/{collectionID}/resolve-duplicates")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")

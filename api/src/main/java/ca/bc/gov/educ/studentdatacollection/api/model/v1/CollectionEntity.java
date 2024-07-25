@@ -77,7 +77,7 @@ public class CollectionEntity {
   @OneToMany(mappedBy = "collectionEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = SdcSchoolCollectionEntity.class)
   Set<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities;
 
-  public Set<SdcSchoolCollectionEntity> getSDCSchoolEntities() {
+  public Set<SdcSchoolCollectionEntity> getSDCSchoolCollectionEntities() {
     if (this.sdcSchoolCollectionEntities == null) {
       this.sdcSchoolCollectionEntities = new HashSet<>();
     }

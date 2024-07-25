@@ -13,7 +13,9 @@ public enum SdcSchoolStudentStatus {
   FUNDING_WARNING("FUNDWARN"),
   VERIFIED("VERIFIED"),
   FIXABLE("FIXABLE"),
-  DELETED("DELETED");
+  DELETED("DELETED"),
+  DEMOG_UPD("DEMOG_UPD"),
+  COMPLETED("COMPLETED");
 
 
   private static final Map<String, SdcSchoolStudentStatus> codeMap = new HashMap<>();
