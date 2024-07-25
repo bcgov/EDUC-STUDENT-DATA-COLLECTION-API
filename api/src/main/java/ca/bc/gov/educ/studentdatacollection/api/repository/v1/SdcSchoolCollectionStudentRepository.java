@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ICountValidationIssuesBySeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -834,5 +835,14 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "GROUP BY s.sdcSchoolCollection.schoolID " +
           "ORDER BY s.sdcSchoolCollection.schoolID")
   List<RefugeeHeadcountResult> getRefugeeHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
+
+  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionID(UUID collectionID);
+
+  @Query(value="""
+    SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE
+    stud.sdcSchoolCollectionStudentStatusCode = 'DEMOG_UPD'
+    order by stud.createDate
+    LIMIT :numberOfStudentsToProcess""")
+  List<SdcSchoolCollectionStudentEntity> findStudentForDownstreamUpdate(String numberOfStudentsToProcess);
 
 }
