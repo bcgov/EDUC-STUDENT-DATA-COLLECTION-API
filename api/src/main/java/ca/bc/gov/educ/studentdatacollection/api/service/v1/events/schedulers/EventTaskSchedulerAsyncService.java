@@ -184,6 +184,7 @@ public class EventTaskSchedulerAsyncService {
 
     List<SdcSchoolCollectionEntity> newSchoolCollections = new ArrayList<>();
     for (SchoolTombstone newSchoolTombstone : newSchoolsTombstones) {
+      //todo new school must be open
       SdcSchoolCollectionEntity newSdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
 
       newSdcSchoolCollectionEntity.setCollectionEntity(activeCollection);

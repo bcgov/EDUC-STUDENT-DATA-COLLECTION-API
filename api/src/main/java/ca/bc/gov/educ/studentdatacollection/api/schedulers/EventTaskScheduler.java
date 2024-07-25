@@ -64,22 +64,11 @@ public class EventTaskScheduler {
     this.getTaskSchedulerAsyncService().findAllUnsubmittedIndependentSchoolsInCurrentCollection();
   }
 
-  // TODO change lock times
-  @Scheduled(cron = "-")
-  @SchedulerLock(name = "ADD_NEW_SCHOOLS_TO_COLLECTION", lockAtLeastFor = "${scheduled.jobs.process.tardy.collection.schools.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.tardy.collection.schools.cron.lockAtMostFor}")
+  // todo only run scheduler if before the posting of prov dupes
+  @Scheduled(cron = "${scheduled.jobs.process.new.schools.collection.cron}")
+  @SchedulerLock(name = "ADD_NEW_SCHOOLS_TO_COLLECTION", lockAtLeastFor = "${scheduled.jobs.process.new.schools.collection.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.new.schools.collection.cron.lockAtMostFor}")
   public void findNewSchoolsAndAddSdcSchoolCollection() {
     LockAssert.assertLocked();
     this.getTaskSchedulerAsyncService().findNewSchoolsAndAddSdcSchoolCollection();
   }
-
-  /*
-  TODO
-
-
-  closing of a collection and opening collection schedulers should be similar - by derek and john
-
-  check school cache, check against sdcSchoolCollections by criteria, add a new one if we need
-
-
-   */
 }
