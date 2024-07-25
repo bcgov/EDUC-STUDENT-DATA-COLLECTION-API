@@ -57,6 +57,6 @@ public class CloseCollectionOrchestrator extends BaseOrchestrator<CollectionSaga
     }
 
     public void sendClosureNotifications(final Event event, final SdcSagaEntity saga, final CollectionSagaData collectionSagaData) {
-
+        //In progress
     }
 }

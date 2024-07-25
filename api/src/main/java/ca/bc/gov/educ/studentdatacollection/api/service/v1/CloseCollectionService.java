@@ -147,9 +147,7 @@ public class CloseCollectionService {
 
         if(!collectionEntity.getSDCSchoolEntities().isEmpty()) {
             log.debug("Adding school history records for collection {}", collectionEntity.getCollectionID());
-            collectionEntity.getSDCSchoolEntities().forEach(schoolCollectionEntity -> {
-                schoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(this.sdcSchoolHistoryService.createSDCSchoolHistory(schoolCollectionEntity, ApplicationProperties.STUDENT_DATA_COLLECTION_API));
-            });
+            collectionEntity.getSDCSchoolEntities().forEach(schoolCollectionEntity -> schoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(this.sdcSchoolHistoryService.createSDCSchoolHistory(schoolCollectionEntity, ApplicationProperties.STUDENT_DATA_COLLECTION_API)));
         }
 
         //save school collection entities to collection
