@@ -835,4 +835,13 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "ORDER BY s.sdcSchoolCollection.schoolID")
   List<RefugeeHeadcountResult> getRefugeeHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
+  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionID(UUID collectionID);
+
+  @Query(value="""
+    SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE
+    stud.sdcSchoolCollectionStudentStatusCode = 'DEMOG_UPD'
+    order by stud.createDate
+    LIMIT :numberOfStudentsToProcess""")
+  List<SdcSchoolCollectionStudentEntity> findStudentForDownstreamUpdate(String numberOfStudentsToProcess);
+
 }

@@ -2,21 +2,23 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplication;
+import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramDuplicateTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionTypeCodeRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDuplicateRepository;
+import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.CollectionSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentValidationIssueRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -52,6 +54,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -70,8 +73,6 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   @Autowired
   CollectionRepository collectionRepository;
   @Autowired
-  CollectionTypeCodeRepository CollectionTypeCodeRepository;
-  @Autowired
   SdcDuplicateRepository sdcDuplicateRepository;
   @Autowired
   SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
@@ -83,6 +84,14 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   CodeTableService codeTableService;
   @Autowired
   ValidationRulesService validationRulesService;
+  @Autowired
+  CollectionTypeCodeRepository collectionTypeCodeRepository;
+  @Autowired
+  SagaService sagaService;
+  @Autowired
+  SagaRepository sagaRepository;
+  @Autowired
+  SagaEventRepository sagaEventRepository;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
   protected final static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
@@ -93,9 +102,11 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
   @AfterEach
   public void after() {
+    this.sagaEventRepository.deleteAll();
     this.sdcDuplicateRepository.deleteAll();
     this.collectionRepository.deleteAll();
     this.sdcDuplicateRepository.deleteAll();
+    this.sagaRepository.deleteAll();
   }
 
 
@@ -891,5 +902,86 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     var currentCollection = this.collectionRepository.findAll();
     assertThat(currentCollection.get(0).getCollectionStatusCode()).isEqualTo("DUPES_RES");
+  }
+
+  @Test
+  void testCloseCollection_GivenValidInput_ShouldReturnStatusAcceptedRequest() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntityForFeb());
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection.setCollectionStatusCode("INPROGRESS");
+    val savedCollection = collectionRepository.save(collection);
+
+    CollectionSagaData sagaData = new CollectionSagaData();
+    sagaData.setExistingCollectionID(savedCollection.getCollectionID().toString());
+    sagaData.setNewCollectionSignOffDueDate(String.valueOf(LocalDateTime.now()));
+    sagaData.setNewCollectionDuplicationResolutionDueDate(String.valueOf(LocalDateTime.now()));
+    sagaData.setNewCollectionSnapshotDate(String.valueOf(LocalDateTime.now()));
+    sagaData.setNewCollectionSubmissionDueDate(String.valueOf(LocalDateTime.now()));
+
+    this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/close-collection")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(asJsonString(sagaData))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .with(mockAuthority))
+            .andDo(print()).andExpect(status().isAccepted());
+  }
+
+  @Test
+  void testCloseCollection_GivenInvalidInput_ShouldReturnStatusBadRequest() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntityForFeb());
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection.setCollectionStatusCode("INPROGRESS");
+    val savedCollection = collectionRepository.save(collection);
+
+    CollectionSagaData sagaData = new CollectionSagaData();
+    sagaData.setExistingCollectionID(savedCollection.getCollectionID().toString());
+    sagaData.setNewCollectionSnapshotDate(String.valueOf(LocalDateTime.now()));
+    sagaData.setNewCollectionSubmissionDueDate(String.valueOf(LocalDateTime.now()));
+
+    this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/close-collection")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(asJsonString(sagaData))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .with(mockAuthority))
+            .andDo(print()).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testCloseCollection_MultipleSAGAs_ShouldReturnStatusConflict() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_COLLECTION";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntityForFeb());
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection.setCollectionStatusCode("INPROGRESS");
+    val savedCollection = collectionRepository.save(collection);
+
+    CollectionSagaData sagaData = new CollectionSagaData();
+    sagaData.setExistingCollectionID(savedCollection.getCollectionID().toString());
+    sagaData.setNewCollectionSignOffDueDate(String.valueOf(LocalDateTime.now()));
+    sagaData.setNewCollectionDuplicationResolutionDueDate(String.valueOf(LocalDateTime.now()));
+    sagaData.setNewCollectionSnapshotDate(String.valueOf(LocalDateTime.now()));
+    sagaData.setNewCollectionSubmissionDueDate(String.valueOf(LocalDateTime.now()));
+
+    this.sagaService.createSagaRecordInDB(SagaEnum.CLOSE_COLLECTION_SAGA.toString(), ApplicationProperties.STUDENT_DATA_COLLECTION_API, JsonUtil.getJsonStringFromObject(sagaData), null, null);
+
+    this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/close-collection")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(asJsonString(sagaData))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .with(mockAuthority))
+            .andDo(print()).andExpect(status().isConflict());
   }
 }

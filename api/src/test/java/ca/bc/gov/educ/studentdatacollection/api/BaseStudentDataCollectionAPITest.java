@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionSt
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.CollectionSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.EmailSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -370,6 +371,20 @@ public abstract class BaseStudentDataCollectionAPITest {
             .build();
   }
 
+  @SneakyThrows
+  protected SdcSagaEntity createMockCloseCollectionSaga(final CollectionSagaData sagaData) {
+    return SdcSagaEntity.builder()
+            .updateDate(LocalDateTime.now().minusMinutes(15))
+            .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+            .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now().minusMinutes(15))
+            .sagaName(SagaEnum.CLOSE_COLLECTION_SAGA.toString())
+            .status(SagaStatusEnum.STARTED.toString())
+            .sagaState(EventType.INITIATED.toString())
+            .payload(JsonUtil.getJsonStringFromObject(sagaData))
+            .build();
+  }
+
   public SchoolTombstone createMockSchool() {
     final SchoolTombstone schoolTombstone = new SchoolTombstone();
     schoolTombstone.setSchoolId(UUID.randomUUID().toString());
@@ -427,10 +442,20 @@ public abstract class BaseStudentDataCollectionAPITest {
         .closeDate(LocalDateTime.now().plusDays(7)).createUser("TEST").createDate(LocalDateTime.now())
         .updateUser("TEST").updateDate(LocalDateTime.now()).build();
   }
+
+  public CollectionTypeCodeEntity createMockCollectionCodeEntityForFeb() {
+    return CollectionTypeCodeEntity.builder().collectionTypeCode("FEBRUARY").label("Test")
+            .description("Test code").displayOrder(0).effectiveDate(
+                    LocalDateTime.now().minusDays(1)).expiryDate(LocalDateTime.now().plusDays(7))
+            .openDate(LocalDateTime.now())
+            .closeDate(LocalDateTime.now().plusDays(7)).createUser("TEST").createDate(LocalDateTime.now())
+            .updateUser("TEST").updateDate(LocalDateTime.now()).build();
+  }
+
   public CollectionCodeCriteriaEntity createMockCollectionCodeCriteriaEntity(
       CollectionTypeCodeEntity collectionCodeEntity) {
     return CollectionCodeCriteriaEntity.builder().collectionTypeCodeEntity(collectionCodeEntity)
-        .schoolCategoryCode("TEST_CC").facilityTypeCode("TEST_FTC").reportingRequirementCode("TEST_RRC")
+        .schoolCategoryCode("PUBLIC").facilityTypeCode("STANDARD").reportingRequirementCode("REGULAR")
         .createUser("TEST").createDate(LocalDateTime.now())
         .updateUser("TEST").updateDate(LocalDateTime.now()).build();
   }
