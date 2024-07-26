@@ -11,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.Orchestrator;
+import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.properties.EmailProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
@@ -193,9 +194,9 @@ public class EventTaskSchedulerAsyncService {
               SdcSchoolCollectionEntity newEntity = new SdcSchoolCollectionEntity();
               newEntity.setCollectionEntity(activeCollection);
               newEntity.setSchoolID(UUID.fromString(tombstone.getSchoolId()));
-              newEntity.setCreateUser("NEW_SCHOOLS_CRON");
+              newEntity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
               newEntity.setCreateDate(LocalDateTime.now());
-              newEntity.setUpdateUser("NEW_SCHOOLS_CRON");
+              newEntity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
               newEntity.setUpdateDate(LocalDateTime.now());
               return newEntity;
             })
