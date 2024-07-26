@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
@@ -271,6 +272,27 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
         SchoolTombstone newSchool = createMockSchoolTombstone();
         newSchool.setClosedDate(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(LocalDateTime.now().minusDays(10)));
+        UUID newSchoolUUID = UUID.randomUUID();
+        newSchool.setSchoolId(newSchoolUUID.toString());
+        List<SchoolTombstone> mockSchools = List.of(newSchool);
+        when(restUtils.getSchools()).thenReturn(mockSchools);
+
+        eventTaskSchedulerAsyncService.findNewSchoolsAndAddSdcSchoolCollection();
+
+        List<SdcSchoolCollectionEntity> savedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(newSchoolUUID);
+
+        assertThat(savedSchoolCollections).isEmpty();
+    }
+
+    @Test
+    void testFindsNewSchoolColInProvDupsAndDoesNotAddSdcSchoolCollection() {
+        setMockDataForSchoolCollectionsForSubmissionFn();
+
+        CollectionEntity col = firstSchoolCollection.getCollectionEntity();
+        col.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
+        collectionRepository.save(col);
+
+        SchoolTombstone newSchool = createMockSchoolTombstone();
         UUID newSchoolUUID = UUID.randomUUID();
         newSchool.setSchoolId(newSchoolUUID.toString());
         List<SchoolTombstone> mockSchools = List.of(newSchool);
