@@ -178,6 +178,7 @@ public class EventTaskSchedulerAsyncService {
       return;
     }
 
+    restUtils.populateSchoolMap();
     final List<SchoolTombstone> schoolTombstones = restUtils.getSchools();
     final List<SdcSchoolCollectionEntity> activeSchoolCollections = sdcSchoolCollectionRepository.findAllByCollectionEntityCollectionID(activeCollection.getCollectionID());
 
