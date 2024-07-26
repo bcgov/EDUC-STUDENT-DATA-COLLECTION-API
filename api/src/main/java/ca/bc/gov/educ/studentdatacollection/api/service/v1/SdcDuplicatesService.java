@@ -651,15 +651,17 @@ public class SdcDuplicatesService {
       addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.K_TO_7_DUP);
     }
 
+    List<String> facilityOnlineCodes = Arrays.asList(FacilityTypeCodes.DISTONLINE.getCode(), FacilityTypeCodes.DIST_LEARN.getCode());
+
     //In which grades are the two records reported - 10,11,12,SU Check
     var isSchool1Independent = SchoolCategoryCodes.INDEPENDENTS.contains(schoolTombstone1.getSchoolCategoryCode());
     var isSchool2Independent = SchoolCategoryCodes.INDEPENDENTS.contains(schoolTombstone2.getSchoolCategoryCode());
     if(dups.isEmpty() && SchoolGradeCodes.getGrades10toSU().contains(entity1.getEnrolledGradeCode()) && SchoolGradeCodes.getGrades10toSU().contains(entity2.getEnrolledGradeCode())){
-      if((FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone1.getFacilityTypeCode()) && isSchool1Independent) ||
-              (FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone2.getFacilityTypeCode()) && isSchool2Independent)) {
+      if((facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode()) && isSchool1Independent) ||
+              (facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode()) && isSchool2Independent)) {
         addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
       }else if(isSchool1Independent || isSchool2Independent) {
-        if((isSchool1Independent && FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone2.getFacilityTypeCode())) || (isSchool2Independent && FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone1.getFacilityTypeCode()))) {
+        if((facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode())) || (isSchool2Independent && facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode()))) {
           addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
         }else{
           addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.ALT_DUP);
@@ -670,7 +672,7 @@ public class SdcDuplicatesService {
         }else{
           addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
         }
-      }else if(FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone1.getFacilityTypeCode()) || FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone2.getFacilityTypeCode())){
+      }else if(facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode()) || facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode())){
         addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
       }else{
         addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.ALT_DUP);
@@ -684,10 +686,10 @@ public class SdcDuplicatesService {
     var isStudent2Grade10toSU = SchoolGradeCodes.getGrades10toSU().contains(entity2.getEnrolledGradeCode());
 
     if(dups.isEmpty() && ((isStudent1Grade8or9 && isStudent2Grade10toSU) || (isStudent2Grade8or9 && isStudent1Grade10toSU))){
-      if(FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone1.getFacilityTypeCode()) && FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone2.getFacilityTypeCode())) {
+      if(facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode()) && facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode())) {
         addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
-      }else if((isStudent1Grade8or9 && FacilityTypeCodes.STANDARD.getCode().equals(schoolTombstone1.getFacilityTypeCode()) && isStudent2Grade10toSU && FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone2.getFacilityTypeCode())) ||
-              (isStudent2Grade8or9 && FacilityTypeCodes.STANDARD.getCode().equals(schoolTombstone2.getFacilityTypeCode()) && isStudent1Grade10toSU && FacilityTypeCodes.DIST_LEARN.getCode().equals(schoolTombstone1.getFacilityTypeCode()))){
+      }else if((isStudent1Grade8or9 && FacilityTypeCodes.STANDARD.getCode().equals(schoolTombstone1.getFacilityTypeCode()) && isStudent2Grade10toSU && facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode())) ||
+              (isStudent2Grade8or9 && FacilityTypeCodes.STANDARD.getCode().equals(schoolTombstone2.getFacilityTypeCode()) && isStudent1Grade10toSU && facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode()))){
         addAllowableDuplicateWithProgramDups(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null);
       }else {
         addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.IN_8_9_DUP);
