@@ -14,6 +14,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.CHESEmail;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -391,5 +392,25 @@ public class RestUtils {
       this.populateSchoolMap();
     }
     return Optional.ofNullable(this.independentAuthorityToSchoolIDMap.get(independentAuthorityID));
+  }
+
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public Student getStudentByPEN(UUID correlationID, String assignedPEN) {
+    try {
+      final TypeReference<Student> refPenMatchResult = new TypeReference<>() {
+      };
+      Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_STUDENT).eventPayload(assignedPEN).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+      if (responseMessage != null) {
+        return objectMapper.readValue(responseMessage.getData(), refPenMatchResult);
+      } else {
+        throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+      }
+
+    } catch (final Exception ex) {
+      log.error("Error occurred calling GET STUDENT service :: " + ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
+    }
   }
 }

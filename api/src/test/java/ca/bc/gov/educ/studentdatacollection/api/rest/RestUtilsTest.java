@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.rest;
 
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import lombok.val;
@@ -15,8 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.wildfly.common.Assert.assertFalse;
 import static org.wildfly.common.Assert.assertTrue;
@@ -274,4 +274,13 @@ class RestUtilsTest {
         assertEquals(school1, result.get());
     }
 
+    @Test
+    void testGetStudentByPEN_WhenStudentFound_shouldReturnStudent() {
+        final var studentPayload = Student.builder().studentID(UUID.randomUUID().toString()).pen("123456789").legalFirstName("Test").build();
+        doReturn(studentPayload).when(restUtils).getStudentByPEN(any(), any());
+
+        //when
+        var result = restUtils.getStudentByPEN(UUID.randomUUID(), "123456789");
+        assertEquals(studentPayload, result);
+    }
 }

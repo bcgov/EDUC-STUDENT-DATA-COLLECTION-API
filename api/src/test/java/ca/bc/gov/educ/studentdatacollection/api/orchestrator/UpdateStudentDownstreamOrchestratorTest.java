@@ -1,8 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.orchestrator;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
-import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
@@ -32,11 +30,9 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.*;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.STUDENT_FOUND;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.STUDENT_UPDATED;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.STUDENT_API_TOPIC;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC;
@@ -49,7 +45,7 @@ import static org.mockito.Mockito.*;
 class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionAPITest {
 
     @MockBean
-    protected RestUtils restUtils;
+    RestUtils restUtils;
     @Autowired
     CollectionRepository collectionRepository;
     @Autowired
@@ -82,43 +78,21 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
 
     @SneakyThrows
     @Test
-    void testHandleEvent_givenEventTypeInitiated_shouldPostEventToSTUDENT_API_TOPIC() {
-        var student = setMockDataForSaga();
-        UpdateStudentSagaData sagaData = createSagaData(student);
-        val saga = this.createMockUpdateStudentDownstreamSaga(sagaData);
-        saga.setSagaId(null);
-        this.sagaRepository.save(saga);
-
-        val event = Event.builder()
-                .sagaId(saga.getSagaId())
-                .eventType(EventType.INITIATED)
-                .eventOutcome(EventOutcome.INITIATE_SUCCESS)
-                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
-        this.updateStudentDownstreamOrchestrator.handleEvent(event);
-
-        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(STUDENT_API_TOPIC.toString()), this.eventCaptor.capture());
-        final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
-        assertThat(newEvent.getEventType()).isEqualTo(GET_STUDENT);
-
-        val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
-        assertThat(savedSagaInDB).isPresent();
-        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(GET_STUDENT.toString());
-    }
-
-    @SneakyThrows
-    @Test
     void testHandleEvent_givenEventTypeUPDATE_STUDENT_shouldPostEventToSTUDENT_API_TOPIC() {
+        final var studentPayload = Student.builder().studentID(UUID.randomUUID().toString()).pen("123456789").legalFirstName("Test").build();
+        when(this.restUtils.getStudentByPEN(any(), any())).thenReturn(studentPayload);
+
         var student = setMockDataForSaga();
         UpdateStudentSagaData sagaData = createSagaData(student);
         val saga = this.createMockUpdateStudentDownstreamSaga(sagaData);
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
-        final var studentPayload = Student.builder().studentID(UUID.randomUUID().toString()).pen("123456789").legalFirstName("Test").build();
+
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
-                .eventType(GET_STUDENT)
-                .eventOutcome(STUDENT_FOUND)
-                .eventPayload(JsonUtil.getJsonStringFromObject(studentPayload)).build();
+                .eventType(INITIATED)
+                .eventOutcome(INITIATE_SUCCESS)
+                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
         this.updateStudentDownstreamOrchestrator.handleEvent(event);
 
         verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(STUDENT_API_TOPIC.toString()), this.eventCaptor.capture());

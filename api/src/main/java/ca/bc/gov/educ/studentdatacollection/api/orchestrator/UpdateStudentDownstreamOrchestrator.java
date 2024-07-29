@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
@@ -32,34 +33,20 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.STUD
 public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<UpdateStudentSagaData> {
 
     private final CloseCollectionService closeCollectionService;
+    private final RestUtils restUtils;
 
-    protected UpdateStudentDownstreamOrchestrator(SagaService sagaService, MessagePublisher messagePublisher, CloseCollectionService closeCollectionService) {
+    protected UpdateStudentDownstreamOrchestrator(SagaService sagaService, MessagePublisher messagePublisher, CloseCollectionService closeCollectionService, RestUtils restUtils) {
         super(sagaService, messagePublisher, UpdateStudentSagaData.class, UPDATE_STUDENT_DOWNSTREAM_SAGA.toString(), STUDENT_DATA_COLLECTION_API_TOPIC.toString());
         this.closeCollectionService = closeCollectionService;
+        this.restUtils = restUtils;
     }
 
     @Override
     public void populateStepsToExecuteMap() {
         this.stepBuilder()
-                .begin(GET_STUDENT, this::getStudentByPen)
-                .step(GET_STUDENT, STUDENT_FOUND, UPDATE_STUDENT, this::updateStudent)
+                .begin(UPDATE_STUDENT, this::updateStudent)
                 .step(UPDATE_STUDENT, STUDENT_UPDATED, UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
                 .end(UPDATE_SDC_STUDENT_STATUS, SDC_STUDENT_STATUS_UPDATED);
-    }
-
-    public void getStudentByPen(final Event event, final SdcSagaEntity saga, final UpdateStudentSagaData updateStudentSagaData) {
-        final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-        saga.setSagaState(GET_STUDENT.toString());
-        saga.setStatus(IN_PROGRESS.toString());
-        this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
-
-        final Event nextEvent = Event.builder().sagaId(saga.getSagaId())
-                .eventType(GET_STUDENT)
-                .replyTo(this.getTopicToSubscribe())
-                .eventPayload(updateStudentSagaData.getAssignedPEN())
-                .build();
-        this.postMessageToTopic(STUDENT_API_TOPIC.toString(), nextEvent);
-        log.info("message sent to STUDENT_API_TOPIC for GET_STUDENT Event.");
     }
 
     public void updateStudent(final Event event, final SdcSagaEntity saga, final UpdateStudentSagaData updateStudentSagaData) throws JsonProcessingException {
@@ -68,7 +55,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
-        final Student studentDataFromEventResponse = JsonUtil.getJsonObjectFromString(Student.class, event.getEventPayload());
+        final Student studentDataFromEventResponse = this.restUtils.getStudentByPEN(UUID.randomUUID(), updateStudentSagaData.getAssignedPEN());
         studentDataFromEventResponse.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         studentDataFromEventResponse.setMincode(updateStudentSagaData.getMincode());
         studentDataFromEventResponse.setLocalID(updateStudentSagaData.getLocalID());
@@ -80,7 +67,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         final Event nextEvent = Event.builder().sagaId(saga.getSagaId())
                 .eventType(UPDATE_STUDENT)
                 .replyTo(this.getTopicToSubscribe())
-                .eventPayload(JsonUtil.getJsonStringFromObject(updateStudentSagaData))
+                .eventPayload(JsonUtil.getJsonStringFromObject(studentDataFromEventResponse))
                 .build();
         this.postMessageToTopic(STUDENT_API_TOPIC.toString(), nextEvent);
         log.info("message sent to STUDENT_API_TOPIC for UPDATE_STUDENT Event.");
