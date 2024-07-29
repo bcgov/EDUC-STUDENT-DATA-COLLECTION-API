@@ -12,7 +12,6 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.UpdateStudentSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.GradeCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
@@ -110,7 +109,6 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
     @Test
     void testHandleEvent_givenEventTypeUPDATE_STUDENT_shouldPostEventToSTUDENT_API_TOPIC() {
         var student = setMockDataForSaga();
-        when(this.restUtils.getGradeCodes()).thenReturn(getGradeCodesList());
         UpdateStudentSagaData sagaData = createSagaData(student);
         val saga = this.createMockUpdateStudentDownstreamSaga(sagaData);
         saga.setSagaId(null);
@@ -139,7 +137,6 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
     @Test
     void testHandleEvent_givenEventTypeUPDATE_SDC_STUDENT_STATUS_shouldExecuteUpdateSdcStudentStatus() {
         var student = setMockDataForSaga();
-        when(this.restUtils.getGradeCodes()).thenReturn(getGradeCodesList());
         UpdateStudentSagaData sagaData = createSagaData(student);
         val saga = this.createMockUpdateStudentDownstreamSaga(sagaData);
         saga.setSagaId(null);
@@ -211,15 +208,6 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
 
         var savedStudent = sdcSchoolCollectionStudentRepository.saveAll(students);
         return savedStudent.get(0);
-    }
-
-    private List<GradeCode> getGradeCodesList(){
-        final var gradeCodes = new ArrayList<GradeCode>();
-        gradeCodes.add(GradeCode.builder().gradeCode("01").description("A").effectiveDate(LocalDateTime.now().minusDays(1)).expiryDate(LocalDateTime.now().plusDays(1)).build());
-        gradeCodes.add(GradeCode.builder().gradeCode("02").description("B").effectiveDate(LocalDateTime.now().minusDays(1)).expiryDate(LocalDateTime.now().plusDays(1)).build());
-        gradeCodes.add(GradeCode.builder().gradeCode("03").description("C").effectiveDate(LocalDateTime.now().minusDays(1)).expiryDate(LocalDateTime.now().plusDays(1)).build());
-        gradeCodes.add(GradeCode.builder().gradeCode("04").description("D").effectiveDate(LocalDateTime.now().minusDays(1)).expiryDate(LocalDateTime.now().plusDays(1)).build());
-        return gradeCodes;
     }
 
 }

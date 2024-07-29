@@ -31,12 +31,10 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.STUD
 @Slf4j
 public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<UpdateStudentSagaData> {
 
-    private final RestUtils restUtils;
     private final CloseCollectionService closeCollectionService;
 
-    protected UpdateStudentDownstreamOrchestrator(SagaService sagaService, MessagePublisher messagePublisher, RestUtils restUtils, CloseCollectionService closeCollectionService) {
+    protected UpdateStudentDownstreamOrchestrator(SagaService sagaService, MessagePublisher messagePublisher, CloseCollectionService closeCollectionService) {
         super(sagaService, messagePublisher, UpdateStudentSagaData.class, UPDATE_STUDENT_DOWNSTREAM_SAGA.toString(), STUDENT_DATA_COLLECTION_API_TOPIC.toString());
-        this.restUtils = restUtils;
         this.closeCollectionService = closeCollectionService;
     }
 
@@ -74,7 +72,8 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         studentDataFromEventResponse.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         studentDataFromEventResponse.setMincode(updateStudentSagaData.getMincode());
         studentDataFromEventResponse.setLocalID(updateStudentSagaData.getLocalID());
-        updateGradeCodeAndGradeYear(studentDataFromEventResponse, updateStudentSagaData);
+        studentDataFromEventResponse.setGradeCode(updateStudentSagaData.getGradeCode());
+        updateGradeYear(studentDataFromEventResponse, updateStudentSagaData);
         updateUsualNameFields(studentDataFromEventResponse, updateStudentSagaData);
         studentDataFromEventResponse.setPostalCode(updateStudentSagaData.getPostalCode());
 
@@ -106,14 +105,9 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
 
     }
 
-    protected void updateGradeCodeAndGradeYear(final Student studentDataFromEventResponse, final UpdateStudentSagaData updateStudentSagaData) {
-        final var gradeCodes = this.restUtils.getGradeCodes();
+    protected void updateGradeYear(final Student studentDataFromEventResponse, final UpdateStudentSagaData updateStudentSagaData) {
         var incomingGradeCode = updateStudentSagaData.getGradeCode();
-        val isGradeCodeValid = StringUtils.isNotBlank(incomingGradeCode) && gradeCodes.stream().anyMatch(gradeCode1 -> LocalDateTime.now().isAfter(gradeCode1.getEffectiveDate())
-                && LocalDateTime.now().isBefore(gradeCode1.getExpiryDate())
-                && StringUtils.equalsIgnoreCase(incomingGradeCode, gradeCode1.getGradeCode()));
-
-        if (isGradeCodeValid && StringUtils.isBlank(studentDataFromEventResponse.getGradeCode())) {
+        if (StringUtils.isBlank(studentDataFromEventResponse.getGradeCode())) {
             studentDataFromEventResponse.setGradeCode(incomingGradeCode);
             val localDateTime = LocalDateTime.now();
             if (localDateTime.getMonthValue() > 6) {
