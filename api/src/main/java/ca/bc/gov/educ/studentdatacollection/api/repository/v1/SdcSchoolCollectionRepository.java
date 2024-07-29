@@ -133,6 +133,7 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
 
     List<SdcSchoolCollectionEntity> findAllBySchoolID(UUID schoolID);
     Optional<SdcSchoolCollectionEntity> findBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
+    List<SdcSchoolCollectionEntity> findAllByCollectionEntityCollectionID(UUID collectionID);
 
     @Query("""
             SELECT

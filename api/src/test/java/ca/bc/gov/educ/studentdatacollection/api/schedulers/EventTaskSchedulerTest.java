@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
@@ -16,6 +17,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.events.schedulers.EventTaskSchedulerAsyncService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -35,6 +37,9 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
 import static org.mockito.Mockito.*;
 
 class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
@@ -224,6 +229,101 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
         var sagas = sagaRepository.findAll();
         assertThat(sagas).hasSize(2);
+    }
+
+    @Test
+    void testFindsNewSchoolAndAddsSdcSchoolCollection() {
+        setMockDataForSchoolCollectionsForSubmissionFn();
+
+        SchoolTombstone newSchool = createMockSchoolTombstone();
+        UUID newSchoolUUID = UUID.randomUUID();
+        newSchool.setSchoolId(newSchoolUUID.toString());
+        List<SchoolTombstone> mockSchools = List.of(newSchool);
+        when(restUtils.getSchools()).thenReturn(mockSchools);
+
+        eventTaskSchedulerAsyncService.findNewSchoolsAndAddSdcSchoolCollection();
+
+        List<SdcSchoolCollectionEntity> savedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(newSchoolUUID);
+
+        assertThat(savedSchoolCollections).isNotEmpty();
+        assertThat(savedSchoolCollections.get(0).getSchoolID()).isEqualTo(newSchoolUUID);
+    }
+
+    @Test
+    void testDoesNotFindsNewSchoolAndDoesNotAddsSdcSchoolCollection() {
+        setMockDataForSchoolCollectionsForSubmissionFn();
+
+        SchoolTombstone newSchool = createMockSchoolTombstone();
+        UUID notNewSchoolUUID = firstSchoolCollection.getSchoolID();
+        newSchool.setSchoolId(notNewSchoolUUID.toString());
+        List<SchoolTombstone> mockSchools = List.of(newSchool);
+        when(restUtils.getSchools()).thenReturn(mockSchools);
+
+        eventTaskSchedulerAsyncService.findNewSchoolsAndAddSdcSchoolCollection();
+
+        List<SdcSchoolCollectionEntity> savedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(notNewSchoolUUID);
+
+        assertThat(savedSchoolCollections).hasSize(1);
+        assertThat(savedSchoolCollections.get(0).getSchoolID()).isEqualTo(notNewSchoolUUID);
+        assertThat(savedSchoolCollections.get(0).getCreateUser()).isEqualTo("ABC");
+        assertThat(savedSchoolCollections.get(0).getCreateUser()).isNotEqualTo("NEW_SCHOOLS_CRON");
+    }
+
+    @Test
+    void testFindsNewSchoolFutureOpenDateAndDoesNotAddSdcSchoolCollection() {
+        setMockDataForSchoolCollectionsForSubmissionFn();
+
+        SchoolTombstone newSchool = createMockSchoolTombstone();
+        newSchool.setOpenedDate(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(LocalDateTime.now().plusDays(10)));
+        UUID newSchoolUUID = UUID.randomUUID();
+        newSchool.setSchoolId(newSchoolUUID.toString());
+        List<SchoolTombstone> mockSchools = List.of(newSchool);
+        when(restUtils.getSchools()).thenReturn(mockSchools);
+
+        eventTaskSchedulerAsyncService.findNewSchoolsAndAddSdcSchoolCollection();
+
+        List<SdcSchoolCollectionEntity> savedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(newSchoolUUID);
+
+        assertThat(savedSchoolCollections).isEmpty();
+    }
+
+    @Test
+    void testFindsNewSchoolWithClosedDateAndDoesNotAddSdcSchoolCollection() {
+        setMockDataForSchoolCollectionsForSubmissionFn();
+
+        SchoolTombstone newSchool = createMockSchoolTombstone();
+        newSchool.setClosedDate(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(LocalDateTime.now().minusDays(10)));
+        UUID newSchoolUUID = UUID.randomUUID();
+        newSchool.setSchoolId(newSchoolUUID.toString());
+        List<SchoolTombstone> mockSchools = List.of(newSchool);
+        when(restUtils.getSchools()).thenReturn(mockSchools);
+
+        eventTaskSchedulerAsyncService.findNewSchoolsAndAddSdcSchoolCollection();
+
+        List<SdcSchoolCollectionEntity> savedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(newSchoolUUID);
+
+        assertThat(savedSchoolCollections).isEmpty();
+    }
+
+    @Test
+    void testFindsNewSchoolColInProvDupsAndDoesNotAddSdcSchoolCollection() {
+        setMockDataForSchoolCollectionsForSubmissionFn();
+
+        CollectionEntity col = firstSchoolCollection.getCollectionEntity();
+        col.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
+        collectionRepository.save(col);
+
+        SchoolTombstone newSchool = createMockSchoolTombstone();
+        UUID newSchoolUUID = UUID.randomUUID();
+        newSchool.setSchoolId(newSchoolUUID.toString());
+        List<SchoolTombstone> mockSchools = List.of(newSchool);
+        when(restUtils.getSchools()).thenReturn(mockSchools);
+
+        eventTaskSchedulerAsyncService.findNewSchoolsAndAddSdcSchoolCollection();
+
+        List<SdcSchoolCollectionEntity> savedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(newSchoolUUID);
+
+        assertThat(savedSchoolCollections).isEmpty();
     }
 
     public void setMockDataForSchoolCollectionsForSubmissionFn() {

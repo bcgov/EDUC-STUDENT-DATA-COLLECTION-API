@@ -198,6 +198,21 @@ public abstract class BaseStudentDataCollectionAPITest {
     return sdcEntity;
   }
 
+  public SchoolTombstone createMockSchoolTombstone() {
+    return SchoolTombstone.builder()
+            .schoolId(UUID.randomUUID().toString())
+            .mincode("123456")
+            .schoolNumber("01001")
+            .displayName("Mock School Tombstone 01001")
+            .schoolOrganizationCode("QUARTER")
+            .schoolCategoryCode("PUBLIC")
+            .facilityTypeCode("STANDARD")
+            .schoolReportingRequirementCode("REGULAR")
+            .openedDate("2018-07-01 00:00:00.000")
+            .closedDate(null)
+            .build();
+  }
+
   public SdcSchoolCollectionStudentEntity createMockSchoolStudentEntity(SdcSchoolCollectionEntity sdcSchoolCollectionEntity){
     SdcSchoolCollectionStudentEntity sdcEntity = new SdcSchoolCollectionStudentEntity();
     sdcEntity.setSdcSchoolCollection(sdcSchoolCollectionEntity);
