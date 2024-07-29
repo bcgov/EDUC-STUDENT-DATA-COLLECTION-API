@@ -4,8 +4,11 @@ import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest
 import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
+import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -13,20 +16,30 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.events.schedulers.EventTaskSchedulerAsyncService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
 import static org.mockito.Mockito.*;
 
 class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
@@ -54,8 +67,16 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
     @Autowired
     RestUtils restUtils;
+    @Autowired
+    CollectionCodeCriteriaRepository collectionCodeCriteriaRepository;
+    @Autowired
+    CollectionTypeCodeRepository collectionTypeCodeRepository;
     private SdcSchoolCollectionEntity firstSchoolCollection;
     private SdcSchoolCollectionEntity secondSchoolCollection;
+    @Autowired
+    MessagePublisher messagePublisher;
+    @Captor
+    ArgumentCaptor<byte[]> eventCaptor;
 
     @AfterEach
     void cleanup(){
@@ -336,4 +357,48 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         secondSchoolCollection.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
         sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchoolCollection, secondSchoolCollection));
     }
+
+    @Test
+    void testUpdateStudentDemogDownstream_should_PublishEventsToNATS() throws IOException {
+        setMockDataForUPDATE_DEMOGFn();
+        final var sdcSchoolStudentEntities =  sdcSchoolCollectionStudentRepository.findStudentForDownstreamUpdate("100");
+        assertThat(sdcSchoolStudentEntities).hasSize(8);
+        eventTaskScheduler.updateStudentDemogDownstream();
+        verify(this.messagePublisher, atMost(8)).dispatchMessage(eq(TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC.toString()), this.eventCaptor.capture());
+    }
+
+    public void setMockDataForUPDATE_DEMOGFn() throws IOException {
+        var typeCode = this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntityForFeb());
+        this.collectionCodeCriteriaRepository.save(this.createMockCollectionCodeCriteriaEntity(typeCode));
+        CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+        var districtID = UUID.randomUUID();
+        var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+
+        var school = createMockSchool();
+        school.setDisplayName("School1");
+        school.setMincode("0000001");
+        school.setDistrictId(districtID.toString());
+        when(this.restUtils.getSchoolBySchoolID(school.getSchoolId())).thenReturn(Optional.of(school));
+        when(this.restUtils.getSchoolListGivenCriteria(anyList(), any())).thenReturn(List.of(school));
+
+        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        firstSchool.setUploadDate(null);
+        firstSchool.setUploadFileName(null);
+        firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        var savedSchoolColl = sdcSchoolCollectionRepository.save(firstSchool);
+
+        final File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+        );
+        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+        });
+        var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+        var students = models.stream().peek(model -> {
+            model.setSdcSchoolCollection(firstSchool);
+            model.setSdcSchoolCollectionStudentStatusCode("DEMOG_UPD");
+        }).toList();
+
+        sdcSchoolCollectionStudentRepository.saveAll(students);
+    }
+
 }

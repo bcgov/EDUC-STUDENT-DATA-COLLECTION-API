@@ -23,6 +23,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityRulesPro
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.UpdateStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
@@ -291,6 +292,51 @@ public class SdcSchoolCollectionStudentService {
         return sdcStudentSagaData;
       }).toList();
     this.publishUnprocessedStudentRecordsForProcessing(sdcStudentSagaDatas);
+  }
+
+  @Async("publisherExecutor")
+  public void prepareStudentsForDemogUpdate(final List<SdcSchoolCollectionStudentEntity> sdcStudentEntities) {
+    final List<UpdateStudentSagaData> updateStudentSagas = sdcStudentEntities.stream()
+            .map(el -> {
+              val updateStudentSagaData = new UpdateStudentSagaData();
+              Optional<SdcSchoolCollectionEntity> sdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(el.getSdcSchoolCollection().getSdcSchoolCollectionID());
+              if(sdcSchoolCollection.isPresent()) {
+                var school = this.restUtils.getSchoolBySchoolID(sdcSchoolCollection.get().getSchoolID().toString());
+                updateStudentSagaData.setDob(el.getDob());
+                updateStudentSagaData.setSexCode(el.getGender());
+                updateStudentSagaData.setGenderCode(el.getGender());
+                updateStudentSagaData.setUsualFirstName(el.getUsualFirstName());
+                updateStudentSagaData.setUsualLastName(el.getUsualLastName());
+                updateStudentSagaData.setUsualMiddleNames(el.getUsualMiddleNames());
+                updateStudentSagaData.setPostalCode(el.getPostalCode());
+                updateStudentSagaData.setLocalID(el.getLocalID());
+                updateStudentSagaData.setGradeCode(el.getEnrolledGradeCode());
+                updateStudentSagaData.setMincode(school.get().getMincode());
+                updateStudentSagaData.setSdcSchoolCollectionStudentID(el.getSdcSchoolCollectionStudentID().toString());
+                updateStudentSagaData.setAssignedPEN(el.getAssignedPen());
+              }
+              return updateStudentSagaData;
+            }).toList();
+    publishStudentRecordsForDemogUpdate(updateStudentSagas);
+  }
+
+  public void publishStudentRecordsForDemogUpdate(final List<UpdateStudentSagaData> updateStudentSagas) {
+    updateStudentSagas.forEach(this::sendStudentRecordsForDemogUpdateAsMessageToTopic);
+  }
+
+  private void sendStudentRecordsForDemogUpdateAsMessageToTopic(final UpdateStudentSagaData updateStudentSagaData) {
+    final var eventPayload = JsonUtil.getJsonString(updateStudentSagaData);
+    if (eventPayload.isPresent()) {
+      final Event event = Event.builder().eventType(EventType.UPDATE_STUDENTS_DEMOG_DOWNSTREAM).eventOutcome(EventOutcome.STUDENTS_DEMOG_UPDATED).eventPayload(eventPayload.get()).sdcSchoolStudentID(updateStudentSagaData.getSdcSchoolCollectionStudentID()).build();
+      final var eventString = JsonUtil.getJsonString(event);
+      if (eventString.isPresent()) {
+        this.messagePublisher.dispatchMessage(TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC.toString(), eventString.get().getBytes());
+      } else {
+        log.error("Event String is empty, skipping the publish to topic :: {}", updateStudentSagaData);
+      }
+    } else {
+      log.error("Event payload is empty, skipping the publish to topic :: {}", updateStudentSagaData);
+    }
   }
 
   /**

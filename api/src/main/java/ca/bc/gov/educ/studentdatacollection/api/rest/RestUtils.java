@@ -14,6 +14,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.CHESEmail;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -79,10 +80,10 @@ public class RestUtils {
 
   @Autowired
   public RestUtils(@Qualifier("chesWebClient") final WebClient chesWebClient, WebClient webClient, final ApplicationProperties props, final MessagePublisher messagePublisher) {
-      this.webClient = webClient;
-      this.chesWebClient = chesWebClient;
-      this.props = props;
-      this.messagePublisher = messagePublisher;
+    this.webClient = webClient;
+    this.chesWebClient = chesWebClient;
+    this.props = props;
+    this.messagePublisher = messagePublisher;
   }
 
   @PostConstruct
@@ -115,15 +116,13 @@ public class RestUtils {
       writeLock.lock();
       for (val school : this.getSchools()) {
         this.schoolMap.put(school.getSchoolId(), school);
-        if(StringUtils.isNotBlank(school.getIndependentAuthorityId())) {
+        if (StringUtils.isNotBlank(school.getIndependentAuthorityId())) {
           this.independentAuthorityToSchoolIDMap.computeIfAbsent(school.getIndependentAuthorityId(), k -> new ArrayList<>()).add(UUID.fromString(school.getSchoolId()));
         }
       }
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       log.error("Unable to load map cache school {}", ex);
-    }
-    finally {
+    } finally {
       writeLock.unlock();
     }
     log.info("Loaded  {} schools to memory", this.schoolMap.values().size());
@@ -135,15 +134,13 @@ public class RestUtils {
       writeLock.lock();
       for (val school : this.getSchools()) {
         this.schoolMincodeMap.put(school.getMincode(), school);
-        if(StringUtils.isNotBlank(school.getIndependentAuthorityId())) {
+        if (StringUtils.isNotBlank(school.getIndependentAuthorityId())) {
           this.independentAuthorityToSchoolIDMap.computeIfAbsent(school.getIndependentAuthorityId(), k -> new ArrayList<>()).add(UUID.fromString(school.getSchoolId()));
         }
       }
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       log.error("Unable to load map cache school mincodes {}", ex);
-    }
-    finally {
+    } finally {
       writeLock.unlock();
     }
     log.info("Loaded  {} school mincodes to memory", this.schoolMincodeMap.values().size());
@@ -152,12 +149,12 @@ public class RestUtils {
   public List<SchoolTombstone> getSchools() {
     log.info("Calling Institute api to load schools to memory");
     return this.webClient.get()
-      .uri(this.props.getInstituteApiURL() + "/school")
-      .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-      .retrieve()
-      .bodyToFlux(SchoolTombstone.class)
-      .collectList()
-      .block();
+            .uri(this.props.getInstituteApiURL() + "/school")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(SchoolTombstone.class)
+            .collectList()
+            .block();
   }
 
   public School getSchoolDetails(UUID schoolID) {
@@ -173,9 +170,9 @@ public class RestUtils {
   public List<EdxUser> get1701Users(UUID schoolID, UUID districtID) {
     log.debug("Retrieving users for school: {}", schoolID);
     String url;
-    if(schoolID != null && districtID == null){
+    if (schoolID != null && districtID == null) {
       url = this.props.getEdxApiURL() + "/users?schoolID=" + schoolID;
-    } else if (districtID != null && schoolID == null){
+    } else if (districtID != null && schoolID == null) {
       url = this.props.getEdxApiURL() + "/users?districtID=" + districtID;
     } else {
       return null;
@@ -196,11 +193,9 @@ public class RestUtils {
       for (val district : this.getDistricts()) {
         this.districtMap.put(district.getDistrictId(), district);
       }
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       log.error("Unable to load map cache district {}", ex);
-    }
-    finally {
+    } finally {
       writeLock.unlock();
     }
     log.info("Loaded  {} districts to memory", this.districtMap.values().size());
@@ -278,13 +273,13 @@ public class RestUtils {
       final List<Search> searches = new LinkedList<>();
       var currentDate = LocalDateTime.now();
 
-      for (CollectionCodeCriteriaEntity criteria: collectionCodeCriteria) {
+      for (CollectionCodeCriteriaEntity criteria : collectionCodeCriteria) {
         //for open schools
-        final SearchCriteria openSchoolOpenDateCriteria = this.getCriteria(OPEN_DATE, FilterOperation.LESS_THAN_OR_EQUAL_TO, StringUtils.substring(currentDate.toString(),0,19), ValueType.DATE_TIME, Condition.AND);
+        final SearchCriteria openSchoolOpenDateCriteria = this.getCriteria(OPEN_DATE, FilterOperation.LESS_THAN_OR_EQUAL_TO, StringUtils.substring(currentDate.toString(), 0, 19), ValueType.DATE_TIME, Condition.AND);
         final SearchCriteria openSchoolCloseDateCriteria = this.getCriteria(CLOSE_DATE, FilterOperation.EQUAL, null, ValueType.STRING, Condition.AND);
         //for closing schools
-        final SearchCriteria closingSchoolOpenDateCriteria = this.getCriteria(OPEN_DATE, FilterOperation.LESS_THAN_OR_EQUAL_TO, StringUtils.substring(currentDate.toString(),0,19), ValueType.DATE_TIME, Condition.AND);
-        final SearchCriteria closingSchoolCloseDateCriteria = this.getCriteria(CLOSE_DATE, FilterOperation.GREATER_THAN, StringUtils.substring(currentDate.toString(),0,19), ValueType.DATE_TIME, Condition.AND);
+        final SearchCriteria closingSchoolOpenDateCriteria = this.getCriteria(OPEN_DATE, FilterOperation.LESS_THAN_OR_EQUAL_TO, StringUtils.substring(currentDate.toString(), 0, 19), ValueType.DATE_TIME, Condition.AND);
+        final SearchCriteria closingSchoolCloseDateCriteria = this.getCriteria(CLOSE_DATE, FilterOperation.GREATER_THAN, StringUtils.substring(currentDate.toString(), 0, 19), ValueType.DATE_TIME, Condition.AND);
 
         final SearchCriteria facilityTypeCodeCriteria = this.getCriteria(FACILITY_TYPE_CODE, FilterOperation.EQUAL, criteria.getFacilityTypeCode(), ValueType.STRING, Condition.AND);
         final SearchCriteria schoolCategoryCodeCriteria = this.getCriteria(SCHOOL_CATEGORY_CODE, FilterOperation.EQUAL, criteria.getSchoolCategoryCode(), ValueType.STRING, Condition.AND);
@@ -310,7 +305,7 @@ public class RestUtils {
       final TypeReference<List<SchoolTombstone>> ref = new TypeReference<>() {
       };
       val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(SEARCH_CRITERIA_LIST.concat("=").concat(
-          URLEncoder.encode(this.objectMapper.writeValueAsString(searches), StandardCharsets.UTF_8)).concat("&").concat(PAGE_SIZE).concat("=").concat("100000")).build();
+              URLEncoder.encode(this.objectMapper.writeValueAsString(searches), StandardCharsets.UTF_8)).concat("&").concat(PAGE_SIZE).concat("=").concat("100000")).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
       if (null != responseMessage) {
         return objectMapper.readValue(responseMessage.getData(), ref);
@@ -397,5 +392,25 @@ public class RestUtils {
       this.populateSchoolMap();
     }
     return Optional.ofNullable(this.independentAuthorityToSchoolIDMap.get(independentAuthorityID));
+  }
+
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public Student getStudentByPEN(UUID correlationID, String assignedPEN) {
+    try {
+      final TypeReference<Student> refPenMatchResult = new TypeReference<>() {
+      };
+      Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_STUDENT).eventPayload(assignedPEN).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+      if (responseMessage != null) {
+        return objectMapper.readValue(responseMessage.getData(), refPenMatchResult);
+      } else {
+        throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+      }
+
+    } catch (final Exception ex) {
+      log.error("Error occurred calling GET STUDENT service :: " + ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
+    }
   }
 }

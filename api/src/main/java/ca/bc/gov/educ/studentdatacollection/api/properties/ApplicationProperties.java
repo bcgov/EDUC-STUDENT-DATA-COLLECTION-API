@@ -71,4 +71,6 @@ public class ApplicationProperties {
   private String chesClientSecret;
   @Value("${ches.token.url}")
   private String chesTokenURL;
+  @Value("${url.api.student}")
+  private String studentApiURL;
 }

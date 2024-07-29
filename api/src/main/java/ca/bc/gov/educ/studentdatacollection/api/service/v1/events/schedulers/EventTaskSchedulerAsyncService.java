@@ -21,7 +21,6 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ScheduleHandlerService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import lombok.Getter;
 import lombok.Setter;
@@ -63,9 +62,6 @@ public class EventTaskSchedulerAsyncService {
   private final Map<String, Orchestrator> sagaOrchestrators = new HashMap<>();
 
   @Getter(PRIVATE)
-  private final SdcService sdcService;
-
-  @Getter(PRIVATE)
   private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
 
   @Getter(PRIVATE)
@@ -82,12 +78,11 @@ public class EventTaskSchedulerAsyncService {
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionService sdcSchoolCollectionService;
 
-  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, EmailProperties emailProperties, ScheduleHandlerService scheduleHandlerService, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, final SdcService sdcService, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, RestUtils restUtils, CollectionRepository collectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionService sdcSchoolCollectionService) {
+  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, EmailProperties emailProperties, ScheduleHandlerService scheduleHandlerService, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, RestUtils restUtils, CollectionRepository collectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionService sdcSchoolCollectionService) {
     this.emailProperties = emailProperties;
     this.scheduleHandlerService = scheduleHandlerService;
     this.sagaRepository = sagaRepository;
     this.sdcSchoolStudentRepository = sdcSchoolStudentRepository;
-    this.sdcService = sdcService;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionService = sdcSchoolCollectionService;
@@ -171,6 +166,21 @@ public class EventTaskSchedulerAsyncService {
 
   @Async("taskExecutor")
   @Transactional
+  public void updateStudentDemogDownstream() {
+    log.debug("Querying for DEMOG_UPD students to process");
+    if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 100) { // at max there will be 40 parallel sagas.
+      log.info("Saga count is greater than 100, so not processing student records");
+      return;
+    }
+
+    log.debug("Querying for DEMOG_UPD students to process");
+    final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findStudentForDownstreamUpdate(numberOfStudentsToProcess);
+    log.debug("Found :: {}  records in DEMOG_UPD status", sdcSchoolStudentEntities.size());
+    if (!sdcSchoolStudentEntities.isEmpty()) {
+      this.getSdcSchoolCollectionStudentService().prepareStudentsForDemogUpdate(sdcSchoolStudentEntities);
+    }
+  }
+  
   public void findNewSchoolsAndAddSdcSchoolCollection() {
     final Optional<CollectionEntity> activeCollectionOptional = collectionRepository.findActiveCollection();
     CollectionEntity activeCollection = activeCollectionOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "activeCollection"));
