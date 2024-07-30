@@ -143,7 +143,7 @@ public class SdcSchoolCollectionStudentHeadcountService {
     List<BandResidenceHeadcountResult> result = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionID);
 
     List<HeadcountHeader> headcountHeaderList = indigenousHeadcountHelper.getHeaders(sdcSchoolCollectionID, false);
-    HeadcountResultsTable headcountResultsTable = bandResidenceHeadcountHelper.convertBandHeadcountResults(result, false);
+    HeadcountResultsTable headcountResultsTable = bandResidenceHeadcountHelper.convertBandHeadcountResults(result, false, null);
     if(compare) {
       indigenousHeadcountHelper.setComparisonValues(sdcSchoolCollectionEntity, headcountHeaderList);
       bandResidenceHeadcountHelper.setBandResultsTableComparisonValues(sdcSchoolCollectionEntity, headcountResultsTable);

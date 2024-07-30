@@ -50,7 +50,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
     public void setBandResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable currentCollectionData) {
         UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
         List<BandResidenceHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(previousCollectionID);
-        HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, false);
+        HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, false, null);
         setResultsTableComparisonValuesDynamic(currentCollectionData, previousCollectionData);
     }
 
@@ -62,7 +62,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         } else {
             previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcDistrictCollectionId(previousCollectionID);
         }
-        HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, schoolTitles);
+        HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, schoolTitles, sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
         setResultsTableComparisonValuesDynamic(currentCollectionData, previousCollectionData);
     }
 
@@ -76,26 +76,20 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         });
     }
 
-    public void setSchoolTitles(List<BandResidenceHeadcountResult> result) {
+    public void setSchoolTitles(UUID sdcDistrictCollectionID) {
         bandRowTitles.clear();
-        var schoolIdInSchoolCollection = result.stream()
-                .map(BandResidenceHeadcountResult::getSchoolID)
-                .filter(Objects::nonNull)
-                .toList();
+        List<SchoolTombstone> allSchools = getAllSchoolTombstones(sdcDistrictCollectionID);
 
-        schoolIdInSchoolCollection.forEach(code -> {
-            Optional<SchoolTombstone> entity = restUtils.getSchoolBySchoolID(code);
-            entity.ifPresent(school -> bandRowTitles.put(code, school.getMincode() + " - " + school.getDisplayName()));
-        });
+        allSchools.forEach(school -> bandRowTitles.put(school.getSchoolId(), school.getMincode() + " - " + school.getDisplayName()));
     }
 
-    public HeadcountResultsTable convertBandHeadcountResults(List<BandResidenceHeadcountResult> results, Boolean schoolTitles){
+    public HeadcountResultsTable convertBandHeadcountResults(List<BandResidenceHeadcountResult> results, Boolean schoolTitles, UUID sdcDistrictCollectionId){
         HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
         headcountResultsTable.setHeaders(TABLE_COLUMN_TITLES);
         headcountResultsTable.setRows(new ArrayList<>());
 
         if (Boolean.TRUE.equals(schoolTitles)) {
-            setSchoolTitles(results);
+            setSchoolTitles(sdcDistrictCollectionId);
         } else {
             setBandTitles(results);
         }
