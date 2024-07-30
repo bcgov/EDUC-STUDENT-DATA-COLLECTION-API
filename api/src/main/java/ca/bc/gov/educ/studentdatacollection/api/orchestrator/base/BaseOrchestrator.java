@@ -477,6 +477,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
     }
     this.broadcastSagaInitiatedMessage(event);
 
+    log.info("About to find saga by ID with event :: {}", event);
     final var sagaOptional = this.getSagaService().findSagaById(event.getSagaId()); // system expects a saga record to be present here.
     if (sagaOptional.isPresent()) {
       val saga = sagaOptional.get();
@@ -507,6 +508,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void startSaga(@NotNull final SdcSagaEntity saga) {
     try {
+      log.info("Starting saga with the following payload :: {}", saga);
       this.handleEvent(Event.builder()
         .eventType(EventType.INITIATED)
         .eventOutcome(EventOutcome.INITIATE_SUCCESS)

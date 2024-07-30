@@ -54,6 +54,7 @@ public class EventHandlerService {
         return;
       }
       val saga = this.studentProcessingOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionID()), ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      log.info("Starting student processing orchestrator :: {}", saga);
       this.studentProcessingOrchestrator.startSaga(saga);
     }
   }
@@ -68,6 +69,7 @@ public class EventHandlerService {
         return;
       }
       val saga = this.updateStudentDownstreamOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      log.info("Starting updateStudentDownstreamOrchestrator orchestrator :: {}", saga);
       this.updateStudentDownstreamOrchestrator.startSaga(saga);
     }
   }

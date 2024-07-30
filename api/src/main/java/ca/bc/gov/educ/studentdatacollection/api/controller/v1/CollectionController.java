@@ -147,6 +147,7 @@ public class CollectionController implements CollectionEndpoint {
     } else {
       RequestUtil.setAuditColumnsForCreate(collectionSagaData);
       val saga = this.closeCollectionOrchestrator.createSaga(JsonUtil.getJsonStringFromObject(collectionSagaData), null, null, ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      log.info("Starting closeCollectionOrchestrator orchestrator :: {}", saga);
       this.closeCollectionOrchestrator.startSaga(saga);
       return ResponseEntity.status(HttpStatus.ACCEPTED).body(saga.getSagaId().toString());
     }

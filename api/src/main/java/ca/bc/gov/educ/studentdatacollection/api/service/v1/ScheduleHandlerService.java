@@ -88,8 +88,10 @@ public class ScheduleHandlerService {
       var savedSagas = this.indySchoolNotSubmittedEmailOrchestrator.createSagas(sagaEntities);
       savedSagas.forEach(sdcSagaEntity -> {
         if(sdcSagaEntity.getSagaName().equals(SagaEnum.INDY_SCHOOLS_NO_ACTIVITY_EMAIL_SAGA.name())){
+          log.info("Starting indySchoolNoActivityEmailOrchestrator saga with the following payload :: {}", sdcSagaEntity);
           this.indySchoolNoActivityEmailOrchestrator.startSaga(sdcSagaEntity);
         }else{
+          log.info("Starting indySchoolNotSubmittedEmailOrchestrator saga with the following payload :: {}", sdcSagaEntity);
           this.indySchoolNotSubmittedEmailOrchestrator.startSaga(sdcSagaEntity);
         }
       });
@@ -120,6 +122,7 @@ public class ScheduleHandlerService {
     }
     if(!sagaEntities.isEmpty()) {
       var savedSagas = this.provincialDupliatesEmailOrchestrator.createSagas(sagaEntities);
+      log.info("Starting provincialDupliatesEmailOrchestrator saga with the following payloads :: {}", savedSagas);
       savedSagas.forEach(this.provincialDupliatesEmailOrchestrator::startSaga);
     }
   }

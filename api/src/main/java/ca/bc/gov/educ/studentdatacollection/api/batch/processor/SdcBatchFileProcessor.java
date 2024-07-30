@@ -65,7 +65,6 @@ public class SdcBatchFileProcessor {
    */
   private static final SdcBatchFileMapper mapper = SdcBatchFileMapper.mapper;
   @Getter(PRIVATE)
-  private final SdcBatchFileStudentRecordsProcessor sdcBatchStudentRecordsProcessor;
   public static final String TRANSACTION_CODE_STUDENT_DETAILS_RECORD = "SRM";
   public static final String SDC_FILE_UPLOAD = "sdcFileUpload";
   public static final String INVALID_PAYLOAD_MSG = "Payload contains invalid data.";
@@ -92,8 +91,7 @@ public class SdcBatchFileProcessor {
   private final CollectionRepository sdcRepository;
 
   @Autowired
-  public SdcBatchFileProcessor(final SdcBatchFileStudentRecordsProcessor sdcBatchStudentRecordsProcessor, final ApplicationProperties applicationProperties, final RestUtils restUtils, SdcFileValidator sdcFileValidator, SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, CollectionRepository sdcRepository) {
-    this.sdcBatchStudentRecordsProcessor = sdcBatchStudentRecordsProcessor;
+  public SdcBatchFileProcessor(final ApplicationProperties applicationProperties, final RestUtils restUtils, SdcFileValidator sdcFileValidator, SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, CollectionRepository sdcRepository) {
     this.applicationProperties = applicationProperties;
     this.sdcFileValidator = sdcFileValidator;
     this.restUtils = restUtils;
