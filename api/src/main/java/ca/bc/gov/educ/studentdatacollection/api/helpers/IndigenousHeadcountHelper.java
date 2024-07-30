@@ -165,7 +165,7 @@ public class IndigenousHeadcountHelper extends HeadcountHelper<IndigenousHeadcou
     public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(UUID sdcDistrictCollectionID, List<IndigenousHeadcountResult> results) throws EntityNotFoundException {
         HeadcountResultsTable table = new HeadcountResultsTable();
         List<String> headers = new ArrayList<>();
-        Set<String> grades = new HashSet<>(gradeCodes);
+        Set<String> grades = new LinkedHashSet<>(gradeCodes);
         Map<String, Map<String, Integer>> schoolGradeCounts = new HashMap<>();
         Map<String, Integer> totalCounts = new HashMap<>();
         Map<String, String> schoolDetails  = new HashMap<>();
