@@ -36,14 +36,11 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
 
     private static final Map<String, String> bandRowTitles = new HashMap<>();
 
-    private final RestUtils restUtils;
-
 
     public BandResidenceHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository,
                                         CodeTableService codeTableService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
         super(sdcSchoolCollectionRepository, sdcSchoolCollectionStudentRepository, sdcDistrictCollectionRepository, restUtils);
         this.codeTableService = codeTableService;
-        this.restUtils = restUtils;
         headcountMethods = getHeadcountMethods();
     }
 
