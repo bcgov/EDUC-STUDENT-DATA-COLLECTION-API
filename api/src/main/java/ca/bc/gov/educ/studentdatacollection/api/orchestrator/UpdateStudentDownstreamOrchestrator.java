@@ -25,8 +25,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum.UPDATE_STUDENT_DOWNSTREAM_SAGA;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.STUDENT_API_TOPIC;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.*;
 
 @Component
 @Slf4j
@@ -36,7 +35,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
     private final RestUtils restUtils;
 
     protected UpdateStudentDownstreamOrchestrator(SagaService sagaService, MessagePublisher messagePublisher, CloseCollectionService closeCollectionService, RestUtils restUtils) {
-        super(sagaService, messagePublisher, UpdateStudentSagaData.class, UPDATE_STUDENT_DOWNSTREAM_SAGA.toString(), STUDENT_DATA_COLLECTION_API_TOPIC.toString());
+        super(sagaService, messagePublisher, UpdateStudentSagaData.class, UPDATE_STUDENT_DOWNSTREAM_SAGA.toString(), UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString());
         this.closeCollectionService = closeCollectionService;
         this.restUtils = restUtils;
     }

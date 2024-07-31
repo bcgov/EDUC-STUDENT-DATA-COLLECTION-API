@@ -330,7 +330,7 @@ public class SdcSchoolCollectionStudentService {
       final Event event = Event.builder().eventType(EventType.UPDATE_STUDENTS_DEMOG_DOWNSTREAM).eventOutcome(EventOutcome.STUDENTS_DEMOG_UPDATED).eventPayload(eventPayload.get()).sdcSchoolStudentID(updateStudentSagaData.getSdcSchoolCollectionStudentID()).build();
       final var eventString = JsonUtil.getJsonString(event);
       if (eventString.isPresent()) {
-        this.messagePublisher.dispatchMessage(TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC.toString(), eventString.get().getBytes());
+        this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString(), eventString.get().getBytes());
       } else {
         log.error("Event String is empty, skipping the publish to topic :: {}", updateStudentSagaData);
       }
