@@ -70,7 +70,7 @@ public class CloseCollectionEventDelegatorService implements EventHandler {
 
   @Override
   public String getTopicToSubscribe() {
-    return TopicsEnum.UPDATE_DOWNSTREAM_TOPIC.toString();
+    return TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString();
   }
 
 

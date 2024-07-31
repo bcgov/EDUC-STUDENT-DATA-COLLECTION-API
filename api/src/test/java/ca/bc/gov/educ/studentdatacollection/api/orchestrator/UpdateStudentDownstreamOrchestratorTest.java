@@ -122,7 +122,7 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
                 .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
         this.updateStudentDownstreamOrchestrator.handleEvent(event);
 
-        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(UPDATE_DOWNSTREAM_TOPIC.toString()), this.eventCaptor.capture());
+        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString()), this.eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
         assertThat(newEvent.getEventType()).isEqualTo(UPDATE_SDC_STUDENT_STATUS);
 
