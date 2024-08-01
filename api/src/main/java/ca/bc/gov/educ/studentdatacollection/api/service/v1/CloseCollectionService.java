@@ -161,7 +161,7 @@ public class CloseCollectionService {
         studentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.COMPLETED.getCode());
         studentEntity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         studentEntity.setUpdateDate(LocalDateTime.now());
-
+        log.debug("Marking student as COMPLETED"+ studentEntity.getSdcSchoolCollectionStudentID());
         sdcSchoolCollectionStudentRepository.save(studentEntity);
     }
 

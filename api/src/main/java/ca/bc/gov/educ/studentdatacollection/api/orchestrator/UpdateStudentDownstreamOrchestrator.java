@@ -55,13 +55,17 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
         final Student studentDataFromEventResponse = this.restUtils.getStudentByPEN(UUID.randomUUID(), updateStudentSagaData.getAssignedPEN());
-        studentDataFromEventResponse.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-        studentDataFromEventResponse.setMincode(updateStudentSagaData.getMincode());
-        studentDataFromEventResponse.setLocalID(updateStudentSagaData.getLocalID());
-        studentDataFromEventResponse.setGradeCode(updateStudentSagaData.getGradeCode());
-        updateGradeYear(studentDataFromEventResponse, updateStudentSagaData);
-        updateUsualNameFields(studentDataFromEventResponse, updateStudentSagaData);
-        studentDataFromEventResponse.setPostalCode(updateStudentSagaData.getPostalCode());
+        log.debug("Student from studentApi" + studentDataFromEventResponse);
+        if(studentDataFromEventResponse != null) {
+            studentDataFromEventResponse.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+            studentDataFromEventResponse.setMincode(updateStudentSagaData.getMincode());
+            studentDataFromEventResponse.setLocalID(updateStudentSagaData.getLocalID());
+            studentDataFromEventResponse.setGradeCode(updateStudentSagaData.getGradeCode());
+            updateGradeYear(studentDataFromEventResponse, updateStudentSagaData);
+            updateUsualNameFields(studentDataFromEventResponse, updateStudentSagaData);
+            studentDataFromEventResponse.setPostalCode(updateStudentSagaData.getPostalCode());
+        }
+
 
         final Event nextEvent = Event.builder().sagaId(saga.getSagaId())
                 .eventType(UPDATE_STUDENT)
@@ -78,6 +82,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
+        log.debug("Updating student status in sdc service");
         //service call
         closeCollectionService.markStudentAsCompleted(updateStudentSagaData);
 

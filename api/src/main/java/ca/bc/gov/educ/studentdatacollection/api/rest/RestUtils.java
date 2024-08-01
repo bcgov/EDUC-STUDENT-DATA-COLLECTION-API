@@ -17,7 +17,9 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenM
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
@@ -404,7 +406,14 @@ public class RestUtils {
       log.debug("Get student response" + responseMessage);
       if (responseMessage != null) {
         log.debug("Student-api, get student value is" + responseMessage.getData());
-        return objectMapper.readValue(responseMessage.getData(), refPenMatchResult);
+        JsonParser parser = objectMapper.getFactory().createParser(responseMessage.getData());
+        JsonNode node = parser.readValueAsTree();
+        if(node != null) {
+          return objectMapper.readValue(responseMessage.getData(), refPenMatchResult);
+        } else {
+          return null;
+        }
+
       } else {
         throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
