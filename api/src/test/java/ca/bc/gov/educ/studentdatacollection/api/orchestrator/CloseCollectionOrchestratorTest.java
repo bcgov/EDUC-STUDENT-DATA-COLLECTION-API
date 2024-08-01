@@ -12,6 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.CollectionSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
+import ca.bc.gov.educ.studentdatacollection.api.struct.UpdateStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -34,8 +35,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.CLOSE_CURRENT_COLLECTION_AND_OPEN_NEW_COLLECTION;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.UPDATE_SDC_STUDENT_STATUS;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.COMPLETED;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -143,7 +148,42 @@ class CloseCollectionOrchestratorTest extends BaseStudentDataCollectionAPITest {
         val updatedStudents = sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(savedSchoolColl.getSdcSchoolCollectionID());
         assertThat(updatedStudents).isNotEmpty();
         updatedStudents.forEach(student -> assertThat(student.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.DEMOG_UPD.toString()));
+    }
 
+    @SneakyThrows
+    @Test
+    void testHandleEvent_givenEventTypeSEND_CLOSURE_NOTIFICATIONS_shouldExecuteSendClosureNotifications() {
+        var typeCode = this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntityForFeb());
+        this.collectionCodeCriteriaRepository.save(this.createMockCollectionCodeCriteriaEntity(typeCode));
+        CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+
+        CollectionSagaData sagaData = new CollectionSagaData();
+        sagaData.setExistingCollectionID(collection.getCollectionID().toString());
+        sagaData.setNewCollectionSignOffDueDate(String.valueOf(LocalDate.now()));
+        sagaData.setNewCollectionDuplicationResolutionDueDate(String.valueOf(LocalDate.now()));
+        sagaData.setNewCollectionSnapshotDate(String.valueOf(LocalDate.now()));
+        sagaData.setNewCollectionSubmissionDueDate(String.valueOf(LocalDate.now()));
+
+        val saga = this.createMockCloseCollectionSaga(sagaData);
+        saga.setSagaId(null);
+        this.sagaRepository.save(saga);
+
+        val event = Event.builder()
+                .sagaId(saga.getSagaId())
+                .eventType(CLOSE_CURRENT_COLLECTION_AND_OPEN_NEW_COLLECTION)
+                .eventOutcome(NEW_COLLECTION_CREATED)
+                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+        this.closeCollectionOrchestrator.handleEvent(event);
+
+        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.closeCollectionOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
+        final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
+        assertThat(newEvent.getEventType()).isEqualTo(EventType.SEND_CLOSURE_NOTIFICATIONS);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.CLOSURE_NOTIFICATIONS_DISPATCHED);
+
+        val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+        assertThat(savedSagaInDB).isPresent();
+        assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(SEND_CLOSURE_NOTIFICATIONS.toString());
     }
 
 }
