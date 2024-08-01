@@ -371,7 +371,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     student1Entity.setEnrolledGradeCode("12");
 
     val resolvedDuplicate = sdcDuplicateService.changeGrade(UUID.fromString(programDupe.get().getSdcDuplicateID()), student1Entity);
-    assertThat(resolvedDuplicate.getDuplicateResolutionCode()).isNull();
+    assertThat(resolvedDuplicate).isNull();
   }
 
   @Test

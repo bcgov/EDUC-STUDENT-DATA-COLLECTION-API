@@ -54,7 +54,7 @@ public class SdcDuplicatesService {
   private static final String COLLECTION_ID_NOT_ACTIVE_MSG = "Provided collectionID does not match currently active collectionID.";
   private static final String COLLECTION_DUPLICATES_ALREADY_RUN_MSG = "Provided collectionID has already run provincial duplicates.";
   private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
-  private static final List<String> independentSchoolCategoryCodes =Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode());
+  private static final List<String> independentSchoolCategoryCodes = Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode());
 
 
   @Autowired
@@ -209,10 +209,45 @@ public class SdcDuplicatesService {
         TransformUtil.uppercaseFields(curGetSdcDuplicateEntity);
         return sdcDuplicateRepository.save(curGetSdcDuplicateEntity);
       }
-      return curGetSdcDuplicateEntity;
+      return null;
     } else {
       throw new EntityNotFoundException(SdcDuplicateEntity.class, SDC_DUPLICATE_ID_KEY, sdcDuplicateID.toString());
     }
+  }
+
+  public SdcDuplicateEntity trickleGradeChangeDupeUpdates(UUID sdcDuplicateID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent){
+      SdcDuplicateEntity gradeChangedDupe = changeGrade(sdcDuplicateID, sdcSchoolCollectionStudent);
+
+      if(gradeChangedDupe != null){
+        List<SdcDuplicateEntity> otherEnrollmentDupesForStudent = sdcDuplicateRepository.findAllUnresolvedNonAllowableEnrollmentDuplicatesForStudent(UUID.fromString(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID()));
+
+        Set<SdcSchoolCollectionStudentLightEntity> potentialProgDupeStudents = generateListOfPotentialProgDupeStudents(otherEnrollmentDupesForStudent, sdcSchoolCollectionStudent);
+
+        SdcSchoolCollectionStudentEntity student1 = gradeChangedDupe.getSdcDuplicateStudentEntities().stream().toList().get(0).getSdcSchoolCollectionStudentEntity();
+        SdcSchoolCollectionStudentEntity student2 = gradeChangedDupe.getSdcDuplicateStudentEntities().stream().toList().get(1).getSdcSchoolCollectionStudentEntity();
+        potentialProgDupeStudents.add(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(student1));
+        potentialProgDupeStudents.add(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(student2));
+
+        List<SdcDuplicateEntity> finalDuplicatesSet =  generateFinalDuplicatesSet(potentialProgDupeStudents.stream().toList(), DuplicateLevelCode.valueOf(gradeChangedDupe.getDuplicateLevelCode()));
+        sdcDuplicateRepository.saveAll(finalDuplicatesSet);
+      }
+    return gradeChangedDupe;
+  }
+
+  public Set<SdcSchoolCollectionStudentLightEntity> generateListOfPotentialProgDupeStudents(List<SdcDuplicateEntity> dupes, SdcSchoolCollectionStudent sdcSchoolCollectionStudent){
+    Set<SdcSchoolCollectionStudentLightEntity> potentialProgDupeStudents = new HashSet<>();
+    dupes.forEach(dupe -> {
+      SdcDuplicateEntity updatedDupe = changeGrade(dupe.getSdcDuplicateID(), sdcSchoolCollectionStudent);
+
+      if (updatedDupe != null){
+        List<SdcDuplicateStudentEntity> updatedStudents = updatedDupe.getSdcDuplicateStudentEntities().stream().toList();
+        SdcSchoolCollectionStudentEntity updatedStudent1 = updatedStudents.get(0).getSdcSchoolCollectionStudentEntity();
+        SdcSchoolCollectionStudentEntity updatedStudent2 = updatedStudents.get(1).getSdcSchoolCollectionStudentEntity();
+        potentialProgDupeStudents.add(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(updatedStudent1));
+        potentialProgDupeStudents.add(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(updatedStudent2));
+      }
+    });
+    return potentialProgDupeStudents;
   }
 
   public Map<UUID, SdcDuplicatesByInstituteID> getInFlightProvincialDuplicates(UUID collectionID, boolean isIndySchoolView) {

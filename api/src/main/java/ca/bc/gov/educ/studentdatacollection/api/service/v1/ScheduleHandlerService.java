@@ -20,6 +20,8 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection170
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.
 public class ScheduleHandlerService {
 
   private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
+  private static final Logger logger = LoggerFactory.getLogger(ScheduleHandlerService.class);
   protected final SagaRepository sagaRepository;
   private final RestUtils restUtils;
   private final IndySchoolNoActivityEmailOrchestrator indySchoolNoActivityEmailOrchestrator;
@@ -174,7 +177,7 @@ public class ScheduleHandlerService {
     var contacts = school.getContacts().stream().filter(schoolContact -> schoolContact.getSchoolContactTypeCode().equals("PRINCIPAL")).toList();
 
     if (contacts.isEmpty()){
-      throw new StudentDataCollectionAPIRuntimeException("Exception occurred processing emailSagaData: no Principal found for school with ID " + schoolID);
+      logger.warn("Warning: no Principal found for school with ID {}", schoolID);
     }
 
     return contacts.stream().map(SchoolContact::getEmail).toList();
