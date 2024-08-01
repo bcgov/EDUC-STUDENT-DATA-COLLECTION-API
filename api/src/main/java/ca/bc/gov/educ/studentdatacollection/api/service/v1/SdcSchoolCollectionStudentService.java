@@ -299,22 +299,20 @@ public class SdcSchoolCollectionStudentService {
     final List<UpdateStudentSagaData> updateStudentSagas = sdcStudentEntities.stream()
             .map(el -> {
               val updateStudentSagaData = new UpdateStudentSagaData();
-              Optional<SdcSchoolCollectionEntity> sdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(el.getSdcSchoolCollection().getSdcSchoolCollectionID());
-              if(sdcSchoolCollection.isPresent()) {
-                var school = this.restUtils.getSchoolBySchoolID(sdcSchoolCollection.get().getSchoolID().toString());
-                updateStudentSagaData.setDob(el.getDob());
-                updateStudentSagaData.setSexCode(el.getGender());
-                updateStudentSagaData.setGenderCode(el.getGender());
-                updateStudentSagaData.setUsualFirstName(el.getUsualFirstName());
-                updateStudentSagaData.setUsualLastName(el.getUsualLastName());
-                updateStudentSagaData.setUsualMiddleNames(el.getUsualMiddleNames());
-                updateStudentSagaData.setPostalCode(el.getPostalCode());
-                updateStudentSagaData.setLocalID(el.getLocalID());
-                updateStudentSagaData.setGradeCode(el.getEnrolledGradeCode());
-                updateStudentSagaData.setMincode(school.get().getMincode());
-                updateStudentSagaData.setSdcSchoolCollectionStudentID(el.getSdcSchoolCollectionStudentID().toString());
-                updateStudentSagaData.setAssignedPEN(el.getAssignedPen());
-              }
+              var school = this.restUtils.getSchoolBySchoolID(el.getSdcSchoolCollection().getSchoolID().toString());
+              updateStudentSagaData.setDob(el.getDob());
+              updateStudentSagaData.setSexCode(el.getGender());
+              updateStudentSagaData.setGenderCode(el.getGender());
+              updateStudentSagaData.setUsualFirstName(el.getUsualFirstName());
+              updateStudentSagaData.setUsualLastName(el.getUsualLastName());
+              updateStudentSagaData.setUsualMiddleNames(el.getUsualMiddleNames());
+              updateStudentSagaData.setPostalCode(el.getPostalCode());
+              updateStudentSagaData.setLocalID(el.getLocalID());
+              updateStudentSagaData.setGradeCode(el.getEnrolledGradeCode());
+              updateStudentSagaData.setMincode(school.get().getMincode());
+              updateStudentSagaData.setSdcSchoolCollectionStudentID(el.getSdcSchoolCollectionStudentID().toString());
+              updateStudentSagaData.setAssignedPEN(el.getAssignedPen());
+
               return updateStudentSagaData;
             }).toList();
     publishStudentRecordsForDemogUpdate(updateStudentSagas);

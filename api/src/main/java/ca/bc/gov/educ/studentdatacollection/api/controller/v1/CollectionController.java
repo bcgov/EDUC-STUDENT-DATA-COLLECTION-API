@@ -141,12 +141,12 @@ public class CollectionController implements CollectionEndpoint {
 
   @Override
   public ResponseEntity<String> closeCollection(CollectionSagaData collectionSagaData) throws JsonProcessingException {
-    final var sagaInProgress = this.sagaService.findBySagaNameAndStatusNot(SagaEnum.CLOSE_COLLECTION_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
+    final var sagaInProgress = this.sagaService.findByCollectionIDAndSagaNameAndStatusNot(UUID.fromString(collectionSagaData.getExistingCollectionID()), SagaEnum.CLOSE_COLLECTION_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
     if (sagaInProgress.isPresent()) {
       return ResponseEntity.status(HttpStatus.CONFLICT).build();
     } else {
       RequestUtil.setAuditColumnsForCreate(collectionSagaData);
-      val saga = this.closeCollectionOrchestrator.createSaga(JsonUtil.getJsonStringFromObject(collectionSagaData), null, null, ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      val saga = this.closeCollectionOrchestrator.createSaga(JsonUtil.getJsonStringFromObject(collectionSagaData), null, null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, UUID.fromString(collectionSagaData.getExistingCollectionID()));
       log.info("Starting closeCollectionOrchestrator orchestrator :: {}", saga);
       this.closeCollectionOrchestrator.startSaga(saga);
       return ResponseEntity.status(HttpStatus.ACCEPTED).body(saga.getSagaId().toString());
