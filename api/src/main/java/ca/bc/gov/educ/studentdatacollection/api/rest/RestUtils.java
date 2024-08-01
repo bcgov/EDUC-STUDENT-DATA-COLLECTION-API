@@ -401,6 +401,7 @@ public class RestUtils {
       };
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_STUDENT).eventPayload(assignedPEN).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+      log.debug("Get student response" + responseMessage);
       if (responseMessage != null) {
         return objectMapper.readValue(responseMessage.getData(), refPenMatchResult);
       } else {
