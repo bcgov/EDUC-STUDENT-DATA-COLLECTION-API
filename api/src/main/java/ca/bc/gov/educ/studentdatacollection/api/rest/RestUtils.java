@@ -403,7 +403,7 @@ public class RestUtils {
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       log.debug("Get student response" + responseMessage);
       if (responseMessage != null) {
-        log.debug("Student-api, get student value is" + responseMessage);
+        log.debug("Student-api, get student value is" + responseMessage.getData());
         return objectMapper.readValue(responseMessage.getData(), refPenMatchResult);
       } else {
         throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
