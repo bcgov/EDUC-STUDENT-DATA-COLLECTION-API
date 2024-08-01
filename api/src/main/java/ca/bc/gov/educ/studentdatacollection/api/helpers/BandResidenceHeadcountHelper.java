@@ -80,59 +80,67 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         allSchools.forEach(school -> bandRowTitles.put(school.getSchoolId(), school.getMincode() + " - " + school.getDisplayName()));
     }
 
-    public HeadcountResultsTable convertBandHeadcountResults(List<BandResidenceHeadcountResult> results, Boolean schoolTitles, UUID sdcDistrictCollectionId){
+    public HeadcountResultsTable convertBandHeadcountResults(List<BandResidenceHeadcountResult> results, Boolean schoolTitles, UUID sdcDistrictCollectionId) {
         HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
         headcountResultsTable.setHeaders(TABLE_COLUMN_TITLES);
-        headcountResultsTable.setRows(new ArrayList<>());
 
+        setupTitles(schoolTitles, sdcDistrictCollectionId, results);
+        List<Map<String, HeadcountHeaderColumn>> rows = calculateRows(results, schoolTitles);
+
+        headcountResultsTable.setRows(rows);
+        return headcountResultsTable;
+    }
+
+    private void setupTitles(Boolean schoolTitles, UUID sdcDistrictCollectionId, List<BandResidenceHeadcountResult> results) {
         if (Boolean.TRUE.equals(schoolTitles)) {
             setSchoolTitles(sdcDistrictCollectionId);
         } else {
             setBandTitles(results);
         }
+    }
 
+    private List<Map<String, HeadcountHeaderColumn>> calculateRows(List<BandResidenceHeadcountResult> results, Boolean schoolTitles) {
+        List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
         BigDecimal fteTotal = BigDecimal.ZERO;
         BigDecimal headcountTotal = BigDecimal.ZERO;
-        List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
-        List<String> columns = List.of(HEADCOUNT_TITLE, FTE_TITLE);
-        for(Map.Entry<String, String> title : bandRowTitles.entrySet()){
-            Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
-            rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
-            for (String column : columns) {
-                var matchingResults = results.stream()
-                        .filter(value -> {
-                            String compareKey = Boolean.TRUE.equals(schoolTitles) ? value.getSchoolID() : value.getBandCode();
-                            return compareKey.equals(title.getKey());
-                        })
-                        .toList();
 
-                if (!matchingResults.isEmpty() && column.equalsIgnoreCase(FTE_TITLE)) {
-                    var fteCurrentValue = matchingResults.stream()
-                            .map(result -> StringUtils.isNotEmpty(result.getFteTotal()) ? new BigDecimal(result.getFteTotal()) : BigDecimal.ZERO)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
-                    fteTotal = fteTotal.add(fteCurrentValue);
-                    rowData.put(column, HeadcountHeaderColumn.builder().currentValue(fteCurrentValue.toString()).build());
-                } else if (!matchingResults.isEmpty() && column.equalsIgnoreCase(HEADCOUNT_TITLE)) {
-                    var headcountCurrentValue = matchingResults.stream()
-                            .map(result -> StringUtils.isNotEmpty(result.getHeadcount()) ? new BigDecimal(result.getHeadcount()) : BigDecimal.ZERO)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
-                    headcountTotal = headcountTotal.add(headcountCurrentValue);
-                    rowData.put(column, HeadcountHeaderColumn.builder().currentValue(headcountCurrentValue.toString()).build());
-                } else {
-                    rowData.put(column, HeadcountHeaderColumn.builder().currentValue("0").build());
-                }
-            }
+        for (Map.Entry<String, String> title : bandRowTitles.entrySet()) {
+            Map<String, HeadcountHeaderColumn> rowData = prepareRowData(results, schoolTitles, title);
+            fteTotal = fteTotal.add(new BigDecimal(rowData.get(FTE_TITLE).getCurrentValue()));
+            headcountTotal = headcountTotal.add(new BigDecimal(rowData.get(HEADCOUNT_TITLE).getCurrentValue()));
             rows.add(rowData);
         }
 
+        addTotalRowData(rows, fteTotal, headcountTotal);
+        return rows;
+    }
+
+    private Map<String, HeadcountHeaderColumn> prepareRowData(List<BandResidenceHeadcountResult> results, Boolean schoolTitles, Map.Entry<String, String> title) {
+        Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
+        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
+
+        List<String> columns = List.of(HEADCOUNT_TITLE, FTE_TITLE);
+        for (String column : columns) {
+            BigDecimal total = calculateColumnTotal(results, title.getKey(), column, schoolTitles);
+            rowData.put(column, HeadcountHeaderColumn.builder().currentValue(total.toString()).build());
+        }
+
+        return rowData;
+    }
+
+    private BigDecimal calculateColumnTotal(List<BandResidenceHeadcountResult> results, String titleKey, String column, Boolean schoolTitles) {
+        return results.stream()
+                .filter(value -> (Boolean.TRUE.equals(schoolTitles) ? value.getSchoolID() : value.getBandCode()).equals(titleKey))
+                .map(result -> new BigDecimal(StringUtils.defaultIfEmpty(column.equals(FTE_TITLE) ? result.getFteTotal() : result.getHeadcount(), "0")))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private void addTotalRowData(List<Map<String, HeadcountHeaderColumn>> rows, BigDecimal fteTotal, BigDecimal headcountTotal) {
         Map<String, HeadcountHeaderColumn> totalRowData = new LinkedHashMap<>();
         totalRowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ALL_TITLE).build());
         totalRowData.put(FTE_TITLE, HeadcountHeaderColumn.builder().currentValue(fteTotal.toString()).build());
         totalRowData.put(HEADCOUNT_TITLE, HeadcountHeaderColumn.builder().currentValue(headcountTotal.toString()).build());
         rows.add(totalRowData);
-
-        headcountResultsTable.setRows(rows);
-        return headcountResultsTable;
     }
 
     private Map<String, Function<BandResidenceHeadcountResult, String>> getHeadcountMethods() {
