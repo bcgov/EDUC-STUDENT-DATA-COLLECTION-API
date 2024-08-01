@@ -145,8 +145,8 @@ public class SagaService {
     return this.getSagaRepository().findBySdcSchoolCollectionStudentIDAndSagaNameAndStatusNot(sdcSchoolCollectionStudentID, sagaName, status);
   }
 
-  public Optional<SdcSagaEntity> findBySagaNameAndStatusNot(final String sagaName, final String status) {
-    return this.getSagaRepository().findBySagaNameAndStatusNot(sagaName, status);
+  public Optional<SdcSagaEntity> findByCollectionIDAndSagaNameAndStatusNot(final UUID collectionID, final String sagaName, final String status) {
+    return this.getSagaRepository().findByCollectionIDAndSagaNameAndStatusNot(collectionID, sagaName, status);
   }
 
   /**
@@ -159,7 +159,7 @@ public class SagaService {
    * @return the saga
    */
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public SdcSagaEntity createSagaRecordInDB(final String sagaName, final String userName, final String payload, final UUID sdcSchoolStudentID, final UUID sdcSchoolCollectionID) {
+  public SdcSagaEntity createSagaRecordInDB(final String sagaName, final String userName, final String payload, final UUID sdcSchoolStudentID, final UUID sdcSchoolCollectionID, final UUID collectionID) {
     final var saga = SdcSagaEntity
       .builder()
       .payload(payload)
@@ -172,6 +172,7 @@ public class SagaService {
       .createUser(userName)
       .updateUser(userName)
       .updateDate(LocalDateTime.now())
+      .collectionID(collectionID)
       .build();
     return this.createSagaRecord(saga);
   }

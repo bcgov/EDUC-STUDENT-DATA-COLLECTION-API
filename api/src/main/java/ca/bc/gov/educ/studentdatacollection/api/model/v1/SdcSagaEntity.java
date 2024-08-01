@@ -39,6 +39,9 @@ public class SdcSagaEntity {
   @Column(name = "SDC_SCHOOL_COLLECTION_ID", columnDefinition = "BINARY(16)")
   UUID sdcSchoolCollectionID;
 
+  @Column(name = "COLLECTION_ID", columnDefinition = "BINARY(16)")
+  UUID collectionID;
+
   @NotNull(message = "saga name cannot be null")
   @Column(name = "SAGA_NAME")
   String sagaName;

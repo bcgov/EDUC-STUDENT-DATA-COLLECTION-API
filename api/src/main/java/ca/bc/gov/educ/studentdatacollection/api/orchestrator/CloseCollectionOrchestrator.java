@@ -56,7 +56,21 @@ public class CloseCollectionOrchestrator extends BaseOrchestrator<CollectionSaga
         log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
     }
 
-    public void sendClosureNotifications(final Event event, final SdcSagaEntity saga, final CollectionSagaData collectionSagaData) {
-        //In progress
+    public void sendClosureNotifications(final Event event, final SdcSagaEntity saga, final CollectionSagaData collectionSagaData) throws JsonProcessingException {
+        final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
+        saga.setSagaState(SEND_CLOSURE_NOTIFICATIONS.toString());
+        saga.setStatus(IN_PROGRESS.toString());
+        this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+
+        //service to be added
+
+        final Event nextEvent = Event.builder()
+                .sagaId(saga.getSagaId())
+                .eventType(SEND_CLOSURE_NOTIFICATIONS)
+                .eventOutcome(CLOSURE_NOTIFICATIONS_DISPATCHED)
+                .eventPayload(JsonUtil.getJsonStringFromObject(collectionSagaData))
+                .build();
+        this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
+        log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
     }
 }
