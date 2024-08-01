@@ -72,7 +72,7 @@ class BandCodeHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         helper = new BandResidenceHeadcountHelper(schoolCollectionRepository, studentRepository, codeTableService, sdcDistrictCollectionRepository, null);
 
         List<BandResidenceHeadcountResult> result = studentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(schoolCollection.getSdcSchoolCollectionID());
-        HeadcountResultsTable actualResultsTable = helper.convertBandHeadcountResults(result, false);
+        HeadcountResultsTable actualResultsTable = helper.convertBandHeadcountResults(result, false, null);
 
         assertTrue(actualResultsTable.getHeaders().contains("Headcount"));
         assertTrue(actualResultsTable.getHeaders().contains("FTE"));
