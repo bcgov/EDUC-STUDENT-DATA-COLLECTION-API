@@ -975,7 +975,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     sagaData.setNewCollectionSnapshotDate(String.valueOf(LocalDateTime.now()));
     sagaData.setNewCollectionSubmissionDueDate(String.valueOf(LocalDateTime.now()));
 
-    this.sagaService.createSagaRecordInDB(SagaEnum.CLOSE_COLLECTION_SAGA.toString(), ApplicationProperties.STUDENT_DATA_COLLECTION_API, JsonUtil.getJsonStringFromObject(sagaData), null, null);
+    this.sagaService.createSagaRecordInDB(SagaEnum.CLOSE_COLLECTION_SAGA.toString(), ApplicationProperties.STUDENT_DATA_COLLECTION_API, JsonUtil.getJsonStringFromObject(sagaData), null, null, UUID.fromString(sagaData.getExistingCollectionID()));
 
     this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/close-collection")
                     .contentType(MediaType.APPLICATION_JSON)

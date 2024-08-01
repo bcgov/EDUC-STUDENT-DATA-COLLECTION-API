@@ -17,7 +17,7 @@ import static lombok.AccessLevel.PRIVATE;
  */
 @Service
 @Slf4j
-public class EventHandlerDelegatorService implements EventHandler {
+public class CloseCollectionEventDelegatorService implements EventHandler {
   /**
    * The constant PAYLOAD_LOG.
    */
@@ -41,7 +41,7 @@ public class EventHandlerDelegatorService implements EventHandler {
    * @param eventPublisherService the message publisher service
    */
   @Autowired
-  public EventHandlerDelegatorService(final EventHandlerService eventHandlerService, final EventPublisherService eventPublisherService) {
+  public CloseCollectionEventDelegatorService(final EventHandlerService eventHandlerService, final EventPublisherService eventPublisherService) {
     this.eventHandlerService = eventHandlerService;
     this.eventPublisherService = eventPublisherService;
   }
@@ -55,10 +55,10 @@ public class EventHandlerDelegatorService implements EventHandler {
   @Override
   public void handleEvent(final Event event) {
     try {
-      if (event.getEventType() == EventType.READ_FROM_TOPIC) {
+      if(event.getEventType() == EventType.UPDATE_STUDENTS_DEMOG_DOWNSTREAM) {
         log.debug("Received read from topic event :: ");
         log.trace(PAYLOAD_LOG, event.getEventPayload());
-        this.getEventHandlerService().handleReadFromTopicEvent(event); // no response in this event.
+        this.getEventHandlerService().handleUpdateDemogEvent(event); // no response in this event.
       }
       else {
         log.debug("Silently ignoring other event :: {}", event);
@@ -70,7 +70,7 @@ public class EventHandlerDelegatorService implements EventHandler {
 
   @Override
   public String getTopicToSubscribe() {
-    return TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC.toString();
+    return TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString();
   }
 
 

@@ -838,8 +838,10 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionID(UUID collectionID);
 
   @Query(value="""
-    SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE
-    stud.sdcSchoolCollectionStudentStatusCode = 'DEMOG_UPD'
+    SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE stud.sdcSchoolCollectionStudentID
+    NOT IN (SELECT saga.sdcSchoolCollectionStudentID FROM SdcSagaEntity saga WHERE saga.status != 'COMPLETED'
+    AND saga.sdcSchoolCollectionStudentID IS NOT NULL)
+    AND stud.sdcSchoolCollectionStudentStatusCode = 'DEMOG_UPD'
     order by stud.createDate
     LIMIT :numberOfStudentsToProcess""")
   List<SdcSchoolCollectionStudentEntity> findStudentForDownstreamUpdate(String numberOfStudentsToProcess);

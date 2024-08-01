@@ -34,8 +34,7 @@ import java.util.*;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.STUDENT_API_TOPIC;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -123,7 +122,7 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
                 .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
         this.updateStudentDownstreamOrchestrator.handleEvent(event);
 
-        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(STUDENT_DATA_COLLECTION_API_TOPIC.toString()), this.eventCaptor.capture());
+        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString()), this.eventCaptor.capture());
         final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
         assertThat(newEvent.getEventType()).isEqualTo(UPDATE_SDC_STUDENT_STATUS);
 
