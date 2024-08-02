@@ -14,8 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 @Service
@@ -69,12 +71,13 @@ public class CloseCollectionService {
         final List<SchoolTombstone> listOfSchoolIDs = this.getListOfSchoolIDsFromCriteria(collectionCodeCriteria);
         log.debug("Found {} listOfSchoolIDs to open for next collection", listOfSchoolIDs.size());
         if (!listOfSchoolIDs.isEmpty()) {
+
             // create new collection
             CollectionEntity collectionEntity = CollectionEntity.builder()
                     .collectionTypeCode(collectionToOpen.getCollectionTypeCode())
                     .collectionStatusCode(CollectionStatus.INPROGRESS.getCode())
-                    .openDate(LocalDateTime.now())
-                    .closeDate(collectionToOpen.getCloseDate())
+                    .openDate(LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT))
+                    .closeDate(LocalDateTime.of(collectionToOpen.getCloseDate().toLocalDate(), LocalTime.MIDNIGHT))
                     .snapshotDate(LocalDate.parse(collectionSagaData.getNewCollectionSnapshotDate()))
                     .submissionDueDate(LocalDate.parse(collectionSagaData.getNewCollectionSubmissionDueDate()))
                     .duplicationResolutionDueDate(LocalDate.parse(collectionSagaData.getNewCollectionDuplicationResolutionDueDate()))
@@ -161,7 +164,6 @@ public class CloseCollectionService {
         studentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.COMPLETED.getCode());
         studentEntity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         studentEntity.setUpdateDate(LocalDateTime.now());
-        log.debug("Marking student as COMPLETED"+ studentEntity.getSdcSchoolCollectionStudentID());
         sdcSchoolCollectionStudentRepository.save(studentEntity);
     }
 

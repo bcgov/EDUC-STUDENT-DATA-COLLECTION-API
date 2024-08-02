@@ -55,7 +55,6 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
         final Student studentDataFromEventResponse = this.restUtils.getStudentByPEN(UUID.randomUUID(), updateStudentSagaData.getAssignedPEN());
-        log.debug("Student from studentApi" + studentDataFromEventResponse);
         if(studentDataFromEventResponse != null) {
             studentDataFromEventResponse.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
             studentDataFromEventResponse.setMincode(updateStudentSagaData.getMincode());
@@ -89,7 +88,6 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
-        log.debug("Updating student status in sdc service");
         //service call
         closeCollectionService.markStudentAsCompleted(updateStudentSagaData);
 
@@ -100,7 +98,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
                 .eventPayload(JsonUtil.getJsonStringFromObject(updateStudentSagaData))
                 .build();
         this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
-
+        log.info("message sent to UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC for UPDATE_SDC_STUDENT_STATUS Event.");
     }
 
     protected void updateGradeYear(final Student studentDataFromEventResponse, final UpdateStudentSagaData updateStudentSagaData) {

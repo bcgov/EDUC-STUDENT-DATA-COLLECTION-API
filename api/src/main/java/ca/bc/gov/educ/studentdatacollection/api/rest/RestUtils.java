@@ -403,9 +403,7 @@ public class RestUtils {
       };
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_STUDENT).eventPayload(assignedPEN).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
-      log.debug("Get student response" + responseMessage);
       if (responseMessage != null) {
-        log.debug("Student-api, get student value is" + responseMessage.getData());
         JsonParser parser = objectMapper.getFactory().createParser(responseMessage.getData());
         JsonNode node = parser.readValueAsTree();
         if(node != null) {
@@ -413,7 +411,6 @@ public class RestUtils {
         } else {
           return null;
         }
-
       } else {
         throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
