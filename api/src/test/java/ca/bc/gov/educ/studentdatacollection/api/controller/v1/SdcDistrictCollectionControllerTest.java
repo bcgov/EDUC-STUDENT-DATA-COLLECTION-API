@@ -1578,8 +1578,8 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     final List<Search> searches = new LinkedList<>();
     searches.add(Search.builder().searchCriteriaList(criteriaList).build());
 
-    final var objectMapper = new ObjectMapper();
-    final String criteriaJSON = objectMapper.writeValueAsString(searches);
+    final var objMapper = new ObjectMapper();
+    final String criteriaJSON = objMapper.writeValueAsString(searches);
     final MvcResult result = this.mockMvc
             .perform(get(URL.BASE_URL_DISTRICT_COLLECTION+URL.PAGINATED)
                     .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_DISTRICT_COLLECTION")))
