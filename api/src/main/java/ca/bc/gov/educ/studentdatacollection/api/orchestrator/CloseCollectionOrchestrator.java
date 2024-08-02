@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.orchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.studentdatacollection.api.messaging.jetstream.Publisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.BaseOrchestrator;
@@ -24,10 +25,12 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.
 public class CloseCollectionOrchestrator extends BaseOrchestrator<CollectionSagaData> {
 
     private final CloseCollectionService closeCollectionService;
+    private final Publisher publisher;
 
-    protected CloseCollectionOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, CloseCollectionService closeCollectionService) {
+    protected CloseCollectionOrchestrator(final SagaService sagaService, final MessagePublisher messagePublisher, CloseCollectionService closeCollectionService, Publisher publisher) {
         super(sagaService, messagePublisher, CollectionSagaData.class, SagaEnum.CLOSE_COLLECTION_SAGA.toString(), TopicsEnum.CLOSE_COLLECTION_TOPIC.toString());
         this.closeCollectionService = closeCollectionService;
+        this.publisher = publisher;
     }
     @Override
     public void populateStepsToExecuteMap() {
@@ -53,6 +56,7 @@ public class CloseCollectionOrchestrator extends BaseOrchestrator<CollectionSaga
                 .eventPayload(JsonUtil.getJsonStringFromObject(collectionSagaData))
                 .build();
         this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
+        publishToJetStream(nextEvent, saga);
         log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
     }
 
@@ -72,5 +76,9 @@ public class CloseCollectionOrchestrator extends BaseOrchestrator<CollectionSaga
                 .build();
         this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
         log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
+    }
+
+    private void publishToJetStream(final Event event, SdcSagaEntity saga) {
+        publisher.dispatchChoreographyEvent(event, saga);
     }
 }

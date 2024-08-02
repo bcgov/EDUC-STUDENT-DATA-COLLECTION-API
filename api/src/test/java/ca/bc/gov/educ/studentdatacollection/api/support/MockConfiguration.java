@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.support;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessageSubscriber;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.NatsConnection;
+import ca.bc.gov.educ.studentdatacollection.api.messaging.jetstream.Publisher;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import io.nats.client.Connection;
 import org.mockito.Mockito;
@@ -53,6 +54,12 @@ public class MockConfiguration {
   @Primary
   public NatsConnection natsConnection() {
     return Mockito.mock(NatsConnection.class);
+  }
+
+  @Bean
+  @Primary
+  public Publisher publisher() {
+    return Mockito.mock(Publisher.class);
   }
 
 }
