@@ -64,6 +64,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
             updateGradeYear(studentDataFromEventResponse, updateStudentSagaData);
             updateUsualNameFields(studentDataFromEventResponse, updateStudentSagaData);
             studentDataFromEventResponse.setPostalCode(updateStudentSagaData.getPostalCode());
+            studentDataFromEventResponse.setHistoryActivityCode("REQMATCH");
         }
 
 
