@@ -273,7 +273,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "ON s.assignedStudentId = ell.studentID " +
           "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
           "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionId " +
-          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')")
+          "AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'")
   EllHeadcountHeaderResult getEllHeadersBySchoolId(@Param("sdcSchoolCollectionId") UUID sdcSchoolCollectionId);
 
   @Query(value="""
@@ -299,7 +299,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "FROM SdcSchoolCollectionStudentEntity s " +
           "JOIN s.sdcStudentEnrolledProgramEntities ep " +
           "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
-          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')")
+          "AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'")
   FrenchHeadcountHeaderResult getFrenchHeadersBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
   @Query("SELECT " +
@@ -315,7 +315,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "FROM SdcSchoolCollectionStudentEntity s " +
           "JOIN s.sdcStudentEnrolledProgramEntities ep " +
           "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
-          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')")
+          "AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'")
   FrenchCombinedHeadcountHeaderResult getFrenchHeadersByDistrictId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @Query("SELECT " +
@@ -331,7 +331,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "FROM SdcSchoolCollectionStudentEntity s " +
           "JOIN s.sdcStudentEnrolledProgramEntities ep " +
           "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
-          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')")
+          "AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'")
   CareerHeadcountHeaderResult getCareerHeadersBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
   @Query("SELECT " +
@@ -445,7 +445,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents
     FROM SdcSchoolCollectionStudentEntity s LEFT JOIN s.sdcStudentEnrolledProgramEntities ep
     WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID
-    AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
+    AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'
     """)
   IndigenousHeadcountHeaderResult getIndigenousHeadersBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
@@ -462,7 +462,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents
     FROM SdcSchoolCollectionStudentEntity s LEFT JOIN s.sdcStudentEnrolledProgramEntities ep
     WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID
-    AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
+    AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'
     """)
   IndigenousHeadcountHeaderResult getIndigenousHeadersByDistrictId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
@@ -493,7 +493,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     "COUNT(CASE WHEN s.specialEducationCategoryCode = 'R' THEN 1 END) AS reportedR " +
     "FROM SdcSchoolCollectionStudentEntity s " +
     "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
-    "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')")
+    "AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'")
   SpecialEdHeadcountHeaderResult getSpecialEdHeadersBySchoolId(@Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
   @Query("SELECT " +
@@ -634,7 +634,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "COUNT(CASE WHEN s.specialEducationCategoryCode = 'R' THEN 1 END) AS reportedR " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
-          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')")
+          "AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'")
   SpecialEdHeadcountHeaderResult getSpecialEdHeadersByDistrictId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @Query("SELECT " +
@@ -755,7 +755,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "FROM SdcSchoolCollectionStudentEntity s " +
           "JOIN s.sdcStudentEnrolledProgramEntities ep " +
           "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
-          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')")
+          "AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'")
   CareerHeadcountHeaderResult getCareerHeadersBySdcDistrictCollectionId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @Query("SELECT " +
@@ -792,7 +792,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "FROM SdcSchoolCollectionStudentEntity s " +
           "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
           "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
-          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')")
+          "AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'")
   EllHeadcountHeaderResult getEllHeadersBySdcDistrictCollectionId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @Query("SELECT " +
@@ -822,7 +822,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
-          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')")
+          "AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'")
   RefugeeHeadcountHeaderResult getRefugeeHeadersBySdcDistrictCollectionId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @Query("SELECT " +
@@ -831,7 +831,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionId " +
-          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')")
+          "AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'")
   RefugeeHeadcountHeaderResult getRefugeeHeadersBySchoolId(@Param("sdcSchoolCollectionId") UUID sdcSchoolCollectionId);
 
   @Query("SELECT s.sdcSchoolCollection.schoolID AS schoolID, " +
