@@ -118,7 +118,7 @@ public class SdcBatchFileProcessor {
       this.sdcFileValidator.validateFileForFormatAndLength(guid, ds);
 
       var schoolGet = getSchoolFromFileMincodeField(guid, ds);
-      var sdcSchoolCollection = this.retrieveSdcSchoolCollectionByID(sdcSchoolCollectionID, schoolGet.getMincode());
+      var sdcSchoolCollection = this.retrieveSdcSchoolCollectionByID(sdcSchoolCollectionID, schoolGet.getMincode(), guid);
       this.resetFileUploadMetadata(sdcSchoolCollection);
 
       this.sdcFileValidator.validateFileHasCorrectMincode(guid, ds, sdcSchoolCollection);
@@ -172,7 +172,7 @@ public class SdcBatchFileProcessor {
       var districtCollectionGet = districtCollection.get();
       this.sdcFileValidator.validateSchoolIsOpenAndBelongsToDistrict(guid, schoolGet, String.valueOf(districtCollectionGet.getDistrictID()));
 
-      var sdcSchoolCollection = this.retrieveSdcSchoolCollectionBySchoolID(schoolGet.getSchoolId(), schoolGet.getMincode());
+      var sdcSchoolCollection = this.retrieveSdcSchoolCollectionBySchoolID(schoolGet.getSchoolId(), schoolGet.getMincode(), guid);
       var sdcSchoolCollectionID = sdcSchoolCollection.getSdcSchoolCollectionID();
 
       this.resetFileUploadMetadata(sdcSchoolCollection);
@@ -418,24 +418,19 @@ public class SdcBatchFileProcessor {
     sdcSchoolCollection.setUploadReportDate(null);
   }
 
-  public SdcSchoolCollectionEntity retrieveSdcSchoolCollectionByID(String sdcSchoolCollectionID, final String mincode){
+  public SdcSchoolCollectionEntity retrieveSdcSchoolCollectionByID(String sdcSchoolCollectionID, final String mincode, final String guid) throws FileUnProcessableException {
     var sdcSchoolCollection = sdcSchoolCollectionRepository.findById(UUID.fromString(sdcSchoolCollectionID));
-    return getSdcSchoolCollectionOrThrow(sdcSchoolCollection, mincode);
+    return getSdcSchoolCollectionOrThrow(sdcSchoolCollection, mincode, guid);
   }
 
-  public SdcSchoolCollectionEntity retrieveSdcSchoolCollectionBySchoolID(String schoolID, final String mincode){
+  public SdcSchoolCollectionEntity retrieveSdcSchoolCollectionBySchoolID(String schoolID, final String mincode, final String guid) throws FileUnProcessableException {
     var sdcSchoolCollection = sdcSchoolCollectionRepository.findActiveCollectionBySchoolId(UUID.fromString(schoolID));
-    return getSdcSchoolCollectionOrThrow(sdcSchoolCollection, mincode);
+    return getSdcSchoolCollectionOrThrow(sdcSchoolCollection, mincode, guid);
   }
 
-  private SdcSchoolCollectionEntity getSdcSchoolCollectionOrThrow(final Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity, final String mincode){
+  private SdcSchoolCollectionEntity getSdcSchoolCollectionOrThrow(final Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity, final String mincode, final String guid) throws FileUnProcessableException {
     if(sdcSchoolCollectionEntity.isEmpty()){
-      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
-      var validationError = ValidationUtil.createFieldError(SDC_FILE_UPLOAD, mincode, FileError.INVALID_SDC_SCHOOL_COLLECTION_ID.getMessage());
-      List<FieldError> fieldErrorList = new ArrayList<>();
-      fieldErrorList.add(validationError);
-      error.addValidationErrors(fieldErrorList);
-      throw new InvalidPayloadException(error);
+      throw new FileUnProcessableException(FileError.INVALID_SDC_SCHOOL_COLLECTION_ID, guid, SdcSchoolCollectionStatus.LOAD_FAIL, mincode);
     }
 
     return sdcSchoolCollectionEntity.get();
