@@ -35,7 +35,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
     private final RestUtils restUtils;
 
     protected UpdateStudentDownstreamOrchestrator(SagaService sagaService, MessagePublisher messagePublisher, CloseCollectionService closeCollectionService, RestUtils restUtils) {
-        super(sagaService, messagePublisher, UpdateStudentSagaData.class, UPDATE_STUDENT_DOWNSTREAM_SAGA.toString(), UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString());
+        super(sagaService, messagePublisher, UpdateStudentSagaData.class, UPDATE_STUDENT_DOWNSTREAM_SAGA.toString(), UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC.toString());
         this.closeCollectionService = closeCollectionService;
         this.restUtils = restUtils;
     }
