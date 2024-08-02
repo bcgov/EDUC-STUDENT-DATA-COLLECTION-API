@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
@@ -23,11 +24,14 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.AND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -37,6 +41,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITest {
@@ -1550,5 +1555,37 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     assertThat(updatedDistrictColl).isPresent();
     assertThat(updatedDistrictColl.get().getSdcDistrictCollectionStatusCode()).isEqualTo("COMPLETED");
   }
+  @Test
+  void testReadSdcDistrictCollectionPaginated_withValidPayload_ShouldReturnStatusOk() throws Exception {
+    var collectionEntity = createMockCollectionEntity();
+    collectionEntity.setSubmissionDueDate(LocalDate.now());
+    var collection = collectionRepository.save(collectionEntity);
 
+    var district = this.createMockDistrict();
+    var sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+    sdcDistrictCollectionRepository.save(sdcMockDistrict);
+
+    var yesterday = LocalDate.now().plusDays(-1);
+    var tomorrow = LocalDate.now().plusDays(1);
+
+    final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("collectionEntity.collectionTypeCode").operation(FilterOperation.EQUAL).value(collection.getCollectionTypeCode()).valueType(ValueType.STRING).build();
+    final SearchCriteria criteria2 = SearchCriteria.builder().condition(AND).key("collectionEntity.submissionDueDate").operation(FilterOperation.BETWEEN).value(yesterday + "," + tomorrow).valueType(ValueType.DATE).build();
+
+    final List<SearchCriteria> criteriaList = new ArrayList<>();
+    criteriaList.add(criteria);
+    criteriaList.add(criteria2);
+
+    final List<Search> searches = new LinkedList<>();
+    searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+
+    final var objMapper = new ObjectMapper();
+    final String criteriaJSON = objMapper.writeValueAsString(searches);
+    final MvcResult result = this.mockMvc
+            .perform(get(URL.BASE_URL_DISTRICT_COLLECTION+URL.PAGINATED)
+                    .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_DISTRICT_COLLECTION")))
+                    .param("searchCriteriaList", criteriaJSON)
+                    .contentType(APPLICATION_JSON))
+            .andReturn();
+    this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+  }
 }

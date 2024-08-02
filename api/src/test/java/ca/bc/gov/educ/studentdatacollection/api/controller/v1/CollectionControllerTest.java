@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramDuplicateTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
@@ -18,7 +19,6 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.CollectionSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -37,10 +37,12 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
@@ -50,6 +52,7 @@ import java.util.stream.IntStream;
 import java.util.List;
 import java.util.UUID;
 
+import static ca.bc.gov.educ.studentdatacollection.api.struct.v1.Condition.AND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
@@ -58,8 +61,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
 @ActiveProfiles("test")
@@ -983,5 +986,36 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
                     .accept(MediaType.APPLICATION_JSON)
                     .with(mockAuthority))
             .andDo(print()).andExpect(status().isConflict());
+  }
+
+  @Test
+  void testReadCollectionPaginated_withValidPayload_ShouldReturnStatusOk() throws Exception {
+    var collectionEntity = createMockCollectionEntity();
+    collectionEntity.setSubmissionDueDate(LocalDate.now());
+    var collection = collectionRepository.save(collectionEntity);
+
+
+    var yesterday = LocalDate.now().plusDays(-1);
+    var tomorrow = LocalDate.now().plusDays(1);
+
+    final SearchCriteria criteria = SearchCriteria.builder().condition(AND).key("collectionTypeCode").operation(FilterOperation.EQUAL).value(collection.getCollectionTypeCode()).valueType(ValueType.STRING).build();
+    final SearchCriteria criteria2 = SearchCriteria.builder().condition(AND).key("submissionDueDate").operation(FilterOperation.BETWEEN).value(yesterday + "," + tomorrow).valueType(ValueType.DATE).build();
+
+    final List<SearchCriteria> criteriaList = new ArrayList<>();
+    criteriaList.add(criteria);
+    criteriaList.add(criteria2);
+
+    final List<Search> searches = new LinkedList<>();
+    searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+
+    final var objMapper = new ObjectMapper();
+    final String criteriaJSON = objMapper.writeValueAsString(searches);
+    final MvcResult result = this.mockMvc
+            .perform(get(URL.BASE_URL_COLLECTION+URL.PAGINATED)
+                    .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_COLLECTION")))
+                    .param("searchCriteriaList", criteriaJSON)
+                    .contentType(APPLICATION_JSON))
+            .andReturn();
+    this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
   }
 }
