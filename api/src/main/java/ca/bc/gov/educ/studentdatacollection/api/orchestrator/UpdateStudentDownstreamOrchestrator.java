@@ -65,15 +65,21 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
             updateUsualNameFields(studentDataFromEventResponse, updateStudentSagaData);
             studentDataFromEventResponse.setPostalCode(updateStudentSagaData.getPostalCode());
             studentDataFromEventResponse.setHistoryActivityCode("REQMATCH");
+
+            final Event nextEvent = Event.builder().sagaId(saga.getSagaId())
+                    .eventType(UPDATE_STUDENT)
+                    .replyTo(this.getTopicToSubscribe())
+                    .eventPayload(JsonUtil.getJsonStringFromObject(studentDataFromEventResponse))
+                    .build();
+            this.postMessageToTopic(STUDENT_API_TOPIC.toString(), nextEvent);
+        } else {
+            final Event nextEvent = Event.builder().sagaId(saga.getSagaId())
+                    .eventType(UPDATE_STUDENT)
+                    .eventOutcome(STUDENT_UPDATED)
+                    .eventPayload(JsonUtil.getJsonStringFromObject(updateStudentSagaData))
+                    .build();
+            this.postMessageToTopic(STUDENT_API_TOPIC.toString(), nextEvent);
         }
-
-
-        final Event nextEvent = Event.builder().sagaId(saga.getSagaId())
-                .eventType(UPDATE_STUDENT)
-                .replyTo(this.getTopicToSubscribe())
-                .eventPayload(JsonUtil.getJsonStringFromObject(studentDataFromEventResponse))
-                .build();
-        this.postMessageToTopic(STUDENT_API_TOPIC.toString(), nextEvent);
         log.info("message sent to STUDENT_API_TOPIC for UPDATE_STUDENT Event.");
     }
 
