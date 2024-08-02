@@ -7,11 +7,16 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMa
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcSchoolCollectionValidator;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoint {
@@ -29,11 +35,13 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   private final SdcDuplicatesService sdcDuplicatesService;
   private final SdcSchoolCollectionService sdcSchoolCollectionService;
   private final SdcSchoolCollectionValidator sdcSchoolCollectionValidator;
+  private final SdcSchoolCollectionSearchService sdcSchoolCollectionSearchService;
 
-  public SdcSchoolCollectionController(SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionValidator sdcSchoolCollectionValidator, SdcDuplicatesService sdcDuplicatesService) {
+  public SdcSchoolCollectionController(SdcSchoolCollectionService sdcSchoolCollectionService, SdcSchoolCollectionValidator sdcSchoolCollectionValidator, SdcDuplicatesService sdcDuplicatesService, SdcSchoolCollectionSearchService sdcSchoolCollectionSearchService) {
     this.sdcSchoolCollectionService = sdcSchoolCollectionService;
     this.sdcSchoolCollectionValidator = sdcSchoolCollectionValidator;
     this.sdcDuplicatesService = sdcDuplicatesService;
+    this.sdcSchoolCollectionSearchService = sdcSchoolCollectionSearchService;
   }
 
   @Override
@@ -121,5 +129,20 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   @Override
   public List<ValidationIssueTypeCode> getStudentValidationIssueCodes(UUID sdcSchoolCollectionID) {
     return this.sdcSchoolCollectionService.getStudentValidationIssueCodes(sdcSchoolCollectionID);
+  }
+
+  @Override
+  public CompletableFuture<Page<SdcSchoolCollection>> findAll(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
+    final List<Sort.Order> sorts = new ArrayList<>();
+    Specification<SdcSchoolCollectionEntity> schoolSpecs = sdcSchoolCollectionSearchService
+            .setSpecificationAndSortCriteria(
+                    sortCriteriaJson,
+                    searchCriteriaListJson,
+                    JsonUtil.mapper,
+                    sorts
+            );
+    return this.sdcSchoolCollectionSearchService
+            .findAll(schoolSpecs, pageNumber, pageSize, sorts)
+            .thenApplyAsync(sdcSchoolCollectionEntities -> sdcSchoolCollectionEntities.map(mapper::toStructure));
   }
 }

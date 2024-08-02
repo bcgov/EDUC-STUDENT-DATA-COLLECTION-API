@@ -6,19 +6,25 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDistrictCollectionSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDistrictCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcDistrictCollectionSubmissionSignatureValidator;
 import ca.bc.gov.educ.studentdatacollection.api.validator.SdcDistrictCollectionValidator;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 public class SdcDistrictCollectionController implements SdcDistrictCollectionEndpoint {
@@ -26,15 +32,17 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
   private static final SdcDistrictCollectionMapper mapper = SdcDistrictCollectionMapper.mapper;
   private final SdcDuplicatesService sdcDuplicatesService;
   private final SdcDistrictCollectionService sdcDistrictCollectionService;
+  private final SdcDistrictCollectionSearchService sdcDistrictCollectionSearchService;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
   private static final SdcSchoolCollectionMapper sdcSchoolCollectionMapper = SdcSchoolCollectionMapper.mapper;
   private final SdcDistrictCollectionValidator sdcDistrictCollectionValidator;
   private final SdcDistrictCollectionSubmissionSignatureValidator sdcDistrictCollectionSubmissionSignatureValidator;
-    public SdcDistrictCollectionController(SdcDuplicatesService sdcDuplicatesService, SdcDistrictCollectionService sdcDistrictCollectionService, SdcDistrictCollectionValidator sdcDistrictCollectionValidator, SdcDistrictCollectionSubmissionSignatureValidator sdcDistrictCollectionSubmissionSignatureValidator) {
+    public SdcDistrictCollectionController(SdcDuplicatesService sdcDuplicatesService, SdcDistrictCollectionService sdcDistrictCollectionService, SdcDistrictCollectionValidator sdcDistrictCollectionValidator, SdcDistrictCollectionSubmissionSignatureValidator sdcDistrictCollectionSubmissionSignatureValidator, SdcDistrictCollectionSearchService sdcDistrictCollectionSearchService) {
       this.sdcDuplicatesService = sdcDuplicatesService;
       this.sdcDistrictCollectionService = sdcDistrictCollectionService;
       this.sdcDistrictCollectionValidator = sdcDistrictCollectionValidator;
       this.sdcDistrictCollectionSubmissionSignatureValidator = sdcDistrictCollectionSubmissionSignatureValidator;
+      this.sdcDistrictCollectionSearchService = sdcDistrictCollectionSearchService;
   }
 
   @Override
@@ -114,5 +122,20 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
     });
     sdcDistrictCollectionService.signDistrictCollectionForSubmission(sdcDistrictCollectionID, mapper.toModelWithSubmissionSignatures(sdcDistrictCollection));
     return ResponseEntity.ok().build();
+  }
+
+  @Override
+  public CompletableFuture<Page<SdcDistrictCollection>> findAll(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
+    final List<Sort.Order> sorts = new ArrayList<>();
+    Specification<SdcDistrictCollectionEntity> districtSpecs = sdcDistrictCollectionSearchService
+            .setSpecificationAndSortCriteria(
+                    sortCriteriaJson,
+                    searchCriteriaListJson,
+                    JsonUtil.mapper,
+                    sorts
+            );
+    return this.sdcDistrictCollectionSearchService
+            .findAll(districtSpecs, pageNumber, pageSize, sorts)
+            .thenApplyAsync(sdcDistrictCollectionEntities -> sdcDistrictCollectionEntities.map(mapper::toStructure));
   }
 }

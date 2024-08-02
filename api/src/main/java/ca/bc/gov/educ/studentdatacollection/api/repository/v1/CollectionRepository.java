@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -11,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface CollectionRepository extends JpaRepository<CollectionEntity, UUID> {
+public interface CollectionRepository extends JpaRepository<CollectionEntity, UUID>, JpaSpecificationExecutor<CollectionEntity> {
 
     List<CollectionEntity> findAllByCreateUser(String createUser);
 

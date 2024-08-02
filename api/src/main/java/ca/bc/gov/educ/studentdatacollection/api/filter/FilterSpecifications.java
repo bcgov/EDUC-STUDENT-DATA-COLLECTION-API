@@ -130,11 +130,18 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
                     return criteriaBuilder.or(criteriaBuilder.not(root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues())), criteriaBuilder.isNull(root.get(filterCriteria.getFieldName())));
                 }
             });
-
         map.put(FilterOperation.BETWEEN,
-                filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.between(
-                        root.get(filterCriteria.getFieldName()), filterCriteria.getMinValue(),
-                        filterCriteria.getMaxValue()));
+                filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
+                    if (filterCriteria.getFieldName().contains(".")) {
+                        String[] splits = filterCriteria.getFieldName().split("\\.");
+                        return criteriaBuilder.between(root.join(splits[0]).get(splits[1]), filterCriteria.getMinValue(),
+                                filterCriteria.getMaxValue());
+                    } else {
+                        return criteriaBuilder.between(
+                                root.get(filterCriteria.getFieldName()), filterCriteria.getMinValue(),
+                                filterCriteria.getMaxValue());
+                    }
+                });
 
         map.put(FilterOperation.CONTAINS, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> criteriaBuilder
                 .like(root.get(filterCriteria.getFieldName()), "%" + filterCriteria.getConvertedSingleValue() + "%"));

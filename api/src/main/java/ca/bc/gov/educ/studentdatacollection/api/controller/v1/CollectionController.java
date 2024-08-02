@@ -11,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.CloseCollectionOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.CollectionSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CollectionService;
 
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
@@ -25,6 +26,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -51,14 +56,16 @@ public class CollectionController implements CollectionEndpoint {
   private final SdcDuplicatesService sdcDuplicatesService;
   private final CloseCollectionOrchestrator closeCollectionOrchestrator;
   private final SagaService sagaService;
+  private final CollectionSearchService collectionSearchService;
 
   @Autowired
-  public CollectionController(final CollectionService collectionService, final CollectionPayloadValidator collectionPayloadValidator, final SdcDuplicatesService sdcDuplicatesService, CloseCollectionOrchestrator closeCollectionOrchestrator, SagaService sagaService) {
+  public CollectionController(final CollectionService collectionService, final CollectionPayloadValidator collectionPayloadValidator, final SdcDuplicatesService sdcDuplicatesService, CloseCollectionOrchestrator closeCollectionOrchestrator, SagaService sagaService, CollectionSearchService collectionSearchService) {
     this.collectionService = collectionService;
     this.sdcDuplicatesService = sdcDuplicatesService;
     this.collectionPayloadValidator = collectionPayloadValidator;
     this.closeCollectionOrchestrator = closeCollectionOrchestrator;
-      this.sagaService = sagaService;
+    this.sagaService = sagaService;
+    this.collectionSearchService = collectionSearchService;
   }
 
   @Override
@@ -156,6 +163,21 @@ public class CollectionController implements CollectionEndpoint {
   public ResponseEntity<Void> resolveRemainingDuplicates(UUID collectionID){
     this.sdcDuplicatesService.resolveRemainingDuplicates(collectionID);
     return ResponseEntity.ok().build();
+  }
+
+  @Override
+  public CompletableFuture<Page<Collection>> findAll(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
+    final List<Sort.Order> sorts = new ArrayList<>();
+    Specification<CollectionEntity> collectionSpecs = collectionSearchService
+            .setSpecificationAndSortCriteria(
+                    sortCriteriaJson,
+                    searchCriteriaListJson,
+                    JsonUtil.mapper,
+                    sorts
+            );
+    return this.collectionSearchService
+            .findAll(collectionSpecs, pageNumber, pageSize, sorts)
+            .thenApplyAsync(collectionEntities -> collectionEntities.map(collectionMapper::toStructure));
   }
 
 }
