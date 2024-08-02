@@ -78,7 +78,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
                     .eventOutcome(STUDENT_UPDATED)
                     .eventPayload(JsonUtil.getJsonStringFromObject(updateStudentSagaData))
                     .build();
-            this.postMessageToTopic(STUDENT_API_TOPIC.toString(), nextEvent);
+            this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
         }
         log.info("message sent to STUDENT_API_TOPIC for UPDATE_STUDENT Event.");
     }
