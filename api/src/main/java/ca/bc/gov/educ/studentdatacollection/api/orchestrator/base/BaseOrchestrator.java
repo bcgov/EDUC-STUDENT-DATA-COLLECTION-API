@@ -508,7 +508,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void startSaga(@NotNull final SdcSagaEntity saga) {
     try {
-      log.info("Starting saga with the following payload :: {}", saga);
+      log.debug("Starting saga with the following payload :: {}", saga);
       this.handleEvent(Event.builder()
         .eventType(EventType.INITIATED)
         .eventOutcome(EventOutcome.INITIATE_SUCCESS)
