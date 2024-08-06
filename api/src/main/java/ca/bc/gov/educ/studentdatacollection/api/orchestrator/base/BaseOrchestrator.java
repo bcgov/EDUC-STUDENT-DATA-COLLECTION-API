@@ -477,7 +477,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
     }
     this.broadcastSagaInitiatedMessage(event);
 
-    log.info("About to find saga by ID with event :: {}", event);
+    log.debug("About to find saga by ID with event :: {}", event);
     final var sagaOptional = this.getSagaService().findSagaById(event.getSagaId()); // system expects a saga record to be present here.
     if (sagaOptional.isPresent()) {
       val saga = sagaOptional.get();

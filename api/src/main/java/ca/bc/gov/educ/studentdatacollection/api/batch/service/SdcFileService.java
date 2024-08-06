@@ -31,7 +31,7 @@ public class SdcFileService {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload, String sdcSchoolCollectionID) {
-    log.info("Uploaded file contents for school collection ID: {}", sdcSchoolCollectionID);
+    log.debug("Uploaded file contents for school collection ID: {}", sdcSchoolCollectionID);
     return this.getSdcBatchProcessor().processSdcBatchFile(sdcFileUpload, sdcSchoolCollectionID);
   }
 
@@ -41,7 +41,7 @@ public class SdcFileService {
     if (RetrySynchronizationManager.getContext() != null && RetrySynchronizationManager.getContext().getRetryCount() > 0) {
       log.info("Retrying SDC file load after StaleStateException, sdcDistrictCollectionID: {}", sdcDistrictCollectionID);
     }
-    log.info("Uploaded file contents for district collection ID: {}", sdcDistrictCollectionID);
+    log.debug("Uploaded file contents for district collection ID: {}", sdcDistrictCollectionID);
     return this.getSdcBatchProcessor().processDistrictSdcBatchFile(sdcFileUpload, sdcDistrictCollectionID);
   }
 
