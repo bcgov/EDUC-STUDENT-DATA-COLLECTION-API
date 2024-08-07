@@ -1,7 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.utils;
 
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class JsonUtilTest {
     try {
       JsonUtil.getJsonObjectFromByteArray(SchoolTombstone.class, JsonUtil.getJsonBytesFromObject(collection));
     } catch (IOException e) {
-      String expectedValue = "Cannot construct instance of `ca.bc.gov.educ.studentdatacollection.api.struct.v1.School` (no Creators, like default constructor, exist): cannot deserialize from Object value (no delegate- or property-based Creator)\n"
+      String expectedValue = "Cannot construct instance of `ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School` (no Creators, like default constructor, exist): cannot deserialize from Object value (no delegate- or property-based Creator)\n"
           + " at [Source: (byte[])\"{\"createUser\":null,\"updateUser\":null,\"createDate\":null,\"updateDate\":null,\"collectionID\":null,\"collectionCode\":null,\"openDate\":null,\"closeDate\":null}\"; line: 1, column: 2]";
       assertEquals(expectedValue, e.getMessage());
     }

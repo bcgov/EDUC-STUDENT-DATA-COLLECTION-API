@@ -15,7 +15,7 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.EmailProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.EmailSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolContact;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolContact;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection1701Users;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;

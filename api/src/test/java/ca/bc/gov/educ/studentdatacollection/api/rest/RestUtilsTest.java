@@ -2,9 +2,10 @@ package ca.bc.gov.educ.studentdatacollection.api.rest;
 
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.Student;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.wildfly.common.Assert.assertFalse;
 import static org.wildfly.common.Assert.assertTrue;
@@ -41,6 +43,40 @@ class RestUtilsTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         restUtils = spy(new RestUtils(chesWebClient, webClient, props, messagePublisher));
+    }
+
+    @Test
+    void testPopulateSchoolFundingGroupsMap_WhenApiCallSucceeds_ShouldPopulateMaps() {
+        // Given
+        val school1ID = String.valueOf(UUID.randomUUID());
+        val school1 = IndependentSchoolFundingGroup.builder()
+                .schoolID(school1ID)
+                .schoolFundingGroupCode("GROUP01")
+                .schoolFundingGroupID(UUID.randomUUID().toString())
+                .schoolGradeCode("01")
+                .build();
+        val school2 = IndependentSchoolFundingGroup.builder()
+                .schoolID(school1ID)
+                .schoolFundingGroupCode("GROUP01")
+                .schoolFundingGroupID(UUID.randomUUID().toString())
+                .schoolGradeCode("02")
+                .build();
+        val school3 = IndependentSchoolFundingGroup.builder()
+                .schoolID(school1ID)
+                .schoolFundingGroupCode("GROUP01")
+                .schoolFundingGroupID(UUID.randomUUID().toString())
+                .schoolGradeCode("03")
+                .build();
+
+        doReturn(List.of(school1, school2, school3)).when(restUtils).getSchoolFundingGroups();
+
+        // When
+        restUtils.populateSchoolFundingCodesMap();
+
+        // Then verify the maps are populated
+        Map<String, List<IndependentSchoolFundingGroup>> schoolFundingGroupsMap = (Map<String, List<IndependentSchoolFundingGroup>>) ReflectionTestUtils.getField(restUtils, "schoolFundingGroupsMap");
+        assertEquals(1, schoolFundingGroupsMap.size());
+        assertEquals(3, schoolFundingGroupsMap.get(school1ID).size());
     }
 
     @Test

@@ -11,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -92,6 +93,10 @@ public class ValidationRulesService {
 
     public Optional<SdcStudentEllEntity> getStudentYearsInEll(UUID studentID) {
         return sdcStudentEllRepository.findByStudentID(studentID);
+    }
+
+    public List<IndependentSchoolFundingGroup> getSchoolFundingGroups(String schoolID) {
+        return restUtils.getSchoolFundingGroupsBySchoolID(schoolID);
     }
 
     public void setupPENMatchAndEllAndGraduateValues(StudentRuleData studentRuleData) {

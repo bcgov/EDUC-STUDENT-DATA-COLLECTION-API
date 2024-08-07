@@ -1,4 +1,4 @@
-package ca.bc.gov.educ.studentdatacollection.api.struct.v1;
+package ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
