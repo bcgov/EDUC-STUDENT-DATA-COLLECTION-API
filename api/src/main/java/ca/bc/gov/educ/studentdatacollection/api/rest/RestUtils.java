@@ -118,11 +118,7 @@ public class RestUtils {
     try {
       writeLock.lock();
       for (val schoolFundingGroup : this.getSchoolFundingGroups()) {
-        if(this.schoolFundingGroupsMap.get(schoolFundingGroup.getSchoolID()) == null) {
-          this.schoolFundingGroupsMap.put(schoolFundingGroup.getSchoolID(), Arrays.asList(schoolFundingGroup));
-        }else{
-          this.schoolFundingGroupsMap.get(schoolFundingGroup.getSchoolID()).add(schoolFundingGroup);
-        }
+        this.schoolFundingGroupsMap.computeIfAbsent(schoolFundingGroup.getSchoolID(), k -> new ArrayList<>()).add(schoolFundingGroup);
       }
     } catch (Exception ex) {
       log.error("Unable to load map cache school funding groups {}", ex);
