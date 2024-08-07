@@ -17,9 +17,9 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollect
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -66,7 +67,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
-
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         entity.setGender("M");
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
@@ -129,6 +130,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setDob("20170420");
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         val validationErrorCorrectDate = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationErrorCorrectDate.size()).isZero();
     }
@@ -139,7 +141,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
-
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isZero();
 
@@ -155,6 +157,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         val school = createMockSchool();
         school.setFacilityTypeCode("STANDARD");
         PenMatchResult penMatchResult = getPenMatchResult();
@@ -182,7 +185,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setEnrolledGradeCode("08");
         val school = createMockSchool();
         school.setFacilityTypeCode("SUMMER");
-
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationError.size()).isZero();
 
@@ -201,7 +204,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
-
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isZero();
 
@@ -236,7 +239,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
-
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isZero();
 
@@ -261,6 +264,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
@@ -283,7 +287,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
-
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isZero();
 
@@ -304,7 +308,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
-
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isZero();
 
@@ -325,6 +329,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
@@ -348,7 +353,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
         val school = createMockSchool();
-
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         entity.setEnrolledProgramCodes("05");
         school.setSchoolReportingRequirementCode("RT");
         val validationCodeReportError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
@@ -537,6 +542,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
 
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isZero();
 
@@ -557,6 +563,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
 
         entity.setSchoolFundingCode("20");
         PenMatchResult penMatchResult = getPenMatchResult();
@@ -622,6 +629,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
@@ -687,6 +695,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setEnrolledGradeCode("08");
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
@@ -805,6 +814,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         val validationErrorInvalidDate = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationErrorInvalidDate.size()).isZero();
 
@@ -822,7 +832,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setEnrolledGradeCode("08");
         val school = createMockSchool();
         school.setFacilityTypeCode("STANDARD");
-
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         entity.setDob("0210424F");
         val validationErrorInvalidDate = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorInvalidDate.size()).isNotZero();
@@ -873,6 +883,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setNumberOfCourses("0500");
         entity.setEnrolledGradeCode("08");
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isZero();
 
@@ -881,6 +892,23 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationErrorMax = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationErrorMax.size()).isNotZero();
         val errorContEd = validationErrorMax.stream().anyMatch(val -> val.getValidationIssueCode().equals("NOOFCOURSEMAX"));
+        assertThat(errorContEd).isTrue();
+    }
+
+    @Test
+    void testSchoolFundingGroupRule() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+
+        entity.setNumberOfCourses("20");
+        entity.setEnrolledGradeCode("08");
+
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+        val validationErrorMax = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        assertThat(validationErrorMax.size()).isNotZero();
+        val errorContEd = validationErrorMax.stream().anyMatch(val -> val.getValidationIssueCode().equals("INVALIDGRADESCHOOLFUNDINGGROUP"));
         assertThat(errorContEd).isTrue();
     }
 
@@ -950,6 +978,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setSchoolFundingCode("14");
         entity.setBandCode(null);
         entity.setSpecialEducationCategoryCode("A");
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "01")));
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
@@ -1132,7 +1161,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val saga = createMockStudentRuleData(entity, school);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
         saga.getSdcSchoolCollectionStudentEntity().setSupportBlocks("1");
-
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "10")));
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
 
@@ -1225,6 +1254,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
         entity.setPostalCode(null);
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
@@ -1267,6 +1297,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setEnrolledGradeCode("GA");
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "GA")));
         val validationDOB = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationDOB.size()).isNotZero();
         val errorDOB = validationDOB.stream().noneMatch(val -> val.getValidationIssueCode().equals("GAERROR"));
@@ -1281,6 +1312,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setNumberOfCourses("0800");
         entity.setSupportBlocks("0");
         entity.setEnrolledGradeCode("10");
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "10")));
         val validationSupportBlocks = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationSupportBlocks.size()).isZero();
         val errorSupport = validationCourses.stream().anyMatch(val -> val.getValidationIssueCode().equals("SUPPORTBLOCKSNOTCOUNT"));
@@ -1312,6 +1344,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         penMatchResult.getMatchingRecords().get(0).setMatchingPEN(entity.getAssignedPen());
         penMatchResult.getMatchingRecords().get(0).setStudentID(entity.getAssignedStudentId().toString());
         when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "10")));
         UUID oneYearOldCollectionID = createMockHistoricalCollection(1, entity.getSdcSchoolCollection().getSchoolID(), entity.getCreateDate(), String.valueOf(SEPTEMBER), entity.getAssignedStudentId());
         UUID twoYearOldCollectionID = createMockHistoricalCollection(2, entity.getSdcSchoolCollection().getSchoolID(), entity.getCreateDate(), String.valueOf(JULY), entity.getAssignedStudentId());
 
@@ -1353,6 +1386,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setIsAdult(false);
         entity.setIsSchoolAged(true);
         entity.setEnrolledGradeCode("08");
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         val validationNoErrorSchlAged = rulesProcessor.processRules((createMockStudentRuleData(entity, school)));
         assertThat(validationNoErrorSchlAged.size()).isZero();
 
@@ -1369,6 +1403,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(errorSchlAged).isTrue();
 
         entity.setEnrolledGradeCode("01");
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "01")));
         val validationNoErrorSchlAgedYounger = rulesProcessor.processRules((createMockStudentRuleData(entity, school)));
         assertThat(validationNoErrorSchlAgedYounger.size()).isZero();
     }
@@ -1443,7 +1478,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val saga = createMockStudentRuleData(entity, school);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(false);
         saga.getSdcSchoolCollectionStudentEntity().setSupportBlocks("1");
-
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "10")));
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
 

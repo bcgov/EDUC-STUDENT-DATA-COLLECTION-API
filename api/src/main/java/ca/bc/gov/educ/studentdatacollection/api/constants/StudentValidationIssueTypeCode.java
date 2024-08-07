@@ -2,11 +2,10 @@ package ca.bc.gov.educ.studentdatacollection.api.constants;
 
 import lombok.Getter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode.ERROR;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode.FUNDING_WARNING;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode.INFO_WARNING;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode.*;
 
 /**
  * The enum Pen request batch student validation issue type code.
@@ -59,6 +58,7 @@ public enum StudentValidationIssueTypeCode {
   BAND_CODE_BLANK("BANDCODEBLANK", "Student must be reported with both a Band of Residence and as Ordinarily Living on Reserve (funding code 20).", ERROR),
   BAND_CODE_INVALID("BANDCODEINVALID", "Invalid Band Code (Band of Residence) reported.", ERROR),
   NO_OF_COURSE_MAX("NOOFCOURSEMAX", "Student was reported with more than 15 courses.", INFO_WARNING),
+  INVALID_GRADE_SCHOOL_FUNDING_GROUP("INVALIDGRADESCHOOLFUNDINGGROUP", "Student grade does not fall within the grade range for which the school has been approved.", INFO_WARNING),
   ENROLLED_CODE_FUNDING_ERR("ENROLLEDCODEFUNDINGERR", "Out-of-Province/International students will not be funded any reported language programs.", FUNDING_WARNING),
   ENROLLED_CODE_IND_ERR("ENROLLEDCODEINDERR", "Out-of-Province/International students will not be funded any reported Indigenous support programs.", FUNDING_WARNING),
   ENROLLED_CODE_CAREER_ERR("ENROLLEDCODECAREERERR", "Out-of-Province/International students will not be funded any reported career programs.", FUNDING_WARNING),

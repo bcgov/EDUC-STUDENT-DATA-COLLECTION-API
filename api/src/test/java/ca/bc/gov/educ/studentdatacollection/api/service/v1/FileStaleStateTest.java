@@ -6,8 +6,9 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadExceptio
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
@@ -20,7 +21,9 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.io.FileInputStream;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Base64;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;

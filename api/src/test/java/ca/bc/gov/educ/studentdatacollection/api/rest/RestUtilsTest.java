@@ -2,9 +2,9 @@ package ca.bc.gov.educ.studentdatacollection.api.rest;
 
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.Student;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.District;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.wildfly.common.Assert.assertFalse;
 import static org.wildfly.common.Assert.assertTrue;

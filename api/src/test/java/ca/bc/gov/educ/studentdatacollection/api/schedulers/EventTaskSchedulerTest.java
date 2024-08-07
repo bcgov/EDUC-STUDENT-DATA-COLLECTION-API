@@ -16,8 +16,8 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.events.schedulers.EventTaskSchedulerAsyncService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -33,13 +33,11 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
 import static org.mockito.Mockito.*;
 
 class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
@@ -385,7 +383,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         firstSchool.setUploadDate(null);
         firstSchool.setUploadFileName(null);
         firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
-        var savedSchoolColl = sdcSchoolCollectionRepository.save(firstSchool);
+        sdcSchoolCollectionRepository.save(firstSchool);
 
         final File file = new File(
                 Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
