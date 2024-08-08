@@ -174,6 +174,9 @@ public class SdcSchoolCollectionService {
         List<String> enrolledProgramList = TransformUtil.splitIntoChunks(student.getEnrolledProgramCodes(), 2);
         this.sdcSchoolCollectionStudentService.writeEnrolledProgramCodes(student, enrolledProgramList);
       }
+      var demogHash = Integer.toString(student.getUniqueObjectHash());
+      student.setOriginalDemogHash(demogHash);
+      student.setCurrentDemogHash(demogHash);
     }
     sdcSchoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser()));
     return sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
