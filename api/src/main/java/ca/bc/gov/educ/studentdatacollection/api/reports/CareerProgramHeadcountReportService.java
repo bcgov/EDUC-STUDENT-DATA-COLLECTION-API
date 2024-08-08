@@ -14,11 +14,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.CareerHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountReportNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JRException;
@@ -37,7 +33,6 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private JasperReport careerProgramHeadcountReport;
-  private final ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
   public CareerProgramHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
       super(restUtils, sdcSchoolCollectionRepository);
@@ -72,7 +67,7 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
                 new EntityNotFoundException(SdcDistrictCollectionEntity.class, "CollectionId", collectionID.toString()));
 
         List<CareerHeadcountResult> careerHeadcounts = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
-        return generateJasperReport(convertToCareerProgramReportJSONStringDistrict(careerHeadcounts, sdcDistrictCollectionEntity), careerProgramHeadcountReport, ReportTypeCode.DIS_CAREER_HEADCOUNT);
+        return generateJasperReport(convertToReportJSONStringDistrict(careerHeadcounts, sdcDistrictCollectionEntity), careerProgramHeadcountReport, ReportTypeCode.DIS_CAREER_HEADCOUNT);
       } catch (JsonProcessingException e) {
         log.error("Exception occurred while writing PDF report for grade enrollment dis :: " + e.getMessage());
         throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment dis :: " + e.getMessage());
@@ -90,20 +85,6 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
         throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for career programs :: " + e.getMessage());
       }
     }
-  }
-
-  private String convertToCareerProgramReportJSONStringDistrict(List<CareerHeadcountResult> mappedResults, SdcDistrictCollectionEntity sdcDistrictCollection) throws JsonProcessingException {
-    HeadcountNode mainNode = new HeadcountNode();
-    HeadcountReportNode reportNode = new HeadcountReportNode();
-    setReportTombstoneValuesDis(sdcDistrictCollection, reportNode);
-
-    var nodeMap = generateNodeMap(false);
-
-    mappedResults.forEach(result -> setValueForGrade(nodeMap, result));
-
-    reportNode.setPrograms(nodeMap.values().stream().sorted(Comparator.comparing(o -> Integer.parseInt(o.getSequence()))).toList());
-    mainNode.setReport(reportNode);
-    return objectWriter.writeValueAsString(mainNode);
   }
 
   public HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH){
