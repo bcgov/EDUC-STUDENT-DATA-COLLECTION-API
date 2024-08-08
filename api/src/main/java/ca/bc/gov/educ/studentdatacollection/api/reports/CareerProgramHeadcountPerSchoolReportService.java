@@ -141,10 +141,6 @@ public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGene
       nodeMap.get(schoolID + "all").setValueForGrade(code, gradeResult.getAllTotal());
     }
 
-    if (nodeMap.containsKey(schoolID + "all")) {
-      nodeMap.get(schoolID + "all").setValueForGrade(code, gradeResult.getAllTotal());
-    }
-
     if (nodeMap.containsKey(schoolID + "Heading")) {
       nodeMap.get(schoolID + "Heading").setAllValuesToNull();
     }
