@@ -240,14 +240,23 @@ public class SdcDuplicatesService {
             potentialProgDupeStudents.add(nonUpdatedStudent);
           }
 
-        List<SdcDuplicateEntity> otherEnrollmentDupesForStudent = sdcDuplicateRepository.findAllUnresolvedNonAllowableEnrollmentDuplicatesForStudent(UUID.fromString(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID()));
+        List<SdcDuplicateEntity> otherEnrollmentDupesForStudent = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudent(UUID.fromString(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID()), DuplicateTypeCode.ENROLLMENT.getCode(), DuplicateSeverityCode.NON_ALLOWABLE.getCode());
 
         if (!otherEnrollmentDupesForStudent.isEmpty()){
           potentialProgDupeStudents = generateListOfPotentialProgDupeStudents(otherEnrollmentDupesForStudent, sdcSchoolCollectionStudent, potentialProgDupeStudents);
         }
 
-        List<SdcDuplicateEntity> finalDuplicatesSet =  generateFinalDuplicatesSet(potentialProgDupeStudents.stream().toList(), DuplicateLevelCode.valueOf(gradeChangedDupe.getDuplicateLevelCode()));
-        sdcDuplicateRepository.saveAll(finalDuplicatesSet);
+        List<SdcDuplicateEntity> finalDuplicates =  generateFinalDuplicatesSet(potentialProgDupeStudents.stream().toList(), DuplicateLevelCode.valueOf(gradeChangedDupe.getDuplicateLevelCode()));
+
+        //Remove any enrollment dupes that are already in db
+        for (int i=0; i < finalDuplicates.size(); i++) {
+          SdcDuplicateEntity currentDupe = finalDuplicates.get(i);
+          if(Objects.equals(currentDupe.getDuplicateTypeCode(), DuplicateTypeCode.ENROLLMENT.getCode()) && Objects.equals(currentDupe.getDuplicateSeverityCode(), DuplicateSeverityCode.NON_ALLOWABLE.getCode()) && currentDupe.getDuplicateResolutionCode() == null){
+            finalDuplicates.remove(i);
+          }
+        }
+
+        sdcDuplicateRepository.saveAll(finalDuplicates);
 
       } else {
         throw new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SdcSchoolCollectionStudentID", sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID());

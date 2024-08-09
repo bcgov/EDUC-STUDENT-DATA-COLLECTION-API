@@ -1,9 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
@@ -388,12 +386,12 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     SchoolTombstone schoolTombstone1 = createMockSchool();
     schoolTombstone1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
+    schoolTombstone1.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
     sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
 
     SchoolTombstone schoolTombstone2 = createMockSchool();
     schoolTombstone2.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    schoolTombstone2.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone2.getSchoolId()));
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
@@ -435,38 +433,27 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
     assertThat(sdcDuplicates).hasSize(3);
 
-    val programDupe = sdcDuplicates.get(2);
-    val student1Entity = programDupe.getSdcSchoolCollectionStudent2Entity();
+    val programDupe = sdcDuplicates.stream().filter(dupe -> (Objects.equals(dupe.getSdcSchoolCollectionStudent1Entity().getSdcSchoolCollectionStudentID(), student1.getSdcSchoolCollectionStudentID().toString()) && Objects.equals(dupe.getSdcSchoolCollectionStudent2Entity().getSdcSchoolCollectionStudentID(), student2.getSdcSchoolCollectionStudentID().toString())) ||
+            (Objects.equals(dupe.getSdcSchoolCollectionStudent1Entity().getSdcSchoolCollectionStudentID(), student2.getSdcSchoolCollectionStudentID().toString()) && Objects.equals(dupe.getSdcSchoolCollectionStudent2Entity().getSdcSchoolCollectionStudentID(), student1.getSdcSchoolCollectionStudentID().toString()))).findFirst();
+    val student1Entity = Objects.equals(programDupe.get().getSdcSchoolCollectionStudent1Entity().getSdcSchoolCollectionStudentID(), student1.getSdcSchoolCollectionStudentID().toString()) ? programDupe.get().getSdcSchoolCollectionStudent1Entity() : programDupe.get().getSdcSchoolCollectionStudent2Entity();
     student1Entity.setEnrolledGradeCode("10");
 
-    val resolvedDuplicate = sdcDuplicateService.trickleGradeChangeDupeUpdates(UUID.fromString(programDupe.getSdcDuplicateID()), student1Entity);
+    val resolvedDuplicate = sdcDuplicateService.trickleGradeChangeDupeUpdates(UUID.fromString(programDupe.get().getSdcDuplicateID()), student1Entity);
 
     // Should be 2 resolved non-allowable enrollment dupes, 1 unresolved non-allowable enrollment dupe, 2 allowable enrollment dupes, 2 non-allowable program dupes - spec_ed & career
 
     assertThat(resolvedDuplicate.getDuplicateResolutionCode()).isEqualTo("GRADE_CHNG");
 
-    val duplicates = sdcDuplicateRepository.findAll();
+    val nonAllowEnrollDupes = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudent(UUID.fromString(student1Entity.getSdcSchoolCollectionStudentID()), DuplicateTypeCode.ENROLLMENT.getCode(), DuplicateSeverityCode.NON_ALLOWABLE.getCode());
+    assertThat(nonAllowEnrollDupes).isEmpty();
 
-    assertThat(duplicates).hasSize(7);
-    assertThat(duplicates.get(0).getDuplicateTypeCode()).isEqualTo("ENROLLMENT");
-    assertThat(duplicates.get(0).getDuplicateResolutionCode()).isEmpty();
-    assertThat(duplicates.get(1).getDuplicateResolutionCode()).isEqualTo("GRADE_CHG");
-    assertThat(duplicates.get(2).getDuplicateResolutionCode()).isEqualTo("GRADE_CHG");
-    assertThat(duplicates.get(3).getDuplicateSeverityCode()).isEqualTo("ALLOWABLE");
-    assertThat(duplicates.get(3).getDuplicateTypeCode()).isEqualTo("ENROLLMENT");
-    assertThat(duplicates.get(4).getDuplicateTypeCode()).isEqualTo("PROGRAM");
-    assertThat(duplicates.get(4).getProgramDuplicateTypeCode()).isEqualTo("CAREER");
-    assertThat(duplicates.get(5).getDuplicateTypeCode()).isEqualTo("PROGRAM");
-    assertThat(duplicates.get(5).getProgramDuplicateTypeCode()).isEqualTo("SPECIAL_ED");
-    assertThat(duplicates.get(6).getDuplicateSeverityCode()).isEqualTo("ALLOWABLE");
-    assertThat(duplicates.get(6).getDuplicateTypeCode()).isEqualTo("ENROLLMENT");
-    assertThat(duplicates.get(7).getDuplicateTypeCode()).isEqualTo("ENROLLMENT");
-    assertThat(duplicates.get(7).getDuplicateSeverityCode()).isEqualTo("NON_ALLOW");
+    val nonAllowProgramDupes = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudent(UUID.fromString(student1Entity.getSdcSchoolCollectionStudentID()), DuplicateTypeCode.PROGRAM.getCode(), DuplicateSeverityCode.NON_ALLOWABLE.getCode());
+    assertThat(nonAllowProgramDupes).hasSize(2);
+    assertThat(nonAllowProgramDupes.get(0).getProgramDuplicateTypeCode()).isEqualTo("CAREER");
+    assertThat(nonAllowProgramDupes.get(1).getProgramDuplicateTypeCode()).isEqualTo("SPECIAL_ED");
 
-
-
-
-//    assertThat(duplicate.get(0).getRetainedSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().toString()).isEqualTo(student1Entity.getSdcSchoolCollectionStudentID());
+    val allowEnrollDupes = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudent(UUID.fromString(student1Entity.getSdcSchoolCollectionStudentID()), DuplicateTypeCode.ENROLLMENT.getCode(), DuplicateSeverityCode.ALLOWABLE.getCode());
+    assertThat(allowEnrollDupes).hasSize(2);
   }
 
   @Test
