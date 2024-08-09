@@ -33,6 +33,18 @@ public class DOBUtil {
         LocalDate dateStudentTurnedFive = LocalDate.parse(dob, format).plusYears(5);
         return dateStudentTurnedFive.isBefore(decemberCutoff) || dateStudentTurnedFive.isEqual(decemberCutoff);
     }
+    public static boolean is5YearsOldByDec31ofLastSchoolYear(String dob) {
+        SchoolYear schoolYear = new SchoolYear();
+        LocalDate decemberCutoff = LocalDate.parse(schoolYear.getStartDate().getYear() + "-12-31").minusYears(1);
+        LocalDate dateStudentTurnedFive = LocalDate.parse(dob, format).plusYears(5);
+        return dateStudentTurnedFive.isBefore(decemberCutoff) || dateStudentTurnedFive.isEqual(decemberCutoff);
+    }
+    public static boolean is19YearsOldByJuly31ofLastSchoolYear(String dob) {
+        SchoolYear schoolYear = new SchoolYear();
+        LocalDate julyCutoffOfLastYear = schoolYear.getStartDate().minusYears(1);
+        LocalDate dateStudentIsAdult = LocalDate.parse(dob, format).plusYears(19);
+        return dateStudentIsAdult.isBefore(julyCutoffOfLastYear);
+    }
 
     public static boolean isSchoolAged(String dob) {
        return is5YearsOldByDec31ThisSchoolYear(dob) && !isAdult(dob);

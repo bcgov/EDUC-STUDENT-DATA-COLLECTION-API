@@ -99,6 +99,14 @@ public enum StudentValidationIssueTypeCode {
   SCHOOL_AGED_SPED("SCHOOLAGEDSPED", "Only school-aged students or non-graduated adults will receive funding for Special Education.", FUNDING_WARNING),
   REFUGEE_IN_PREV_COL("REFUGEEINPREVCOL", "School-aged students reported in the previous collection are not eligible for newcomer refugee funding.", FUNDING_WARNING),
   REFUGEE_IS_ADULT("REFUGEEISADULT", "Adults are not eligible for February newcomer refugee funding.", FUNDING_WARNING),
+  SUMMER_PUBLIC_SCHOOL_GRADE_ERROR("SUMMERPUBLICSCHOOLGRADEERROR","8/9 cross enrollment students must be in grades 8 or 9", ERROR),
+  SUMMER_STUDENT_REPORTED_IN_DISTRICT_ERROR("SUMMERSTUDENTREPORTEDINDISTRICTERROR","The student has already been reported by the district during the current school year.", ERROR),
+  SUMMER_STUDENT_REPORTED_NOT_IN_DISTRICT_ERROR("SUMMERSTUDENTREPORTEDNOTINDISTRICTERROR","Student was not reported in Grade 8 or 9 in this school year and cannot be reported in 8/9 cross enrollment in this collection.", ERROR),
+  SUMMER_ADULT_STUDENT_ERROR("SUMMERADULTSTUDENTERROR","Adult students cannot be reported in 8/9 cross enrollment", ERROR),
+  SUMMER_FUNDING_CODE_ERROR("SUMMERFUNDINGCODEERROR","Out of Province/International students cannot be reported in Summer collection", ERROR),
+  SUMMER_PRE_PRIMARY_ERROR("SUMMERPREPRIMARYERROR","Pre-primary or early childhood education students cannot be reported in 8/9 cross enrollment", ERROR),
+  SUMMER_ENROLLED_PROGRAM_ERROR("SUMMERENROLLEDPROGRAMERROR","Students enrolled in the grade 8/9 cross-enrollment collection are not eligible for funding for inclusive education or additional programs.", FUNDING_WARNING),
+  SUMMER_FRENCH_CAREER_PROGRAM_ERROR("SUMMERFRENCHCAREERPROGRAM_ERROR","Students in summer school are not eligible for additional funding for Career or French Programs", FUNDING_WARNING),
   ;
 
   private static final Map<String, StudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
