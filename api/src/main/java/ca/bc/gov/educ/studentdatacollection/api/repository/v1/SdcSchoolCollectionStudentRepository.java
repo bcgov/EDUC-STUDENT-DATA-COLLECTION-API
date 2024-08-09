@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -855,5 +856,33 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     order by stud.createDate
     LIMIT :numberOfStudentsToProcess""")
   List<SdcSchoolCollectionStudentEntity> findStudentForDownstreamUpdate(String numberOfStudentsToProcess);
+
+  @Query(value="""
+         SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS, SdcDistrictCollectionEntity SDC
+          WHERE SDC.districtID = :districtID
+          AND C.collectionID = SDC.collectionEntity.collectionID
+          AND SDC.sdcDistrictCollectionID = SSC.sdcDistrictCollectionID
+          AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
+          AND SSCS.assignedStudentId = :assignedStudentID
+          AND SSCS.enrolledGradeCode IN ('08', '09')
+          AND SSCS.fte > 0
+          AND C.collectionTypeCode = :collectionTypeCode
+          AND EXTRACT(YEAR FROM C.closeDate) = :targetYear
+          """)
+  Optional<SdcSchoolCollectionStudentEntity> findStudentInHistoricalCollectionWithInSameDistrict(UUID districtID, UUID assignedStudentID, String collectionTypeCode, Integer targetYear);
+
+  @Query(value="""
+           SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS, SdcDistrictCollectionEntity SDC
+            WHERE SDC.districtID != :districtID
+            AND C.collectionID = SDC.collectionEntity.collectionID
+            AND SDC.sdcDistrictCollectionID = SSC.sdcDistrictCollectionID
+            AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
+            AND SSCS.assignedStudentId = :assignedStudentID
+            AND SSCS.enrolledGradeCode NOT IN ('08', '09')
+            AND SSCS.fte > 0
+            AND C.collectionTypeCode = :collectionTypeCode
+            AND EXTRACT(YEAR FROM C.closeDate) = :targetYear
+            """)
+  Optional<SdcSchoolCollectionStudentEntity> findStudentInHistoricalCollectionInOtherDistricts(UUID districtID, UUID assignedStudentID, String collectionTypeCode, Integer targetYear);
 
 }
