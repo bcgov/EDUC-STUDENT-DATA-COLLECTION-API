@@ -17,10 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.threads.EnhancedQueueExecutor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -44,6 +41,8 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
 
   private final SdcSchoolCollectionStudentLightRepository sdcSchoolCollectionStudentLightRepository;
 
+  private final CustomPaginationService customPaginationService;
+
   private final Executor paginatedQueryExecutor = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
     .setCorePoolSize(2).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
@@ -64,6 +63,23 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
       }
     }, paginatedQueryExecutor);
 
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public CompletableFuture<Slice<SdcSchoolCollectionStudentPaginationEntity>> findAllSlice(Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
+    log.trace("In find all slice query: {}", studentSpecs);
+    return CompletableFuture.supplyAsync(() -> {
+      Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sorts));
+      try {
+        log.trace("Running paginated query without count: {}", studentSpecs);
+        var results = this.customPaginationService.findAllWithoutCount(studentSpecs, paging).join();
+        log.trace("Paginated query without count returned with results: {}", results);
+        return results;
+      } catch (final Throwable ex) {
+        log.error("Failure querying for paginated SDC school students without count: {}", ex.getMessage());
+        throw new CompletionException(ex);
+      }
+    }, paginatedQueryExecutor);
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
