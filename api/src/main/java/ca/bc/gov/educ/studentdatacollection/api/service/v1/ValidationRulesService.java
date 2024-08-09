@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CodeTableMapper;
@@ -190,5 +191,29 @@ public class ValidationRulesService {
         }
 
         return false;
+    }
+
+    public boolean findStudentInHistoricalCollectionWithInSameDistrict(StudentRuleData studentRuleData, String collectionTypeCode) {
+        int year = 0;
+        if(collectionTypeCode.equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode()) || collectionTypeCode.equalsIgnoreCase(CollectionTypeCodes.MAY.getTypeCode())) {
+            year = LocalDate.now().getYear();
+        } else if(collectionTypeCode.equalsIgnoreCase(CollectionTypeCodes.SEPTEMBER.getTypeCode())) {
+            year = LocalDate.now().getYear() - 1;
+        }
+
+        Optional<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInHistoricalCollectionWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), collectionTypeCode, year);
+        return entity.isPresent();
+    }
+
+    public boolean findStudentInHistoricalCollectionInOtherDistricts(StudentRuleData studentRuleData, String collectionTypeCode) {
+        int year = 0;
+        if(collectionTypeCode.equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode()) || collectionTypeCode.equalsIgnoreCase(CollectionTypeCodes.MAY.getTypeCode())) {
+            year = LocalDate.now().getYear();
+        } else if(collectionTypeCode.equalsIgnoreCase(CollectionTypeCodes.SEPTEMBER.getTypeCode())) {
+            year = LocalDate.now().getYear() - 1;
+        }
+
+        Optional<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInHistoricalCollectionInOtherDistricts(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), collectionTypeCode, year);
+        return entity.isPresent();
     }
 }
