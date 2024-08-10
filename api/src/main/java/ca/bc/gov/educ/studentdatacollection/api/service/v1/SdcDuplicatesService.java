@@ -251,21 +251,23 @@ public class SdcDuplicatesService {
 
           List<SdcDuplicateEntity> finalDuplicates = generateFinalDuplicatesSet(potentialProgDupeStudents.stream().toList(), DuplicateLevelCode.valueOf(gradeChangedDupe.getDuplicateLevelCode()));
 
-          //Remove any enrollment dupes that are already in db
-          for (int i = 0; i < finalDuplicates.size(); i++) {
-            SdcDuplicateEntity currentDupe = finalDuplicates.get(i);
-            if (Objects.equals(currentDupe.getDuplicateTypeCode(), DuplicateTypeCode.ENROLLMENT.getCode()) && Objects.equals(currentDupe.getDuplicateSeverityCode(), DuplicateSeverityCode.NON_ALLOWABLE.getCode()) && currentDupe.getDuplicateResolutionCode() == null) {
-              finalDuplicates.remove(i);
-            }
-          }
-
-          sdcDuplicateRepository.saveAll(finalDuplicates);
+          sdcDuplicateRepository.saveAll(removeExistingEnrollDupes(finalDuplicates));
         }
 
       } else {
         throw new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SdcSchoolCollectionStudentID", sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID());
       }
     return gradeChangedDupe;
+  }
+
+  private List<SdcDuplicateEntity> removeExistingEnrollDupes(List<SdcDuplicateEntity> duplicates){
+    for (int i = duplicates.size() - 1; i > 0; i--) {
+      SdcDuplicateEntity currentDupe = duplicates.get(i);
+      if (Objects.equals(currentDupe.getDuplicateTypeCode(), DuplicateTypeCode.ENROLLMENT.getCode()) && Objects.equals(currentDupe.getDuplicateSeverityCode(), DuplicateSeverityCode.NON_ALLOWABLE.getCode()) && currentDupe.getDuplicateResolutionCode() == null) {
+        duplicates.remove(i);
+      }
+    }
+    return duplicates;
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
