@@ -101,6 +101,7 @@ class CloseCollectionOrchestratorTest extends BaseStudentDataCollectionAPITest {
         firstSchool.setUploadDate(null);
         firstSchool.setUploadFileName(null);
         firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        firstSchool.setSdcSchoolCollectionStatusCode("COMPLETED");
         var savedSchoolColl = sdcSchoolCollectionRepository.save(firstSchool);
 
         final File file = new File(
@@ -185,5 +186,76 @@ class CloseCollectionOrchestratorTest extends BaseStudentDataCollectionAPITest {
         assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
         assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(SEND_CLOSURE_NOTIFICATIONS.toString());
     }
+
+    @SneakyThrows
+    @Test
+    void testHandleEvent_givenEventTypeInitiatedAndSchoolCollectionNOTCompleted_shouldExecuteCloseCurrentCollAndOpenNewCollWithEventOutComeNEW_COLLECTION_CREATED() {
+        var typeCode = this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntityForFeb());
+        this.collectionCodeCriteriaRepository.save(this.createMockCollectionCodeCriteriaEntity(typeCode));
+        CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+        var districtID = UUID.randomUUID();
+        var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+
+        var school = createMockSchool();
+        school.setDisplayName("School1");
+        school.setMincode("0000001");
+        school.setDistrictId(districtID.toString());
+        when(this.restUtils.getSchoolBySchoolID(school.getSchoolId())).thenReturn(Optional.of(school));
+        when(this.restUtils.getSchoolListGivenCriteria(anyList(), any())).thenReturn(List.of(school));
+
+        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        firstSchool.setUploadDate(null);
+        firstSchool.setUploadFileName(null);
+        firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        var savedSchoolColl = sdcSchoolCollectionRepository.save(firstSchool);
+
+        final File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+        );
+        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+        });
+        var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+        var students = models.stream().peek(model -> model.setSdcSchoolCollection(firstSchool)).toList();
+
+        sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        CollectionSagaData sagaData = new CollectionSagaData();
+        sagaData.setExistingCollectionID(collection.getCollectionID().toString());
+        sagaData.setNewCollectionSignOffDueDate(String.valueOf(LocalDate.now()));
+        sagaData.setNewCollectionDuplicationResolutionDueDate(String.valueOf(LocalDate.now()));
+        sagaData.setNewCollectionSnapshotDate(String.valueOf(LocalDate.now()));
+        sagaData.setNewCollectionSubmissionDueDate(String.valueOf(LocalDate.now()));
+
+        val saga = this.createMockCloseCollectionSaga(sagaData);
+        saga.setSagaId(null);
+        this.sagaRepository.save(saga);
+
+        val event = Event.builder()
+                .sagaId(saga.getSagaId())
+                .eventType(EventType.INITIATED)
+                .eventOutcome(EventOutcome.INITIATE_SUCCESS)
+                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+        this.closeCollectionOrchestrator.handleEvent(event);
+
+        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.closeCollectionOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
+        final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
+        assertThat(newEvent.getEventType()).isEqualTo(EventType.CLOSE_CURRENT_COLLECTION_AND_OPEN_NEW_COLLECTION);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(EventOutcome.NEW_COLLECTION_CREATED);
+
+        val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+        assertThat(savedSagaInDB).isPresent();
+        assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(CLOSE_CURRENT_COLLECTION_AND_OPEN_NEW_COLLECTION.toString());
+
+        val updatedCollection = collectionRepository.findById(collection.getCollectionID());
+        assertThat(updatedCollection).isPresent();
+        assertThat(updatedCollection.get().getCollectionStatusCode()).isEqualTo(CollectionStatus.COMPLETED.toString());
+
+        val updatedSchoolCollection = sdcSchoolCollectionRepository.findAllByCollectionEntityCollectionID(collection.getCollectionID());
+        assertThat(updatedSchoolCollection).isNotEmpty();
+        assertThat(updatedSchoolCollection.get(0).getSdcSchoolCollectionStatusCode()).isEqualTo(CollectionStatus.COMPLETED.toString());
+
+        val updatedStudents = sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(savedSchoolColl.getSdcSchoolCollectionID());
+        assertThat(updatedStudents).isEmpty();    }
 
 }

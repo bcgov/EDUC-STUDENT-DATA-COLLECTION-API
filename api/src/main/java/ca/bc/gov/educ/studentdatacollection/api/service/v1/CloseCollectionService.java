@@ -30,8 +30,12 @@ public class CloseCollectionService {
     private final SdcSchoolCollectionHistoryService sdcSchoolHistoryService;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final RestUtils restUtils;
+    private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+    private final SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService;
+    private final SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
+    private final SdcDuplicateRepository sdcDuplicateRepository;
 
-    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
+    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository) {
         this.collectionRepository = collectionRepository;
         this.collectionTypeCodeRepository = collectionTypeCodeRepository;
         this.collectionCodeCriteriaRepository = collectionCodeCriteriaRepository;
@@ -39,12 +43,28 @@ public class CloseCollectionService {
         this.sdcSchoolHistoryService = sdcSchoolHistoryService;
         this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
         this.restUtils = restUtils;
+        this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
+        this.sdcSchoolCollectionHistoryService = sdcSchoolCollectionHistoryService;
+        this.sdcSchoolCollectionStudentHistoryRepository = sdcSchoolCollectionStudentHistoryRepository;
+        this.sdcDuplicateRepository = sdcDuplicateRepository;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void closeCurrentCollAndOpenNewCollection(final CollectionSagaData collectionSagaData) {
         Optional<CollectionEntity> entityOptional = collectionRepository.findById(UUID.fromString(collectionSagaData.getExistingCollectionID()));
         CollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "collectionID", collectionSagaData.getExistingCollectionID()));
+
+        //find school collections that are not COMPLETED
+        List<SdcSchoolCollectionEntity> schoolCollectionEntities = sdcSchoolCollectionRepository.findUncompletedSchoolCollections(entity.getCollectionID());
+        if(!schoolCollectionEntities.isEmpty()) {
+            markSchoolCollectionsAsCompleted(schoolCollectionEntities);
+        }
+
+        //find district collections that are not COMPLETED
+        List<SdcDistrictCollectionEntity> districtCollectionEntities = sdcDistrictCollectionRepository.findAllIncompleteDistrictCollections(entity.getCollectionID());
+        if(!districtCollectionEntities.isEmpty()) {
+            markDistrictCollectionsAsCompleted(districtCollectionEntities);
+        }
 
         // mark existing collection as COMPLETED
         entity.setCollectionStatusCode(CollectionStatus.COMPLETED.getCode());
@@ -173,5 +193,32 @@ public class CloseCollectionService {
             log.debug("found {} schools associated to collection", listOfSchoolIDs.size());
         }
         return listOfSchoolIDs;
+    }
+
+    public void markSchoolCollectionsAsCompleted(List<SdcSchoolCollectionEntity> schoolCollectionEntities){
+        schoolCollectionEntities.forEach(entity -> {
+            this.sdcDuplicateRepository.deleteAllBySdcDuplicateStudentEntities_SdcSchoolCollectionID(entity.getSdcSchoolCollectionID());
+            this.sdcSchoolCollectionStudentHistoryRepository.deleteBySdcSchoolCollectionStudentIDs(
+                    entity.getSDCSchoolStudentEntities().stream().map(SdcSchoolCollectionStudentEntity::getSdcSchoolCollectionStudentID).toList()
+            );
+            this.sdcSchoolCollectionStudentRepository.deleteAll(entity.getSDCSchoolStudentEntities());
+            entity.getSDCSchoolStudentEntities().clear();
+            entity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.COMPLETED.getCode());
+            entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+            entity.setUpdateDate(LocalDateTime.now());
+            entity.setUploadFileName(null);
+            entity.setUploadDate(null);
+            entity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(entity, ApplicationProperties.STUDENT_DATA_COLLECTION_API));
+            sdcSchoolCollectionRepository.save(entity);
+        });
+    }
+
+    public void markDistrictCollectionsAsCompleted(List<SdcDistrictCollectionEntity> districtCollectionEntities) {
+        districtCollectionEntities.forEach(entity -> {
+            entity.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.COMPLETED.getCode());
+            entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+            entity.setUpdateDate(LocalDateTime.now());
+            sdcDistrictCollectionRepository.save(entity);
+        });
     }
 }
