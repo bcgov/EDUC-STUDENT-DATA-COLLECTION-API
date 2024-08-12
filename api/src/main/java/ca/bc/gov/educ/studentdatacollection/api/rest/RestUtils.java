@@ -443,13 +443,7 @@ public class RestUtils {
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_STUDENT).eventPayload(assignedPEN).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.STUDENT_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
-        JsonParser parser = objectMapper.getFactory().createParser(responseMessage.getData());
-        JsonNode node = parser.readValueAsTree();
-        if(node != null) {
-          return objectMapper.readValue(responseMessage.getData(), refPenMatchResult);
-        } else {
-          return null;
-        }
+        return objectMapper.readValue(responseMessage.getData(), refPenMatchResult);
       } else {
         throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
