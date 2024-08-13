@@ -244,12 +244,18 @@ MAXIMUM_DB_POOL_SIZE=25
 MINIMUM_IDLE_DB_POOL_SIZE=15
 NUMBER_OF_STUDENTS_TO_PROCESS_SAGA=500
 
+EMAIL_SUBJECT_CLOSURE_NOTIFICATION="1701 Closure Reports"
+EMAIL_TEMPLATE_CLOSURE_REPORT_NOTIFICATION="<!DOCTYPE html><html xmlns:th=\"http://www.thymeleaf.org\"><head><meta charset=\"ISO-8859-1\"><title>1701 Closure Reports</title></head><body>Closure reports are now available for ${closeCollectionMonth}, ${closeCollectionYear} collection.<br/><br/>Please log into the Student-Admin platform and open the collection to view the reports.<br><br><br><b>The Data Management Unit Team</b><br>Ministry of Education and Child Care<br>educationdataexchange@gov.bc.ca</body></html>"
+EMAIL_CLOSURE_NOTIFICATION_TO="EDEDWNOT@Victoria1.gov.bc.ca,cmb@gov.bc.ca,educ.fsascore@gov.bc.ca,international.education@gov.bc.ca,EDUC.FundingandAllocationUnit@gov.bc.ca"
+
 if [ "$envValue" = "dev" ]
 then
   SCHOOL_NOTIFICATION_EMAIL_FROM="dev.educationdataexchange@gov.bc.ca"
+  EMAIL_CLOSURE_NOTIFICATION_TO="avisha.1.sodhi@gov.bc.ca"
 elif [ "$envValue" = "test" ]
 then
   SCHOOL_NOTIFICATION_EMAIL_FROM="test.educationdataexchange@gov.bc.ca"
+  EMAIL_CLOSURE_NOTIFICATION_TO="avisha.1.sodhi@gov.bc.ca"
 fi
 
 echo

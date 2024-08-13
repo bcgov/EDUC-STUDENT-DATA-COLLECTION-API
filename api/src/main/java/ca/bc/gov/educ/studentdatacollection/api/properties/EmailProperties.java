@@ -20,6 +20,12 @@ public class EmailProperties {
   @Value("${email.subject.collection.provincial.duplicates.notification}")
   private String emailSubjectProvincialDuplicates;
 
+  @Value("${email.subject.closure.notification}")
+  private String emailSubjectClosureNotification;
+
+  @Value("${email.closure.notification.to}")
+  private String closureNotificationTo;
+
 }
 
 
