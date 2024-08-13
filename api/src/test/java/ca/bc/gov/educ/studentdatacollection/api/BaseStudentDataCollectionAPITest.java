@@ -11,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
@@ -145,7 +146,7 @@ public abstract class BaseStudentDataCollectionAPITest {
   }
 
   public ProgramDuplicateTypeCodeEntity createProgramDuplicateTypeCodeData() {
-    return ProgramDuplicateTypeCodeEntity.builder().programDuplicateTypeCode("SPECIAL_ED").label("Special Education").description("Special Education duplicate")
+    return ProgramDuplicateTypeCodeEntity.builder().programDuplicateTypeCode("SPECIAL_ED").label("Inclusive Education").description("Inclusive Education duplicate")
             .displayOrder(10).effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.now().plusYears(10)).createUser("TEST").updateUser("TEST").build();
   }
 
@@ -763,5 +764,15 @@ public abstract class BaseStudentDataCollectionAPITest {
       gradStatusResult.setProgramCompletionDate("2023-08-09");
       return gradStatusResult;
   }
+
+  public IndependentSchoolFundingGroup getIndependentSchoolFundingGroup(String schoolID, String grade){
+    IndependentSchoolFundingGroup group = new IndependentSchoolFundingGroup();
+    group.setSchoolFundingGroupID(UUID.randomUUID().toString());
+    group.setSchoolID(schoolID);
+    group.setSchoolGradeCode(grade);
+    group.setSchoolFundingGroupCode("GROUP01");
+    return group;
+  }
+
 
 }

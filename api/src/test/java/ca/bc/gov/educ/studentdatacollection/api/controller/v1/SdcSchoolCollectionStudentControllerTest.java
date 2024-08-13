@@ -14,7 +14,10 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Search;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SearchCriteria;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValueType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
@@ -844,7 +847,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
         when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
-
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
 
@@ -932,7 +935,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setNumberOfCourses("0400");
         entity.setEnrolledGradeCode("01");
         this.sdcSchoolCollectionStudentRepository.save(entity);
-
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "01")));
         String dob = "19800101";
         entity.setDob(dob);
 
@@ -963,6 +966,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
         when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(school.getSchoolId(), "01")));
 
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
@@ -1012,7 +1016,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
         when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
         when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
-
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "08")));
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
 

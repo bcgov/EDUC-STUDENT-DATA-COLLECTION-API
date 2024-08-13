@@ -1,5 +1,6 @@
-package ca.bc.gov.educ.studentdatacollection.api.struct.v1;
+package ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.BaseRequest;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
