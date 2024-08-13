@@ -14,11 +14,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.Sch
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.CareerHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountReportNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JRException;
@@ -39,7 +35,6 @@ public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGene
   private final RestUtils restUtils;
   private List<CareerHeadcountResult> careerHeadcounts = new ArrayList<>();
   private List<SchoolTombstone> allSchoolsTombstones;
-  private final  ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
   public CareerProgramHeadcountPerSchoolReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils1) {
       super(restUtils, sdcSchoolCollectionRepository);
@@ -74,25 +69,11 @@ public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGene
 
         careerHeadcounts = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySchoolIdAndBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
         this.allSchoolsTombstones = getAllSchoolTombstones(collectionID);
-        return generateJasperReport(convertToCareerProgramReportJSONStringDistrict(careerHeadcounts, sdcDistrictCollectionEntity), careerProgramHeadcountPerSchoolReport, ReportTypeCode.DIS_CAREER_HEADCOUNT_PER_SCHOOL);
+        return generateJasperReport(convertToReportJSONStringDistrict(careerHeadcounts, sdcDistrictCollectionEntity), careerProgramHeadcountPerSchoolReport, ReportTypeCode.DIS_CAREER_HEADCOUNT_PER_SCHOOL);
       } catch (JsonProcessingException e) {
         log.error("Exception occurred while writing PDF report for grade enrollment dis :: " + e.getMessage());
         throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment dis :: " + e.getMessage());
       }
-  }
-
-  private String convertToCareerProgramReportJSONStringDistrict(List<CareerHeadcountResult> mappedResults, SdcDistrictCollectionEntity sdcDistrictCollection) throws JsonProcessingException {
-    HeadcountNode mainNode = new HeadcountNode();
-    HeadcountReportNode reportNode = new HeadcountReportNode();
-    setReportTombstoneValuesDis(sdcDistrictCollection, reportNode);
-
-    var nodeMap = generateNodeMap(false);
-
-    mappedResults.forEach(result -> setValueForGrade(nodeMap, result));
-
-    reportNode.setPrograms(nodeMap.values().stream().sorted(Comparator.comparing(o -> Integer.parseInt(o.getSequence()))).toList());
-    mainNode.setReport(reportNode);
-    return objectWriter.writeValueAsString(mainNode);
   }
 
   public HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH){
@@ -154,10 +135,6 @@ public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGene
 
     if (nodeMap.containsKey(schoolID + "youthWorkInTrades")) {
       nodeMap.get(schoolID + "youthWorkInTrades").setValueForGrade(code, gradeResult.getApprenticeTotal());
-    }
-
-    if (nodeMap.containsKey(schoolID + "all")) {
-      nodeMap.get(schoolID + "all").setValueForGrade(code, gradeResult.getAllTotal());
     }
 
     if (nodeMap.containsKey(schoolID + "all")) {

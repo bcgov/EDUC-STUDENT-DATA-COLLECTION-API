@@ -85,6 +85,20 @@ public abstract class BaseReportGenerationService<T> {
     return objectWriter.writeValueAsString(mainNode);
   }
 
+  protected String convertToReportJSONStringDistrict(List<T> mappedResults, SdcDistrictCollectionEntity sdcDistrictCollection) throws JsonProcessingException {
+    HeadcountNode mainNode = new HeadcountNode();
+    HeadcountReportNode reportNode = new HeadcountReportNode();
+    setReportTombstoneValuesDis(sdcDistrictCollection, reportNode);
+
+    var nodeMap = generateNodeMap(false);
+
+    mappedResults.forEach(result -> setValueForGrade(nodeMap, result));
+
+    reportNode.setPrograms(nodeMap.values().stream().sorted(Comparator.comparing(o -> Integer.parseInt(o.getSequence()))).toList());
+    mainNode.setReport(reportNode);
+    return objectWriter.writeValueAsString(mainNode);
+  }
+
   protected District validateAndReturnDistrict(SchoolTombstone schoolTombstone){
     var district = restUtils.getDistrictByDistrictID(schoolTombstone.getDistrictId());
     if(district.isEmpty()){
