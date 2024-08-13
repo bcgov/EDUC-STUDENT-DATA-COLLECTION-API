@@ -66,7 +66,8 @@ public class CloseCollectionOrchestrator extends BaseOrchestrator<CollectionSaga
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
-        //service to be added
+        //service call
+        closeCollectionService.sendClosureNotification(collectionSagaData);
 
         final Event nextEvent = Event.builder()
                 .sagaId(saga.getSagaId())

@@ -4,9 +4,11 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.properties.EmailProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.CollectionSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.EmailSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.UpdateStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +36,11 @@ public class CloseCollectionService {
     private final SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService;
     private final SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
     private final SdcDuplicateRepository sdcDuplicateRepository;
+    private final EmailService emailService;
+    private final EmailProperties emailProperties;
+    private static final String SDC_COLLECTION_ID_KEY = "collectionID";
 
-    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository) {
+    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties) {
         this.collectionRepository = collectionRepository;
         this.collectionTypeCodeRepository = collectionTypeCodeRepository;
         this.collectionCodeCriteriaRepository = collectionCodeCriteriaRepository;
@@ -47,12 +52,14 @@ public class CloseCollectionService {
         this.sdcSchoolCollectionHistoryService = sdcSchoolCollectionHistoryService;
         this.sdcSchoolCollectionStudentHistoryRepository = sdcSchoolCollectionStudentHistoryRepository;
         this.sdcDuplicateRepository = sdcDuplicateRepository;
+        this.emailService = emailService;
+        this.emailProperties = emailProperties;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void closeCurrentCollAndOpenNewCollection(final CollectionSagaData collectionSagaData) {
         Optional<CollectionEntity> entityOptional = collectionRepository.findById(UUID.fromString(collectionSagaData.getExistingCollectionID()));
-        CollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "collectionID", collectionSagaData.getExistingCollectionID()));
+        CollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));
 
         //find school collections that are not COMPLETED
         List<SdcSchoolCollectionEntity> schoolCollectionEntities = sdcSchoolCollectionRepository.findUncompletedSchoolCollections(entity.getCollectionID());
@@ -76,7 +83,7 @@ public class CloseCollectionService {
 
         // get next collection type code to open
         Optional<CollectionTypeCodes> optionalCollectionMap = CollectionTypeCodes.findByValue(entity.getCollectionTypeCode());
-        CollectionTypeCodes collectionMap= optionalCollectionMap.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "collectionID", collectionSagaData.getExistingCollectionID()));
+        CollectionTypeCodes collectionMap= optionalCollectionMap.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));
         log.debug("Next collection to open: {}", collectionMap.getNextCollectionToOpen());
 
         // get next collection entity
@@ -220,5 +227,32 @@ public class CloseCollectionService {
             entity.setUpdateDate(LocalDateTime.now());
             sdcDistrictCollectionRepository.save(entity);
         });
+    }
+
+    public void sendClosureNotification(final CollectionSagaData collectionSagaData) {
+        Optional<CollectionEntity> entityOptional = collectionRepository.findById(UUID.fromString(collectionSagaData.getExistingCollectionID()));
+        CollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));
+
+        var emailFields = new HashMap<String, String>();
+        emailFields.put("closeCollectionMonth", entity.getCollectionTypeCode());
+        emailFields.put("closeCollectionYear", String.valueOf(entity.getCloseDate().getYear()));
+
+        var toEmail = Arrays.stream(emailProperties.getClosureNotificationTo().split(",")).toList();
+
+        var emailSagaData = createEmailSagaData(emailProperties.getSchoolNotificationEmailFrom(), toEmail,
+                emailProperties.getEmailSubjectClosureNotification(), "closure.report.notification", emailFields);
+
+        this.emailService.sendEmail(emailSagaData);
+    }
+
+    private EmailSagaData createEmailSagaData(String fromEmail, List<String> emailList, String subject, String templateName, HashMap<String, String> emailFields){
+        return EmailSagaData
+                .builder()
+                .fromEmail(fromEmail)
+                .toEmails(emailList)
+                .subject(subject)
+                .templateName(templateName)
+                .emailFields(emailFields)
+                .build();
     }
 }
