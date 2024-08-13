@@ -33,7 +33,9 @@ public class CustomPaginationService {
     public CompletableFuture<Slice<SdcSchoolCollectionStudentPaginationEntity>> findAllWithoutCount(Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs, Pageable pageable) {
         return CompletableFuture.supplyAsync(() -> {
             try {
+                log.trace("Running paginated query: {}", studentSpecs);
                 Slice<SdcSchoolCollectionStudentPaginationEntity> results = this.customSdcSchoolCollectionStudentPaginationRepositoryLight.findAllWithoutCount(studentSpecs, pageable);
+                log.trace("Paginated query returned with results: {}", results);
                 return results;
             } catch (final Throwable ex) {
                 log.error("Failure querying for paginated SDC school students without count: {}", ex.getMessage());
