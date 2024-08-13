@@ -113,7 +113,7 @@ public class SpecialEdHeadcountPerSchoolReportService extends BaseReportGenerati
         nodeMap.put(sectionPrefix + "level2", new HeadcountChildNode("Level 2", FALSE, sequencePrefix + "2", false));
         nodeMap.put(sectionPrefix + "level3", new HeadcountChildNode("Level 3", FALSE, sequencePrefix + "3", false));
         nodeMap.put(sectionPrefix + "other", new HeadcountChildNode("Other", FALSE, sequencePrefix + "4", false));
-        nodeMap.put(sectionPrefix + "all", new HeadcountChildNode("All Special Ed Programs", FALSE, sequencePrefix + "5", false));
+        nodeMap.put(sectionPrefix + "all", new HeadcountChildNode("All Levels & Categories", FALSE, sequencePrefix + "5", false));
     }
 
     public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, SpecialEdHeadcountResult gradeResult) {
