@@ -22,7 +22,7 @@ import java.util.List;
  *  | ID  | Severity | Rule                                                                         | Dependent On |
  *  |-----|----------|------------------------------------------------------------------------------|--------------|
  *  | V76 | WARNING  | Students reported with a Funding Code of 14 (out of province/international   |  V60         |
- *                     student) cannot be reported with a Special Education Category.
+ *                     student) cannot be reported with an Inclusive Education Category.
  *
  */
 @Component
