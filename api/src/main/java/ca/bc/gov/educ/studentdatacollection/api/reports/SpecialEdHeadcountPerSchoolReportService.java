@@ -72,8 +72,8 @@ public class SpecialEdHeadcountPerSchoolReportService extends BaseReportGenerati
             this.allSchoolsTombstones = getAllSchoolTombstones(collectionID);
             return generateJasperReport(convertToReportJSONStringDistrict(spedHeadcounts, sdcDistrictCollectionEntity), specialEdHeadcountPerSchoolReport, ReportTypeCode.DIS_SPECIAL_EDUCATION_HEADCOUNT_PER_SCHOOL);
         } catch (JsonProcessingException e) {
-            log.error("Exception occurred while writing PDF report for special ed dis per school :: " + e.getMessage());
-            throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for special ed dis per school :: " + e.getMessage());
+            log.error("Exception occurred while writing PDF report for inclusive education dis per school :: " + e.getMessage());
+            throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for inclusive education dis per school :: " + e.getMessage());
         }
     }
 

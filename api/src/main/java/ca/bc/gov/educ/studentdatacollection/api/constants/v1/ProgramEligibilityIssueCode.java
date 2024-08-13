@@ -13,7 +13,7 @@ public enum ProgramEligibilityIssueCode {
   NOT_ENROLLED_CAREER("NTENRCAREE", "The student is not enrolled in career programs."),
   ENROLLED_CAREER_INDY_SCHOOL("ENRCARINDY", "Students reported by Independent Schools are not eligible for Career Program funding."),
   NOT_ENROLLED_INDIGENOUS("NTENRINDIG", "The student is not enrolled in indigenous programs."),
-  NOT_ENROLLED_SPECIAL_ED("NTENRSPED", "The student was not reported in any special education programs."),
+  NOT_ENROLLED_SPECIAL_ED("NTENRSPED", "The student was not reported in any inclusive education programs."),
   NON_ELIG_SPECIAL_EDUCATION("NELISPED", "Student must be school-aged or a non-graduated adult reported in a grade other than GA."),
   INDIGENOUS_ADULT("ISADULTAGE", "Student must be school-aged and self-identify as having Indigenous Ancestry to be eligible for funding for Indigenous Support Programs."),
   YEARS_IN_ELL("ELL5ORLESS", "Student must be school-aged and have been reported in ELL for 5 years or less."),

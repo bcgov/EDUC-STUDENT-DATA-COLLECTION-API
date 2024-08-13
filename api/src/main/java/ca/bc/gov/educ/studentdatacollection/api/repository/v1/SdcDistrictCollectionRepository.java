@@ -54,4 +54,7 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
   @Modifying
   @Query(value = "UPDATE SdcDistrictCollectionEntity sdc SET sdc.sdcDistrictCollectionStatusCode = :sdcDistrictCollectionStatusCode WHERE sdc.collectionEntity.collectionID = :collectionID")
   void updateAllDistrictCollectionStatus(UUID collectionID, String sdcDistrictCollectionStatusCode);
+
+  @Query(value = "SELECT sdc FROM SdcDistrictCollectionEntity sdc WHERE sdc.collectionEntity.collectionID = :collectionID AND sdc.sdcDistrictCollectionStatusCode != 'COMPLETED'")
+  List<SdcDistrictCollectionEntity> findAllIncompleteDistrictCollections(UUID collectionID);
 }

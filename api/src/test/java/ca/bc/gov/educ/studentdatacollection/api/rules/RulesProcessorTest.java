@@ -1133,6 +1133,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         val school = createMockSchool();
         school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+        school.setFacilityTypeCode(FacilityTypeCodes.SUMMER.getCode());
 
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         val saga = createMockStudentRuleData(entity, school);

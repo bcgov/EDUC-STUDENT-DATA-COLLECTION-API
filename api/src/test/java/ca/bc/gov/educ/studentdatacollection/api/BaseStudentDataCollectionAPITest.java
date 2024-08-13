@@ -146,7 +146,7 @@ public abstract class BaseStudentDataCollectionAPITest {
   }
 
   public ProgramDuplicateTypeCodeEntity createProgramDuplicateTypeCodeData() {
-    return ProgramDuplicateTypeCodeEntity.builder().programDuplicateTypeCode("SPECIAL_ED").label("Special Education").description("Special Education duplicate")
+    return ProgramDuplicateTypeCodeEntity.builder().programDuplicateTypeCode("SPECIAL_ED").label("Inclusive Education").description("Inclusive Education duplicate")
             .displayOrder(10).effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.now().plusYears(10)).createUser("TEST").updateUser("TEST").build();
   }
 

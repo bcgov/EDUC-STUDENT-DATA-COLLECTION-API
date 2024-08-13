@@ -69,8 +69,8 @@ public class SpecialEdHeadcountReportService extends BaseReportGenerationService
         var programList = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
         return generateJasperReport(convertToReportJSONStringDistrict(programList, sdcDistrictCollectionEntity), specialEdHeadcountReport, ReportTypeCode.DIS_SPECIAL_EDUCATION_HEADCOUNT);
       } catch (JsonProcessingException e) {
-        log.error("Exception occurred while writing PDF report for district special education programs :: " + e.getMessage());
-        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for district special education programs :: " + e.getMessage());
+        log.error("Exception occurred while writing PDF report for district inclusive education programs :: " + e.getMessage());
+        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for district inclusive education programs :: " + e.getMessage());
       }
     } else {
       try {
@@ -81,8 +81,8 @@ public class SpecialEdHeadcountReportService extends BaseReportGenerationService
         var programList = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
         return generateJasperReport(convertToReportJSONString(programList, sdcSchoolCollectionEntity), specialEdHeadcountReport, ReportTypeCode.SPECIAL_EDUCATION_HEADCOUNT);
       } catch (JsonProcessingException e) {
-        log.error("Exception occurred while writing PDF report for special education programs :: " + e.getMessage());
-        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for special education programs :: " + e.getMessage());
+          log.error("Exception occurred while writing PDF report for inclusive education programs :: " + e.getMessage());
+        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for inclusive education programs :: " + e.getMessage());
       }
     }
   }

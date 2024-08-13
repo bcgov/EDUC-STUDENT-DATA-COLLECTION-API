@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -74,6 +75,21 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
         return this.sdcSchoolCollectionStudentSearchService
             .findAll(studentSpecs, pageNumber, pageSize, sorts)
             .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.map(mapper::toSdcSchoolCollectionStudentWithValidationIssues));
+    }
+
+    @Override
+    public CompletableFuture<Slice<SdcSchoolCollectionStudent>> findAllSlice(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
+        final List<Sort.Order> sorts = new ArrayList<>();
+        Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs = sdcSchoolCollectionStudentSearchService
+                .setSpecificationAndSortCriteria(
+                        sortCriteriaJson,
+                        searchCriteriaListJson,
+                        JsonUtil.mapper,
+                        sorts
+                );
+        return this.sdcSchoolCollectionStudentSearchService
+                .findAllSlice(studentSpecs, pageNumber, pageSize, sorts)
+                .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.map(mapper::toSdcSchoolCollectionStudentWithValidationIssues));
     }
 
     @Override
