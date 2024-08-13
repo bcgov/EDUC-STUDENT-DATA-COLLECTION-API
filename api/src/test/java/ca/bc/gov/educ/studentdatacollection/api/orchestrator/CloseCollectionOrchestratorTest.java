@@ -281,7 +281,7 @@ class CloseCollectionOrchestratorTest extends BaseStudentDataCollectionAPITest {
         firstSchool.setUploadFileName(null);
         firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
         firstSchool.setSdcSchoolCollectionStatusCode("COMPLETED");
-        var savedSchoolColl = sdcSchoolCollectionRepository.save(firstSchool);
+        sdcSchoolCollectionRepository.save(firstSchool);
 
         final File file = new File(
                 Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()

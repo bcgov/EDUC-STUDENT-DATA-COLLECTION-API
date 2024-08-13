@@ -38,6 +38,7 @@ public class CloseCollectionService {
     private final SdcDuplicateRepository sdcDuplicateRepository;
     private final EmailService emailService;
     private final EmailProperties emailProperties;
+    private static final String SDC_COLLECTION_ID_KEY = "collectionID";
 
     public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties) {
         this.collectionRepository = collectionRepository;
@@ -58,7 +59,7 @@ public class CloseCollectionService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void closeCurrentCollAndOpenNewCollection(final CollectionSagaData collectionSagaData) {
         Optional<CollectionEntity> entityOptional = collectionRepository.findById(UUID.fromString(collectionSagaData.getExistingCollectionID()));
-        CollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "collectionID", collectionSagaData.getExistingCollectionID()));
+        CollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));
 
         //find school collections that are not COMPLETED
         List<SdcSchoolCollectionEntity> schoolCollectionEntities = sdcSchoolCollectionRepository.findUncompletedSchoolCollections(entity.getCollectionID());
@@ -82,7 +83,7 @@ public class CloseCollectionService {
 
         // get next collection type code to open
         Optional<CollectionTypeCodes> optionalCollectionMap = CollectionTypeCodes.findByValue(entity.getCollectionTypeCode());
-        CollectionTypeCodes collectionMap= optionalCollectionMap.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "collectionID", collectionSagaData.getExistingCollectionID()));
+        CollectionTypeCodes collectionMap= optionalCollectionMap.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));
         log.debug("Next collection to open: {}", collectionMap.getNextCollectionToOpen());
 
         // get next collection entity
@@ -230,7 +231,7 @@ public class CloseCollectionService {
 
     public void sendClosureNotification(final CollectionSagaData collectionSagaData) {
         Optional<CollectionEntity> entityOptional = collectionRepository.findById(UUID.fromString(collectionSagaData.getExistingCollectionID()));
-        CollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "collectionID", collectionSagaData.getExistingCollectionID()));
+        CollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));
 
         var emailFields = new HashMap<String, String>();
         emailFields.put("closeCollectionMonth", entity.getCollectionTypeCode());
