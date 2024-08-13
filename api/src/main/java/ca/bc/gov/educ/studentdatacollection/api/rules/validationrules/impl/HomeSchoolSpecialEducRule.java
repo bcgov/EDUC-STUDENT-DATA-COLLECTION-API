@@ -20,7 +20,7 @@ import java.util.List;
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
  *  | V25 | WARNING  | Students registered in homeschool (enrolled grade of HS),             |  V60,V28     |
- *                     should not be reported with any special education designations.
+ *                     should not be reported with any inclusive education designations.
  *
  */
 @Component

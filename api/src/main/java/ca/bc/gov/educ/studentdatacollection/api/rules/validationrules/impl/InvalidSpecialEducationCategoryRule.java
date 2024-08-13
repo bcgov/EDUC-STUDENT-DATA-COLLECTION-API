@@ -20,7 +20,7 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
  *  |-----|----------|-----------------------------------------------------------------------|--------------|
- *  | V60 | ERROR    | For students reported with a Special Education Category,              | NONE         |
+ *  | V60 | ERROR    | For students reported with a Inclusive Education Category,              | NONE         |
  *                     the category must be a valid, non-expired SPED Category.
  */
 @Component
@@ -45,7 +45,7 @@ public class InvalidSpecialEducationCategoryRule implements ValidationBaseRule {
 
         if(StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getSpecialEducationCategoryCode())
                 && activeSpecialEducationCategoryCode.stream().noneMatch(program -> program.getSpecialEducationCategoryCode().equals(studentRuleData.getSdcSchoolCollectionStudentEntity().getSpecialEducationCategoryCode()))) {
-            log.debug("InvalidSpecialEducationCategoryRule-V60: Special education code {} does not exist in DB for sdcSchoolCollectionStudentID:: {}" , studentRuleData.getSdcSchoolCollectionStudentEntity().getSpecialEducationCategoryCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+            log.debug("InvalidSpecialEducationCategoryRule-V60: Inclusive education code {} does not exist in DB for sdcSchoolCollectionStudentID:: {}" , studentRuleData.getSdcSchoolCollectionStudentEntity().getSpecialEducationCategoryCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.SPECIAL_EDUCATION_CATEGORY_CODE, StudentValidationIssueTypeCode.SPED_ERR));
         }
         return errors;
