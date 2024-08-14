@@ -2,6 +2,10 @@ package ca.bc.gov.educ.studentdatacollection.api.constants.v1;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * The enum for school's facility type codes
  */
@@ -25,6 +29,7 @@ public enum FacilityTypeCodes {
     JUSTB4PRO("JUSTB4PRO");
 
     private final String code;
+    public static final Set<String> ONLINE_SCHOOLS = new HashSet<>(Arrays.asList(DIST_LEARN.getCode(), DISTONLINE.getCode()));
     FacilityTypeCodes(String code) { this.code = code; }
 
     public static String[] getFacilityCodesWithoutOLAndCE(){
