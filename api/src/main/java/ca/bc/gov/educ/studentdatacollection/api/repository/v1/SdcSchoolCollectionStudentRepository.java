@@ -39,6 +39,28 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   long countBySdcSchoolCollection_SdcSchoolCollectionIDAndSdcSchoolCollectionStudentStatusCode(UUID sdcSchoolCollectionID, String sdcSchoolCollectionStatusCode);
 
+  @Query("SELECT " +
+          " sscs.sdcSchoolCollection.schoolID as schoolID, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' THEN 1 END) as kindHCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KF' THEN 1 END) as kindFCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '01' THEN 1 END) as grade1Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '02' THEN 1 END) as grade2Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '03' THEN 1 END) as grade3Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '04' THEN 1 END) as grade4Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '05' THEN 1 END) as grade5Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '06' THEN 1 END) as grade6Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '07' THEN 1 END) as grade7Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '08' THEN 1 END) as grade8Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '09' THEN 1 END) as grade9Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '10' THEN 1 END) as grade10Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '11' THEN 1 END) as grade11Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '12' THEN 1 END) as grade12Count " +
+          " FROM SdcSchoolCollectionStudentEntity sscs " +
+          " WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
+          " AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
+          " GROUP BY sscs.sdcSchoolCollection.sdcSchoolCollectionID ")
+  List<SchoolHeadcountResult> getAllEnrollmentHeadcountsByCollectionId(@Param("collectionID") UUID collectionID);
+
   @Query(value = """  
     SELECT stud
     FROM SdcSchoolCollectionStudentLightEntity stud, SdcSchoolCollectionEntity school, SdcDistrictCollectionEntity dist
