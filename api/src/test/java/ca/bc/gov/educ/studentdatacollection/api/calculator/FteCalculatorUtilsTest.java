@@ -676,32 +676,32 @@ class FteCalculatorUtilsTest {
 
     @ParameterizedTest
     @CsvSource({
-            "HS, true",
-            "KH, true",
-            "KF, true",
-            "01, true",
-            "02, true",
-            "03, true",
-            "04, true",
-            "05, true",
-            "06, true",
-            "07, true",
-            "EU, true",
-            "08, true",
-            "09, true",
-            "10, false",
-            "11, false",
-            "12, false",
-            "SU, false",
-            "GA, false"
+            "HS, true, DIST_LEARN",
+            "KH, true, DIST_LEARN",
+            "KF, true, DIST_LEARN",
+            "01, true, DIST_LEARN",
+            "02, true, DIST_LEARN",
+            "03, true, DIST_LEARN",
+            "04, true, DIST_LEARN",
+            "05, true, DIST_LEARN",
+            "06, true, DIST_LEARN",
+            "07, true, DISTONLINE",
+            "EU, true, DISTONLINE",
+            "08, true, DISTONLINE",
+            "09, true, DISTONLINE",
+            "10, false, DISTONLINE",
+            "11, false, DISTONLINE",
+            "12, false, DISTONLINE",
+            "SU, false, DISTONLINE",
+            "GA, false, DISTONLINE"
     })
-    void studentPreviouslyReportedInIndependentAuthority_GivenDifferentGrades_ReturnExpectedResult(String enrolledGradeCode, boolean expectedResult) {
+    void studentPreviouslyReportedInIndependentAuthority_GivenDifferentGrades_ReturnExpectedResult(String enrolledGradeCode, boolean expectedResult, String facilityTypeCode) {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
         SchoolTombstone schoolTombstone = new SchoolTombstone();
         schoolTombstone.setSchoolId(UUID.randomUUID().toString());
         schoolTombstone.setSchoolCategoryCode("INDEPEND");
-        schoolTombstone.setFacilityTypeCode("DIST_LEARN");
+        schoolTombstone.setFacilityTypeCode(facilityTypeCode);
         schoolTombstone.setIndependentAuthorityId("AUTH_ID");
         sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
