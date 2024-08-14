@@ -29,6 +29,7 @@ import java.util.*;
 @Slf4j
 public class IndigenousPerSchoolHeadcountReportService extends BaseReportGenerationService<IndigenousHeadcountResult> {
 
+    protected static final String ALLIND = "allInd";
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private JasperReport indHeadcountPerSchoolReport;
@@ -80,6 +81,7 @@ public class IndigenousPerSchoolHeadcountReportService extends BaseReportGenerat
     public HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
         HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
         Set<String> includedSchoolIDs = new HashSet<>();
+        addValuesForSectionToMap(nodeMap, ALLIND, "All Indigenous Support Program Headcount for All Schools", "00");
 
         int sequencePrefix = 10;
         if (!indHeadcounts.isEmpty()) {
@@ -108,11 +110,15 @@ public class IndigenousPerSchoolHeadcountReportService extends BaseReportGenerat
     }
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-        nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
-        nodeMap.put(sectionPrefix + "indLang", new HeadcountChildNode("Indigenous Language and Culture", FALSE, sequencePrefix + "1", false));
-        nodeMap.put(sectionPrefix + "indSupport", new HeadcountChildNode("Indigenous Support Services", FALSE, sequencePrefix + "2", false));
-        nodeMap.put(sectionPrefix + "indProg", new HeadcountChildNode("Other Approved Indigenous Programs", FALSE, sequencePrefix + "3", false));
-        nodeMap.put(sectionPrefix + "all", new HeadcountChildNode("All Indigenous Support Programs", FALSE, sequencePrefix + "4", false));
+        if (Objects.equals(sectionPrefix, ALLIND)) {
+            nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, false));
+        } else {
+            nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+            nodeMap.put(sectionPrefix + "indLang", new HeadcountChildNode("Indigenous Language and Culture", FALSE, sequencePrefix + "1", false));
+            nodeMap.put(sectionPrefix + "indSupport", new HeadcountChildNode("Indigenous Support Services", FALSE, sequencePrefix + "2", false));
+            nodeMap.put(sectionPrefix + "indProg", new HeadcountChildNode("Other Approved Indigenous Programs", FALSE, sequencePrefix + "3", false));
+            nodeMap.put(sectionPrefix + "all", new HeadcountChildNode("All Indigenous Support Programs", FALSE, sequencePrefix + "4", false));
+        }
     }
 
     public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, IndigenousHeadcountResult gradeResult) {
@@ -120,6 +126,11 @@ public class IndigenousPerSchoolHeadcountReportService extends BaseReportGenerat
         var code = optionalCode.orElseThrow(() ->
                 new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
         String schoolID = gradeResult.getSchoolID();
+
+        HeadcountChildNode allIndNode = nodeMap.get(ALLIND);
+        if (allIndNode.getValueForGrade(code) == null) {
+            allIndNode.setValueForGrade(code, "0");
+        }
 
         if (nodeMap.containsKey(schoolID + "indLang")) {
             nodeMap.get(schoolID + "indLang").setValueForGrade(code, gradeResult.getIndigenousLanguageTotal());
@@ -140,6 +151,10 @@ public class IndigenousPerSchoolHeadcountReportService extends BaseReportGenerat
         if (nodeMap.containsKey(schoolID + "Heading")) {
             nodeMap.get(schoolID + "Heading").setAllValuesToNull();
         }
+
+        int currentTotal = Integer.parseInt(gradeResult.getAllSupportProgramTotal());
+        int accumulatedTotal = Integer.parseInt(allIndNode.getValueForGrade(code));
+        allIndNode.setValueForGrade(code, String.valueOf(accumulatedTotal + currentTotal));
     }
 
 }

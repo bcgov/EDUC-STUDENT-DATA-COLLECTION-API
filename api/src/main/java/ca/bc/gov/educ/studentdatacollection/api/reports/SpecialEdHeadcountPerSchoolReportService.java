@@ -29,6 +29,7 @@ import java.util.*;
 @Slf4j
 public class SpecialEdHeadcountPerSchoolReportService extends BaseReportGenerationService<SpecialEdHeadcountResult> {
 
+    protected static final String ALLSPED = "allSped";
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private JasperReport specialEdHeadcountPerSchoolReport;
@@ -80,6 +81,7 @@ public class SpecialEdHeadcountPerSchoolReportService extends BaseReportGenerati
     public HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
         HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
         Set<String> includedSchoolIDs = new HashSet<>();
+        addValuesForSectionToMap(nodeMap, ALLSPED, "All Inclusive Education Headcount for All Schools", "00");
 
         int sequencePrefix = 10;
         if (!spedHeadcounts.isEmpty()) {
@@ -107,13 +109,17 @@ public class SpecialEdHeadcountPerSchoolReportService extends BaseReportGenerati
         return nodeMap;
     }
 
-    private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-        nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
-        nodeMap.put(sectionPrefix + "level1", new HeadcountChildNode("Level 1", FALSE, sequencePrefix + "1", false));
-        nodeMap.put(sectionPrefix + "level2", new HeadcountChildNode("Level 2", FALSE, sequencePrefix + "2", false));
-        nodeMap.put(sectionPrefix + "level3", new HeadcountChildNode("Level 3", FALSE, sequencePrefix + "3", false));
-        nodeMap.put(sectionPrefix + "other", new HeadcountChildNode("Other", FALSE, sequencePrefix + "4", false));
-        nodeMap.put(sectionPrefix + "all", new HeadcountChildNode("All Levels & Categories", FALSE, sequencePrefix + "5", false));
+    private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix) {
+        if (Objects.equals(sectionPrefix, ALLSPED)) {
+            nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, false));
+        } else {
+            nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+            nodeMap.put(sectionPrefix + "level1", new HeadcountChildNode("Level 1", FALSE, sequencePrefix + "1", false));
+            nodeMap.put(sectionPrefix + "level2", new HeadcountChildNode("Level 2", FALSE, sequencePrefix + "2", false));
+            nodeMap.put(sectionPrefix + "level3", new HeadcountChildNode("Level 3", FALSE, sequencePrefix + "3", false));
+            nodeMap.put(sectionPrefix + "other", new HeadcountChildNode("Other", FALSE, sequencePrefix + "4", false));
+            nodeMap.put(sectionPrefix + "all", new HeadcountChildNode("All Levels & Categories", FALSE, sequencePrefix + "5", false));
+        }
     }
 
     public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, SpecialEdHeadcountResult gradeResult) {
@@ -121,6 +127,11 @@ public class SpecialEdHeadcountPerSchoolReportService extends BaseReportGenerati
         var code = optionalCode.orElseThrow(() ->
                 new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
         String schoolID = gradeResult.getSchoolID();
+
+        HeadcountChildNode allSpedNode = nodeMap.get(ALLSPED);
+        if (allSpedNode.getValueForGrade(code) == null) {
+            allSpedNode.setValueForGrade(code, "0");
+        }
 
         if (nodeMap.containsKey(schoolID + "level1")) {
             nodeMap.get(schoolID + "level1").setValueForGrade(code, gradeResult.getLevelOnes());
@@ -145,5 +156,9 @@ public class SpecialEdHeadcountPerSchoolReportService extends BaseReportGenerati
         if (nodeMap.containsKey(schoolID + "Heading")) {
             nodeMap.get(schoolID + "Heading").setAllValuesToNull();
         }
+
+        int currentTotal = Integer.parseInt(gradeResult.getAllLevels());
+        int accumulatedTotal = Integer.parseInt(allSpedNode.getValueForGrade(code));
+        allSpedNode.setValueForGrade(code, String.valueOf(accumulatedTotal + currentTotal));
     }
 }
