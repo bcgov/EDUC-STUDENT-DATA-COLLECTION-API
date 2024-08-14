@@ -73,7 +73,7 @@ public class FteCalculatorUtils {
         }
         var school = studentRuleData.getSchool();
         var isPublicOnlineOrContEdSchool = (school.getSchoolCategoryCode().equals(SchoolCategoryCodes.PUBLIC.getCode()) &&
-                FacilityTypeCodes.ONLINE_SCHOOLS.contains(school.getFacilityTypeCode())) ||
+                FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.getFacilityTypeCode())) ||
                 school.getFacilityTypeCode().equals(FacilityTypeCodes.CONT_ED.getCode());
         var isStudentInDistrictFundedGrade = SchoolGradeCodes.getDistrictFundingGrades().contains(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode());
         var assignedStudentId = studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId();
@@ -114,7 +114,7 @@ public class FteCalculatorUtils {
         }
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         var school = studentRuleData.getSchool();
-        var isIndependentOnlineSchool = school != null && SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode()) && FacilityTypeCodes.ONLINE_SCHOOLS.contains(school.getFacilityTypeCode());
+        var isIndependentOnlineSchool = school != null && SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode()) && FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.getFacilityTypeCode());
         var isStudentInDistrictFundedGrade = SchoolGradeCodes.getDistrictFundingGrades().contains(student.getEnrolledGradeCode());
 
         long countAllByAssignedStudentIdAndSdcSchoolCollectionSdcSchoolCollectionIDIn = 0;
