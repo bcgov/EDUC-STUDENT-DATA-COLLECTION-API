@@ -73,7 +73,7 @@ public class FteCalculatorUtils {
         }
         var school = studentRuleData.getSchool();
         var isPublicOnlineOrContEdSchool = (school.getSchoolCategoryCode().equals(SchoolCategoryCodes.PUBLIC.getCode()) &&
-                (school.getFacilityTypeCode().equals(FacilityTypeCodes.DIST_LEARN.getCode()) || FacilityTypeCodes.ONLINE_SCHOOLS.contains(school.getFacilityTypeCode()))) ||
+                FacilityTypeCodes.ONLINE_SCHOOLS.contains(school.getFacilityTypeCode())) ||
                 school.getFacilityTypeCode().equals(FacilityTypeCodes.CONT_ED.getCode());
         var isStudentInDistrictFundedGrade = SchoolGradeCodes.getDistrictFundingGrades().contains(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode());
         var assignedStudentId = studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId();
