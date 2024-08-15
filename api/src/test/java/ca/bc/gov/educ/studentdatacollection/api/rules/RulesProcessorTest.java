@@ -897,8 +897,11 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
     @Test
     void testSchoolFundingGroupRule() {
+        val school = createMockSchool();
+        //Needs independent
+        school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
         var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
         entity.setNumberOfCourses("20");
@@ -906,7 +909,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-        val validationErrorMax = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        val validationErrorMax = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
         assertThat(validationErrorMax.size()).isNotZero();
         val errorContEd = validationErrorMax.stream().anyMatch(val -> val.getValidationIssueCode().equals("INVALIDGRADESCHOOLFUNDINGGROUP"));
         assertThat(errorContEd).isTrue();
