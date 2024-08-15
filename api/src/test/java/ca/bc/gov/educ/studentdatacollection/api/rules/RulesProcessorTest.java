@@ -898,6 +898,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     @Test
     void testSchoolFundingGroupRule() {
         val school = createMockSchool();
+        //Needs independent
         school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
