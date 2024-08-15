@@ -4,8 +4,10 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -31,12 +33,14 @@ public class EllHeadcountReportService extends BaseReportGenerationService<EllHe
 
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private JasperReport ellHeadcountReport;
 
-  public EllHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
+  public EllHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
       super(restUtils, sdcSchoolCollectionRepository);
       this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
       this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+      this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
   }
 
   @PostConstruct
@@ -57,17 +61,31 @@ public class EllHeadcountReportService extends BaseReportGenerationService<EllHe
     }
   }
 
-  public DownloadableReportResponse generateEllHeadcountReport(UUID collectionID){
-    try {
-      Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional =  sdcSchoolCollectionRepository.findById(collectionID);
-      SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
-              new EntityNotFoundException(SdcSchoolCollectionEntity.class, "Collection by Id", collectionID.toString()));
+  public DownloadableReportResponse generateEllHeadcountReport(UUID collectionID, Boolean isDistrict){
+    if (Boolean.TRUE.equals(isDistrict)) {
+      try {
+        Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional = sdcDistrictCollectionRepository.findById(collectionID);
+        SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
+                new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection ID: " + collectionID));
 
-      var headcountsList = sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-      return generateJasperReport(convertToReportJSONString(headcountsList, sdcSchoolCollectionEntity), ellHeadcountReport, ReportTypeCode.ELL_HEADCOUNT);
-    } catch (JsonProcessingException e) {
-      log.error("Exception occurred while writing PDF report for ell programs :: " + e.getMessage());
-      throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for ell programs :: " + e.getMessage());
+        var programList = sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+        return generateJasperReport(convertToReportJSONStringDistrict(programList, sdcDistrictCollectionEntity), ellHeadcountReport, ReportTypeCode.DIS_ELL_HEADCOUNT);
+      } catch (JsonProcessingException e) {
+        log.error("Exception occurred while writing PDF report for district ell programs :: " + e.getMessage());
+        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for district ell programs :: " + e.getMessage());
+      }
+    } else {
+      try {
+        Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional = sdcSchoolCollectionRepository.findById(collectionID);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
+                new EntityNotFoundException(SdcSchoolCollectionEntity.class, "Collection by Id", collectionID.toString()));
+
+        var headcountsList = sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+        return generateJasperReport(convertToReportJSONString(headcountsList, sdcSchoolCollectionEntity), ellHeadcountReport, ReportTypeCode.ELL_HEADCOUNT);
+      } catch (JsonProcessingException e) {
+        log.error("Exception occurred while writing PDF report for ell programs :: " + e.getMessage());
+        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for ell programs :: " + e.getMessage());
+      }
     }
   }
 

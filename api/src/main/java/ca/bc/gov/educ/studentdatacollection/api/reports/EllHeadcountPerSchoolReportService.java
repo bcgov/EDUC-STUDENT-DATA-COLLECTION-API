@@ -11,7 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpecialEdHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EllHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,17 +27,16 @@ import java.util.*;
 
 @Service
 @Slf4j
-public class SpecialEdHeadcountPerSchoolReportService extends BaseReportGenerationService<SpecialEdHeadcountResult> {
-
-    protected static final String ALLSPED = "allSped";
+public class EllHeadcountPerSchoolReportService extends BaseReportGenerationService<EllHeadcountResult> {
+    protected static final String ALLELL = "allEll";
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
-    private JasperReport specialEdHeadcountPerSchoolReport;
+    private JasperReport ellHeadcountPerSchoolReport;
     private final RestUtils restUtils;
-    private List<SpecialEdHeadcountResult> spedHeadcounts = new ArrayList<>();
+    private List<EllHeadcountResult> ellHeadcounts = new ArrayList<>();
     private List<SchoolTombstone> allSchoolsTombstones;
 
-    public SpecialEdHeadcountPerSchoolReportService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, RestUtils restUtils1) {
+    public EllHeadcountPerSchoolReportService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, RestUtils restUtils1) {
         super(restUtils, sdcSchoolCollectionRepository);
 
         this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
@@ -57,35 +56,35 @@ public class SpecialEdHeadcountPerSchoolReportService extends BaseReportGenerati
     private void compileJasperReports() {
         try {
             InputStream inputSpecialEdHeadcount = getClass().getResourceAsStream("/reports/specialEdHeadcountsPerSchool.jrxml");
-            specialEdHeadcountPerSchoolReport = JasperCompileManager.compileReport(inputSpecialEdHeadcount);
+            ellHeadcountPerSchoolReport = JasperCompileManager.compileReport(inputSpecialEdHeadcount);
         } catch (JRException e) {
             throw new StudentDataCollectionAPIRuntimeException("Compiling Jasper reports has failed :: " + e.getMessage());
         }
     }
 
-    public DownloadableReportResponse generateSpecialEdHeadcountPerSchoolReport(UUID collectionID) {
+    public DownloadableReportResponse generateEllHeadcountPerSchoolReport(UUID collectionID) {
         try {
             Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional = sdcDistrictCollectionRepository.findById(collectionID);
             SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
                     new EntityNotFoundException(SdcDistrictCollectionEntity.class, "CollectionId", collectionID.toString()));
 
-            spedHeadcounts = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySchoolIdAndBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+            ellHeadcounts = sdcSchoolCollectionStudentRepository.getEllHeadcountsByBySchoolIdAndSdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
             this.allSchoolsTombstones = getAllSchoolTombstones(collectionID);
-            return generateJasperReport(convertToReportJSONStringDistrict(spedHeadcounts, sdcDistrictCollectionEntity), specialEdHeadcountPerSchoolReport, ReportTypeCode.DIS_SPECIAL_EDUCATION_HEADCOUNT_PER_SCHOOL);
+            return generateJasperReport(convertToReportJSONStringDistrict(ellHeadcounts, sdcDistrictCollectionEntity), ellHeadcountPerSchoolReport, ReportTypeCode.DIS_ELL_HEADCOUNT_PER_SCHOOL);
         } catch (JsonProcessingException e) {
-            log.error("Exception occurred while writing PDF report for inclusive education dis per school :: " + e.getMessage());
-            throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for inclusive education dis per school :: " + e.getMessage());
+            log.error("Exception occurred while writing PDF report for ell dis per school :: " + e.getMessage());
+            throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for ell dis per school :: " + e.getMessage());
         }
     }
 
     public HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
         HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
         Set<String> includedSchoolIDs = new HashSet<>();
-        addValuesForSectionToMap(nodeMap, ALLSPED, "All Inclusive Education Headcount for All Schools", "00");
+        addValuesForSectionToMap(nodeMap, ALLELL, "All English Language Learners Headcount for All Schools", "00");
 
         int sequencePrefix = 10;
-        if (!spedHeadcounts.isEmpty()) {
-            for (SpecialEdHeadcountResult result : spedHeadcounts) {
+        if (!ellHeadcounts.isEmpty()) {
+            for (EllHeadcountResult result : ellHeadcounts) {
                 String schoolID = result.getSchoolID();
                 Optional<SchoolTombstone> schoolOptional = restUtils.getSchoolBySchoolID(schoolID);
                 int finalSequencePrefix = sequencePrefix;
@@ -110,55 +109,35 @@ public class SpecialEdHeadcountPerSchoolReportService extends BaseReportGenerati
     }
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix) {
-        if (Objects.equals(sectionPrefix, ALLSPED)) {
+        if (Objects.equals(sectionPrefix, ALLELL)) {
             nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, false));
         } else {
             nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
-            nodeMap.put(sectionPrefix + "level1", new HeadcountChildNode("Level 1", FALSE, sequencePrefix + "1", false));
-            nodeMap.put(sectionPrefix + "level2", new HeadcountChildNode("Level 2", FALSE, sequencePrefix + "2", false));
-            nodeMap.put(sectionPrefix + "level3", new HeadcountChildNode("Level 3", FALSE, sequencePrefix + "3", false));
-            nodeMap.put(sectionPrefix + "other", new HeadcountChildNode("Other", FALSE, sequencePrefix + "4", false));
-            nodeMap.put(sectionPrefix + "all", new HeadcountChildNode("All Levels & Categories", FALSE, sequencePrefix + "5", false));
+            nodeMap.put(sectionPrefix + "all", new HeadcountChildNode("All English Language Learners", FALSE, sequencePrefix + "1", false));
         }
     }
 
-    public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, SpecialEdHeadcountResult gradeResult) {
+    public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, EllHeadcountResult gradeResult) {
         Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
         var code = optionalCode.orElseThrow(() ->
                 new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
         String schoolID = gradeResult.getSchoolID();
 
-        HeadcountChildNode allSpedNode = nodeMap.get(ALLSPED);
-        if (allSpedNode.getValueForGrade(code) == null) {
-            allSpedNode.setValueForGrade(code, "0");
-        }
-
-        if (nodeMap.containsKey(schoolID + "level1")) {
-            nodeMap.get(schoolID + "level1").setValueForGrade(code, gradeResult.getLevelOnes());
-        }
-
-        if (nodeMap.containsKey(schoolID + "level2")) {
-            nodeMap.get(schoolID + "level2").setValueForGrade(code, gradeResult.getLevelTwos());
-        }
-
-        if (nodeMap.containsKey(schoolID + "level3")) {
-            nodeMap.get(schoolID + "level3").setValueForGrade(code, gradeResult.getLevelThrees());
-        }
-
-        if (nodeMap.containsKey(schoolID + "other")) {
-            nodeMap.get(schoolID + "other").setValueForGrade(code, gradeResult.getOtherLevels());
+        HeadcountChildNode allEllNode = nodeMap.get(ALLELL);
+        if (allEllNode.getValueForGrade(code) == null) {
+            allEllNode.setValueForGrade(code, "0");
         }
 
         if (nodeMap.containsKey(schoolID + "all")) {
-            nodeMap.get(schoolID + "all").setValueForGrade(code, gradeResult.getAllLevels());
+            nodeMap.get(schoolID + "all").setValueForGrade(code, gradeResult.getTotalEllStudents());
         }
 
         if (nodeMap.containsKey(schoolID + "Heading")) {
             nodeMap.get(schoolID + "Heading").setAllValuesToNull();
         }
 
-        int currentTotal = Integer.parseInt(gradeResult.getAllLevels());
-        int accumulatedTotal = Integer.parseInt(allSpedNode.getValueForGrade(code));
-        allSpedNode.setValueForGrade(code, String.valueOf(accumulatedTotal + currentTotal));
+        int currentTotal = Integer.parseInt(gradeResult.getTotalEllStudents());
+        int accumulatedTotal = Integer.parseInt(allEllNode.getValueForGrade(code));
+        allEllNode.setValueForGrade(code, String.valueOf(accumulatedTotal + currentTotal));
     }
 }

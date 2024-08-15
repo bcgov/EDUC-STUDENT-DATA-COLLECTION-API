@@ -36,7 +36,9 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     private final FrenchProgramHeadcountReportService frenchProgramHeadcountReportService;
     private final FrenchPerSchoolHeadcountReportService frenchPerSchoolHeadcountReportService;
     private final IndigenousHeadcountReportService indigenousHeadcountReportService;
+    private final IndigenousPerSchoolHeadcountReportService indigenousPerSchoolHeadcountReportService;
     private final EllHeadcountReportService ellHeadcountReportService;
+    private final EllHeadcountPerSchoolReportService ellHeadcountPerSchoolReportService;
     private final SpecialEdHeadcountReportService specialEdHeadcountReportService;
     private final SpecialEdHeadcountPerSchoolReportService specialEdHeadcountPerSchoolReportService;
     private final AllStudentLightCollectionGenerateCsvService allStudentLightCollectionGenerateCsvService;
@@ -67,10 +69,14 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case FRENCH_HEADCOUNT -> frenchProgramHeadcountReportService.generateFrenchProgramHeadcountReport(collectionID, false);
             case DIS_FRENCH_HEADCOUNT -> frenchProgramHeadcountReportService.generateFrenchProgramHeadcountReport(collectionID, true);
             case DIS_FRENCH_HEADCOUNT_PER_SCHOOL -> frenchPerSchoolHeadcountReportService.generatePerSchoolReport(collectionID);
-            case INDIGENOUS_HEADCOUNT -> indigenousHeadcountReportService.generateIndigenousHeadcountReport(collectionID);
+            case INDIGENOUS_HEADCOUNT -> indigenousHeadcountReportService.generateIndigenousHeadcountReport(collectionID, false);
+            case DIS_INDIGENOUS_HEADCOUNT -> indigenousHeadcountReportService.generateIndigenousHeadcountReport(collectionID, true);
+            case DIS_INDIGENOUS_HEADCOUNT_PER_SCHOOL -> indigenousPerSchoolHeadcountReportService.generateIndigenousHeadcountPerSchoolReport(collectionID);
             case BAND_RESIDENCE_HEADCOUNT -> bandOfResidenceHeadcountReportService.generateBandOfResdienceReport(collectionID);
             case DIS_REFUGEE_HEADCOUNT_PER_SCHOOL -> refugeeHeadcountPerSchoolReportService.generateRefugeePerSchoolReport(collectionID);
-            case ELL_HEADCOUNT -> ellHeadcountReportService.generateEllHeadcountReport(collectionID);
+            case ELL_HEADCOUNT -> ellHeadcountReportService.generateEllHeadcountReport(collectionID, false);
+            case DIS_ELL_HEADCOUNT -> ellHeadcountReportService.generateEllHeadcountReport(collectionID, true);
+            case DIS_ELL_HEADCOUNT_PER_SCHOOL -> ellHeadcountPerSchoolReportService.generateEllHeadcountPerSchoolReport(collectionID);
             case SPECIAL_EDUCATION_HEADCOUNT -> specialEdHeadcountReportService.generateSpecialEdHeadcountReport(collectionID, false);
             case DIS_SPECIAL_EDUCATION_HEADCOUNT -> specialEdHeadcountReportService.generateSpecialEdHeadcountReport(collectionID, true);
             case DIS_SPECIAL_EDUCATION_HEADCOUNT_PER_SCHOOL -> specialEdHeadcountPerSchoolReportService.generateSpecialEdHeadcountPerSchoolReport(collectionID);
