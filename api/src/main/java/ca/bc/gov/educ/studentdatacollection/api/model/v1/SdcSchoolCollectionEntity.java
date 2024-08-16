@@ -36,13 +36,7 @@ public class SdcSchoolCollectionEntity {
   @ManyToOne(optional = false, targetEntity = CollectionEntity.class)
   @JoinColumn(name = "COLLECTION_ID", referencedColumnName = "COLLECTION_ID", updatable = false)
   CollectionEntity collectionEntity;
-
-  @ToString.Exclude
-  @EqualsAndHashCode.Exclude
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "SDC_DISTRICT_COLLECTION_ID", referencedColumnName = "SDC_DISTRICT_COLLECTION_ID", insertable = false, updatable = false)
-  private SdcDistrictCollectionEntity sdcDistrictCollection;
-
+  
   @Getter
   @Basic
   @Column(name = "SCHOOL_ID", columnDefinition = "BINARY(16)")
