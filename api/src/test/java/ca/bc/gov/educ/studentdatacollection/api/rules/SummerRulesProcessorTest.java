@@ -167,7 +167,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
-    void testSummerPrePrimaryStudentIsExecuted() {
+    void testSummerPrePrimaryStudentIsNotExecuted() {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
@@ -186,6 +186,28 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationGradRule.size()).isNotZero();
         val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_PRE_PRIMARY_ERROR.getCode()));
         assertThat(error).isFalse();
+    }
+
+    @Test
+    void testSummerPrePrimaryStudentIsExecuted() {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val school = createMockSchool();
+        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+        collection.setCollectionTypeCode(JULY.getTypeCode());
+
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+        entity.setDob(LocalDateTime.now().minusYears(3).format(format));
+        val saga = createMockStudentRuleData(entity, school);
+        saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
+
+        val validationGradRule = rulesProcessor.processRules(saga);
+        assertThat(validationGradRule.size()).isNotZero();
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_PRE_PRIMARY_ERROR.getCode()));
+        assertThat(error).isTrue();
     }
 
     @Test
