@@ -5,7 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.MinistryHeadcountRep
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.MinistryHeadcountService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResultsTable;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +24,7 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
     private final MinistryHeadcountService ministryHeadcountService;
 
     @Override
-    public HeadcountResultsTable getMinistryHeadcounts(UUID collectionID, String type) {
+    public SimpleHeadcountResultsTable getMinistryHeadcounts(UUID collectionID, String type) {
         Optional<MinistryReportTypeCode> code = MinistryReportTypeCode.findByValue(type);
 
         if(code.isEmpty()){
@@ -34,7 +34,7 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
 
         return switch(code.get()) {
             case SCHOOL_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getAllSchoolEnrollmentHeadcounts(collectionID);
-            default -> new HeadcountResultsTable();
+            default -> new SimpleHeadcountResultsTable();
         };
     }
 }
