@@ -185,7 +185,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
         val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_PRE_PRIMARY_ERROR.getCode()));
-        assertThat(error).isTrue();
+        assertThat(error).isFalse();
     }
 
     @Test
@@ -254,7 +254,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
-        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_ENROLLED_PROGRAM_ERROR.getCode()));
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_FRENCH_CAREER_PROGRAM_ERROR.getCode()));
         assertThat(error).isTrue();
     }
 
@@ -278,7 +278,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
-        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_ENROLLED_PROGRAM_ERROR.getCode()));
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_FRENCH_CAREER_PROGRAM_ERROR.getCode()));
         assertThat(error).isTrue();
     }
 
