@@ -43,7 +43,7 @@ public class SummerPrePrimaryStudentRule implements ValidationBaseRule {
         log.debug("In executeValidation of SummerPrePrimaryStudentRule-V98 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        if (DOBUtil.is5YearsOldByDec31ofLastSchoolYear(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob())) {
+        if (!DOBUtil.is5YearsOldByDec31ofLastSchoolYear(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob())) {
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.SUMMER_PRE_PRIMARY_ERROR));
        }
 

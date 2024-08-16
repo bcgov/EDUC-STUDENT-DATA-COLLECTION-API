@@ -53,7 +53,7 @@ public class SummerFrenchAndCareerRule implements ValidationBaseRule {
         final List<String> enrolledProgramCodes = validationRulesService.splitEnrolledProgramsString(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledProgramCodes());
 
         if (EnrolledProgramCodes.getCareerProgramCodes().stream().anyMatch(enrolledProgramCodes::contains) || EnrolledProgramCodes.getFrenchProgramCodes().stream().anyMatch(enrolledProgramCodes::contains)) {
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_PROGRAM_CODE, StudentValidationIssueTypeCode.SUMMER_ENROLLED_PROGRAM_ERROR));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_PROGRAM_CODE, StudentValidationIssueTypeCode.SUMMER_FRENCH_CAREER_PROGRAM_ERROR));
        }
 
         return errors;

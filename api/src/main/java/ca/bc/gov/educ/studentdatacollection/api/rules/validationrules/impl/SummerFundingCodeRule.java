@@ -11,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +41,7 @@ public class SummerFundingCodeRule implements ValidationBaseRule {
         log.debug("In executeValidation of SummerFundingCodeRule-V95 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        if (studentRuleData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode().equalsIgnoreCase(SchoolFundingCodes.OUT_OF_PROVINCE.getCode())) {
+        if (StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode()) && studentRuleData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode().equalsIgnoreCase(SchoolFundingCodes.OUT_OF_PROVINCE.getCode())) {
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.SCHOOL_FUNDING_CODE, StudentValidationIssueTypeCode.SUMMER_FUNDING_CODE_ERROR));
        }
         return errors;
