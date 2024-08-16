@@ -5,6 +5,8 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
@@ -149,5 +151,13 @@ public class CollectionService {
     List<UUID> matchedAssignedUUIDs = matchedAssignedIDs.stream().map(UUID::fromString).toList();
     List<SdcSchoolCollectionStudentEntity> duplicateStudents = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(collectionID, matchedAssignedUUIDs);
     return duplicateStudents.stream().map(s -> s.getAssignedStudentId().toString()).toList();
+  }
+
+  public List<SdcSchoolCollectionEntity> getSchoolCollectionsInCollection(UUID collectionID){
+    return sdcSchoolCollectionRepository.findAllByCollectionEntityCollectionID(collectionID);
+  }
+
+  public List<SdcDistrictCollectionEntity> getDistrictCollectionsInCollection(UUID collectionID){
+    return sdcDistrictCollectionRepository.findAllByCollectionEntityCollectionID(collectionID);
   }
 }

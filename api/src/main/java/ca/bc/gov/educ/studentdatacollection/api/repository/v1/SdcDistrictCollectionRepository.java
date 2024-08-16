@@ -57,4 +57,6 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
 
   @Query(value = "SELECT sdc FROM SdcDistrictCollectionEntity sdc WHERE sdc.collectionEntity.collectionID = :collectionID AND sdc.sdcDistrictCollectionStatusCode != 'COMPLETED'")
   List<SdcDistrictCollectionEntity> findAllIncompleteDistrictCollections(UUID collectionID);
+
+  List<SdcDistrictCollectionEntity> findAllByCollectionEntityCollectionID(UUID collectionID);
 }

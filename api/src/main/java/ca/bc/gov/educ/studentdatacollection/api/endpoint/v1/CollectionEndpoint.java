@@ -118,4 +118,18 @@ public interface CollectionEndpoint {
                                                          @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                          @RequestParam(name = "sort", defaultValue = "") String sortCriteriaJson,
                                                          @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson);
+
+  @GetMapping("/{collectionID}/sdcSchoolCollections")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "getSchoolCollectionsInCollection", description = "Endpoint to retrieve all school collections in collection")
+  List<SdcSchoolCollection> getSchoolCollectionsInCollection(@PathVariable("collectionID") UUID collectionID);
+
+  @GetMapping("/{collectionID}/sdcDistrictCollections")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "getDistrictCollectionsInCollection", description = "Endpoint to retrieve all district collections in collection")
+  List<SdcDistrictCollection> getDistrictCollectionsInCollection(@PathVariable("collectionID") UUID collectionID);
 }
