@@ -201,8 +201,8 @@ public class ValidationRulesService {
             year = LocalDate.now().getYear() - 1;
         }
 
-        Optional<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInHistoricalCollectionWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), collectionTypeCode, year);
-        return entity.isPresent();
+        List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInHistoricalCollectionWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), collectionTypeCode, year);
+        return !entity.isEmpty();
     }
 
     public boolean findStudentInHistoricalCollectionInOtherDistricts(StudentRuleData studentRuleData, String collectionTypeCode) {
@@ -213,7 +213,7 @@ public class ValidationRulesService {
             year = LocalDate.now().getYear() - 1;
         }
 
-        Optional<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInHistoricalCollectionInOtherDistricts(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), collectionTypeCode, year);
-        return entity.isPresent();
+        List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInHistoricalCollectionInOtherDistricts(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), collectionTypeCode, year);
+        return !entity.isEmpty();
     }
 }

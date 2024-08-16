@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -891,7 +890,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           AND C.collectionTypeCode = :collectionTypeCode
           AND EXTRACT(YEAR FROM C.closeDate) = :targetYear
           """)
-  Optional<SdcSchoolCollectionStudentEntity> findStudentInHistoricalCollectionWithInSameDistrict(UUID districtID, UUID assignedStudentID, String collectionTypeCode, Integer targetYear);
+  List<SdcSchoolCollectionStudentEntity> findStudentInHistoricalCollectionWithInSameDistrict(UUID districtID, UUID assignedStudentID, String collectionTypeCode, Integer targetYear);
 
   @Query(value="""
            SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS, SdcDistrictCollectionEntity SDC
@@ -905,6 +904,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             AND C.collectionTypeCode = :collectionTypeCode
             AND EXTRACT(YEAR FROM C.closeDate) = :targetYear
             """)
-  Optional<SdcSchoolCollectionStudentEntity> findStudentInHistoricalCollectionInOtherDistricts(UUID districtID, UUID assignedStudentID, String collectionTypeCode, Integer targetYear);
+  List<SdcSchoolCollectionStudentEntity> findStudentInHistoricalCollectionInOtherDistricts(UUID districtID, UUID assignedStudentID, String collectionTypeCode, Integer targetYear);
 
 }
