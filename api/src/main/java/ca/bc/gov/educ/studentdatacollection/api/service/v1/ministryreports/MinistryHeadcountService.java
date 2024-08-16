@@ -1,15 +1,14 @@
-package ca.bc.gov.educ.studentdatacollection.api.service.v1;
+package ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
+import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -47,7 +46,7 @@ public class MinistryHeadcountService {
       var school = restUtils.getSchoolBySchoolID(schoolHeadcountResult.getSchoolID()).get();
 
       var rowMap = new HashMap<String, String>();
-      rowMap.put(SCHOOL_YEAR.getCode(), getSchoolYearString(collection));
+      rowMap.put(SCHOOL_YEAR.getCode(), LocalDateTimeUtil.getSchoolYearString(collection));
       rowMap.put(DISTRICT_NUMBER.getCode(), school.getMincode().substring(0,3));
       rowMap.put(SCHOOL_NUMBER.getCode(), school.getSchoolNumber());
       rowMap.put(SCHOOL_NAME.getCode(), school.getDisplayName());
@@ -72,15 +71,6 @@ public class MinistryHeadcountService {
     });
     resultsTable.setRows(rows);
     return resultsTable;
-  }
-
-  private String getSchoolYearString(CollectionEntity collection){
-    var snapshotDateString = collection.getSnapshotDate();
-    if(!collection.getCollectionTypeCode().equals(CollectionTypeCodes.SEPTEMBER.getTypeCode())){
-      return snapshotDateString.minusYears(1).getYear() + "/" + snapshotDateString.getYear() + "SY";
-    }else{
-      return snapshotDateString.getYear() + "/" + snapshotDateString.plusYears(1).getYear() + "SY";
-    }
   }
 
 }
