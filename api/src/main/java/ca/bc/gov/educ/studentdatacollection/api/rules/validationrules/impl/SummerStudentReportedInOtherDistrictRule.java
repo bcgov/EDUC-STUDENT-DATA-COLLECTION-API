@@ -48,14 +48,17 @@ public class SummerStudentReportedInOtherDistrictRule implements ValidationBaseR
         log.debug("In executeValidation of SummerStudentReportedInOtherDistrictRule-V99 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        var isStudentReportedInSepColl = validationRulesService.findStudentInHistoricalCollectionInOtherDistricts(studentRuleData, CollectionTypeCodes.SEPTEMBER.getTypeCode());
-        var isStudentReportedInFebColl = validationRulesService.findStudentInHistoricalCollectionInOtherDistricts(studentRuleData, CollectionTypeCodes.FEBRUARY.getTypeCode());
-        var isStudentReportedInMayColl = validationRulesService.findStudentInHistoricalCollectionInOtherDistricts(studentRuleData, CollectionTypeCodes.MAY.getTypeCode());
+        validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
 
-        if (isStudentReportedInSepColl || isStudentReportedInFebColl || isStudentReportedInMayColl) {
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_NOT_IN_DISTRICT_ERROR));
-       }
+        if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
+            var isStudentReportedInSepColl = validationRulesService.findStudentInHistoricalCollectionInOtherDistricts(studentRuleData, CollectionTypeCodes.SEPTEMBER.getTypeCode());
+            var isStudentReportedInFebColl = validationRulesService.findStudentInHistoricalCollectionInOtherDistricts(studentRuleData, CollectionTypeCodes.FEBRUARY.getTypeCode());
+            var isStudentReportedInMayColl = validationRulesService.findStudentInHistoricalCollectionInOtherDistricts(studentRuleData, CollectionTypeCodes.MAY.getTypeCode());
 
+            if (isStudentReportedInSepColl || isStudentReportedInFebColl || isStudentReportedInMayColl) {
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_NOT_IN_DISTRICT_ERROR));
+            }
+        }
         return errors;
     }
 
