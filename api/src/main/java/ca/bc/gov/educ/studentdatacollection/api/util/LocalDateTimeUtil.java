@@ -1,5 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.util;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -35,5 +38,14 @@ public final class LocalDateTimeUtil {
         .appendValue(DAY_OF_MONTH, 2).toFormatter();
     LocalDate date = LocalDate.parse(dateOfBirth, dateTimeFormatter);
     return date.format(DateTimeFormatter.ISO_DATE);
+  }
+
+  public static String getSchoolYearString(CollectionEntity collection){
+    var snapshotDateString = collection.getSnapshotDate();
+    if(!collection.getCollectionTypeCode().equals(CollectionTypeCodes.SEPTEMBER.getTypeCode())){
+      return snapshotDateString.minusYears(1).getYear() + "/" + snapshotDateString.getYear() + "SY";
+    }else{
+      return snapshotDateString.getYear() + "/" + snapshotDateString.plusYears(1).getYear() + "SY";
+    }
   }
 }

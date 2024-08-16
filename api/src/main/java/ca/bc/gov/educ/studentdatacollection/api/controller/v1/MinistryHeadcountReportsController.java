@@ -4,8 +4,10 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeC
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.MinistryHeadcountReports;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.MinistryHeadcountService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports.MinistryHeadcountService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports.AllSchoolsHeadcountsReportService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +24,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 public class MinistryHeadcountReportsController implements MinistryHeadcountReports {
 
     private final MinistryHeadcountService ministryHeadcountService;
+    private final AllSchoolsHeadcountsReportService ministryReportsService;
 
     @Override
     public SimpleHeadcountResultsTable getMinistryHeadcounts(UUID collectionID, String type) {
@@ -37,4 +40,21 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
             default -> new SimpleHeadcountResultsTable();
         };
     }
+
+    @Override
+    public DownloadableReportResponse getMinistryDownloadableReport(UUID collectionID, String type) {
+        Optional<MinistryReportTypeCode> code = MinistryReportTypeCode.findByValue(type);
+
+        if(code.isEmpty()){
+            ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid report type code.").status(BAD_REQUEST).build();
+            throw new InvalidPayloadException(error);
+        }
+
+        return switch (code.get()) {
+            case SCHOOL_ENROLLMENT_HEADCOUNTS -> ministryReportsService.generateAllSchoolsHeadcounts(collectionID);
+            default -> new DownloadableReportResponse();
+        };
+    }
+
+
 }
