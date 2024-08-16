@@ -58,7 +58,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           " FROM SdcSchoolCollectionStudentEntity sscs " +
           " WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           " AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
-          " GROUP BY sscs.sdcSchoolCollection.sdcSchoolCollectionID ")
+          " GROUP BY sscs.sdcSchoolCollection.schoolID ")
   List<SchoolHeadcountResult> getAllEnrollmentHeadcountsByCollectionId(@Param("collectionID") UUID collectionID);
 
   @Query(value = """  
