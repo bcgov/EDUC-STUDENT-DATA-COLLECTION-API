@@ -70,6 +70,7 @@ public class RestUtils {
   private final Map<String, SchoolTombstone> schoolMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMincodeMap = new ConcurrentHashMap<>();
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
+  private final Map<String, School> allSchoolMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
   private final WebClient webClient;
   private final WebClient chesWebClient;
@@ -78,6 +79,7 @@ public class RestUtils {
   private final ReadWriteLock schoolFundingGroupsLock = new ReentrantReadWriteLock();
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
   private final ReadWriteLock districtLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock allSchoolLock = new ReentrantReadWriteLock();
   @Getter
   private final ApplicationProperties props;
 
@@ -106,6 +108,7 @@ public class RestUtils {
     this.populateSchoolMincodeMap();
     this.populateSchoolFundingCodesMap();
     this.populateDistrictMap();
+    this.populateAllSchoolMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
@@ -450,6 +453,49 @@ public class RestUtils {
 
     } catch (final Exception ex) {
       log.error("Error occurred calling GET STUDENT service :: " + ex.getMessage());
+      Thread.currentThread().interrupt();
+      throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
+    }
+  }
+
+  public void populateAllSchoolMap() {
+    val writeLock = this.allSchoolLock.writeLock();
+    try {
+      writeLock.lock();
+      List<School> allSchools = this.getAllSchoolList(UUID.randomUUID());
+      for (val school : allSchools) {
+        this.allSchoolMap.put(school.getSchoolId(), school);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache for allSchool {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} allSchools to memory", this.allSchoolMap.values().size());
+  }
+
+  public Optional<School> getAllSchoolBySchoolID(final String schoolID) {
+    if (this.allSchoolMap.isEmpty()) {
+      log.info("All School map is empty reloading schools");
+      this.populateAllSchoolMap();
+    }
+    return Optional.ofNullable(this.allSchoolMap.get(schoolID));
+  }
+
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {StudentDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  public List<School> getAllSchoolList(UUID correlationID) {
+    try {
+      log.info("Calling Institute api to load all schools to memory");
+      final TypeReference<List<School>> ref = new TypeReference<>() {
+      };
+      val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(SEARCH_CRITERIA_LIST.concat("=").concat(PAGE_SIZE).concat("=").concat("100000")).build();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
+      if (null != responseMessage) {
+        return objectMapper.readValue(responseMessage.getData(), ref);
+      } else {
+        throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+      }
+    } catch (final Exception ex) {
       Thread.currentThread().interrupt();
       throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
     }
