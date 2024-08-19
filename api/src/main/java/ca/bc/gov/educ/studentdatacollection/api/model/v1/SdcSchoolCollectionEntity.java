@@ -36,7 +36,7 @@ public class SdcSchoolCollectionEntity {
   @ManyToOne(optional = false, targetEntity = CollectionEntity.class)
   @JoinColumn(name = "COLLECTION_ID", referencedColumnName = "COLLECTION_ID", updatable = false)
   CollectionEntity collectionEntity;
-
+  
   @Getter
   @Basic
   @Column(name = "SCHOOL_ID", columnDefinition = "BINARY(16)")

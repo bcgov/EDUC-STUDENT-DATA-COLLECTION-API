@@ -7,8 +7,12 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CollectionMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.CloseCollectionOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CollectionSearchService;
@@ -51,6 +55,8 @@ public class CollectionController implements CollectionEndpoint {
 
   private static final CollectionMapper collectionMapper = CollectionMapper.mapper;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
+  private static final SdcSchoolCollectionMapper sdcSchoolCollectionMapper = SdcSchoolCollectionMapper.mapper;
+  private static final SdcDistrictCollectionMapper sdcDistrictCollectionMapper = SdcDistrictCollectionMapper.mapper;
   private final CollectionPayloadValidator collectionPayloadValidator;
   private final CollectionService collectionService;
   private final SdcDuplicatesService sdcDuplicatesService;
@@ -180,4 +186,25 @@ public class CollectionController implements CollectionEndpoint {
             .thenApplyAsync(collectionEntities -> collectionEntities.map(collectionMapper::toStructure));
   }
 
+  @Override
+  public List<SdcSchoolCollection> getSchoolCollectionsInCollection(UUID collectionID){
+    List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities = this.collectionService.getSchoolCollectionsInCollection(collectionID);
+
+    List<SdcSchoolCollection> sdcSchoolCollectionList = new ArrayList<>();
+    for (SdcSchoolCollectionEntity entity : sdcSchoolCollectionEntities) {
+      sdcSchoolCollectionList.add(sdcSchoolCollectionMapper.toStructure(entity));
+    }
+    return sdcSchoolCollectionList;
+  }
+
+  @Override
+  public List<SdcDistrictCollection> getDistrictCollectionsInCollection(UUID collectionID){
+    List<SdcDistrictCollectionEntity> sdcDistrictCollectionEntities = this.collectionService.getDistrictCollectionsInCollection(collectionID);
+
+    List<SdcDistrictCollection> sdcDistrictCollectionList = new ArrayList<>();
+    for (SdcDistrictCollectionEntity entity : sdcDistrictCollectionEntities) {
+      sdcDistrictCollectionList.add(sdcDistrictCollectionMapper.toStructure(entity));
+    }
+    return sdcDistrictCollectionList;
+  }
 }
