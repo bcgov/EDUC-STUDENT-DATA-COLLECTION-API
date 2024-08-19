@@ -122,16 +122,8 @@ public class CloseCollectionService {
             collectionToOpen.setUpdateDate(LocalDateTime.now());
             collectionTypeCodeRepository.save(collectionToOpen);
 
+            sdcSchoolCollectionStudentRepository.updateAllSdcSchoolCollectionStudentStatus(UUID.fromString(collectionSagaData.getExistingCollectionID()));
             log.info("New collection for {} is now open", collectionToOpen.getCollectionTypeCode());
-
-            List<SdcSchoolCollectionStudentEntity> studentsInCollections=  sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionID(UUID.fromString(collectionSagaData.getExistingCollectionID()));
-            log.debug("Found {} studentsInCollections for downstream update", studentsInCollections.size());
-            studentsInCollections.forEach(student -> {
-                student.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.DEMOG_UPD.getCode());
-                student.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-                student.setUpdateDate(LocalDateTime.now());
-            });
-            sdcSchoolCollectionStudentRepository.saveAll(studentsInCollections);
         }
     }
 
