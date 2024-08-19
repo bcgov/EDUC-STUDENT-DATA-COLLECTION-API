@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ICountValidationIssues
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -868,6 +869,15 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<RefugeeHeadcountResult> getRefugeeHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionID(UUID collectionID);
+
+  @Modifying
+  @Query(value = """
+           UPDATE SDC_SCHOOL_COLLECTION_STUDENT
+           SET sdc_school_collection_student_status_code = 'DEMOG_UPD', update_user = 'STUDENT_DATA_COLLECTION_API', update_date = CURRENT_TIMESTAMP
+           WHERE sdc_school_collection_id IN 
+           (SELECT sdc_school_collection_id FROM SDC_SCHOOL_COLLECTION WHERE collection_id = :collectionID)
+           """, nativeQuery = true)
+  void updateAllSdcSchoolCollectionStudentStatus(UUID collectionID);
 
   @Query(value="""
     SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE stud.sdcSchoolCollectionStudentID
