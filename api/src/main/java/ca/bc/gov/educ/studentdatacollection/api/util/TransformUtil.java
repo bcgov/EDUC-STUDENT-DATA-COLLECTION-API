@@ -1,6 +1,9 @@
 package ca.bc.gov.educ.studentdatacollection.api.util;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGrade;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -105,6 +108,17 @@ public class TransformUtil {
     String[] results = text.split("(?<=\\G.{" + numberOfCharacters + "})");
 
     return Arrays.asList(results);
+  }
+
+  public static String getGradesOfferedString(School school){
+    StringBuilder gradesOffered = new StringBuilder();
+    for(SchoolGrade schoolGrade: school.getGrades()) {
+      var optGrade = SchoolGradeCodes.findByTypeCode(schoolGrade.getSchoolGradeCode());
+      if(optGrade.isPresent()) {
+        gradesOffered.append(optGrade.get().getCode() + ",");
+      }
+    }
+    return gradesOffered.toString().substring(0,gradesOffered.lastIndexOf(","));
   }
 
   public static String sanitizeEnrolledProgramString(String enrolledProgramCode) {

@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
 import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,7 @@ public class MinistryHeadcountService {
     resultsTable.setHeaders(headerList);
     var rows = new ArrayList<Map<String, String>>();
     collectionRawData.stream().forEach(schoolHeadcountResult -> {
-      var school = restUtils.getSchoolBySchoolID(schoolHeadcountResult.getSchoolID()).get();
+      var school = restUtils.getAllSchoolBySchoolID(schoolHeadcountResult.getSchoolID()).get();
 
       var rowMap = new HashMap<String, String>();
       rowMap.put(SCHOOL_YEAR.getCode(), LocalDateTimeUtil.getSchoolYearString(collection));
@@ -52,6 +53,7 @@ public class MinistryHeadcountService {
       rowMap.put(SCHOOL_NAME.getCode(), school.getDisplayName());
       rowMap.put(FACILITY_TYPE.getCode(), school.getFacilityTypeCode());
       rowMap.put(SCHOOL_CATEGORY.getCode(), school.getSchoolCategoryCode());
+      rowMap.put(GRADE_RANGE.getCode(),  TransformUtil.getGradesOfferedString(school));
       rowMap.put(REPORT_DATE.getCode(), collection.getSnapshotDate().toString());
       rowMap.put(KIND_HT_COUNT.getCode(), schoolHeadcountResult.getKindHCount());
       rowMap.put(KIND_FT_COUNT.getCode(), schoolHeadcountResult.getKindFCount());
