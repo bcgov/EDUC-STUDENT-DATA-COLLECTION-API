@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -48,7 +49,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
         List<BandResidenceHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(previousCollectionID);
         HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, false, null);
-        setResultsTableComparisonValuesDynamic(currentCollectionData, previousCollectionData);
+        setResultsTableComparisonValuesDynamicBand(currentCollectionData, previousCollectionData);
     }
 
     public void setBandResultsTableComparisonValuesDistrict(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, HeadcountResultsTable currentCollectionData, Boolean schoolTitles) {
@@ -60,7 +61,65 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
             previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcDistrictCollectionId(previousCollectionID);
         }
         HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, schoolTitles, sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
-        setResultsTableComparisonValuesDynamic(currentCollectionData, previousCollectionData);
+        if (Boolean.TRUE.equals(schoolTitles)) {
+            setResultsTableComparisonValuesDynamic(currentCollectionData, previousCollectionData);
+        } else {
+            setResultsTableComparisonValuesDynamicBand(currentCollectionData, previousCollectionData);
+        }
+    }
+
+    public void setResultsTableComparisonValuesDynamicBand(HeadcountResultsTable currentCollectionData, HeadcountResultsTable previousCollectionData) {
+        Map<String, Map<String, HeadcountHeaderColumn>> previousRowsMap = previousCollectionData.getRows().stream()
+                .collect(Collectors.toMap(
+                        row -> row.get(TITLE).getCurrentValue(),
+                        Function.identity(),
+                        (existing, replacement) -> existing
+                ));
+
+        Map<String, Map<String, HeadcountHeaderColumn>> allTitles = new LinkedHashMap<>();
+
+        currentCollectionData.getRows().forEach(row -> allTitles.put(row.get(TITLE).getCurrentValue(), new LinkedHashMap<>(row)));
+
+        previousRowsMap.forEach((title, previousRow) -> {
+            allTitles.computeIfAbsent(title, k -> initializeEmptyRowWithDefaults(title, previousRow));
+
+            Map<String, HeadcountHeaderColumn> currentRow = allTitles.get(title);
+            previousRow.forEach((key, previousColumn) -> {
+                currentRow.putIfAbsent(key, new HeadcountHeaderColumn("0", previousColumn.getCurrentValue()));
+                currentRow.get(key).setComparisonValue(previousColumn.getCurrentValue());
+            });
+        });
+
+        allTitles.forEach((title, currentRow) -> {
+            Map<String, HeadcountHeaderColumn> previousRow = previousRowsMap.getOrDefault(title, new HashMap<>());
+            currentRow.forEach((key, currentColumn) -> {
+                if (!previousRow.containsKey(key)) {
+                    currentColumn.setComparisonValue("0");
+                }
+            });
+        });
+
+        List<Map<String, HeadcountHeaderColumn>> sortedRows = new ArrayList<>(allTitles.values());
+        sortedRows.sort((row1, row2) -> {
+            String title1 = row1.get(TITLE).getCurrentValue();
+            String title2 = row2.get(TITLE).getCurrentValue();
+            if (title1.equals(ALL_TITLE)) return -1;
+            if (title2.equals(ALL_TITLE)) return 1;
+            return extractBandNumber(title1).compareTo(extractBandNumber(title2));
+        });
+
+        currentCollectionData.setRows(sortedRows);
+    }
+
+    private Map<String, HeadcountHeaderColumn> initializeEmptyRowWithDefaults(String title, Map<String, HeadcountHeaderColumn> modelRow) {
+        Map<String, HeadcountHeaderColumn> emptyRow = new HashMap<>();
+        emptyRow.put(TITLE, new HeadcountHeaderColumn(bandRowTitles.getOrDefault(title, title), ""));
+
+        modelRow.keySet().stream()
+                .filter(key -> !TITLE.equals(key))
+                .forEach(key -> emptyRow.put(key, new HeadcountHeaderColumn("0", "")));
+
+        return emptyRow;
     }
 
     public void setBandTitles(List<BandResidenceHeadcountResult> result) {
@@ -151,5 +210,10 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
         headcountMethods.put(BAND_CODE, BandResidenceHeadcountResult::getBandCode);
 
         return headcountMethods;
+    }
+
+    private String extractBandNumber(String title) {
+        int index = title.indexOf(" - ");
+        return index > 0 ? title.substring(0, index) : title;
     }
 }
