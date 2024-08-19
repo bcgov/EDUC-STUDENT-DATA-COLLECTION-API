@@ -456,7 +456,7 @@ public class RestUtils {
       log.info("Calling Institute api to load all schools to memory");
       final TypeReference<List<School>> ref = new TypeReference<>() {
       };
-      val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(SEARCH_CRITERIA_LIST.concat("=").concat(PAGE_SIZE).concat("=").concat("100000")).build();
+      val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(PAGE_SIZE.concat("=").concat("100000")).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
       if (null != responseMessage) {
         return objectMapper.readValue(responseMessage.getData(), ref);
