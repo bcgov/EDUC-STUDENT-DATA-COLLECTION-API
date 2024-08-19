@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.Student;
 import lombok.val;
@@ -318,5 +319,40 @@ class RestUtilsTest {
         //when
         var result = restUtils.getStudentByPEN(UUID.randomUUID(), "123456789");
         assertEquals(studentPayload, result);
+    }
+
+    @Test
+    void testGetAllSchoolBySchoolID_ShouldPopulateMapsCorrectly() {
+        // Given
+        val school1ID = String.valueOf(UUID.randomUUID());
+        val school2ID = String.valueOf(UUID.randomUUID());
+        val school3ID = String.valueOf(UUID.randomUUID());
+        val school1 = School.builder()
+                .schoolId(school1ID)
+                .displayName("School 1")
+                .independentAuthorityId("Authority 1")
+                .build();
+        val school2 = School.builder()
+                .schoolId(school2ID)
+                .displayName("School 2")
+                .build();
+        val school3 = School.builder()
+                .schoolId(school3ID)
+                .displayName("School 3")
+                .independentAuthorityId("Authority 2")
+                .build();
+
+        doReturn(List.of(school1, school2, school3)).when(restUtils).getAllSchoolList(any());
+
+        // When
+        restUtils.populateAllSchoolMap();
+
+        // Then verify the maps are populated
+        Map<String, School> schoolMap = (Map<String, School>) ReflectionTestUtils.getField(restUtils, "allSchoolMap");
+        assert schoolMap != null;
+        assertEquals(3, schoolMap.size());
+        assertEquals(school1, schoolMap.get(school1ID));
+        assertEquals(school2, schoolMap.get(school2ID));
+        assertEquals(school3, schoolMap.get(school3ID));
     }
 }
