@@ -70,7 +70,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
                 .eventPayload(JsonUtil.getJsonStringFromObject(studentDataFromEventResponse))
                 .build();
         this.postMessageToTopic(STUDENT_API_TOPIC.toString(), nextEvent);
-        log.info("message sent to STUDENT_API_TOPIC for UPDATE_STUDENT Event.");
+        log.debug("message sent to STUDENT_API_TOPIC for UPDATE_STUDENT Event.");
     }
 
     public void updateSdcStudentStatus(final Event event, final SdcSagaEntity saga, final UpdateStudentSagaData updateStudentSagaData) throws JsonProcessingException {
@@ -89,7 +89,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
                 .eventPayload(JsonUtil.getJsonStringFromObject(updateStudentSagaData))
                 .build();
         this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
-        log.info("message sent to UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC for UPDATE_SDC_STUDENT_STATUS Event.");
+        log.debug("message sent to UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC for UPDATE_SDC_STUDENT_STATUS Event.");
     }
 
     protected void updateGradeYear(final Student studentDataFromEventResponse, final UpdateStudentSagaData updateStudentSagaData) {
