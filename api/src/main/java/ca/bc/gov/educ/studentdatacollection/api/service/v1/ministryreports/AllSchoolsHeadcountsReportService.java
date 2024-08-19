@@ -1,4 +1,5 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports;
+
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
@@ -9,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.*;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeCode.SCHOOL_ENROLLMENT_HEADCOUNTS;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
 
 
@@ -46,18 +49,19 @@ public class AllSchoolsHeadcountsReportService {
                         GRADE_03_COUNT.getCode(),GRADE_04_COUNT.getCode(),GRADE_05_COUNT.getCode(),GRADE_06_COUNT.getCode(),GRADE_07_COUNT.getCode(),GRADE_08_COUNT.getCode(),GRADE_09_COUNT.getCode(),
                         GRADE_10_COUNT.getCode(), GRADE_11_COUNT.getCode(),GRADE_12_COUNT.getCode())
                 .build();
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
-             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
             for (SchoolHeadcountResult result : results) {
-                List<String> csvRowData = prepareStudentDataForCsv(result, collection);
+                List<String> csvRowData = prepareSchoolDataForCsv(result, collection);
                 csvPrinter.printRecord(csvRowData);
             }
             csvPrinter.flush();
 
             var downloadableReport = new DownloadableReportResponse();
-            downloadableReport.setReportType("ALL_SCHOOLS_HEADCOUNTS_CSV");
+            downloadableReport.setReportType(SCHOOL_ENROLLMENT_HEADCOUNTS.getCode());
             downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
 
             return downloadableReport;
@@ -66,8 +70,8 @@ public class AllSchoolsHeadcountsReportService {
         }
     }
 
-    private List<String> prepareStudentDataForCsv(SchoolHeadcountResult schoolHeadcountResult, CollectionEntity collection) {
-        var school = restUtils.getSchoolBySchoolID(schoolHeadcountResult.getSchoolID()).get();
+    private List<String> prepareSchoolDataForCsv(SchoolHeadcountResult schoolHeadcountResult, CollectionEntity collection) {
+        var school = restUtils.getAllSchoolBySchoolID(schoolHeadcountResult.getSchoolID()).get();
 
         List<String> csvRowData = new ArrayList<>();
         csvRowData.addAll(Arrays.asList(
@@ -77,6 +81,7 @@ public class AllSchoolsHeadcountsReportService {
                 school.getDisplayName(),
                 school.getFacilityTypeCode(),
                 school.getSchoolCategoryCode(),
+                TransformUtil.getGradesOfferedString(school),
                 collection.getSnapshotDate().toString(),
                 schoolHeadcountResult.getKindHCount(),
                 schoolHeadcountResult.getKindFCount(),
@@ -95,4 +100,6 @@ public class AllSchoolsHeadcountsReportService {
         ));
         return csvRowData;
     }
+
+
 }

@@ -9,33 +9,40 @@ import java.util.Optional;
 
 @Getter
 public enum SchoolGradeCodes {
-    KINDHALF("KH"),
-    KINDFULL("KF"),
-    GRADE01("01"),
-    GRADE02("02"),
-    GRADE03("03"),
-    GRADE04("04"),
-    GRADE05("05"),
-    GRADE06("06"),
-    GRADE07("07"),
-    ELEMUNGR("EU"),
-    GRADE08("08"),
-    GRADE09("09"),
-    GRADE10("10"),
-    GRADE11("11"),
-    GRADE12("12"),
-    SECONDARY_UNGRADED("SU"),
-    GRADUATED_ADULT("GA"),
-    HOMESCHOOL("HS");
+    KINDHALF("KINDHALF", "KH"),
+    KINDFULL("KINDFULL","KF"),
+    GRADE01("GRADE01","01"),
+    GRADE02("GRADE02","02"),
+    GRADE03("GRADE03","03"),
+    GRADE04("GRADE04","04"),
+    GRADE05("GRADE05","05"),
+    GRADE06("GRADE06","06"),
+    GRADE07("GRADE07","07"),
+    ELEMUNGR("ELEMUNGR","EU"),
+    GRADE08("GRADE08","08"),
+    GRADE09("GRADE09","09"),
+    GRADE10("GRADE10","10"),
+    GRADE11("GRADE11","11"),
+    GRADE12("GRADE12","12"),
+    SECONDARY_UNGRADED("SECUNGR","SU"),
+    GRADUATED_ADULT("GRADULT","GA"),
+    HOMESCHOOL("HOMESCL","HS");
 
     @Getter
     private final String code;
-    SchoolGradeCodes(String code) {
+    @Getter
+    private final String typeCode;
+    SchoolGradeCodes(String typeCode, String code) {
         this.code = code;
+        this.typeCode = typeCode;
     }
 
     public static Optional<SchoolGradeCodes> findByValue(String value) {
         return Arrays.stream(values()).filter(e -> Arrays.asList(e.code).contains(value)).findFirst();
+    }
+
+    public static Optional<SchoolGradeCodes> findByTypeCode(String typeCode) {
+        return Arrays.stream(values()).filter(e -> Arrays.asList(e.typeCode).contains(typeCode)).findFirst();
     }
 
     /**

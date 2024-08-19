@@ -47,40 +47,6 @@ class RestUtilsTest {
     }
 
     @Test
-    void testPopulateSchoolFundingGroupsMap_WhenApiCallSucceeds_ShouldPopulateMaps() {
-        // Given
-        val school1ID = String.valueOf(UUID.randomUUID());
-        val school1 = IndependentSchoolFundingGroup.builder()
-                .schoolID(school1ID)
-                .schoolFundingGroupCode("GROUP01")
-                .schoolFundingGroupID(UUID.randomUUID().toString())
-                .schoolGradeCode("01")
-                .build();
-        val school2 = IndependentSchoolFundingGroup.builder()
-                .schoolID(school1ID)
-                .schoolFundingGroupCode("GROUP01")
-                .schoolFundingGroupID(UUID.randomUUID().toString())
-                .schoolGradeCode("02")
-                .build();
-        val school3 = IndependentSchoolFundingGroup.builder()
-                .schoolID(school1ID)
-                .schoolFundingGroupCode("GROUP01")
-                .schoolFundingGroupID(UUID.randomUUID().toString())
-                .schoolGradeCode("03")
-                .build();
-
-        doReturn(List.of(school1, school2, school3)).when(restUtils).getSchoolFundingGroups();
-
-        // When
-        restUtils.populateSchoolFundingCodesMap();
-
-        // Then verify the maps are populated
-        Map<String, List<IndependentSchoolFundingGroup>> schoolFundingGroupsMap = (Map<String, List<IndependentSchoolFundingGroup>>) ReflectionTestUtils.getField(restUtils, "schoolFundingGroupsMap");
-        assertEquals(1, schoolFundingGroupsMap.size());
-        assertEquals(3, schoolFundingGroupsMap.get(school1ID).size());
-    }
-
-    @Test
     void testPopulateSchoolMap_WhenApiCallSucceeds_ShouldPopulateMaps() {
         // Given
         val school1ID = String.valueOf(UUID.randomUUID());

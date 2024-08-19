@@ -21,9 +21,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenM
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
@@ -66,7 +64,6 @@ public class RestUtils {
   public static final String OPEN_DATE = "openedDate";
   public static final String CLOSE_DATE = "closedDate";
   private static final String CONTENT_TYPE = "Content-Type";
-  private final Map<String, List<IndependentSchoolFundingGroup>> schoolFundingGroupsMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMincodeMap = new ConcurrentHashMap<>();
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
@@ -76,7 +73,6 @@ public class RestUtils {
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
   private final ObjectMapper objectMapper = new ObjectMapper();
-  private final ReadWriteLock schoolFundingGroupsLock = new ReentrantReadWriteLock();
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
   private final ReadWriteLock districtLock = new ReentrantReadWriteLock();
   private final ReadWriteLock allSchoolLock = new ReentrantReadWriteLock();
@@ -106,7 +102,6 @@ public class RestUtils {
   private void initialize() {
     this.populateSchoolMap();
     this.populateSchoolMincodeMap();
-    this.populateSchoolFundingCodesMap();
     this.populateDistrictMap();
     this.populateAllSchoolMap();
   }
@@ -114,21 +109,6 @@ public class RestUtils {
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
   public void scheduled() {
     this.init();
-  }
-
-  public void populateSchoolFundingCodesMap() {
-    val writeLock = this.schoolFundingGroupsLock.writeLock();
-    try {
-      writeLock.lock();
-      for (val schoolFundingGroup : this.getSchoolFundingGroups()) {
-        this.schoolFundingGroupsMap.computeIfAbsent(schoolFundingGroup.getSchoolID(), k -> new ArrayList<>()).add(schoolFundingGroup);
-      }
-    } catch (Exception ex) {
-      log.error("Unable to load map cache school funding groups {}", ex);
-    } finally {
-      writeLock.unlock();
-    }
-    log.info("Loaded  {} school funding groups to memory", this.schoolFundingGroupsMap.values().size());
   }
 
   public void populateSchoolMap() {
@@ -174,17 +154,6 @@ public class RestUtils {
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(SchoolTombstone.class)
-            .collectList()
-            .block();
-  }
-
-  public List<IndependentSchoolFundingGroup> getSchoolFundingGroups() {
-    log.info("Calling Institute api to load school funding groups to memory");
-    return this.webClient.get()
-            .uri(this.props.getInstituteApiURL() + "/school/funding-groups")
-            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .retrieve()
-            .bodyToFlux(IndependentSchoolFundingGroup.class)
             .collectList()
             .block();
   }
@@ -368,15 +337,14 @@ public class RestUtils {
   }
 
   public List<IndependentSchoolFundingGroup> getSchoolFundingGroupsBySchoolID(final String schoolID) {
-    if (this.schoolFundingGroupsMap.isEmpty()) {
-      log.info("School funding groups map is empty reloading schools");
-      this.populateSchoolFundingCodesMap();
+    if (this.allSchoolMap.isEmpty()) {
+      log.info("All schools map is empty reloading schools");
+      this.populateAllSchoolMap();
     }
-    var groups = this.schoolFundingGroupsMap.get(schoolID);
-    if(groups == null){
-      groups = new ArrayList<>();
+    if(!this.allSchoolMap.containsKey(schoolID)){
+      return new ArrayList<>();
     }
-    return groups;
+    return this.allSchoolMap.get(schoolID).getSchoolFundingGroups();
   }
 
   public void sendEmail(final String fromEmail, final List<String> toEmail, final String body, final String subject) {

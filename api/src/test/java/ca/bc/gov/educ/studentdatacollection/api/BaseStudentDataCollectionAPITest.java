@@ -442,6 +442,13 @@ public abstract class BaseStudentDataCollectionAPITest {
     contact1.setSchoolContactTypeCode("PRINCIPAL");
     contactList.add(contact1);
     school.setContacts(contactList);
+
+    var gradesList = new ArrayList<SchoolGrade>();
+    SchoolGrade grade1 = new SchoolGrade();
+    grade1.setSchoolGradeCode("GRADE01");
+    gradesList.add(grade1);
+    school.setGrades(gradesList);
+
     return school;
   }
 

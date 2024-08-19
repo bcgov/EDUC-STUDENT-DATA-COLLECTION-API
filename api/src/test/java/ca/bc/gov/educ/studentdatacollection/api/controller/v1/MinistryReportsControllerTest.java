@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeCode.SCHOOL_ENROLLMENT_HEADCOUNTS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -82,8 +83,8 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    var school = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    var school = this.createMockSchoolDetail();
+    when(this.restUtils.getAllSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
@@ -127,8 +128,8 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    var school = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    var school = this.createMockSchoolDetail();
+    when(this.restUtils.getAllSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
@@ -164,7 +165,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     });
 
     assertThat(summary1).isNotNull();
-    assertThat(summary1.getReportType()).isEqualTo("ALL_SCHOOLS_HEADCOUNTS_CSV");
+    assertThat(summary1.getReportType()).isEqualTo(SCHOOL_ENROLLMENT_HEADCOUNTS.getCode());
   }
 
 }
