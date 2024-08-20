@@ -96,14 +96,16 @@ public class AllSchoolsHeadcountsReportService {
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
             for (SdcSchoolCollectionEntity schoolEntity : schoolsInCollection) {
-                var school = restUtils.getAllSchoolBySchoolID(String.valueOf(schoolEntity.getSchoolID())).get();
-                var schoolAddr = school.getAddresses().stream().filter(address -> address.getAddressTypeCode().equalsIgnoreCase("PHYSICAL")).findFirst();
-                if(schoolAddr.isPresent()) {
-                    var address = schoolAddr.get();
-                    List<String> csvRowData = prepareSchoolAddressDataForCsv(school, address);
-                    csvPrinter.printRecord(csvRowData);
+                var schoolOpt = restUtils.getAllSchoolBySchoolID(String.valueOf(schoolEntity.getSchoolID()));
+                if(schoolOpt.isPresent()) {
+                    var school = schoolOpt.get();
+                    var schoolAddr = school.getAddresses().stream().filter(address -> address.getAddressTypeCode().equalsIgnoreCase("PHYSICAL")).findFirst();
+                    if(schoolAddr.isPresent()) {
+                        var address = schoolAddr.get();
+                        List<String> csvRowData = prepareSchoolAddressDataForCsv(school, address);
+                        csvPrinter.printRecord(csvRowData);
+                    }
                 }
-
             }
             csvPrinter.flush();
 
