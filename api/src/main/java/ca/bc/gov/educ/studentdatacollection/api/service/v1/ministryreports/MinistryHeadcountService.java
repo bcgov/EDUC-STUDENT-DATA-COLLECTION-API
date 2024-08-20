@@ -100,11 +100,11 @@ public class MinistryHeadcountService {
       var rowMap = new HashMap<String, String>();
       rowMap.put(MINCODE.getCode(), school.getMincode());
       rowMap.put(SCHOOL_NAME.getCode(), school.getDisplayName());
-      rowMap.put(ADDRESS_LINE1.getCode(), !school.getAddresses().isEmpty() ? school.getAddresses().get(0).getAddressLine1() : "-");
-      rowMap.put(ADDRESS_LINE2.getCode(), !school.getAddresses().isEmpty() ? school.getAddresses().get(0).getAddressLine2() : "-");
-      rowMap.put(CITY.getCode(), !school.getAddresses().isEmpty() ? school.getAddresses().get(0).getCity() : "-");
-      rowMap.put(PROVINCE.getCode(), !school.getAddresses().isEmpty() ? school.getAddresses().get(0).getProvinceCode() : "-");
-      rowMap.put(POSTAL.getCode(), !school.getAddresses().isEmpty() ? school.getAddresses().get(0).getPostal() : "-");
+      rowMap.put(ADDRESS_LINE1.getCode(), school.getAddresses() != null ? school.getAddresses().get(0).getAddressLine1() : "-");
+      rowMap.put(ADDRESS_LINE2.getCode(), school.getAddresses() != null ? school.getAddresses().get(0).getAddressLine2() : "-");
+      rowMap.put(CITY.getCode(), school.getAddresses() != null ? school.getAddresses().get(0).getCity() : "-");
+      rowMap.put(PROVINCE.getCode(), school.getAddresses() != null ? school.getAddresses().get(0).getProvinceCode() : "-");
+      rowMap.put(POSTAL.getCode(), school.getAddresses() != null ? school.getAddresses().get(0).getPostal() : "-");
       rows.add(rowMap);
     });
 
