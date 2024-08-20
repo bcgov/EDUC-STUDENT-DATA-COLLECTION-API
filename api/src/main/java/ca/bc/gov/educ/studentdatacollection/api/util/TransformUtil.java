@@ -118,7 +118,11 @@ public class TransformUtil {
         gradesOffered.append(optGrade.get().getCode() + ",");
       }
     }
-    return gradesOffered.toString().substring(0,gradesOffered.lastIndexOf(","));
+    var finalGrades = gradesOffered.toString();
+    if(StringUtils.isEmpty(finalGrades)){
+      return "";
+    }
+    return gradesOffered.toString().substring(0, gradesOffered.lastIndexOf(","));
   }
 
   public static String sanitizeEnrolledProgramString(String enrolledProgramCode) {
