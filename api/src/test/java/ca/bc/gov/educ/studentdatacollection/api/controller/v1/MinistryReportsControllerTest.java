@@ -31,6 +31,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -175,6 +176,15 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     var school = this.createMockSchoolDetail();
+    var address = new SchoolAddress();
+    address.setAddressLine1("1");
+    address.setCity("xyz");
+    address.setProvinceCode("BC");
+    address.setPostal("v9b1a1");
+    address.setAddressTypeCode("PHYSICAL");
+    var addressList = new ArrayList<SchoolAddress>();
+    addressList.add(address);
+    school.setAddresses(addressList);
     when(this.restUtils.getAllSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
     CollectionEntity collection = createMockCollectionEntity();

@@ -99,16 +99,20 @@ public class MinistryHeadcountService {
 
     schoolsInCollection.forEach(result -> {
       var school = restUtils.getAllSchoolBySchoolID(String.valueOf(result.getSchoolID())).get();
-      var rowMap = new HashMap<String, String>();
-      rowMap.put(MINCODE.getCode(), school.getMincode());
-      rowMap.put(SCHOOL_NAME.getCode(), school.getDisplayName());
-      rowMap.put(ADDRESS_LINE1.getCode(), school.getAddresses() != null ? school.getAddresses().get(0).getAddressLine1() : "-");
-      rowMap.put(ADDRESS_LINE2.getCode(), school.getAddresses() != null ? school.getAddresses().get(0).getAddressLine2() : "-");
-      rowMap.put(CITY.getCode(), school.getAddresses() != null ? school.getAddresses().get(0).getCity() : "-");
-      rowMap.put(PROVINCE.getCode(), school.getAddresses() != null ? school.getAddresses().get(0).getProvinceCode() : "-");
-      rowMap.put(POSTAL.getCode(), school.getAddresses() != null ? school.getAddresses().get(0).getPostal() : "-");
-      rows.add(rowMap);
-    });
+      var schoolAddr = school.getAddresses().stream().filter(address -> address.getAddressTypeCode().equalsIgnoreCase("PHYSICAL")).findFirst();
+      if(schoolAddr.isPresent()) {
+        var address = schoolAddr.get();
+        var rowMap = new HashMap<String, String>();
+        rowMap.put(MINCODE.getCode(), school.getMincode());
+        rowMap.put(SCHOOL_NAME.getCode(), school.getDisplayName());
+        rowMap.put(ADDRESS_LINE1.getCode(),address.getAddressLine1());
+        rowMap.put(ADDRESS_LINE2.getCode(), address.getAddressLine2());
+        rowMap.put(CITY.getCode(), address.getCity());
+        rowMap.put(PROVINCE.getCode(), address.getProvinceCode());
+        rowMap.put(POSTAL.getCode(), address.getPostal());
+        rows.add(rowMap);
+      }
+  });
 
     resultsTable.setRows(rows);
     return resultsTable;
