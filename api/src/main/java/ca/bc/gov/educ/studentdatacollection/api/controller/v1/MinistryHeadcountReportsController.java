@@ -37,7 +37,9 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
 
         return switch(code.get()) {
             case SCHOOL_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getAllSchoolEnrollmentHeadcounts(collectionID);
+            case SCHOOL_ADDRESS_REPORT -> ministryHeadcountService.getSchoolAddressReport(collectionID);
             default -> new SimpleHeadcountResultsTable();
+
         };
     }
 

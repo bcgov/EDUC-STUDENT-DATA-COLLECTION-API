@@ -7,7 +7,9 @@ import java.util.Optional;
 
 @Getter
 public enum MinistryReportTypeCode {
-    SCHOOL_ENROLLMENT_HEADCOUNTS("school-enrollment-headcounts");
+    SCHOOL_ENROLLMENT_HEADCOUNTS("school-enrollment-headcounts"),
+    SCHOOL_ADDRESS_REPORT("school-address-report")
+    ;
 
     private final String code;
     MinistryReportTypeCode(String code) { this.code = code; }
