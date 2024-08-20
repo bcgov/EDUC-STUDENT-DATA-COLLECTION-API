@@ -1,8 +1,12 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
@@ -16,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders.SCHOOL_NAME;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
 
 
@@ -26,6 +32,7 @@ public class MinistryHeadcountService {
   private final CollectionRepository collectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private final RestUtils restUtils;
+  private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private static final String COLLECTION_ID = "collectionID";
 
   public SimpleHeadcountResultsTable getAllSchoolEnrollmentHeadcounts(UUID collectionID) {
@@ -71,6 +78,42 @@ public class MinistryHeadcountService {
       rowMap.put(GRADE_12_COUNT.getCode(), schoolHeadcountResult.getGrade12Count());
       rows.add(rowMap);
     });
+    resultsTable.setRows(rows);
+    return resultsTable;
+  }
+
+  public SimpleHeadcountResultsTable getSchoolAddressReport(UUID collectionID) {
+    Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
+    if(entityOptional.isEmpty()) {
+      throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+    }
+
+    List<SdcSchoolCollectionEntity> schoolsInCollection = sdcSchoolCollectionRepository.findAllByCollectionEntityCollectionID(collectionID);
+    SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
+    var headerList = new ArrayList<String>();
+    for (SchoolAddressHeaders header : SchoolAddressHeaders.values()) {
+      headerList.add(header.getCode());
+    }
+    resultsTable.setHeaders(headerList);
+    var rows = new ArrayList<Map<String, String>>();
+
+    schoolsInCollection.forEach(result -> {
+      var school = restUtils.getAllSchoolBySchoolID(String.valueOf(result.getSchoolID())).get();
+      var schoolAddr = school.getAddresses().stream().filter(address -> address.getAddressTypeCode().equalsIgnoreCase("PHYSICAL")).findFirst();
+      if(schoolAddr.isPresent()) {
+        var address = schoolAddr.get();
+        var rowMap = new HashMap<String, String>();
+        rowMap.put(MINCODE.getCode(), school.getMincode());
+        rowMap.put(SCHOOL_NAME.getCode(), school.getDisplayName());
+        rowMap.put(ADDRESS_LINE1.getCode(),address.getAddressLine1());
+        rowMap.put(ADDRESS_LINE2.getCode(), address.getAddressLine2());
+        rowMap.put(CITY.getCode(), address.getCity());
+        rowMap.put(PROVINCE.getCode(), address.getProvinceCode());
+        rowMap.put(POSTAL.getCode(), address.getPostal());
+        rows.add(rowMap);
+      }
+  });
+
     resultsTable.setRows(rows);
     return resultsTable;
   }
