@@ -167,7 +167,9 @@ public class AllSchoolsHeadcountsReportService {
                     projectedGrade = SchoolGradeCodes.GRADE07.getCode();
                 }
                 List<String> csvRowData = prepareFsaDataForCsv(student, projectedGrade);
-                csvPrinter.printRecord(csvRowData);
+                if(csvRowData != null) {
+                    csvPrinter.printRecord(csvRowData);
+                }
             }
             csvPrinter.flush();
 
@@ -198,7 +200,9 @@ public class AllSchoolsHeadcountsReportService {
 
             for (SdcSchoolCollectionStudentEntity student : students) {
                 List<String> csvRowData = prepareFsaDataForCsv(student, student.getEnrolledGradeCode());
-                csvPrinter.printRecord(csvRowData);
+                if(csvRowData != null) {
+                    csvPrinter.printRecord(csvRowData);
+                }
             }
             csvPrinter.flush();
 
@@ -245,19 +249,23 @@ public class AllSchoolsHeadcountsReportService {
     }
 
     private List<String> prepareFsaDataForCsv(SdcSchoolCollectionStudentEntity student, String studentGrade) {
-        var school = restUtils.getAllSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID())).get();
+        var schoolOpt = restUtils.getAllSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
 
-        List<String> csvRowData = new ArrayList<>();
-        csvRowData.addAll(Arrays.asList(
-                student.getAssignedPen(),
-                school.getMincode().substring(0,3),
-                school.getSchoolNumber(),
-                studentGrade,
-                student.getLocalID(),
-                student.getLegalFirstName(),
-                student.getLegalLastName()
-        ));
-        return csvRowData;
+        if(schoolOpt.isPresent()) {
+            var school = schoolOpt.get();
+            List<String> csvRowData = new ArrayList<>();
+            csvRowData.addAll(Arrays.asList(
+                    student.getAssignedPen(),
+                    school.getMincode().substring(0,3),
+                    school.getSchoolNumber(),
+                    studentGrade,
+                    student.getLocalID(),
+                    student.getLegalFirstName(),
+                    student.getLegalLastName()
+            ));
+            return csvRowData;
+        }
+        return null;
     }
 
     private List<String> prepareSchoolAddressDataForCsv(School school, SchoolAddress address) {
