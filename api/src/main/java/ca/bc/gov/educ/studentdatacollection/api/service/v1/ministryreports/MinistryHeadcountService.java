@@ -1,5 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
@@ -10,6 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
 import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
@@ -21,8 +24,9 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders.SCHOOL_NAME;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.SCHOOL_NAME;
 
 
 @Service
@@ -80,6 +84,73 @@ public class MinistryHeadcountService {
     });
     resultsTable.setRows(rows);
     return resultsTable;
+  }
+
+  public SimpleHeadcountResultsTable getIndySchoolsEnrollmentHeadcounts(UUID collectionID) {
+    List<IndySchoolHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
+    SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
+    var headerList = new ArrayList<String>();
+    for (IndySchoolEnrolmentHeadcountHeader header : IndySchoolEnrolmentHeadcountHeader.values()) {
+      headerList.add(header.getCode());
+    }
+    resultsTable.setHeaders(headerList);
+    var rows = new ArrayList<Map<String, String>>();
+    collectionRawData.stream().forEach(indySchoolHeadcountResult -> {
+      var school = restUtils.getAllSchoolBySchoolID(indySchoolHeadcountResult.getSchoolID()).get();
+
+      if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
+        var rowMap = new HashMap<String, String>();
+        rowMap.put(SCHOOL.getCode(), school.getDisplayName());
+        rowMap.put(KIND_HT.getCode(), indySchoolHeadcountResult.getKindHCount());
+        rowMap.put(KIND_FT.getCode(), indySchoolHeadcountResult.getKindFCount());
+        rowMap.put(GRADE_01.getCode(), indySchoolHeadcountResult.getGrade1Count());
+        rowMap.put(GRADE_02.getCode(), indySchoolHeadcountResult.getGrade2Count());
+        rowMap.put(GRADE_03.getCode(), indySchoolHeadcountResult.getGrade3Count());
+        rowMap.put(GRADE_04.getCode(), indySchoolHeadcountResult.getGrade4Count());
+        rowMap.put(GRADE_05.getCode(), indySchoolHeadcountResult.getGrade5Count());
+        rowMap.put(GRADE_06.getCode(), indySchoolHeadcountResult.getGrade6Count());
+        rowMap.put(GRADE_07.getCode(), indySchoolHeadcountResult.getGrade7Count());
+        rowMap.put(GRADE_EU.getCode(), indySchoolHeadcountResult.getGradeEUCount());
+        rowMap.put(GRADE_08.getCode(), indySchoolHeadcountResult.getGrade8Count());
+        rowMap.put(GRADE_09.getCode(), indySchoolHeadcountResult.getGrade9Count());
+        rowMap.put(GRADE_10.getCode(), indySchoolHeadcountResult.getGrade10Count());
+        rowMap.put(GRADE_11.getCode(), indySchoolHeadcountResult.getGrade11Count());
+        rowMap.put(GRADE_12.getCode(), indySchoolHeadcountResult.getGrade12Count());
+        rowMap.put(GRADE_SU.getCode(), indySchoolHeadcountResult.getGradeSUCount());
+        rowMap.put(GRADE_GA.getCode(), indySchoolHeadcountResult.getGradeGACount());
+        rowMap.put(GRADE_HS.getCode(), indySchoolHeadcountResult.getGradeHSCount());
+        rowMap.put(TOTAL.getCode(), getTotalHeadcount(indySchoolHeadcountResult));
+        rows.add(rowMap);
+      }
+    });
+
+    resultsTable.setRows(rows);
+    return resultsTable;
+  }
+
+  private String getTotalHeadcount(IndySchoolHeadcountResult result){
+    int total = 0;
+
+    total +=  Integer.parseInt(result.getKindHCount());
+    total +=  Integer.parseInt(result.getKindFCount());
+    total +=  Integer.parseInt(result.getGrade1Count());
+    total +=  Integer.parseInt(result.getGrade2Count());
+    total +=  Integer.parseInt(result.getGrade3Count());
+    total +=  Integer.parseInt(result.getGrade4Count());
+    total +=  Integer.parseInt(result.getGrade5Count());
+    total +=  Integer.parseInt(result.getGrade6Count());
+    total +=  Integer.parseInt(result.getGrade7Count());
+    total +=  Integer.parseInt(result.getGradeEUCount());
+    total +=  Integer.parseInt(result.getGrade8Count());
+    total +=  Integer.parseInt(result.getGrade9Count());
+    total +=  Integer.parseInt(result.getGrade10Count());
+    total +=  Integer.parseInt(result.getGrade11Count());
+    total +=  Integer.parseInt(result.getGrade12Count());
+    total +=  Integer.parseInt(result.getGradeSUCount());
+    total +=  Integer.parseInt(result.getGradeGACount());
+    total +=  Integer.parseInt(result.getGradeHSCount());
+
+    return Integer.toString(total);
   }
 
   public SimpleHeadcountResultsTable getSchoolAddressReport(UUID collectionID) {

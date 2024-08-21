@@ -9,32 +9,35 @@ import java.util.Optional;
 
 @Getter
 public enum SchoolGradeCodes {
-    KINDHALF("KINDHALF", "KH"),
-    KINDFULL("KINDFULL","KF"),
-    GRADE01("GRADE01","01"),
-    GRADE02("GRADE02","02"),
-    GRADE03("GRADE03","03"),
-    GRADE04("GRADE04","04"),
-    GRADE05("GRADE05","05"),
-    GRADE06("GRADE06","06"),
-    GRADE07("GRADE07","07"),
-    ELEMUNGR("ELEMUNGR","EU"),
-    GRADE08("GRADE08","08"),
-    GRADE09("GRADE09","09"),
-    GRADE10("GRADE10","10"),
-    GRADE11("GRADE11","11"),
-    GRADE12("GRADE12","12"),
-    SECONDARY_UNGRADED("SECUNGR","SU"),
-    GRADUATED_ADULT("GRADULT","GA"),
-    HOMESCHOOL("HOMESCL","HS");
+    KINDHALF("KINDHALF", "KH", 1),
+    KINDFULL("KINDFULL","KF", 2),
+    GRADE01("GRADE01","01", 3),
+    GRADE02("GRADE02","02", 4),
+    GRADE03("GRADE03","03", 5),
+    GRADE04("GRADE04","04", 6),
+    GRADE05("GRADE05","05", 7),
+    GRADE06("GRADE06","06", 8),
+    GRADE07("GRADE07","07", 9),
+    ELEMUNGR("ELEMUNGR","EU", 10),
+    GRADE08("GRADE08","08", 11),
+    GRADE09("GRADE09","09", 12),
+    GRADE10("GRADE10","10", 13),
+    GRADE11("GRADE11","11", 14),
+    GRADE12("GRADE12","12", 15),
+    SECONDARY_UNGRADED("SECUNGR","SU", 16),
+    GRADUATED_ADULT("GRADULT","GA", 17),
+    HOMESCHOOL("HOMESCL","HS", 18);
 
     @Getter
     private final String code;
     @Getter
     private final String typeCode;
-    SchoolGradeCodes(String typeCode, String code) {
+    @Getter
+    private final int sequence;
+    SchoolGradeCodes(String typeCode, String code, int sequence) {
         this.code = code;
         this.typeCode = typeCode;
+        this.sequence = sequence;
     }
 
     public static Optional<SchoolGradeCodes> findByValue(String value) {

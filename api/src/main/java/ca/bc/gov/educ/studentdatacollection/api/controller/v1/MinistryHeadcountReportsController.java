@@ -38,8 +38,8 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
         return switch(code.get()) {
             case SCHOOL_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getAllSchoolEnrollmentHeadcounts(collectionID);
             case SCHOOL_ADDRESS_REPORT -> ministryHeadcountService.getSchoolAddressReport(collectionID);
+            case INDY_SCHOOL_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getIndySchoolsEnrollmentHeadcounts(collectionID);
             default -> new SimpleHeadcountResultsTable();
-
         };
     }
 
@@ -55,6 +55,7 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
         return switch (code.get()) {
             case SCHOOL_ENROLLMENT_HEADCOUNTS -> ministryReportsService.generateAllSchoolsHeadcounts(collectionID);
             case SCHOOL_ADDRESS_REPORT -> ministryReportsService.generatePhysicalAddressCsv(collectionID);
+            case FSA_REGISTRATION_REPORT -> ministryReportsService.generateFsaRegistrationCsv(collectionID);
             default -> new DownloadableReportResponse();
         };
     }
