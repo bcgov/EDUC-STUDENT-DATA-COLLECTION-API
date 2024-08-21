@@ -13,6 +13,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndigenousHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.GradeHeadcountChildNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.PostConstruct;
@@ -111,45 +112,45 @@ public class IndigenousPerSchoolHeadcountReportService extends BaseReportGenerat
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
         if (Objects.equals(sectionPrefix, ALLIND)) {
-            nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, false));
+            nodeMap.put(sectionPrefix, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, false));
         } else {
-            nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
-            nodeMap.put(sectionPrefix + "indLang", new HeadcountChildNode("Indigenous Language and Culture", FALSE, sequencePrefix + "1", false));
-            nodeMap.put(sectionPrefix + "indSupport", new HeadcountChildNode("Indigenous Support Services", FALSE, sequencePrefix + "2", false));
-            nodeMap.put(sectionPrefix + "indProg", new HeadcountChildNode("Other Approved Indigenous Programs", FALSE, sequencePrefix + "3", false));
-            nodeMap.put(sectionPrefix + "all", new HeadcountChildNode("All Indigenous Support Programs", FALSE, sequencePrefix + "4", false));
+            nodeMap.put(sectionPrefix + "Heading", new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+            nodeMap.put(sectionPrefix + "indLang", new GradeHeadcountChildNode("Indigenous Language and Culture", FALSE, sequencePrefix + "1", false));
+            nodeMap.put(sectionPrefix + "indSupport", new GradeHeadcountChildNode("Indigenous Support Services", FALSE, sequencePrefix + "2", false));
+            nodeMap.put(sectionPrefix + "indProg", new GradeHeadcountChildNode("Other Approved Indigenous Programs", FALSE, sequencePrefix + "3", false));
+            nodeMap.put(sectionPrefix + "all", new GradeHeadcountChildNode("All Indigenous Support Programs", FALSE, sequencePrefix + "4", false));
         }
     }
 
-    public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, IndigenousHeadcountResult gradeResult) {
+    public void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, IndigenousHeadcountResult gradeResult) {
         Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
         var code = optionalCode.orElseThrow(() ->
                 new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
         String schoolID = gradeResult.getSchoolID();
 
-        HeadcountChildNode allIndNode = nodeMap.get(ALLIND);
+        GradeHeadcountChildNode allIndNode = (GradeHeadcountChildNode)nodeMap.get(ALLIND);
         if (allIndNode.getValueForGrade(code) == null) {
             allIndNode.setValueForGrade(code, "0");
         }
 
         if (nodeMap.containsKey(schoolID + "indLang")) {
-            nodeMap.get(schoolID + "indLang").setValueForGrade(code, gradeResult.getIndigenousLanguageTotal());
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + "indLang")).setValueForGrade(code, gradeResult.getIndigenousLanguageTotal());
         }
 
         if (nodeMap.containsKey(schoolID + "indSupport")) {
-            nodeMap.get(schoolID + "indSupport").setValueForGrade(code, gradeResult.getIndigenousSupportTotal());
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + "indSupport")).setValueForGrade(code, gradeResult.getIndigenousSupportTotal());
         }
 
         if (nodeMap.containsKey(schoolID + "indProg")) {
-            nodeMap.get(schoolID + "indProg").setValueForGrade(code, gradeResult.getOtherProgramTotal());
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + "indProg")).setValueForGrade(code, gradeResult.getOtherProgramTotal());
         }
 
         if (nodeMap.containsKey(schoolID + "all")) {
-            nodeMap.get(schoolID + "all").setValueForGrade(code, gradeResult.getAllSupportProgramTotal());
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + "all")).setValueForGrade(code, gradeResult.getAllSupportProgramTotal());
         }
 
         if (nodeMap.containsKey(schoolID + "Heading")) {
-            nodeMap.get(schoolID + "Heading").setAllValuesToNull();
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + "Heading")).setAllValuesToNull();
         }
 
         int currentTotal = Integer.parseInt(gradeResult.getAllSupportProgramTotal());

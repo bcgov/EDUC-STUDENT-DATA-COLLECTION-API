@@ -11,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.BandResidenceHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.BandHeadcountChildNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -92,13 +93,13 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
         if (Objects.equals(sectionPrefix, "allBands")) {
-            nodeMap.put(sectionPrefix + HEADING, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+            nodeMap.put(sectionPrefix + HEADING, new BandHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0"));
         } else {
-            nodeMap.put(sectionPrefix + HEADING, new HeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", false));
+            nodeMap.put(sectionPrefix + HEADING, new BandHeadcountChildNode(sectionTitle, "false", sequencePrefix + "0"));
         }
     }
 
-    protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, BandResidenceHeadcountResult result) {
+    protected void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, BandResidenceHeadcountResult result) {
         double runningTotalFTE = 0.0;
         int runningTotalHeadcount = 0;
         if (headcountsList != null) {
@@ -111,15 +112,15 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
                     runningTotalFTE += fteTotal;
                     runningTotalHeadcount += headcountTotal;
 
-                    nodeMap.get(bandKey + HEADING).setValueForBand("FTE", String.format("%.4f", fteTotal));
-                    nodeMap.get(bandKey + HEADING).setValueForBand("Headcount", String.valueOf(headcountTotal));
+                    ((BandHeadcountChildNode)nodeMap.get(bandKey + HEADING)).setValueForBand("FTE", String.format("%.4f", fteTotal));
+                    ((BandHeadcountChildNode)nodeMap.get(bandKey + HEADING)).setValueForBand("Headcount", String.valueOf(headcountTotal));
                 } catch (ParseException e) {
                     log.error("Error parsing number in setValueForGrade - Band of Residence Report: " + e.getMessage());
                     throw new StudentDataCollectionAPIRuntimeException("Error parsing number in setValueForGrade - Band of Residence Report: " + e.getMessage());
                 }
             }
         }
-        nodeMap.get("allBandsHeading").setValueForBand("FTE", String.format("%.4f", runningTotalFTE));
-        nodeMap.get("allBandsHeading").setValueForBand("Headcount", String.valueOf(runningTotalHeadcount));
+        ((BandHeadcountChildNode)nodeMap.get("allBandsHeading")).setValueForBand("FTE", String.format("%.4f", runningTotalFTE));
+        ((BandHeadcountChildNode)nodeMap.get("allBandsHeading")).setValueForBand("Headcount", String.valueOf(runningTotalHeadcount));
     }
 }

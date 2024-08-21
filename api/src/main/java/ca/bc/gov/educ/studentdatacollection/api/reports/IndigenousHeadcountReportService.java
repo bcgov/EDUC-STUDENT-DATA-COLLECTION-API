@@ -13,6 +13,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndigenousHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.GradeHeadcountChildNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.PostConstruct;
@@ -100,18 +101,18 @@ public class IndigenousHeadcountReportService extends BaseReportGenerationServic
   }
 
   private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix, boolean includeKH){
-    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, includeKH));
+    nodeMap.put(sectionPrefix + "Heading", new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, includeKH));
   }
 
-  public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, IndigenousHeadcountResult gradeResult){
+  public void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, IndigenousHeadcountResult gradeResult){
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
     var code = optionalCode.orElseThrow(() ->
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
 
-    nodeMap.get("indigenousLanguageHeading").setValueForGrade(code, gradeResult.getIndigenousLanguageTotal());
-    nodeMap.get("indigenousSupportHeading").setValueForGrade(code, gradeResult.getIndigenousSupportTotal());
-    nodeMap.get("otherApprovedHeading").setValueForGrade(code, gradeResult.getOtherProgramTotal());
-    nodeMap.get("allHeading").setValueForGrade(code, gradeResult.getAllSupportProgramTotal());
+    ((GradeHeadcountChildNode)nodeMap.get("indigenousLanguageHeading")).setValueForGrade(code, gradeResult.getIndigenousLanguageTotal());
+    ((GradeHeadcountChildNode)nodeMap.get("indigenousSupportHeading")).setValueForGrade(code, gradeResult.getIndigenousSupportTotal());
+    ((GradeHeadcountChildNode)nodeMap.get("otherApprovedHeading")).setValueForGrade(code, gradeResult.getOtherProgramTotal());
+    ((GradeHeadcountChildNode)nodeMap.get("allHeading")).setValueForGrade(code, gradeResult.getAllSupportProgramTotal());
   }
 
 }

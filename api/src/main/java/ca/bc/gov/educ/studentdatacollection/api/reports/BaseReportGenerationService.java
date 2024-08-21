@@ -69,7 +69,7 @@ public abstract class BaseReportGenerationService<T> {
 
   protected abstract HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH);
 
-  protected abstract void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, T gradeResult);
+  protected abstract void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, T gradeResult);
 
   protected String convertToReportJSONString(List<T> mappedResults, SdcSchoolCollectionEntity sdcSchoolCollection) throws JsonProcessingException {
     HeadcountNode mainNode = new HeadcountNode();
@@ -78,7 +78,7 @@ public abstract class BaseReportGenerationService<T> {
 
     var nodeMap = generateNodeMap(isIndependentSchool(school));
 
-    mappedResults.forEach(headcountResult -> setValueForGrade(nodeMap, headcountResult));
+    mappedResults.forEach(headcountResult -> setRowValues(nodeMap, headcountResult));
 
     reportNode.setPrograms(nodeMap.values().stream().sorted(Comparator.comparing(o -> Integer.parseInt(o.getSequence()))).toList());
     mainNode.setReport(reportNode);
@@ -92,7 +92,7 @@ public abstract class BaseReportGenerationService<T> {
 
     var nodeMap = generateNodeMap(false);
 
-    mappedResults.forEach(result -> setValueForGrade(nodeMap, result));
+    mappedResults.forEach(result -> setRowValues(nodeMap, result));
 
     reportNode.setPrograms(nodeMap.values().stream().sorted(Comparator.comparing(o -> Integer.parseInt(o.getSequence()))).toList());
     mainNode.setReport(reportNode);

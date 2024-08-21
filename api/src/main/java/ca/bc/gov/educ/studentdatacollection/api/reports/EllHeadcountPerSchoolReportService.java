@@ -13,6 +13,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EllHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.GradeHeadcountChildNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.PostConstruct;
@@ -110,30 +111,30 @@ public class EllHeadcountPerSchoolReportService extends BaseReportGenerationServ
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix) {
         if (Objects.equals(sectionPrefix, ALLELL)) {
-            nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, false));
+            nodeMap.put(sectionPrefix, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, false));
         } else {
-            nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
-            nodeMap.put(sectionPrefix + "all", new HeadcountChildNode("All English Language Learners", FALSE, sequencePrefix + "1", false));
+            nodeMap.put(sectionPrefix + "Heading", new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+            nodeMap.put(sectionPrefix + "all", new GradeHeadcountChildNode("All English Language Learners", FALSE, sequencePrefix + "1", false));
         }
     }
 
-    public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, EllHeadcountResult gradeResult) {
+    public void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, EllHeadcountResult gradeResult) {
         Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
         var code = optionalCode.orElseThrow(() ->
                 new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
         String schoolID = gradeResult.getSchoolID();
 
-        HeadcountChildNode allEllNode = nodeMap.get(ALLELL);
+        GradeHeadcountChildNode allEllNode = (GradeHeadcountChildNode)nodeMap.get(ALLELL);
         if (allEllNode.getValueForGrade(code) == null) {
             allEllNode.setValueForGrade(code, "0");
         }
 
         if (nodeMap.containsKey(schoolID + "all")) {
-            nodeMap.get(schoolID + "all").setValueForGrade(code, gradeResult.getTotalEllStudents());
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + "all")).setValueForGrade(code, gradeResult.getTotalEllStudents());
         }
 
         if (nodeMap.containsKey(schoolID + "Heading")) {
-            nodeMap.get(schoolID + "Heading").setAllValuesToNull();
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + "Heading")).setAllValuesToNull();
         }
 
         int currentTotal = Integer.parseInt(gradeResult.getTotalEllStudents());

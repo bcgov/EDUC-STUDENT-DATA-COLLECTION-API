@@ -10,10 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.beans.Expression;
 import java.beans.Statement;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -112,6 +109,7 @@ public class TransformUtil {
 
   public static String getGradesOfferedString(School school){
     StringBuilder gradesOffered = new StringBuilder();
+    school.getGrades().sort(Comparator.comparing(SchoolGrade::getSchoolGradeCode));
     for(SchoolGrade schoolGrade: school.getGrades()) {
       var optGrade = SchoolGradeCodes.findByTypeCode(schoolGrade.getSchoolGradeCode());
       if(optGrade.isPresent()) {

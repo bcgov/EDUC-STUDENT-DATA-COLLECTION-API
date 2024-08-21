@@ -12,10 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountReportNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -28,7 +25,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -100,11 +100,11 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
 
     var nodeMap = generateNodeMap(isIndependentSchool(school));
 
-    mappedResults.forEach(careerHeadcountResult -> setValueForGrade(nodeMap, careerHeadcountResult));
+    mappedResults.forEach(careerHeadcountResult -> setRowValues(nodeMap, careerHeadcountResult));
 
-    nodeMap.get("schoolAgedHeading").setAllValuesToNull();
-    nodeMap.get("adultHeading").setAllValuesToNull();
-    nodeMap.get("allHeading").setAllValuesToNull();
+    ((GradeHeadcountChildNode)nodeMap.get("schoolAgedHeading")).setAllValuesToNull();
+    ((GradeHeadcountChildNode)nodeMap.get("adultHeading")).setAllValuesToNull();
+    ((GradeHeadcountChildNode)nodeMap.get("allHeading")).setAllValuesToNull();
 
     reportNode.setPrograms(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
     mainNode.setReport(reportNode);
@@ -118,11 +118,11 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
 
     var nodeMap = generateNodeMap(false);
 
-    mappedResults.forEach(careerHeadcountResult -> setValueForGrade(nodeMap, careerHeadcountResult));
+    mappedResults.forEach(careerHeadcountResult -> setRowValues(nodeMap, careerHeadcountResult));
 
-    nodeMap.get("schoolAgedHeading").setAllValuesToNull();
-    nodeMap.get("adultHeading").setAllValuesToNull();
-    nodeMap.get("allHeading").setAllValuesToNull();
+    ((GradeHeadcountChildNode)nodeMap.get("schoolAgedHeading")).setAllValuesToNull();
+    ((GradeHeadcountChildNode)nodeMap.get("adultHeading")).setAllValuesToNull();
+    ((GradeHeadcountChildNode)nodeMap.get("allHeading")).setAllValuesToNull();
 
     reportNode.setPrograms(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
     mainNode.setReport(reportNode);
@@ -130,7 +130,7 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
   }
 
   public HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH){
-    HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
+    HashMap<String,HeadcountChildNode> nodeMap = new HashMap<>();
     addValuesForSectionToMap(nodeMap, "schoolAged", "School Aged", "00", includeKH);
     addValuesForSectionToMap(nodeMap, "adult", "Adult", "10", includeKH);
     addValuesForSectionToMap(nodeMap, "all", "All Students", "20", includeKH);
@@ -139,29 +139,29 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
   }
 
   private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix, boolean includeKH){
-    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, true, includeKH));
-    nodeMap.put(sectionPrefix + "Headcount", new HeadcountChildNode("Headcount", FALSE, sequencePrefix + "1", false, true, true, includeKH));
-    nodeMap.put(sectionPrefix + "EligibleForFTE", new HeadcountChildNode("Eligible For FTE", FALSE, sequencePrefix + "2", false, true, true, includeKH));
-    nodeMap.put(sectionPrefix + "FTETotal", new HeadcountChildNode("FTE Total", FALSE, sequencePrefix + "3", true, true, true, includeKH));
+    nodeMap.put(sectionPrefix + "Heading", new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, true, includeKH));
+    nodeMap.put(sectionPrefix + "Headcount", new GradeHeadcountChildNode("Headcount", FALSE, sequencePrefix + "1", false, true, true, includeKH));
+    nodeMap.put(sectionPrefix + "EligibleForFTE", new GradeHeadcountChildNode("Eligible For FTE", FALSE, sequencePrefix + "2", false, true, true, includeKH));
+    nodeMap.put(sectionPrefix + "FTETotal", new GradeHeadcountChildNode("FTE Total", FALSE, sequencePrefix + "3", true, true, true, includeKH));
   }
 
-  public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, EnrollmentHeadcountResult gradeResult) {
+  public void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, EnrollmentHeadcountResult gradeResult) {
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
     var code = optionalCode.orElseThrow(() ->
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
 
     try {
-      nodeMap.get("schoolAgedHeadcount").setValueForGrade(code, gradeResult.getSchoolAgedHeadcount());
-      nodeMap.get("schoolAgedEligibleForFTE").setValueForGrade(code, gradeResult.getSchoolAgedEligibleForFte());
-      nodeMap.get("schoolAgedFTETotal").setValueForGrade(code, String.format("%.4f", numberFormat.parse(gradeResult.getSchoolAgedFteTotal()).doubleValue()));
+      ((GradeHeadcountChildNode)nodeMap.get("schoolAgedHeadcount")).setValueForGrade(code, gradeResult.getSchoolAgedHeadcount());
+      ((GradeHeadcountChildNode)nodeMap.get("schoolAgedEligibleForFTE")).setValueForGrade(code, gradeResult.getSchoolAgedEligibleForFte());
+      ((GradeHeadcountChildNode)nodeMap.get("schoolAgedFTETotal")).setValueForGrade(code, String.format("%.4f", numberFormat.parse(gradeResult.getSchoolAgedFteTotal()).doubleValue()));
 
-      nodeMap.get("adultHeadcount").setValueForGrade(code, gradeResult.getAdultHeadcount());
-      nodeMap.get("adultEligibleForFTE").setValueForGrade(code, gradeResult.getAdultEligibleForFte());
-      nodeMap.get("adultFTETotal").setValueForGrade(code, String.format("%.4f", numberFormat.parse(gradeResult.getAdultFteTotal()).doubleValue()));
+      ((GradeHeadcountChildNode)nodeMap.get("adultHeadcount")).setValueForGrade(code, gradeResult.getAdultHeadcount());
+      ((GradeHeadcountChildNode)nodeMap.get("adultEligibleForFTE")).setValueForGrade(code, gradeResult.getAdultEligibleForFte());
+      ((GradeHeadcountChildNode)nodeMap.get("adultFTETotal")).setValueForGrade(code, String.format("%.4f", numberFormat.parse(gradeResult.getAdultFteTotal()).doubleValue()));
 
-      nodeMap.get("allHeadcount").setValueForGrade(code, gradeResult.getTotalHeadcount());
-      nodeMap.get("allEligibleForFTE").setValueForGrade(code, gradeResult.getTotalEligibleForFte());
-      nodeMap.get("allFTETotal").setValueForGrade(code, String.format("%.4f", numberFormat.parse(gradeResult.getTotalFteTotal()).doubleValue()));
+      ((GradeHeadcountChildNode)nodeMap.get("allHeadcount")).setValueForGrade(code, gradeResult.getTotalHeadcount());
+      ((GradeHeadcountChildNode)nodeMap.get("allEligibleForFTE")).setValueForGrade(code, gradeResult.getTotalEligibleForFte());
+      ((GradeHeadcountChildNode)nodeMap.get("allFTETotal")).setValueForGrade(code, String.format("%.4f", numberFormat.parse(gradeResult.getTotalFteTotal()).doubleValue()));
     } catch (ParseException e) {
       log.error("Exception occurred while writing PDF report for grade enrollment dis - parse error :: " + e.getMessage());
       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment dis - parse error :: " + e.getMessage());
