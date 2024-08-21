@@ -11,10 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.RefugeeHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountReportNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -89,7 +86,7 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
 
         var nodeMap = generateNodeMap(false);
 
-        mappedResults.forEach(result -> setValueForGrade(nodeMap, result));
+        mappedResults.forEach(result -> setRowValues(nodeMap, result));
 
         reportNode.setPrograms(nodeMap.values().stream().sorted(Comparator.comparing(o -> Integer.parseInt(o.getSequence()))).toList());
         mainNode.setReport(reportNode);
@@ -130,13 +127,13 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
         if (Objects.equals(sectionPrefix, "allRefugee")) {
-            nodeMap.put(sectionPrefix + HEADING, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+            nodeMap.put(sectionPrefix + HEADING, new RefugeeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0"));
         } else {
-            nodeMap.put(sectionPrefix + HEADING, new HeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", false));
+            nodeMap.put(sectionPrefix + HEADING, new RefugeeHeadcountChildNode(sectionTitle, "false", sequencePrefix + "0"));
         }
     }
 
-    protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, RefugeeHeadcountResult gradeResult) {
+    protected void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, RefugeeHeadcountResult gradeResult) {
         int totalHeadcount = 0;
         double totalFTE = 0.0;
         int totalELL = 0;
@@ -152,7 +149,7 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
                 totalFTE += schoolFTE;
                 totalELL += schoolELL;
 
-                HeadcountChildNode node = nodeMap.getOrDefault(schoolKey + HEADING, new HeadcountChildNode());
+                RefugeeHeadcountChildNode node = (RefugeeHeadcountChildNode)nodeMap.getOrDefault(schoolKey + HEADING, new RefugeeHeadcountChildNode());
                 node.setValueForRefugee(HEADCOUNT, String.valueOf(schoolHeadcount));
                 node.setValueForRefugee("FTE", String.format("%.4f", schoolFTE));
                 node.setValueForRefugee("ELL", String.valueOf(schoolELL));
@@ -163,7 +160,7 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
             }
         }
 
-        HeadcountChildNode totalNode = nodeMap.getOrDefault(ALL_REFUGEE_HEADING, new HeadcountChildNode());
+        RefugeeHeadcountChildNode totalNode = (RefugeeHeadcountChildNode)nodeMap.getOrDefault(ALL_REFUGEE_HEADING, new RefugeeHeadcountChildNode());
         totalNode.setValueForRefugee(HEADCOUNT, String.valueOf(totalHeadcount));
         totalNode.setValueForRefugee("FTE", String.format("%.4f", totalFTE));
         totalNode.setValueForRefugee("ELL", String.valueOf(totalELL));

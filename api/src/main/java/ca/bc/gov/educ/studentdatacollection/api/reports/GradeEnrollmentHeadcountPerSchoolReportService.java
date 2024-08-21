@@ -12,10 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EnrollmentHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountReportNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -96,7 +93,7 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
 
         var nodeMap = generateNodeMap(true);
 
-        mappedResults.forEach(gradeEnrollmentHeadcountResult -> setValueForGrade(nodeMap, gradeEnrollmentHeadcountResult));
+        mappedResults.forEach(gradeEnrollmentHeadcountResult -> setRowValues(nodeMap, gradeEnrollmentHeadcountResult));
 
         reportNode.setPrograms(nodeMap.values().stream().sorted(Comparator.comparing(o -> Integer.parseInt(o.getSequence()))).toList());
         mainNode.setReport(reportNode);
@@ -142,11 +139,11 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
     }
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix, boolean includeKH, boolean header, boolean isDoubleRow){
-        HeadcountChildNode node;
+        GradeHeadcountChildNode node;
         if (Boolean.TRUE.equals(header)) {
-            node = new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", isDoubleRow, true, true, includeKH);
+            node = new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", isDoubleRow, true, true, includeKH);
         } else {
-            node = new HeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", isDoubleRow, true, true, includeKH);
+            node = new GradeHeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", isDoubleRow, true, true, includeKH);
         }
 
         if (sectionPrefix.startsWith(SCHOOLTITLE) || sectionPrefix.startsWith(ALLSCHOOLS)) {
@@ -156,24 +153,24 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
         nodeMap.put(sectionPrefix, node);
     }
 
-    protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, EnrollmentHeadcountResult gradeResult) {
+    protected void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, EnrollmentHeadcountResult gradeResult) {
         Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
         var code = optionalCode.orElseThrow(() ->
                 new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
 
-        HeadcountChildNode allSchoolsHeadcountNode = nodeMap.get("headcountallSchools");
-        HeadcountChildNode allSchoolsFTENode = nodeMap.get("totalFTEallSchools");
+        GradeHeadcountChildNode allSchoolsHeadcountNode = (GradeHeadcountChildNode)nodeMap.get("headcountallSchools");
+        GradeHeadcountChildNode allSchoolsFTENode = (GradeHeadcountChildNode)nodeMap.get("totalFTEallSchools");
 
         String schoolID = gradeResult.getSchoolID();
 
         try {
             if (nodeMap.containsKey(HEADCOUNT + schoolID)) {
-                nodeMap.get(HEADCOUNT + schoolID).setValueForGrade(code, gradeResult.getTotalHeadcount());
+                ((GradeHeadcountChildNode)nodeMap.get(HEADCOUNT + schoolID)).setValueForGrade(code, gradeResult.getTotalHeadcount());
             }
 
             if (nodeMap.containsKey(TOTALFTE + schoolID) && gradeResult.getTotalFteTotal() != null) {
                 double fteTotal = numberFormat.parse(gradeResult.getTotalFteTotal()).doubleValue();
-                nodeMap.get(TOTALFTE + schoolID).setValueForGrade(code, String.format("%.4f", fteTotal));
+                ((GradeHeadcountChildNode)nodeMap.get(TOTALFTE + schoolID)).setValueForGrade(code, String.format("%.4f", fteTotal));
             }
 
             int currentHeadcountTotal = Integer.parseInt(gradeResult.getTotalHeadcount().replace(",", ""));

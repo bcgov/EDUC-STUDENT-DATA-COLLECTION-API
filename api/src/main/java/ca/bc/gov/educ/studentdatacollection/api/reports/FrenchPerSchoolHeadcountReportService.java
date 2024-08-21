@@ -12,10 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.FrenchCombinedHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountNode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountReportNode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -90,7 +87,7 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
 
         var nodeMap = generateNodeMap(false);
 
-        mappedResults.forEach(combinedFrenchHeadcountResult -> setValueForGrade(nodeMap, combinedFrenchHeadcountResult));
+        mappedResults.forEach(combinedFrenchHeadcountResult -> setRowValues(nodeMap, combinedFrenchHeadcountResult));
 
         reportNode.setPrograms(nodeMap.values().stream().sorted(Comparator.comparing(o -> Integer.parseInt(o.getSequence()))).toList());
         mainNode.setReport(reportNode);
@@ -130,25 +127,25 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix, boolean includeKH){
         if (Objects.equals(sectionPrefix, ALLFRENCH)) {
-            nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, false, includeKH));
+            nodeMap.put(sectionPrefix, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, false, includeKH));
         } else {
-            nodeMap.put(sectionPrefix, new HeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", false, true, false, includeKH));
+            nodeMap.put(sectionPrefix, new GradeHeadcountChildNode(sectionTitle, "false", sequencePrefix + "0", false, true, false, includeKH));
         }
     }
 
-    protected void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, FrenchCombinedHeadcountResult gradeResult) {
+    protected void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, FrenchCombinedHeadcountResult gradeResult) {
         Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
         var code = optionalCode.orElseThrow(() ->
                 new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
 
-        HeadcountChildNode allFrenchNode = nodeMap.get(ALLFRENCH);
+        GradeHeadcountChildNode allFrenchNode = (GradeHeadcountChildNode)nodeMap.get(ALLFRENCH);
         if (allFrenchNode.getValueForGrade(code) == null) {
             allFrenchNode.setValueForGrade(code, "0");
         }
 
         String schoolID = gradeResult.getSchoolID();
         if (nodeMap.containsKey(schoolID)) {
-            nodeMap.get(schoolID).setValueForGrade(code, gradeResult.getTotalTotals());
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID)).setValueForGrade(code, gradeResult.getTotalTotals());
         } else {
             log.warn("School ID {} not found in node map", schoolID);
         }

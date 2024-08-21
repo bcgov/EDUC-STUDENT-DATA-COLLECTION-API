@@ -13,6 +13,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.CareerHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.GradeHeadcountChildNode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.HeadcountChildNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.PostConstruct;
@@ -23,7 +24,10 @@ import net.sf.jasperreports.engine.JasperReport;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -99,71 +103,71 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
   }
 
   private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-    nodeMap.put(sectionPrefix + "Heading", new HeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
-    nodeMap.put(sectionPrefix + "XA", new HeadcountChildNode("XA - Business & Applied Business", FALSE, sequencePrefix + "1", false));
-    nodeMap.put(sectionPrefix + "XB", new HeadcountChildNode("XB - Fine Arts, Design & Media", FALSE, sequencePrefix + "2", false));
-    nodeMap.put(sectionPrefix + "XC", new HeadcountChildNode("XC - Fitness & Recreation", FALSE, sequencePrefix + "3", false));
-    nodeMap.put(sectionPrefix + "XD", new HeadcountChildNode("XD - Health & Human Services", FALSE, sequencePrefix + "4", false));
-    nodeMap.put(sectionPrefix + "XE", new HeadcountChildNode("XE - Liberal Arts & Humanities", FALSE, sequencePrefix + "5", false));
-    nodeMap.put(sectionPrefix + "XF", new HeadcountChildNode("XF - Science & Applied Science", FALSE, sequencePrefix + "6", false));
-    nodeMap.put(sectionPrefix + "XG", new HeadcountChildNode("XG - Tourism, Hospitality & Foods", FALSE, sequencePrefix + "7", false));
-    nodeMap.put(sectionPrefix + "XH", new HeadcountChildNode("XH - Trades & Technology", FALSE, sequencePrefix + "8", false));
+    nodeMap.put(sectionPrefix + "Heading", new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+    nodeMap.put(sectionPrefix + "XA", new GradeHeadcountChildNode("XA - Business & Applied Business", FALSE, sequencePrefix + "1", false));
+    nodeMap.put(sectionPrefix + "XB", new GradeHeadcountChildNode("XB - Fine Arts, Design & Media", FALSE, sequencePrefix + "2", false));
+    nodeMap.put(sectionPrefix + "XC", new GradeHeadcountChildNode("XC - Fitness & Recreation", FALSE, sequencePrefix + "3", false));
+    nodeMap.put(sectionPrefix + "XD", new GradeHeadcountChildNode("XD - Health & Human Services", FALSE, sequencePrefix + "4", false));
+    nodeMap.put(sectionPrefix + "XE", new GradeHeadcountChildNode("XE - Liberal Arts & Humanities", FALSE, sequencePrefix + "5", false));
+    nodeMap.put(sectionPrefix + "XF", new GradeHeadcountChildNode("XF - Science & Applied Science", FALSE, sequencePrefix + "6", false));
+    nodeMap.put(sectionPrefix + "XG", new GradeHeadcountChildNode("XG - Tourism, Hospitality & Foods", FALSE, sequencePrefix + "7", false));
+    nodeMap.put(sectionPrefix + "XH", new GradeHeadcountChildNode("XH - Trades & Technology", FALSE, sequencePrefix + "8", false));
   }
 
-  public void setValueForGrade(HashMap<String, HeadcountChildNode> nodeMap, CareerHeadcountResult gradeResult){
+  public void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, CareerHeadcountResult gradeResult){
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
     var code = optionalCode.orElseThrow(() ->
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
 
-    nodeMap.get("careerPrepHeading").setValueForGrade(code, gradeResult.getPreparationTotal());
-    nodeMap.get("careerPrepXA").setValueForGrade(code, gradeResult.getPreparationXA());
-    nodeMap.get("careerPrepXB").setValueForGrade(code, gradeResult.getPreparationXB());
-    nodeMap.get("careerPrepXC").setValueForGrade(code, gradeResult.getPreparationXC());
-    nodeMap.get("careerPrepXD").setValueForGrade(code, gradeResult.getPreparationXD());
-    nodeMap.get("careerPrepXE").setValueForGrade(code, gradeResult.getPreparationXE());
-    nodeMap.get("careerPrepXF").setValueForGrade(code, gradeResult.getPreparationXF());
-    nodeMap.get("careerPrepXG").setValueForGrade(code, gradeResult.getPreparationXG());
-    nodeMap.get("careerPrepXH").setValueForGrade(code, gradeResult.getPreparationXH());
+    ((GradeHeadcountChildNode)nodeMap.get("careerPrepHeading")).setValueForGrade(code, gradeResult.getPreparationTotal());
+    ((GradeHeadcountChildNode)nodeMap.get("careerPrepXA")).setValueForGrade(code, gradeResult.getPreparationXA());
+    ((GradeHeadcountChildNode)nodeMap.get("careerPrepXB")).setValueForGrade(code, gradeResult.getPreparationXB());
+    ((GradeHeadcountChildNode)nodeMap.get("careerPrepXC")).setValueForGrade(code, gradeResult.getPreparationXC());
+    ((GradeHeadcountChildNode)nodeMap.get("careerPrepXD")).setValueForGrade(code, gradeResult.getPreparationXD());
+    ((GradeHeadcountChildNode)nodeMap.get("careerPrepXE")).setValueForGrade(code, gradeResult.getPreparationXE());
+    ((GradeHeadcountChildNode)nodeMap.get("careerPrepXF")).setValueForGrade(code, gradeResult.getPreparationXF());
+    ((GradeHeadcountChildNode)nodeMap.get("careerPrepXG")).setValueForGrade(code, gradeResult.getPreparationXG());
+    ((GradeHeadcountChildNode)nodeMap.get("careerPrepXH")).setValueForGrade(code, gradeResult.getPreparationXH());
 
-    nodeMap.get("coopHeading").setValueForGrade(code, gradeResult.getCoopTotal());
-    nodeMap.get("coopXA").setValueForGrade(code, gradeResult.getCoopXA());
-    nodeMap.get("coopXB").setValueForGrade(code, gradeResult.getCoopXB());
-    nodeMap.get("coopXC").setValueForGrade(code, gradeResult.getCoopXC());
-    nodeMap.get("coopXD").setValueForGrade(code, gradeResult.getCoopXD());
-    nodeMap.get("coopXE").setValueForGrade(code, gradeResult.getCoopXE());
-    nodeMap.get("coopXF").setValueForGrade(code, gradeResult.getCoopXF());
-    nodeMap.get("coopXG").setValueForGrade(code, gradeResult.getCoopXG());
-    nodeMap.get("coopXH").setValueForGrade(code, gradeResult.getCoopXH());
+    ((GradeHeadcountChildNode)nodeMap.get("coopHeading")).setValueForGrade(code, gradeResult.getCoopTotal());
+    ((GradeHeadcountChildNode)nodeMap.get("coopXA")).setValueForGrade(code, gradeResult.getCoopXA());
+    ((GradeHeadcountChildNode)nodeMap.get("coopXB")).setValueForGrade(code, gradeResult.getCoopXB());
+    ((GradeHeadcountChildNode)nodeMap.get("coopXC")).setValueForGrade(code, gradeResult.getCoopXC());
+    ((GradeHeadcountChildNode)nodeMap.get("coopXD")).setValueForGrade(code, gradeResult.getCoopXD());
+    ((GradeHeadcountChildNode)nodeMap.get("coopXE")).setValueForGrade(code, gradeResult.getCoopXE());
+    ((GradeHeadcountChildNode)nodeMap.get("coopXF")).setValueForGrade(code, gradeResult.getCoopXF());
+    ((GradeHeadcountChildNode)nodeMap.get("coopXG")).setValueForGrade(code, gradeResult.getCoopXG());
+    ((GradeHeadcountChildNode)nodeMap.get("coopXH")).setValueForGrade(code, gradeResult.getCoopXH());
 
-    nodeMap.get("techYouthHeading").setValueForGrade(code, gradeResult.getTechYouthTotal());
-    nodeMap.get("techYouthXA").setValueForGrade(code, gradeResult.getTechYouthXA());
-    nodeMap.get("techYouthXB").setValueForGrade(code, gradeResult.getTechYouthXB());
-    nodeMap.get("techYouthXC").setValueForGrade(code, gradeResult.getTechYouthXC());
-    nodeMap.get("techYouthXD").setValueForGrade(code, gradeResult.getTechYouthXD());
-    nodeMap.get("techYouthXE").setValueForGrade(code, gradeResult.getTechYouthXE());
-    nodeMap.get("techYouthXF").setValueForGrade(code, gradeResult.getTechYouthXF());
-    nodeMap.get("techYouthXG").setValueForGrade(code, gradeResult.getTechYouthXG());
-    nodeMap.get("techYouthXH").setValueForGrade(code, gradeResult.getTechYouthXH());
+    ((GradeHeadcountChildNode)nodeMap.get("techYouthHeading")).setValueForGrade(code, gradeResult.getTechYouthTotal());
+    ((GradeHeadcountChildNode)nodeMap.get("techYouthXA")).setValueForGrade(code, gradeResult.getTechYouthXA());
+    ((GradeHeadcountChildNode)nodeMap.get("techYouthXB")).setValueForGrade(code, gradeResult.getTechYouthXB());
+    ((GradeHeadcountChildNode)nodeMap.get("techYouthXC")).setValueForGrade(code, gradeResult.getTechYouthXC());
+    ((GradeHeadcountChildNode)nodeMap.get("techYouthXD")).setValueForGrade(code, gradeResult.getTechYouthXD());
+    ((GradeHeadcountChildNode)nodeMap.get("techYouthXE")).setValueForGrade(code, gradeResult.getTechYouthXE());
+    ((GradeHeadcountChildNode)nodeMap.get("techYouthXF")).setValueForGrade(code, gradeResult.getTechYouthXF());
+    ((GradeHeadcountChildNode)nodeMap.get("techYouthXG")).setValueForGrade(code, gradeResult.getTechYouthXG());
+    ((GradeHeadcountChildNode)nodeMap.get("techYouthXH")).setValueForGrade(code, gradeResult.getTechYouthXH());
 
-    nodeMap.get("youthWorkInTradesHeading").setValueForGrade(code, gradeResult.getApprenticeTotal());
-    nodeMap.get("youthWorkInTradesXA").setValueForGrade(code, gradeResult.getApprenticeXA());
-    nodeMap.get("youthWorkInTradesXB").setValueForGrade(code, gradeResult.getApprenticeXB());
-    nodeMap.get("youthWorkInTradesXC").setValueForGrade(code, gradeResult.getApprenticeXC());
-    nodeMap.get("youthWorkInTradesXD").setValueForGrade(code, gradeResult.getApprenticeXD());
-    nodeMap.get("youthWorkInTradesXE").setValueForGrade(code, gradeResult.getApprenticeXE());
-    nodeMap.get("youthWorkInTradesXF").setValueForGrade(code, gradeResult.getApprenticeXF());
-    nodeMap.get("youthWorkInTradesXG").setValueForGrade(code, gradeResult.getApprenticeXG());
-    nodeMap.get("youthWorkInTradesXH").setValueForGrade(code, gradeResult.getApprenticeXH());
+    ((GradeHeadcountChildNode)nodeMap.get("youthWorkInTradesHeading")).setValueForGrade(code, gradeResult.getApprenticeTotal());
+    ((GradeHeadcountChildNode)nodeMap.get("youthWorkInTradesXA")).setValueForGrade(code, gradeResult.getApprenticeXA());
+    ((GradeHeadcountChildNode)nodeMap.get("youthWorkInTradesXB")).setValueForGrade(code, gradeResult.getApprenticeXB());
+    ((GradeHeadcountChildNode)nodeMap.get("youthWorkInTradesXC")).setValueForGrade(code, gradeResult.getApprenticeXC());
+    ((GradeHeadcountChildNode)nodeMap.get("youthWorkInTradesXD")).setValueForGrade(code, gradeResult.getApprenticeXD());
+    ((GradeHeadcountChildNode)nodeMap.get("youthWorkInTradesXE")).setValueForGrade(code, gradeResult.getApprenticeXE());
+    ((GradeHeadcountChildNode)nodeMap.get("youthWorkInTradesXF")).setValueForGrade(code, gradeResult.getApprenticeXF());
+    ((GradeHeadcountChildNode)nodeMap.get("youthWorkInTradesXG")).setValueForGrade(code, gradeResult.getApprenticeXG());
+    ((GradeHeadcountChildNode)nodeMap.get("youthWorkInTradesXH")).setValueForGrade(code, gradeResult.getApprenticeXH());
 
-    nodeMap.get("allHeading").setValueForGrade(code, gradeResult.getAllTotal());
-    nodeMap.get("allXA").setValueForGrade(code, gradeResult.getAllXA());
-    nodeMap.get("allXB").setValueForGrade(code, gradeResult.getAllXB());
-    nodeMap.get("allXC").setValueForGrade(code, gradeResult.getAllXC());
-    nodeMap.get("allXD").setValueForGrade(code, gradeResult.getAllXD());
-    nodeMap.get("allXE").setValueForGrade(code, gradeResult.getAllXE());
-    nodeMap.get("allXF").setValueForGrade(code, gradeResult.getAllXF());
-    nodeMap.get("allXG").setValueForGrade(code, gradeResult.getAllXG());
-    nodeMap.get("allXH").setValueForGrade(code, gradeResult.getAllXH());
+    ((GradeHeadcountChildNode)nodeMap.get("allHeading")).setValueForGrade(code, gradeResult.getAllTotal());
+    ((GradeHeadcountChildNode)nodeMap.get("allXA")).setValueForGrade(code, gradeResult.getAllXA());
+    ((GradeHeadcountChildNode)nodeMap.get("allXB")).setValueForGrade(code, gradeResult.getAllXB());
+    ((GradeHeadcountChildNode)nodeMap.get("allXC")).setValueForGrade(code, gradeResult.getAllXC());
+    ((GradeHeadcountChildNode)nodeMap.get("allXD")).setValueForGrade(code, gradeResult.getAllXD());
+    ((GradeHeadcountChildNode)nodeMap.get("allXE")).setValueForGrade(code, gradeResult.getAllXE());
+    ((GradeHeadcountChildNode)nodeMap.get("allXF")).setValueForGrade(code, gradeResult.getAllXF());
+    ((GradeHeadcountChildNode)nodeMap.get("allXG")).setValueForGrade(code, gradeResult.getAllXG());
+    ((GradeHeadcountChildNode)nodeMap.get("allXH")).setValueForGrade(code, gradeResult.getAllXH());
   }
 
 }
