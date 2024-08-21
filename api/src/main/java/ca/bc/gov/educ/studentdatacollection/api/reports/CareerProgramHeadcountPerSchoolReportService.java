@@ -30,7 +30,13 @@ import java.util.*;
 @Slf4j
 public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGenerationService<CareerHeadcountResult>{
 
-    private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
+  public static final String YOUTH_WORK_IN_TRADES = "youthWorkInTrades";
+  public static final String CAREER_PREP = "careerPrep";
+  public static final String HEADING = "Heading";
+  public static final String COOP = "coop";
+  public static final String TECH_YOUTH = "techYouth";
+  public static final String ALL = "all";
+  private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private JasperReport careerProgramHeadcountPerSchoolReport;
   private final RestUtils restUtils;
@@ -108,12 +114,12 @@ public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGene
   }
 
   private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-    nodeMap.put(sectionPrefix + "Heading", new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
-    nodeMap.put(sectionPrefix + "careerPrep", new GradeHeadcountChildNode("Career Preparation", FALSE, sequencePrefix + "1", false));
-    nodeMap.put(sectionPrefix + "coop", new GradeHeadcountChildNode("Co-operative Education", FALSE, sequencePrefix + "2", false));
-    nodeMap.put(sectionPrefix + "techYouth", new GradeHeadcountChildNode("Career Technical or Youth Train in Trades", FALSE, sequencePrefix + "3", false));
-    nodeMap.put(sectionPrefix + "youthWorkInTrades", new GradeHeadcountChildNode("Youth Work in Trades Program", FALSE, sequencePrefix + "4", false));
-    nodeMap.put(sectionPrefix + "all", new GradeHeadcountChildNode("All Career Programs", FALSE, sequencePrefix + "5", false));
+    nodeMap.put(sectionPrefix + HEADING, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+    nodeMap.put(sectionPrefix + CAREER_PREP, new GradeHeadcountChildNode("Career Preparation", FALSE, sequencePrefix + "1", false));
+    nodeMap.put(sectionPrefix + COOP, new GradeHeadcountChildNode("Co-operative Education", FALSE, sequencePrefix + "2", false));
+    nodeMap.put(sectionPrefix + TECH_YOUTH, new GradeHeadcountChildNode("Career Technical or Youth Train in Trades", FALSE, sequencePrefix + "3", false));
+    nodeMap.put(sectionPrefix + YOUTH_WORK_IN_TRADES, new GradeHeadcountChildNode("Youth Work in Trades Program", FALSE, sequencePrefix + "4", false));
+    nodeMap.put(sectionPrefix + ALL, new GradeHeadcountChildNode("All Career Programs", FALSE, sequencePrefix + "5", false));
   }
 
   public void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, CareerHeadcountResult gradeResult){
@@ -122,28 +128,28 @@ public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGene
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
 
     String schoolID = gradeResult.getSchoolID();
-    if (nodeMap.containsKey(schoolID + "careerPrep")) {
-      ((GradeHeadcountChildNode)nodeMap.get(schoolID + "careerPrep")).setValueForGrade(code, gradeResult.getPreparationTotal());
+    if (nodeMap.containsKey(schoolID + CAREER_PREP)) {
+      ((GradeHeadcountChildNode)nodeMap.get(schoolID + CAREER_PREP)).setValueForGrade(code, gradeResult.getPreparationTotal());
     }
 
-    if (nodeMap.containsKey(schoolID + "coop")) {
-      ((GradeHeadcountChildNode)nodeMap.get(schoolID + "coop")).setValueForGrade(code, gradeResult.getCoopTotal());
+    if (nodeMap.containsKey(schoolID + COOP)) {
+      ((GradeHeadcountChildNode)nodeMap.get(schoolID + COOP)).setValueForGrade(code, gradeResult.getCoopTotal());
     }
 
-    if (nodeMap.containsKey(schoolID + "techYouth")) {
-      ((GradeHeadcountChildNode)nodeMap.get(schoolID + "techYouth")).setValueForGrade(code, gradeResult.getTechYouthTotal());
+    if (nodeMap.containsKey(schoolID + TECH_YOUTH)) {
+      ((GradeHeadcountChildNode)nodeMap.get(schoolID + TECH_YOUTH)).setValueForGrade(code, gradeResult.getTechYouthTotal());
     }
 
-    if (nodeMap.containsKey(schoolID + "youthWorkInTrades")) {
-      ((GradeHeadcountChildNode)nodeMap.get(schoolID + "youthWorkInTrades")).setValueForGrade(code, gradeResult.getApprenticeTotal());
+    if (nodeMap.containsKey(schoolID + YOUTH_WORK_IN_TRADES)) {
+      ((GradeHeadcountChildNode)nodeMap.get(schoolID + YOUTH_WORK_IN_TRADES)).setValueForGrade(code, gradeResult.getApprenticeTotal());
     }
 
-    if (nodeMap.containsKey(schoolID + "all")) {
-      ((GradeHeadcountChildNode)nodeMap.get(schoolID + "all")).setValueForGrade(code, gradeResult.getAllTotal());
+    if (nodeMap.containsKey(schoolID + ALL)) {
+      ((GradeHeadcountChildNode)nodeMap.get(schoolID + ALL)).setValueForGrade(code, gradeResult.getAllTotal());
     }
 
-    if (nodeMap.containsKey(schoolID + "Heading")) {
-      ((GradeHeadcountChildNode)nodeMap.get(schoolID + "Heading")).setAllValuesToNull();
+    if (nodeMap.containsKey(schoolID + HEADING)) {
+      ((GradeHeadcountChildNode)nodeMap.get(schoolID + HEADING)).setAllValuesToNull();
     }
 
   }

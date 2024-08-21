@@ -30,6 +30,7 @@ import java.util.*;
 @Slf4j
 public class EllHeadcountPerSchoolReportService extends BaseReportGenerationService<EllHeadcountResult> {
     protected static final String ALLELL = "allEll";
+    public static final String HEADING = "Heading";
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private JasperReport ellHeadcountPerSchoolReport;
@@ -113,7 +114,7 @@ public class EllHeadcountPerSchoolReportService extends BaseReportGenerationServ
         if (Objects.equals(sectionPrefix, ALLELL)) {
             nodeMap.put(sectionPrefix, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, false));
         } else {
-            nodeMap.put(sectionPrefix + "Heading", new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+            nodeMap.put(sectionPrefix + HEADING, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
             nodeMap.put(sectionPrefix + "all", new GradeHeadcountChildNode("All English Language Learners", FALSE, sequencePrefix + "1", false));
         }
     }
@@ -133,8 +134,8 @@ public class EllHeadcountPerSchoolReportService extends BaseReportGenerationServ
             ((GradeHeadcountChildNode)nodeMap.get(schoolID + "all")).setValueForGrade(code, gradeResult.getTotalEllStudents());
         }
 
-        if (nodeMap.containsKey(schoolID + "Heading")) {
-            ((GradeHeadcountChildNode)nodeMap.get(schoolID + "Heading")).setAllValuesToNull();
+        if (nodeMap.containsKey(schoolID + HEADING)) {
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + HEADING)).setAllValuesToNull();
         }
 
         int currentTotal = Integer.parseInt(gradeResult.getTotalEllStudents());

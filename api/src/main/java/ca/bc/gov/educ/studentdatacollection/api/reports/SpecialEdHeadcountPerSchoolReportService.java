@@ -31,6 +31,12 @@ import java.util.*;
 public class SpecialEdHeadcountPerSchoolReportService extends BaseReportGenerationService<SpecialEdHeadcountResult> {
 
     protected static final String ALLSPED = "allSped";
+    public static final String HEADING = "Heading";
+    public static final String LEVEL_1 = "level1";
+    public static final String LEVEL_2 = "level2";
+    public static final String LEVEL_3 = "level3";
+    public static final String OTHER = "other";
+    public static final String ALL = "all";
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private JasperReport specialEdHeadcountPerSchoolReport;
@@ -114,12 +120,12 @@ public class SpecialEdHeadcountPerSchoolReportService extends BaseReportGenerati
         if (Objects.equals(sectionPrefix, ALLSPED)) {
             nodeMap.put(sectionPrefix, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, false));
         } else {
-            nodeMap.put(sectionPrefix + "Heading", new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
-            nodeMap.put(sectionPrefix + "level1", new GradeHeadcountChildNode("Level 1", FALSE, sequencePrefix + "1", false));
-            nodeMap.put(sectionPrefix + "level2", new GradeHeadcountChildNode("Level 2", FALSE, sequencePrefix + "2", false));
-            nodeMap.put(sectionPrefix + "level3", new GradeHeadcountChildNode("Level 3", FALSE, sequencePrefix + "3", false));
-            nodeMap.put(sectionPrefix + "other", new GradeHeadcountChildNode("Other", FALSE, sequencePrefix + "4", false));
-            nodeMap.put(sectionPrefix + "all", new GradeHeadcountChildNode("All Levels & Categories", FALSE, sequencePrefix + "5", false));
+            nodeMap.put(sectionPrefix + HEADING, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
+            nodeMap.put(sectionPrefix + LEVEL_1, new GradeHeadcountChildNode("Level 1", FALSE, sequencePrefix + "1", false));
+            nodeMap.put(sectionPrefix + LEVEL_2, new GradeHeadcountChildNode("Level 2", FALSE, sequencePrefix + "2", false));
+            nodeMap.put(sectionPrefix + LEVEL_3, new GradeHeadcountChildNode("Level 3", FALSE, sequencePrefix + "3", false));
+            nodeMap.put(sectionPrefix + OTHER, new GradeHeadcountChildNode("Other", FALSE, sequencePrefix + "4", false));
+            nodeMap.put(sectionPrefix + ALL, new GradeHeadcountChildNode("All Levels & Categories", FALSE, sequencePrefix + "5", false));
         }
     }
 
@@ -134,28 +140,28 @@ public class SpecialEdHeadcountPerSchoolReportService extends BaseReportGenerati
             allSpedNode.setValueForGrade(code, "0");
         }
 
-        if (nodeMap.containsKey(schoolID + "level1")) {
-            ((GradeHeadcountChildNode)nodeMap.get(schoolID + "level1")).setValueForGrade(code, gradeResult.getLevelOnes());
+        if (nodeMap.containsKey(schoolID + LEVEL_1)) {
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + LEVEL_1)).setValueForGrade(code, gradeResult.getLevelOnes());
         }
 
-        if (nodeMap.containsKey(schoolID + "level2")) {
-            ((GradeHeadcountChildNode)nodeMap.get(schoolID + "level2")).setValueForGrade(code, gradeResult.getLevelTwos());
+        if (nodeMap.containsKey(schoolID + LEVEL_2)) {
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + LEVEL_2)).setValueForGrade(code, gradeResult.getLevelTwos());
         }
 
-        if (nodeMap.containsKey(schoolID + "level3")) {
-            ((GradeHeadcountChildNode)nodeMap.get(schoolID + "level3")).setValueForGrade(code, gradeResult.getLevelThrees());
+        if (nodeMap.containsKey(schoolID + LEVEL_3)) {
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + LEVEL_3)).setValueForGrade(code, gradeResult.getLevelThrees());
         }
 
-        if (nodeMap.containsKey(schoolID + "other")) {
-            ((GradeHeadcountChildNode)nodeMap.get(schoolID + "other")).setValueForGrade(code, gradeResult.getOtherLevels());
+        if (nodeMap.containsKey(schoolID + OTHER)) {
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + OTHER)).setValueForGrade(code, gradeResult.getOtherLevels());
         }
 
-        if (nodeMap.containsKey(schoolID + "all")) {
-            ((GradeHeadcountChildNode)nodeMap.get(schoolID + "all")).setValueForGrade(code, gradeResult.getAllLevels());
+        if (nodeMap.containsKey(schoolID + ALL)) {
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + ALL)).setValueForGrade(code, gradeResult.getAllLevels());
         }
 
-        if (nodeMap.containsKey(schoolID + "Heading")) {
-            ((GradeHeadcountChildNode)nodeMap.get(schoolID + "Heading")).setAllValuesToNull();
+        if (nodeMap.containsKey(schoolID + HEADING)) {
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + HEADING)).setAllValuesToNull();
         }
 
         int currentTotal = Integer.parseInt(gradeResult.getAllLevels());
