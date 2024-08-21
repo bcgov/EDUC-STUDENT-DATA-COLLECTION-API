@@ -52,7 +52,7 @@ public class AllSchoolsHeadcountsReportService {
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final RestUtils restUtils;
     private static final String COLLECTION_ID = "collectionID";
-    private static final String INVALID_COLLECTION_TYPE = "Invalid Collection type";
+    private static final String INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and SEPT collections";
 
     public DownloadableReportResponse generateAllSchoolsHeadcounts(UUID collectionID) {
         List<SchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllEnrollmentHeadcountsByCollectionId(collectionID);
@@ -141,7 +141,7 @@ public class AllSchoolsHeadcountsReportService {
         } else if(collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode())) {
             return generateFebFsaCsv(collection.getCollectionID());
         }
-        throw new InvalidPayloadException(createError(collection.getCollectionTypeCode()));
+        throw new InvalidPayloadException(createError());
     }
 
     private DownloadableReportResponse generateFebFsaCsv(UUID collectionID) {
@@ -167,9 +167,7 @@ public class AllSchoolsHeadcountsReportService {
                     projectedGrade = SchoolGradeCodes.GRADE07.getCode();
                 }
                 List<String> csvRowData = prepareFsaDataForCsv(student, projectedGrade);
-                if(csvRowData != null) {
-                    csvPrinter.printRecord(csvRowData);
-                }
+                csvPrinter.printRecord(csvRowData);
             }
             csvPrinter.flush();
 
@@ -200,9 +198,7 @@ public class AllSchoolsHeadcountsReportService {
 
             for (SdcSchoolCollectionStudentEntity student : students) {
                 List<String> csvRowData = prepareFsaDataForCsv(student, student.getEnrolledGradeCode());
-                if(csvRowData != null) {
-                    csvPrinter.printRecord(csvRowData);
-                }
+                csvPrinter.printRecord(csvRowData);
             }
             csvPrinter.flush();
 
@@ -250,10 +246,10 @@ public class AllSchoolsHeadcountsReportService {
 
     private List<String> prepareFsaDataForCsv(SdcSchoolCollectionStudentEntity student, String studentGrade) {
         var schoolOpt = restUtils.getAllSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
-
+        List<String> csvRowData = new ArrayList<>();
         if(schoolOpt.isPresent()) {
             var school = schoolOpt.get();
-            List<String> csvRowData = new ArrayList<>();
+
             csvRowData.addAll(Arrays.asList(
                     student.getAssignedPen(),
                     school.getMincode().substring(0,3),
@@ -263,9 +259,8 @@ public class AllSchoolsHeadcountsReportService {
                     student.getLegalFirstName(),
                     student.getLegalLastName()
             ));
-            return csvRowData;
         }
-        return null;
+        return csvRowData;
     }
 
     private List<String> prepareSchoolAddressDataForCsv(School school, SchoolAddress address) {
@@ -282,12 +277,7 @@ public class AllSchoolsHeadcountsReportService {
         return csvRowData;
     }
 
-    private ApiError createError(String collectionType) {
-        ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_COLLECTION_TYPE).status(BAD_REQUEST).build();
-        var validationError = ValidationUtil.createFieldError("CollectionTypeCode", collectionType, "Report is only available for FEBRUARY and SEPTEMBER collections");
-        List<FieldError> fieldErrorList = new ArrayList<>();
-        fieldErrorList.add(validationError);
-        error.addValidationErrors(fieldErrorList);
-        return error;
+    private ApiError createError() {
+        return ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_COLLECTION_TYPE).status(BAD_REQUEST).build();
     }
 }
