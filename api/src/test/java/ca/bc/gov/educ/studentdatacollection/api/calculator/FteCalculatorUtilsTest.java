@@ -842,15 +842,19 @@ class FteCalculatorUtilsTest {
             "FEBRUARY, DIST_LEARN, true",
             "FEBRUARY, STANDARD, false",
             "FEBRUARY, DISTONLINE, true",
+            "FEBRUARY, CONT_ED, true",
             "SEPTEMBER, DIST_LEARN, false",
             "SEPTEMBER, STANDARD, false",
             "SEPTEMBER, DISTONLINE, false",
+            "SEPTEMBER, CONT_ED, false",
             "MAY, DIST_LEARN, true",
             "MAY, STANDARD, false",
             "MAY, DISTONLINE, true",
+            "MAY, CONT_ED, true",
             "JULY, DIST_LEARN, false",
             "JULY, STANDARD, false",
             "JULY, DISTONLINE, false",
+            "JULY, CONT_ED, false",
     })
     void testHomeSchoolStudentIsNowOnlineKto9StudentOrHs_GivenDifferentSchoolCategoriesAndFacilities_ReturnExpectedResult(String collectionType, String facilityType, boolean expectedResult) {
         // Given

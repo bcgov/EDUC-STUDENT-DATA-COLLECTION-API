@@ -142,7 +142,8 @@ public class FteCalculatorUtils {
             return false;
         }
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
-        var studentReportedByOnlineSchool = studentRuleData.getSchool().getFacilityTypeCode().equals(FacilityTypeCodes.DIST_LEARN.getCode()) || studentRuleData.getSchool().getFacilityTypeCode().equals(FacilityTypeCodes.DISTONLINE.getCode());
+        var studentReportedByOnlineSchool = FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(studentRuleData.getSchool().getFacilityTypeCode()) ||
+        studentRuleData.getSchool().getFacilityTypeCode().equals(FacilityTypeCodes.CONT_ED.getCode());
         var isStudentGradeKToNineOrHs = SchoolGradeCodes.getDistrictFundingGrades().contains(student.getEnrolledGradeCode());
 
         if(isSpringCollection(studentRuleData) && studentReportedByOnlineSchool && isStudentGradeKToNineOrHs) {
