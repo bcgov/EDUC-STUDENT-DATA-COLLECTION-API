@@ -756,8 +756,13 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
   }
 
-  @Test
-  void testProcessSdcFile_givenInvalidPayloadZeroStudents_ShouldReturnStatusBadRequest() throws Exception {
+  @ParameterizedTest
+  @CsvSource({
+          "src/test/resources/sample-0-student.txt",
+          "src/test/resources/sample-1-student-with-bad-student-count.txt",
+          "src/test/resources/sample-1-student-with-malformed-student-count.txt"
+  })
+  void testProcessSdcFile_givenInvalidPayloadForStudentCounts_ShouldReturnStatusBadRequest(String resourceFile) throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
@@ -766,49 +771,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     sdcMockSchool.setUploadFileName(null);
     sdcMockSchool.setUploadReportDate(null);
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
-    final FileInputStream fis = new FileInputStream("src/test/resources/sample-0-student.txt");
-    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
-    assertThat(fileContents).isNotEmpty();
-    val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
-    this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
-            .header("correlationID", UUID.randomUUID().toString())
-            .content(JsonUtil.getJsonStringFromObject(body))
-            .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
-  }
-
-  @Test
-  void testProcessSdcFile_givenInvalidPayloadMismatchedStudentCount_ShouldReturnStatusBadRequest() throws Exception {
-    var collection = sdcRepository.save(createMockCollectionEntity());
-    var school = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-    var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
-    sdcMockSchool.setUploadDate(null);
-    sdcMockSchool.setUploadFileName(null);
-    sdcMockSchool.setUploadReportDate(null);
-    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
-    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student-with-bad-student-count.txt");
-    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
-    assertThat(fileContents).isNotEmpty();
-    val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
-    this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
-            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
-            .header("correlationID", UUID.randomUUID().toString())
-            .content(JsonUtil.getJsonStringFromObject(body))
-            .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
-  }
-
-  @Test
-  void testProcessSdcFile_givenInvalidPayloadMalformedStudentCount_ShouldReturnStatusBadRequest() throws Exception {
-    var collection = sdcRepository.save(createMockCollectionEntity());
-    var school = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-    var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
-    sdcMockSchool.setUploadDate(null);
-    sdcMockSchool.setUploadFileName(null);
-    sdcMockSchool.setUploadReportDate(null);
-    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
-    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student-with-malformed-student-count.txt");
+    final FileInputStream fis = new FileInputStream(resourceFile);
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     assertThat(fileContents).isNotEmpty();
     val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
