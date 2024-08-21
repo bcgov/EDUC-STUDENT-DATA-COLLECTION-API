@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGrade;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGradeCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -108,13 +109,18 @@ public class TransformUtil {
   }
 
   public static String getGradesOfferedString(School school){
-    StringBuilder gradesOffered = new StringBuilder();
-    school.getGrades().sort(Comparator.comparing(SchoolGrade::getSchoolGradeCode));
+    var gradeList = new ArrayList<SchoolGradeCodes>();
     for(SchoolGrade schoolGrade: school.getGrades()) {
       var optGrade = SchoolGradeCodes.findByTypeCode(schoolGrade.getSchoolGradeCode());
       if(optGrade.isPresent()) {
-        gradesOffered.append(optGrade.get().getCode() + ",");
+        gradeList.add(optGrade.get());
       }
+    }
+
+    gradeList.sort(Comparator.comparing(SchoolGradeCodes::getSequence));
+    StringBuilder gradesOffered = new StringBuilder();
+    for(SchoolGradeCodes schoolGrade: gradeList) {
+      gradesOffered.append(schoolGrade.getCode() + ",");
     }
     var finalGrades = gradesOffered.toString();
     if(StringUtils.isEmpty(finalGrades)){
