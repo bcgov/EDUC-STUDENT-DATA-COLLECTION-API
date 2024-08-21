@@ -34,6 +34,11 @@ public enum FileError {
   STUDENT_COUNT_MISMATCH("Invalid count in trailer record. Stated was $?, Actual was $?"),
 
   /**
+   * Uploaded file reported 0 students.
+   */
+  STUDENT_COUNT_NO_STUDENTS("The uploaded file did not contain any student records."),
+
+  /**
    * Invalid trailer
    */
   INVALID_TRAILER("Invalid trailer record. Student count could not be retrieved"),
