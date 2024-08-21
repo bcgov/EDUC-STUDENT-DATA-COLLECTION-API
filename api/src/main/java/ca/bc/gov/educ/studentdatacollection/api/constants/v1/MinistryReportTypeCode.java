@@ -8,7 +8,8 @@ import java.util.Optional;
 @Getter
 public enum MinistryReportTypeCode {
     SCHOOL_ENROLLMENT_HEADCOUNTS("school-enrollment-headcounts"),
-    SCHOOL_ADDRESS_REPORT("school-address-report")
+    SCHOOL_ADDRESS_REPORT("school-address-report"),
+    FSA_REGISTRATION_REPORT("fsa-registration-report")
     ;
 
     private final String code;

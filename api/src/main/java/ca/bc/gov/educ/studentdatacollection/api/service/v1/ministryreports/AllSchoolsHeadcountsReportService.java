@@ -1,10 +1,17 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.FsaFebRegistrationHeader;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.FsaSeptRegistrationHeader;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
@@ -16,21 +23,24 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadc
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.FieldError;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.time.LocalDateTime;
 import java.util.*;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeCode.SCHOOL_ADDRESS_REPORT;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeCode.SCHOOL_ENROLLMENT_HEADCOUNTS;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeCode.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 
 @Service
@@ -42,6 +52,7 @@ public class AllSchoolsHeadcountsReportService {
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final RestUtils restUtils;
     private static final String COLLECTION_ID = "collectionID";
+    private static final String INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and SEPT collections";
 
     public DownloadableReportResponse generateAllSchoolsHeadcounts(UUID collectionID) {
         List<SchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllEnrollmentHeadcountsByCollectionId(collectionID);
@@ -119,6 +130,88 @@ public class AllSchoolsHeadcountsReportService {
         }
     }
 
+    public DownloadableReportResponse generateFsaRegistrationCsv(UUID collectionID) {
+        Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
+        if(entityOptional.isEmpty()) {
+            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+        }
+        CollectionEntity collection = entityOptional.get();
+        if(collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.SEPTEMBER.getTypeCode())) {
+            return generateSeptFsaCsv(collection.getCollectionID());
+        } else if(collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode())) {
+            return generateFebFsaCsv(collection.getCollectionID());
+        }
+        throw new InvalidPayloadException(createError());
+    }
+
+    private DownloadableReportResponse generateFebFsaCsv(UUID collectionID) {
+        List<String> grades = Arrays.asList(SchoolGradeCodes.GRADE03.getCode(), SchoolGradeCodes.GRADE06.getCode());
+        List<SdcSchoolCollectionStudentEntity> students =
+                sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(collectionID, grades);
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(
+                FsaFebRegistrationHeader.STUDENT_PEN.getCode(), FsaFebRegistrationHeader.DISTRICT_NUMBER.getCode(), FsaFebRegistrationHeader.SCHOOL_NUMBER.getCode(),
+                FsaFebRegistrationHeader.NEXT_YEAR_GRADE.getCode(), FsaFebRegistrationHeader.LOCAL_ID.getCode(), FsaFebRegistrationHeader.LEGAL_FIRST_NAME.getCode(),
+                FsaFebRegistrationHeader.LEGAL_LAST_NAME.getCode()
+        ).build();
+
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (SdcSchoolCollectionStudentEntity student : students) {
+                String projectedGrade = null;
+                if(student.getEnrolledGradeCode().equalsIgnoreCase(SchoolGradeCodes.GRADE03.getCode())) {
+                    projectedGrade = SchoolGradeCodes.GRADE04.getCode();
+                } else if(student.getEnrolledGradeCode().equalsIgnoreCase(SchoolGradeCodes.GRADE06.getCode())) {
+                    projectedGrade = SchoolGradeCodes.GRADE07.getCode();
+                }
+                List<String> csvRowData = prepareFsaDataForCsv(student, projectedGrade);
+                csvPrinter.printRecord(csvRowData);
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(FSA_REGISTRATION_REPORT.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
+    private DownloadableReportResponse generateSeptFsaCsv(UUID collectionID) {
+        List<String> grades = Arrays.asList(SchoolGradeCodes.GRADE04.getCode(), SchoolGradeCodes.GRADE07.getCode());
+        List<SdcSchoolCollectionStudentEntity> students =
+                sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(collectionID, grades);
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(
+                FsaSeptRegistrationHeader.STUDENT_PEN.getCode(), FsaSeptRegistrationHeader.DISTRICT_NUMBER.getCode(), FsaSeptRegistrationHeader.SCHOOL_NUMBER.getCode(),
+                FsaSeptRegistrationHeader.ENROLLED_GRADE.getCode(), FsaSeptRegistrationHeader.LOCAL_ID.getCode(), FsaSeptRegistrationHeader.LEGAL_FIRST_NAME.getCode(),
+                FsaSeptRegistrationHeader.LEGAL_LAST_NAME.getCode()
+        ).build();
+
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (SdcSchoolCollectionStudentEntity student : students) {
+                List<String> csvRowData = prepareFsaDataForCsv(student, student.getEnrolledGradeCode());
+                csvPrinter.printRecord(csvRowData);
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(FSA_REGISTRATION_REPORT.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
 
     private List<String> prepareSchoolDataForCsv(SchoolHeadcountResult schoolHeadcountResult, CollectionEntity collection) {
         var school = restUtils.getAllSchoolBySchoolID(schoolHeadcountResult.getSchoolID()).get();
@@ -151,6 +244,25 @@ public class AllSchoolsHeadcountsReportService {
         return csvRowData;
     }
 
+    private List<String> prepareFsaDataForCsv(SdcSchoolCollectionStudentEntity student, String studentGrade) {
+        var schoolOpt = restUtils.getAllSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
+        List<String> csvRowData = new ArrayList<>();
+        if(schoolOpt.isPresent()) {
+            var school = schoolOpt.get();
+
+            csvRowData.addAll(Arrays.asList(
+                    student.getAssignedPen(),
+                    school.getMincode().substring(0,3),
+                    school.getSchoolNumber(),
+                    studentGrade,
+                    student.getLocalID(),
+                    student.getLegalFirstName(),
+                    student.getLegalLastName()
+            ));
+        }
+        return csvRowData;
+    }
+
     private List<String> prepareSchoolAddressDataForCsv(School school, SchoolAddress address) {
         List<String> csvRowData = new ArrayList<>();
         csvRowData.addAll(Arrays.asList(
@@ -163,5 +275,9 @@ public class AllSchoolsHeadcountsReportService {
                 address.getPostal()
         ));
         return csvRowData;
+    }
+
+    private ApiError createError() {
+        return ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_COLLECTION_TYPE).status(BAD_REQUEST).build();
     }
 }

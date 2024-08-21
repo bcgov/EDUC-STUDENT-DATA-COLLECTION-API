@@ -916,4 +916,5 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             """)
   List<SdcSchoolCollectionStudentEntity> findStudentInHistoricalCollectionInOtherDistricts(UUID districtID, UUID assignedStudentID, String collectionTypeCode, Integer targetYear);
 
+  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(UUID collectionID, List<String> enrolledGradeCode);
 }
