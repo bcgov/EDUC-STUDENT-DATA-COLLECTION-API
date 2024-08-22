@@ -41,6 +41,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     private final EllHeadcountPerSchoolReportService ellHeadcountPerSchoolReportService;
     private final SpecialEdHeadcountReportService specialEdHeadcountReportService;
     private final SpecialEdHeadcountPerSchoolReportService specialEdHeadcountPerSchoolReportService;
+    private final SpecialEdCategoryHeadcountPerSchoolReportService inclusiveEdCategoryHeadcountPerSchoolReportService;
     private final AllStudentLightCollectionGenerateCsvService allStudentLightCollectionGenerateCsvService;
     private final BandOfResidenceHeadcountReportService bandOfResidenceHeadcountReportService;
     private final GradeEnrollmentHeadcountPerSchoolReportService gradeEnrollmentHeadcountPerSchoolReportService;
@@ -80,6 +81,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case SPECIAL_EDUCATION_HEADCOUNT -> specialEdHeadcountReportService.generateSpecialEdHeadcountReport(collectionID, false);
             case DIS_SPECIAL_EDUCATION_HEADCOUNT -> specialEdHeadcountReportService.generateSpecialEdHeadcountReport(collectionID, true);
             case DIS_SPECIAL_EDUCATION_HEADCOUNT_PER_SCHOOL -> specialEdHeadcountPerSchoolReportService.generateSpecialEdHeadcountPerSchoolReport(collectionID);
+            case DIS_SPECIAL_EDUCATION_CATEGORY_HEADCOUNT_PER_SCHOOL -> inclusiveEdCategoryHeadcountPerSchoolReportService.generateInclusiveEdCategoryHeadcountPerSchoolReport(collectionID);
             case ALL_STUDENT_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateFromSdcSchoolCollectionID(collectionID);
             case ALL_STUDENT_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateFromSdcDistrictCollectionID(collectionID);
             default -> new DownloadableReportResponse();

@@ -65,6 +65,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   private static final String SECTION = "section";
   private static final String TITLE = "title";
   private static final String TOTAL = "Total";
+  protected List<String> specialEdCategoryCodes;
   private final RestUtils restUtils;
 
   public SpecialEdHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository,
@@ -245,7 +246,6 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
       }
     }
 
-
     // Add all schools row at the start
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
     Map<String, HeadcountHeaderColumn> totalRow = new LinkedHashMap<>();
@@ -269,6 +269,78 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     return table;
   }
 
+  public HeadcountResultsTable convertHeadcountResultsToSpecialEdCategoryTable(UUID sdcDistrictCollectionID, List<SpecialEdHeadcountResult> results) throws EntityNotFoundException {
+    HeadcountResultsTable table = new HeadcountResultsTable();
+    List<String> headers = new ArrayList<>();
+    Set<String> categories = new HashSet<>(specialEdCategoryCodes);
+    Map<String, Map<String, Integer>> schoolCategoryCounts = new HashMap<>();
+    Map<String, Integer> totalCounts = new HashMap<>();
+    Map<String, String> schoolDetails  = new HashMap<>();
+
+    List<SchoolTombstone> allSchools = getAllSchoolTombstones(sdcDistrictCollectionID);
+
+    // Collect all special ed categories and initialize school-grade map
+    for (SpecialEdHeadcountResult result : results) {
+      categories.add(result.getSpecialEducationCategoryCode());
+      schoolCategoryCounts.computeIfAbsent(result.getSchoolID(), k -> new HashMap<>());
+      schoolDetails .putIfAbsent(result.getSchoolID(),
+              restUtils.getSchoolBySchoolID(result.getSchoolID())
+                      .map(school -> school.getMincode() + " - " + school.getDisplayName())
+                      .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", result.getSchoolID())));
+    }
+
+    for (SchoolTombstone school : allSchools) {
+      schoolCategoryCounts.computeIfAbsent(school.getSchoolId(), k -> new HashMap<>());
+      schoolDetails.putIfAbsent(school.getSchoolId(), school.getMincode() + " - " + school.getDisplayName());
+    }
+
+    // Initialize totals for each grade
+    for (String category : specialEdCategoryCodes) {
+      totalCounts.put(category, 0);
+      schoolCategoryCounts.values().forEach(school -> school.putIfAbsent(category, 0));
+    }
+
+    // Sort grades and add to headers
+    headers.add(TITLE);
+    headers.addAll(specialEdCategoryCodes);
+    headers.add(TOTAL);
+    table.setHeaders(headers);
+
+    // Populate counts for each school and category, and calculate row totals
+    Map<String, Integer> schoolTotals = new HashMap<>();
+    for (SpecialEdHeadcountResult result : results) {
+      if (specialEdCategoryCodes.contains(result.getSpecialEducationCategoryCode())) {
+        Map<String, Integer> categoryCounts = schoolCategoryCounts.get(result.getSchoolID());
+        String category = result.getSpecialEducationCategoryCode();
+        int count = getCountFromResult(result);
+        categoryCounts.merge(category, count, Integer::sum);
+        totalCounts.merge(category, count, Integer::sum);
+        schoolTotals.merge(result.getSchoolID(), count, Integer::sum);
+      }
+    }
+
+    // Add all schools row at the start
+    List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
+    Map<String, HeadcountHeaderColumn> totalRow = new LinkedHashMap<>();
+    totalRow.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+    totalRow.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+    totalCounts.forEach((grade, count) -> totalRow.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
+    totalRow.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotals.values().stream().mapToInt(Integer::intValue).sum())).build());
+    rows.add(totalRow);
+
+    // Create rows for the table, including school names
+    schoolCategoryCounts.forEach((schoolID, categoriesCount) -> {
+      Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
+      rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(schoolDetails.get(schoolID)).build());
+      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+      categoriesCount.forEach((grade, count) -> rowData.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
+      rowData.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotals.getOrDefault(schoolID, 0))).build());
+      rows.add(rowData);
+    });
+
+    table.setRows(rows);
+    return table;
+  }
 
   private int getCountFromResult(SpecialEdHeadcountResult result) {
     try {
@@ -299,9 +371,6 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     headcountMethods.put(Q_CODE_TITLE_KEY, SpecialEdHeadcountResult::getSpecialEdQCodes);
     headcountMethods.put(R_CODE_TITLE_KEY, SpecialEdHeadcountResult::getSpecialEdRCodes);
     headcountMethods.put(ALL_LEVELS_TITLE_KEY, SpecialEdHeadcountResult::getAllLevels);
-
-
-
     return headcountMethods;
   }
   private Map<String, String> getSelectionTitles() {

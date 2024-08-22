@@ -18,4 +18,16 @@ public interface SpecialEdHeadcountResult extends HeadcountResult {
   String getSpecialEdQCodes();
   String getSpecialEdRCodes();
   String getAllLevels();
+  boolean getAdultsInSpecialEdA();
+  boolean getAdultsInSpecialEdB();
+  boolean getAdultsInSpecialEdC();
+  boolean getAdultsInSpecialEdD();
+  boolean getAdultsInSpecialEdE();
+  boolean getAdultsInSpecialEdF();
+  boolean getAdultsInSpecialEdG();
+  boolean getAdultsInSpecialEdH();
+  boolean getAdultsInSpecialEdK();
+  boolean getAdultsInSpecialEdP();
+  boolean getAdultsInSpecialEdQ();
+  boolean getAdultsInSpecialEdR();
 }

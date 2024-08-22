@@ -43,7 +43,7 @@ public abstract class BaseReportGenerationService<T> {
   protected static final String FALSE = "false";
   protected static final NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
 
-  private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+  protected ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
   protected BaseReportGenerationService(RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository) {
     this.restUtils = restUtils;
