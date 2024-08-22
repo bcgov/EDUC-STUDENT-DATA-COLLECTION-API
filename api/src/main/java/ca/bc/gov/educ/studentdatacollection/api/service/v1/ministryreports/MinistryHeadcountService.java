@@ -119,38 +119,13 @@ public class MinistryHeadcountService {
         rowMap.put(GRADE_SU.getCode(), indySchoolHeadcountResult.getGradeSUCount());
         rowMap.put(GRADE_GA.getCode(), indySchoolHeadcountResult.getGradeGACount());
         rowMap.put(GRADE_HS.getCode(), indySchoolHeadcountResult.getGradeHSCount());
-        rowMap.put(TOTAL.getCode(), getTotalHeadcount(indySchoolHeadcountResult));
+        rowMap.put(TOTAL.getCode(), TransformUtil.getTotalHeadcount(indySchoolHeadcountResult));
         rows.add(rowMap);
       }
     });
 
     resultsTable.setRows(rows);
     return resultsTable;
-  }
-
-  private String getTotalHeadcount(IndySchoolHeadcountResult result){
-    int total = 0;
-
-    total +=  Integer.parseInt(result.getKindHCount());
-    total +=  Integer.parseInt(result.getKindFCount());
-    total +=  Integer.parseInt(result.getGrade1Count());
-    total +=  Integer.parseInt(result.getGrade2Count());
-    total +=  Integer.parseInt(result.getGrade3Count());
-    total +=  Integer.parseInt(result.getGrade4Count());
-    total +=  Integer.parseInt(result.getGrade5Count());
-    total +=  Integer.parseInt(result.getGrade6Count());
-    total +=  Integer.parseInt(result.getGrade7Count());
-    total +=  Integer.parseInt(result.getGradeEUCount());
-    total +=  Integer.parseInt(result.getGrade8Count());
-    total +=  Integer.parseInt(result.getGrade9Count());
-    total +=  Integer.parseInt(result.getGrade10Count());
-    total +=  Integer.parseInt(result.getGrade11Count());
-    total +=  Integer.parseInt(result.getGrade12Count());
-    total +=  Integer.parseInt(result.getGradeSUCount());
-    total +=  Integer.parseInt(result.getGradeGACount());
-    total +=  Integer.parseInt(result.getGradeHSCount());
-
-    return Integer.toString(total);
   }
 
   public SimpleHeadcountResultsTable getSchoolAddressReport(UUID collectionID) {

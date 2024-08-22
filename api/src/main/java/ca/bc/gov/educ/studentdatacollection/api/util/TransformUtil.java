@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionA
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGrade;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGradeCode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -127,6 +128,31 @@ public class TransformUtil {
       return "";
     }
     return gradesOffered.toString().substring(0, gradesOffered.lastIndexOf(","));
+  }
+
+  public static String getTotalHeadcount(IndySchoolHeadcountResult result){
+    int total = 0;
+
+    total +=  Integer.parseInt(result.getKindHCount());
+    total +=  Integer.parseInt(result.getKindFCount());
+    total +=  Integer.parseInt(result.getGrade1Count());
+    total +=  Integer.parseInt(result.getGrade2Count());
+    total +=  Integer.parseInt(result.getGrade3Count());
+    total +=  Integer.parseInt(result.getGrade4Count());
+    total +=  Integer.parseInt(result.getGrade5Count());
+    total +=  Integer.parseInt(result.getGrade6Count());
+    total +=  Integer.parseInt(result.getGrade7Count());
+    total +=  Integer.parseInt(result.getGradeEUCount());
+    total +=  Integer.parseInt(result.getGrade8Count());
+    total +=  Integer.parseInt(result.getGrade9Count());
+    total +=  Integer.parseInt(result.getGrade10Count());
+    total +=  Integer.parseInt(result.getGrade11Count());
+    total +=  Integer.parseInt(result.getGrade12Count());
+    total +=  Integer.parseInt(result.getGradeSUCount());
+    total +=  Integer.parseInt(result.getGradeGACount());
+    total +=  Integer.parseInt(result.getGradeHSCount());
+
+    return Integer.toString(total);
   }
 
   public static String sanitizeEnrolledProgramString(String enrolledProgramCode) {
