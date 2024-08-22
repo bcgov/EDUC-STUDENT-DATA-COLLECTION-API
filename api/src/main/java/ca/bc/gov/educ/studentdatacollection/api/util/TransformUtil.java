@@ -155,6 +155,13 @@ public class TransformUtil {
     return Integer.toString(total);
   }
 
+  public static String flagCountIfNoSchoolFundingGroup(String schoolGradeCode, List<String> schoolFundingGroupGrades, String value){
+    if(schoolFundingGroupGrades.contains(schoolGradeCode)){
+      return value;
+    }
+    return value + "*";
+  }
+
   public static String sanitizeEnrolledProgramString(String enrolledProgramCode) {
     if(StringUtils.isEmpty(enrolledProgramCode) || Pattern.compile("^[0\\s]*$").matcher(enrolledProgramCode).matches()) {
       return null;

@@ -17,6 +17,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionReposito
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolAddress;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
@@ -41,6 +42,7 @@ import java.util.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeCode.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 
@@ -278,27 +280,28 @@ public class AllSchoolsHeadcountsReportService {
     }
 
     private List<String> prepareIndySchoolDataForCsv(IndySchoolHeadcountResult indySchoolHeadcountResult, School school) {
+        var schoolFundingGroupGrades = school.getSchoolFundingGroups().stream().map(IndependentSchoolFundingGroup::getSchoolGradeCode).toList();
         List<String> csvRowData = new ArrayList<>();
         csvRowData.addAll(Arrays.asList(
                 school.getDisplayName(),
-                indySchoolHeadcountResult.getKindHCount(),
-                indySchoolHeadcountResult.getKindFCount(),
-                indySchoolHeadcountResult.getGrade1Count(),
-                indySchoolHeadcountResult.getGrade2Count(),
-                indySchoolHeadcountResult.getGrade3Count(),
-                indySchoolHeadcountResult.getGrade4Count(),
-                indySchoolHeadcountResult.getGrade5Count(),
-                indySchoolHeadcountResult.getGrade6Count(),
-                indySchoolHeadcountResult.getGrade7Count(),
-                indySchoolHeadcountResult.getGradeEUCount(),
-                indySchoolHeadcountResult.getGrade8Count(),
-                indySchoolHeadcountResult.getGrade9Count(),
-                indySchoolHeadcountResult.getGrade10Count(),
-                indySchoolHeadcountResult.getGrade11Count(),
-                indySchoolHeadcountResult.getGrade12Count(),
-                indySchoolHeadcountResult.getGradeSUCount(),
-                indySchoolHeadcountResult.getGradeGACount(),
-                indySchoolHeadcountResult.getGradeHSCount(),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.KINDHALF.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getKindHCount()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.KINDFULL.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getKindFCount()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE01.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade1Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE02.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade2Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE03.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade3Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE04.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade4Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE05.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade5Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE06.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade6Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE07.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade7Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.ELEMUNGR.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGradeEUCount()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE08.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade8Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE09.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade9Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE10.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade10Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE11.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade11Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE12.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade12Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.SECONDARY_UNGRADED.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGradeSUCount()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADUATED_ADULT.getCode(), schoolFundingGroupGrades,  indySchoolHeadcountResult.getGradeGACount()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.HOMESCHOOL.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGradeHSCount()),
                 TransformUtil.getTotalHeadcount(indySchoolHeadcountResult)
         ));
 
