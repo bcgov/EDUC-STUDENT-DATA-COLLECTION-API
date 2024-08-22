@@ -6,14 +6,17 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SchoolFundingCodeEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolAddress;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolFundingGroupCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -33,10 +36,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -421,6 +421,9 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var school = this.createMockSchoolDetail();
     school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+
+    var fundingGroups = IndependentSchoolFundingGroup.builder().schoolFundingGroupCode("14").schoolGradeCode("GRADE01").build();
+    school.setSchoolFundingGroups(Arrays.asList(fundingGroups));
     when(this.restUtils.getAllSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
     CollectionEntity collection = createMockCollectionEntity();
@@ -510,6 +513,8 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var school = this.createMockSchoolDetail();
     school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+    var fundingGroups = IndependentSchoolFundingGroup.builder().schoolFundingGroupCode("14").schoolGradeCode("GRADE01").build();
+    school.setSchoolFundingGroups(Arrays.asList(fundingGroups));
     when(this.restUtils.getAllSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
     CollectionEntity collection = createMockCollectionEntity();
