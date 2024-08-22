@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.FsaFebRegistrationHeader;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.FsaSeptRegistrationHeader;
@@ -16,21 +17,21 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionReposito
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolAddress;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
-import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.FieldError;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -40,6 +41,8 @@ import java.util.*;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeCode.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 
@@ -73,13 +76,51 @@ public class AllSchoolsHeadcountsReportService {
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
             for (SchoolHeadcountResult result : results) {
-                List<String> csvRowData = prepareSchoolDataForCsv(result, collection);
-                csvPrinter.printRecord(csvRowData);
+                var schoolOpt = restUtils.getAllSchoolBySchoolID(result.getSchoolID());
+                if(schoolOpt.isPresent()) {
+                    List<String> csvRowData = prepareAllSchoolDataForCsv(result, collection, schoolOpt.get());
+                    csvPrinter.printRecord(csvRowData);
+                }
             }
             csvPrinter.flush();
 
             var downloadableReport = new DownloadableReportResponse();
             downloadableReport.setReportType(SCHOOL_ENROLLMENT_HEADCOUNTS.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
+    public DownloadableReportResponse generateIndySchoolsHeadcounts(UUID collectionID) {
+        List<IndySchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
+
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(SCHOOL.getCode(), GRADE_01.getCode(), GRADE_02.getCode(), GRADE_03.getCode(), GRADE_04.getCode(),
+                        GRADE_05.getCode(), GRADE_06.getCode(), GRADE_07.getCode(), GRADE_EU.getCode(), GRADE_08.getCode(), GRADE_09.getCode(), GRADE_10.getCode(),
+                        GRADE_11.getCode(),GRADE_12.getCode(),GRADE_SU.getCode(),GRADE_GA.getCode(),GRADE_HS.getCode(),TOTAL.getCode())
+                .build();
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (IndySchoolHeadcountResult result : results) {
+                var schoolOpt = restUtils.getAllSchoolBySchoolID(result.getSchoolID());
+                if(schoolOpt.isPresent()) {
+                    var school = schoolOpt.get();
+                    if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
+                        List<String> csvRowData = prepareIndySchoolDataForCsv(result, school);
+                        csvPrinter.printRecord(csvRowData);
+                    }
+                }
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(INDY_SCHOOL_ENROLLMENT_HEADCOUNTS.getCode());
             downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
 
             return downloadableReport;
@@ -213,9 +254,7 @@ public class AllSchoolsHeadcountsReportService {
     }
 
 
-    private List<String> prepareSchoolDataForCsv(SchoolHeadcountResult schoolHeadcountResult, CollectionEntity collection) {
-        var school = restUtils.getAllSchoolBySchoolID(schoolHeadcountResult.getSchoolID()).get();
-
+    private List<String> prepareAllSchoolDataForCsv(SchoolHeadcountResult schoolHeadcountResult, CollectionEntity collection, School school) {
         List<String> csvRowData = new ArrayList<>();
         csvRowData.addAll(Arrays.asList(
                 LocalDateTimeUtil.getSchoolYearString(collection),
@@ -241,6 +280,35 @@ public class AllSchoolsHeadcountsReportService {
                 schoolHeadcountResult.getGrade11Count(),
                 schoolHeadcountResult.getGrade12Count()
         ));
+        return csvRowData;
+    }
+
+    private List<String> prepareIndySchoolDataForCsv(IndySchoolHeadcountResult indySchoolHeadcountResult, School school) {
+        var schoolFundingGroupGrades = school.getSchoolFundingGroups().stream().map(IndependentSchoolFundingGroup::getSchoolGradeCode).toList();
+        List<String> csvRowData = new ArrayList<>();
+        csvRowData.addAll(Arrays.asList(
+                school.getDisplayName(),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.KINDHALF.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getKindHCount()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.KINDFULL.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getKindFCount()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE01.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade1Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE02.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade2Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE03.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade3Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE04.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade4Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE05.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade5Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE06.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade6Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE07.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade7Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.ELEMUNGR.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGradeEUCount()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE08.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade8Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE09.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade9Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE10.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade10Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE11.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade11Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE12.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade12Count()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.SECONDARY_UNGRADED.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGradeSUCount()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADUATED_ADULT.getCode(), schoolFundingGroupGrades,  indySchoolHeadcountResult.getGradeGACount()),
+                flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.HOMESCHOOL.getCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGradeHSCount()),
+                TransformUtil.getTotalHeadcount(indySchoolHeadcountResult)
+        ));
+
         return csvRowData;
     }
 
