@@ -637,7 +637,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     });
 
     assertThat(summary1).isNotNull();
-    assertThat(summary1.getRows()).hasSize(0);
+    assertThat(summary1.getRows()).isEmpty();
   }
 
   @Test
