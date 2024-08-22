@@ -284,7 +284,7 @@ public class AllSchoolsHeadcountsReportService {
             csvPrinter.flush();
 
             var downloadableReport = new DownloadableReportResponse();
-            downloadableReport.setReportType(SCHOOL_ENROLLMENT_HEADCOUNTS.getCode());
+            downloadableReport.setReportType(OFFSHORE_ENROLLMENT_HEADCOUNTS.getCode());
             downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
 
             return downloadableReport;
