@@ -300,9 +300,15 @@ public class SdcFileValidator {
    * @throws FileUnProcessableException the file un processable exception
    */
   public void validateStudentCountForMismatchAndSize(final String guid, final SdcBatchFile batchFile) throws FileUnProcessableException {
-    final var studentCount = batchFile.getBatchFileTrailer().getStudentCount();
-    if (!StringUtils.isNumeric(studentCount) || Integer.parseInt(studentCount) != batchFile.getStudentDetails().size()) {
-      throw new FileUnProcessableException(FileError.STUDENT_COUNT_MISMATCH, guid, SdcSchoolCollectionStatus.LOAD_FAIL, studentCount, String.valueOf(batchFile.getStudentDetails().size()));
+    if (!StringUtils.isNumeric(batchFile.getBatchFileTrailer().getStudentCount())) {
+      throw new FileUnProcessableException(FileError.STUDENT_COUNT_MISMATCH, guid, SdcSchoolCollectionStatus.LOAD_FAIL, batchFile.getBatchFileTrailer().getStudentCount(), String.valueOf(batchFile.getStudentDetails().size()));
+    }
+    final int studentCount = Integer.parseInt(batchFile.getBatchFileTrailer().getStudentCount());
+    if (studentCount <= 0) {
+      throw new FileUnProcessableException(FileError.STUDENT_COUNT_NO_STUDENTS, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
+    }
+    if (studentCount != batchFile.getStudentDetails().size()) {
+      throw new FileUnProcessableException(FileError.STUDENT_COUNT_MISMATCH, guid, SdcSchoolCollectionStatus.LOAD_FAIL, batchFile.getBatchFileTrailer().getStudentCount(), String.valueOf(batchFile.getStudentDetails().size()));
     }
   }
 }
