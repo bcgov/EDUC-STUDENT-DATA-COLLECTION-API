@@ -76,8 +76,11 @@ public class AllSchoolsHeadcountsReportService {
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
             for (SchoolHeadcountResult result : results) {
-                List<String> csvRowData = prepareAllSchoolDataForCsv(result, collection);
-                csvPrinter.printRecord(csvRowData);
+                var schoolOpt = restUtils.getAllSchoolBySchoolID(result.getSchoolID());
+                if(schoolOpt.isPresent()) {
+                    List<String> csvRowData = prepareAllSchoolDataForCsv(result, collection, schoolOpt.get());
+                    csvPrinter.printRecord(csvRowData);
+                }
             }
             csvPrinter.flush();
 
@@ -105,10 +108,13 @@ public class AllSchoolsHeadcountsReportService {
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
             for (IndySchoolHeadcountResult result : results) {
-                var school = restUtils.getAllSchoolBySchoolID(result.getSchoolID()).get();
-                if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
-                    List<String> csvRowData = prepareIndySchoolDataForCsv(result, school);
-                    csvPrinter.printRecord(csvRowData);
+                var schoolOpt = restUtils.getAllSchoolBySchoolID(result.getSchoolID());
+                if(schoolOpt.isPresent()) {
+                    var school = schoolOpt.get();
+                    if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
+                        List<String> csvRowData = prepareIndySchoolDataForCsv(result, school);
+                        csvPrinter.printRecord(csvRowData);
+                    }
                 }
             }
             csvPrinter.flush();
@@ -248,9 +254,7 @@ public class AllSchoolsHeadcountsReportService {
     }
 
 
-    private List<String> prepareAllSchoolDataForCsv(SchoolHeadcountResult schoolHeadcountResult, CollectionEntity collection) {
-        var school = restUtils.getAllSchoolBySchoolID(schoolHeadcountResult.getSchoolID()).get();
-
+    private List<String> prepareAllSchoolDataForCsv(SchoolHeadcountResult schoolHeadcountResult, CollectionEntity collection, School school) {
         List<String> csvRowData = new ArrayList<>();
         csvRowData.addAll(Arrays.asList(
                 LocalDateTimeUtil.getSchoolYearString(collection),
