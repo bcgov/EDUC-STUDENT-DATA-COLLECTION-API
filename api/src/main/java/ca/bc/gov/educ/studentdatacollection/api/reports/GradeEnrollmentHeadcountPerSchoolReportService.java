@@ -81,8 +81,8 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
             this.gradeEnrollmentHeadcountList = programList;
             return generateJasperReport(convertToGradeEnrollmentProgramReportJSONStringDistrict(programList, sdcDistrictCollectionEntity), gradeEnrollmentPerSchoolHeadcountReport, ReportTypeCode.DIS_GRADE_ENROLLMENT_HEADCOUNT_PER_SCHOOL);
         } catch (JsonProcessingException e) {
-            log.error("Exception occurred while writing PDF report for dis grade enrollment programs :: " + e.getMessage());
-            throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for dis grade enrollment programs :: " + e.getMessage());
+            log.error("Exception occurred while writing PDF report for dis grade enrolment programs :: " + e.getMessage());
+            throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for dis grade enrolment programs :: " + e.getMessage());
         }
     }
 
@@ -182,8 +182,8 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
             allSchoolsHeadcountNode.setValueForGrade(code, String.valueOf(accumulatedHeadcountTotal + currentHeadcountTotal));
             allSchoolsFTENode.setValueForGrade(code, String.format("%.4f", accumulatedFTETotal + currentFTETotal));
         } catch (ParseException e) {
-            log.error("Exception occurred while writing PDF report for grade enrollment dis per school - parse error :: " + e.getMessage());
-            throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment dis per school - parse error:: " + e.getMessage());
+            log.error("Exception occurred while writing PDF report for grade enrolment dis per school - parse error :: " + e.getMessage());
+            throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrolment dis per school - parse error:: " + e.getMessage());
         }
     }
 }

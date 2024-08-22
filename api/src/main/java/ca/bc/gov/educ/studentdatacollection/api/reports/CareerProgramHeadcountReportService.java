@@ -73,8 +73,8 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
         List<CareerHeadcountResult> careerHeadcounts = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
         return generateJasperReport(convertToReportJSONStringDistrict(careerHeadcounts, sdcDistrictCollectionEntity), careerProgramHeadcountReport, ReportTypeCode.DIS_CAREER_HEADCOUNT);
       } catch (JsonProcessingException e) {
-        log.error("Exception occurred while writing PDF report for grade enrollment dis :: " + e.getMessage());
-        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment dis :: " + e.getMessage());
+        log.error("Exception occurred while writing PDF report for grade enrolment dis :: " + e.getMessage());
+        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrolment dis :: " + e.getMessage());
       }
     } else {
       try {

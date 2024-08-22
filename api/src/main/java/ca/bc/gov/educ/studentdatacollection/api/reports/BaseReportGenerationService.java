@@ -62,8 +62,8 @@ public abstract class BaseReportGenerationService<T> {
       downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(JasperExportManager.exportReportToPdf(jasperPrint)));
       return downloadableReport;
     } catch (JRException e) {
-       log.error("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
-       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
+       log.error("Exception occurred while writing PDF report for grade enrolment :: " + e.getMessage());
+       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrolment :: " + e.getMessage());
     }
   }
 
@@ -102,8 +102,8 @@ public abstract class BaseReportGenerationService<T> {
   protected District validateAndReturnDistrict(SchoolTombstone schoolTombstone){
     var district = restUtils.getDistrictByDistrictID(schoolTombstone.getDistrictId());
     if(district.isEmpty()){
-      log.error("District could not be found while writing PDF report for grade enrollment :: " + schoolTombstone.getDistrictId());
-      throw new EntityNotFoundException(District.class, "District could not be found while writing PDF report for grade enrollment :: ", schoolTombstone.getDistrictId());
+      log.error("District could not be found while writing PDF report for grade enrolment :: " + schoolTombstone.getDistrictId());
+      throw new EntityNotFoundException(District.class, "District could not be found while writing PDF report for grade enrolment :: ", schoolTombstone.getDistrictId());
     }
 
     return district.get();
@@ -112,8 +112,8 @@ public abstract class BaseReportGenerationService<T> {
   protected SchoolTombstone validateAndReturnSchool(SdcSchoolCollectionEntity sdcSchoolCollection){
     var school = restUtils.getSchoolBySchoolID(sdcSchoolCollection.getSchoolID().toString());
     if(school.isEmpty()){
-      log.error("School could not be found while writing PDF report for grade enrollment :: " + sdcSchoolCollection.getSchoolID().toString());
-      throw new EntityNotFoundException(SchoolTombstone.class, "School could not be found while writing PDF report for grade enrollment :: ", sdcSchoolCollection.getSchoolID().toString());
+      log.error("School could not be found while writing PDF report for grade enrolment :: " + sdcSchoolCollection.getSchoolID().toString());
+      throw new EntityNotFoundException(SchoolTombstone.class, "School could not be found while writing PDF report for grade enrolment :: ", sdcSchoolCollection.getSchoolID().toString());
     }
 
     return school.get();

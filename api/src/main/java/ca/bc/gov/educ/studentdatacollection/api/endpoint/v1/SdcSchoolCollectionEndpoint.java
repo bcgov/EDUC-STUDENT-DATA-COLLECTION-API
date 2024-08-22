@@ -99,7 +99,7 @@ public interface SdcSchoolCollectionEndpoint {
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_SCHOOL_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional
-  @Tag(name = "Sdc School Collection", description = "Endpoints to report zero enrollment for school collection entity.")
+  @Tag(name = "Sdc School Collection", description = "Endpoints to report zero enrolment for school collection entity.")
   @Schema(name = "SdcSchoolCollection", implementation = SdcSchoolCollection.class)
   SdcSchoolCollection reportZeroEnrollment(@RequestBody ReportZeroEnrollmentSdcSchoolCollection reportZeroEnrollmentData);
 
