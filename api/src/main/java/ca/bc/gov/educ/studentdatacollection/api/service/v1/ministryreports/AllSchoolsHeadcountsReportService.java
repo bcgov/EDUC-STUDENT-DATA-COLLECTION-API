@@ -339,18 +339,18 @@ public class AllSchoolsHeadcountsReportService {
 
         csvRowData.addAll(Arrays.asList(
                 school.getDisplayName(),
-                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdACodes(), result.adultsInSpecialEdA()),
-                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdBCodes(), result.adultsInSpecialEdB()),
-                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdCCodes(), result.adultsInSpecialEdC()),
-                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdDCodes(), result.adultsInSpecialEdD()),
-                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdECodes(), result.adultsInSpecialEdE()),
-                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdFCodes(), result.adultsInSpecialEdF()),
-                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdGCodes(), result.adultsInSpecialEdG()),
-                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdHCodes(), result.adultsInSpecialEdH()),
-                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdKCodes(), result.adultsInSpecialEdK()),
-                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdPCodes(), result.adultsInSpecialEdP()),
-                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdQCodes(), result.adultsInSpecialEdQ()),
-                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdRCodes(), result.adultsInSpecialEdR()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdACodes(), result.getAdultsInSpecialEdA()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdBCodes(), result.getAdultsInSpecialEdB()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdCCodes(), result.getAdultsInSpecialEdC()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdDCodes(), result.getAdultsInSpecialEdD()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdECodes(), result.getAdultsInSpecialEdE()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdFCodes(), result.getAdultsInSpecialEdF()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdGCodes(), result.getAdultsInSpecialEdG()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdHCodes(), result.getAdultsInSpecialEdH()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdKCodes(), result.getAdultsInSpecialEdK()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdPCodes(), result.getAdultsInSpecialEdP()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdQCodes(), result.getAdultsInSpecialEdQ()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdRCodes(), result.getAdultsInSpecialEdR()),
                 TransformUtil.getTotalHeadcount(result)
         ));
         return csvRowData;
