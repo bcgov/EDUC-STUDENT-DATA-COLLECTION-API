@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.Sch
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGrade;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGradeCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
+import com.ctc.wstx.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -156,7 +157,7 @@ public class TransformUtil {
   }
 
   public static String flagCountIfNoSchoolFundingGroup(String schoolGradeCode, List<String> schoolFundingGroupGrades, String value){
-    if(schoolFundingGroupGrades.contains(schoolGradeCode)){
+    if(schoolFundingGroupGrades.contains(schoolGradeCode) || (StringUtils.isNotEmpty(value) && value.equals("0"))){
       return value;
     }
     return value + "*";
