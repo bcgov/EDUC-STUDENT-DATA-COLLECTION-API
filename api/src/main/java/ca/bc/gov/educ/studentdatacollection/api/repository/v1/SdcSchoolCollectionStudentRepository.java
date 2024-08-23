@@ -977,5 +977,5 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "AND s.specialEducationNonEligReasonCode IS NULL " +
           "GROUP BY s.sdcSchoolCollection.schoolID " +
           "ORDER BY s.sdcSchoolCollection.schoolID")
-  List<SpecialEdHeadcountResult> getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(UUID collectionID);
+  List<IndySpecialEdAdultHeadcountResult> getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(UUID collectionID);
 }

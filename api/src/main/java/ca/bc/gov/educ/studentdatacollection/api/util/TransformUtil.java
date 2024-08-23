@@ -1,14 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.util;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGrade;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGradeCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpecialEdHeadcountResult;
-import com.ctc.wstx.util.StringUtil;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySpecialEdAdultHeadcountResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -158,7 +155,7 @@ public class TransformUtil {
     return Integer.toString(total);
   }
 
-  public static String getTotalHeadcount(SpecialEdHeadcountResult result){
+  public static String getTotalHeadcount(IndySpecialEdAdultHeadcountResult result){
     int total = 0;
 
     total +=  Integer.parseInt(result.getSpecialEdACodes());
@@ -175,6 +172,13 @@ public class TransformUtil {
     total +=  Integer.parseInt(result.getSpecialEdRCodes());
 
     return Integer.toString(total);
+  }
+
+  public static String flagSpecialEdHeadcountIfRequired(String value, boolean adultValue){
+    if(!adultValue){
+      return value;
+    }
+    return value + "*";
   }
 
   public static String flagCountIfNoSchoolFundingGroup(String schoolGradeCode, List<String> schoolFundingGroupGrades, String value){
