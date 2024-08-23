@@ -53,18 +53,6 @@ public class CollectionTypeCodeEntity {
   @Column(name = "EXPIRY_DATE")
   private LocalDateTime expiryDate;
 
-  /**
-   * Date the collection will open
-   */
-  @Column(name = "OPEN_DATE")
-  private LocalDateTime openDate;
-
-  /**
-   * Date the collection will close
-   */
-  @Column(name = "CLOSE_DATE")
-  private LocalDateTime closeDate;
-
   @Column(name = "SNAPSHOT_DATE")
   private LocalDate snapshotDate;
 

@@ -895,8 +895,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "ORDER BY s.sdcSchoolCollection.schoolID")
   List<RefugeeHeadcountResult> getRefugeeHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
-  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionID(UUID collectionID);
-
   @Modifying
   @Query(value = """
            UPDATE SDC_SCHOOL_COLLECTION_STUDENT
