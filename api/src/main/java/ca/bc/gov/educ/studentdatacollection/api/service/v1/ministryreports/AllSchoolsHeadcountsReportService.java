@@ -22,6 +22,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.Sch
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HomeLanguageSpokenCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySpecialEdAdultHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpecialEdHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpokenLanguageHeadcountResult;
@@ -259,7 +260,7 @@ public class AllSchoolsHeadcountsReportService {
     }
 
     public DownloadableReportResponse generateIndySpecialEducationHeadcounts(UUID collectionID) {
-        List<SpecialEdHeadcountResult> results = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
+        List<IndySpecialEdAdultHeadcountResult> results = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
         var collectionOpt = collectionRepository.findById(collectionID);
         if(collectionOpt.isEmpty()){
             throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
@@ -275,7 +276,7 @@ public class AllSchoolsHeadcountsReportService {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
-            for (SpecialEdHeadcountResult result : results) {
+            for (IndySpecialEdAdultHeadcountResult result : results) {
                 var schoolOpt = restUtils.getAllSchoolBySchoolID(result.getSchoolID());
 
                 if(schoolOpt.isPresent()) {
@@ -339,23 +340,23 @@ public class AllSchoolsHeadcountsReportService {
         }
     }
 
-    private List<String> prepareIndyInclusiveEdDataForCsv(SpecialEdHeadcountResult result, School school) {
+    private List<String> prepareIndyInclusiveEdDataForCsv(IndySpecialEdAdultHeadcountResult result, School school) {
         List<String> csvRowData = new ArrayList<>();
 
         csvRowData.addAll(Arrays.asList(
                 school.getDisplayName(),
-                result.getSpecialEdACodes(),
-                result.getSpecialEdBCodes(),
-                result.getSpecialEdCCodes(),
-                result.getSpecialEdDCodes(),
-                result.getSpecialEdECodes(),
-                result.getSpecialEdFCodes(),
-                result.getSpecialEdGCodes(),
-                result.getSpecialEdHCodes(),
-                result.getSpecialEdKCodes(),
-                result.getSpecialEdPCodes(),
-                result.getSpecialEdQCodes(),
-                result.getSpecialEdRCodes(),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdACodes(), result.adultsInSpecialEdA()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdBCodes(), result.adultsInSpecialEdB()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdCCodes(), result.adultsInSpecialEdC()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdDCodes(), result.adultsInSpecialEdD()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdECodes(), result.adultsInSpecialEdE()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdFCodes(), result.adultsInSpecialEdF()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdGCodes(), result.adultsInSpecialEdG()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdHCodes(), result.adultsInSpecialEdH()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdKCodes(), result.adultsInSpecialEdK()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdPCodes(), result.adultsInSpecialEdP()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdQCodes(), result.adultsInSpecialEdQ()),
+                TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdRCodes(), result.adultsInSpecialEdR()),
                 TransformUtil.getTotalHeadcount(result)
         ));
         return csvRowData;

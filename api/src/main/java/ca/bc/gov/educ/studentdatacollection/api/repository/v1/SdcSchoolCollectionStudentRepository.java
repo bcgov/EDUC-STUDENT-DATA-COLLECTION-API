@@ -991,4 +991,5 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
         GROUP BY sscs.sdcSchoolCollection.schoolID, sscs.homeLanguageSpokenCode
   """)
   List<SpokenLanguageHeadcountResult> getAllHomeLanguageSpokenCodesInCollection(@Param("collectionID") UUID collectionID);
+  List<IndySpecialEdAdultHeadcountResult> getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(UUID collectionID);
 }
