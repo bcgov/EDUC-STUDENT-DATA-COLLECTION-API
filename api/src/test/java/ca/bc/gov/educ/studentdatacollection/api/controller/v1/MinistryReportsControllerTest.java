@@ -659,10 +659,10 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     collection = collectionRepository.save(collection);
 
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
-    sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
+    sdcDistrictCollectionRepository.save(sdcMockDistrict);
 
     SdcDistrictCollectionEntity sdcMockDistrict2 = createMockSdcDistrictCollectionEntity(collection, null);
-    sdcDistrictCollectionRepository.save(sdcMockDistrict2).getSdcDistrictCollectionID();
+    sdcDistrictCollectionRepository.save(sdcMockDistrict2);
 
     SchoolTombstone school1 = createMockSchool();
     school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
@@ -703,10 +703,10 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     collection = collectionRepository.save(collection);
 
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
-    sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
+    sdcDistrictCollectionRepository.save(sdcMockDistrict);
 
     SdcDistrictCollectionEntity sdcMockDistrict2 = createMockSdcDistrictCollectionEntity(collection, null);
-    sdcDistrictCollectionRepository.save(sdcMockDistrict2).getSdcDistrictCollectionID();
+    sdcDistrictCollectionRepository.save(sdcMockDistrict2);
 
     SchoolTombstone school1 = createMockSchool();
     school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
@@ -775,6 +775,103 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     assertThat(summary1).isNotNull();
     assertThat(summary1.getReportType()).isEqualTo(OFFSHORE_ENROLLMENT_HEADCOUNTS.getCode());
+  }
+
+  @Test
+  void testGetMinistryReportCSV_TypeOFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS_ShouldReturnReportData() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    var school = this.createMockSchool();
+    school.setSchoolCategoryCode(SchoolCategoryCodes.OFFSHORE.getCode());
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection = collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
+    sdcDistrictCollectionRepository.save(sdcMockDistrict);
+
+    SdcDistrictCollectionEntity sdcMockDistrict2 = createMockSdcDistrictCollectionEntity(collection, null);
+    sdcDistrictCollectionRepository.save(sdcMockDistrict2);
+
+    SchoolTombstone school1 = createMockSchool();
+    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+
+    SchoolTombstone school2 = createMockSchool();
+    school2.setDistrictId(sdcMockDistrict2.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+
+    sdcSchoolCollectionRepository.saveAll(List.of(sdcSchoolCollectionEntity1, sdcSchoolCollectionEntity2));
+
+    var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    sdcSchoolCollectionStudent1.setHomeLanguageSpokenCode("001");
+    var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+    sdcSchoolCollectionStudent2.setHomeLanguageSpokenCode("001");
+    sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2));
+
+    var resultActions1 = this.mockMvc.perform(
+                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/offshore-languages-headcounts/download").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
+
+    val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
+    });
+
+    assertThat(summary1).isNotNull();
+    assertThat(summary1.getReportType()).isEqualTo(OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS.getCode());
+  }
+
+  @Test
+  void testGetMinistryReport_TypeOFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS_ShouldReturnReportData() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    var school1 = this.createMockSchool();
+    school1.setDisplayName("School1");
+    school1.setSchoolCategoryCode(SchoolCategoryCodes.OFFSHORE.getCode());
+
+    var school2 = this.createMockSchool();
+    school2.setDisplayName("School2");
+    school2.setSchoolCategoryCode(SchoolCategoryCodes.OFFSHORE.getCode());
+
+    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection = collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
+    sdcDistrictCollectionRepository.save(sdcMockDistrict);
+
+    SdcDistrictCollectionEntity sdcMockDistrict2 = createMockSdcDistrictCollectionEntity(collection, null);
+    sdcDistrictCollectionRepository.save(sdcMockDistrict2);
+
+    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+
+    school2.setDistrictId(sdcMockDistrict2.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+
+    sdcSchoolCollectionRepository.saveAll(List.of(sdcSchoolCollectionEntity1, sdcSchoolCollectionEntity2));
+
+    var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    sdcSchoolCollectionStudent1.setHomeLanguageSpokenCode("001");
+    var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+    sdcSchoolCollectionStudent2.setHomeLanguageSpokenCode("001");
+    sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2));
+
+    var resultActions1 = this.mockMvc.perform(
+                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/offshore-languages-headcounts").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
+
+    val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SimpleHeadcountResultsTable>() {
+    });
+
+    assertThat(summary1).isNotNull();
+    assertThat(summary1.getRows()).hasSize(2);
   }
 
 }

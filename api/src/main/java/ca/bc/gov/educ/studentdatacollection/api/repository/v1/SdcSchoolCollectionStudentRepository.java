@@ -978,4 +978,17 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "GROUP BY s.sdcSchoolCollection.schoolID " +
           "ORDER BY s.sdcSchoolCollection.schoolID")
   List<SpecialEdHeadcountResult> getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(UUID collectionID);
+
+  @Query(value = """
+        SELECT sscs.sdcSchoolCollection.schoolID as schoolID,
+        sscs.homeLanguageSpokenCode as spokenLanguageCode,
+        COUNT(sscs.homeLanguageSpokenCode) as headcount
+        FROM SdcSchoolCollectionStudentEntity sscs
+        WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
+        AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is NULL
+        AND sscs.homeLanguageSpokenCode is NOT NULL
+        GROUP BY sscs.sdcSchoolCollection.schoolID, sscs.homeLanguageSpokenCode
+  """)
+  List<SpokenLanguageHeadcountResult> getAllHomeLanguageSpokenCodesInCollection(@Param("collectionID") UUID collectionID);
 }
