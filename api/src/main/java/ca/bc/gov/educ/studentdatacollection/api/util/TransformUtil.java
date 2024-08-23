@@ -1,11 +1,13 @@
 package ca.bc.gov.educ.studentdatacollection.api.util;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGrade;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGradeCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpecialEdHeadcountResult;
 import com.ctc.wstx.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -152,6 +154,25 @@ public class TransformUtil {
     total +=  Integer.parseInt(result.getGradeSUCount());
     total +=  Integer.parseInt(result.getGradeGACount());
     total +=  Integer.parseInt(result.getGradeHSCount());
+
+    return Integer.toString(total);
+  }
+
+  public static String getTotalHeadcount(SpecialEdHeadcountResult result){
+    int total = 0;
+
+    total +=  Integer.parseInt(result.getSpecialEdACodes());
+    total +=  Integer.parseInt(result.getSpecialEdBCodes());
+    total +=  Integer.parseInt(result.getSpecialEdCCodes());
+    total +=  Integer.parseInt(result.getSpecialEdDCodes());
+    total +=  Integer.parseInt(result.getSpecialEdECodes());
+    total +=  Integer.parseInt(result.getSpecialEdFCodes());
+    total +=  Integer.parseInt(result.getSpecialEdGCodes());
+    total +=  Integer.parseInt(result.getSpecialEdHCodes());
+    total +=  Integer.parseInt(result.getSpecialEdKCodes());
+    total +=  Integer.parseInt(result.getSpecialEdPCodes());
+    total +=  Integer.parseInt(result.getSpecialEdQCodes());
+    total +=  Integer.parseInt(result.getSpecialEdRCodes());
 
     return Integer.toString(total);
   }

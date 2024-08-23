@@ -3,9 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.FsaFebRegistrationHeader;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.FsaSeptRegistrationHeader;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -23,6 +21,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.Sch
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpecialEdHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
@@ -42,6 +41,7 @@ import java.util.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeCode.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -98,9 +98,9 @@ public class AllSchoolsHeadcountsReportService {
         List<IndySchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SCHOOL.getCode(), GRADE_01.getCode(), GRADE_02.getCode(), GRADE_03.getCode(), GRADE_04.getCode(),
+                .setHeader(IndySchoolEnrolmentHeadcountHeader.SCHOOL.getCode(), GRADE_01.getCode(), GRADE_02.getCode(), GRADE_03.getCode(), GRADE_04.getCode(),
                         GRADE_05.getCode(), GRADE_06.getCode(), GRADE_07.getCode(), GRADE_EU.getCode(), GRADE_08.getCode(), GRADE_09.getCode(), GRADE_10.getCode(),
-                        GRADE_11.getCode(),GRADE_12.getCode(),GRADE_SU.getCode(),GRADE_GA.getCode(),GRADE_HS.getCode(),TOTAL.getCode())
+                        GRADE_11.getCode(),GRADE_12.getCode(),GRADE_SU.getCode(),GRADE_GA.getCode(),GRADE_HS.getCode(),IndySchoolEnrolmentHeadcountHeader.TOTAL.getCode())
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -253,6 +253,46 @@ public class AllSchoolsHeadcountsReportService {
         }
     }
 
+    public DownloadableReportResponse generateIndySpecialEducationHeadcounts(UUID collectionID) {
+        List<SpecialEdHeadcountResult> results = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
+        var collectionOpt = collectionRepository.findById(collectionID);
+        if(collectionOpt.isEmpty()){
+            throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
+        }
+
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(SpecialEducationHeadcountHeader.SCHOOL.getCode(), A.getCode(), B.getCode(), C.getCode(), D.getCode(), E.getCode(),
+                        F.getCode(),G.getCode(),H.getCode(),K.getCode(),P.getCode(),Q.getCode(),
+                        R.getCode(), SpecialEducationHeadcountHeader.TOTAL.getCode())
+                .build();
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (SpecialEdHeadcountResult result : results) {
+                var schoolOpt = restUtils.getAllSchoolBySchoolID(result.getSchoolID());
+
+                if(schoolOpt.isPresent()) {
+                    var school = schoolOpt.get();
+                    if (school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())) {
+                        List<String> csvRowData = prepareIndyInclusiveEdDataForCsv(result, school);
+                        csvPrinter.printRecord(csvRowData);
+                    }
+                }
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(INDY_INCLUSIVE_ED_ENROLLMENT_HEADCOUNTS.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
     public DownloadableReportResponse generateOffshoreSchoolsHeadcounts(UUID collectionID) {
         List<IndySchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
         var collectionOpt = collectionRepository.findById(collectionID);
@@ -261,10 +301,10 @@ public class AllSchoolsHeadcountsReportService {
         }
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SCHOOL.getCode(), KIND_HT.getCode(), KIND_FT.getCode(), GRADE_01.getCode(), GRADE_02.getCode(),
+                .setHeader(IndySchoolEnrolmentHeadcountHeader.SCHOOL.getCode(), KIND_HT.getCode(), KIND_FT.getCode(), GRADE_01.getCode(), GRADE_02.getCode(),
                         GRADE_03.getCode(),GRADE_04.getCode(),GRADE_05.getCode(),GRADE_06.getCode(),GRADE_07.getCode(),GRADE_EU.getCode(),
                         GRADE_08.getCode(),GRADE_09.getCode(), GRADE_10.getCode(), GRADE_11.getCode(),GRADE_12.getCode(),
-                        GRADE_SU.getCode(),GRADE_GA.getCode(),GRADE_HS.getCode(),TOTAL.getCode())
+                        GRADE_SU.getCode(),GRADE_GA.getCode(),GRADE_HS.getCode(), IndySchoolEnrolmentHeadcountHeader.TOTAL.getCode())
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -272,11 +312,14 @@ public class AllSchoolsHeadcountsReportService {
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
             for (IndySchoolHeadcountResult result : results) {
-                var school = restUtils.getAllSchoolBySchoolID(result.getSchoolID()).get();
+                var schoolOpt = restUtils.getAllSchoolBySchoolID(result.getSchoolID());
 
-                if(school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())) {
-                    List<String> csvRowData = prepareOffshoreSchoolDataForCsv(result, school);
-                    csvPrinter.printRecord(csvRowData);
+                if(schoolOpt.isPresent()) {
+                    var school = schoolOpt.get();
+                    if (school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())) {
+                        List<String> csvRowData = prepareOffshoreSchoolDataForCsv(result, school);
+                        csvPrinter.printRecord(csvRowData);
+                    }
                 }
             }
             csvPrinter.flush();
@@ -289,6 +332,28 @@ public class AllSchoolsHeadcountsReportService {
         } catch (IOException e) {
             throw new StudentDataCollectionAPIRuntimeException(e);
         }
+    }
+
+    private List<String> prepareIndyInclusiveEdDataForCsv(SpecialEdHeadcountResult result, School school) {
+        List<String> csvRowData = new ArrayList<>();
+
+        csvRowData.addAll(Arrays.asList(
+                school.getDisplayName(),
+                result.getSpecialEdACodes(),
+                result.getSpecialEdBCodes(),
+                result.getSpecialEdCCodes(),
+                result.getSpecialEdDCodes(),
+                result.getSpecialEdECodes(),
+                result.getSpecialEdFCodes(),
+                result.getSpecialEdGCodes(),
+                result.getSpecialEdHCodes(),
+                result.getSpecialEdKCodes(),
+                result.getSpecialEdPCodes(),
+                result.getSpecialEdQCodes(),
+                result.getSpecialEdRCodes(),
+                TransformUtil.getTotalHeadcount(result)
+        ));
+        return csvRowData;
     }
 
     private List<String> prepareOffshoreSchoolDataForCsv(IndySchoolHeadcountResult result, School school) {

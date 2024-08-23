@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -14,9 +15,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +27,7 @@ import java.util.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.SCHOOL_NAME;
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
 
@@ -105,7 +105,7 @@ public class MinistryHeadcountService {
 
       if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
         var rowMap = new HashMap<String, String>();
-        rowMap.put(SCHOOL.getCode(), school.getDisplayName());
+        rowMap.put(IndySchoolEnrolmentHeadcountHeader.SCHOOL.getCode(), school.getDisplayName());
         rowMap.put(KIND_HT.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.KINDHALF.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getKindHCount()));
         rowMap.put(KIND_FT.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.KINDFULL.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getKindFCount()));
         rowMap.put(GRADE_01.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE01.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade1Count()));
@@ -124,7 +124,7 @@ public class MinistryHeadcountService {
         rowMap.put(GRADE_SU.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGradeSUCount()));
         rowMap.put(GRADE_GA.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADUATED_ADULT.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGradeGACount()));
         rowMap.put(GRADE_HS.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.HOMESCHOOL.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGradeHSCount()));
-        rowMap.put(TOTAL.getCode(), TransformUtil.getTotalHeadcount(indySchoolHeadcountResult));
+        rowMap.put(IndySchoolEnrolmentHeadcountHeader.TOTAL.getCode(), TransformUtil.getTotalHeadcount(indySchoolHeadcountResult));
         rows.add(rowMap);
       }
     });
@@ -132,6 +132,43 @@ public class MinistryHeadcountService {
     resultsTable.setRows(rows);
     return resultsTable;
   }
+
+  public SimpleHeadcountResultsTable getSpecialEducationHeadcountsByCollectionID(UUID collectionID) {
+    List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
+    SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
+    var headerList = new ArrayList<String>();
+    for (SpecialEducationHeadcountHeader header : SpecialEducationHeadcountHeader.values()) {
+      headerList.add(header.getCode());
+    }
+    resultsTable.setHeaders(headerList);
+    var rows = new ArrayList<Map<String, String>>();
+    collectionRawData.stream().forEach(specialEdHeadcountResult -> {
+      var school = restUtils.getAllSchoolBySchoolID(specialEdHeadcountResult.getSchoolID()).get();
+
+      if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
+        var rowMap = new HashMap<String, String>();
+        rowMap.put(SpecialEducationHeadcountHeader.SCHOOL.getCode(), specialEdHeadcountResult.getSpecialEdACodes());
+        rowMap.put(A.getCode(), specialEdHeadcountResult.getSpecialEdACodes());
+        rowMap.put(B.getCode(), specialEdHeadcountResult.getSpecialEdBCodes());
+        rowMap.put(C.getCode(), specialEdHeadcountResult.getSpecialEdCCodes());
+        rowMap.put(D.getCode(), specialEdHeadcountResult.getSpecialEdDCodes());
+        rowMap.put(E.getCode(), specialEdHeadcountResult.getSpecialEdECodes());
+        rowMap.put(F.getCode(), specialEdHeadcountResult.getSpecialEdFCodes());
+        rowMap.put(G.getCode(), specialEdHeadcountResult.getSpecialEdGCodes());
+        rowMap.put(H.getCode(), specialEdHeadcountResult.getSpecialEdHCodes());
+        rowMap.put(K.getCode(), specialEdHeadcountResult.getSpecialEdKCodes());
+        rowMap.put(P.getCode(), specialEdHeadcountResult.getSpecialEdPCodes());
+        rowMap.put(Q.getCode(), specialEdHeadcountResult.getSpecialEdQCodes());
+        rowMap.put(R.getCode(), specialEdHeadcountResult.getSpecialEdRCodes());
+        rowMap.put(SpecialEducationHeadcountHeader.TOTAL.getCode(), TransformUtil.getTotalHeadcount(specialEdHeadcountResult));
+        rows.add(rowMap);
+      }
+    });
+
+    resultsTable.setRows(rows);
+    return resultsTable;
+  }
+
 
   public SimpleHeadcountResultsTable getSchoolAddressReport(UUID collectionID) {
     Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
@@ -184,7 +221,7 @@ public class MinistryHeadcountService {
 
       if(school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())) {
         var rowMap = new HashMap<String, String>();
-        rowMap.put(SCHOOL.getCode(), school.getDisplayName());
+        rowMap.put(IndySchoolEnrolmentHeadcountHeader.SCHOOL.getCode(), school.getDisplayName());
         rowMap.put(KIND_HT.getCode(), indySchoolHeadcountResult.getKindHCount());
         rowMap.put(KIND_FT.getCode(), indySchoolHeadcountResult.getKindFCount());
         rowMap.put(GRADE_01.getCode(), indySchoolHeadcountResult.getGrade1Count());
@@ -203,7 +240,7 @@ public class MinistryHeadcountService {
         rowMap.put(GRADE_SU.getCode(), indySchoolHeadcountResult.getGradeSUCount());
         rowMap.put(GRADE_GA.getCode(), indySchoolHeadcountResult.getGradeGACount());
         rowMap.put(GRADE_HS.getCode(), indySchoolHeadcountResult.getGradeHSCount());
-        rowMap.put(TOTAL.getCode(), TransformUtil.getTotalHeadcount(indySchoolHeadcountResult));
+        rowMap.put(IndySchoolEnrolmentHeadcountHeader.TOTAL.getCode(), TransformUtil.getTotalHeadcount(indySchoolHeadcountResult));
         rows.add(rowMap);
       }
     });

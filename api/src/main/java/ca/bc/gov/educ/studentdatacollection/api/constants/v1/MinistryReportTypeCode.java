@@ -12,6 +12,7 @@ public enum MinistryReportTypeCode {
     INDY_SCHOOL_ENROLLMENT_HEADCOUNTS("indy-school-enrollment-headcounts"),
     FSA_REGISTRATION_REPORT("fsa-registration-report"),
     OFFSHORE_ENROLLMENT_HEADCOUNTS("offshore-enrollment-headcounts"),
+    INDY_INCLUSIVE_ED_ENROLLMENT_HEADCOUNTS("indy-inclusive-ed-enrollment-headcounts"),
     OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS("offshore-languages-headcounts")
     ;
 
