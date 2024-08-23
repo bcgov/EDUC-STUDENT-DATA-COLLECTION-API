@@ -11,8 +11,6 @@ import java.util.Optional;
 @Repository
 public interface CollectionTypeCodeRepository extends JpaRepository<CollectionTypeCodeEntity, String> {
 
-  List<CollectionTypeCodeEntity> findAllByOpenDateBeforeAndEffectiveDateLessThanAndExpiryDateGreaterThan(LocalDateTime dateTime, LocalDateTime dateTimeGreat, LocalDateTime dateTimeLess);
-
   List<CollectionTypeCodeEntity> findAllByExpiryDateAfter(LocalDateTime now);
 
   Optional<CollectionTypeCodeEntity> findByCollectionTypeCode(String collectionTypeCode);

@@ -94,6 +94,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     CollectionEntity collection = createMockCollectionEntity();
+    collection.setCollectionStatusCode(CollectionStatus.COMPLETED.getCode());
     collection.setCloseDate(LocalDateTime.now().minusDays(10));
     collectionRepository.save(collection);
 
@@ -116,6 +117,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     CollectionEntity pastCollection = createMockCollectionEntity();
+    pastCollection.setCollectionStatusCode(CollectionStatus.COMPLETED.getCode());
     pastCollection.setOpenDate(LocalDateTime.now().minusDays(5));
     pastCollection.setCloseDate(LocalDateTime.now().minusDays(2));
     collectionRepository.save(pastCollection);
