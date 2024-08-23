@@ -141,8 +141,7 @@ public abstract class BaseStudentDataCollectionAPITest {
 
   public CollectionTypeCodeEntity createCollectionTypeCodeData() {
     return CollectionTypeCodeEntity.builder().collectionTypeCode("SEPTEMBER").label("September").description("September collection")
-            .displayOrder(10).effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.now().plusYears(10)).openDate(LocalDateTime.now().minusMonths(1))
-            .closeDate(LocalDateTime.now().plusMonths(1)).createUser("TEST").snapshotDate(LocalDate.now()).updateUser("TEST").build();
+            .displayOrder(10).effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.now().plusYears(10)).createUser("TEST").snapshotDate(LocalDate.now()).updateUser("TEST").build();
   }
 
   public ProgramDuplicateTypeCodeEntity createProgramDuplicateTypeCodeData() {
@@ -472,8 +471,6 @@ public abstract class BaseStudentDataCollectionAPITest {
     return CollectionTypeCodeEntity.builder().collectionTypeCode("SEPTEMBER").label("Test")
         .description("Test code").displayOrder(0).effectiveDate(
             LocalDateTime.now().minusDays(1)).expiryDate(LocalDateTime.now().plusDays(7))
-        .openDate(LocalDateTime.now())
-        .closeDate(LocalDateTime.now().plusDays(7)).createUser("TEST").createDate(LocalDateTime.now())
         .updateUser("TEST").updateDate(LocalDateTime.now()).build();
   }
 
@@ -481,8 +478,6 @@ public abstract class BaseStudentDataCollectionAPITest {
     return CollectionTypeCodeEntity.builder().collectionTypeCode("FEBRUARY").label("Test")
             .description("Test code").displayOrder(0).effectiveDate(
                     LocalDateTime.now().minusDays(1)).expiryDate(LocalDateTime.now().plusDays(7))
-            .openDate(LocalDateTime.now())
-            .closeDate(LocalDateTime.now().plusDays(7)).createUser("TEST").createDate(LocalDateTime.now())
             .updateUser("TEST").updateDate(LocalDateTime.now()).build();
   }
 
