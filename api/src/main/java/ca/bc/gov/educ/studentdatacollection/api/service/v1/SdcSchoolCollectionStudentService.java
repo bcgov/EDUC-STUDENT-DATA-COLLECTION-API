@@ -156,11 +156,11 @@ public class SdcSchoolCollectionStudentService {
     List<SdcSchoolCollectionStudentEntity> duplicateStudentsList = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(collectionID, studentAssignedIdList);
 
     if (!duplicateStudentsList.isEmpty()) {
-      log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicate on save :: {}", studentAssignedIdList.stream().findFirst());
+      log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create a provincial duplicate on save :: {}", studentAssignedIdList.stream().findFirst());
 
       ApiError error = ApiError.builder()
               .timestamp(LocalDateTime.now())
-              .message("SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicate.")
+              .message("SdcSchoolCollectionStudent was not saved to the database because it would create a provincial duplicate.")
               .status(HttpStatus.BAD_REQUEST)
               .build();
 
