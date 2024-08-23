@@ -55,7 +55,7 @@ public class SummerStudentReportedInDistrictRule implements ValidationBaseRule {
             var isStudentReportedInMayColl = validationRulesService.findStudentInHistoricalCollectionWithInSameDistrict(studentRuleData, CollectionTypeCodes.MAY.getTypeCode());
 
             if (isStudentReportedInSepColl || isStudentReportedInFebColl || isStudentReportedInMayColl) {
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_IN_DISTRICT_ERROR));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_IN_DISTRICT_ERROR));
             }
         }
         return errors;
