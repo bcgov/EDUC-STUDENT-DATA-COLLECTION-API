@@ -38,7 +38,7 @@ public class AllStudentLightCollectionGenerateCsvService {
                 .setHeader("P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer",
                         "Refugee", "Indigenous  Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses",
                         "Programme Francophone", "Core French", "Early Immersion", "Late Immersion", "ELL", "Years in ELL", "Indigenous Culture/Lang", "Indigenous Support", "Indigenous Other",
-                        "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC - Career Technical C.", "Special Ed Category")
+                        "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC - Career Technical C.", "Inclusive Ed Category")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -64,9 +64,9 @@ public class AllStudentLightCollectionGenerateCsvService {
         List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightByDistrictCollectionId(sdcDistrictcollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                 .setHeader("School Code", "School Name", "Facility Type", "P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer",
-                        "Refugee", "Native Ancestry", "Status Indian", "Band Code", "Home Lang", "# Courses", "# Support Blocks", "# Other Courses",
-                        "Prog Franco", "Core French", "Early Immer", "Late Immer", "ELL", "ELL-yrs", "Aborig Cult/Lang", "Aborig Support", "Aborig Other",
-                        "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC", "Special Ed Category")
+                        "Refugee", "Indigenous Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Lang", "# Courses", "# Support Blocks", "# Other Courses",
+                        "Prog Franco", "Core French", "Early Immer", "Late Immer", "ELL", "ELL-yrs", "Indigenous Culture/Lang", "Indigenous Support", "Indigenous Other",
+                        "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC", "Inclusive Ed Category")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
