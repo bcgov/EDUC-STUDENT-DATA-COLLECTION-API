@@ -4,7 +4,9 @@ import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  *  | ID  | Severity | Rule                                                                    | Dependent On |
@@ -39,7 +42,8 @@ public class SchoolFundingGroupGradeRangeRule implements ValidationBaseRule {
         log.debug("In shouldExecute of SchoolFundingGroupGradeRangeRule-V44: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        var shouldExecute = SchoolCategoryCodes.INDEPENDENTS.contains(studentRuleData.getSchool().getSchoolCategoryCode());
+        var shouldExecute = SchoolCategoryCodes.INDEPENDENTS.contains(studentRuleData.getSchool().getSchoolCategoryCode())
+                && !FteCalculatorUtils.getCollectionTypeCode(studentRuleData).equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode());
 
         log.debug("In shouldExecute of SchoolFundingGroupGradeRangeRule-V44: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
                 shouldExecute,
@@ -57,8 +61,10 @@ public class SchoolFundingGroupGradeRangeRule implements ValidationBaseRule {
         final String studentGrade = student.getEnrolledGradeCode();
         var schoolFundingGroups = validationRulesService.getSchoolFundingGroups(studentRuleData.getSchool().getSchoolId());
         var gradesMapped = schoolFundingGroups.stream().map(IndependentSchoolFundingGroup::getSchoolGradeCode).toList();
+        var schoolGrades = gradesMapped.stream().map(SchoolGradeCodes::findByTypeCode)
+                .flatMap(grade -> grade.isPresent() ? Stream.of(grade.get().getCode()) : Stream.empty()).toList();
 
-        if (!gradesMapped.contains(studentGrade)) {
+        if (!schoolGrades.contains(studentGrade)) {
             log.debug("SchoolFundingGroupGradeRangeRule-V44: School funding groups {} and grade code {} for sdcSchoolCollectionStudentID:: {}",gradesMapped, studentGrade, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
             errors.add(createValidationIssue(
