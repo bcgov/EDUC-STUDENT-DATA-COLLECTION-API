@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.validator;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,8 +44,7 @@ public class SdcSchoolCollectionFileValidator {
         apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, sdcSchoolCollectionID, "Invalid SDC school collection ID."));
       } else {
         var sdcSchoolCollectionEntity = schoolCollectionEntity.get();
-        var currentDate = LocalDateTime.now();
-        if (!(sdcSchoolCollectionEntity.getCollectionEntity().getOpenDate().isBefore(currentDate) && sdcSchoolCollectionEntity.getCollectionEntity().getCloseDate().isAfter(currentDate))) {
+        if (!(sdcSchoolCollectionEntity.getCollectionEntity().getCollectionStatusCode().equals(CollectionStatus.INPROGRESS.getCode()))) {
           apiValidationErrors.add(ValidationUtil.createFieldError(SCHOOL_COLLECTION_ID, sdcSchoolCollectionID, "Invalid SDC school collection ID, collection period is closed."));
         }
       }

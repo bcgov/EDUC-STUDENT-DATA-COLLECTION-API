@@ -17,7 +17,7 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
   @Query(value="""
             SELECT SSC FROM SdcDistrictCollectionEntity SSC, CollectionEntity C WHERE SSC.districtID=:districtID
             AND C.collectionID = SSC.collectionEntity.collectionID
-            AND C.openDate <= CURRENT_TIMESTAMP AND C.closeDate >= CURRENT_TIMESTAMP""")
+            AND C.collectionStatusCode != 'COMPLETED'""")
   Optional<SdcDistrictCollectionEntity> findActiveCollectionByDistrictId(UUID districtID);
 
   Optional<SdcDistrictCollectionEntity> findBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);

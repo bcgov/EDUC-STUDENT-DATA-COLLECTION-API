@@ -235,7 +235,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     currentCollection.setOpenDate(LocalDateTime.now().minusDays(9));
 
     final CollectionEntity closedCollection = this.createMockCollectionEntity();
-
+    closedCollection.setCollectionStatusCode(CollectionStatus.COMPLETED.getCode());
     closedCollection.setOpenDate(LocalDateTime.now().minusMonths(6));
     closedCollection.setCloseDate(LocalDateTime.now().minusDays(10));
 

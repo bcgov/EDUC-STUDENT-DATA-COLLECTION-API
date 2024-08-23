@@ -1,10 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateErrorDescriptionCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateLevelCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -737,6 +734,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   @Test
   void testProcessSdcFile_givenInvalidPayloadForDates_ShouldReturnStatusBadRequest() throws Exception {
     var mockColl = createMockCollectionEntity();
+    mockColl.setCollectionStatusCode(CollectionStatus.COMPLETED.getCode());
     mockColl.setOpenDate(LocalDateTime.now().plusDays(5));
     var collection = sdcRepository.save(mockColl);
     var school = this.createMockSchool();
