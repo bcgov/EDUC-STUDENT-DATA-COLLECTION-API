@@ -275,7 +275,7 @@ public class AllSchoolsHeadcountsReportService {
 
                 if(schoolOpt.isPresent()) {
                     var school = schoolOpt.get();
-                    if (school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())) {
+                    if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
                         List<String> csvRowData = prepareIndyInclusiveEdDataForCsv(result, school);
                         csvPrinter.printRecord(csvRowData);
                     }
