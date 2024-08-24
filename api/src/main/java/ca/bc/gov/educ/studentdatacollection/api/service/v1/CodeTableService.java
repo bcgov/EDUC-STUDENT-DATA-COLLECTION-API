@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -104,8 +103,7 @@ public class CodeTableService {
 
   @Cacheable("collectionCodes")
   public List<CollectionTypeCodeEntity> getCollectionCodeList() {
-
-    return collectionCodeRepository.findAllByExpiryDateAfter(LocalDateTime.now());
+    return collectionCodeRepository.findAll();
   }
 
   @Cacheable("schoolGradeCodes")
