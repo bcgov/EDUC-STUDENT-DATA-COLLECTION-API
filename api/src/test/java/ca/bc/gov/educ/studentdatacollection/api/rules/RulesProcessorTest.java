@@ -3,19 +3,10 @@ package ca.bc.gov.educ.studentdatacollection.api.rules;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolFundingCodes;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
@@ -24,6 +15,8 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStu
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
@@ -1379,24 +1372,48 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(validationNoErrorSchlAgedYounger.size()).isZero();
     }
 
-    @Test
-    void testAdultStudentGradeRule_WithGrade08() {
+    @ParameterizedTest
+    @ValueSource(strings = { "KH", "KF", "01", "02", "03", "04", "05", "06", "07", "EU" })
+    void testAdultStudentGradeRule_ReportedForGrade(String enrolledGrade) {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         val school = createMockSchool();
         school.setFacilityTypeCode("DISTONLINE");
-
         entity.setDob(LocalDateTime.now().minusYears(20).format(format));
         entity.setNumberOfCourses("0100");
-        entity.setEnrolledGradeCode("08");
+        entity.setEnrolledGradeCode(enrolledGrade);
         PenMatchResult penMatchResult = getPenMatchResult();
-        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-        val validationErrorGrade = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
-        assertThat(validationErrorGrade.size()).isNotZero();
-        val errorInd = validationErrorGrade.stream().anyMatch(val -> val.getValidationIssueCode().equals("ADULTINCORRECTGRADE"));
-        assertThat(errorInd).isFalse();
 
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+        val validationErrorGrade = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        val invalidGradeCodeErrorFound = validationErrorGrade.stream().anyMatch(val -> val.getValidationIssueCode().equals("INVALIDGRADECODE"));
+        assertThat(invalidGradeCodeErrorFound).isFalse();
+        val adultIncorrectGradeErrorFound = validationErrorGrade.stream().anyMatch(val -> val.getValidationIssueCode().equals("ADULTINCORRECTGRADE"));
+        assertThat(adultIncorrectGradeErrorFound).isTrue();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "08", "09", "10", "11", "12", "SU", "GA", "HS" })
+    void testAdultStudentGradeRule_NotReportedForGrade(String enrolledGrade) {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val school = createMockSchool();
+        school.setFacilityTypeCode("DISTONLINE");
+        entity.setDob(LocalDateTime.now().minusYears(20).format(format));
+        entity.setNumberOfCourses("0100");
+        entity.setEnrolledGradeCode(enrolledGrade);
+        PenMatchResult penMatchResult = getPenMatchResult();
+
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+        val validationErrorGrade = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        val invalidGradeCodeErrorFound = validationErrorGrade.stream().anyMatch(val -> val.getValidationIssueCode().equals("INVALIDGRADECODE"));
+        assertThat(invalidGradeCodeErrorFound).isFalse();
+        val adultIncorrectGradeErrorFound = validationErrorGrade.stream().anyMatch(val -> val.getValidationIssueCode().equals("ADULTINCORRECTGRADE"));
+        assertThat(adultIncorrectGradeErrorFound).isFalse();
     }
 
     @Test
