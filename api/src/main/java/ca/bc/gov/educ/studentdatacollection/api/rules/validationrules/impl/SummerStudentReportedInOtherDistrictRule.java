@@ -49,13 +49,10 @@ public class SummerStudentReportedInOtherDistrictRule implements ValidationBaseR
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
-
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
-            var isStudentReportedInSepColl = validationRulesService.findStudentInHistoricalCollectionInOtherDistricts(studentRuleData, CollectionTypeCodes.SEPTEMBER.getTypeCode());
-            var isStudentReportedInFebColl = validationRulesService.findStudentInHistoricalCollectionInOtherDistricts(studentRuleData, CollectionTypeCodes.FEBRUARY.getTypeCode());
-            var isStudentReportedInMayColl = validationRulesService.findStudentInHistoricalCollectionInOtherDistricts(studentRuleData, CollectionTypeCodes.MAY.getTypeCode());
+            var isStudentReportedInCurrentFiscal = validationRulesService.findStudentInHistoricalCollectionInOtherDistricts(studentRuleData);
 
-            if (isStudentReportedInSepColl || isStudentReportedInFebColl || isStudentReportedInMayColl) {
+            if (isStudentReportedInCurrentFiscal) {
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_NOT_IN_DISTRICT_ERROR));
             }
         }

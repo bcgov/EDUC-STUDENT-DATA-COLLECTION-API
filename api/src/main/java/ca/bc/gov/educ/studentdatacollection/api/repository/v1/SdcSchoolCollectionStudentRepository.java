@@ -17,6 +17,9 @@ import java.util.UUID;
 
 @Repository
 public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcSchoolCollectionStudentEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionStudentEntity> {
+
+  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionID(UUID collectionID);
+
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_SdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollectionStudentIDIn(List<UUID> sdcSchoolCollectionStudentIDs);
@@ -922,10 +925,10 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           AND SSCS.assignedStudentId = :assignedStudentID
           AND SSCS.enrolledGradeCode IN ('08', '09')
           AND SSCS.fte > 0
-          AND C.collectionTypeCode = :collectionTypeCode
-          AND EXTRACT(YEAR FROM C.closeDate) = :targetYear
+          AND C.collectionID IN
+                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
           """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInHistoricalCollectionWithInSameDistrict(UUID districtID, UUID assignedStudentID, String collectionTypeCode, Integer targetYear);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalWithInSameDistrict(UUID districtID, UUID assignedStudentID, String noOfCollections);
 
   @Query(value="""
            SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS, SdcDistrictCollectionEntity SDC
@@ -936,10 +939,10 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             AND SSCS.assignedStudentId = :assignedStudentID
             AND SSCS.enrolledGradeCode NOT IN ('08', '09')
             AND SSCS.fte > 0
-            AND C.collectionTypeCode = :collectionTypeCode
-            AND EXTRACT(YEAR FROM C.closeDate) = :targetYear
+            AND C.collectionID IN
+                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
             """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInHistoricalCollectionInOtherDistricts(UUID districtID, UUID assignedStudentID, String collectionTypeCode, Integer targetYear);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInOtherDistricts(UUID districtID, UUID assignedStudentID, String noOfCollections);
 
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(UUID collectionID, List<String> enrolledGradeCode);
 
@@ -978,4 +981,17 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "GROUP BY s.sdcSchoolCollection.schoolID " +
           "ORDER BY s.sdcSchoolCollection.schoolID")
   List<IndySpecialEdAdultHeadcountResult> getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(UUID collectionID);
+
+  @Query(value = """
+        SELECT sscs.sdcSchoolCollection.schoolID as schoolID,
+        sscs.homeLanguageSpokenCode as spokenLanguageCode,
+        COUNT(sscs.homeLanguageSpokenCode) as headcount
+        FROM SdcSchoolCollectionStudentEntity sscs
+        WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
+        AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is NULL
+        AND sscs.homeLanguageSpokenCode is NOT NULL
+        GROUP BY sscs.sdcSchoolCollection.schoolID, sscs.homeLanguageSpokenCode
+  """)
+  List<SpokenLanguageHeadcountResult> getAllHomeLanguageSpokenCodesForIndiesAndOffshoreInCollection(@Param("collectionID") UUID collectionID);
 }

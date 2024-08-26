@@ -13,8 +13,15 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionReposito
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HomeLanguageSpokenCode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpokenLanguageHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySpecialEdAdultHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadcountResult;
@@ -27,6 +34,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.SCHOOL;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.SCHOOL_NAME;
@@ -43,6 +53,7 @@ public class MinistryHeadcountService {
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private final RestUtils restUtils;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+  private final ValidationRulesService validationService;
   private static final String COLLECTION_ID = "collectionID";
 
   public SimpleHeadcountResultsTable getAllSchoolEnrollmentHeadcounts(UUID collectionID) {
@@ -108,7 +119,7 @@ public class MinistryHeadcountService {
 
       if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
         var rowMap = new HashMap<String, String>();
-        rowMap.put(IndySchoolEnrolmentHeadcountHeader.SCHOOL.getCode(), school.getDisplayName());
+        rowMap.put(SCHOOL.getCode(), school.getDisplayName());
         rowMap.put(KIND_HT.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.KINDHALF.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getKindHCount()));
         rowMap.put(KIND_FT.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.KINDFULL.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getKindFCount()));
         rowMap.put(GRADE_01.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE01.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade1Count()));
@@ -210,6 +221,11 @@ public class MinistryHeadcountService {
   }
 
   public SimpleHeadcountResultsTable getOffshoreSchoolEnrollmentHeadcounts(UUID collectionID) {
+    Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
+    if(entityOptional.isEmpty()) {
+      throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+    }
+
     List<IndySchoolHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();
@@ -224,7 +240,7 @@ public class MinistryHeadcountService {
 
       if(school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())) {
         var rowMap = new HashMap<String, String>();
-        rowMap.put(IndySchoolEnrolmentHeadcountHeader.SCHOOL.getCode(), school.getDisplayName());
+        rowMap.put(SCHOOL.getCode(), school.getDisplayName());
         rowMap.put(KIND_HT.getCode(), indySchoolHeadcountResult.getKindHCount());
         rowMap.put(KIND_FT.getCode(), indySchoolHeadcountResult.getKindFCount());
         rowMap.put(GRADE_01.getCode(), indySchoolHeadcountResult.getGrade1Count());
@@ -245,6 +261,59 @@ public class MinistryHeadcountService {
         rowMap.put(GRADE_HS.getCode(), indySchoolHeadcountResult.getGradeHSCount());
         rowMap.put(IndySchoolEnrolmentHeadcountHeader.TOTAL.getCode(), TransformUtil.getTotalHeadcount(indySchoolHeadcountResult));
         rows.add(rowMap);
+      }
+    });
+
+    resultsTable.setRows(rows);
+    return resultsTable;
+  }
+
+  public SimpleHeadcountResultsTable getOffshoreSpokenLanguageHeadcounts(UUID collectionID) {
+    Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
+    if(entityOptional.isEmpty()) {
+      throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+    }
+    List<SpokenLanguageHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllHomeLanguageSpokenCodesForIndiesAndOffshoreInCollection(collectionID);
+    var headerList = new ArrayList<String>();
+    List<String> columns = validationService.getActiveHomeLanguageSpokenCodes().stream().filter(languages ->
+                    results.stream().anyMatch(language -> language.getSpokenLanguageCode().equalsIgnoreCase(languages.getHomeLanguageSpokenCode())))
+            .map(HomeLanguageSpokenCode::getDescription).toList();
+
+    SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
+    headerList.add(SCHOOL.getCode());
+    headerList.addAll(columns);
+    resultsTable.setHeaders(headerList);
+
+    var rows = new ArrayList<Map<String, String>>();
+
+    results.forEach(languageResult -> {
+      var school = restUtils.getSchoolBySchoolID(languageResult.getSchoolID()).get();
+      if(school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())) {
+        var rowMap = new HashMap<String, String>();
+
+        var existingRowOpt = rows.stream().filter(row -> row.containsValue(school.getDisplayName())).findFirst();
+        if(existingRowOpt.isPresent()) {
+          //if school row already exist
+          var existingRow = existingRowOpt.get();
+          var spokenDesc = validationService.getActiveHomeLanguageSpokenCodes().stream()
+                  .filter(code -> code.getHomeLanguageSpokenCode().equalsIgnoreCase(languageResult.getSpokenLanguageCode())).findFirst();
+          existingRow.put(spokenDesc.get().getDescription(), languageResult.getHeadcount());
+
+        } else {
+          //create new rows
+          rowMap.put(SCHOOL.getCode(), school.getDisplayName());
+          //look-up spoken language code and add its value
+          var spokenDesc = validationService.getActiveHomeLanguageSpokenCodes().stream()
+                  .filter(code -> code.getHomeLanguageSpokenCode().equalsIgnoreCase(languageResult.getSpokenLanguageCode())).findFirst();
+          columns.forEach(column -> {
+            if(spokenDesc.get().getDescription().equalsIgnoreCase(column)) {
+              rowMap.put(spokenDesc.get().getDescription(), languageResult.getHeadcount());
+            } else {
+              rowMap.put(column, "0");
+            }
+          });
+          rows.add(rowMap);
+        }
       }
     });
 

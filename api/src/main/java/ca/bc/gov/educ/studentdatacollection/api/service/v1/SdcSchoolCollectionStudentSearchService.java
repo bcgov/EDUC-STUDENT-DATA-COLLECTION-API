@@ -83,20 +83,30 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightBySchoolCollectionID(UUID collectionID) {
+  public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightByCollectionID(UUID collectionID) {
     try {
-      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(collectionID);
-    } catch (final Throwable ex) {
+      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionEntity_CollectionEntity_CollectionID(collectionID);
+    } catch (final Exception ex) {
+      log.error("Failure querying for all light SDC school students by Collection ID: {}", ex.getMessage());
+      throw new CompletionException(ex);
+    }
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightBySchoolCollectionID(UUID sdcSchoolCollectionID) {
+    try {
+      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
+    } catch (final Exception ex) {
       log.error("Failure querying for all light SDC school students by School Collection ID: {}", ex.getMessage());
       throw new CompletionException(ex);
     }
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightByDistrictCollectionId(UUID collectionID) {
+  public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightByDistrictCollectionId(UUID sdcDistrictCollectionID) {
     try {
-      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcDistrictCollectionID(collectionID);
-    } catch (final Throwable ex) {
+      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionEntity_SdcDistrictCollectionID(sdcDistrictCollectionID);
+    } catch (final Exception ex) {
       log.error("Failure querying for light SDC school students by District Collection ID: {}", ex.getMessage());
       throw new CompletionException(ex);
     }

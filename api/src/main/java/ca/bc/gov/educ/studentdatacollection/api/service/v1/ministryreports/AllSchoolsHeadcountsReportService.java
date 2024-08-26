@@ -11,17 +11,23 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolAddress;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HomeLanguageSpokenCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySpecialEdAdultHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpokenLanguageHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
@@ -39,6 +45,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeCode.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.AllStudentsHeaders.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.SCHOOL;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader.*;
@@ -53,9 +61,45 @@ public class AllSchoolsHeadcountsReportService {
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final CollectionRepository collectionRepository;
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+    private final SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService;
     private final RestUtils restUtils;
+    private final ValidationRulesService validationService;
     private static final String COLLECTION_ID = "collectionID";
     private static final String INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and SEPT collections";
+
+    public DownloadableReportResponse generateAllStudentsExport(UUID collectionID) {
+        List<SdcSchoolCollectionStudentLightEntity> results = sdcSchoolCollectionStudentSearchService.findAllStudentsLightByCollectionID(collectionID);
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(DISTRICT.getCode(), AllStudentsHeaders.SCHOOL.getCode(), MINCODE.getCode(), SUBMITTED_PEN.getCode(),
+                        ASSIGNED_PEN.getCode(), LEGAL_LAST_NAME.getCode(), LEGAL_FIRST_NAME.getCode(), LEGAL_MIDDLE_NAME.getCode(), USUAL_LAST_NAME.getCode(), USUAL_FIRST_NAME.getCode(), USUAL_MIDDLE_NAME.getCode(),
+                        BIRTH_DATE.getCode(), GENDER.getCode(), POSTAL_CODE.getCode(), LOCAL_ID.getCode(), GRADE.getCode(), FTE.getCode(), IS_ADULT.getCode(),
+                        IS_GRADUATE.getCode(), OTHER_COURSES.getCode(), FUNDING_CODE.getCode(), LANGUAGE_CODE.getCode(), SUPPORT_BLOCKS.getCode(), NUMBER_OF_COURSES.getCode(),
+                        ENROLLED_PROGRAM_CODES.getCode(), YEARS_IN_ELL.getCode(), CAREER_CODE.getCode(), INDIGENOUS_ANCESTRY.getCode(), BAND_CODE.getCode(), INCLUSIVE_EDUCATION_CATEGORY.getCode())
+                .build();
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (SdcSchoolCollectionStudentLightEntity result : results) {
+                UUID schoolID = result.getSdcSchoolCollectionEntitySchoolID();
+                Optional<SchoolTombstone> schoolOpt = restUtils.getSchoolBySchoolID(schoolID.toString());
+                if(schoolOpt.isPresent()) {
+                    List<String> csvRowData = prepareAllStudentDataForCsv(result, schoolOpt.get());
+                    csvPrinter.printRecord(csvRowData);
+                }
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(ALL_STUDENTS_EXPORT.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
 
     public DownloadableReportResponse generateAllSchoolsHeadcounts(UUID collectionID) {
         List<SchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllEnrollmentHeadcountsByCollectionId(collectionID);
@@ -98,7 +142,7 @@ public class AllSchoolsHeadcountsReportService {
         List<IndySchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(IndySchoolEnrolmentHeadcountHeader.SCHOOL.getCode(), GRADE_01.getCode(), GRADE_02.getCode(), GRADE_03.getCode(), GRADE_04.getCode(),
+                .setHeader(SCHOOL.getCode(), GRADE_01.getCode(), GRADE_02.getCode(), GRADE_03.getCode(), GRADE_04.getCode(),
                         GRADE_05.getCode(), GRADE_06.getCode(), GRADE_07.getCode(), GRADE_EU.getCode(), GRADE_08.getCode(), GRADE_09.getCode(), GRADE_10.getCode(),
                         GRADE_11.getCode(),GRADE_12.getCode(),GRADE_SU.getCode(),GRADE_GA.getCode(),GRADE_HS.getCode(),IndySchoolEnrolmentHeadcountHeader.TOTAL.getCode())
                 .build();
@@ -301,7 +345,7 @@ public class AllSchoolsHeadcountsReportService {
         }
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(IndySchoolEnrolmentHeadcountHeader.SCHOOL.getCode(), KIND_HT.getCode(), KIND_FT.getCode(), GRADE_01.getCode(), GRADE_02.getCode(),
+                .setHeader(SCHOOL.getCode(), KIND_HT.getCode(), KIND_FT.getCode(), GRADE_01.getCode(), GRADE_02.getCode(),
                         GRADE_03.getCode(),GRADE_04.getCode(),GRADE_05.getCode(),GRADE_06.getCode(),GRADE_07.getCode(),GRADE_EU.getCode(),
                         GRADE_08.getCode(),GRADE_09.getCode(), GRADE_10.getCode(), GRADE_11.getCode(),GRADE_12.getCode(),
                         GRADE_SU.getCode(),GRADE_GA.getCode(),GRADE_HS.getCode(), IndySchoolEnrolmentHeadcountHeader.TOTAL.getCode())
@@ -354,6 +398,83 @@ public class AllSchoolsHeadcountsReportService {
                 TransformUtil.getTotalHeadcount(result)
         ));
         return csvRowData;
+    }
+
+    public DownloadableReportResponse generateOffshoreSpokenLanguageHeadcounts(UUID collectionID) {
+        List<SpokenLanguageHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllHomeLanguageSpokenCodesForIndiesAndOffshoreInCollection(collectionID);
+        var mappedHeaders = validationService.getActiveHomeLanguageSpokenCodes().stream().filter(languages ->
+                        results.stream().anyMatch(language -> language.getSpokenLanguageCode().equalsIgnoreCase(languages.getHomeLanguageSpokenCode())))
+                .map(HomeLanguageSpokenCode::getDescription).toList();
+
+        List<String> columns = new ArrayList<>();
+        columns.add(SCHOOL.getCode());
+        columns.addAll(mappedHeaders);
+
+        var collectionOpt = collectionRepository.findById(collectionID);
+        if(collectionOpt.isEmpty()){
+            throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
+        }
+
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(columns.toArray(String[]::new))
+                .build();
+
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (Map<String, String> map : prepareSpokenLanguageData(results, mappedHeaders)) {
+                List<String> csvRowData = new ArrayList<>(map.values());
+                csvPrinter.printRecord(csvRowData);
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
+    private ArrayList<LinkedHashMap<String, String>> prepareSpokenLanguageData(List<SpokenLanguageHeadcountResult> results, List<String> columns) {
+        var rows = new ArrayList<LinkedHashMap<String, String>>();
+
+        results.forEach(languageResult -> {
+            var school = restUtils.getSchoolBySchoolID(languageResult.getSchoolID()).get();
+            if(school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())) {
+                LinkedHashMap<String, String> rowMap = new LinkedHashMap<>();
+
+                var existingRowOpt = rows.stream().filter(row -> row.containsValue(school.getDisplayName())).findFirst();
+                if(existingRowOpt.isPresent()) {
+                    //if school row already exist
+                    var existingRow = existingRowOpt.get();
+                    var spokenDesc = validationService.getActiveHomeLanguageSpokenCodes().stream()
+                            .filter(code -> code.getHomeLanguageSpokenCode().equalsIgnoreCase(languageResult.getSpokenLanguageCode())).findFirst();
+                    existingRow.put(spokenDesc.get().getDescription(), languageResult.getHeadcount());
+
+                } else {
+                    //create new rows
+                    rowMap.put(SCHOOL.getCode(), school.getDisplayName());
+                    //look-up spoken language code and add its value
+                    var spokenDesc = validationService.getActiveHomeLanguageSpokenCodes().stream()
+                            .filter(code -> code.getHomeLanguageSpokenCode().equalsIgnoreCase(languageResult.getSpokenLanguageCode())).findFirst();
+                    columns.forEach(column -> {
+                        if(spokenDesc.get().getDescription().equalsIgnoreCase(column)) {
+                            rowMap.put(spokenDesc.get().getDescription(), languageResult.getHeadcount());
+                        } else {
+                            rowMap.put(column, "0");
+                        }
+                    });
+                    rows.add(rowMap);
+                }
+            }
+        });
+
+        return rows;
     }
 
     private List<String> prepareOffshoreSchoolDataForCsv(IndySchoolHeadcountResult result, School school) {
@@ -410,6 +531,48 @@ public class AllSchoolsHeadcountsReportService {
                 schoolHeadcountResult.getGrade11Count(),
                 schoolHeadcountResult.getGrade12Count()
         ));
+        return csvRowData;
+    }
+
+    private List<String> prepareAllStudentDataForCsv(SdcSchoolCollectionStudentLightEntity student, SchoolTombstone school) {
+        var districtOpt = restUtils.getDistrictByDistrictID(school.getDistrictId());
+        List<String> csvRowData = new ArrayList<>();
+        if(districtOpt.isPresent()) {
+            var district = districtOpt.get();
+            csvRowData.addAll(Arrays.asList(
+                    district.getDistrictNumber() + " - " + district.getDisplayName(),
+                    school.getSchoolNumber() + " - " + school.getDisplayName(),
+                    school.getMincode(),
+                    student.getStudentPen(),
+                    student.getAssignedPen(),
+                    student.getLegalLastName(),
+                    student.getLegalFirstName(),
+                    student.getLegalMiddleNames(),
+                    student.getUsualLastName(),
+                    student.getUsualFirstName(),
+                    student.getUsualMiddleNames(),
+                    student.getDob(),
+                    student.getGender(),
+                    student.getPostalCode(),
+                    student.getLocalID(),
+                    student.getEnrolledGradeCode(),
+                    student.getFte() != null ? student.getFte().toString() : null,
+                    student.getIsAdult() != null ? student.getIsAdult().toString() : "false",
+                    student.getIsGraduated() != null ? student.getIsGraduated().toString() : "false",
+                    student.getOtherCourses(),
+                    student.getSchoolFundingCode(),
+                    student.getHomeLanguageSpokenCode(),
+                    student.getSupportBlocks(),
+                    student.getNumberOfCourses(),
+                    student.getEnrolledProgramCodes(),
+                    student.getYearsInEll() != null ? student.getYearsInEll().toString() : "0",
+                    student.getCareerProgramCode(),
+                    student.getNativeAncestryInd(),
+                    student.getBandCode(),
+                    student.getSpecialEducationCategoryCode()
+            ));
+        }
+
         return csvRowData;
     }
 
