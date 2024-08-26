@@ -21,7 +21,7 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     @Query(value="""
             SELECT SSC FROM SdcSchoolCollectionEntity SSC, CollectionEntity C WHERE SSC.schoolID=:schoolID 
             AND C.collectionID = SSC.collectionEntity.collectionID
-            AND C.openDate <= CURRENT_TIMESTAMP AND C.closeDate >= CURRENT_TIMESTAMP""")
+            AND C.collectionStatusCode != 'COMPLETED'""")
     Optional<SdcSchoolCollectionEntity> findActiveCollectionBySchoolId(UUID schoolID);
 
     @Query(value = """
