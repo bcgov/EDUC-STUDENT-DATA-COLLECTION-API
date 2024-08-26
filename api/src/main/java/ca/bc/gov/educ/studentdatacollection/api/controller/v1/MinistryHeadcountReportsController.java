@@ -4,8 +4,8 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeC
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.MinistryHeadcountReports;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports.MinistryHeadcountService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports.AllSchoolsHeadcountsReportService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports.MinistryHeadcountService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +63,7 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
             case OFFSHORE_ENROLLMENT_HEADCOUNTS -> ministryReportsService.generateOffshoreSchoolsHeadcounts(collectionID);
             case INDY_INCLUSIVE_ED_ENROLLMENT_HEADCOUNTS -> ministryReportsService.generateIndySpecialEducationHeadcounts(collectionID);
             case OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS -> ministryReportsService.generateOffshoreSpokenLanguageHeadcounts(collectionID);
+            case ALL_STUDENTS_EXPORT -> ministryReportsService.generateAllStudentsExport(collectionID);
             default -> new DownloadableReportResponse();
         };
     }
