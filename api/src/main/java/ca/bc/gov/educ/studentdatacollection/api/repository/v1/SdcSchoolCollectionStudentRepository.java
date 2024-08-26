@@ -923,9 +923,9 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           AND SSCS.enrolledGradeCode IN ('08', '09')
           AND SSCS.fte > 0
           AND C.collectionID IN
-                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionTypeCode IN('SEPTEMBER', 'FEBRUARY', 'MAY') ORDER BY CE.snapshotDate DESC LIMIT 3)
+                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
           """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalWithInSameDistrict(UUID districtID, UUID assignedStudentID);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalWithInSameDistrict(UUID districtID, UUID assignedStudentID, String noOfCollections);
 
   @Query(value="""
            SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS, SdcDistrictCollectionEntity SDC
@@ -937,9 +937,9 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             AND SSCS.enrolledGradeCode NOT IN ('08', '09')
             AND SSCS.fte > 0
             AND C.collectionID IN
-                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionTypeCode IN('SEPTEMBER', 'FEBRUARY', 'MAY') ORDER BY CE.snapshotDate DESC LIMIT 3)
+                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
             """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInOtherDistricts(UUID districtID, UUID assignedStudentID);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInOtherDistricts(UUID districtID, UUID assignedStudentID, String noOfCollections);
 
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(UUID collectionID, List<String> enrolledGradeCode);
 

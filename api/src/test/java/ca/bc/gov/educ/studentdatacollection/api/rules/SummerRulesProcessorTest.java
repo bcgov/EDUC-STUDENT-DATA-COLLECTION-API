@@ -477,6 +477,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(collectionTypeCode);
         collection.setCloseDate(collectionCloseDate);
+        collection.setCollectionStatusCode("COMPLETED");
         collectionRepository.save(collection);
 
         SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, districtID);
@@ -501,6 +502,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(collectionTypeCode);
         collection.setCloseDate(collectionCloseDate);
+        collection.setCollectionStatusCode("COMPLETED");
         collectionRepository.save(collection);
 
         SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));

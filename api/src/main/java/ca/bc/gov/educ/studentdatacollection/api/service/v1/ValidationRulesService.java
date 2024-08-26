@@ -194,12 +194,14 @@ public class ValidationRulesService {
     }
 
     public boolean findStudentInHistoricalCollectionWithInSameDistrict(StudentRuleData studentRuleData) {
-        List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId());
+        String noOfCollectionsForLookup = "3";
+        List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), noOfCollectionsForLookup);
         return !entity.isEmpty();
     }
 
     public boolean findStudentInHistoricalCollectionInOtherDistricts(StudentRuleData studentRuleData) {
-        List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInCurrentFiscalInOtherDistricts(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId());
+        String noOfCollectionsForLookup = "3";
+        List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInCurrentFiscalInOtherDistricts(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), noOfCollectionsForLookup);
         return !entity.isEmpty();
     }
 }
