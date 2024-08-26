@@ -273,7 +273,7 @@ public class MinistryHeadcountService {
     if(entityOptional.isEmpty()) {
       throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
     }
-    List<SpokenLanguageHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllHomeLanguageSpokenCodesInCollection(collectionID);
+    List<SpokenLanguageHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllHomeLanguageSpokenCodesForIndiesAndOffshoreInCollection(collectionID);
     var headerList = new ArrayList<String>();
     List<String> columns = validationService.getActiveHomeLanguageSpokenCodes().stream().filter(languages ->
                     results.stream().anyMatch(language -> language.getSpokenLanguageCode().equalsIgnoreCase(languages.getHomeLanguageSpokenCode())))

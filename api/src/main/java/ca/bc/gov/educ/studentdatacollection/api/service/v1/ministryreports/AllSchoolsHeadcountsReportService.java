@@ -362,7 +362,7 @@ public class AllSchoolsHeadcountsReportService {
     }
 
     public DownloadableReportResponse generateOffshoreSpokenLanguageHeadcounts(UUID collectionID) {
-        List<SpokenLanguageHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllHomeLanguageSpokenCodesInCollection(collectionID);
+        List<SpokenLanguageHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllHomeLanguageSpokenCodesForIndiesAndOffshoreInCollection(collectionID);
         var mappedHeaders = validationService.getActiveHomeLanguageSpokenCodes().stream().filter(languages ->
                         results.stream().anyMatch(language -> language.getSpokenLanguageCode().equalsIgnoreCase(languages.getHomeLanguageSpokenCode())))
                 .map(HomeLanguageSpokenCode::getDescription).toList();
