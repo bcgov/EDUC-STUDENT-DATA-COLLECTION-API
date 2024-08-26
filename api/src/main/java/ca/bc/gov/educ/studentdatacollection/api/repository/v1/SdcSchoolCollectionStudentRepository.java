@@ -922,10 +922,10 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           AND SSCS.assignedStudentId = :assignedStudentID
           AND SSCS.enrolledGradeCode IN ('08', '09')
           AND SSCS.fte > 0
-          AND C.collectionTypeCode = :collectionTypeCode
-          AND EXTRACT(YEAR FROM C.closeDate) = :targetYear
+          AND C.collectionID IN
+                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionTypeCode IN('SEPTEMBER', 'FEBRUARY', 'MAY') ORDER BY CE.snapshotDate DESC LIMIT 3)
           """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInHistoricalCollectionWithInSameDistrict(UUID districtID, UUID assignedStudentID, String collectionTypeCode, Integer targetYear);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalWithInSameDistrict(UUID districtID, UUID assignedStudentID);
 
   @Query(value="""
            SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS, SdcDistrictCollectionEntity SDC
@@ -936,10 +936,10 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             AND SSCS.assignedStudentId = :assignedStudentID
             AND SSCS.enrolledGradeCode NOT IN ('08', '09')
             AND SSCS.fte > 0
-            AND C.collectionTypeCode = :collectionTypeCode
-            AND EXTRACT(YEAR FROM C.closeDate) = :targetYear
+            AND C.collectionID IN
+                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionTypeCode IN('SEPTEMBER', 'FEBRUARY', 'MAY') ORDER BY CE.snapshotDate DESC LIMIT 3)
             """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInHistoricalCollectionInOtherDistricts(UUID districtID, UUID assignedStudentID, String collectionTypeCode, Integer targetYear);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInOtherDistricts(UUID districtID, UUID assignedStudentID);
 
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(UUID collectionID, List<String> enrolledGradeCode);
 
