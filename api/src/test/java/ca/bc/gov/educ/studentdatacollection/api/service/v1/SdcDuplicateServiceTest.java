@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -363,6 +364,8 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     sdcSchoolCollectionStudentRepository.save(student1);
     var student2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
     student2.setAssignedStudentId(studentID);
+    //Intentionally causing a validation error to prevent the change grade from occurring as expected by this test.
+    student2.setDob(LocalDateTime.now().plusYears(1).format(DateTimeFormatter.ofPattern("yyyyMMdd")));
     sdcSchoolCollectionStudentRepository.save(student2);
 
     val sdcDuplicates = sdcDuplicateService.getAllInDistrictCollectionDuplicates(sdcDistrictCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
