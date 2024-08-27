@@ -6,8 +6,11 @@ import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplicat
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentEnrolledProgramRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
@@ -37,6 +40,9 @@ class CareerHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
     @Autowired
     private SdcSchoolCollectionStudentRepository studentRepository;
+
+    @Autowired
+    private SdcSchoolCollectionStudentEnrolledProgramRepository enrolledProgramRepository;
 
     private CareerHeadcountHelper helper;
 
@@ -100,6 +106,10 @@ class CareerHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
                 .toList();
 
         sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        models.forEach(e -> {
+            setEnrolledProgramCode(e, "40");
+        });
     }
 
     @AfterEach
@@ -128,10 +138,20 @@ class CareerHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
         assert(titles.isPresent());
         assertEquals("0", titles.get().get("08").getCurrentValue());
-        assertEquals("0", titles.get().get("10").getCurrentValue());
-        assertEquals("0", titles.get().get("11").getCurrentValue());
-        assertEquals("0", titles.get().get("Total").getCurrentValue());
+        assertEquals("1", titles.get().get("10").getCurrentValue());
+        assertEquals("1", titles.get().get("11").getCurrentValue());
+        assertEquals("2", titles.get().get("Total").getCurrentValue());
+    }
 
+    private void setEnrolledProgramCode(SdcSchoolCollectionStudentEntity studentEntity, String enrolledProgram) {
+        var enrolledProgramEntity = new SdcSchoolCollectionStudentEnrolledProgramEntity();
+        enrolledProgramEntity.setSdcSchoolCollectionStudentEntity(studentEntity);
+        enrolledProgramEntity.setEnrolledProgramCode(enrolledProgram);
+        enrolledProgramEntity.setCreateUser("ABC");
+        enrolledProgramEntity.setUpdateUser("ABC");
+        enrolledProgramEntity.setCreateDate(LocalDateTime.now());
+        enrolledProgramEntity.setUpdateDate(LocalDateTime.now());
+        enrolledProgramRepository.save(enrolledProgramEntity);
     }
 
 }
