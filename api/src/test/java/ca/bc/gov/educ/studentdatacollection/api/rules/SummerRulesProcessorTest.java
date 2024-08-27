@@ -5,7 +5,6 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
@@ -477,6 +476,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(collectionTypeCode);
         collection.setCloseDate(collectionCloseDate);
+        collection.setCollectionStatusCode("COMPLETED");
         collectionRepository.save(collection);
 
         SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, districtID);
@@ -501,6 +501,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(collectionTypeCode);
         collection.setCloseDate(collectionCloseDate);
+        collection.setCollectionStatusCode("COMPLETED");
         collectionRepository.save(collection);
 
         SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));

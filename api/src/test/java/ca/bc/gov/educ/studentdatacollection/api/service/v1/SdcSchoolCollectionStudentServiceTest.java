@@ -23,7 +23,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -69,7 +72,6 @@ class SdcSchoolCollectionStudentServiceTest {
     @Test
     void testUpdateFteColumns_WhenStudentExists_SavesEntity() {
         // Given
-        UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
         FteCalculationResult fteCalculationResult = new FteCalculationResult();
         fteCalculationResult.setFte(BigDecimal.ONE);
         fteCalculationResult.setFteZeroReason("SomeReason");
@@ -261,9 +263,6 @@ class SdcSchoolCollectionStudentServiceTest {
 
     @Test
     void testSoftDeleteSdcSchoolCollectionStudents_WhenStudentExists_SavesEntity() {
-        // Given
-        UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
-
         // Create a mock SdcSchoolCollectionStudentEntity
         CollectionEntity collection = new CollectionEntity();
         collection.setCollectionID(UUID.randomUUID());
@@ -399,10 +398,10 @@ class SdcSchoolCollectionStudentServiceTest {
         // When and assert
         InvalidPayloadException thrown = assertThrows(InvalidPayloadException.class, () -> {
             sdcSchoolCollectionStudentService.validateAndProcessSdcSchoolCollectionStudent(studentEntity, studentEntity, false);
-        }, "SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicate.");
+        }, "SdcSchoolCollectionStudent was not saved to the database because it would create a provincial duplicate.");
 
         assertNotNull(thrown.getError());
-        assertEquals("SdcSchoolCollectionStudent was not saved to the database because it would create provincial duplicate.", thrown.getError().getMessage());
+        assertEquals("SdcSchoolCollectionStudent was not saved to the database because it would create a provincial duplicate.", thrown.getError().getMessage());
 
         verify(sdcSchoolCollectionStudentRepository, never()).save(studentEntity);
     }

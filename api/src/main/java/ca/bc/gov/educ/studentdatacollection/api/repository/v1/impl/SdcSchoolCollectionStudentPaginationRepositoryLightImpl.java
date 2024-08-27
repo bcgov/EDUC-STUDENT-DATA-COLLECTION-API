@@ -30,6 +30,14 @@ public class SdcSchoolCollectionStudentPaginationRepositoryLightImpl implements 
 
         query.where(spec.toPredicate(root, query, cb));
 
+        if (pageable.getSort().isSorted()) {
+            query.orderBy(pageable.getSort().stream()
+                    .map(order -> order.isAscending()
+                            ? cb.asc(root.get(order.getProperty()))
+                            : cb.desc(root.get(order.getProperty())))
+                    .toList());
+        }
+
         TypedQuery<SdcSchoolCollectionStudentPaginationEntity> typedQuery = entityManager.createQuery(query);
         typedQuery.setFirstResult((int) pageable.getOffset());
         typedQuery.setMaxResults(pageable.getPageSize());

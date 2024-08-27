@@ -1,10 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateErrorDescriptionCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateLevelCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateSeverityCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -737,6 +734,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   @Test
   void testProcessSdcFile_givenInvalidPayloadForDates_ShouldReturnStatusBadRequest() throws Exception {
     var mockColl = createMockCollectionEntity();
+    mockColl.setCollectionStatusCode(CollectionStatus.COMPLETED.getCode());
     mockColl.setOpenDate(LocalDateTime.now().plusDays(5));
     var collection = sdcRepository.save(mockColl);
     var school = this.createMockSchool();
@@ -754,6 +752,32 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       .header("correlationID", UUID.randomUUID().toString())
       .content(JsonUtil.getJsonStringFromObject(body))
       .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+          "src/test/resources/sample-0-student.txt",
+          "src/test/resources/sample-1-student-with-bad-student-count.txt",
+          "src/test/resources/sample-1-student-with-malformed-student-count.txt"
+  })
+  void testProcessSdcFile_givenInvalidPayloadForStudentCounts_ShouldReturnStatusBadRequest(String resourceFile) throws Exception {
+    var collection = sdcRepository.save(createMockCollectionEntity());
+    var school = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    sdcMockSchool.setUploadDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setUploadReportDate(null);
+    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
+    final FileInputStream fis = new FileInputStream(resourceFile);
+    final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
+    assertThat(fileContents).isNotEmpty();
+    val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
+    this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
+            .header("correlationID", UUID.randomUUID().toString())
+            .content(JsonUtil.getJsonStringFromObject(body))
+            .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
   }
 
   @Test

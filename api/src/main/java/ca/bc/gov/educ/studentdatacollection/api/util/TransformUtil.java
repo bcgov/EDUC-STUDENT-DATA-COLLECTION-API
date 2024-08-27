@@ -4,6 +4,8 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGrade;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySpecialEdAdultHeadcountResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -108,19 +110,82 @@ public class TransformUtil {
   }
 
   public static String getGradesOfferedString(School school){
-    StringBuilder gradesOffered = new StringBuilder();
-    school.getGrades().sort(Comparator.comparing(SchoolGrade::getSchoolGradeCode));
+    var gradeList = new ArrayList<SchoolGradeCodes>();
     for(SchoolGrade schoolGrade: school.getGrades()) {
       var optGrade = SchoolGradeCodes.findByTypeCode(schoolGrade.getSchoolGradeCode());
       if(optGrade.isPresent()) {
-        gradesOffered.append(optGrade.get().getCode() + ",");
+        gradeList.add(optGrade.get());
       }
+    }
+
+    gradeList.sort(Comparator.comparing(SchoolGradeCodes::getSequence));
+    StringBuilder gradesOffered = new StringBuilder();
+    for(SchoolGradeCodes schoolGrade: gradeList) {
+      gradesOffered.append(schoolGrade.getCode() + ",");
     }
     var finalGrades = gradesOffered.toString();
     if(StringUtils.isEmpty(finalGrades)){
       return "";
     }
     return gradesOffered.toString().substring(0, gradesOffered.lastIndexOf(","));
+  }
+
+  public static String getTotalHeadcount(IndySchoolHeadcountResult result){
+    int total = 0;
+
+    total +=  Integer.parseInt(result.getKindHCount());
+    total +=  Integer.parseInt(result.getKindFCount());
+    total +=  Integer.parseInt(result.getGrade1Count());
+    total +=  Integer.parseInt(result.getGrade2Count());
+    total +=  Integer.parseInt(result.getGrade3Count());
+    total +=  Integer.parseInt(result.getGrade4Count());
+    total +=  Integer.parseInt(result.getGrade5Count());
+    total +=  Integer.parseInt(result.getGrade6Count());
+    total +=  Integer.parseInt(result.getGrade7Count());
+    total +=  Integer.parseInt(result.getGradeEUCount());
+    total +=  Integer.parseInt(result.getGrade8Count());
+    total +=  Integer.parseInt(result.getGrade9Count());
+    total +=  Integer.parseInt(result.getGrade10Count());
+    total +=  Integer.parseInt(result.getGrade11Count());
+    total +=  Integer.parseInt(result.getGrade12Count());
+    total +=  Integer.parseInt(result.getGradeSUCount());
+    total +=  Integer.parseInt(result.getGradeGACount());
+    total +=  Integer.parseInt(result.getGradeHSCount());
+
+    return Integer.toString(total);
+  }
+
+  public static String getTotalHeadcount(IndySpecialEdAdultHeadcountResult result){
+    int total = 0;
+
+    total +=  Integer.parseInt(result.getSpecialEdACodes());
+    total +=  Integer.parseInt(result.getSpecialEdBCodes());
+    total +=  Integer.parseInt(result.getSpecialEdCCodes());
+    total +=  Integer.parseInt(result.getSpecialEdDCodes());
+    total +=  Integer.parseInt(result.getSpecialEdECodes());
+    total +=  Integer.parseInt(result.getSpecialEdFCodes());
+    total +=  Integer.parseInt(result.getSpecialEdGCodes());
+    total +=  Integer.parseInt(result.getSpecialEdHCodes());
+    total +=  Integer.parseInt(result.getSpecialEdKCodes());
+    total +=  Integer.parseInt(result.getSpecialEdPCodes());
+    total +=  Integer.parseInt(result.getSpecialEdQCodes());
+    total +=  Integer.parseInt(result.getSpecialEdRCodes());
+
+    return Integer.toString(total);
+  }
+
+  public static String flagSpecialEdHeadcountIfRequired(String value, boolean adultValue){
+    if(!adultValue){
+      return value;
+    }
+    return value + "*";
+  }
+
+  public static String flagCountIfNoSchoolFundingGroup(String schoolGradeCode, List<String> schoolFundingGroupGrades, String value){
+    if(schoolFundingGroupGrades.contains(schoolGradeCode) || (StringUtils.isNotEmpty(value) && value.equals("0"))){
+      return value;
+    }
+    return value + "*";
   }
 
   public static String sanitizeEnrolledProgramString(String enrolledProgramCode) {

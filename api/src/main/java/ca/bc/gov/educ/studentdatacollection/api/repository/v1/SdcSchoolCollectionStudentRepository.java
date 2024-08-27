@@ -17,6 +17,9 @@ import java.util.UUID;
 
 @Repository
 public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcSchoolCollectionStudentEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionStudentEntity> {
+
+  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionID(UUID collectionID);
+
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_SdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollectionStudentIDIn(List<UUID> sdcSchoolCollectionStudentIDs);
@@ -60,6 +63,33 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           " AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
           " GROUP BY sscs.sdcSchoolCollection.schoolID ")
   List<SchoolHeadcountResult> getAllEnrollmentHeadcountsByCollectionId(@Param("collectionID") UUID collectionID);
+
+  @Query("SELECT " +
+          " sscs.sdcSchoolCollection.schoolID as schoolID, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' THEN 1 END) as kindHCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KF' THEN 1 END) as kindFCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '01' THEN 1 END) as grade1Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '02' THEN 1 END) as grade2Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '03' THEN 1 END) as grade3Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '04' THEN 1 END) as grade4Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '05' THEN 1 END) as grade5Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '06' THEN 1 END) as grade6Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '07' THEN 1 END) as grade7Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '08' THEN 1 END) as grade8Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '09' THEN 1 END) as grade9Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '10' THEN 1 END) as grade10Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '11' THEN 1 END) as grade11Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '12' THEN 1 END) as grade12Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'EU' THEN 1 END) as gradeEUCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'SU' THEN 1 END) as gradeSUCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'GA' THEN 1 END) as gradeGACount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'HS' THEN 1 END) as gradeHSCount " +
+          " FROM SdcSchoolCollectionStudentEntity sscs " +
+          " WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
+          " AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
+          " AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is null " +
+          " GROUP BY sscs.sdcSchoolCollection.schoolID ")
+  List<IndySchoolHeadcountResult> getAllIndyEnrollmentHeadcountsByCollectionId(@Param("collectionID") UUID collectionID);
 
   @Query(value = """  
     SELECT stud
@@ -903,8 +933,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "ORDER BY s.sdcSchoolCollection.schoolID")
   List<RefugeeHeadcountResult> getRefugeeHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
-  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionID(UUID collectionID);
-
   @Modifying
   @Query(value = """
            UPDATE SDC_SCHOOL_COLLECTION_STUDENT
@@ -932,10 +960,10 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           AND SSCS.assignedStudentId = :assignedStudentID
           AND SSCS.enrolledGradeCode IN ('08', '09')
           AND SSCS.fte > 0
-          AND C.collectionTypeCode = :collectionTypeCode
-          AND EXTRACT(YEAR FROM C.closeDate) = :targetYear
+          AND C.collectionID IN
+                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
           """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInHistoricalCollectionWithInSameDistrict(UUID districtID, UUID assignedStudentID, String collectionTypeCode, Integer targetYear);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalWithInSameDistrict(UUID districtID, UUID assignedStudentID, String noOfCollections);
 
   @Query(value="""
            SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS, SdcDistrictCollectionEntity SDC
@@ -946,9 +974,59 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             AND SSCS.assignedStudentId = :assignedStudentID
             AND SSCS.enrolledGradeCode NOT IN ('08', '09')
             AND SSCS.fte > 0
-            AND C.collectionTypeCode = :collectionTypeCode
-            AND EXTRACT(YEAR FROM C.closeDate) = :targetYear
+            AND C.collectionID IN
+                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
             """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInHistoricalCollectionInOtherDistricts(UUID districtID, UUID assignedStudentID, String collectionTypeCode, Integer targetYear);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInOtherDistricts(UUID districtID, UUID assignedStudentID, String noOfCollections);
 
+  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(UUID collectionID, List<String> enrolledGradeCode);
+
+  @Query("SELECT " +
+          "s.sdcSchoolCollection.schoolID AS schoolID, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'A' THEN 1 END) AS specialEdACodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'A' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdA, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'B' THEN 1 END) AS specialEdBCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'B' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdB, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'C' THEN 1 END) AS specialEdCCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'C' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdC, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'D' THEN 1 END) AS specialEdDCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'D' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdD, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'E' THEN 1 END) AS specialEdECodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'E' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdE, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'F' THEN 1 END) AS specialEdFCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'F' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdF, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'G' THEN 1 END) AS specialEdGCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'G' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdG, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'H' THEN 1 END) AS specialEdHCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'H' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdH, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'K' THEN 1 END) AS specialEdKCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'K' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdK, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'P' THEN 1 END) AS specialEdPCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'P' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdP, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'Q' THEN 1 END) AS specialEdQCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'Q' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdQ, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'R' THEN 1 END) AS specialEdRCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'R' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdR, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'P', 'Q', 'R') THEN 1 END) AS allLevels " +
+          "FROM SdcSchoolCollectionStudentEntity s " +
+          "WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
+          "AND s.sdcSchoolCollection.sdcDistrictCollectionID is null " +
+          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
+          "AND s.specialEducationNonEligReasonCode IS NULL " +
+          "GROUP BY s.sdcSchoolCollection.schoolID " +
+          "ORDER BY s.sdcSchoolCollection.schoolID")
+  List<IndySpecialEdAdultHeadcountResult> getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(UUID collectionID);
+
+  @Query(value = """
+        SELECT sscs.sdcSchoolCollection.schoolID as schoolID,
+        sscs.homeLanguageSpokenCode as spokenLanguageCode,
+        COUNT(sscs.homeLanguageSpokenCode) as headcount
+        FROM SdcSchoolCollectionStudentEntity sscs
+        WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
+        AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is NULL
+        AND sscs.homeLanguageSpokenCode is NOT NULL
+        GROUP BY sscs.sdcSchoolCollection.schoolID, sscs.homeLanguageSpokenCode
+  """)
+  List<SpokenLanguageHeadcountResult> getAllHomeLanguageSpokenCodesForIndiesAndOffshoreInCollection(@Param("collectionID") UUID collectionID);
 }

@@ -103,7 +103,6 @@ public class CloseCollectionService {
                     .collectionTypeCode(collectionToOpen.getCollectionTypeCode())
                     .collectionStatusCode(CollectionStatus.INPROGRESS.getCode())
                     .openDate(LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT))
-                    .closeDate(LocalDateTime.of(collectionToOpen.getCloseDate().toLocalDate(), LocalTime.MIDNIGHT))
                     .snapshotDate(LocalDate.parse(collectionSagaData.getNewCollectionSnapshotDate()))
                     .submissionDueDate(LocalDate.parse(collectionSagaData.getNewCollectionSubmissionDueDate()))
                     .duplicationResolutionDueDate(LocalDate.parse(collectionSagaData.getNewCollectionDuplicationResolutionDueDate()))
@@ -116,14 +115,8 @@ public class CloseCollectionService {
             collectionRepository.save(collectionEntity);
             startSDCCollection(listOfSchoolIDs, collectionEntity);
 
-            // update the collection type code table
-            collectionToOpen.setCloseDate(collectionToOpen.getCloseDate().plusYears(1));
-            collectionToOpen.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-            collectionToOpen.setUpdateDate(LocalDateTime.now());
-            collectionTypeCodeRepository.save(collectionToOpen);
-
             sdcSchoolCollectionStudentRepository.updateAllSdcSchoolCollectionStudentStatus(UUID.fromString(collectionSagaData.getExistingCollectionID()));
-            log.info("New collection for {} is now open", collectionToOpen.getCollectionTypeCode());
+            log.info("New collection for {} is now open", collectionEntity.getCollectionTypeCode());
         }
     }
 

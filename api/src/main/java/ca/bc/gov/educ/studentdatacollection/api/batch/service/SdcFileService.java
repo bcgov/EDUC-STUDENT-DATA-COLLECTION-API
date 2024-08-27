@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.batch.service;
 
 import ca.bc.gov.educ.studentdatacollection.api.batch.processor.SdcBatchFileProcessor;
-import ca.bc.gov.educ.studentdatacollection.api.exception.SagaRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;

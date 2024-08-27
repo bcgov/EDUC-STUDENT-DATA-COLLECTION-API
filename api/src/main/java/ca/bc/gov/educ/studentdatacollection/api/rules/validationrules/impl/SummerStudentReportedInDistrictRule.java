@@ -6,7 +6,6 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -50,12 +49,10 @@ public class SummerStudentReportedInDistrictRule implements ValidationBaseRule {
 
         validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
-            var isStudentReportedInSepColl = validationRulesService.findStudentInHistoricalCollectionWithInSameDistrict(studentRuleData, CollectionTypeCodes.SEPTEMBER.getTypeCode());
-            var isStudentReportedInFebColl = validationRulesService.findStudentInHistoricalCollectionWithInSameDistrict(studentRuleData, CollectionTypeCodes.FEBRUARY.getTypeCode());
-            var isStudentReportedInMayColl = validationRulesService.findStudentInHistoricalCollectionWithInSameDistrict(studentRuleData, CollectionTypeCodes.MAY.getTypeCode());
+            var isStudentReportedInCurrentFiscal = validationRulesService.findStudentInHistoricalCollectionWithInSameDistrict(studentRuleData);
 
-            if (isStudentReportedInSepColl || isStudentReportedInFebColl || isStudentReportedInMayColl) {
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_IN_DISTRICT_ERROR));
+            if (isStudentReportedInCurrentFiscal) {
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_IN_DISTRICT_ERROR));
             }
         }
         return errors;

@@ -21,7 +21,7 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     @Query(value="""
             SELECT SSC FROM SdcSchoolCollectionEntity SSC, CollectionEntity C WHERE SSC.schoolID=:schoolID 
             AND C.collectionID = SSC.collectionEntity.collectionID
-            AND C.openDate <= CURRENT_TIMESTAMP AND C.closeDate >= CURRENT_TIMESTAMP""")
+            AND C.collectionStatusCode != 'COMPLETED'""")
     Optional<SdcSchoolCollectionEntity> findActiveCollectionBySchoolId(UUID schoolID);
 
     @Query(value = """
@@ -104,7 +104,7 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
         JOIN collection C ON C.collection_id = SSC.collection_id
         WHERE SSCS.assigned_student_id = :assignedStudentId
         AND C.snapshot_date < :currentSnapshotDate
-        AND C.collection_status_code != 'INPROGRESS'
+        AND C.collection_status_code = 'COMPLETED'
         """
             , nativeQuery = true)
     List<SdcSchoolCollectionEntity> findAllPreviousCollectionsForStudent(UUID assignedStudentId, LocalDate currentSnapshotDate);

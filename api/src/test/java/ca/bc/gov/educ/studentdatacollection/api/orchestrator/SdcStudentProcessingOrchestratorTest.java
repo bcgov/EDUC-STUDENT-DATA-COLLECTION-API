@@ -32,9 +32,7 @@ import java.time.LocalDateTime;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCESS_SDC_STUDENT;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.COMPLETED;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -66,9 +64,7 @@ class SdcStudentProcessingOrchestratorTest extends BaseStudentDataCollectionAPIT
   public void setUp() {
     Mockito.reset(this.messagePublisher);
     Mockito.reset(this.restUtils);
-    ObjectMapper mapper = JsonMapper.builder()
-    .findAndAddModules()
-    .build();
+    JsonMapper.builder().findAndAddModules().build();
   }
 
   @SneakyThrows

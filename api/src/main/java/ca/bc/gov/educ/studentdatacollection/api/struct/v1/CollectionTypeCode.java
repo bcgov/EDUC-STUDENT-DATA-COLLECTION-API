@@ -34,12 +34,6 @@ public class CollectionTypeCode extends BaseRequest implements Serializable {
   @NotNull(message = "description cannot be null")
   private String description;
 
-  @NotNull(message = "openDate cannot be null")
-  private String openDate;
-
-  @NotNull(message = "closeDate cannot be null")
-  private String closeDate;
-
   @NotNull(message = "displayOrder cannot be null")
   private Integer displayOrder;
 

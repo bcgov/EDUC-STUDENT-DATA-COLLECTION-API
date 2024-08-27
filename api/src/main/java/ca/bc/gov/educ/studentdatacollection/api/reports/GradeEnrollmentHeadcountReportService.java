@@ -75,8 +75,8 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
         var gradeEnrollmentList = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
         return generateJasperReport(convertToGradeEnrollmentReportJSONStringDistrict(gradeEnrollmentList, sdcDistrictCollectionEntity), gradeEnrollmentHeadcountReport, ReportTypeCode.DIS_GRADE_ENROLLMENT_HEADCOUNT);
       } catch (JsonProcessingException e) {
-        log.error("Exception occurred while writing PDF report for grade enrollment dis :: " + e.getMessage());
-        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment dis :: " + e.getMessage());
+        log.error("Exception occurred while writing PDF report for grade enrolment dis :: " + e.getMessage());
+        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrolment dis :: " + e.getMessage());
       }
     } else {
       try {
@@ -87,8 +87,8 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
         var gradeEnrollmentList = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
         return generateJasperReport(convertToGradeEnrollmentReportJSONString(gradeEnrollmentList, sdcSchoolCollectionEntity), gradeEnrollmentHeadcountReport, ReportTypeCode.GRADE_ENROLLMENT_HEADCOUNT);
       } catch (JsonProcessingException e) {
-        log.error("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
-        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment :: " + e.getMessage());
+        log.error("Exception occurred while writing PDF report for grade enrolment :: " + e.getMessage());
+        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrolment :: " + e.getMessage());
       }
     }
   }
@@ -163,8 +163,8 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
       ((GradeHeadcountChildNode)nodeMap.get("allEligibleForFTE")).setValueForGrade(code, gradeResult.getTotalEligibleForFte());
       ((GradeHeadcountChildNode)nodeMap.get("allFTETotal")).setValueForGrade(code, String.format("%.4f", numberFormat.parse(gradeResult.getTotalFteTotal()).doubleValue()));
     } catch (ParseException e) {
-      log.error("Exception occurred while writing PDF report for grade enrollment dis - parse error :: " + e.getMessage());
-      throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrollment dis - parse error :: " + e.getMessage());
+      log.error("Exception occurred while writing PDF report for grade enrolment dis - parse error :: " + e.getMessage());
+      throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrolment dis - parse error :: " + e.getMessage());
     }
   }
 

@@ -16,8 +16,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.CLOSURE_NOTIFICATIONS_DISPATCHED;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.NEW_COLLECTION_CREATED;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.CLOSE_CURRENT_COLLECTION_AND_OPEN_NEW_COLLECTION;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.SEND_CLOSURE_NOTIFICATIONS;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 
 @Component

@@ -1,7 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -9,9 +13,11 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionReposito
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HomeLanguageSpokenCode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +26,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.SCHOOL;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders.SCHOOL_NAME;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.SCHOOL_NAME;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
 
 
 @Service
@@ -33,6 +43,7 @@ public class MinistryHeadcountService {
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private final RestUtils restUtils;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+  private final ValidationRulesService validationService;
   private static final String COLLECTION_ID = "collectionID";
 
   public SimpleHeadcountResultsTable getAllSchoolEnrollmentHeadcounts(UUID collectionID) {
@@ -52,14 +63,16 @@ public class MinistryHeadcountService {
     var rows = new ArrayList<Map<String, String>>();
     collectionRawData.stream().forEach(schoolHeadcountResult -> {
       var school = restUtils.getAllSchoolBySchoolID(schoolHeadcountResult.getSchoolID()).get();
+      var schoolCategory = restUtils.getSchoolCategoryCode(school.getSchoolCategoryCode());
+      var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
 
       var rowMap = new HashMap<String, String>();
       rowMap.put(SCHOOL_YEAR.getCode(), LocalDateTimeUtil.getSchoolYearString(collection));
       rowMap.put(DISTRICT_NUMBER.getCode(), school.getMincode().substring(0,3));
       rowMap.put(SCHOOL_NUMBER.getCode(), school.getSchoolNumber());
       rowMap.put(SCHOOL_NAME.getCode(), school.getDisplayName());
-      rowMap.put(FACILITY_TYPE.getCode(), school.getFacilityTypeCode());
-      rowMap.put(SCHOOL_CATEGORY.getCode(), school.getSchoolCategoryCode());
+      rowMap.put(FACILITY_TYPE.getCode(), facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode());
+      rowMap.put(SCHOOL_CATEGORY.getCode(), schoolCategory.isPresent() ? schoolCategory.get().getLabel() : school.getSchoolCategoryCode());
       rowMap.put(GRADE_RANGE.getCode(),  TransformUtil.getGradesOfferedString(school));
       rowMap.put(REPORT_DATE.getCode(), collection.getSnapshotDate().toString());
       rowMap.put(KIND_HT_COUNT.getCode(), schoolHeadcountResult.getKindHCount());
@@ -81,6 +94,87 @@ public class MinistryHeadcountService {
     resultsTable.setRows(rows);
     return resultsTable;
   }
+
+  public SimpleHeadcountResultsTable getIndySchoolsEnrollmentHeadcounts(UUID collectionID) {
+    List<IndySchoolHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
+    SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
+    var headerList = new ArrayList<String>();
+    for (IndySchoolEnrolmentHeadcountHeader header : IndySchoolEnrolmentHeadcountHeader.values()) {
+      headerList.add(header.getCode());
+    }
+    resultsTable.setHeaders(headerList);
+    var rows = new ArrayList<Map<String, String>>();
+    collectionRawData.stream().forEach(indySchoolHeadcountResult -> {
+      var school = restUtils.getAllSchoolBySchoolID(indySchoolHeadcountResult.getSchoolID()).get();
+
+      var schoolFundingGroupGrades = school.getSchoolFundingGroups().stream().map(IndependentSchoolFundingGroup::getSchoolGradeCode).toList();
+
+      if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
+        var rowMap = new HashMap<String, String>();
+        rowMap.put(SCHOOL.getCode(), school.getDisplayName());
+        rowMap.put(KIND_HT.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.KINDHALF.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getKindHCount()));
+        rowMap.put(KIND_FT.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.KINDFULL.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getKindFCount()));
+        rowMap.put(GRADE_01.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE01.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade1Count()));
+        rowMap.put(GRADE_02.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE02.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade2Count()));
+        rowMap.put(GRADE_03.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE03.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade3Count()));
+        rowMap.put(GRADE_04.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE04.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade4Count()));
+        rowMap.put(GRADE_05.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE05.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade5Count()));
+        rowMap.put(GRADE_06.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE06.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade6Count()));
+        rowMap.put(GRADE_07.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE07.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade7Count()));
+        rowMap.put(GRADE_EU.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.ELEMUNGR.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGradeEUCount()));
+        rowMap.put(GRADE_08.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE08.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade8Count()));
+        rowMap.put(GRADE_09.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE09.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade9Count()));
+        rowMap.put(GRADE_10.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE10.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade10Count()));
+        rowMap.put(GRADE_11.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE11.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade11Count()));
+        rowMap.put(GRADE_12.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE12.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade12Count()));
+        rowMap.put(GRADE_SU.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGradeSUCount()));
+        rowMap.put(GRADE_GA.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADUATED_ADULT.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGradeGACount()));
+        rowMap.put(GRADE_HS.getCode(), flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.HOMESCHOOL.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGradeHSCount()));
+        rowMap.put(IndySchoolEnrolmentHeadcountHeader.TOTAL.getCode(), TransformUtil.getTotalHeadcount(indySchoolHeadcountResult));
+        rows.add(rowMap);
+      }
+    });
+
+    resultsTable.setRows(rows);
+    return resultsTable;
+  }
+
+  public SimpleHeadcountResultsTable getSpecialEducationHeadcountsByCollectionID(UUID collectionID) {
+    List<IndySpecialEdAdultHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
+    SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
+    var headerList = new ArrayList<String>();
+    for (SpecialEducationHeadcountHeader header : SpecialEducationHeadcountHeader.values()) {
+      headerList.add(header.getCode());
+    }
+    resultsTable.setHeaders(headerList);
+    var rows = new ArrayList<Map<String, String>>();
+    collectionRawData.stream().forEach(specialEdHeadcountResult -> {
+      var school = restUtils.getAllSchoolBySchoolID(specialEdHeadcountResult.getSchoolID()).get();
+
+      if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
+        var rowMap = new HashMap<String, String>();
+        rowMap.put(SpecialEducationHeadcountHeader.SCHOOL.getCode(), school.getDisplayName());
+        rowMap.put(A.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdACodes(), specialEdHeadcountResult.getAdultsInSpecialEdA()));
+        rowMap.put(B.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdBCodes(), specialEdHeadcountResult.getAdultsInSpecialEdB()));
+        rowMap.put(C.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdCCodes(), specialEdHeadcountResult.getAdultsInSpecialEdC()));
+        rowMap.put(D.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdDCodes(), specialEdHeadcountResult.getAdultsInSpecialEdD()));
+        rowMap.put(E.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdECodes(), specialEdHeadcountResult.getAdultsInSpecialEdE()));
+        rowMap.put(F.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdFCodes(), specialEdHeadcountResult.getAdultsInSpecialEdF()));
+        rowMap.put(G.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdGCodes(), specialEdHeadcountResult.getAdultsInSpecialEdG()));
+        rowMap.put(H.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdHCodes(), specialEdHeadcountResult.getAdultsInSpecialEdH()));
+        rowMap.put(K.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdKCodes(), specialEdHeadcountResult.getAdultsInSpecialEdK()));
+        rowMap.put(P.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdPCodes(), specialEdHeadcountResult.getAdultsInSpecialEdP()));
+        rowMap.put(Q.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdQCodes(), specialEdHeadcountResult.getAdultsInSpecialEdQ()));
+        rowMap.put(R.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdRCodes(), specialEdHeadcountResult.getAdultsInSpecialEdR()));
+        rowMap.put(SpecialEducationHeadcountHeader.TOTAL.getCode(), TransformUtil.getTotalHeadcount(specialEdHeadcountResult));
+        rows.add(rowMap);
+      }
+    });
+
+    resultsTable.setRows(rows);
+    return resultsTable;
+  }
+
 
   public SimpleHeadcountResultsTable getSchoolAddressReport(UUID collectionID) {
     Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
@@ -113,6 +207,107 @@ public class MinistryHeadcountService {
         rows.add(rowMap);
       }
   });
+
+    resultsTable.setRows(rows);
+    return resultsTable;
+  }
+
+  public SimpleHeadcountResultsTable getOffshoreSchoolEnrollmentHeadcounts(UUID collectionID) {
+    Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
+    if(entityOptional.isEmpty()) {
+      throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+    }
+
+    List<IndySchoolHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
+    SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
+    var headerList = new ArrayList<String>();
+    for (IndySchoolEnrolmentHeadcountHeader header : IndySchoolEnrolmentHeadcountHeader.values()) {
+      headerList.add(header.getCode());
+    }
+    resultsTable.setHeaders(headerList);
+    var rows = new ArrayList<Map<String, String>>();
+
+    collectionRawData.forEach(indySchoolHeadcountResult -> {
+      var school = restUtils.getAllSchoolBySchoolID(indySchoolHeadcountResult.getSchoolID()).get();
+
+      if(school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())) {
+        var rowMap = new HashMap<String, String>();
+        rowMap.put(SCHOOL.getCode(), school.getDisplayName());
+        rowMap.put(KIND_HT.getCode(), indySchoolHeadcountResult.getKindHCount());
+        rowMap.put(KIND_FT.getCode(), indySchoolHeadcountResult.getKindFCount());
+        rowMap.put(GRADE_01.getCode(), indySchoolHeadcountResult.getGrade1Count());
+        rowMap.put(GRADE_02.getCode(), indySchoolHeadcountResult.getGrade2Count());
+        rowMap.put(GRADE_03.getCode(), indySchoolHeadcountResult.getGrade3Count());
+        rowMap.put(GRADE_04.getCode(), indySchoolHeadcountResult.getGrade4Count());
+        rowMap.put(GRADE_05.getCode(), indySchoolHeadcountResult.getGrade5Count());
+        rowMap.put(GRADE_06.getCode(), indySchoolHeadcountResult.getGrade6Count());
+        rowMap.put(GRADE_07.getCode(), indySchoolHeadcountResult.getGrade7Count());
+        rowMap.put(GRADE_EU.getCode(), indySchoolHeadcountResult.getGradeEUCount());
+        rowMap.put(GRADE_08.getCode(), indySchoolHeadcountResult.getGrade8Count());
+        rowMap.put(GRADE_09.getCode(), indySchoolHeadcountResult.getGrade9Count());
+        rowMap.put(GRADE_10.getCode(), indySchoolHeadcountResult.getGrade10Count());
+        rowMap.put(GRADE_11.getCode(), indySchoolHeadcountResult.getGrade11Count());
+        rowMap.put(GRADE_12.getCode(), indySchoolHeadcountResult.getGrade12Count());
+        rowMap.put(GRADE_SU.getCode(), indySchoolHeadcountResult.getGradeSUCount());
+        rowMap.put(GRADE_GA.getCode(), indySchoolHeadcountResult.getGradeGACount());
+        rowMap.put(GRADE_HS.getCode(), indySchoolHeadcountResult.getGradeHSCount());
+        rowMap.put(IndySchoolEnrolmentHeadcountHeader.TOTAL.getCode(), TransformUtil.getTotalHeadcount(indySchoolHeadcountResult));
+        rows.add(rowMap);
+      }
+    });
+
+    resultsTable.setRows(rows);
+    return resultsTable;
+  }
+
+  public SimpleHeadcountResultsTable getOffshoreSpokenLanguageHeadcounts(UUID collectionID) {
+    Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
+    if(entityOptional.isEmpty()) {
+      throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+    }
+    List<SpokenLanguageHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllHomeLanguageSpokenCodesForIndiesAndOffshoreInCollection(collectionID);
+    var headerList = new ArrayList<String>();
+    List<String> columns = validationService.getActiveHomeLanguageSpokenCodes().stream().filter(languages ->
+                    results.stream().anyMatch(language -> language.getSpokenLanguageCode().equalsIgnoreCase(languages.getHomeLanguageSpokenCode())))
+            .map(HomeLanguageSpokenCode::getDescription).toList();
+
+    SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
+    headerList.add(SCHOOL.getCode());
+    headerList.addAll(columns);
+    resultsTable.setHeaders(headerList);
+
+    var rows = new ArrayList<Map<String, String>>();
+
+    results.forEach(languageResult -> {
+      var school = restUtils.getSchoolBySchoolID(languageResult.getSchoolID()).get();
+      if(school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())) {
+        var rowMap = new HashMap<String, String>();
+
+        var existingRowOpt = rows.stream().filter(row -> row.containsValue(school.getDisplayName())).findFirst();
+        if(existingRowOpt.isPresent()) {
+          //if school row already exist
+          var existingRow = existingRowOpt.get();
+          var spokenDesc = validationService.getActiveHomeLanguageSpokenCodes().stream()
+                  .filter(code -> code.getHomeLanguageSpokenCode().equalsIgnoreCase(languageResult.getSpokenLanguageCode())).findFirst();
+          existingRow.put(spokenDesc.get().getDescription(), languageResult.getHeadcount());
+
+        } else {
+          //create new rows
+          rowMap.put(SCHOOL.getCode(), school.getDisplayName());
+          //look-up spoken language code and add its value
+          var spokenDesc = validationService.getActiveHomeLanguageSpokenCodes().stream()
+                  .filter(code -> code.getHomeLanguageSpokenCode().equalsIgnoreCase(languageResult.getSpokenLanguageCode())).findFirst();
+          columns.forEach(column -> {
+            if(spokenDesc.get().getDescription().equalsIgnoreCase(column)) {
+              rowMap.put(spokenDesc.get().getDescription(), languageResult.getHeadcount());
+            } else {
+              rowMap.put(column, "0");
+            }
+          });
+          rows.add(rowMap);
+        }
+      }
+    });
 
     resultsTable.setRows(rows);
     return resultsTable;

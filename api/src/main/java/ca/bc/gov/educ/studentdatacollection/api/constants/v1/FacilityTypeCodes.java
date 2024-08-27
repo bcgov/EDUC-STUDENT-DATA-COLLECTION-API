@@ -2,7 +2,8 @@ package ca.bc.gov.educ.studentdatacollection.api.constants.v1;
 
 import lombok.Getter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The enum for school's facility type codes
