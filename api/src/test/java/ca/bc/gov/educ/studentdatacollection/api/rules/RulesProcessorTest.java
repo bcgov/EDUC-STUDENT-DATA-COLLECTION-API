@@ -617,7 +617,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setEnrolledGradeCode("05");
         val validationCodeProgErr = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationCodeProgErr.size()).isNotZero();
-        val errorProg = validationCodeProgErr.stream().noneMatch(val -> val.getValidationIssueCode().equals("ENROLLEDCODEFRANCOPHONEERR"));
+        val errorProg = validationCodeProgErr.stream().anyMatch(val -> val.getValidationIssueCode().equals("ENROLLEDCODEFRANCOPHONEERR"));
         assertThat(errorProg).isTrue();
 
         entity.setEnrolledProgramCodes("33");
