@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.validator;
 
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.util.PenUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import org.apache.commons.lang3.StringUtils;

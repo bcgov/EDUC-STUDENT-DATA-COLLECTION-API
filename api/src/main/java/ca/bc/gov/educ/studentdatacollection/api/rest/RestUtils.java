@@ -13,10 +13,7 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.struct.CHESEmail;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
@@ -68,11 +65,15 @@ public class RestUtils {
   private final Map<String, SchoolTombstone> schoolMincodeMap = new ConcurrentHashMap<>();
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
   private final Map<String, School> allSchoolMap = new ConcurrentHashMap<>();
+  private final Map<String, FacilityTypeCode> facilityTypeCodesMap = new ConcurrentHashMap<>();
+  private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
   private final ObjectMapper objectMapper = new ObjectMapper();
+  private final ReadWriteLock facilityTypesLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock schoolCategoriesLock = new ReentrantReadWriteLock();
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
   private final ReadWriteLock districtLock = new ReentrantReadWriteLock();
   private final ReadWriteLock allSchoolLock = new ReentrantReadWriteLock();
@@ -100,15 +101,47 @@ public class RestUtils {
   }
 
   private void initialize() {
+    this.populateAllSchoolMap();
+    this.populateSchoolCategoryCodesMap();
+    this.populateFacilityTypeCodesMap();
     this.populateSchoolMap();
     this.populateSchoolMincodeMap();
     this.populateDistrictMap();
-    this.populateAllSchoolMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
   public void scheduled() {
     this.init();
+  }
+
+  public void populateSchoolCategoryCodesMap() {
+    val writeLock = this.schoolCategoriesLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val categoryCode : this.getSchoolCategoryCodes()) {
+        this.schoolCategoryCodesMap.put(categoryCode.getSchoolCategoryCode(), categoryCode);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache school categories {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} school categories to memory", this.schoolCategoryCodesMap.values().size());
+  }
+
+  public void populateFacilityTypeCodesMap() {
+    val writeLock = this.facilityTypesLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val categoryCode : this.getFacilityTypeCodes()) {
+        this.facilityTypeCodesMap.put(categoryCode.getFacilityTypeCode(), categoryCode);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache facility types {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} facility types to memory", this.facilityTypeCodesMap.values().size());
   }
 
   public void populateSchoolMap() {
@@ -154,6 +187,28 @@ public class RestUtils {
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(SchoolTombstone.class)
+            .collectList()
+            .block();
+  }
+
+  public List<SchoolCategoryCode> getSchoolCategoryCodes() {
+    log.info("Calling Institute api to load school categories to memory");
+    return this.webClient.get()
+            .uri(this.props.getInstituteApiURL() + "/category-codes")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(SchoolCategoryCode.class)
+            .collectList()
+            .block();
+  }
+
+  public List<FacilityTypeCode> getFacilityTypeCodes() {
+    log.info("Calling Institute api to load facility type codes to memory");
+    return this.webClient.get()
+            .uri(this.props.getInstituteApiURL() + "/facility-types")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(FacilityTypeCode.class)
             .collectList()
             .block();
   }
@@ -318,6 +373,22 @@ public class RestUtils {
       Thread.currentThread().interrupt();
       throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
     }
+  }
+
+  public Optional<SchoolCategoryCode> getSchoolCategoryCode(final String schoolCategoryCode) {
+    if (this.schoolCategoryCodesMap.isEmpty()) {
+      log.info("School categories map is empty reloading them");
+      this.populateSchoolCategoryCodesMap();
+    }
+    return Optional.ofNullable(this.schoolCategoryCodesMap.get(schoolCategoryCode));
+  }
+
+  public Optional<FacilityTypeCode> getFacilityTypeCode(final String facilityTypeCode) {
+    if (this.facilityTypeCodesMap.isEmpty()) {
+      log.info("Facility types map is empty reloading them");
+      this.populateFacilityTypeCodesMap();
+    }
+    return Optional.ofNullable(this.facilityTypeCodesMap.get(facilityTypeCode));
   }
 
   public Optional<SchoolTombstone> getSchoolBySchoolID(final String schoolID) {

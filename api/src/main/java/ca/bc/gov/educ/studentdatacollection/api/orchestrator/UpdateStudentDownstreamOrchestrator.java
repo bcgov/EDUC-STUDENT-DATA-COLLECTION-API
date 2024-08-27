@@ -21,11 +21,14 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.SDC_STUDENT_STATUS_UPDATED;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.STUDENT_UPDATED;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.UPDATE_SDC_STUDENT_STATUS;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.UPDATE_STUDENT;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum.UPDATE_STUDENT_DOWNSTREAM_SAGA;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.STUDENT_API_TOPIC;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC;
 
 @Component
 @Slf4j

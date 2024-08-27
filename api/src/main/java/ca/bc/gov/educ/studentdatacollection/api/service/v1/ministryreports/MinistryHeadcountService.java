@@ -16,16 +16,8 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HomeLanguageSpokenCode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpokenLanguageHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySpecialEdAdultHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SchoolHeadcountResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +27,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.SCHOOL;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.SCHOOL_NAME;
@@ -73,14 +63,16 @@ public class MinistryHeadcountService {
     var rows = new ArrayList<Map<String, String>>();
     collectionRawData.stream().forEach(schoolHeadcountResult -> {
       var school = restUtils.getAllSchoolBySchoolID(schoolHeadcountResult.getSchoolID()).get();
+      var schoolCategory = restUtils.getSchoolCategoryCode(school.getSchoolCategoryCode());
+      var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
 
       var rowMap = new HashMap<String, String>();
       rowMap.put(SCHOOL_YEAR.getCode(), LocalDateTimeUtil.getSchoolYearString(collection));
       rowMap.put(DISTRICT_NUMBER.getCode(), school.getMincode().substring(0,3));
       rowMap.put(SCHOOL_NUMBER.getCode(), school.getSchoolNumber());
       rowMap.put(SCHOOL_NAME.getCode(), school.getDisplayName());
-      rowMap.put(FACILITY_TYPE.getCode(), school.getFacilityTypeCode());
-      rowMap.put(SCHOOL_CATEGORY.getCode(), school.getSchoolCategoryCode());
+      rowMap.put(FACILITY_TYPE.getCode(), facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode());
+      rowMap.put(SCHOOL_CATEGORY.getCode(), schoolCategory.isPresent() ? schoolCategory.get().getLabel() : school.getSchoolCategoryCode());
       rowMap.put(GRADE_RANGE.getCode(),  TransformUtil.getGradesOfferedString(school));
       rowMap.put(REPORT_DATE.getCode(), collection.getSnapshotDate().toString());
       rowMap.put(KIND_HT_COUNT.getCode(), schoolHeadcountResult.getKindHCount());

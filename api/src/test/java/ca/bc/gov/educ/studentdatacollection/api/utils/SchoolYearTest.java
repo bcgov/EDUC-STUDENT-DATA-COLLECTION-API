@@ -1,11 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.utils;
-import static org.junit.Assert.assertEquals;
+
+import ca.bc.gov.educ.studentdatacollection.api.util.SchoolYear;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import org.junit.jupiter.api.Test;
-
-import ca.bc.gov.educ.studentdatacollection.api.util.SchoolYear;
+import static org.junit.Assert.assertEquals;
 
 class SchoolYearTest {
   private void testAbstractSchoolYearRange(LocalDate now) throws AssertionError {
@@ -34,6 +34,5 @@ class SchoolYearTest {
 
     final LocalDate dateNow = LocalDate.now();
     testAbstractSchoolYearRange(dateNow);
-    //testAbstractSchoolYearRange(dateNow.minusMonths(6));
   }
 }

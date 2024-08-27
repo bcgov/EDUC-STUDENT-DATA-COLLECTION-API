@@ -1,9 +1,9 @@
 package ca.bc.gov.educ.studentdatacollection.api.filter;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-
-import org.junit.jupiter.api.Test;
 
 class FilterTest {
 

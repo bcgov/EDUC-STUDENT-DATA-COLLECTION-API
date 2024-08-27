@@ -17,12 +17,10 @@ import ca.bc.gov.educ.studentdatacollection.api.orchestrator.CloseCollectionOrch
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CollectionSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CollectionService;
-
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.CollectionSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
-
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.validator.CollectionPayloadValidator;

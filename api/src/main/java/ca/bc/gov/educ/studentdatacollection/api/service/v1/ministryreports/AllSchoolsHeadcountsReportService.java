@@ -470,13 +470,16 @@ public class AllSchoolsHeadcountsReportService {
     }
 
     private List<String> prepareAllSchoolDataForCsv(SchoolHeadcountResult schoolHeadcountResult, CollectionEntity collection, School school) {
+        var schoolCategory = restUtils.getSchoolCategoryCode(school.getSchoolCategoryCode());
+        var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
         List<String> csvRowData = new ArrayList<>();
         csvRowData.addAll(Arrays.asList(
                 LocalDateTimeUtil.getSchoolYearString(collection),
                 school.getMincode().substring(0,3),
                 school.getSchoolNumber(),
                 school.getDisplayName(),
-                school.getFacilityTypeCode(),
+                facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
+                schoolCategory.isPresent() ? schoolCategory.get().getLabel() : school.getSchoolCategoryCode(),
                 school.getSchoolCategoryCode(),
                 TransformUtil.getGradesOfferedString(school),
                 collection.getSnapshotDate().toString(),
