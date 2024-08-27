@@ -205,7 +205,7 @@ public class RestUtils {
   public List<FacilityTypeCode> getFacilityTypeCodes() {
     log.info("Calling Institute api to load facility type codes to memory");
     return this.webClient.get()
-            .uri(this.props.getInstituteApiURL() + "/facility-types")
+            .uri(this.props.getInstituteApiURL() + "/facility-codes")
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(FacilityTypeCode.class)
