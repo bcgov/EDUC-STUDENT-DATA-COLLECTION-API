@@ -1245,6 +1245,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
         entity.setSupportBlocks("9");
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isNotZero();
@@ -1264,7 +1267,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         when(this.restUtils.getSchoolFundingGroupsBySchoolID(any())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(UUID.randomUUID().toString(), "GA")));
         val validationDOB = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationDOB.size()).isNotZero();
-        val errorDOB = validationDOB.stream().noneMatch(val -> val.getValidationIssueCode().equals("GAERROR"));
+        val errorDOB = validationDOB.stream().anyMatch(val -> val.getValidationIssueCode().equals("GAERROR"));
         assertThat(errorDOB).isTrue();
 
         entity.setNumberOfCourses(null);
