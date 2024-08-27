@@ -1289,10 +1289,13 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
 
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
         entity.setEnrolledGradeCode("KH");
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationError.size()).isNotZero();
-        val error = validationError.stream().noneMatch(val -> val.getValidationIssueCode().equals("KHGRADECODEINVALID"));
+        val error = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals("KHGRADECODEINVALID"));
         assertThat(error).isTrue();
     }
 
@@ -1383,8 +1386,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setDob(LocalDateTime.now().minusYears(20).format(format));
         entity.setNumberOfCourses("0100");
         entity.setEnrolledGradeCode(enrolledGrade);
-        PenMatchResult penMatchResult = getPenMatchResult();
 
+        PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
 
         val validationErrorGrade = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
@@ -1405,8 +1408,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setDob(LocalDateTime.now().minusYears(20).format(format));
         entity.setNumberOfCourses("0100");
         entity.setEnrolledGradeCode(enrolledGrade);
-        PenMatchResult penMatchResult = getPenMatchResult();
 
+        PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
 
         val validationErrorGrade = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
