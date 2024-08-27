@@ -965,6 +965,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity2.setEnrolledProgramCodes("33");
         entity2.setDob(LocalDateTime.now().minusYears(4).format(format));
 
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
         val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT.getCode())
             && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.ENROLLED_PROGRAM_CODE.getCode()));
@@ -980,6 +983,29 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
             && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.DOB.getCode()));
         assertThat(error21).isTrue();
         assertThat(error22).isTrue();
+    }
+
+    @Test
+    void testSchoolAgedIndigenousSupportRule_shouldNOTExecute_For89Enrollment() {
+        var mockColl = createMockCollectionEntity();
+        mockColl.setCollectionTypeCode("JULY");
+        var collection = collectionRepository.save(mockColl);
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setEnrolledProgramCodes("33");
+        entity.setDob(LocalDateTime.now().minusYears(20).format(format));
+
+        val school = createMockSchool();
+        school.setFacilityTypeCode("PUBLIC");
+
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_INDIGENOUS_SUPPORT.getCode())
+                && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.ENROLLED_PROGRAM_CODE.getCode()));
+
+        assertThat(error1).isFalse();
     }
 
     @Test
@@ -1008,6 +1034,58 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
             && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.DOB.getCode()));
         assertThat(error21).isTrue();
         assertThat(error22).isTrue();
+    }
+
+    @Test
+    void testSchoolAgedELLRule_shouldNOTExecute_For89Enrollment() {
+        var mockColl = createMockCollectionEntity();
+        mockColl.setCollectionTypeCode("JULY");
+
+        var collection = collectionRepository.save(mockColl);
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val entity2 = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        entity.setEnrolledProgramCodes("17");
+        entity.setDob(LocalDateTime.now().minusYears(20).format(format));
+        entity2.setEnrolledProgramCodes("17");
+        entity2.setDob(LocalDateTime.now().minusYears(4).format(format));
+
+        val school = createMockSchool();
+        school.setFacilityTypeCode("PUBLIC");
+
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+        val validationError = rulesProcessor.processRules(createMockStudentRuleData(entity, school));
+        val error1 = validationError.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_ELL.getCode())
+                && val.getValidationIssueFieldCode().equals(StudentValidationFieldCode.ENROLLED_PROGRAM_CODE.getCode()));
+        assertThat(error1).isFalse();
+    }
+
+    @Test
+    void testSchoolAgedSpedRule_shouldNOTExecute_For89Enrollment() {
+        var mockColl = createMockCollectionEntity();
+        mockColl.setCollectionTypeCode("JULY");
+
+        var collection = collectionRepository.save(mockColl);
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+
+        var graduatedAdult = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        graduatedAdult.setSpecialEducationCategoryCode("A");
+        graduatedAdult.setDob(LocalDateTime.now().minusYears(20).format(format));
+        graduatedAdult.setIsGraduated(true);
+        graduatedAdult.setEnrolledGradeCode("10");
+
+        val school = createMockSchool();
+        school.setFacilityTypeCode("PUBLIC");
+
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+        var validationErrorGraduatedAdult = rulesProcessor.processRules(createMockStudentRuleData(graduatedAdult, school));
+        boolean errorGraduatedAdult = validationErrorGraduatedAdult.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode()));
+
+        assertThat(errorGraduatedAdult).isFalse();
     }
 
     @Test

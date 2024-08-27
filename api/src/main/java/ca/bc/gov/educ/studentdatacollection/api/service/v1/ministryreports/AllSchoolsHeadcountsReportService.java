@@ -11,7 +11,6 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
@@ -21,7 +20,6 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesServic
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolAddress;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HomeLanguageSpokenCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
@@ -45,7 +43,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeCode.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.AllStudentsHeaders.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.SCHOOL;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
@@ -67,39 +64,6 @@ public class AllSchoolsHeadcountsReportService {
     private static final String COLLECTION_ID = "collectionID";
     private static final String INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and SEPT collections";
 
-    public DownloadableReportResponse generateAllStudentsExport(UUID collectionID) {
-        List<SdcSchoolCollectionStudentLightEntity> results = sdcSchoolCollectionStudentSearchService.findAllStudentsLightByCollectionID(collectionID);
-        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(DISTRICT.getCode(), AllStudentsHeaders.SCHOOL.getCode(), MINCODE.getCode(), SUBMITTED_PEN.getCode(),
-                        ASSIGNED_PEN.getCode(), LEGAL_LAST_NAME.getCode(), LEGAL_FIRST_NAME.getCode(), LEGAL_MIDDLE_NAME.getCode(), USUAL_LAST_NAME.getCode(), USUAL_FIRST_NAME.getCode(), USUAL_MIDDLE_NAME.getCode(),
-                        BIRTH_DATE.getCode(), GENDER.getCode(), POSTAL_CODE.getCode(), LOCAL_ID.getCode(), GRADE.getCode(), FTE.getCode(), IS_ADULT.getCode(),
-                        IS_GRADUATE.getCode(), OTHER_COURSES.getCode(), FUNDING_CODE.getCode(), LANGUAGE_CODE.getCode(), SUPPORT_BLOCKS.getCode(), NUMBER_OF_COURSES.getCode(),
-                        ENROLLED_PROGRAM_CODES.getCode(), YEARS_IN_ELL.getCode(), CAREER_CODE.getCode(), INDIGENOUS_ANCESTRY.getCode(), BAND_CODE.getCode(), INCLUSIVE_EDUCATION_CATEGORY.getCode())
-                .build();
-        try {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
-            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
-
-            for (SdcSchoolCollectionStudentLightEntity result : results) {
-                UUID schoolID = result.getSdcSchoolCollectionEntitySchoolID();
-                Optional<SchoolTombstone> schoolOpt = restUtils.getSchoolBySchoolID(schoolID.toString());
-                if(schoolOpt.isPresent()) {
-                    List<String> csvRowData = prepareAllStudentDataForCsv(result, schoolOpt.get());
-                    csvPrinter.printRecord(csvRowData);
-                }
-            }
-            csvPrinter.flush();
-
-            var downloadableReport = new DownloadableReportResponse();
-            downloadableReport.setReportType(ALL_STUDENTS_EXPORT.getCode());
-            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
-
-            return downloadableReport;
-        } catch (IOException e) {
-            throw new StudentDataCollectionAPIRuntimeException(e);
-        }
-    }
 
     public DownloadableReportResponse generateAllSchoolsHeadcounts(UUID collectionID) {
         List<SchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllEnrollmentHeadcountsByCollectionId(collectionID);
@@ -506,14 +470,16 @@ public class AllSchoolsHeadcountsReportService {
     }
 
     private List<String> prepareAllSchoolDataForCsv(SchoolHeadcountResult schoolHeadcountResult, CollectionEntity collection, School school) {
+        var schoolCategory = restUtils.getSchoolCategoryCode(school.getSchoolCategoryCode());
+        var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
         List<String> csvRowData = new ArrayList<>();
         csvRowData.addAll(Arrays.asList(
                 LocalDateTimeUtil.getSchoolYearString(collection),
                 school.getMincode().substring(0,3),
                 school.getSchoolNumber(),
                 school.getDisplayName(),
-                school.getFacilityTypeCode(),
-                school.getSchoolCategoryCode(),
+                facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
+                schoolCategory.isPresent() ? schoolCategory.get().getLabel() : school.getSchoolCategoryCode(),
                 TransformUtil.getGradesOfferedString(school),
                 collection.getSnapshotDate().toString(),
                 schoolHeadcountResult.getKindHCount(),
@@ -531,48 +497,6 @@ public class AllSchoolsHeadcountsReportService {
                 schoolHeadcountResult.getGrade11Count(),
                 schoolHeadcountResult.getGrade12Count()
         ));
-        return csvRowData;
-    }
-
-    private List<String> prepareAllStudentDataForCsv(SdcSchoolCollectionStudentLightEntity student, SchoolTombstone school) {
-        var districtOpt = restUtils.getDistrictByDistrictID(school.getDistrictId());
-        List<String> csvRowData = new ArrayList<>();
-        if(districtOpt.isPresent()) {
-            var district = districtOpt.get();
-            csvRowData.addAll(Arrays.asList(
-                    district.getDistrictNumber() + " - " + district.getDisplayName(),
-                    school.getSchoolNumber() + " - " + school.getDisplayName(),
-                    school.getMincode(),
-                    student.getStudentPen(),
-                    student.getAssignedPen(),
-                    student.getLegalLastName(),
-                    student.getLegalFirstName(),
-                    student.getLegalMiddleNames(),
-                    student.getUsualLastName(),
-                    student.getUsualFirstName(),
-                    student.getUsualMiddleNames(),
-                    student.getDob(),
-                    student.getGender(),
-                    student.getPostalCode(),
-                    student.getLocalID(),
-                    student.getEnrolledGradeCode(),
-                    student.getFte() != null ? student.getFte().toString() : null,
-                    student.getIsAdult() != null ? student.getIsAdult().toString() : "false",
-                    student.getIsGraduated() != null ? student.getIsGraduated().toString() : "false",
-                    student.getOtherCourses(),
-                    student.getSchoolFundingCode(),
-                    student.getHomeLanguageSpokenCode(),
-                    student.getSupportBlocks(),
-                    student.getNumberOfCourses(),
-                    student.getEnrolledProgramCodes(),
-                    student.getYearsInEll() != null ? student.getYearsInEll().toString() : "0",
-                    student.getCareerProgramCode(),
-                    student.getNativeAncestryInd(),
-                    student.getBandCode(),
-                    student.getSpecialEducationCategoryCode()
-            ));
-        }
-
         return csvRowData;
     }
 

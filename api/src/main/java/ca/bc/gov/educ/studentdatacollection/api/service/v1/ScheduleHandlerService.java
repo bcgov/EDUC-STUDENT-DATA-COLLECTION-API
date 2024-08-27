@@ -20,6 +20,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollection170
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -61,30 +62,33 @@ public class ScheduleHandlerService {
       var emailFields = new HashMap<String, String>();
       emailFields.put("submissionDueDate", formatter.format(sdcSchoolCollection.getCollectionEntity().getSubmissionDueDate()));
       emailFields.put("dataCollectionMonth", getMonthValueForInstructionLink(sdcSchoolCollection.getCollectionEntity().getCollectionTypeCode()));
+      var principalEmails = getPrincipalEmailsForSchool(sdcSchoolCollection.getSchoolID());
 
-      if((sdcSchoolCollection.getSdcSchoolCollectionStatusCode().equals(SdcSchoolCollectionStatus.NEW.getCode())) &&
-        (sagaRepository.findBySdcSchoolCollectionIDAndSagaNameAndStatusEquals(sdcSchoolCollection.getSdcSchoolCollectionID(), SagaEnum.INDY_SCHOOLS_NO_ACTIVITY_EMAIL_SAGA.name(), SagaStatusEnum.COMPLETED.toString()).isEmpty())) {
-        var emailSagaData = createEmailSagaData(sdcSchoolCollection.getSchoolID(), emailProperties.getSchoolNotificationEmailFrom(), emailProperties.getEmailSubjectIndependentSchoolNoActivity(), "collection.independent.school.no.activity.notification", emailFields);
+      if(!principalEmails.isEmpty()) {
+        if ((sdcSchoolCollection.getSdcSchoolCollectionStatusCode().equals(SdcSchoolCollectionStatus.NEW.getCode())) &&
+                (sagaRepository.findBySdcSchoolCollectionIDAndSagaNameAndStatusEquals(sdcSchoolCollection.getSdcSchoolCollectionID(), SagaEnum.INDY_SCHOOLS_NO_ACTIVITY_EMAIL_SAGA.name(), SagaStatusEnum.COMPLETED.toString()).isEmpty())) {
+          var emailSagaData = createEmailSagaData(emailProperties.getSchoolNotificationEmailFrom(), principalEmails, emailProperties.getEmailSubjectIndependentSchoolNoActivity(), "collection.independent.school.no.activity.notification", emailFields);
 
-        String payload;
-        try {
-          payload = JsonUtil.getJsonStringFromObject(emailSagaData);
-        } catch (JsonProcessingException e) {
-          throw new StudentDataCollectionAPIRuntimeException("Exception occurred processing emailSagaData: " + e.getMessage());
+          String payload;
+          try {
+            payload = JsonUtil.getJsonStringFromObject(emailSagaData);
+          } catch (JsonProcessingException e) {
+            throw new StudentDataCollectionAPIRuntimeException("Exception occurred processing emailSagaData: " + e.getMessage());
+          }
+          final var saga = createSagaEntity(sdcSchoolCollection.getSdcSchoolCollectionID(), payload, SagaEnum.INDY_SCHOOLS_NO_ACTIVITY_EMAIL_SAGA);
+          sagaEntities.add(saga);
+        } else if ((!sdcSchoolCollection.getSdcSchoolCollectionStatusCode().equals(SdcSchoolCollectionStatus.NEW.getCode())) &&
+                (sagaRepository.findBySdcSchoolCollectionIDAndSagaNameAndStatusEquals(sdcSchoolCollection.getSdcSchoolCollectionID(), SagaEnum.INDY_SCHOOLS_NOT_SUBMITTED_EMAIL_SAGA.name(), SagaStatusEnum.COMPLETED.toString()).isEmpty())) {
+          var emailSagaData = createEmailSagaData(emailProperties.getSchoolNotificationEmailFrom(), principalEmails, emailProperties.getEmailSubjectIndependentSchoolNotSubmitted(), "collection.independent.school.not.submitted.notification", emailFields);
+          String payload;
+          try {
+            payload = JsonUtil.getJsonStringFromObject(emailSagaData);
+          } catch (JsonProcessingException e) {
+            throw new StudentDataCollectionAPIRuntimeException("Exception occurred processing emailSagaData: " + e.getMessage());
+          }
+          final var saga = createSagaEntity(sdcSchoolCollection.getSdcSchoolCollectionID(), payload, SagaEnum.INDY_SCHOOLS_NOT_SUBMITTED_EMAIL_SAGA);
+          sagaEntities.add(saga);
         }
-        final var saga = createSagaEntity(sdcSchoolCollection.getSdcSchoolCollectionID(), payload, SagaEnum.INDY_SCHOOLS_NO_ACTIVITY_EMAIL_SAGA);
-        sagaEntities.add(saga);
-      }else if((!sdcSchoolCollection.getSdcSchoolCollectionStatusCode().equals(SdcSchoolCollectionStatus.NEW.getCode())) &&
-              (sagaRepository.findBySdcSchoolCollectionIDAndSagaNameAndStatusEquals(sdcSchoolCollection.getSdcSchoolCollectionID(),SagaEnum.INDY_SCHOOLS_NOT_SUBMITTED_EMAIL_SAGA.name(), SagaStatusEnum.COMPLETED.toString()).isEmpty())) {
-        var emailSagaData = createEmailSagaData(sdcSchoolCollection.getSchoolID(), emailProperties.getSchoolNotificationEmailFrom(), emailProperties.getEmailSubjectIndependentSchoolNotSubmitted(), "collection.independent.school.not.submitted.notification", emailFields);
-        String payload;
-        try {
-          payload = JsonUtil.getJsonStringFromObject(emailSagaData);
-        } catch (JsonProcessingException e) {
-          throw new StudentDataCollectionAPIRuntimeException("Exception occurred processing emailSagaData: " + e.getMessage());
-        }
-        final var saga = createSagaEntity(sdcSchoolCollection.getSdcSchoolCollectionID(), payload, SagaEnum.INDY_SCHOOLS_NOT_SUBMITTED_EMAIL_SAGA);
-        sagaEntities.add(saga);
       }
     }
     if(!sagaEntities.isEmpty()) {
@@ -130,11 +134,11 @@ public class ScheduleHandlerService {
     }
   }
 
-  private EmailSagaData createEmailSagaData(UUID schoolID, String fromEmail, String subject, String templateName, HashMap<String,String> emailFields){
+  private EmailSagaData createEmailSagaData(String fromEmail, List<String> principals, String subject, String templateName, HashMap<String,String> emailFields){
     return EmailSagaData
             .builder()
             .fromEmail(fromEmail)
-            .toEmails(getPrincipalEmailsForSchool(schoolID))
+            .toEmails(principals)
             .subject(subject)
             .templateName(templateName)
             .emailFields(emailFields)
@@ -181,6 +185,7 @@ public class ScheduleHandlerService {
 
     if (contacts.isEmpty()){
       logger.warn("Warning: no Principal found for school with ID {}", schoolID);
+      return Collections.emptyList();
     }
 
     return contacts.stream().map(SchoolContact::getEmail).toList();
