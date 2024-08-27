@@ -361,11 +361,11 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     var studentID = UUID.randomUUID();
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
     student1.setAssignedStudentId(studentID);
+    student1.setNumberOfCourses("0000");
     sdcSchoolCollectionStudentRepository.save(student1);
     var student2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
     student2.setAssignedStudentId(studentID);
-    //Intentionally causing a validation error to prevent the change grade from occurring as expected by this test.
-    student2.setDob(LocalDateTime.now().plusYears(1).format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+    student2.setNumberOfCourses("0000");
     sdcSchoolCollectionStudentRepository.save(student2);
 
     val sdcDuplicates = sdcDuplicateService.getAllInDistrictCollectionDuplicates(sdcDistrictCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
