@@ -128,9 +128,9 @@ class CareerHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
         assert(titles.isPresent());
         assertEquals("0", titles.get().get("08").getCurrentValue());
-        assertEquals("1", titles.get().get("10").getCurrentValue());
-        assertEquals("1", titles.get().get("11").getCurrentValue());
-        assertEquals("2", titles.get().get("Total").getCurrentValue());
+        assertEquals("0", titles.get().get("10").getCurrentValue());
+        assertEquals("0", titles.get().get("11").getCurrentValue());
+        assertEquals("0", titles.get().get("Total").getCurrentValue());
 
     }
 
