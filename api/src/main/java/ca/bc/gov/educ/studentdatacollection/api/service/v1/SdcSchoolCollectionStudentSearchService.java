@@ -83,16 +83,6 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightByCollectionID(UUID collectionID) {
-    try {
-      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionEntity_CollectionEntity_CollectionID(collectionID);
-    } catch (final Exception ex) {
-      log.error("Failure querying for all light SDC school students by Collection ID: {}", ex.getMessage());
-      throw new CompletionException(ex);
-    }
-  }
-
-  @Transactional(propagation = Propagation.SUPPORTS)
   public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightBySchoolCollectionID(UUID sdcSchoolCollectionID) {
     try {
       return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
