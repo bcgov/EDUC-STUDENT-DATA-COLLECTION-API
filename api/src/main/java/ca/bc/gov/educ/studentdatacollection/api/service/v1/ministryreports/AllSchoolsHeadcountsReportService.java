@@ -480,7 +480,6 @@ public class AllSchoolsHeadcountsReportService {
                 school.getDisplayName(),
                 facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
                 schoolCategory.isPresent() ? schoolCategory.get().getLabel() : school.getSchoolCategoryCode(),
-                school.getSchoolCategoryCode(),
                 TransformUtil.getGradesOfferedString(school),
                 collection.getSnapshotDate().toString(),
                 schoolHeadcountResult.getKindHCount(),

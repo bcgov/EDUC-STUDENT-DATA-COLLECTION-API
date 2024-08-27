@@ -231,7 +231,7 @@ public class RestUtils {
     } else if (districtID != null && schoolID == null) {
       url = this.props.getEdxApiURL() + "/users?districtID=" + districtID;
     } else {
-      return null;
+      return Collections.emptyList();
     }
     return this.webClient.get()
             .uri(url)
