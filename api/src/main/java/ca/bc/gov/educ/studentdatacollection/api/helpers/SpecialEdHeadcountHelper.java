@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SpecialEducationCategoryTitles;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -54,7 +56,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   private static final String F_CODE_TITLE_KEY = "fCodeKey";
   private static final String G_CODE_TITLE_KEY = "gCodeKey";
   private static final String LEVEL_3_TITLE_KEY = "level3Key";
-  private static final String H_CODE_TITLE_KEY = "hHodeKey";
+  private static final String H_CODE_TITLE_KEY = "hCodeKey";
   private static final String OTHER_TITLE_KEY = "otherKey";
   private static final String K_CODE_TITLE_KEY = "kCodeKey";
   private static final String P_CODE_TITLE_KEY = "pCodeKey";
@@ -65,7 +67,6 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   private static final String SECTION = "section";
   private static final String TITLE = "title";
   private static final String TOTAL = "Total";
-  protected List<String> specialEdCategoryCodes;
   private final RestUtils restUtils;
 
   public SpecialEdHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository,
@@ -132,7 +133,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
             ? sdcSchoolCollectionStudentRepository.getSpecialEdHeadersByDistrictId(sdcCollectionID)
             : sdcSchoolCollectionStudentRepository.getSpecialEdHeadersBySchoolId(sdcCollectionID);
     List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
-    Arrays.asList(A_CODE_TITLE, B_CODE_TITLE, C_CODE_TITLE, D_CODE_TITLE, E_CODE_TITLE, F_CODE_TITLE, G_CODE_TITLE, H_CODE_TITLE, K_CODE_TITLE, P_CODE_TITLE, Q_CODE_TITLE, R_CODE_TITLE).forEach(headerTitle -> {
+    SpecialEducationCategoryTitles.getTitles().forEach(headerTitle -> {
       HeadcountHeader headcountHeader = new HeadcountHeader();
       headcountHeader.setColumns(new HashMap<>());
       headcountHeader.setTitle(headerTitle);
@@ -272,18 +273,16 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   public HeadcountResultsTable convertHeadcountResultsToSpecialEdCategoryTable(UUID sdcDistrictCollectionID, List<SpecialEdHeadcountResult> results) throws EntityNotFoundException {
     HeadcountResultsTable table = new HeadcountResultsTable();
     List<String> headers = new ArrayList<>();
-    Set<String> categories = new HashSet<>(specialEdCategoryCodes);
+    List<String> specialEdCategoryTitles = SpecialEducationCategoryTitles.getTitles();
     Map<String, Map<String, Integer>> schoolCategoryCounts = new HashMap<>();
-    Map<String, Integer> totalCounts = new HashMap<>();
     Map<String, String> schoolDetails  = new HashMap<>();
 
     List<SchoolTombstone> allSchools = getAllSchoolTombstones(sdcDistrictCollectionID);
 
-    // Collect all special ed categories and initialize school-grade map
+    // Collect all special ed categories and initialize school-category map
     for (SpecialEdHeadcountResult result : results) {
-      categories.add(result.getSpecialEducationCategoryCode());
       schoolCategoryCounts.computeIfAbsent(result.getSchoolID(), k -> new HashMap<>());
-      schoolDetails .putIfAbsent(result.getSchoolID(),
+      schoolDetails.putIfAbsent(result.getSchoolID(),
               restUtils.getSchoolBySchoolID(result.getSchoolID())
                       .map(school -> school.getMincode() + " - " + school.getDisplayName())
                       .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", result.getSchoolID())));
@@ -294,52 +293,119 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
       schoolDetails.putIfAbsent(school.getSchoolId(), school.getMincode() + " - " + school.getDisplayName());
     }
 
-    // Initialize totals for each grade
-    for (String category : specialEdCategoryCodes) {
-      totalCounts.put(category, 0);
-      schoolCategoryCounts.values().forEach(school -> school.putIfAbsent(category, 0));
-    }
-
-    // Sort grades and add to headers
+    // Add categories to headers
     headers.add(TITLE);
-    headers.addAll(specialEdCategoryCodes);
+    headers.addAll(specialEdCategoryTitles);
     headers.add(TOTAL);
     table.setHeaders(headers);
 
-    // Populate counts for each school and category, and calculate row totals
-    Map<String, Integer> schoolTotals = new HashMap<>();
-    for (SpecialEdHeadcountResult result : results) {
-      if (specialEdCategoryCodes.contains(result.getSpecialEducationCategoryCode())) {
-        Map<String, Integer> categoryCounts = schoolCategoryCounts.get(result.getSchoolID());
-        String category = result.getSpecialEducationCategoryCode();
-        int count = getCountFromResult(result);
-        categoryCounts.merge(category, count, Integer::sum);
-        totalCounts.merge(category, count, Integer::sum);
-        schoolTotals.merge(result.getSchoolID(), count, Integer::sum);
-      }
-    }
+    List<Map<String, HeadcountHeaderColumn>> rows = populateSpedCatRows(results, schoolDetails);
 
-    // Add all schools row at the start
-    List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
-    Map<String, HeadcountHeaderColumn> totalRow = new LinkedHashMap<>();
-    totalRow.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
-    totalRow.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
-    totalCounts.forEach((grade, count) -> totalRow.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
-    totalRow.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotals.values().stream().mapToInt(Integer::intValue).sum())).build());
-    rows.add(totalRow);
-
-    // Create rows for the table, including school names
-    schoolCategoryCounts.forEach((schoolID, categoriesCount) -> {
-      Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
-      rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(schoolDetails.get(schoolID)).build());
-      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
-      categoriesCount.forEach((grade, count) -> rowData.put(grade, HeadcountHeaderColumn.builder().currentValue(String.valueOf(count)).build()));
-      rowData.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(schoolTotals.getOrDefault(schoolID, 0))).build());
-      rows.add(rowData);
-    });
+    //Populate category totals
+    Map<String, HeadcountHeaderColumn> allSchoolsRow = calcSpedCatTotals(rows);
+    rows.add(0, allSchoolsRow);
 
     table.setRows(rows);
     return table;
+  }
+
+  private List<Map<String, HeadcountHeaderColumn>> populateSpedCatRows(List<SpecialEdHeadcountResult> results, Map<String, String> schoolDetails){
+    List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
+
+    results.forEach(result -> {
+      Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
+      rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(schoolDetails.get(result.getSchoolID())).build());
+      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+
+      String catACount = result.getAdultsInSpecialEdA() ? result.getSpecialEdACodes() + "*" : result.getSpecialEdACodes();
+      rowData.put(SpecialEducationCategoryTitles.A_PHYSICALLY_DEPENDENT.getTitle(), HeadcountHeaderColumn.builder().currentValue(catACount).build());
+
+      String catBCount = result.getAdultsInSpecialEdB() ? result.getSpecialEdBCodes() + "*" : result.getSpecialEdBCodes();
+      rowData.put(SpecialEducationCategoryTitles.B_DEAFBLIND.getTitle(), HeadcountHeaderColumn.builder().currentValue(catBCount).build());
+
+      String catCCount = result.getAdultsInSpecialEdC() ? result.getSpecialEdCCodes() + "*" : result.getSpecialEdCCodes();
+      rowData.put(SpecialEducationCategoryTitles.C_MODERATE_TO_PROFOUND_INTELLECTUAL_DISABILITY.getTitle(), HeadcountHeaderColumn.builder().currentValue(catCCount).build());
+
+      String catDCount = result.getAdultsInSpecialEdD() ? result.getSpecialEdDCodes() + "*" : result.getSpecialEdDCodes();
+      rowData.put(SpecialEducationCategoryTitles.D_PHYSICAL_DISABILITY_OR_CHRONIC_HEALTH_IMPAIRMENT.getTitle(), HeadcountHeaderColumn.builder().currentValue(catDCount).build());
+
+      String catECount = result.getAdultsInSpecialEdE() ? result.getSpecialEdDCodes() + "*" : result.getSpecialEdECodes();
+      rowData.put(SpecialEducationCategoryTitles.E_VISUAL_IMPAIRMENT.getTitle(), HeadcountHeaderColumn.builder().currentValue(catECount).build());
+
+      String catFCount = result.getAdultsInSpecialEdF() ? result.getSpecialEdFCodes() + "*" : result.getSpecialEdFCodes();
+      rowData.put(SpecialEducationCategoryTitles.F_DEAF_OR_HARD_OF_HEARING.getTitle(), HeadcountHeaderColumn.builder().currentValue(catFCount).build());
+
+      String catGCount = result.getAdultsInSpecialEdG() ? result.getSpecialEdGCodes() + "*" : result.getSpecialEdGCodes();
+      rowData.put(SpecialEducationCategoryTitles.G_AUTISM_SPECTRUM_DISORDER.getTitle(), HeadcountHeaderColumn.builder().currentValue(catGCount).build());
+
+      String catHCount = result.getAdultsInSpecialEdH() ? result.getSpecialEdHCodes() + "*" : result.getSpecialEdHCodes();
+      rowData.put(SpecialEducationCategoryTitles.H_INTENSIVE_BEHAVIOUR_INTERVENTION_SERIOUS_MENTAL_ILLNESS.getTitle(), HeadcountHeaderColumn.builder().currentValue(catHCount).build());
+
+      String catKCount = result.getAdultsInSpecialEdK() ? result.getSpecialEdKCodes() + "*" : result.getSpecialEdKCodes();
+      rowData.put(SpecialEducationCategoryTitles.K_MILD_INTELLECTUAL_DISABILITY.getTitle(), HeadcountHeaderColumn.builder().currentValue(catKCount).build());
+
+      String catPCount = result.getAdultsInSpecialEdP() ? result.getSpecialEdPCodes() + "*" : result.getSpecialEdPCodes();
+      rowData.put(SpecialEducationCategoryTitles.P_GIFTED.getTitle(), HeadcountHeaderColumn.builder().currentValue(catPCount).build());
+
+      String catQCount = result.getAdultsInSpecialEdQ() ? result.getSpecialEdQCodes() + "*" : result.getSpecialEdQCodes();
+      rowData.put(SpecialEducationCategoryTitles.Q_LEARNING_DISABILITY.getTitle(), HeadcountHeaderColumn.builder().currentValue(catQCount).build());
+
+      String catRCount = result.getAdultsInSpecialEdR() ? result.getSpecialEdRCodes() + "*" : result.getSpecialEdRCodes();
+      rowData.put(SpecialEducationCategoryTitles.R_MODERATE_BEHAVIOUR_SUPPORT_MENTAL_ILLNESS.getTitle(), HeadcountHeaderColumn.builder().currentValue(catRCount).build());
+
+      rowData.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getAllLevels())).build());
+
+      rows.add(rowData);
+
+    });
+    return rows;
+  }
+
+  private Map<String, HeadcountHeaderColumn>  calcSpedCatTotals(List<Map<String, HeadcountHeaderColumn>> schoolRows){
+    Map<String, HeadcountHeaderColumn> allSchoolsRow = new LinkedHashMap<>();
+    allSchoolsRow.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+    allSchoolsRow.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+
+    int catATotal = schoolRows.stream().mapToInt(school -> Integer.parseInt(school.get(SpecialEducationCategoryTitles.A_PHYSICALLY_DEPENDENT.getTitle()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationCategoryTitles.A_PHYSICALLY_DEPENDENT.getTitle(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catATotal)).build());
+
+    int catBTotal = schoolRows.stream().mapToInt(school -> Integer.parseInt(school.get(SpecialEducationCategoryTitles.B_DEAFBLIND.getTitle()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationCategoryTitles.B_DEAFBLIND.getTitle(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catBTotal)).build());
+
+    int catCTotal = schoolRows.stream().mapToInt(school -> Integer.parseInt(school.get(SpecialEducationCategoryTitles.C_MODERATE_TO_PROFOUND_INTELLECTUAL_DISABILITY.getTitle()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationCategoryTitles.C_MODERATE_TO_PROFOUND_INTELLECTUAL_DISABILITY.getTitle(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catCTotal)).build());
+
+    int catDTotal = schoolRows.stream().mapToInt(school -> Integer.parseInt(school.get(SpecialEducationCategoryTitles.D_PHYSICAL_DISABILITY_OR_CHRONIC_HEALTH_IMPAIRMENT.getTitle()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationCategoryTitles.D_PHYSICAL_DISABILITY_OR_CHRONIC_HEALTH_IMPAIRMENT.getTitle(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catDTotal)).build());
+
+    int catETotal = schoolRows.stream().mapToInt(school -> Integer.parseInt(school.get(SpecialEducationCategoryTitles.E_VISUAL_IMPAIRMENT.getTitle()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationCategoryTitles.E_VISUAL_IMPAIRMENT.getTitle(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catETotal)).build());
+
+    int catFTotal = schoolRows.stream().mapToInt(school -> Integer.parseInt(school.get(SpecialEducationCategoryTitles.F_DEAF_OR_HARD_OF_HEARING.getTitle()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationCategoryTitles.F_DEAF_OR_HARD_OF_HEARING.getTitle(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catFTotal)).build());
+
+    int catGTotal = schoolRows.stream().mapToInt(school -> Integer.parseInt(school.get(SpecialEducationCategoryTitles.G_AUTISM_SPECTRUM_DISORDER.getTitle()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationCategoryTitles.G_AUTISM_SPECTRUM_DISORDER.getTitle(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catGTotal)).build());
+
+    int catHTotal = schoolRows.stream().mapToInt(school -> Integer.parseInt(school.get(SpecialEducationCategoryTitles.H_INTENSIVE_BEHAVIOUR_INTERVENTION_SERIOUS_MENTAL_ILLNESS.getTitle()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationCategoryTitles.H_INTENSIVE_BEHAVIOUR_INTERVENTION_SERIOUS_MENTAL_ILLNESS.getTitle(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catHTotal)).build());
+
+    int catKTotal = schoolRows.stream().mapToInt(school -> Integer.parseInt(school.get(SpecialEducationCategoryTitles.K_MILD_INTELLECTUAL_DISABILITY.getTitle()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationCategoryTitles.K_MILD_INTELLECTUAL_DISABILITY.getTitle(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catKTotal)).build());
+
+    int catPTotal = schoolRows.stream().mapToInt(school -> Integer.parseInt(school.get(SpecialEducationCategoryTitles.P_GIFTED.getTitle()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationCategoryTitles.P_GIFTED.getTitle(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catPTotal)).build());
+
+    int catQTotal = schoolRows.stream().mapToInt(school -> Integer.parseInt(school.get(SpecialEducationCategoryTitles.Q_LEARNING_DISABILITY.getTitle()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationCategoryTitles.Q_LEARNING_DISABILITY.getTitle(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catQTotal)).build());
+
+    int catRTotal = schoolRows.stream().mapToInt(school -> Integer.parseInt(school.get(SpecialEducationCategoryTitles.R_MODERATE_BEHAVIOUR_SUPPORT_MENTAL_ILLNESS.getTitle()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationCategoryTitles.R_MODERATE_BEHAVIOUR_SUPPORT_MENTAL_ILLNESS.getTitle(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catRTotal)).build());
+
+    int allCatsTotal = catATotal + catBTotal + catCTotal + catDTotal + catETotal + catFTotal + catGTotal + catHTotal + catKTotal + catPTotal + catQTotal + catRTotal;
+    allSchoolsRow.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(allCatsTotal)).build());
+
+    return allSchoolsRow;
   }
 
   private int getCountFromResult(SpecialEdHeadcountResult result) {

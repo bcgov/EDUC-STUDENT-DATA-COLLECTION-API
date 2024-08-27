@@ -75,7 +75,7 @@ public class SpecialEdCategoryHeadcountPerSchoolReportService extends BaseReport
 
             inclEdHeadcounts = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryBySchoolIdAndSdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
             this.allSchoolsTombstones = getAllSchoolTombstones(collectionID);
-            return generateJasperReport(convertToReportJSONStringDistrict(inclEdHeadcounts, sdcDistrictCollectionEntity), inclusiveEdCategoryHeadcountPerSchoolReport, ReportTypeCode.DIS_SPECIAL_EDUCATION_CATEGORY_HEADCOUNT_PER_SCHOOL);
+            return generateJasperReport(convertToReportJSONStringDistrict(inclEdHeadcounts, sdcDistrictCollectionEntity), inclusiveEdCategoryHeadcountPerSchoolReport, ReportTypeCode.DIS_SPECIAL_EDUCATION_HEADCOUNT_CATEGORY_PER_SCHOOL);
         } catch (JsonProcessingException e) {
             log.error("Exception occurred while writing PDF report for inclusive education dis per school :: " + e.getMessage());
             throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for inclusive education dis per school :: " + e.getMessage());
