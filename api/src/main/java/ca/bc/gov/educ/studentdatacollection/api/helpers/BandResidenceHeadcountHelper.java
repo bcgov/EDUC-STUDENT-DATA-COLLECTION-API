@@ -53,7 +53,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
     }
 
     public void setBandResultsTableComparisonValuesDistrict(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, HeadcountResultsTable currentCollectionData, Boolean schoolTitles) {
-        UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+        UUID previousCollectionID = getPreviousCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
         List<BandResidenceHeadcountResult> previousCollectionRawData;
         if (Boolean.TRUE.equals(schoolTitles)) {
             previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(previousCollectionID);
