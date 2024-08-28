@@ -2,6 +2,9 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.BandCodeRepository;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.BandCode;
+import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -15,8 +18,14 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.time.LocalDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,6 +34,8 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
 
   @Autowired
   private MockMvc mockMvc;
+  @Autowired
+  BandCodeRepository bandCodeRepository;
 
   @BeforeEach
   public void setUp() {
@@ -173,5 +184,43 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     this.mockMvc.perform(get(URL.BASE_URL + URL.SDC_SCHOOL_COLLECTION_STATUS_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sdcSchoolCollectionStatusCode").value("NEW"))
             .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
+  }
+
+  @Test
+  void testUpdateBandCode_ShouldReturnBandCode() throws Exception {
+    BandCode bandCode = new BandCode();
+    bandCode.setBandCode("0600");
+    bandCode.setLabel("NEW BAND");
+    bandCode.setDescription("NEW BAND DESC");
+    bandCode.setDisplayOrder(1);
+    bandCode.setEffectiveDate(LocalDateTime.now().toString());
+    bandCode.setExpiryDate(LocalDateTime.now().toString());
+    bandCode.setUpdateUser("TESTACCNT");
+
+    this.mockMvc.perform(put(URL.BASE_URL + URL.BAND_CODES)
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_COLLECTION_CODES")))
+            .content(JsonUtil.getJsonStringFromObject(bandCode))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+    var updatedBand = bandCodeRepository.findById(bandCode.getBandCode());
+    assertThat(updatedBand).isPresent();
+    assertThat(updatedBand.get().getLabel()).isEqualTo("NEW BAND");
+  }
+
+  @Test
+  void testUpdateBandCode_InvalidBand_ShouldReturnBadRequest() throws Exception {
+    BandCode bandCode = new BandCode();
+    bandCode.setBandCode("8888");
+    bandCode.setLabel("NEW BAND");
+    bandCode.setDescription("NEW BAND DESC");
+    bandCode.setDisplayOrder(1);
+    bandCode.setEffectiveDate(LocalDateTime.now().toString());
+    bandCode.setExpiryDate(LocalDateTime.now().toString());
+    bandCode.setUpdateUser("TESTACCNT");
+
+    this.mockMvc.perform(put(URL.BASE_URL + URL.BAND_CODES)
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_COLLECTION_CODES")))
+            .content(JsonUtil.getJsonStringFromObject(bandCode))
+            .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
   }
 }

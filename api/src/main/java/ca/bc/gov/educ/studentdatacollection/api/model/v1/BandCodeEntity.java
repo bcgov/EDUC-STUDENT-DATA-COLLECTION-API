@@ -27,7 +27,7 @@ public class BandCodeEntity {
   @Column(name = "BAND_CODE", unique = true, length = 10)
   private String bandCode;
 
-  @Column(name = "LABEL", length = 30)
+  @Column(name = "LABEL", length = 100)
   private String label;
 
   @Column(name = "DESCRIPTION")
