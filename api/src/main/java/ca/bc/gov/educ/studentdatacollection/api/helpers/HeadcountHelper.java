@@ -140,6 +140,14 @@ public class HeadcountHelper<T extends HeadcountResult> {
     });
   }
 
+  // this gets the previous July collection ID if collection type is July, else it gets previous September collection ID
+  public UUID getPreviousCollectionID(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, String collectionType) {
+    Optional<SdcSchoolCollectionEntity> collection;
+    if (collectionType.equals(CollectionTypeCodes.JULY.getTypeCode())) collection = sdcSchoolCollectionRepository.findLastCollectionByType(sdcSchoolCollectionEntity.getSchoolID(), collectionType, sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+    else collection = sdcSchoolCollectionRepository.findLastCollectionByType(sdcSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+    return collection.map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).orElse(null);
+  }
+
   public UUID getPreviousSeptemberCollectionID(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
     var septemberCollection = sdcSchoolCollectionRepository.findLastCollectionByType(sdcSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
     if(septemberCollection.isPresent()) {
