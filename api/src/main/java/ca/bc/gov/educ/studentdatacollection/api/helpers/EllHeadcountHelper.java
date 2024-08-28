@@ -78,13 +78,13 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity,
     List<HeadcountHeader> headcountHeaderList
   ) {
-    UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getCollectionEntity().getCollectionTypeCode());
+    UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity);
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, false);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 
   public void setResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable collectionData) {
-    UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getCollectionEntity().getCollectionTypeCode());
+    UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity);
     List<EllHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcSchoolCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
     setResultsTableComparisonValues(collectionData, previousCollectionData);

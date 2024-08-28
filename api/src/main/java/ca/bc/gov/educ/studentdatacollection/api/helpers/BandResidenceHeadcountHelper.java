@@ -46,7 +46,7 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
     }
 
     public void setBandResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable currentCollectionData) {
-        UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getCollectionEntity().getCollectionTypeCode());
+        UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity);
         List<BandResidenceHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(previousCollectionID);
         HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, false, null);
         setResultsTableComparisonValuesDynamicBand(currentCollectionData, previousCollectionData);

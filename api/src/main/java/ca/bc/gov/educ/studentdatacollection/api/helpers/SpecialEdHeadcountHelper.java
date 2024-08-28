@@ -89,13 +89,13 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   }
 
   public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
-    UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getCollectionEntity().getCollectionTypeCode());
+    UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity);
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, false);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 
   public void setResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable collectionData) {
-    UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getCollectionEntity().getCollectionTypeCode());
+    UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity);
     List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcSchoolCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
     setResultsTableComparisonValues(collectionData, previousCollectionData);

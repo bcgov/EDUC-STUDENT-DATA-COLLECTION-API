@@ -140,7 +140,7 @@ class HeadcountHelperTest {
             .thenReturn(septemberCollections);
 
     // When
-    UUID result = headcountHelper.getPreviousCollectionID(schoolCollectionEntity, schoolCollectionEntity.getCollectionEntity().getCollectionTypeCode());
+    UUID result = headcountHelper.getPreviousCollectionID(schoolCollectionEntity);
 
     // Then
     assertEquals(schoolCollectionId, result);
@@ -188,7 +188,7 @@ class HeadcountHelperTest {
             .thenReturn(new ArrayList<>());
 
     // When
-    UUID result = headcountHelper.getPreviousCollectionID(schoolCollectionEntity, schoolCollectionEntity.getCollectionEntity().getCollectionTypeCode());
+    UUID result = headcountHelper.getPreviousCollectionID(schoolCollectionEntity);
 
     // Then
     assertNull(result);

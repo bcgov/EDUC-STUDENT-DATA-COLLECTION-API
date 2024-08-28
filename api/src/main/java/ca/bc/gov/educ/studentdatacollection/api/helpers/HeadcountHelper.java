@@ -141,8 +141,9 @@ public class HeadcountHelper<T extends HeadcountResult> {
   }
 
   // this gets the previous July collection ID if collection type is July, else it gets previous September collection ID
-  public UUID getPreviousCollectionID(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, String collectionType) {
+  public UUID getPreviousCollectionID(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
     Optional<SdcSchoolCollectionEntity> collection;
+    String collectionType = sdcSchoolCollectionEntity.getCollectionEntity().getCollectionTypeCode();
     if (collectionType.equals(CollectionTypeCodes.JULY.getTypeCode())) collection = sdcSchoolCollectionRepository.findLastCollectionByType(sdcSchoolCollectionEntity.getSchoolID(), collectionType, sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
     else collection = sdcSchoolCollectionRepository.findLastCollectionByType(sdcSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
     return collection.map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).orElse(null);
