@@ -150,6 +150,47 @@ class HeadcountHelperTest {
             schoolCollectionEntity.getSdcSchoolCollectionID());
   }
 
+  @ParameterizedTest
+  @CsvSource({
+          "2, 15",
+          "2, 28",
+          "2, 1",
+          "7, 15",
+          "7, 1",
+          "7, 31",
+          "9, 15",
+          "9, 1",
+          "9, 30",
+  })
+  void testGetPreviousCollectionIDJuly_givenPreviousJulyCollection_shouldCallRepositoryWithCorrectDates(int month, int day) {
+    // Given
+    UUID schoolCollectionId = UUID.randomUUID();
+    UUID schoolId = UUID.randomUUID();
+    LocalDateTime createDate = LocalDateTime.of(2023, month, day, 12, 0);
+    CollectionEntity collectionEntity = new CollectionEntity();
+    collectionEntity.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+    SdcSchoolCollectionEntity schoolCollectionEntity = new SdcSchoolCollectionEntity();
+    schoolCollectionEntity.setSdcSchoolCollectionID(schoolCollectionId);
+    schoolCollectionEntity.setSchoolID(schoolId);
+    schoolCollectionEntity.setCreateDate(createDate);
+    schoolCollectionEntity.setCollectionEntity(collectionEntity);
+
+    Optional<SdcSchoolCollectionEntity> septemberCollections = Optional.of(schoolCollectionEntity);
+
+    when(schoolCollectionRepository.findLastCollectionByType(eq(schoolId), any(), any()))
+            .thenReturn(septemberCollections);
+
+    // When
+    UUID result = headcountHelper.getPreviousCollectionID(schoolCollectionEntity);
+
+    // Then
+    assertEquals(schoolCollectionId, result);
+    verify(schoolCollectionRepository).findLastCollectionByType(
+            schoolId,
+            CollectionTypeCodes.JULY.getTypeCode(),
+            schoolCollectionEntity.getSdcSchoolCollectionID());
+  }
+
   @Test
   void testGetPreviousSeptemberCollectionID_givenNoCollections_shouldReturnNull() {
     // Given
