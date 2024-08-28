@@ -1,11 +1,17 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CodeTableMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.BandCode;
+import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -133,5 +139,18 @@ public class CodeTableService {
   @Cacheable("districtCollectionStatusCodes")
   public List<SdcDistrictCollectionStatusCodeEntity> getSdcDistrictCollectionStatusCodesList() {
     return sdcDistrictCollectionStatusCodeRepository.findAll();
+  }
+
+  @CacheEvict(cacheNames="bandCodes", allEntries=true)
+  public BandCode updateBandCode(BandCode bandCode) {
+    var bandCodeEntityOpt = bandCodeRepository.findById(bandCode.getBandCode());
+    BandCodeEntity entity = bandCodeEntityOpt.orElseThrow(() -> new EntityNotFoundException(BandCodeEntity.class, "bandCode", bandCode.getBandCode()));
+    entity.setLabel(bandCode.getLabel());
+    entity.setDescription(bandCode.getDescription());
+    entity.setUpdateUser(bandCode.getUpdateUser());
+    entity.setUpdateDate(LocalDateTime.now());
+    TransformUtil.uppercaseFields(entity);
+    var savedBand = bandCodeRepository.save(entity);
+    return CodeTableMapper.mapper.toStructure(savedBand);
   }
 }

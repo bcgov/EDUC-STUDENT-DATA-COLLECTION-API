@@ -85,10 +85,24 @@ public abstract class BaseStudentDataCollectionAPITest {
     fundingCodeRepository.save(fundingCodeData());
     fundingCodeRepository.save(fundingCode16Data());
     fundingCodeRepository.save(fundingCode20Data());
-    enrolledGradeCodeRepository.save(enrolledGradeCode01Data());
-    enrolledGradeCodeRepository.save(enrolledGradeCodeHSData());
-    enrolledGradeCodeRepository.save(enrolledGradeCode08Data());
-    enrolledGradeCodeRepository.save(enrolledGradeCode10Data());
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("KH", "Kindergarten Half-Time", "Kindergarten Half-Time"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("KF", "Kindergarten Full-Time", "Kindergarten Full-Time"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("01", "Grade 1", "Grade 1"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("02", "Grade 2", "Grade 2"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("03", "Grade 3", "Grade 3"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("04", "Grade 4", "Grade 4"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("05", "Grade 5", "Grade 5"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("06", "Grade 6", "Grade 6"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("07", "Grade 7", ""));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("EU", "Elementary Ungraded", "Elementary Ungraded"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("08", "Grade 8", "Grade 8"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("09", "Grade 9", "Grade 9"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("10", "Grade 10", "Grade 10"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("11", "Grade 11", "Grade 11"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("12", "Grade 12", "Grade 12"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("SU", "Secondary Ungraded", "Secondary Ungraded"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("GA", "Graduated Adult", "Graduated Adult"));
+    enrolledGradeCodeRepository.save(createActiveEnrolledGradeCode("HS", "Home School Registration", "Home School Registration"));
     specialEducationCategoryRepository.save(specialEducationCategoryCodeData());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode08Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode14Data());
@@ -718,27 +732,9 @@ public abstract class BaseStudentDataCollectionAPITest {
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 
-  public EnrolledGradeCodeEntity enrolledGradeCode01Data() {
-    return EnrolledGradeCodeEntity.builder().enrolledGradeCode("01").description("Grade 1")
-            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Grade 1").createDate(LocalDateTime.now())
-            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
-  }
-
-  public EnrolledGradeCodeEntity enrolledGradeCodeHSData() {
-    return EnrolledGradeCodeEntity.builder().enrolledGradeCode("HS").description("Home School")
-            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Home School").createDate(LocalDateTime.now())
-            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
-  }
-
-  public EnrolledGradeCodeEntity enrolledGradeCode08Data() {
-    return EnrolledGradeCodeEntity.builder().enrolledGradeCode("08").description("Grade 8")
-            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Grade 8").createDate(LocalDateTime.now())
-            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
-  }
-
-  public EnrolledGradeCodeEntity enrolledGradeCode10Data() {
-    return EnrolledGradeCodeEntity.builder().enrolledGradeCode("10").description("Grade 10")
-            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Grade 10").createDate(LocalDateTime.now())
+  public EnrolledGradeCodeEntity createActiveEnrolledGradeCode(String gradeCode, String description, String label) {
+    return EnrolledGradeCodeEntity.builder().enrolledGradeCode(gradeCode).description(description)
+            .effectiveDate(LocalDateTime.now().minusYears(1)).expiryDate(LocalDateTime.now().plusYears(1)).displayOrder(1).label(label).createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
 

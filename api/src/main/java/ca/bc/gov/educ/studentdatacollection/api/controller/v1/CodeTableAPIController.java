@@ -7,6 +7,9 @@ import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.CodeTableAPIEndpoint
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CodeTableMapper;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
+import ca.bc.gov.educ.studentdatacollection.api.validator.BandCodeValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,9 +22,11 @@ import java.util.List;
 public class CodeTableAPIController implements CodeTableAPIEndpoint {
     private final CodeTableService codeTableService;
     private static final CodeTableMapper mapper = CodeTableMapper.mapper;
+    private final BandCodeValidator bandCodeValidator;
 
-    public CodeTableAPIController(CodeTableService codeTableService) {
+    public CodeTableAPIController(CodeTableService codeTableService, BandCodeValidator bandCodeValidator) {
         this.codeTableService = codeTableService;
+        this.bandCodeValidator = bandCodeValidator;
     }
 
     @Override
@@ -133,5 +138,12 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
     @Override
     public List<SdcDistrictCollectionStatusCode> getSdcDistrictCollectionStatusCodes() {
         return codeTableService.getSdcDistrictCollectionStatusCodesList().stream().map(mapper::toStructure).toList();
+    }
+
+    @Override
+    public BandCode updateBandCode(BandCode bandCode) {
+        ValidationUtil.validatePayload(() -> this.bandCodeValidator.validatePayload(bandCode));
+        RequestUtil.setAuditColumnsForUpdate(bandCode);
+        return codeTableService.updateBandCode(bandCode);
     }
 }
