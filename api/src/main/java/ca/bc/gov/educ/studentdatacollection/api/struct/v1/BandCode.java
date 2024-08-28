@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.v1;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Builder
 @SuppressWarnings("squid:S1700")
 public class BandCode extends BaseRequest implements Serializable {
