@@ -854,7 +854,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     sdcSchoolCollectionStudentRepository.save(student4);
 
     this.mockMvc.perform(
-                    get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_SPECIAL_EDUCATION_CATEGORY_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
+                    get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_SPECIAL_EDUCATION_HEADCOUNT_CATEGORY_PER_SCHOOL").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk());
   }
 
