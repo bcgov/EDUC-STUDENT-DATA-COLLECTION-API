@@ -8,7 +8,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
@@ -151,4 +154,12 @@ public interface CodeTableAPIEndpoint {
     @Tag(name = "District Collection Status Codes", description = "Endpoints to get district collection status codes.")
     @Schema(name = "SdcDistrictCollectionStatusCodes", implementation = SdcDistrictCollectionStatusCode.class)
     List<SdcDistrictCollectionStatusCode> getSdcDistrictCollectionStatusCodes();
+
+    @PutMapping(URL.BAND_CODES)
+    @PreAuthorize("hasAuthority('SCOPE_WRITE_COLLECTION_CODES')")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+    @Transactional
+    @Tag(name = "Sdc BandCode Collection", description = "Endpoint to update a band code.")
+    @Schema(name = "BandCode", implementation = BandCode.class)
+    BandCode updateBandCode(@Validated @RequestBody BandCode bandCode);
 }
