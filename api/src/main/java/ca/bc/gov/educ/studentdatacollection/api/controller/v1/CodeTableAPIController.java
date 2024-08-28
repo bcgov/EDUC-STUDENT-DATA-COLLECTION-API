@@ -143,7 +143,7 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
     @Override
     public BandCode updateBandCode(BandCode bandCode) {
         ValidationUtil.validatePayload(() -> this.bandCodeValidator.validatePayload(bandCode));
-        RequestUtil.setAuditColumnsForCreate(bandCode);
+        RequestUtil.setAuditColumnsForUpdate(bandCode);
         return codeTableService.updateBandCode(bandCode);
     }
 }
