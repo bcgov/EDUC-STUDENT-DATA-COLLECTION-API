@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.BandCode;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -140,6 +141,7 @@ public class CodeTableService {
     return sdcDistrictCollectionStatusCodeRepository.findAll();
   }
 
+  @CacheEvict(cacheNames="bandCodes", allEntries=true)
   public BandCode updateBandCode(BandCode bandCode) {
     var bandCodeEntityOpt = bandCodeRepository.findById(bandCode.getBandCode());
     BandCodeEntity entity = bandCodeEntityOpt.orElseThrow(() -> new EntityNotFoundException(BandCodeEntity.class, "bandCode", bandCode.getBandCode()));
