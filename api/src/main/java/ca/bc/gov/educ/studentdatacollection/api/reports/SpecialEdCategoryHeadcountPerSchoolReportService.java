@@ -138,6 +138,8 @@ public class SpecialEdCategoryHeadcountPerSchoolReportService extends BaseReport
     }
 
     protected void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, SpecialEdHeadcountResult result) {
+        // change below to map - and use enum to increase count
+        HashMap<String, Integer> runningTotalMap = new HashMap<>();
         int runningTotalAHeadcount = 0;
         int runningTotalBHeadcount = 0;
         int runningTotalCHeadcount = 0;

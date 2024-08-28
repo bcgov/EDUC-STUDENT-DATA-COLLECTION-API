@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.21.3.final using JasperReports Library version 6.21.3-4a3078d20785ebe464f18037d738d12fc98c13cf  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Cherry" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="13acf49e-4913-4d1b-bccc-113817ad15d1">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Cherry" pageWidth="792" pageHeight="612" orientation="Landscape" columnWidth="752" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="13acf49e-4913-4d1b-bccc-113817ad15d1">
     <property name="com.jaspersoft.studio.data.defaultdataadapter" value="SpecialEdPrograms"/>
     <style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false"/>
     <style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false"/>
@@ -129,55 +129,55 @@
             <fieldDescription><![CDATA[programs.typeOfProgram]]></fieldDescription>
         </field>
         <field name="valueSpecialEdA" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueGradeKH"/>
+            <property name="net.sf.jasperreports.json.field.expression" value="valueSpecialEdA"/>
             <fieldDescription><![CDATA[programs.valueSpecialEdA]]></fieldDescription>
         </field>
         <field name="valueSpecialEdB" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueGradeKF"/>
+            <property name="net.sf.jasperreports.json.field.expression" value="valueSpecialEdB"/>
             <fieldDescription><![CDATA[programs.valueSpecialEdB]]></fieldDescription>
         </field>
         <field name="valueSpecialEdC" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueGrade01"/>
+            <property name="net.sf.jasperreports.json.field.expression" value="valueSpecialEdC"/>
             <fieldDescription><![CDATA[programs.valueSpecialEdC]]></fieldDescription>
         </field>
         <field name="valueSpecialEdD" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueGrade02"/>
+            <property name="net.sf.jasperreports.json.field.expression" value="valueSpecialEdD"/>
             <fieldDescription><![CDATA[programs.valueSpecialEdD]]></fieldDescription>
         </field>
         <field name="valueSpecialEdE" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueGrade03"/>
+            <property name="net.sf.jasperreports.json.field.expression" value="valueSpecialEdE"/>
             <fieldDescription><![CDATA[programs.valueSpecialEdE]]></fieldDescription>
         </field>
         <field name="valueSpecialEdF" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueGrade04"/>
+            <property name="net.sf.jasperreports.json.field.expression" value="valueSpecialEdF"/>
             <fieldDescription><![CDATA[programs.valueSpecialEdF]]></fieldDescription>
         </field>
         <field name="valueSpecialEdG" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueGrade05"/>
+            <property name="net.sf.jasperreports.json.field.expression" value="valueSpecialEdG"/>
             <fieldDescription><![CDATA[programs.specialEdG]]></fieldDescription>
         </field>
         <field name="valueSpecialEdH" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueGrade06"/>
+            <property name="net.sf.jasperreports.json.field.expression" value="valueSpecialEdH"/>
             <fieldDescription><![CDATA[programs.valueSpecialEdH]]></fieldDescription>
         </field>
         <field name="valueSpecialEdK" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueGrade07"/>
+            <property name="net.sf.jasperreports.json.field.expression" value="valueSpecialEdK"/>
             <fieldDescription><![CDATA[programs.valueSpecialEdK]]></fieldDescription>
         </field>
         <field name="valueSpecialEdP" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueGradeEU"/>
+            <property name="net.sf.jasperreports.json.field.expression" value="valueSpecialEdP"/>
             <fieldDescription><![CDATA[programs.valueSpecialEdP]]></fieldDescription>
         </field>
         <field name="valueSpecialEdQ" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueGrade08"/>
+            <property name="net.sf.jasperreports.json.field.expression" value="valueSpecialEdQ"/>
             <fieldDescription><![CDATA[programs.valueSpecialEdQ]]></fieldDescription>
         </field>
         <field name="valueSpecialEdR" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueGrade09"/>
+            <property name="net.sf.jasperreports.json.field.expression" value="valueSpecialEdR"/>
             <fieldDescription><![CDATA[programs.valueSpecialEdR]]></fieldDescription>
         </field>
         <field name="valueSpecialEdTotal" class="java.lang.String">
-            <property name="net.sf.jasperreports.json.field.expression" value="valueTotal"/>
+            <property name="net.sf.jasperreports.json.field.expression" value="valueSpecialEdTotal"/>
             <fieldDescription><![CDATA[programs.valueSpecialEdTotal]]></fieldDescription>
         </field>
         <field name="isHeading" class="java.lang.String">
@@ -213,6 +213,7 @@
         <property name="net.sf.jasperreports.jsonql.field.expression" value="programs"/>
         <fieldDescription><![CDATA[programs]]></fieldDescription>
     </field>
+
     <background>
         <band splitType="Stretch"/>
     </background>
@@ -304,7 +305,7 @@
                                         <property name="com.jaspersoft.studio.unit.x" value="px"/>
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
-                                    <box leftPadding="25"/>
+                                    <box leftPadding="5"/>
                                     <textElement textAlignment="Left" verticalAlignment="Middle" markup="none">
                                         <font fontName="BCSans" size="6" isBold="false"/>
                                     </textElement>
@@ -709,7 +710,7 @@
                             </jr:columnHeader>
                             <jr:detailCell style="Table 2_TD" height="60">
                                 <textField isBlankWhenNull="true">
-                                    <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="929aec74-fe91-42f2-b954-fe9baaf07dbe">
+                                    <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="35" height="60" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="929aec74-fe91-42f2-b954-fe9baaf07dbe">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
@@ -718,7 +719,7 @@
                                     <textFieldExpression><![CDATA[$F{valueSpecialEdTotal}]]></textFieldExpression>
                                 </textField>
                                 <textField isBlankWhenNull="true">
-                                    <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="468d2b36-5cdc-47aa-86f8-b77fdd177180">
+                                    <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="60" isRemoveLineWhenBlank="true" uuid="468d2b36-5cdc-47aa-86f8-b77fdd177180">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
