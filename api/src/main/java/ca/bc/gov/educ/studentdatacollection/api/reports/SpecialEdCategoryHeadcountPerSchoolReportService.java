@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
@@ -138,102 +139,83 @@ public class SpecialEdCategoryHeadcountPerSchoolReportService extends BaseReport
     }
 
     protected void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, SpecialEdHeadcountResult result) {
-        // change below to map - and use enum to increase count
-        HashMap<String, Integer> runningTotalMap = new HashMap<>();
-        int runningTotalAHeadcount = 0;
-        int runningTotalBHeadcount = 0;
-        int runningTotalCHeadcount = 0;
-        int runningTotalDHeadcount = 0;
-        int runningTotalEHeadcount = 0;
-        int runningTotalFHeadcount = 0;
-        int runningTotalGHeadcount = 0;
-        int runningTotalHHeadcount = 0;
-        int runningTotalKHeadcount = 0;
-        int runningTotalPHeadcount = 0;
-        int runningTotalQHeadcount = 0;
-        int runningTotalRHeadcount = 0;
+        Map<String, Integer> spedCatCountMap = SpecialEducationHeadcountHeader.generateSpedCatCountMap();
 
         if (inclEdHeadcounts != null) {
             for (SpecialEdHeadcountResult headcount : inclEdHeadcounts) {
-                try {
-                    String schoolKey = headcount.getSchoolID();
+                String schoolKey = headcount.getSchoolID();
 
-                    SpedCategoryHeadcountChildNode node = (SpedCategoryHeadcountChildNode)nodeMap.getOrDefault(schoolKey, new SpedCategoryHeadcountChildNode()); 
-                    
-                    String inclEdAHeadcount = headcount.getAdultsInSpecialEdA() ? headcount.getSpecialEdACodes() + "*" : headcount.getSpecialEdACodes();
-                    node.setValueForSpecEdCategory("A", inclEdAHeadcount);
-                    runningTotalAHeadcount += numberFormat.parse(inclEdAHeadcount).intValue();
+                SpedCategoryHeadcountChildNode node = (SpedCategoryHeadcountChildNode)nodeMap.getOrDefault(schoolKey, new SpedCategoryHeadcountChildNode());
 
-                    String inclEdBHeadcount = headcount.getAdultsInSpecialEdB() ? headcount.getSpecialEdBCodes() + "*" : headcount.getSpecialEdBCodes();
-                    node.setValueForSpecEdCategory("B", inclEdBHeadcount);
-                    runningTotalBHeadcount += numberFormat.parse(inclEdBHeadcount).intValue();
+                String inclEdAHeadcount = headcount.getAdultsInSpecialEdA() ? headcount.getSpecialEdACodes() + "*" : headcount.getSpecialEdACodes();
+                node.setValueForSpecEdCategory("A", inclEdAHeadcount);
+                spedCatCountMap.compute("A", (key, oldValue) -> oldValue + 5);
 
-                    String inclEdCHeadcount = headcount.getAdultsInSpecialEdC() ? headcount.getSpecialEdCCodes() + "*" : headcount.getSpecialEdCCodes();
-                    node.setValueForSpecEdCategory("C", inclEdCHeadcount);
-                    runningTotalCHeadcount += numberFormat.parse(inclEdCHeadcount).intValue();
+                String inclEdBHeadcount = headcount.getAdultsInSpecialEdB() ? headcount.getSpecialEdBCodes() + "*" : headcount.getSpecialEdBCodes();
+                node.setValueForSpecEdCategory("B", inclEdBHeadcount);
+                spedCatCountMap.compute("B", (key, oldValue) -> oldValue + 5);
 
-                    String inclEdDHeadcount = headcount.getAdultsInSpecialEdD() ? headcount.getSpecialEdDCodes() + "*" : headcount.getSpecialEdDCodes();
-                    node.setValueForSpecEdCategory("D", inclEdDHeadcount);
-                    runningTotalDHeadcount += numberFormat.parse(inclEdDHeadcount).intValue();
+                String inclEdCHeadcount = headcount.getAdultsInSpecialEdC() ? headcount.getSpecialEdCCodes() + "*" : headcount.getSpecialEdCCodes();
+                node.setValueForSpecEdCategory("C", inclEdCHeadcount);
+                spedCatCountMap.compute("C", (key, oldValue) -> oldValue + 5);
 
-                    String inclEdEHeadcount = headcount.getAdultsInSpecialEdE() ? headcount.getSpecialEdECodes() + "*" : headcount.getSpecialEdECodes();
-                    node.setValueForSpecEdCategory("E", inclEdEHeadcount);
-                    runningTotalEHeadcount += numberFormat.parse(inclEdEHeadcount).intValue();
+                String inclEdDHeadcount = headcount.getAdultsInSpecialEdD() ? headcount.getSpecialEdDCodes() + "*" : headcount.getSpecialEdDCodes();
+                node.setValueForSpecEdCategory("D", inclEdDHeadcount);
+                spedCatCountMap.compute("D", (key, oldValue) -> oldValue + 5);
 
-                    String inclEdFHeadcount = headcount.getAdultsInSpecialEdF() ? headcount.getSpecialEdFCodes() + "*" : headcount.getSpecialEdFCodes();
-                    node.setValueForSpecEdCategory("F", inclEdFHeadcount);
-                    runningTotalFHeadcount += numberFormat.parse(inclEdFHeadcount).intValue();
+                String inclEdEHeadcount = headcount.getAdultsInSpecialEdE() ? headcount.getSpecialEdECodes() + "*" : headcount.getSpecialEdECodes();
+                node.setValueForSpecEdCategory("E", inclEdEHeadcount);
+                spedCatCountMap.compute("E", (key, oldValue) -> oldValue + 5);
 
-                    String inclEdGHeadcount = headcount.getAdultsInSpecialEdG() ? headcount.getSpecialEdGCodes() + "*" : headcount.getSpecialEdGCodes();
-                    node.setValueForSpecEdCategory("G", inclEdGHeadcount);
-                    runningTotalGHeadcount += numberFormat.parse(inclEdGHeadcount).intValue();
+                String inclEdFHeadcount = headcount.getAdultsInSpecialEdF() ? headcount.getSpecialEdFCodes() + "*" : headcount.getSpecialEdFCodes();
+                node.setValueForSpecEdCategory("F", inclEdFHeadcount);
+                spedCatCountMap.compute("F", (key, oldValue) -> oldValue + 5);
 
-                    String inclEdHHeadcount = headcount.getAdultsInSpecialEdH() ? headcount.getSpecialEdHCodes() + "*" : headcount.getSpecialEdHCodes();
-                    node.setValueForSpecEdCategory("H", inclEdHHeadcount);
-                    runningTotalHHeadcount += numberFormat.parse(inclEdHHeadcount).intValue();
+                String inclEdGHeadcount = headcount.getAdultsInSpecialEdG() ? headcount.getSpecialEdGCodes() + "*" : headcount.getSpecialEdGCodes();
+                node.setValueForSpecEdCategory("G", inclEdGHeadcount);
+                spedCatCountMap.compute("G", (key, oldValue) -> oldValue + 5);
 
-                    String inclEdKHeadcount = headcount.getAdultsInSpecialEdK() ? headcount.getSpecialEdKCodes() + "*" : headcount.getSpecialEdKCodes();
-                    node.setValueForSpecEdCategory("K", inclEdKHeadcount);
-                    runningTotalKHeadcount += numberFormat.parse(inclEdKHeadcount).intValue();
+                String inclEdHHeadcount = headcount.getAdultsInSpecialEdH() ? headcount.getSpecialEdHCodes() + "*" : headcount.getSpecialEdHCodes();
+                node.setValueForSpecEdCategory("H", inclEdHHeadcount);
+                spedCatCountMap.compute("H", (key, oldValue) -> oldValue + 5);
 
-                    String inclEdPHeadcount = headcount.getAdultsInSpecialEdP() ? headcount.getSpecialEdPCodes() + "*" : headcount.getSpecialEdPCodes();
-                    node.setValueForSpecEdCategory("P", inclEdPHeadcount);
-                    runningTotalPHeadcount += numberFormat.parse(inclEdPHeadcount).intValue();
+                String inclEdKHeadcount = headcount.getAdultsInSpecialEdK() ? headcount.getSpecialEdKCodes() + "*" : headcount.getSpecialEdKCodes();
+                node.setValueForSpecEdCategory("K", inclEdKHeadcount);
+                spedCatCountMap.compute("K", (key, oldValue) -> oldValue + 5);
 
-                    String inclEdQHeadcount = headcount.getAdultsInSpecialEdQ() ? headcount.getSpecialEdQCodes() + "*" : headcount.getSpecialEdQCodes();
-                    node.setValueForSpecEdCategory("Q", inclEdQHeadcount);
-                    runningTotalQHeadcount += numberFormat.parse(inclEdQHeadcount).intValue();
+                String inclEdPHeadcount = headcount.getAdultsInSpecialEdP() ? headcount.getSpecialEdPCodes() + "*" : headcount.getSpecialEdPCodes();
+                node.setValueForSpecEdCategory("P", inclEdPHeadcount);
+                spedCatCountMap.compute("P", (key, oldValue) -> oldValue + 5);
 
-                    String inclEdRHeadcount = headcount.getAdultsInSpecialEdR() ? headcount.getSpecialEdRCodes() + "*" : headcount.getSpecialEdRCodes();
-                    node.setValueForSpecEdCategory("R", inclEdRHeadcount);
-                    runningTotalRHeadcount += numberFormat.parse(inclEdRHeadcount).intValue();
+                String inclEdQHeadcount = headcount.getAdultsInSpecialEdQ() ? headcount.getSpecialEdQCodes() + "*" : headcount.getSpecialEdQCodes();
+                node.setValueForSpecEdCategory("Q", inclEdQHeadcount);
+                spedCatCountMap.compute("Q", (key, oldValue) -> oldValue + 5);
 
-                    String totalHeadcount = headcount.getAllLevels();
-                    node.setValueForSpecEdCategory("total", totalHeadcount);
+                String inclEdRHeadcount = headcount.getAdultsInSpecialEdR() ? headcount.getSpecialEdRCodes() + "*" : headcount.getSpecialEdRCodes();
+                node.setValueForSpecEdCategory("R", inclEdRHeadcount);
+                spedCatCountMap.compute("R", (key, oldValue) -> oldValue + 5);
 
-                    nodeMap.put(schoolKey, node);
+                String totalHeadcount = headcount.getAllLevels();
+                node.setValueForSpecEdCategory("total", totalHeadcount);
 
-                } catch (ParseException e) {
-                    log.error("Error parsing number in setValueForGrade - Inclusive Education Category Headcount Report: " + e.getMessage());
-                    throw new StudentDataCollectionAPIRuntimeException("Error parsing number in setValueForGrade - Inclusive Education Category Headcount Report: " + e.getMessage());
-                }
+                nodeMap.put(schoolKey, node);
             }
         }
 
         SpedCategoryHeadcountChildNode totalNode = (SpedCategoryHeadcountChildNode) nodeMap.getOrDefault(ALL_SCHOOLS, new SpedCategoryHeadcountChildNode());
-        totalNode.setValueForSpecEdCategory("A", String.valueOf(runningTotalAHeadcount));
-        totalNode.setValueForSpecEdCategory("B", String.valueOf(runningTotalBHeadcount));
-        totalNode.setValueForSpecEdCategory("C", String.valueOf(runningTotalCHeadcount));
-        totalNode.setValueForSpecEdCategory("D", String.valueOf(runningTotalDHeadcount));
-        totalNode.setValueForSpecEdCategory("E", String.valueOf(runningTotalEHeadcount));
-        totalNode.setValueForSpecEdCategory("F", String.valueOf(runningTotalFHeadcount));
-        totalNode.setValueForSpecEdCategory("G", String.valueOf(runningTotalGHeadcount));
-        totalNode.setValueForSpecEdCategory("H", String.valueOf(runningTotalHHeadcount));
-        totalNode.setValueForSpecEdCategory("K", String.valueOf(runningTotalKHeadcount));
-        totalNode.setValueForSpecEdCategory("P", String.valueOf(runningTotalPHeadcount));
-        totalNode.setValueForSpecEdCategory("Q", String.valueOf(runningTotalQHeadcount));
-        totalNode.setValueForSpecEdCategory("R", String.valueOf(runningTotalRHeadcount));
-        Integer allSchoolsTotal = runningTotalAHeadcount + runningTotalBHeadcount + runningTotalCHeadcount + runningTotalDHeadcount + runningTotalEHeadcount + runningTotalFHeadcount + runningTotalGHeadcount + runningTotalHHeadcount + runningTotalKHeadcount + runningTotalPHeadcount + runningTotalQHeadcount + runningTotalRHeadcount;
+        totalNode.setValueForSpecEdCategory("A", String.valueOf(spedCatCountMap.get("A")));
+        totalNode.setValueForSpecEdCategory("B", String.valueOf(spedCatCountMap.get("B")));
+        totalNode.setValueForSpecEdCategory("C", String.valueOf(spedCatCountMap.get("C")));
+        totalNode.setValueForSpecEdCategory("D", String.valueOf(spedCatCountMap.get("D")));
+        totalNode.setValueForSpecEdCategory("E", String.valueOf(spedCatCountMap.get("E")));
+        totalNode.setValueForSpecEdCategory("F", String.valueOf(spedCatCountMap.get("F")));
+        totalNode.setValueForSpecEdCategory("G", String.valueOf(spedCatCountMap.get("G")));
+        totalNode.setValueForSpecEdCategory("H", String.valueOf(spedCatCountMap.get("H")));
+        totalNode.setValueForSpecEdCategory("K", String.valueOf(spedCatCountMap.get("I")));
+        totalNode.setValueForSpecEdCategory("P", String.valueOf(spedCatCountMap.get("P")));
+        totalNode.setValueForSpecEdCategory("Q", String.valueOf(spedCatCountMap.get("Q")));
+        totalNode.setValueForSpecEdCategory("R", String.valueOf(spedCatCountMap.get("R")));
+        Integer allSchoolsTotal = spedCatCountMap.values().stream().mapToInt(Integer::intValue).sum();
         totalNode.setValueForSpecEdCategory("total", String.valueOf(allSchoolsTotal));
 
         nodeMap.put(ALL_SCHOOLS, totalNode);
