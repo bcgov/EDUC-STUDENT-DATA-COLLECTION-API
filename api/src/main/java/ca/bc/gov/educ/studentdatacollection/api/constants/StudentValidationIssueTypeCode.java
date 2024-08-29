@@ -107,6 +107,7 @@ public enum StudentValidationIssueTypeCode {
   SUMMER_PRE_PRIMARY_ERROR("SUMMERPREPRIMARYERROR","Pre-primary or early childhood education students cannot be reported in 8/9 cross enrolment", ERROR),
   SUMMER_ENROLLED_PROGRAM_ERROR("SUMMERENROLLEDPROGRAMERROR","Students enroled in the grade 8/9 cross-enrolment collection are not eligible for funding for inclusive education or additional programs.", FUNDING_WARNING),
   SUMMER_FRENCH_CAREER_PROGRAM_ERROR("SUMMERFRENCHCAREERPROGRAM_ERROR","Students in summer school are not eligible for additional funding for Career or French Programs", FUNDING_WARNING),
+  SUMMER_STUDENT_ONLINE_LEARNING_ERROR("SUMMERSTUDENTONLINELEARNINGERROR","Student not reported with Online Learning school during the school year. Student must have at least part of their educational program delivered through online learning in current school year.", FUNDING_WARNING),
   ;
 
   private static final Map<String, StudentValidationIssueTypeCode> CODE_MAP = new HashMap<>();
