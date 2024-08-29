@@ -92,7 +92,9 @@ public class EllHeadcountReportService extends BaseReportGenerationService<EllHe
 
   public HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH){
     HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
-    addValuesForSectionToMap(nodeMap, "ell", "English Language Learners", "00", includeKH);
+    addValuesForSectionToMap(nodeMap, "ell", "All English Language Learners", "00", includeKH);
+    addValuesForSectionToMap(nodeMap, "eligibleEll", "Eligible English Language Learners", "10", includeKH);
+    addValuesForSectionToMap(nodeMap, "ineligibleEll", "Ineligible English Language Learners", "20", includeKH);
 
     return nodeMap;
   }
@@ -107,6 +109,8 @@ public class EllHeadcountReportService extends BaseReportGenerationService<EllHe
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
 
     ((GradeHeadcountChildNode)nodeMap.get("ellHeading")).setValueForGrade(code, gradeResult.getTotalEllStudents());
+    ((GradeHeadcountChildNode)nodeMap.get("eligibleEllHeading")).setValueForGrade(code, gradeResult.getTotalEligibleEllStudents());
+    ((GradeHeadcountChildNode)nodeMap.get("ineligibleEllHeading")).setValueForGrade(code, gradeResult.getTotalIneligibleEllStudents());
   }
 
 }
