@@ -32,6 +32,8 @@ public class SdcDistrictCollectionHeadcountReportsController implements SdcDistr
             return sdcDistrictCollectionHeadcountService.getGradeEnrollmentHeadcounts(sdcDistrictCollectionEntity, compare);
         } else if (HeadcountReportTypeCodes.SPECIAL_ED_PER_SCHOOL.getCode().equals(type)) {
             return sdcDistrictCollectionHeadcountService.getSpecialEdHeadcountsPerSchool(sdcDistrictCollectionEntity, compare);
+        } else if (HeadcountReportTypeCodes.SPECIAL_ED_CAT_PER_SCHOOL.getCode().equals(type)){
+            return sdcDistrictCollectionHeadcountService.getSpecialEdCatHeadcountsPerSchool(sdcDistrictCollectionEntity, compare);
         } else if (HeadcountReportTypeCodes.CAREER .getCode().equals(type)) {
             return sdcDistrictCollectionHeadcountService.getCareerHeadcounts(sdcDistrictCollectionEntity, compare);
         } else if (HeadcountReportTypeCodes.FRENCH .getCode().equals(type)) {
