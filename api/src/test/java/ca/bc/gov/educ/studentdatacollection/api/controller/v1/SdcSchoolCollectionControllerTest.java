@@ -702,6 +702,64 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
   }
 
   @Test
+  void testStartCollectionFromLastSept_ShouldReturnOk() throws Exception {
+    CollectionEntity oldCollection = createMockCollectionEntity();
+    oldCollection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+    oldCollection.setCloseDate(LocalDateTime.now().minusDays(2));
+    collectionRepository.save(oldCollection);
+
+    District district = createMockDistrict();
+
+    SchoolTombstone schoolTombstone = createMockSchool();
+    schoolTombstone.setDistrictId(district.getDistrictId());
+
+    SdcDistrictCollectionEntity sdcMockDistrictCollection = createMockSdcDistrictCollectionEntity(oldCollection, UUID.fromString(district.getDistrictId()));
+    sdcMockDistrictCollection.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.COMPLETED.getCode());
+    sdcDistrictCollectionRepository.save(sdcMockDistrictCollection);
+
+    SdcSchoolCollectionEntity sdcMockSchoolCollection = createMockSdcSchoolCollectionEntity(oldCollection, UUID.fromString(schoolTombstone.getSchoolId()));
+    sdcMockSchoolCollection.setSdcDistrictCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID());
+    sdcMockSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.COMPLETED.getCode());
+    var savedOldColl = sdcSchoolCollectionRepository.save(sdcMockSchoolCollection);
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    District district2 = createMockDistrict();
+
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(district2.getDistrictId());
+
+    SdcDistrictCollectionEntity sdcMockDistrictCollection2 = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district2.getDistrictId()));
+    sdcMockDistrictCollection2.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.REVIEWED.getCode());
+    sdcDistrictCollectionRepository.save(sdcMockDistrictCollection2);
+
+    SdcSchoolCollectionEntity sdcMockSchoolCollection2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone.getSchoolId()));
+    sdcMockSchoolCollection2.setSdcDistrictCollectionID(sdcMockDistrictCollection2.getSdcDistrictCollectionID());
+    sdcMockSchoolCollection2.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
+    var savedColl = sdcSchoolCollectionRepository.save(sdcMockSchoolCollection2);
+
+    var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(savedOldColl);
+    var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(savedOldColl);
+    sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2));
+
+    var schoolCollection = SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(savedColl);
+    schoolCollection.setUpdateDate(null);
+    schoolCollection.setCreateDate(null);
+
+    this.mockMvc.perform(post(URL.BASE_URL_SCHOOL_COLLECTION + "/" + savedColl.getSdcSchoolCollectionID() + "/priorCollection")
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_SCHOOL_COLLECTION")))
+            .content(JsonUtil.getJsonStringFromObject(schoolCollection))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+    var updatedStudents = sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(savedColl.getSdcSchoolCollectionID());
+
+    assertThat(updatedStudents.get(0).getSdcSchoolCollectionStudentStatusCode()).isEqualTo("LOADED");
+  }
+
+  @Test
   void testGetDistrictCollectionProvincialDuplicates() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
