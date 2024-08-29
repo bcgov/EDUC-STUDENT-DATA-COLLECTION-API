@@ -1,22 +1,28 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
+import ca.bc.gov.educ.studentdatacollection.api.helpers.HeadcountHelper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ReportZeroEnrollmentSdcSchoolCollection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitSdcSchoolCollection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValidationIssueTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
+import ca.bc.gov.educ.studentdatacollection.api.util.UpperCase;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.PastOrPresent;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +30,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -263,5 +270,33 @@ public class SdcSchoolCollectionService {
             .sorted(Comparator.comparing(ValidationIssueTypeCode::getSeverityTypeCode)
                     .thenComparing(ValidationIssueTypeCode::getMessage))
             .toList();
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void startSDCCollectionFromLastSDCCollectionDataSet(UUID sdcSchoolCollectionID, String updateUser) {
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID);
+    SdcSchoolCollectionEntity currentSchoolCollectionEntity = sdcSchoolCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, sdcSchoolCollectionID.toString()));
+    var septemberCollectionOptional = sdcSchoolCollectionRepository.findLastCollectionByType(currentSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), currentSchoolCollectionEntity.getSdcSchoolCollectionID());
+    SdcSchoolCollectionEntity septemberCollection = septemberCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, sdcSchoolCollectionID.toString()));
+
+    currentSchoolCollectionEntity.getSDCSchoolStudentEntities().clear();
+    sdcSchoolCollectionRepository.save(currentSchoolCollectionEntity);
+    septemberCollection.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity -> {
+      var studentEntity = new SdcSchoolCollectionStudentEntity();
+      BeanUtils.copyProperties(sdcSchoolCollectionStudentEntity, studentEntity, "sdcSchoolCollectionStudentID", "sdcStudentEnrolledProgramEntities", "sdcStudentValidationIssueEntities");
+      TransformUtil.clearCalculatedFields(studentEntity, true);
+      studentEntity.setSdcSchoolCollection(currentSchoolCollectionEntity);
+      var hash = Integer.toString(studentEntity.getUniqueObjectHash());
+      studentEntity.setOriginalDemogHash(hash);
+      studentEntity.setCurrentDemogHash(hash);
+      studentEntity.setCreateUser(updateUser);
+      studentEntity.setUpdateUser(updateUser);
+      studentEntity.setCreateDate(LocalDateTime.now());
+      studentEntity.setUpdateDate(LocalDateTime.now());
+      studentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.getCode());
+      currentSchoolCollectionEntity.getSDCSchoolStudentEntities().add(studentEntity);
+    });
+
+    sdcSchoolCollectionStudentService.saveAllSdcStudentWithHistory(currentSchoolCollectionEntity.getSDCSchoolStudentEntities().stream().toList());
   }
 }

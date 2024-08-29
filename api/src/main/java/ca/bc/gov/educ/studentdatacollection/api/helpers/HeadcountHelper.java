@@ -140,18 +140,22 @@ public class HeadcountHelper<T extends HeadcountResult> {
     });
   }
 
-  public UUID getPreviousSeptemberCollectionID(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
-    var septemberCollection = sdcSchoolCollectionRepository.findLastCollectionByType(sdcSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-    if(septemberCollection.isPresent()) {
-      return septemberCollection.get().getSdcSchoolCollectionID();
-    } else {
-      return null;
-    }
+  // this gets the previous July collection ID if collection type is July, else it gets previous September collection ID
+  public UUID getPreviousCollectionID(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
+    Optional<SdcSchoolCollectionEntity> collection;
+    String collectionType = sdcSchoolCollectionEntity.getCollectionEntity().getCollectionTypeCode();
+    if (collectionType.equals(CollectionTypeCodes.JULY.getTypeCode())) collection = sdcSchoolCollectionRepository.findLastCollectionByType(sdcSchoolCollectionEntity.getSchoolID(), collectionType, sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+    else collection = sdcSchoolCollectionRepository.findLastCollectionByType(sdcSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+    return collection.map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).orElse(null);
   }
 
-  public UUID getPreviousSeptemberCollectionIDByDistrictCollectionID(SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
-    var septemberCollection = sdcDistrictCollectionRepository.findLastCollectionByType(sdcDistrictCollectionEntity.getDistrictID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
-      return septemberCollection.map(SdcDistrictCollectionEntity::getSdcDistrictCollectionID).orElse(null);
+  // this gets the previous July collection ID if collection type is July, else it gets previous September collection ID
+  public UUID getPreviousCollectionIDByDistrictCollectionID(SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
+    Optional<SdcDistrictCollectionEntity> collection;
+    String collectionType = sdcDistrictCollectionEntity.getCollectionEntity().getCollectionTypeCode();
+    if (collectionType.equals(CollectionTypeCodes.JULY.getTypeCode())) collection = sdcDistrictCollectionRepository.findLastCollectionByType(sdcDistrictCollectionEntity.getDistrictID(), collectionType, sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+    else collection = sdcDistrictCollectionRepository.findLastCollectionByType(sdcDistrictCollectionEntity.getDistrictID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+    return collection.map(SdcDistrictCollectionEntity::getSdcDistrictCollectionID).orElse(null);
   }
 
   public void stripZeroColumns(HeadcountHeader headcountHeader) {
