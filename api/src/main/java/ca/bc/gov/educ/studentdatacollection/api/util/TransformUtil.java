@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.util;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGrade;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
@@ -198,5 +199,26 @@ public class TransformUtil {
     } else {
       return splitIntoChunks(enrolledProgramCode.stripTrailing(), 2).stream().filter(codes -> !codes.equals("00")).collect(Collectors.joining());
     }
+  }
+
+  public static void clearCalculatedFields(SdcSchoolCollectionStudentEntity incomingStudentEntity, boolean wipePENMatch){
+    if(wipePENMatch) {
+      incomingStudentEntity.setAssignedStudentId(null);
+      incomingStudentEntity.setAssignedPen(null);
+      incomingStudentEntity.setPenMatchResult(null);
+    }
+
+    incomingStudentEntity.setFte(null);
+    incomingStudentEntity.setIsGraduated(null);
+    incomingStudentEntity.setIsSchoolAged(null);
+    incomingStudentEntity.setIsAdult(null);
+    incomingStudentEntity.setYearsInEll(null);
+    incomingStudentEntity.setNumberOfCoursesDec(null);
+    incomingStudentEntity.setFteZeroReasonCode(null);
+    incomingStudentEntity.setCareerProgramNonEligReasonCode(null);
+    incomingStudentEntity.setSpecialEducationNonEligReasonCode(null);
+    incomingStudentEntity.setEllNonEligReasonCode(null);
+    incomingStudentEntity.setIndigenousSupportProgramNonEligReasonCode(null);
+    incomingStudentEntity.setFrenchProgramNonEligReasonCode(null);
   }
 }

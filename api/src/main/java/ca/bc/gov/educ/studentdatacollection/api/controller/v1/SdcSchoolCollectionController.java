@@ -1,6 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcSchoolCollectionEndpoint;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
@@ -19,12 +21,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+
+import static ca.bc.gov.educ.studentdatacollection.api.batch.processor.SdcBatchFileProcessor.INVALID_PAYLOAD_MSG;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @RestController
 public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoint {
@@ -129,6 +136,20 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   @Override
   public List<ValidationIssueTypeCode> getStudentValidationIssueCodes(UUID sdcSchoolCollectionID) {
     return this.sdcSchoolCollectionService.getStudentValidationIssueCodes(sdcSchoolCollectionID);
+  }
+
+  @Override
+  public ResponseEntity<String> startSDCCollectionFromLastSDCCollectionDataSet(SdcSchoolCollection sdcSchoolCollection, UUID sdcSchoolCollectionID) {
+    if(!sdcSchoolCollection.getSdcSchoolCollectionID().equals(sdcSchoolCollectionID.toString())) {
+      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
+      var validationError = ValidationUtil.createFieldError("sdcSchoolCollectionID", sdcSchoolCollectionID, "Incorrect sdcSchoolCollectionID - conflict with payload object.");
+      List<FieldError> fieldErrorList = new ArrayList<>();
+      fieldErrorList.add(validationError);
+      error.addValidationErrors(fieldErrorList);
+      throw new InvalidPayloadException(error);
+    }
+    this.sdcSchoolCollectionService.startSDCCollectionFromLastSDCCollectionDataSet(sdcSchoolCollectionID, sdcSchoolCollection.getUpdateUser());
+    return ResponseEntity.ok().build();
   }
 
   @Override
