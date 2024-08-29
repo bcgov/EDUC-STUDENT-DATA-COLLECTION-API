@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.Base64;
 import java.util.Optional;
 
 /**
@@ -42,6 +43,14 @@ public class SdcFileValidator {
   public SdcFileValidator(RestUtils restUtils, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
     this.restUtils = restUtils;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+  }
+
+  public byte[] getUploadedFileBytes(@NonNull final String guid, final SdcFileUpload fileUpload) throws FileUnProcessableException {
+    byte[] bytes = Base64.getDecoder().decode(fileUpload.getFileContents());
+    if (bytes.length == 0) {
+      throw new FileUnProcessableException(FileError.EMPTY_FILE, guid, SdcSchoolCollectionStatus.LOAD_FAIL);
+    }
+    return bytes;
   }
 
   public void validateFileForFormatAndLength(@NonNull final String guid, @NonNull final DataSet ds) throws FileUnProcessableException {
