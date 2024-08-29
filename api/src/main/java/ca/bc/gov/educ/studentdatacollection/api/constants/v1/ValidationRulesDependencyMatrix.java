@@ -68,6 +68,8 @@ public enum ValidationRulesDependencyMatrix {
     ENTRY60("V92", new String[]{INVALID_GRADE_CODE.getCode()}),
     ENTRY61("V98", new String[]{DOB_INVALID_FORMAT.getCode()}),
     ENTRY62("V100", new String[]{ENROLLED_CODE_PARSE_ERR.getCode()}),
+    ENTRY63("V102", new String[]{SUMMER_PUBLIC_SCHOOL_GRADE_ERROR.getCode()}),
+
     ;
 
     @Getter
