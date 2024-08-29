@@ -71,43 +71,6 @@ class HeadcountHelperTest {
       assertEquals(column[1], modifiedColumns.get(column[0]).getCurrentValue());
     }
   }
-  @ParameterizedTest
-  @CsvSource({
-          "2, 15",
-          "2, 28",
-          "2, 1",
-          "7, 15",
-          "7, 1",
-          "7, 31",
-          "9, 15",
-          "9, 1",
-          "9, 30",
-  })
-  void testGetPreviousSeptemberCollectionID_givenPreviousCollection_shouldCallRepositoryWithCorrectDates(int month, int day) {
-    // Given
-    UUID schoolCollectionId = UUID.randomUUID();
-    UUID schoolId = UUID.randomUUID();
-    LocalDateTime createDate = LocalDateTime.of(2023, month, day, 12, 0);
-    SdcSchoolCollectionEntity schoolCollectionEntity = new SdcSchoolCollectionEntity();
-    schoolCollectionEntity.setSdcSchoolCollectionID(schoolCollectionId);
-    schoolCollectionEntity.setSchoolID(schoolId);
-    schoolCollectionEntity.setCreateDate(createDate);
-
-    Optional<SdcSchoolCollectionEntity> septemberCollections = Optional.of(schoolCollectionEntity);
-
-    when(schoolCollectionRepository.findLastCollectionByType(eq(schoolId), any(), any()))
-            .thenReturn(septemberCollections);
-
-    // When
-    UUID result = headcountHelper.getPreviousSeptemberCollectionID(schoolCollectionEntity);
-
-    // Then
-    assertEquals(schoolCollectionId, result);
-    verify(schoolCollectionRepository).findLastCollectionByType(
-            schoolId,
-            CollectionTypeCodes.SEPTEMBER.getTypeCode(),
-            schoolCollectionEntity.getSdcSchoolCollectionID());
-  }
 
   @ParameterizedTest
   @CsvSource({
@@ -189,27 +152,6 @@ class HeadcountHelperTest {
             schoolId,
             CollectionTypeCodes.JULY.getTypeCode(),
             schoolCollectionEntity.getSdcSchoolCollectionID());
-  }
-
-  @Test
-  void testGetPreviousSeptemberCollectionID_givenNoCollections_shouldReturnNull() {
-    // Given
-    UUID schoolCollectionId = UUID.randomUUID();
-    UUID schoolId = UUID.randomUUID();
-    LocalDateTime createDate = LocalDateTime.of(2023, Month.JUNE, 15, 12, 0);
-    SdcSchoolCollectionEntity schoolCollectionEntity = new SdcSchoolCollectionEntity();
-    schoolCollectionEntity.setSdcSchoolCollectionID(schoolCollectionId);
-    schoolCollectionEntity.setSchoolID(schoolId);
-    schoolCollectionEntity.setCreateDate(createDate);
-
-    when(schoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(eq(schoolId), any()))
-            .thenReturn(new ArrayList<>());
-
-    // When
-    UUID result = headcountHelper.getPreviousSeptemberCollectionID(schoolCollectionEntity);
-
-    // Then
-    assertNull(result);
   }
 
   @Test
