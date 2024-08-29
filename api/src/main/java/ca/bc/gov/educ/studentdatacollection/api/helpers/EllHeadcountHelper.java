@@ -78,20 +78,20 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity,
     List<HeadcountHeader> headcountHeaderList
   ) {
-    UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
+    UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity);
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, false);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 
   public void setResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable collectionData) {
-    UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
+    UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity);
     List<EllHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcSchoolCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
     setResultsTableComparisonValues(collectionData, previousCollectionData);
   }
 
   public void setComparisonValuesForDistrictReporting(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
-    UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+    UUID previousCollectionID = getPreviousCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
     List<EllHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcDistrictCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
@@ -100,7 +100,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
   }
 
   public void setComparisonValuesForDistrictBySchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
-    UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+    UUID previousCollectionID = getPreviousCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
     List<EllHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getEllHeadcountsByBySchoolIdAndSdcDistrictCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertEllBySchoolHeadcountResults(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawData);

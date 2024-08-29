@@ -66,7 +66,7 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
     }
 
     public void setComparisonValuesForDistrictReporting(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
-        UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+        UUID previousCollectionID = getPreviousCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
 
         List<FrenchCombinedHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionId(previousCollectionID);
         compareWithPrevCollection(previousCollectionRawData, headcountHeaderList, collectionData, sdcDistrictCollectionEntity);
@@ -74,14 +74,14 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
 
     public void compareWithPrevCollection(List<FrenchCombinedHeadcountResult> previousCollectionRawData, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData, SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
         HeadcountResultsTable previousCollectionData = convertHeadcountResults(previousCollectionRawData);
-        UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+        UUID previousCollectionID = getPreviousCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
         List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID);
         setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
         setResultsTableComparisonValues(collectionData, previousCollectionData);
     }
 
     public void setComparisonValuesForDistrictBySchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
-        UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+        UUID previousCollectionID = getPreviousCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
         List<FrenchCombinedHeadcountResult> collectionRawDataForHeadcount = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(previousCollectionID);
 
         HeadcountResultsTable previousCollectionData = convertHeadcountResultsToSchoolGradeTable(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawDataForHeadcount);
