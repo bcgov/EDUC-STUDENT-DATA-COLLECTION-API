@@ -6,7 +6,6 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * | ID   | Severity | Rule                                                          | Dependent On |
@@ -57,6 +55,7 @@ public class SummerStudentOnlineLearningRule implements ValidationBaseRule {
         log.debug("In executeValidation of SummerStudentOnlineLearningRule-V102 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         boolean isOnlineEnrolled = false;
+        validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
         if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null && !isOnlineSchool(studentRuleData.getSchool().getFacilityTypeCode())) {
             var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionInAllDistrict(studentRuleData);
             for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {

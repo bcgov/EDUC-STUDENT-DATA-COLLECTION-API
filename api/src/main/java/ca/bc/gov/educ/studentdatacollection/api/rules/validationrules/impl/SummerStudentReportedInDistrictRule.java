@@ -18,11 +18,9 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * | ID  | Severity | Rule                                                          | Dependent On |
@@ -58,13 +56,14 @@ public class SummerStudentReportedInDistrictRule implements ValidationBaseRule {
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         log.debug("In executeValidation of SummerStudentReportedInDistrictRule-V93 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
+        validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
         if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
             var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionWithInSameDistrict(studentRuleData);
             for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {
                 Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
                 if (school.isPresent()) {
                     boolean isOnlineSchool = FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode());
-                    if (studentEntity.getFte().compareTo(BigDecimal.ZERO) > 0 && (!isOnlineSchool || SchoolGradeCodes.getKToNineGrades().contains(studentEntity.getEnrolledGradeCode()))) {
+                    if (!isOnlineSchool || SchoolGradeCodes.getKToNineGrades().contains(studentEntity.getEnrolledGradeCode())) {
                         errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_IN_DISTRICT_ERROR));
                         break;
                     }
