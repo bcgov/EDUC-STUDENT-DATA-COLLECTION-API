@@ -745,13 +745,13 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(savedOldColl);
     sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2));
 
-    var schoolCollection = SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(savedColl);
-    schoolCollection.setUpdateDate(null);
-    schoolCollection.setCreateDate(null);
+    var startFromPrior = new StartFromPriorSdcSchoolCollection();
+    startFromPrior.setSdcSchoolCollectionID(savedColl.getSdcSchoolCollectionID());
+    startFromPrior.setUpdateUser("ABC");
 
-    this.mockMvc.perform(post(URL.BASE_URL_SCHOOL_COLLECTION + "/" + savedColl.getSdcSchoolCollectionID() + "/priorCollection")
+    this.mockMvc.perform(post(URL.BASE_URL_SCHOOL_COLLECTION + "/priorCollection")
             .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_SCHOOL_COLLECTION")))
-            .content(JsonUtil.getJsonStringFromObject(schoolCollection))
+            .content(JsonUtil.getJsonStringFromObject(startFromPrior))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
 
     var updatedStudents = sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(savedColl.getSdcSchoolCollectionID());

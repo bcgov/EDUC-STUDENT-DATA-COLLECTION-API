@@ -73,12 +73,12 @@ public interface SdcSchoolCollectionEndpoint {
   @ResponseStatus(CREATED)
   SdcSchoolCollection createSdcSchoolCollectionByCollectionID(@Validated @RequestBody SdcSchoolCollection sdcSchoolCollection, @PathVariable("collectionID") UUID collectionID);
 
-  @PostMapping("/{sdcSchoolCollectionID}/priorCollection")
+  @PostMapping("/priorCollection")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_SCHOOL_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Tag(name = "Sdc School Collection", description = "Endpoints to start collection from prior collection's data.")
   @ResponseStatus(CREATED)
-  ResponseEntity<String> startSDCCollectionFromLastSDCCollectionDataSet(@Validated @RequestBody SdcSchoolCollection sdcSchoolCollection, @PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
+  ResponseEntity<String> startSDCCollectionFromLastSDCCollectionDataSet(@RequestBody StartFromPriorSdcSchoolCollection startFromPriorSdcSchoolCollection);
 
   @DeleteMapping("/{sdcSchoolCollectionID}")
   @PreAuthorize("hasAuthority('SCOPE_DELETE_SDC_SCHOOL_COLLECTION')")
