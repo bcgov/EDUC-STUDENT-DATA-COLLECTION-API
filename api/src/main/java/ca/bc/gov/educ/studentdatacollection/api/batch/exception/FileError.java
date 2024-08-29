@@ -9,6 +9,10 @@ import lombok.Getter;
  */
 public enum FileError {
   /**
+   * Upload file did not contain any content.
+   */
+  EMPTY_FILE("The uploaded file is empty."),
+  /**
    * The Invalid mincode header.
    */
   MISSING_HEADER("The file header appears to be missing"),
