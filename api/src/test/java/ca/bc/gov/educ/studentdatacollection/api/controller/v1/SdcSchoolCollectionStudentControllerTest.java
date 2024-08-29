@@ -2230,6 +2230,99 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
+    void testGetSdcSchoolCollectionStudentCategoryHeadcounts_specialEdHeadcounts() throws Exception {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var district = createMockDistrict();
+        var districtCollection1 = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId())));
+        var districtCollection2Entity = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+        districtCollection2Entity.setDistrictID(UUID.fromString(district.getDistrictId()));
+        districtCollection2Entity.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+        var districtCollection2 = sdcDistrictCollectionRepository.save(districtCollection2Entity);
+
+        var school = this.createMockSchool();
+        school.setDistrictId(district.getDistrictId());
+
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var schoolCollection1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        schoolCollection1.setUploadDate(null);
+        schoolCollection1.setUploadFileName(null);
+        schoolCollection1.setSdcDistrictCollectionID(districtCollection1.getSdcDistrictCollectionID());
+
+        var schoolCollection2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        schoolCollection2.setUploadDate(null);
+        schoolCollection2.setUploadFileName(null);
+        schoolCollection2.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+        schoolCollection2.setSdcDistrictCollectionID(districtCollection2.getSdcDistrictCollectionID());
+        sdcSchoolCollectionRepository.saveAll(Arrays.asList(schoolCollection1, schoolCollection2));
+
+        final File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+        );
+        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+        });
+        var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+        var students = IntStream.range(0, models.size())
+                .mapToObj(i -> {
+                    if (i % 2 == 0) {
+                        models.get(i).setSdcSchoolCollection(schoolCollection2);
+                    } else {
+                        models.get(i).setSdcSchoolCollection(schoolCollection1);
+                    }
+                    return models.get(i);
+                })
+                .toList();
+
+        var savedStudents = sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        savedStudents.forEach(student -> {
+            student.setSpecialEducationCategoryCode("20");
+        });
+
+        List<SdcSchoolCollectionStudentEnrolledProgramEntity> enrolledPrograms = new ArrayList<>();
+        sdcSchoolCollectionStudentEnrolledProgramRepository.saveAll(enrolledPrograms);
+
+        this.mockMvc
+                .perform(get(URL.BASE_URL + "/" + URL.HEADCOUNTS + "/" + districtCollection1.getSdcDistrictCollectionID())
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("type", "special-ed-cat-per-school")
+                        .param("compare", "true")
+                        .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("A - Physically Dependent")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[1].title", equalTo("B - Deafblind")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[2].title", equalTo("C - Moderate to Profound Intellectual Disability")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Reported'].comparisonValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[3].title", equalTo("D - Physical Disability or Chronic Health Impairment")))
+                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[3].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[4].title", equalTo("E - Visual Impairment")))
+                .andExpect(jsonPath("$.headcountHeaders[4].columns.['Reported'].comparisonValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[4].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[5].title", equalTo("F - Deaf or Hard of Hearing")))
+                .andExpect(jsonPath("$.headcountHeaders[5].columns.['Eligible'].currentValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[5].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[6].title", equalTo("G - Autism Spectrum Disorder")))
+                .andExpect(jsonPath("$.headcountHeaders[6].columns.['Reported'].comparisonValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[6].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[7].title", equalTo("H - Intensive Behaviour Interventions or Serious Mental Illness")))
+                .andExpect(jsonPath("$.headcountHeaders[7].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[7].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[8].title", equalTo("K - Mild Intellectual Disability")))
+                .andExpect(jsonPath("$.headcountHeaders[8].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[8].columns.['Eligible'].currentValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[9].title", equalTo("P - Gifted")))
+                .andExpect(jsonPath("$.headcountHeaders[9].columns.['Reported'].comparisonValue", equalTo("0")))
+                .andExpect(jsonPath("$.headcountHeaders[9].columns.['Eligible'].currentValue", equalTo("0")));
+    }
+
+
+    @Test
     void testReadSdcSchoolCollectionStudentInEnrolledProgramsOrHasNativeAncestryInd_ReturnParentsPaginatedCrit_ShouldReturnStatusOk() throws Exception {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();
