@@ -211,6 +211,7 @@ class HeadcountHelperTest {
     // Then
     assertNull(result);
   }
+
   @Test
   void testGetPreviousCollectionID_givenNoCollections_shouldReturnNull() {
     // Given
@@ -234,6 +235,31 @@ class HeadcountHelperTest {
     // Then
     assertNull(result);
   }
+
+  @Test
+  void testGetPreviousCollectionIDJuly_givenNoCollections_shouldReturnNull() {
+    // Given
+    UUID schoolCollectionId = UUID.randomUUID();
+    UUID schoolId = UUID.randomUUID();
+    LocalDateTime createDate = LocalDateTime.of(2023, Month.JUNE, 15, 12, 0);
+    CollectionEntity collectionEntity = new CollectionEntity();
+    collectionEntity.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+    SdcSchoolCollectionEntity schoolCollectionEntity = new SdcSchoolCollectionEntity();
+    schoolCollectionEntity.setSdcSchoolCollectionID(schoolCollectionId);
+    schoolCollectionEntity.setSchoolID(schoolId);
+    schoolCollectionEntity.setCreateDate(createDate);
+    schoolCollectionEntity.setCollectionEntity(collectionEntity);
+
+    when(schoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(eq(schoolId), any()))
+            .thenReturn(new ArrayList<>());
+
+    // When
+    UUID result = headcountHelper.getPreviousCollectionID(schoolCollectionEntity);
+
+    // Then
+    assertNull(result);
+  }
+
   @Test
   void testStripZeroColumns_givenAtLeastOneValue_shouldReturnColumn() {
     // Given
