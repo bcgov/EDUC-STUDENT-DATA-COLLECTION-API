@@ -276,11 +276,11 @@ public class SdcSchoolCollectionService {
   public void startSDCCollectionFromLastSDCCollectionDataSet(UUID sdcSchoolCollectionID, String updateUser) {
     Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID);
     SdcSchoolCollectionEntity currentSchoolCollectionEntity = sdcSchoolCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, sdcSchoolCollectionID.toString()));
+    sdcSchoolCollectionStudentHistoryRepository.deleteAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
     var septemberCollectionOptional = sdcSchoolCollectionRepository.findLastCollectionByType(currentSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), currentSchoolCollectionEntity.getSdcSchoolCollectionID());
     SdcSchoolCollectionEntity septemberCollection = septemberCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, sdcSchoolCollectionID.toString()));
 
     currentSchoolCollectionEntity.getSDCSchoolStudentEntities().clear();
-    sdcSchoolCollectionStudentHistoryRepository.deleteAllBySdcSchoolCollectionID(currentSchoolCollectionEntity.getSdcSchoolCollectionID());
     septemberCollection.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity -> {
       var studentEntity = new SdcSchoolCollectionStudentEntity();
       BeanUtils.copyProperties(sdcSchoolCollectionStudentEntity, studentEntity, "sdcSchoolCollectionStudentID", "sdcStudentEnrolledProgramEntities", "sdcStudentValidationIssueEntities");
