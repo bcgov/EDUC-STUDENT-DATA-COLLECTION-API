@@ -191,6 +191,63 @@ public class FteCalculatorUtils {
         return false;
     }
 
+    public boolean includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(StudentRuleData studentRuleData) {
+        var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
+        var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
+        var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
+        String studentDistrictId = studentRuleData.getSchool().getDistrictId();
+        List<UUID> notOnlineSchoolIdsInSameDistrict = restUtils.getSchools().stream()
+                .filter(school -> FacilityTypeCodes.getOnlineFacilityTypeCodes().stream().noneMatch(code -> code.equals(school.getFacilityTypeCode())))
+                .filter(school -> school.getDistrictId().equals(studentDistrictId))
+                .map(school -> UUID.fromString(school.getSchoolId()))
+                .toList();
+        var previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(notOnlineSchoolIdsInSameDistrict, fiscalSnapshotDate, currentSnapshotDate);
+        if (previousCollections != null) {
+            var collectionIds = previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList();
+            var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTE(student.getAssignedStudentId(), collectionIds);
+            return count > 0;
+        }
+        return false;
+    }
+
+    public boolean includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(StudentRuleData studentRuleData) {
+        var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
+        var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
+        var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
+        String studentDistrictId = studentRuleData.getSchool().getDistrictId();
+        List<UUID> onlineSchoolIdsInSameDistrict = restUtils.getSchools().stream()
+                .filter(school -> FacilityTypeCodes.getOnlineFacilityTypeCodes().stream().anyMatch(code -> code.equals(school.getFacilityTypeCode())))
+                .filter(school -> school.getDistrictId().equals(studentDistrictId))
+                .map(school -> UUID.fromString(school.getSchoolId()))
+                .toList();
+        var previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(onlineSchoolIdsInSameDistrict, fiscalSnapshotDate, currentSnapshotDate);
+        if (previousCollections != null) {
+            var collectionIds = previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList();
+            var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTEAndInGradeKto9(student.getAssignedStudentId(), collectionIds);
+            return count > 0;
+        }
+        return false;
+    }
+
+    public boolean reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(StudentRuleData studentRuleData) {
+        var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
+        var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
+        var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
+        List<UUID> onlineSchoolIds = restUtils.getSchools().stream().filter(
+                school -> FacilityTypeCodes.getOnlineFacilityTypeCodes().stream().anyMatch(
+                        code -> code.equals(school.getFacilityTypeCode()))).map(
+                                school -> UUID.fromString(school.getSchoolId())).toList();
+
+        var previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(onlineSchoolIds, fiscalSnapshotDate, currentSnapshotDate);
+
+        if (previousCollections != null) {
+            var collectionIds = previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList();
+            var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(student.getAssignedStudentId(), collectionIds);
+            return count > 0;
+        }
+        return false;
+    }
+
     private LocalDate getFiscalDateFromCurrentSnapshot(LocalDate currentSnapshotDate){
         return currentSnapshotDate.minusYears(1).withMonth(9).withDayOfMonth(1);
     }
