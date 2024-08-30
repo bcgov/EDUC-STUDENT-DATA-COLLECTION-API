@@ -1,11 +1,9 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -14,6 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentAuthority;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HomeLanguageSpokenCode;
@@ -22,9 +21,11 @@ import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.SCHOOL;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
@@ -139,7 +140,7 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
-  public SimpleHeadcountResultsTable getSpecialEducationHeadcountsByCollectionID(UUID collectionID) {
+  public SimpleHeadcountResultsTable getSpecialEducationHeadcountsForIndependentsByCollectionID(UUID collectionID) {
     List<IndySpecialEdAdultHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();
@@ -175,6 +176,81 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  public SimpleHeadcountResultsTable getSpecialEducationFundingHeadcountsForIndependentsByCollectionID(UUID collectionID) {
+    List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionId(collectionID);
+    var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collectionID);
+    if(lastSeptCollectionOpt.isEmpty()) {
+      throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+    }
+    List<SpecialEdHeadcountResult> lastSeptCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionId(lastSeptCollectionOpt.get().getCollectionID());
+    var mappedSeptData = generateCollectionMap(lastSeptCollectionRawData);
+
+    SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
+    var headerList = new ArrayList<String>();
+    for (IndySpecialEducationFundingHeadcountHeader header : IndySpecialEducationFundingHeadcountHeader.values()) {
+      headerList.add(header.getCode());
+    }
+    resultsTable.setHeaders(headerList);
+    var rows = new ArrayList<Map<String, String>>();
+    collectionRawData.stream().forEach(februaryCollectionRecord -> {
+      var septCollectionRecord = mappedSeptData.get(februaryCollectionRecord.getSchoolID());
+
+      var school = restUtils.getAllSchoolBySchoolID(februaryCollectionRecord.getSchoolID()).get();
+      var district = restUtils.getDistrictByDistrictID(school.getDistrictId()).get();
+      IndependentAuthority authority = null;
+      if(school.getIndependentAuthorityId() != null) {
+        authority = restUtils.getAuthorityByAuthorityID(school.getIndependentAuthorityId()).get();
+      }
+
+      if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
+        var rowMap = new HashMap<String, String>();
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.DISTRICT_NUMBER.getCode(), district.getDistrictNumber());
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.DISTRICT_NAME.getCode(), district.getDisplayName());
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NUMBER.getCode(), authority != null ? authority.getAuthorityNumber() : null );
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NAME.getCode(), authority != null ? authority.getDisplayName() : null );
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.MINCODE.getCode(), school.getMincode());
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.SCHOOL_NAME.getCode(), school.getDisplayName());
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_1.getCode(), septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : null);
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_2.getCode(), septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : null);
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_3.getCode(), septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : null);
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_1.getCode(), februaryCollectionRecord.getLevelOnes());
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_2.getCode(), februaryCollectionRecord.getLevelTwos());
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_3.getCode(), februaryCollectionRecord.getLevelThrees());
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_1.getCode(), getPositiveChange(septCollectionRecord.getLevelOnes(), februaryCollectionRecord.getLevelOnes()));
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_2.getCode(), getPositiveChange(septCollectionRecord.getLevelTwos(), februaryCollectionRecord.getLevelTwos()));
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_3.getCode(), getPositiveChange(septCollectionRecord.getLevelThrees(), februaryCollectionRecord.getLevelThrees()));
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_1.getCode(), getNetChange(septCollectionRecord.getLevelOnes(), februaryCollectionRecord.getLevelOnes()));
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_2.getCode(), getNetChange(septCollectionRecord.getLevelTwos(), februaryCollectionRecord.getLevelTwos()));
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_3.getCode(), getNetChange(septCollectionRecord.getLevelThrees(), februaryCollectionRecord.getLevelThrees()));
+        rows.add(rowMap);
+      }
+    });
+
+    resultsTable.setRows(rows);
+    return resultsTable;
+  }
+
+  private String getNetChange(String septValue, String febValue){
+    if(StringUtils.isNotEmpty(septValue) && StringUtils.isNotEmpty(febValue)){
+      var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
+      return Integer.toString(change);
+    }
+    return null;
+  }
+
+  private String getPositiveChange(String septValue, String febValue){
+    if(StringUtils.isNotEmpty(septValue) && StringUtils.isNotEmpty(febValue)){
+      var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
+      if(change > 0){
+        return Integer.toString(change);
+      }
+    }
+    return null;
+  }
+
+  private Map<String, SpecialEdHeadcountResult> generateCollectionMap(List<SpecialEdHeadcountResult> collectionRawData){
+    return collectionRawData.stream().collect(Collectors.toMap(SpecialEdHeadcountResult::getSchoolID, item -> item));
+  }
 
   public SimpleHeadcountResultsTable getSchoolAddressReport(UUID collectionID) {
     Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);

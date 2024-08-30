@@ -10,7 +10,10 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ReportZeroEnrollmentSdcSchoolCollection;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitSdcSchoolCollection;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -269,7 +272,7 @@ public class SdcSchoolCollectionService {
     Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID);
     SdcSchoolCollectionEntity currentSchoolCollectionEntity = sdcSchoolCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, sdcSchoolCollectionID.toString()));
     sdcSchoolCollectionStudentHistoryRepository.deleteAllBySdcSchoolCollectionID(sdcSchoolCollectionID);
-    var septemberCollectionOptional = sdcSchoolCollectionRepository.findLastCollectionByType(currentSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), currentSchoolCollectionEntity.getSdcSchoolCollectionID());
+    var septemberCollectionOptional = sdcSchoolCollectionRepository.findLastCollectionBySchoolIDAndType(currentSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), currentSchoolCollectionEntity.getSdcSchoolCollectionID());
     SdcSchoolCollectionEntity septemberCollection = septemberCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, sdcSchoolCollectionID.toString()));
 
     currentSchoolCollectionEntity.getSDCSchoolStudentEntities().clear();

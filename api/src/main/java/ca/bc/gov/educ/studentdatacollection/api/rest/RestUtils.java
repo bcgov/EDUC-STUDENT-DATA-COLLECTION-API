@@ -61,6 +61,7 @@ public class RestUtils {
   public static final String OPEN_DATE = "openedDate";
   public static final String CLOSE_DATE = "closedDate";
   private static final String CONTENT_TYPE = "Content-Type";
+  private final Map<String, IndependentAuthority> authorityMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMincodeMap = new ConcurrentHashMap<>();
   private final Map<String, District> districtMap = new ConcurrentHashMap<>();
@@ -74,6 +75,7 @@ public class RestUtils {
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final ReadWriteLock facilityTypesLock = new ReentrantReadWriteLock();
   private final ReadWriteLock schoolCategoriesLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock authorityLock = new ReentrantReadWriteLock();
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
   private final ReadWriteLock districtLock = new ReentrantReadWriteLock();
   private final ReadWriteLock allSchoolLock = new ReentrantReadWriteLock();
@@ -107,11 +109,27 @@ public class RestUtils {
     this.populateSchoolMap();
     this.populateSchoolMincodeMap();
     this.populateDistrictMap();
+    this.populateAuthorityMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
   public void scheduled() {
     this.init();
+  }
+
+  public void populateAuthorityMap() {
+    val writeLock = this.authorityLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val authority : this.getAuthority()) {
+        this.authorityMap.put(authority.getIndependentAuthorityId(), authority);
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache authorities {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} authorities to memory", this.authorityMap.values().size());
   }
 
   public void populateSchoolCategoryCodesMap() {
@@ -187,6 +205,17 @@ public class RestUtils {
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(SchoolTombstone.class)
+            .collectList()
+            .block();
+  }
+
+  public List<IndependentAuthority> getAuthority() {
+    log.info("Calling Institute api to load authority to memory");
+    return this.webClient.get()
+            .uri(this.props.getInstituteApiURL() + "/authority")
+            .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .retrieve()
+            .bodyToFlux(IndependentAuthority.class)
             .collectList()
             .block();
   }
@@ -397,6 +426,14 @@ public class RestUtils {
       this.populateSchoolMap();
     }
     return Optional.ofNullable(this.schoolMap.get(schoolID));
+  }
+
+  public Optional<IndependentAuthority> getAuthorityByAuthorityID(final String authorityID) {
+    if (this.authorityMap.isEmpty()) {
+      log.info("Authority map is empty reloading authorities");
+      this.populateSchoolMap();
+    }
+    return Optional.ofNullable(this.authorityMap.get(authorityID));
   }
 
   public Optional<SchoolTombstone> getSchoolByMincode(final String mincode) {

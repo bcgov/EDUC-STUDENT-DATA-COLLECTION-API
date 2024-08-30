@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorIndySdcSchoolCollectionQueryResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionQueryResponse;
@@ -130,7 +131,15 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             AND C.collectionTypeCode = :collectionTypeCode
             ORDER BY C.snapshotDate desc
             LIMIT 1""")
-    Optional<SdcSchoolCollectionEntity> findLastCollectionByType(UUID schoolID, String collectionTypeCode, UUID currentSdcCollectionID);
+    Optional<SdcSchoolCollectionEntity> findLastCollectionBySchoolIDAndType(UUID schoolID, String collectionTypeCode, UUID currentSdcCollectionID);
+
+    @Query(value="""
+            SELECT C FROM CollectionEntity C 
+            WHERE C.collectionID != :currentCollectionID
+            AND C.collectionTypeCode = :collectionTypeCode
+            ORDER BY C.snapshotDate desc
+            LIMIT 1""")
+    Optional<CollectionEntity> findLastCollectionByType(String collectionTypeCode, UUID currentCollectionID);
 
     List<SdcSchoolCollectionEntity> findAllBySchoolID(UUID schoolID);
     Optional<SdcSchoolCollectionEntity> findBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);

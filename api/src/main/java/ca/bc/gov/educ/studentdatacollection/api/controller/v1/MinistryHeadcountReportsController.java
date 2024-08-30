@@ -40,8 +40,9 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
             case SCHOOL_ADDRESS_REPORT -> ministryHeadcountService.getSchoolAddressReport(collectionID);
             case INDY_SCHOOL_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getIndySchoolsEnrollmentHeadcounts(collectionID);
             case OFFSHORE_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getOffshoreSchoolEnrollmentHeadcounts(collectionID);
-            case INDY_INCLUSIVE_ED_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getSpecialEducationHeadcountsByCollectionID(collectionID);
+            case INDY_INCLUSIVE_ED_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getSpecialEducationHeadcountsForIndependentsByCollectionID(collectionID);
             case OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS -> ministryHeadcountService.getOffshoreSpokenLanguageHeadcounts(collectionID);
+            case INDY_INCLUSIVE_ED_FUNDING_HEADCOUNTS -> ministryHeadcountService.getSpecialEducationFundingHeadcountsForIndependentsByCollectionID(collectionID);
             default -> new SimpleHeadcountResultsTable();
         };
     }
