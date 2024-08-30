@@ -18,6 +18,7 @@ public interface SdcSchoolCollectionStudentHistoryRepository extends JpaReposito
     @Query(value = "DELETE FROM SdcSchoolCollectionStudentHistoryEntity WHERE sdcSchoolCollectionStudentID in (:sdcSchoolCollectionStudentIDs)")
     void deleteBySdcSchoolCollectionStudentIDs(List<UUID> sdcSchoolCollectionStudentIDs);
 
+    void deleteAllBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
     @Query(value = """
     SELECT *

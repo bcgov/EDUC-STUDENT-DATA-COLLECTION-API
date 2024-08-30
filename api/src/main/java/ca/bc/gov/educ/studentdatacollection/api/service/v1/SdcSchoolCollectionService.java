@@ -280,6 +280,7 @@ public class SdcSchoolCollectionService {
     SdcSchoolCollectionEntity septemberCollection = septemberCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, sdcSchoolCollectionID.toString()));
 
     currentSchoolCollectionEntity.getSDCSchoolStudentEntities().clear();
+    sdcSchoolCollectionStudentHistoryRepository.deleteAllBySdcSchoolCollectionID(currentSchoolCollectionEntity.getSdcSchoolCollectionID());
     septemberCollection.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity -> {
       var studentEntity = new SdcSchoolCollectionStudentEntity();
       BeanUtils.copyProperties(sdcSchoolCollectionStudentEntity, studentEntity, "sdcSchoolCollectionStudentID", "sdcStudentEnrolledProgramEntities", "sdcStudentValidationIssueEntities");
