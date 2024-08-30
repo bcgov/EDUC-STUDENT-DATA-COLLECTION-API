@@ -8,21 +8,13 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentSta
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
-import ca.bc.gov.educ.studentdatacollection.api.helpers.HeadcountHelper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
-import ca.bc.gov.educ.studentdatacollection.api.util.UpperCase;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.PastOrPresent;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +22,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -80,7 +71,7 @@ public class SdcSchoolCollectionService {
   }
 
   @Transactional(propagation = Propagation.MANDATORY)
-  public SdcSchoolCollectionEntity saveSdcSchoolCollection(SdcSchoolCollectionEntity curSDCSchoolEntity, List<SdcSchoolCollectionStudentEntity> finalStudents, List<UUID> removedStudents) {
+  public SdcSchoolCollectionEntity reconcileStudentsAndSaveSdcSchoolCollection(SdcSchoolCollectionEntity curSDCSchoolEntity, List<SdcSchoolCollectionStudentEntity> finalStudents, List<UUID> removedStudents) {
     log.debug("Removing duplicate records for SDC school collection: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
     this.sdcDuplicateRepository.deleteAllBySdcDuplicateStudentEntities_SdcSchoolCollectionID(curSDCSchoolEntity.getSdcSchoolCollectionID());
 
@@ -138,10 +129,9 @@ public class SdcSchoolCollectionService {
     final Optional<SdcSchoolCollectionEntity> curSdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
     if (curSdcSchoolCollection.isPresent()) {
       SdcSchoolCollectionEntity curGetSdcSchoolCollection = curSdcSchoolCollection.get();
-      BeanUtils.copyProperties(sdcSchoolCollectionEntity, curGetSdcSchoolCollection, "uploadDate", "uploadFileName", "schoolID", "collectionID", SDC_SCHOOL_COLLECTION_ID_KEY, "collectionTypeCode", "collectionOpenDate", "collectionCloseDate", "students");
+      BeanUtils.copyProperties(sdcSchoolCollectionEntity, curGetSdcSchoolCollection, "uploadDate", "uploadFileName", "schoolID", "collectionEntity", SDC_SCHOOL_COLLECTION_ID_KEY);
       TransformUtil.uppercaseFields(curGetSdcSchoolCollection);
-      curGetSdcSchoolCollection = this.sdcSchoolCollectionRepository.save(curGetSdcSchoolCollection);
-      return curGetSdcSchoolCollection;
+      return saveSdcSchoolCollectionWithHistory(curGetSdcSchoolCollection);
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionEntity.class, "SdcSchoolCollection", sdcSchoolCollectionEntity.getSdcSchoolCollectionID().toString());
     }
@@ -231,7 +221,7 @@ public class SdcSchoolCollectionService {
     }
     sdcSchoolCollectionEntity.setUpdateDate(LocalDateTime.now());
     sdcSchoolCollectionEntity.setUpdateUser(unsubmitData.getUpdateUser());
-    updateSdcSchoolCollection(sdcSchoolCollectionEntity);
+    saveSdcSchoolCollectionWithHistory(sdcSchoolCollectionEntity);
 
     return sdcSchoolCollectionEntity;
   }
@@ -243,7 +233,6 @@ public class SdcSchoolCollectionService {
 
     this.sdcDuplicateRepository.deleteAllBySdcDuplicateStudentEntities_SdcSchoolCollectionID(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
 
-    sdcSchoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, reportZeroEnrollmentData.getUpdateUser()));
     this.sdcSchoolCollectionStudentHistoryRepository.deleteBySdcSchoolCollectionStudentIDs(
             sdcSchoolCollectionEntity.getSDCSchoolStudentEntities().stream().map(SdcSchoolCollectionStudentEntity::getSdcSchoolCollectionStudentID).toList()
     );
@@ -257,7 +246,7 @@ public class SdcSchoolCollectionService {
     sdcSchoolCollectionEntity.setUpdateDate(LocalDateTime.now());
     sdcSchoolCollectionEntity.setUpdateUser(reportZeroEnrollmentData.getUpdateUser());
 
-    updateSdcSchoolCollection(sdcSchoolCollectionEntity);
+    saveSdcSchoolCollectionWithHistory(sdcSchoolCollectionEntity);
 
     return sdcSchoolCollectionEntity;
   }
@@ -297,7 +286,19 @@ public class SdcSchoolCollectionService {
       currentSchoolCollectionEntity.getSDCSchoolStudentEntities().add(studentEntity);
     });
 
-    sdcSchoolCollectionRepository.save(currentSchoolCollectionEntity);
+    currentSchoolCollectionEntity.setUploadFileName(null);
+    currentSchoolCollectionEntity.setUploadDate(null);
+    currentSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.LOADED.getCode());
+    currentSchoolCollectionEntity.setUpdateDate(LocalDateTime.now());
+    currentSchoolCollectionEntity.setUpdateUser(updateUser);
+
+    saveSdcSchoolCollectionWithHistory(currentSchoolCollectionEntity);
     sdcSchoolCollectionStudentService.saveAllSdcStudentWithHistory(currentSchoolCollectionEntity.getSDCSchoolStudentEntities().stream().toList());
+  }
+
+  public SdcSchoolCollectionEntity saveSdcSchoolCollectionWithHistory(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
+    TransformUtil.uppercaseFields(sdcSchoolCollectionEntity);
+    sdcSchoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser()));
+    return this.sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
   }
 }

@@ -266,7 +266,7 @@ public class SdcBatchFileProcessor {
         coll.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.NEW));
       }
 
-      return sdcSchoolCollectionService.saveSdcSchoolCollection(coll, pairStudentList.getLeft(), pairStudentList.getRight());
+      return sdcSchoolCollectionService.reconcileStudentsAndSaveSdcSchoolCollection(coll, pairStudentList.getLeft(), pairStudentList.getRight());
     }else{
       throw new StudentDataCollectionAPIRuntimeException("SDC School Collection ID provided :: " + sdcSchoolCollectionID + " :: is not valid");
     }
