@@ -177,12 +177,12 @@ class EllHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
         HeadcountResultsTable actualResultsTable = helper.convertEllBySchoolHeadcountResults(mockDistrictCollectionEntity.getSdcDistrictCollectionID(), result);
 
-        var titles = actualResultsTable.getRows().stream().filter(row ->
-                row.get("title").getCurrentValue().equals("0000002 - School2")).findAny();
+        var allTitle = actualResultsTable.getRows().stream().filter(row ->
+                row.get("title").getCurrentValue().equals("Eligible English Language Learners")).findAny();
 
-        assert(titles.isPresent());
-        assertEquals("4", titles.get().get("Total").getCurrentValue());
-        assertEquals("1", titles.get().get("01").getCurrentValue());
+        assert(allTitle.isPresent());
+        assertEquals("4", allTitle.get().get("Total").getCurrentValue());
+        assertEquals("1", allTitle.get().get("01").getCurrentValue());
     }
 
 }

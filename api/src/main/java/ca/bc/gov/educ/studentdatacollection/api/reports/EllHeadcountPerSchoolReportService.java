@@ -30,6 +30,8 @@ import java.util.*;
 @Slf4j
 public class EllHeadcountPerSchoolReportService extends BaseReportGenerationService<EllHeadcountResult> {
     protected static final String ALLELL = "allEll";
+    public static final String ELIGIBLE = "eligible";
+    public static final String INELIGIBLE = "ineligible";
     public static final String HEADING = "Heading";
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
@@ -114,8 +116,10 @@ public class EllHeadcountPerSchoolReportService extends BaseReportGenerationServ
         if (Objects.equals(sectionPrefix, ALLELL)) {
             nodeMap.put(sectionPrefix, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, false));
         } else {
-            nodeMap.put(sectionPrefix + HEADING, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
-            nodeMap.put(sectionPrefix + "all", new GradeHeadcountChildNode("All English Language Learners", FALSE, sequencePrefix + "1", false));
+            nodeMap.put(sectionPrefix + HEADING, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, false));
+            nodeMap.put(sectionPrefix + "all", new GradeHeadcountChildNode("All English Language Learners", FALSE, sequencePrefix + "1", false, false, false, false));
+            nodeMap.put(sectionPrefix + ELIGIBLE, new GradeHeadcountChildNode("Eligible English Language Learners", FALSE, sequencePrefix + "2", false, false, false, false));
+            nodeMap.put(sectionPrefix + INELIGIBLE, new GradeHeadcountChildNode("Ineligible English Language Learners", FALSE, sequencePrefix + "3", false, false, false, false));
         }
     }
 
@@ -132,6 +136,14 @@ public class EllHeadcountPerSchoolReportService extends BaseReportGenerationServ
 
         if (nodeMap.containsKey(schoolID + "all")) {
             ((GradeHeadcountChildNode)nodeMap.get(schoolID + "all")).setValueForGrade(code, gradeResult.getTotalEllStudents());
+        }
+
+        if (nodeMap.containsKey(schoolID + ELIGIBLE)) {
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + ELIGIBLE)).setValueForGrade(code, gradeResult.getTotalEligibleEllStudents());
+        }
+
+        if (nodeMap.containsKey(schoolID + INELIGIBLE)) {
+            ((GradeHeadcountChildNode)nodeMap.get(schoolID + INELIGIBLE)).setValueForGrade(code, gradeResult.getTotalIneligibleEllStudents());
         }
 
         if (nodeMap.containsKey(schoolID + HEADING)) {

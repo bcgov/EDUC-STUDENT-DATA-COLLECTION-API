@@ -29,16 +29,22 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
   // Header Titles
   private static final String ELL_TITLE = "English Language Learners";
   private static final String ELIGIBLE_TITLE = "Eligible";
+  private static final String INELIGIBLE_TITLE = "Ineligible";
   private static final String REPORTED_TITLE = "Reported";
 
   // Table Row Titles
-  private static final String ALL_STUDENTS_TITLE = "English Language Learners";
+  private static final String ALL_STUDENTS_TITLE = "All English Language Learners";
+  private static final String ELIGIBLE_STUDENTS_TITLE = "Eligible English Language Learners";
+  private static final String INELIGIBLE_STUDENTS_TITLE = "Ineligible English Language Learners";
 
   // Hash keys
   private static final String TOTAL_ELL_STUDENTS = "totalEllStudents";
+  private static final String TOTAL_ELL_ELIGIBLE_STUDENTS = "totalEligibleEllStudents";
+  private static final String TOTAL_ELL_INELIGIBLE_STUDENTS = "totalIneligibleEllStudents";
   private static final String TOTAL_ELL_ADULT_STUDENTS = "totalAdultEllStudents";
   private static final String TOTAL_ELL_SCHOOL_AGED_STUDENTS = "totalSchoolAgedEllStudents";
 
+  public static final String SCHOOL_NAME_KEY="schoolName";
   private static final String TOTAL_ELL_ADULT_STUDENTS_TITLE="Adult";
   private static final String TOTAL_ELL_SCHOOL_AGED_STUDENTS_TITLE="School-Aged";
   private static final String ELL_TITLE_KEY="ellLearnerTitleKey";
@@ -113,7 +119,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
             ? sdcSchoolCollectionStudentRepository.getEllHeadersBySdcDistrictCollectionId(sdcSchoolCollectionID)
             : sdcSchoolCollectionStudentRepository.getEllHeadersBySchoolId(sdcSchoolCollectionID);
 
-    List<String> ellColumnTitles = List.of(ELIGIBLE_TITLE, REPORTED_TITLE);
+    List<String> ellColumnTitles = List.of(ELIGIBLE_TITLE, INELIGIBLE_TITLE, REPORTED_TITLE);
     List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
 
       List.of(ELL_TITLE).forEach(headerTitle -> {
@@ -126,6 +132,9 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
         headcountHeader.getColumns()
           .put(ELIGIBLE_TITLE, HeadcountHeaderColumn.builder()
               .currentValue(String.valueOf(result.getEligibleStudents())).build());
+        headcountHeader.getColumns()
+                .put(INELIGIBLE_TITLE, HeadcountHeaderColumn.builder()
+                        .currentValue(String.valueOf(result.getIneligibleStudents())).build());
         headcountHeader.getColumns()
           .put(REPORTED_TITLE, HeadcountHeaderColumn.builder()
               .currentValue(String.valueOf(result.getReportedStudents())).build());
@@ -140,6 +149,8 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
     Map<String, Function<EllHeadcountResult, String>> headcountMethods = new HashMap<>();
     headcountMethods.put(ELL_TITLE_KEY, null);
     headcountMethods.put(TOTAL_ELL_STUDENTS, EllHeadcountResult::getTotalEllStudents);
+    headcountMethods.put(TOTAL_ELL_ELIGIBLE_STUDENTS, EllHeadcountResult::getTotalEligibleEllStudents);
+    headcountMethods.put(TOTAL_ELL_INELIGIBLE_STUDENTS, EllHeadcountResult::getTotalIneligibleEllStudents);
     headcountMethods.put(TOTAL_ELL_ADULT_STUDENTS, EllHeadcountResult::getTotalAdultEllStudents);
     headcountMethods.put(TOTAL_ELL_SCHOOL_AGED_STUDENTS, EllHeadcountResult::getTotalSchoolAgedEllStudents);
     return headcountMethods;
@@ -152,12 +163,17 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
   private Map<String, String> getRowTitles() {
     Map<String, String> rowTitles = new LinkedHashMap<>();
     rowTitles.put(TOTAL_ELL_STUDENTS, ALL_STUDENTS_TITLE);
+    rowTitles.put(TOTAL_ELL_ELIGIBLE_STUDENTS, ELIGIBLE_STUDENTS_TITLE);
+    rowTitles.put(TOTAL_ELL_INELIGIBLE_STUDENTS, INELIGIBLE_STUDENTS_TITLE);
     return rowTitles;
   }
 
   private Map<String, String> getPerSchoolReportRowTitles() {
     Map<String, String> rowTitles = new LinkedHashMap<>();
-    rowTitles.put(TOTAL_ELL_STUDENTS, TOTAL_ELL_STUDENTS);
+    rowTitles.put(SCHOOL_NAME_KEY, null);
+    rowTitles.put(TOTAL_ELL_STUDENTS, ALL_STUDENTS_TITLE);
+    rowTitles.put(TOTAL_ELL_ELIGIBLE_STUDENTS, ELIGIBLE_STUDENTS_TITLE);
+    rowTitles.put(TOTAL_ELL_INELIGIBLE_STUDENTS, INELIGIBLE_STUDENTS_TITLE);
     return rowTitles;
   }
 
@@ -181,12 +197,8 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
     Set<SchoolTombstone> uniqueSchoolTombstones = new HashSet<>(schoolResultsTombstones);
     uniqueSchoolTombstones.addAll(allSchoolsTobmstones);
 
-    Map<String, HeadcountHeaderColumn> titleRow = new LinkedHashMap<>();
-    titleRow.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ELL_TITLE).build());
-    titleRow.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ELL_TITLE).build());
-    rows.add(titleRow);
-    uniqueSchoolTombstones.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
     createTotalSection(rows, results);
+    uniqueSchoolTombstones.stream().distinct().forEach(school -> createSectionsBySchool(rows, results, school));
     headcountResultsTable.setRows(rows);
     return headcountResultsTable;
   }
@@ -194,8 +206,12 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
   public void createSectionsBySchool(List<Map<String, HeadcountHeaderColumn>> rows, List<EllHeadcountResult> results, SchoolTombstone schoolTombstone) {
     for (Map.Entry<String, String> title : perSchoolReportRowTitles.entrySet()) {
       Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
-      rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(schoolTombstone.getMincode() + " - " + schoolTombstone.getDisplayName()).build());
 
+      if (title.getKey().equals(SCHOOL_NAME_KEY)) {
+        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(schoolTombstone.getMincode() + " - " + schoolTombstone.getDisplayName()).build());
+      } else {
+        rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
+      }
       BigDecimal total = BigDecimal.ZERO;
       Function<EllHeadcountResult, String> headcountFunction = headcountMethods.get(title.getKey());
       if (headcountFunction != null) {
@@ -213,7 +229,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
         }
         rowData.put(TOTAL_TITLE, HeadcountHeaderColumn.builder().currentValue(String.valueOf(total)).build());
       }
-      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ELL_TITLE).build());
+      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(schoolTombstone.getMincode() + " - " + schoolTombstone.getDisplayName()).build());
       rows.add(rowData);
     }
   }
