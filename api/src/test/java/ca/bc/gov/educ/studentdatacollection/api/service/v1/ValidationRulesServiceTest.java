@@ -166,23 +166,19 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
-    void testSetupMergedStudentIdValues_whenHistoricStudentIdsIsNull() {
-        // Arrange
+    void testSetupMergedStudentIdValues_whenHistoricStudentIdsIsNull_ReturnAssignedStudentIdAndMergedStudentIds() {
         var schoolTombstone = createMockSchoolTombstone();
         SdcSchoolCollectionStudentEntity mockStudentEntity = createMockSchoolStudentEntity(createMockSdcSchoolCollectionEntity(createMockCollectionEntity(), UUID.fromString(schoolTombstone.getSchoolId())));
         UUID assignedStudentId = UUID.randomUUID();
         mockStudentEntity.setAssignedStudentId(assignedStudentId);
         var studentRuleData = createMockStudentRuleData(mockStudentEntity, schoolTombstone);
 
-        // Mock the behavior of restUtils.getMergedStudentIds
         var mergedStudent = getStudentMergeResult();
         when(this.restUtils.getMergedStudentIds(any(UUID.class), any(UUID.class)))
                 .thenReturn(List.of(mergedStudent));
 
-        // Act
         validationRulesService.setupMergedStudentIdValues(studentRuleData);
 
-        // Assert
         assertNotNull(studentRuleData.getHistoricStudentIds());
         assertEquals(2, studentRuleData.getHistoricStudentIds().size());
         assertTrue(studentRuleData.getHistoricStudentIds().contains(UUID.fromString(mergedStudent.getMergeStudentID())));
@@ -190,8 +186,7 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
-    void testSetupMergedStudentIdValues_whenNoMergedStudents() {
-        // Arrange
+    void testSetupMergedStudentIdValues_whenNoMergedStudents_ReturnOnlyAssignedId() {
         var schoolTombstone = createMockSchoolTombstone();
         SdcSchoolCollectionStudentEntity mockStudentEntity = createMockSchoolStudentEntity(createMockSdcSchoolCollectionEntity(createMockCollectionEntity(), UUID.fromString(schoolTombstone.getSchoolId())));
         UUID assignedStudentId = UUID.randomUUID();
@@ -201,18 +196,15 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         when(this.restUtils.getMergedStudentIds(any(UUID.class), any(UUID.class)))
                 .thenReturn(List.of());
 
-        // Act
         validationRulesService.setupMergedStudentIdValues(studentRuleData);
 
-        // Assert
         assertNotNull(studentRuleData.getHistoricStudentIds());
         assertEquals(1, studentRuleData.getHistoricStudentIds().size());
         assertTrue(studentRuleData.getHistoricStudentIds().contains(assignedStudentId));
     }
 
     @Test
-    void testSetupMergedStudentIdValues_whenHistoricStudentIdsIsNotNull() {
-        // Arrange
+    void testSetupMergedStudentIdValues_whenHistoricStudentIdsIsNotNull_ReturnExisting() {
         var schoolTombstone = createMockSchoolTombstone();
         SdcSchoolCollectionStudentEntity mockStudentEntity = createMockSchoolStudentEntity(createMockSdcSchoolCollectionEntity(createMockCollectionEntity(), UUID.fromString(schoolTombstone.getSchoolId())));
         UUID assignedStudentId = UUID.randomUUID();
@@ -220,10 +212,8 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         var studentRuleData = createMockStudentRuleData(mockStudentEntity, schoolTombstone);
         studentRuleData.setHistoricStudentIds(List.of(assignedStudentId));
 
-        // Act
         validationRulesService.setupMergedStudentIdValues(studentRuleData);
 
-        // Assert
         assertEquals(1, studentRuleData.getHistoricStudentIds().size());
         assertTrue(studentRuleData.getHistoricStudentIds().contains(assignedStudentId));
     }
