@@ -22,7 +22,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -54,6 +56,7 @@ public class SdcSchoolCollectionService {
 
   private static final String INVALID_PAYLOAD_MSG = "Payload contains invalid data.";
   private static final String SDC_SCHOOL_COLLECTION_ID_KEY = "sdcSchoolCollectionID";
+  private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   @Autowired
   public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcDistrictCollectionService sdcDistrictCollectionService, SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository) {
@@ -290,7 +293,7 @@ public class SdcSchoolCollectionService {
 
     currentSchoolCollectionEntity.setUploadFileName("UPLOAD_FROM_PRIOR_SEPT_COLLECTION");
     currentSchoolCollectionEntity.setUploadDate(LocalDateTime.now());
-    currentSchoolCollectionEntity.setUploadReportDate("UPLOAD_FROM_PRIOR_SEPT_COLLECTION");
+    currentSchoolCollectionEntity.setUploadReportDate(formatter.format(LocalDate.now()));
     currentSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
     currentSchoolCollectionEntity.setUpdateDate(LocalDateTime.now());
     currentSchoolCollectionEntity.setUpdateUser(updateUser);
