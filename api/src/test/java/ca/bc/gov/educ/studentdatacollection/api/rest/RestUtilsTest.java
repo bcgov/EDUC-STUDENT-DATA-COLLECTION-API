@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.rest;
 
+import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
@@ -16,9 +17,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils.NATS_TIMEOUT;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.wildfly.common.Assert.assertFalse;
 import static org.wildfly.common.Assert.assertTrue;
@@ -319,5 +321,36 @@ class RestUtilsTest {
         assertEquals(school1, schoolMap.get(school1ID));
         assertEquals(school2, schoolMap.get(school2ID));
         assertEquals(school3, schoolMap.get(school3ID));
+    }
+
+    @Test
+    void testGetMergedStudentIds_WhenRequestTimesOut_ShouldThrowStudentDataCollectionAPIRuntimeException() {
+        UUID correlationID = UUID.randomUUID();
+        UUID assignedStudentId = UUID.randomUUID();
+
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.completedFuture(null));
+
+        StudentDataCollectionAPIRuntimeException exception = assertThrows(
+                StudentDataCollectionAPIRuntimeException.class,
+                () -> restUtils.getMergedStudentIds(correlationID, assignedStudentId)
+        );
+
+        assertEquals(NATS_TIMEOUT + correlationID, exception.getMessage());
+    }
+
+    @Test
+    void testGetMergedStudentIds_WhenExceptionOccurs_ShouldThrowStudentDataCollectionAPIRuntimeException() throws Exception {
+        UUID correlationID = UUID.randomUUID();
+        UUID assignedStudentId = UUID.randomUUID();
+        Exception mockException = new Exception("exception");
+
+        when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
+                .thenReturn(CompletableFuture.failedFuture(mockException));
+
+        StudentDataCollectionAPIRuntimeException exception = assertThrows(
+                StudentDataCollectionAPIRuntimeException.class,
+                () -> restUtils.getMergedStudentIds(correlationID, assignedStudentId)
+        );
     }
 }

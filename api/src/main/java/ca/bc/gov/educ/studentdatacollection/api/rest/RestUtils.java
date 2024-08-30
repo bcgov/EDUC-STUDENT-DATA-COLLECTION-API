@@ -284,7 +284,7 @@ public class RestUtils {
     } catch (final Exception ex) {
       log.error("Error occurred calling PEN SERVICES API service :: " + ex.getMessage());
       Thread.currentThread().interrupt();
-      throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
+      throw new StudentDataCollectionAPIRuntimeException(ex.getMessage());
     }
   }
 
