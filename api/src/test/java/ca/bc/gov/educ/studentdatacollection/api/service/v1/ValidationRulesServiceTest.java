@@ -172,6 +172,8 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         UUID assignedStudentId = UUID.randomUUID();
         mockStudentEntity.setAssignedStudentId(assignedStudentId);
         var studentRuleData = createMockStudentRuleData(mockStudentEntity, schoolTombstone);
+        studentRuleData.getSdcSchoolCollectionStudentEntity().setIsGraduated(false);
+        studentRuleData.getSdcSchoolCollectionStudentEntity().setPenMatchResult("MATCH");
 
         var mergedStudent = getStudentMergeResult();
         when(this.restUtils.getMergedStudentIds(any(UUID.class), any(UUID.class)))
@@ -192,6 +194,8 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         UUID assignedStudentId = UUID.randomUUID();
         mockStudentEntity.setAssignedStudentId(assignedStudentId);
         var studentRuleData = createMockStudentRuleData(mockStudentEntity, schoolTombstone);
+        studentRuleData.getSdcSchoolCollectionStudentEntity().setIsGraduated(false);
+        studentRuleData.getSdcSchoolCollectionStudentEntity().setPenMatchResult("MATCH");
 
         when(this.restUtils.getMergedStudentIds(any(UUID.class), any(UUID.class)))
                 .thenReturn(List.of());
@@ -211,6 +215,8 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         mockStudentEntity.setAssignedStudentId(assignedStudentId);
         var studentRuleData = createMockStudentRuleData(mockStudentEntity, schoolTombstone);
         studentRuleData.setHistoricStudentIds(List.of(assignedStudentId));
+        studentRuleData.getSdcSchoolCollectionStudentEntity().setIsGraduated(false);
+        studentRuleData.getSdcSchoolCollectionStudentEntity().setPenMatchResult("MATCH");
 
         validationRulesService.setupMergedStudentIdValues(studentRuleData);
 
