@@ -76,7 +76,7 @@ class SdcSchoolCollectionServiceTest {
     assertEquals(SdcSchoolCollectionStatus.DUP_VRFD.getCode(), result.getSdcSchoolCollectionStatusCode());
     assertEquals(SdcDistrictCollectionStatus.LOADED.getCode(), sdcDistrictCollectionEntity.getSdcDistrictCollectionStatusCode());
 
-    verify(sdcSchoolCollectionRepository, times(2)).findById(sdcSchoolCollectionID);
+    verify(sdcSchoolCollectionRepository, times(1)).findById(sdcSchoolCollectionID);
     verify(sdcDistrictCollectionRepository, times(1)).findBySdcDistrictCollectionID(sdcDistrictCollectionID);
     verify(sdcSchoolCollectionRepository, times(1)).save(any(SdcSchoolCollectionEntity.class));
     verify(sdcDistrictCollectionService, times(1)).updateSdcDistrictCollection(any(SdcDistrictCollectionEntity.class));
@@ -159,7 +159,7 @@ class SdcSchoolCollectionServiceTest {
     assertEquals(SdcSchoolCollectionStatus.DUP_VRFD.getCode(), result.getSdcSchoolCollectionStatusCode());
     assertEquals(SdcDistrictCollectionStatus.LOADED.getCode(), sdcDistrictCollectionEntity.getSdcDistrictCollectionStatusCode());
 
-    verify(sdcSchoolCollectionRepository, times(2)).findById(sdcSchoolCollectionID);
+    verify(sdcSchoolCollectionRepository, times(1)).findById(sdcSchoolCollectionID);
     verify(sdcDistrictCollectionRepository, times(1)).findBySdcDistrictCollectionID(sdcDistrictCollectionID);
     verify(sdcSchoolCollectionRepository, times(1)).save(any(SdcSchoolCollectionEntity.class));
     verifyNoMoreInteractions(sdcDistrictCollectionService);
@@ -179,7 +179,7 @@ class SdcSchoolCollectionServiceTest {
 
     assertEquals(SdcSchoolCollectionStatus.SCH_C_VRFD.getCode(), result.getSdcSchoolCollectionStatusCode());
 
-    verify(sdcSchoolCollectionRepository, times(2)).findById(sdcSchoolCollectionID);
+    verify(sdcSchoolCollectionRepository, times(1)).findById(sdcSchoolCollectionID);
     verify(sdcDistrictCollectionRepository, times(0)).findBySdcDistrictCollectionID(any());
     verify(sdcSchoolCollectionRepository, times(1)).save(any(SdcSchoolCollectionEntity.class));
     verifyNoMoreInteractions(sdcDistrictCollectionService);

@@ -143,7 +143,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
   void testUpdateCollection_ShouldReturnCollection() throws Exception {
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
-    collectionRepository.save(collection);
+    collection = collectionRepository.save(collection);
 
     SchoolTombstone schoolTombstone = createMockSchool();
     SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone.getSchoolId()));
@@ -151,15 +151,15 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     sdcMockSchool.setUploadFileName(null);
     sdcSchoolCollectionRepository.save(sdcMockSchool);
 
-    var mockSchool = SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool);
-    mockSchool.setCreateDate(null);
-    mockSchool.setUpdateDate(null);
-    mockSchool.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
+    var mockSchoolCollection = SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool);
+    mockSchoolCollection.setCreateDate(null);
+    mockSchoolCollection.setUpdateDate(null);
+    mockSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
 
     this.mockMvc.perform(put(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcMockSchool.getSdcSchoolCollectionID().toString())
         .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
         .header("correlationID", UUID.randomUUID().toString())
-        .content(JsonUtil.getJsonStringFromObject(mockSchool))
+        .content(JsonUtil.getJsonStringFromObject(mockSchoolCollection))
         .contentType(APPLICATION_JSON)).andExpect(status().isOk());
 
     var updatedSchool = sdcSchoolCollectionRepository.findById(sdcMockSchool.getSdcSchoolCollectionID());
