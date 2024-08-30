@@ -271,24 +271,27 @@ public class SdcSchoolCollectionService {
 
     currentSchoolCollectionEntity.getSDCSchoolStudentEntities().clear();
     septemberCollection.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity -> {
-      var studentEntity = new SdcSchoolCollectionStudentEntity();
-      BeanUtils.copyProperties(sdcSchoolCollectionStudentEntity, studentEntity, "sdcSchoolCollectionStudentID", "sdcStudentEnrolledProgramEntities", "sdcStudentValidationIssueEntities");
-      TransformUtil.clearCalculatedFields(studentEntity, true);
-      studentEntity.setSdcSchoolCollection(currentSchoolCollectionEntity);
-      var hash = Integer.toString(studentEntity.getUniqueObjectHash());
-      studentEntity.setOriginalDemogHash(hash);
-      studentEntity.setCurrentDemogHash(hash);
-      studentEntity.setCreateUser(updateUser);
-      studentEntity.setUpdateUser(updateUser);
-      studentEntity.setCreateDate(LocalDateTime.now());
-      studentEntity.setUpdateDate(LocalDateTime.now());
-      studentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.getCode());
-      currentSchoolCollectionEntity.getSDCSchoolStudentEntities().add(studentEntity);
+      if(!sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentStatusCode().equals(SdcSchoolStudentStatus.DELETED.getCode())) {
+        var studentEntity = new SdcSchoolCollectionStudentEntity();
+        BeanUtils.copyProperties(sdcSchoolCollectionStudentEntity, studentEntity, "sdcSchoolCollectionStudentID", "sdcStudentEnrolledProgramEntities", "sdcStudentValidationIssueEntities");
+        TransformUtil.clearCalculatedFields(studentEntity, true);
+        studentEntity.setSdcSchoolCollection(currentSchoolCollectionEntity);
+        var hash = Integer.toString(studentEntity.getUniqueObjectHash());
+        studentEntity.setOriginalDemogHash(hash);
+        studentEntity.setCurrentDemogHash(hash);
+        studentEntity.setCreateUser(updateUser);
+        studentEntity.setUpdateUser(updateUser);
+        studentEntity.setCreateDate(LocalDateTime.now());
+        studentEntity.setUpdateDate(LocalDateTime.now());
+        studentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.getCode());
+        currentSchoolCollectionEntity.getSDCSchoolStudentEntities().add(studentEntity);
+      }
     });
 
-    currentSchoolCollectionEntity.setUploadFileName(null);
-    currentSchoolCollectionEntity.setUploadDate(null);
-    currentSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.LOADED.getCode());
+    currentSchoolCollectionEntity.setUploadFileName(septemberCollection.getUploadFileName());
+    currentSchoolCollectionEntity.setUploadDate(LocalDateTime.now());
+    currentSchoolCollectionEntity.setUploadReportDate(septemberCollection.getUploadReportDate());
+    currentSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
     currentSchoolCollectionEntity.setUpdateDate(LocalDateTime.now());
     currentSchoolCollectionEntity.setUpdateUser(updateUser);
 
