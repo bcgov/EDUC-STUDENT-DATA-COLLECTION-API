@@ -288,9 +288,9 @@ public class SdcSchoolCollectionService {
       }
     });
 
-    currentSchoolCollectionEntity.setUploadFileName(septemberCollection.getUploadFileName());
+    currentSchoolCollectionEntity.setUploadFileName("UPLOAD_FROM_PRIOR_SEPT_COLLECTION");
     currentSchoolCollectionEntity.setUploadDate(LocalDateTime.now());
-    currentSchoolCollectionEntity.setUploadReportDate(septemberCollection.getUploadReportDate());
+    currentSchoolCollectionEntity.setUploadReportDate("UPLOAD_FROM_PRIOR_SEPT_COLLECTION");
     currentSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
     currentSchoolCollectionEntity.setUpdateDate(LocalDateTime.now());
     currentSchoolCollectionEntity.setUpdateUser(updateUser);
