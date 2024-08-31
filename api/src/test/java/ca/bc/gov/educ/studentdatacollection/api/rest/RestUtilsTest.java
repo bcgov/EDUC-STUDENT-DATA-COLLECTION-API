@@ -329,28 +329,28 @@ class RestUtilsTest {
         UUID assignedStudentId = UUID.randomUUID();
 
         when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
-                .thenReturn(CompletableFuture.completedFuture(null));
+            .thenReturn(CompletableFuture.completedFuture(null));
 
         StudentDataCollectionAPIRuntimeException exception = assertThrows(
-                StudentDataCollectionAPIRuntimeException.class,
-                () -> restUtils.getMergedStudentIds(correlationID, assignedStudentId)
+            StudentDataCollectionAPIRuntimeException.class,
+            () -> restUtils.getMergedStudentIds(correlationID, assignedStudentId)
         );
 
         assertEquals(NATS_TIMEOUT + correlationID, exception.getMessage());
     }
 
     @Test
-    void testGetMergedStudentIds_WhenExceptionOccurs_ShouldThrowStudentDataCollectionAPIRuntimeException() throws Exception {
+    void testGetMergedStudentIds_WhenExceptionOccurs_ShouldThrowStudentDataCollectionAPIRuntimeException() {
         UUID correlationID = UUID.randomUUID();
         UUID assignedStudentId = UUID.randomUUID();
         Exception mockException = new Exception("exception");
 
         when(messagePublisher.requestMessage(anyString(), any(byte[].class)))
-                .thenReturn(CompletableFuture.failedFuture(mockException));
+            .thenReturn(CompletableFuture.failedFuture(mockException));
 
-        StudentDataCollectionAPIRuntimeException exception = assertThrows(
-                StudentDataCollectionAPIRuntimeException.class,
-                () -> restUtils.getMergedStudentIds(correlationID, assignedStudentId)
+        assertThrows(
+            StudentDataCollectionAPIRuntimeException.class,
+            () -> restUtils.getMergedStudentIds(correlationID, assignedStudentId)
         );
     }
 }
