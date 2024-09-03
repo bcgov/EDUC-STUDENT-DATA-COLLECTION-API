@@ -12,10 +12,11 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.StudentMerge;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,7 +155,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     }
 
     @Test
-    void testProcessFteCalculator_NoCoursesInLastTwoYears() throws IOException {
+    void testProcessFteCalculator_NoCoursesInLastTwoYears() {
         // Given
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0000");
@@ -162,32 +163,23 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("10");
         this.studentData.getSdcSchoolCollectionStudentEntity().setCreateDate(LocalDateTime.now());
 
-        final File file = new File(
-                Objects.requireNonNull(getClass().getClassLoader().getResource("sdc-school-collection-entity.json")).getFile()
-        );
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        SdcSchoolCollectionEntity sdcSchoolCollection = objectMapper.readValue(file, SdcSchoolCollectionEntity.class);
+        CollectionEntity collection = createMockCollectionEntity();
+        SchoolTombstone school = createMockSchool();
+        SdcSchoolCollectionEntity sdcSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
         sdcSchoolCollection.setCreateDate(LocalDateTime.now().minusYears(1));
 
-        var collection = collectionRepository.save(sdcSchoolCollection.getCollectionEntity());
-        sdcSchoolCollection.setCollectionEntity(collection);
-        collection.setSdcSchoolCollectionEntities(new HashSet<>());
-        collection.getSdcSchoolCollectionEntities().add(sdcSchoolCollection);
-        sdcSchoolCollection.getSDCSchoolStudentEntities().add(this.studentData.getSdcSchoolCollectionStudentEntity());
-        sdcSchoolCollection.getSdcSchoolCollectionHistoryEntities().forEach(hist -> hist.setSdcSchoolCollection(sdcSchoolCollection));
-        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollection);
+        collectionRepository.save(collection);
 
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollection);
         this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
 
-        var savedColl = collectionRepository.save(collection);
-        studentData.setSdcSchoolCollectionStudentEntity(savedColl.getSdcSchoolCollectionEntities().stream().findFirst().get().getSDCSchoolStudentEntities().stream().findFirst().get());
         // When
         PenMatchResult penMatchResult = getPenMatchResult();
+        StudentMerge studentMerge = getStudentMergeResult();
         penMatchResult.getMatchingRecords().get(0).setMatchingPEN(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedPen());
         penMatchResult.getMatchingRecords().get(0).setStudentID(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId().toString());
         when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
+        when(this.restUtils.getMergedStudentIds(any(), any())).thenReturn(List.of(studentMerge));
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then
@@ -242,9 +234,73 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
 
         // When
         PenMatchResult penMatchResult = getPenMatchResult();
+        StudentMerge studentMerge = getStudentMergeResult();
         penMatchResult.getMatchingRecords().get(0).setMatchingPEN(oneYearAgoCollectionStudent.getAssignedPen());
         penMatchResult.getMatchingRecords().get(0).setStudentID(oneYearAgoCollectionStudent.getAssignedStudentId().toString());
         when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
+        when(this.restUtils.getMergedStudentIds(any(), any())).thenReturn(List.of(studentMerge));
+        FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
+
+        // Then
+        BigDecimal expectedFte = BigDecimal.ZERO;
+        String expectedFteZeroReason = ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING.getCode();
+
+        assertEquals(expectedFte, result.getFte());
+        assertEquals(expectedFteZeroReason, result.getFteZeroReason());
+    }
+
+    @Test
+    void testProcessFteCalculator_DistrictDoubleReported_GivenMergedStudent_ReturnsZeroFTE() {
+        // Given
+        this.studentData.getSchool().setSchoolCategoryCode("PUBLIC");
+        this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
+        CollectionEntity collectionOrig = createMockCollectionEntity();
+        collectionOrig.setSnapshotDate(LocalDate.of(collectionOrig.getOpenDate().getYear(), 2, 15));
+        collectionOrig.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        collectionOrig = collectionRepository.save(collectionOrig);
+
+        var districtID = UUID.randomUUID();
+        var districtColl = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collectionOrig, districtID));
+
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntityOrig = createMockSdcSchoolCollectionEntity(collectionOrig, null);
+        sdcSchoolCollectionEntityOrig.setSdcDistrictCollectionID(districtColl.getSdcDistrictCollectionID());
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollectionEntityOrig);
+        sdcSchoolCollectionEntityOrig = sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntityOrig);
+
+        var lastCollectionDate = LocalDateTime.of(LocalDateTime.now().minusYears(1).getYear(), Month.SEPTEMBER, 5, 0, 0);
+
+        this.studentData.getSchool().setSchoolId(sdcSchoolCollectionEntityOrig.getSchoolID().toString());
+        this.studentData.getSchool().setDistrictId(String.valueOf(districtID));
+        SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = createMockSchoolStudentForSagaEntity(sdcSchoolCollectionEntityOrig);
+
+        sdcSchoolCollectionStudentEntity.setEnrolledGradeCode("08");
+        sdcSchoolCollectionStudentEntity.setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 5, 0, 0));
+        sdcSchoolCollectionStudentRepository.save(sdcSchoolCollectionStudentEntity);
+        this.studentData.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentEntity);
+
+        var oldCollection = createMockCollectionEntity();
+        var oldSnapDate = LocalDate.of(LocalDateTime.now().minusYears(1).getYear(), Month.SEPTEMBER, 29);
+        oldCollection.setSnapshotDate(oldSnapDate);
+        var oldSdcCollection = createMockSdcSchoolCollectionEntity(oldCollection, null);
+        collectionRepository.save(oldCollection);
+        var oldDistrictColl = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(oldCollection, districtID));
+        oldSdcCollection.setSdcDistrictCollectionID(oldDistrictColl.getSdcDistrictCollectionID());
+        sdcSchoolCollectionRepository.save(oldSdcCollection);
+        var oneYearAgoCollectionStudent = createMockSchoolStudentEntity(oldSdcCollection);
+        oneYearAgoCollectionStudent.setCreateDate(lastCollectionDate);
+        var mergedStudentId = UUID.randomUUID();
+        oneYearAgoCollectionStudent.setAssignedStudentId(mergedStudentId);
+        sdcSchoolCollectionStudentRepository.save(oneYearAgoCollectionStudent);
+
+        // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        StudentMerge studentMerge = getStudentMergeResult();
+        studentMerge.setMergeStudentID(mergedStudentId.toString());
+        studentMerge.setStudentID(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId().toString());
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN(oneYearAgoCollectionStudent.getAssignedPen());
+        penMatchResult.getMatchingRecords().get(0).setStudentID(oneYearAgoCollectionStudent.getAssignedStudentId().toString());
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
+        when(this.restUtils.getMergedStudentIds(any(), any())).thenReturn(List.of(studentMerge));
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then

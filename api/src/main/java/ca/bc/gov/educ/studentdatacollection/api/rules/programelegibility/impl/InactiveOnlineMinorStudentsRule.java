@@ -8,6 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +29,16 @@ public class InactiveOnlineMinorStudentsRule implements ProgramEligibilityBaseRu
   private static final DecimalFormat df = new DecimalFormat("00.00");
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  private final ValidationRulesService validationRulesService;
 
   public InactiveOnlineMinorStudentsRule(
     SdcSchoolCollectionRepository sdcSchoolCollectionRepository,
-    SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository
+    SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository,
+    ValidationRulesService validationRulesService
   ) {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+    this.validationRulesService = validationRulesService;
   }
 
   @Override
@@ -62,6 +66,7 @@ public class InactiveOnlineMinorStudentsRule implements ProgramEligibilityBaseRu
   public List<ProgramEligibilityIssueCode> executeValidation(StudentRuleData studentRuleData) {
     log.debug("In executeValidation of ProgramEligibilityBaseRule - InactiveOnlineMinorStudentsRule for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+    validationRulesService.setupMergedStudentIdValues(studentRuleData);
     List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
     var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
     SchoolTombstone schoolTombstone = studentRuleData.getSchool();
@@ -70,7 +75,7 @@ public class InactiveOnlineMinorStudentsRule implements ProgramEligibilityBaseRu
     log.debug("In executeValidation of ProgramEligibilityBaseRule - InactiveOnlineMinorStudentsRule: No of collections - {},  for school :: {}" ,lastTwoYearsOfCollections.size(), schoolTombstone.getSchoolId());
 
     if (lastTwoYearsOfCollections.isEmpty() || student.getAssignedStudentId() == null
-    || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(student.getAssignedStudentId(), lastTwoYearsOfCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(), "0") == 0) {
+    || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(studentRuleData.getHistoricStudentIds(), lastTwoYearsOfCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(), "0") == 0) {
       errors.add(ProgramEligibilityIssueCode.INACTIVE_SCHOOL_AGE);
     }
 
