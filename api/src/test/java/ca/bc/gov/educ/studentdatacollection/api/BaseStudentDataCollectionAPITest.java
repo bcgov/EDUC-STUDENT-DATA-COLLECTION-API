@@ -764,6 +764,15 @@ public abstract class BaseStudentDataCollectionAPITest {
       penMatchResult.setPenStatusMessage("ABC");
       return penMatchResult;
   }
+  public StudentMerge getStudentMergeResult(){
+    StudentMerge studentMerge = new StudentMerge();
+    studentMerge.setStudentID(String.valueOf(UUID.randomUUID()));
+    studentMerge.setMergeStudentID(String.valueOf(UUID.randomUUID()));
+    studentMerge.setStudentMergeID(String.valueOf(UUID.randomUUID()));
+    studentMerge.setStudentMergeID("TO");
+    studentMerge.setStudentMergeSourceCode("MINISTRY");
+    return studentMerge;
+  }
 
   public GradStatusResult getGradStatusResult(){
       GradStatusResult gradStatusResult = new GradStatusResult();
