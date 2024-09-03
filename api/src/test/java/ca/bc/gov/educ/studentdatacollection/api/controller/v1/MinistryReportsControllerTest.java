@@ -513,11 +513,24 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
   void testGetMinistryReportSpecialEdFunding_ValidIndySchoolType_ShouldReturnReportData() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+    SchoolTombstone school1 = createMockSchool();
 
     CollectionEntity collectionSept = createMockCollectionEntity();
     collectionSept.setCloseDate(LocalDateTime.now().minusDays(20));
     collectionSept.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
-    collectionRepository.save(collectionSept);
+    var savedSeptColl = collectionRepository.save(collectionSept);
+
+    SdcDistrictCollectionEntity sdcMockDistrictSept = createMockSdcDistrictCollectionEntity(savedSeptColl, null);
+    sdcDistrictCollectionRepository.save(sdcMockDistrictSept).getSdcDistrictCollectionID();
+
+    school1.setDistrictId(sdcMockDistrictSept.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntitySept = createMockSdcSchoolCollectionEntity(savedSeptColl, UUID.fromString(school1.getSchoolId()));
+    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntitySept);
+
+    var sdcSchoolCollectionStudentSept1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntitySept);
+    sdcSchoolCollectionStudentSept1.setSpecialEducationCategoryCode("P");
+    sdcSchoolCollectionStudentSept1.setIsAdult(true);
+    sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudentSept1));
 
     var district = this.createMockDistrict();
     var authority = this.createMockAuthority();
@@ -535,13 +548,11 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     collection = collectionRepository.save(collection);
 
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
-    sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
+    sdcDistrictCollectionRepository.save(sdcMockDistrict);
 
     SdcDistrictCollectionEntity sdcMockDistrict2 = createMockSdcDistrictCollectionEntity(collection, null);
-    sdcDistrictCollectionRepository.save(sdcMockDistrict2).getSdcDistrictCollectionID();
+    sdcDistrictCollectionRepository.save(sdcMockDistrict2);
 
-    SchoolTombstone school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
 
     SchoolTombstone school2 = createMockSchool();

@@ -23,7 +23,6 @@ import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -216,12 +215,12 @@ public class MinistryHeadcountService {
         }
 
         if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
-          var positiveChangeLevel1 = getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : null, februaryCollectionRecord.getLevelOnes());
-          var positiveChangeLevel2 = getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : null, februaryCollectionRecord.getLevelTwos());
-          var positiveChangeLevel3 = getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : null, februaryCollectionRecord.getLevelThrees());
-          var netChangeLevel1 = getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : null, februaryCollectionRecord.getLevelOnes());
-          var netChangeLevel2 = getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : null, februaryCollectionRecord.getLevelTwos());
-          var netChangeLevel3 = getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : null, februaryCollectionRecord.getLevelThrees());
+          var positiveChangeLevel1 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : null, februaryCollectionRecord.getLevelOnes());
+          var positiveChangeLevel2 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : null, februaryCollectionRecord.getLevelTwos());
+          var positiveChangeLevel3 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : null, februaryCollectionRecord.getLevelThrees());
+          var netChangeLevel1 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : null, februaryCollectionRecord.getLevelOnes());
+          var netChangeLevel2 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : null, februaryCollectionRecord.getLevelTwos());
+          var netChangeLevel3 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : null, februaryCollectionRecord.getLevelThrees());
 
           var rowMap = new HashMap<String, String>();
           rowMap.put(IndySpecialEducationFundingHeadcountHeader.DISTRICT_NUMBER.getCode(), district != null ? district.getDistrictNumber() : null);
@@ -298,24 +297,6 @@ public class MinistryHeadcountService {
     rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_2.getCode(), Integer.toString(totals.getTotNetLevel2s()));
     rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_3.getCode(), Integer.toString(totals.getTotNetLevel3s()));
     return rowMap;
-  }
-
-  private String getNetChange(String septValue, String febValue){
-    if(StringUtils.isNumeric(septValue) && StringUtils.isNumeric(febValue)){
-      var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
-      return Integer.toString(change);
-    }
-    return null;
-  }
-
-  private String getPositiveChange(String septValue, String febValue){
-    if(StringUtils.isNumeric(septValue) && StringUtils.isNumeric(febValue)){
-      var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
-      if(change > 0){
-        return Integer.toString(change);
-      }
-    }
-    return null;
   }
 
   public SimpleHeadcountResultsTable getSchoolAddressReport(UUID collectionID) {
