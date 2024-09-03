@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1.events.schedulers;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
@@ -157,6 +158,13 @@ public class EventTaskSchedulerAsyncService {
   @Async("taskExecutor")
   @Transactional
   public void findAllUnsubmittedIndependentSchoolsInCurrentCollection() {
+    final Optional<CollectionEntity> activeCollectionOptional = collectionRepository.findActiveCollection();
+    CollectionEntity activeCollection = activeCollectionOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "activeCollection"));
+
+    if (activeCollection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())) {
+      return;
+    }
+
     final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities = sdcSchoolCollectionRepository.findAllUnsubmittedIndependentSchoolsInCurrentCollection();
     log.info("Found :: {} independent schools which have not yet submitted.", sdcSchoolCollectionEntities.size());
     if (!sdcSchoolCollectionEntities.isEmpty()) {
