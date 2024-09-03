@@ -707,8 +707,13 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     ).matches(errorExpression);
   }
 
-  @Test
-  void testProcessSdcFile_givenInvalidPayloadFile_ShouldReturnStatusBadRequest() throws Exception {
+  @ParameterizedTest
+  @CsvSource({
+          "src/test/resources/sample-1-student-bad.txt",
+          "src/test/resources/empty-file.txt",
+          "src/test/resources/unexpected-contents.txt"
+  })
+  void testProcessSdcFile_givenInvalidPayloadFile_ShouldReturnStatusBadRequest(String resourceFile) throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
@@ -716,9 +721,8 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
-    final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student-bad.txt");
+    final FileInputStream fis = new FileInputStream(resourceFile);
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
-    assertThat(fileContents).isNotEmpty();
     val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
     var resultActions = this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
       .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))

@@ -143,7 +143,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
   void testUpdateCollection_ShouldReturnCollection() throws Exception {
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
-    collectionRepository.save(collection);
+    collection = collectionRepository.save(collection);
 
     SchoolTombstone schoolTombstone = createMockSchool();
     SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone.getSchoolId()));
@@ -151,15 +151,15 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     sdcMockSchool.setUploadFileName(null);
     sdcSchoolCollectionRepository.save(sdcMockSchool);
 
-    var mockSchool = SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool);
-    mockSchool.setCreateDate(null);
-    mockSchool.setUpdateDate(null);
-    mockSchool.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
+    var mockSchoolCollection = SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool);
+    mockSchoolCollection.setCreateDate(null);
+    mockSchoolCollection.setUpdateDate(null);
+    mockSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
 
     this.mockMvc.perform(put(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcMockSchool.getSdcSchoolCollectionID().toString())
         .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
         .header("correlationID", UUID.randomUUID().toString())
-        .content(JsonUtil.getJsonStringFromObject(mockSchool))
+        .content(JsonUtil.getJsonStringFromObject(mockSchoolCollection))
         .contentType(APPLICATION_JSON)).andExpect(status().isOk());
 
     var updatedSchool = sdcSchoolCollectionRepository.findById(sdcMockSchool.getSdcSchoolCollectionID());
@@ -699,6 +699,64 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     assertThat(updatedSchoolCollection.get().getSdcSchoolCollectionStatusCode()).isEqualTo(SdcSchoolCollectionStatus.DUP_VRFD.getCode());
     assertThat(updatedDistrictCollection).isPresent();
     assertThat(updatedDistrictCollection.get().getSdcDistrictCollectionStatusCode()).isEqualTo(SdcDistrictCollectionStatus.LOADED.getCode());
+  }
+
+  @Test
+  void testStartCollectionFromLastSept_ShouldReturnOk() throws Exception {
+    CollectionEntity oldCollection = createMockCollectionEntity();
+    oldCollection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+    oldCollection.setCloseDate(LocalDateTime.now().minusDays(2));
+    collectionRepository.save(oldCollection);
+
+    District district = createMockDistrict();
+
+    SchoolTombstone schoolTombstone = createMockSchool();
+    schoolTombstone.setDistrictId(district.getDistrictId());
+
+    SdcDistrictCollectionEntity sdcMockDistrictCollection = createMockSdcDistrictCollectionEntity(oldCollection, UUID.fromString(district.getDistrictId()));
+    sdcMockDistrictCollection.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.COMPLETED.getCode());
+    sdcDistrictCollectionRepository.save(sdcMockDistrictCollection);
+
+    SdcSchoolCollectionEntity sdcMockSchoolCollection = createMockSdcSchoolCollectionEntity(oldCollection, UUID.fromString(schoolTombstone.getSchoolId()));
+    sdcMockSchoolCollection.setSdcDistrictCollectionID(sdcMockDistrictCollection.getSdcDistrictCollectionID());
+    sdcMockSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.COMPLETED.getCode());
+    var savedOldColl = sdcSchoolCollectionRepository.save(sdcMockSchoolCollection);
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    District district2 = createMockDistrict();
+
+    SchoolTombstone schoolTombstone2 = createMockSchool();
+    schoolTombstone2.setDistrictId(district2.getDistrictId());
+
+    SdcDistrictCollectionEntity sdcMockDistrictCollection2 = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district2.getDistrictId()));
+    sdcMockDistrictCollection2.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.REVIEWED.getCode());
+    sdcDistrictCollectionRepository.save(sdcMockDistrictCollection2);
+
+    SdcSchoolCollectionEntity sdcMockSchoolCollection2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone.getSchoolId()));
+    sdcMockSchoolCollection2.setSdcDistrictCollectionID(sdcMockDistrictCollection2.getSdcDistrictCollectionID());
+    sdcMockSchoolCollection2.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
+    var savedColl = sdcSchoolCollectionRepository.save(sdcMockSchoolCollection2);
+
+    var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(savedOldColl);
+    var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(savedOldColl);
+    sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2));
+
+    var startFromPrior = new StartFromPriorSdcSchoolCollection();
+    startFromPrior.setSdcSchoolCollectionID(savedColl.getSdcSchoolCollectionID());
+    startFromPrior.setUpdateUser("ABC");
+
+    this.mockMvc.perform(post(URL.BASE_URL_SCHOOL_COLLECTION + "/priorCollection")
+            .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_SCHOOL_COLLECTION")))
+            .content(JsonUtil.getJsonStringFromObject(startFromPrior))
+            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
+
+    var updatedStudents = sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(savedColl.getSdcSchoolCollectionID());
+
+    assertThat(updatedStudents.get(0).getSdcSchoolCollectionStudentStatusCode()).isEqualTo("LOADED");
   }
 
   @Test

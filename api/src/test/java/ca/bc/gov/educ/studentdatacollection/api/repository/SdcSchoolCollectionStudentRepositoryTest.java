@@ -296,7 +296,8 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
 
         var headcounts = sdcSchoolCollectionStudentRepository.getEllHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
         //then only the eligible ell student is included in headcounts
-        assertEquals("1", headcounts.get(0).getTotalEllStudents());
+        assertEquals("1", headcounts.get(0).getTotalEligibleEllStudents());
+        assertEquals("2", headcounts.get(0).getTotalEllStudents());
     }
 
     @Test

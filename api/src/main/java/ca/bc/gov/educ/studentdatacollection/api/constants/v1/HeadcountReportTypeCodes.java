@@ -16,6 +16,7 @@ public enum HeadcountReportTypeCodes {
     INDIGENOUS_PER_SCHOOL("indigenous-per-school"),
     SPECIAL_ED("special-ed"),
     SPECIAL_ED_PER_SCHOOL("special-ed-per-school"),
+    SPECIAL_ED_CAT_PER_SCHOOL("special-ed-cat-per-school"),
     BAND_CODES("band-codes"),
     BAND_CODES_PER_SCHOOL("band-codes-per-school"),
     GRADE_ENROLLMENT("grade-enrollment"),

@@ -46,14 +46,14 @@ public class BandResidenceHeadcountHelper extends HeadcountHelper<BandResidenceH
     }
 
     public void setBandResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable currentCollectionData) {
-        UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
+        UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity);
         List<BandResidenceHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(previousCollectionID);
         HeadcountResultsTable previousCollectionData = convertBandHeadcountResults(previousCollectionRawData, false, null);
         setResultsTableComparisonValuesDynamicBand(currentCollectionData, previousCollectionData);
     }
 
     public void setBandResultsTableComparisonValuesDistrict(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, HeadcountResultsTable currentCollectionData, Boolean schoolTitles) {
-        UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+        UUID previousCollectionID = getPreviousCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
         List<BandResidenceHeadcountResult> previousCollectionRawData;
         if (Boolean.TRUE.equals(schoolTitles)) {
             previousCollectionRawData = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(previousCollectionID);

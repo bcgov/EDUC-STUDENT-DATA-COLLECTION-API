@@ -8,6 +8,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+import java.util.UUID;
+
 @SuperBuilder
 @Data
 @NoArgsConstructor
@@ -17,4 +20,5 @@ public class StudentRuleData {
   private static final long serialVersionUID = -2329245910142215178L;
   private SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity;
   private SchoolTombstone school;
+  private List<UUID> historicStudentIds;
 }

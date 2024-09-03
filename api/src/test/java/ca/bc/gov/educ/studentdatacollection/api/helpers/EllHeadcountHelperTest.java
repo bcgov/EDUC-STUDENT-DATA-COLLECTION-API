@@ -177,12 +177,25 @@ class EllHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
         HeadcountResultsTable actualResultsTable = helper.convertEllBySchoolHeadcountResults(mockDistrictCollectionEntity.getSdcDistrictCollectionID(), result);
 
-        var titles = actualResultsTable.getRows().stream().filter(row ->
-                row.get("title").getCurrentValue().equals("0000002 - School2")).findAny();
+        var school1Title = actualResultsTable.getRows().stream()
+                .filter(row ->
+                        row.get("title").getCurrentValue().equals("Eligible English Language Learners") &&
+                                row.get("section").getCurrentValue().equals("0000001 - School1"))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Expected row for School1 not found"));
 
-        assert(titles.isPresent());
-        assertEquals("4", titles.get().get("Total").getCurrentValue());
-        assertEquals("1", titles.get().get("01").getCurrentValue());
+        var school2Title = actualResultsTable.getRows().stream()
+                .filter(row ->
+                        row.get("title").getCurrentValue().equals("Eligible English Language Learners") &&
+                                row.get("section").getCurrentValue().equals("0000002 - School2"))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Expected row for School2 not found"));
+
+        assertEquals("1", school1Title.get("Total").getCurrentValue());
+        assertEquals("1", school1Title.get("01").getCurrentValue());
+
+        assertEquals("4", school2Title.get("Total").getCurrentValue());
+        assertEquals("1", school2Title.get("01").getCurrentValue());
     }
 
 }

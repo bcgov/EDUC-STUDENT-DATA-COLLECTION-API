@@ -132,6 +132,12 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   }
 
   @Override
+  public ResponseEntity<String> startSDCCollectionFromLastSDCCollectionDataSet(StartFromPriorSdcSchoolCollection startFromPriorSdcSchoolCollection) {
+    this.sdcSchoolCollectionService.startSDCCollectionFromLastSDCCollectionDataSet(startFromPriorSdcSchoolCollection.getSdcSchoolCollectionID(), startFromPriorSdcSchoolCollection.getUpdateUser());
+    return ResponseEntity.ok().build();
+  }
+
+  @Override
   public CompletableFuture<Page<SdcSchoolCollection>> findAll(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
     final List<Sort.Order> sorts = new ArrayList<>();
     Specification<SdcSchoolCollectionEntity> schoolSpecs = sdcSchoolCollectionSearchService

@@ -31,25 +31,27 @@ public class CloseCollectionService {
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionHistoryService sdcSchoolHistoryService;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+    private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+    private final SdcSchoolCollectionService sdcSchoolCollectionService;
     private final RestUtils restUtils;
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
-    private final SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService;
     private final SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
     private final SdcDuplicateRepository sdcDuplicateRepository;
     private final EmailService emailService;
     private final EmailProperties emailProperties;
     private static final String SDC_COLLECTION_ID_KEY = "collectionID";
 
-    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties) {
+    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcSchoolCollectionService sdcSchoolCollectionService, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties) {
         this.collectionRepository = collectionRepository;
         this.collectionTypeCodeRepository = collectionTypeCodeRepository;
         this.collectionCodeCriteriaRepository = collectionCodeCriteriaRepository;
         this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
         this.sdcSchoolHistoryService = sdcSchoolHistoryService;
         this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+        this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
+        this.sdcSchoolCollectionService = sdcSchoolCollectionService;
         this.restUtils = restUtils;
         this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
-        this.sdcSchoolCollectionHistoryService = sdcSchoolCollectionHistoryService;
         this.sdcSchoolCollectionStudentHistoryRepository = sdcSchoolCollectionStudentHistoryRepository;
         this.sdcDuplicateRepository = sdcDuplicateRepository;
         this.emailService = emailService;
@@ -175,7 +177,7 @@ public class CloseCollectionService {
         studentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.COMPLETED.getCode());
         studentEntity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         studentEntity.setUpdateDate(LocalDateTime.now());
-        sdcSchoolCollectionStudentRepository.save(studentEntity);
+        sdcSchoolCollectionStudentService.saveSdcStudentWithHistory(studentEntity);
     }
 
     private List<SchoolTombstone> getListOfSchoolIDsFromCriteria(List<CollectionCodeCriteriaEntity> collectionCodeCriteria) {
@@ -200,8 +202,7 @@ public class CloseCollectionService {
             entity.setUpdateDate(LocalDateTime.now());
             entity.setUploadFileName(null);
             entity.setUploadDate(null);
-            entity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(entity, ApplicationProperties.STUDENT_DATA_COLLECTION_API));
-            sdcSchoolCollectionRepository.save(entity);
+            sdcSchoolCollectionService.saveSdcSchoolCollectionWithHistory(entity);
         });
     }
 

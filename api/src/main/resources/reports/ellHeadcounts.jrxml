@@ -253,7 +253,7 @@
 				<textElement>
 					<font fontName="BCSans"/>
 				</textElement>
-				<text><![CDATA[Eligible English Language Learning Headcount Report]]></text>
+				<text><![CDATA[English Language Learning Headcount Report]]></text>
 			</staticText>
 			<textField>
 				<reportElement x="630" y="35" width="120" height="15" uuid="7ff4950d-6279-413e-8200-a450eb831f90">

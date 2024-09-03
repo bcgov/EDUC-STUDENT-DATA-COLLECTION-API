@@ -11,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionSubmissionSignatureEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
@@ -37,6 +38,7 @@ public class SdcDistrictCollectionService {
 
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+  private final SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService;
   private final CollectionRepository collectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private final RestUtils restUtils;
@@ -45,13 +47,14 @@ public class SdcDistrictCollectionService {
   private static final String[] allowedRoles = new String[]{"DIS_SDC_EDIT", "SUPERINT", "SECR_TRES"};
 
   @Autowired
-  public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionSubmissionSignatureRepository sdcDistrictCollectionSubmissionSignatureRepository) {
+  public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionSubmissionSignatureRepository sdcDistrictCollectionSubmissionSignatureRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService) {
 
     this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.collectionRepository = collectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
     this.restUtils = restUtils;
+    this.sdcSchoolCollectionHistoryService = sdcSchoolCollectionHistoryService;
   }
 
   public SdcDistrictCollectionEntity getSdcDistrictCollection(UUID sdcDistrictCollectionID) {
@@ -219,7 +222,10 @@ public class SdcDistrictCollectionService {
     boolean hasAllRoles = new HashSet<>(signedRoles).equals(new HashSet<>(List.of(allowedRoles)));
     if(signedRoles.size() == 3 && hasAllRoles) {
       List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
-      sdcSchoolCollectionEntities.forEach(entity -> entity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.COMPLETED.getCode()));
+      sdcSchoolCollectionEntities.forEach(entity -> {
+        entity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.COMPLETED.getCode());
+        entity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(entity, ApplicationProperties.STUDENT_DATA_COLLECTION_API));
+      });
       sdcSchoolCollectionRepository.saveAll(sdcSchoolCollectionEntities);
 
       sdcDistrictCollectionEntity.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.COMPLETED.getCode());

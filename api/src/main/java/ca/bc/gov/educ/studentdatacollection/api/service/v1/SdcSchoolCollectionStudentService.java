@@ -206,34 +206,13 @@ public class SdcSchoolCollectionStudentService {
     studentRuleData.setSdcSchoolCollectionStudentEntity(incomingStudentEntity);
     studentRuleData.setSchool(schoolTombstone);
 
-    clearCalculatedFields(incomingStudentEntity, wipePENMatch);
+    TransformUtil.clearCalculatedFields(incomingStudentEntity, wipePENMatch);
     var validationErrors = validateStudent(studentRuleData);
     if(validationErrors.stream().noneMatch(issueValue -> issueValue.getValidationIssueSeverityCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString()))){
       calculateAdditionalStudentAttributes(studentRuleData);
     }
 
     return studentRuleData.getSdcSchoolCollectionStudentEntity();
-  }
-
-  private void clearCalculatedFields(SdcSchoolCollectionStudentEntity incomingStudentEntity, boolean wipePENMatch){
-    if(wipePENMatch) {
-      incomingStudentEntity.setAssignedStudentId(null);
-      incomingStudentEntity.setAssignedPen(null);
-      incomingStudentEntity.setPenMatchResult(null);
-    }
-
-    incomingStudentEntity.setFte(null);
-    incomingStudentEntity.setIsGraduated(null);
-    incomingStudentEntity.setIsSchoolAged(null);
-    incomingStudentEntity.setIsAdult(null);
-    incomingStudentEntity.setYearsInEll(null);
-    incomingStudentEntity.setNumberOfCoursesDec(null);
-    incomingStudentEntity.setFteZeroReasonCode(null);
-    incomingStudentEntity.setCareerProgramNonEligReasonCode(null);
-    incomingStudentEntity.setSpecialEducationNonEligReasonCode(null);
-    incomingStudentEntity.setEllNonEligReasonCode(null);
-    incomingStudentEntity.setIndigenousSupportProgramNonEligReasonCode(null);
-    incomingStudentEntity.setFrenchProgramNonEligReasonCode(null);
   }
 
   private List<SdcSchoolCollectionStudentValidationIssue> validateStudent(final StudentRuleData studentRuleData){

@@ -110,7 +110,7 @@ public class SdcBatchFileProcessor {
     val batchFile = new SdcBatchFile();
     Optional<Reader> batchFileReaderOptional = Optional.empty();
     try (final Reader mapperReader = new FileReader(Objects.requireNonNull(this.getClass().getClassLoader().getResource("mapper.xml")).getFile())) {
-      var byteArrayOutputStream = new ByteArrayInputStream(Base64.getDecoder().decode(fileUpload.getFileContents()));
+      var byteArrayOutputStream = new ByteArrayInputStream(this.sdcFileValidator.getUploadedFileBytes(guid, fileUpload));
       batchFileReaderOptional = Optional.of(new InputStreamReader(byteArrayOutputStream));
       final DataSet ds = DefaultParserFactory.getInstance().newFixedLengthParser(mapperReader, batchFileReaderOptional.get()).setStoreRawDataToDataError(true).setStoreRawDataToDataSet(true).setNullEmptyStrings(true).parse();
 
@@ -266,7 +266,7 @@ public class SdcBatchFileProcessor {
         coll.setSdcSchoolCollectionStatusCode(String.valueOf(SdcSchoolCollectionStatus.NEW));
       }
 
-      return sdcSchoolCollectionService.saveSdcSchoolCollection(coll, pairStudentList.getLeft(), pairStudentList.getRight());
+      return sdcSchoolCollectionService.reconcileStudentsAndSaveSdcSchoolCollection(coll, pairStudentList.getLeft(), pairStudentList.getRight());
     }else{
       throw new StudentDataCollectionAPIRuntimeException("SDC School Collection ID provided :: " + sdcSchoolCollectionID + " :: is not valid");
     }

@@ -2,6 +2,13 @@ package ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports;
 
 import lombok.Getter;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 @Getter
 public enum SpecialEducationHeadcountHeader {
 
@@ -22,4 +29,22 @@ public enum SpecialEducationHeadcountHeader {
 
     private final String code;
     SpecialEducationHeadcountHeader(String code) { this.code = code; }
+
+    public static HashMap<String, Integer> generateSpedCatCountMap() {
+        return Stream.of(SpecialEducationHeadcountHeader.values())
+                .filter(header -> !header.equals(SCHOOL) && !header.equals(TOTAL))
+                .collect(Collectors.toMap(
+                        header -> header.name(),
+                        header -> 0,
+                        (oldValue, newValue) -> oldValue,
+                        HashMap::new
+                ));
+    }
+
+    public static List<String> getCatTitles() {
+        return Stream.of(SpecialEducationHeadcountHeader.values())
+                .filter(header -> !header.equals(SCHOOL) && !header.equals(TOTAL))
+                .map(SpecialEducationHeadcountHeader::getCode)
+                .collect(Collectors.toList());
+    }
 }

@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
@@ -54,7 +55,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   private static final String F_CODE_TITLE_KEY = "fCodeKey";
   private static final String G_CODE_TITLE_KEY = "gCodeKey";
   private static final String LEVEL_3_TITLE_KEY = "level3Key";
-  private static final String H_CODE_TITLE_KEY = "hHodeKey";
+  private static final String H_CODE_TITLE_KEY = "hCodeKey";
   private static final String OTHER_TITLE_KEY = "otherKey";
   private static final String K_CODE_TITLE_KEY = "kCodeKey";
   private static final String P_CODE_TITLE_KEY = "pCodeKey";
@@ -89,20 +90,20 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   }
 
   public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
-    UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
+    UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity);
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, false);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 
   public void setResultsTableComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, HeadcountResultsTable collectionData) {
-    UUID previousCollectionID = getPreviousSeptemberCollectionID(sdcSchoolCollectionEntity);
+    UUID previousCollectionID = getPreviousCollectionID(sdcSchoolCollectionEntity);
     List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcSchoolCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertHeadcountResults(collectionRawData);
     setResultsTableComparisonValues(collectionData, previousCollectionData);
   }
 
   public void setComparisonValuesForDistrictReporting(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
-    UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+    UUID previousCollectionID = getPreviousCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
 
     List<SpecialEdHeadcountResult> previousCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcDistrictCollectionId(previousCollectionID);
     compareWithPrevCollection(previousCollectionRawData, headcountHeaderList, collectionData, sdcDistrictCollectionEntity);
@@ -110,17 +111,25 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
 
   public void compareWithPrevCollection(List<SpecialEdHeadcountResult> previousCollectionRawData, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData, SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
     HeadcountResultsTable previousCollectionData = convertHeadcountResults(previousCollectionRawData);
-    UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
+    UUID previousCollectionID = getPreviousCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
     setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
   }
 
-  public void setComparisonValuesForDistrictBySchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
-    UUID previousCollectionID = getPreviousSeptemberCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
-    List<SpecialEdHeadcountResult> collectionRawDataForHeadcount = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySchoolIdAndBySdcDistrictCollectionId(previousCollectionID);
+  public void setComparisonValuesForDistrictBySchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData, boolean isCat) {
+    UUID previousCollectionID = getPreviousCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
 
-    HeadcountResultsTable previousCollectionData = convertHeadcountResultsToSchoolGradeTable(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawDataForHeadcount);
+    HeadcountResultsTable previousCollectionData;
+
+    if(isCat){
+      List<SpecialEdHeadcountResult> collectionRawDataForHeadcount = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryBySchoolIdAndSdcDistrictCollectionId(previousCollectionID);
+      previousCollectionData = convertHeadcountResultsToSpecialEdCategoryTable(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawDataForHeadcount);
+    } else {
+      List<SpecialEdHeadcountResult> collectionRawDataForHeadcount = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySchoolIdAndBySdcDistrictCollectionId(previousCollectionID);
+      previousCollectionData = convertHeadcountResultsToSchoolGradeTable(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawDataForHeadcount);
+    }
+
     List<HeadcountHeader> previousHeadcountHeaderList = this.getHeaders(previousCollectionID, true);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
     setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
@@ -131,7 +140,7 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
             ? sdcSchoolCollectionStudentRepository.getSpecialEdHeadersByDistrictId(sdcCollectionID)
             : sdcSchoolCollectionStudentRepository.getSpecialEdHeadersBySchoolId(sdcCollectionID);
     List<HeadcountHeader> headcountHeaderList = new ArrayList<>();
-    Arrays.asList(A_CODE_TITLE, B_CODE_TITLE, C_CODE_TITLE, D_CODE_TITLE, E_CODE_TITLE, F_CODE_TITLE, G_CODE_TITLE, H_CODE_TITLE, K_CODE_TITLE, P_CODE_TITLE, Q_CODE_TITLE, R_CODE_TITLE).forEach(headerTitle -> {
+    SpecialEducationHeadcountHeader.getCatTitles().forEach(headerTitle -> {
       HeadcountHeader headcountHeader = new HeadcountHeader();
       headcountHeader.setColumns(new HashMap<>());
       headcountHeader.setTitle(headerTitle);
@@ -245,7 +254,6 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
       }
     }
 
-
     // Add all schools row at the start
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
     Map<String, HeadcountHeaderColumn> totalRow = new LinkedHashMap<>();
@@ -269,6 +277,148 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     return table;
   }
 
+  public HeadcountResultsTable convertHeadcountResultsToSpecialEdCategoryTable(UUID sdcDistrictCollectionID, List<SpecialEdHeadcountResult> results) throws EntityNotFoundException {
+    HeadcountResultsTable table = new HeadcountResultsTable();
+    List<String> headers = new ArrayList<>();
+    List<String> specialEdCategoryTitles = SpecialEducationHeadcountHeader.getCatTitles();
+    Map<String, Map<String, Integer>> schoolCategoryCounts = new HashMap<>();
+    Map<String, String> schoolDetails  = new HashMap<>();
+
+    List<SchoolTombstone> allSchools = getAllSchoolTombstones(sdcDistrictCollectionID);
+
+    // Collect all special ed categories and initialize school-category map
+    for (SpecialEdHeadcountResult result : results) {
+      schoolCategoryCounts.computeIfAbsent(result.getSchoolID(), k -> new HashMap<>());
+      schoolDetails.putIfAbsent(result.getSchoolID(),
+              restUtils.getSchoolBySchoolID(result.getSchoolID())
+                      .map(school -> school.getMincode() + " - " + school.getDisplayName())
+                      .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudent.class, "SchoolID", result.getSchoolID())));
+    }
+
+    for (SchoolTombstone school : allSchools) {
+      schoolCategoryCounts.computeIfAbsent(school.getSchoolId(), k -> new HashMap<>());
+      schoolDetails.putIfAbsent(school.getSchoolId(), school.getMincode() + " - " + school.getDisplayName());
+    }
+
+    // Add categories to headers
+    headers.add(TITLE);
+    headers.addAll(specialEdCategoryTitles);
+    headers.add(TOTAL);
+    table.setHeaders(headers);
+
+    List<Map<String, HeadcountHeaderColumn>> rows = populateSpedCatRows(results, schoolDetails);
+
+    //Populate category totals
+    Map<String, HeadcountHeaderColumn> allSchoolsRow = calcSpedCatTotals(rows);
+    rows.add(0, allSchoolsRow);
+
+    table.setRows(rows);
+    return table;
+  }
+
+  private List<Map<String, HeadcountHeaderColumn>> populateSpedCatRows(List<SpecialEdHeadcountResult> results, Map<String, String> schoolDetails){
+    List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
+
+    results.forEach(result -> {
+      Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
+      rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(schoolDetails.get(result.getSchoolID())).build());
+      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+
+      String catACount = result.getAdultsInSpecialEdA() ? result.getSpecialEdACodes() + "*" : result.getSpecialEdACodes();
+      rowData.put(SpecialEducationHeadcountHeader.A.getCode(), HeadcountHeaderColumn.builder().currentValue(catACount).build());
+
+      String catBCount = result.getAdultsInSpecialEdB() ? result.getSpecialEdBCodes() + "*" : result.getSpecialEdBCodes();
+      rowData.put(SpecialEducationHeadcountHeader.B.getCode(), HeadcountHeaderColumn.builder().currentValue(catBCount).build());
+
+      String catCCount = result.getAdultsInSpecialEdC() ? result.getSpecialEdCCodes() + "*" : result.getSpecialEdCCodes();
+      rowData.put(SpecialEducationHeadcountHeader.C.getCode(), HeadcountHeaderColumn.builder().currentValue(catCCount).build());
+
+      String catDCount = result.getAdultsInSpecialEdD() ? result.getSpecialEdDCodes() + "*" : result.getSpecialEdDCodes();
+      rowData.put(SpecialEducationHeadcountHeader.D.getCode(), HeadcountHeaderColumn.builder().currentValue(catDCount).build());
+
+      String catECount = result.getAdultsInSpecialEdE() ? result.getSpecialEdDCodes() + "*" : result.getSpecialEdECodes();
+      rowData.put(SpecialEducationHeadcountHeader.E.getCode(), HeadcountHeaderColumn.builder().currentValue(catECount).build());
+
+      String catFCount = result.getAdultsInSpecialEdF() ? result.getSpecialEdFCodes() + "*" : result.getSpecialEdFCodes();
+      rowData.put(SpecialEducationHeadcountHeader.F.getCode(), HeadcountHeaderColumn.builder().currentValue(catFCount).build());
+
+      String catGCount = result.getAdultsInSpecialEdG() ? result.getSpecialEdGCodes() + "*" : result.getSpecialEdGCodes();
+      rowData.put(SpecialEducationHeadcountHeader.G.getCode(), HeadcountHeaderColumn.builder().currentValue(catGCount).build());
+
+      String catHCount = result.getAdultsInSpecialEdH() ? result.getSpecialEdHCodes() + "*" : result.getSpecialEdHCodes();
+      rowData.put(SpecialEducationHeadcountHeader.H.getCode(), HeadcountHeaderColumn.builder().currentValue(catHCount).build());
+
+      String catKCount = result.getAdultsInSpecialEdK() ? result.getSpecialEdKCodes() + "*" : result.getSpecialEdKCodes();
+      rowData.put(SpecialEducationHeadcountHeader.K.getCode(), HeadcountHeaderColumn.builder().currentValue(catKCount).build());
+
+      String catPCount = result.getAdultsInSpecialEdP() ? result.getSpecialEdPCodes() + "*" : result.getSpecialEdPCodes();
+      rowData.put(SpecialEducationHeadcountHeader.P.getCode(), HeadcountHeaderColumn.builder().currentValue(catPCount).build());
+
+      String catQCount = result.getAdultsInSpecialEdQ() ? result.getSpecialEdQCodes() + "*" : result.getSpecialEdQCodes();
+      rowData.put(SpecialEducationHeadcountHeader.Q.getCode(), HeadcountHeaderColumn.builder().currentValue(catQCount).build());
+
+      String catRCount = result.getAdultsInSpecialEdR() ? result.getSpecialEdRCodes() + "*" : result.getSpecialEdRCodes();
+      rowData.put(SpecialEducationHeadcountHeader.R.getCode(), HeadcountHeaderColumn.builder().currentValue(catRCount).build());
+
+      rowData.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(result.getAllLevels())).build());
+
+      rows.add(rowData);
+
+    });
+    return rows;
+  }
+
+  private Map<String, HeadcountHeaderColumn>  calcSpedCatTotals(List<Map<String, HeadcountHeaderColumn>> schoolRows){
+    Map<String, HeadcountHeaderColumn> allSchoolsRow = new LinkedHashMap<>();
+    allSchoolsRow.put(TITLE, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+    allSchoolsRow.put(SECTION, HeadcountHeaderColumn.builder().currentValue(ALL_SCHOOLS).build());
+
+    int catATotal = schoolRows.stream().mapToInt(school -> stripAsterisk(school.get(SpecialEducationHeadcountHeader.A.getCode()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationHeadcountHeader.A.getCode(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catATotal)).build());
+
+    int catBTotal = schoolRows.stream().mapToInt(school -> stripAsterisk(school.get(SpecialEducationHeadcountHeader.B.getCode()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationHeadcountHeader.B.getCode(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catBTotal)).build());
+
+    int catCTotal = schoolRows.stream().mapToInt(school -> stripAsterisk(school.get(SpecialEducationHeadcountHeader.C.getCode()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationHeadcountHeader.C.getCode(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catCTotal)).build());
+
+    int catDTotal = schoolRows.stream().mapToInt(school -> stripAsterisk(school.get(SpecialEducationHeadcountHeader.D.getCode()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationHeadcountHeader.D.getCode(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catDTotal)).build());
+
+    int catETotal = schoolRows.stream().mapToInt(school -> stripAsterisk(school.get(SpecialEducationHeadcountHeader.E.getCode()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationHeadcountHeader.E.getCode(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catETotal)).build());
+
+    int catFTotal = schoolRows.stream().mapToInt(school -> stripAsterisk(school.get(SpecialEducationHeadcountHeader.F.getCode()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationHeadcountHeader.F.getCode(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catFTotal)).build());
+
+    int catGTotal = schoolRows.stream().mapToInt(school -> stripAsterisk(school.get(SpecialEducationHeadcountHeader.G.getCode()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationHeadcountHeader.G.getCode(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catGTotal)).build());
+
+    int catHTotal = schoolRows.stream().mapToInt(school -> stripAsterisk(school.get(SpecialEducationHeadcountHeader.H.getCode()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationHeadcountHeader.H.getCode(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catHTotal)).build());
+
+    int catKTotal = schoolRows.stream().mapToInt(school -> stripAsterisk(school.get(SpecialEducationHeadcountHeader.K.getCode()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationHeadcountHeader.K.getCode(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catKTotal)).build());
+
+    int catPTotal = schoolRows.stream().mapToInt(school -> stripAsterisk(school.get(SpecialEducationHeadcountHeader.P.getCode()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationHeadcountHeader.P.getCode(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catPTotal)).build());
+
+  int catQTotal = schoolRows.stream().mapToInt(school -> stripAsterisk(school.get(SpecialEducationHeadcountHeader.Q.getCode()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationHeadcountHeader.Q.getCode(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catQTotal)).build());
+
+    int catRTotal = schoolRows.stream().mapToInt(school -> stripAsterisk(school.get(SpecialEducationHeadcountHeader.R.getCode()).getCurrentValue())).sum();
+    allSchoolsRow.put(SpecialEducationHeadcountHeader.R.getCode(), HeadcountHeaderColumn.builder().currentValue(String.valueOf(catRTotal)).build());
+
+    int allCatsTotal = catATotal + catBTotal + catCTotal + catDTotal + catETotal + catFTotal + catGTotal + catHTotal + catKTotal + catPTotal + catQTotal + catRTotal;
+    allSchoolsRow.put(TOTAL, HeadcountHeaderColumn.builder().currentValue(String.valueOf(allCatsTotal)).build());
+
+    return allSchoolsRow;
+  }
+
+  private int stripAsterisk(String count){
+    String cleanedStr = count.replace("*", "");
+    return Integer.parseInt(cleanedStr);
+  }
 
   private int getCountFromResult(SpecialEdHeadcountResult result) {
     try {
@@ -299,9 +449,6 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
     headcountMethods.put(Q_CODE_TITLE_KEY, SpecialEdHeadcountResult::getSpecialEdQCodes);
     headcountMethods.put(R_CODE_TITLE_KEY, SpecialEdHeadcountResult::getSpecialEdRCodes);
     headcountMethods.put(ALL_LEVELS_TITLE_KEY, SpecialEdHeadcountResult::getAllLevels);
-
-
-
     return headcountMethods;
   }
   private Map<String, String> getSelectionTitles() {
