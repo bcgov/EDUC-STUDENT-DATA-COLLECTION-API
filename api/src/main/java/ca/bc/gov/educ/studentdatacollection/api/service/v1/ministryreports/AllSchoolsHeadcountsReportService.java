@@ -22,6 +22,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HomeLanguageSpokenCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.SpedFundingReportTotals;
 import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.RequiredArgsConstructor;
@@ -41,9 +42,9 @@ import java.util.stream.Collectors;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeCode.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.SCHOOL;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.DISTRICT_NUMBER;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.SCHOOL_NAME;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
@@ -302,12 +303,7 @@ public class AllSchoolsHeadcountsReportService {
 
     public DownloadableReportResponse generateIndySpecialEducationFundingHeadcounts(UUID collectionID) {
         List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionId(collectionID);
-        var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collectionID);
-        if(lastSeptCollectionOpt.isEmpty()) {
-            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
-        }
-        List<SpecialEdHeadcountResult> lastSeptCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionId(lastSeptCollectionOpt.get().getCollectionID());
-        var mappedSeptData = lastSeptCollectionRawData.stream().collect(Collectors.toMap(SpecialEdHeadcountResult::getSchoolID, item -> item));
+        var mappedSeptData = getLastSeptCollectionSchoolMap(collectionID);
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                 .setHeader(DISTRICT_NUMBER.getCode(), DISTRICT_NAME.getCode(), AUTHORITY_NUMBER.getCode(), MINCODE.getCode(), SCHOOL_NAME.getCode(), SEPT_LEVEL_1.getCode(), SEPT_LEVEL_2.getCode(),
@@ -319,57 +315,59 @@ public class AllSchoolsHeadcountsReportService {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
-            int totSeptLevel1s = 0;
-            int totSeptLevel2s = 0;
-            int totSeptLevel3s = 0;
-            int totFebLevel1s = 0;
-            int totFebLevel2s = 0;
-            int totFebLevel3s = 0;
-            int totPositiveChangeLevel1s = 0;
-            int totPositiveChangeLevel2s = 0;
-            int totPositiveChangeLevel3s = 0;
-            int totNetLevel1s = 0;
-            int totNetLevel2s = 0;
-            int totNetLevel3s = 0;
+            var fundingReportTotals = new SpedFundingReportTotals();
 
             for(SpecialEdHeadcountResult februaryCollectionRecord: collectionRawData) {
                 var septCollectionRecord = mappedSeptData.get(februaryCollectionRecord.getSchoolID());
 
-                var school = restUtils.getAllSchoolBySchoolID(februaryCollectionRecord.getSchoolID()).get();
-                var district = restUtils.getDistrictByDistrictID(school.getDistrictId()).get();
-                IndependentAuthority authority = null;
-                if(school.getIndependentAuthorityId() != null) {
-                    authority = restUtils.getAuthorityByAuthorityID(school.getIndependentAuthorityId()).get();
-                }
+                var schoolOpt = restUtils.getAllSchoolBySchoolID(februaryCollectionRecord.getSchoolID());
+                if (schoolOpt.isPresent()) {
+                    var school = schoolOpt.get();
+                    var districtOpt = restUtils.getDistrictByDistrictID(school.getDistrictId());
 
-                if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
-                    var positiveChangeLevel1 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : null, februaryCollectionRecord.getLevelOnes());
-                    var positiveChangeLevel2 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : null, februaryCollectionRecord.getLevelTwos());
-                    var positiveChangeLevel3 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : null, februaryCollectionRecord.getLevelThrees());
-                    var netChangeLevel1 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : null, februaryCollectionRecord.getLevelOnes());
-                    var netChangeLevel2 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : null, februaryCollectionRecord.getLevelTwos());
-                    var netChangeLevel3 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : null, februaryCollectionRecord.getLevelThrees());
-                    List<String> csvRowData = prepareIndyInclusiveEdFundingDataForCsv(septCollectionRecord, februaryCollectionRecord, school,
-                            authority, district, positiveChangeLevel1, positiveChangeLevel2, positiveChangeLevel3, netChangeLevel1, netChangeLevel2, netChangeLevel3);
-                    csvPrinter.printRecord(csvRowData);
-                    if(septCollectionRecord != null){
-                        totSeptLevel1s = TransformUtil.addValueIfExists(totSeptLevel1s, septCollectionRecord.getLevelOnes());
-                        totSeptLevel2s = TransformUtil.addValueIfExists(totSeptLevel2s, septCollectionRecord.getLevelTwos());
-                        totSeptLevel3s = TransformUtil.addValueIfExists(totSeptLevel3s, septCollectionRecord.getLevelThrees());
+                    District district = null;
+                    if (districtOpt.isPresent()) {
+                        district = districtOpt.get();
                     }
-                    totFebLevel1s = TransformUtil.addValueIfExists(totFebLevel1s, februaryCollectionRecord.getLevelOnes());
-                    totFebLevel2s = TransformUtil.addValueIfExists(totFebLevel2s, februaryCollectionRecord.getLevelTwos());
-                    totFebLevel3s = TransformUtil.addValueIfExists(totFebLevel3s, februaryCollectionRecord.getLevelThrees());
-                    totPositiveChangeLevel1s = TransformUtil.addValueIfExists(totPositiveChangeLevel1s, positiveChangeLevel1);
-                    totPositiveChangeLevel2s = TransformUtil.addValueIfExists(totPositiveChangeLevel2s, positiveChangeLevel2);
-                    totPositiveChangeLevel3s = TransformUtil.addValueIfExists(totPositiveChangeLevel3s, positiveChangeLevel3);
-                    totNetLevel1s = TransformUtil.addValueIfExists(totNetLevel1s, netChangeLevel1);
-                    totNetLevel2s = TransformUtil.addValueIfExists(totNetLevel2s, netChangeLevel2);
-                    totNetLevel3s = TransformUtil.addValueIfExists(totNetLevel3s, netChangeLevel3);
+
+                    Optional<IndependentAuthority> authorityOpt = Optional.empty();
+                    if (school.getIndependentAuthorityId() != null) {
+                        authorityOpt = restUtils.getAuthorityByAuthorityID(school.getIndependentAuthorityId());
+                    }
+
+                    IndependentAuthority authority = null;
+                    if (authorityOpt.isPresent()) {
+                        authority = authorityOpt.get();
+                    }
+
+                    if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
+                        var positiveChangeLevel1 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : null, februaryCollectionRecord.getLevelOnes());
+                        var positiveChangeLevel2 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : null, februaryCollectionRecord.getLevelTwos());
+                        var positiveChangeLevel3 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : null, februaryCollectionRecord.getLevelThrees());
+                        var netChangeLevel1 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : null, februaryCollectionRecord.getLevelOnes());
+                        var netChangeLevel2 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : null, februaryCollectionRecord.getLevelTwos());
+                        var netChangeLevel3 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : null, februaryCollectionRecord.getLevelThrees());
+                        List<String> csvRowData = prepareIndyInclusiveEdFundingDataForCsv(septCollectionRecord, februaryCollectionRecord, school,
+                                authority, district, positiveChangeLevel1, positiveChangeLevel2, positiveChangeLevel3, netChangeLevel1, netChangeLevel2, netChangeLevel3);
+                        csvPrinter.printRecord(csvRowData);
+                        if (septCollectionRecord != null) {
+                            fundingReportTotals.setTotSeptLevel1s(TransformUtil.addValueIfExists(fundingReportTotals.getTotSeptLevel1s(), septCollectionRecord.getLevelOnes()));
+                            fundingReportTotals.setTotSeptLevel2s(TransformUtil.addValueIfExists(fundingReportTotals.getTotSeptLevel2s(), septCollectionRecord.getLevelTwos()));
+                            fundingReportTotals.setTotSeptLevel3s(TransformUtil.addValueIfExists(fundingReportTotals.getTotSeptLevel3s(), septCollectionRecord.getLevelThrees()));
+                        }
+                        fundingReportTotals.setTotFebLevel1s(TransformUtil.addValueIfExists(fundingReportTotals.getTotFebLevel1s(), februaryCollectionRecord.getLevelOnes()));
+                        fundingReportTotals.setTotFebLevel2s(TransformUtil.addValueIfExists(fundingReportTotals.getTotFebLevel2s(), februaryCollectionRecord.getLevelTwos()));
+                        fundingReportTotals.setTotFebLevel3s(TransformUtil.addValueIfExists(fundingReportTotals.getTotFebLevel3s(), februaryCollectionRecord.getLevelThrees()));
+                        fundingReportTotals.setTotPositiveChangeLevel1s(TransformUtil.addValueIfExists(fundingReportTotals.getTotPositiveChangeLevel1s(), positiveChangeLevel1));
+                        fundingReportTotals.setTotPositiveChangeLevel2s(TransformUtil.addValueIfExists(fundingReportTotals.getTotPositiveChangeLevel2s(), positiveChangeLevel2));
+                        fundingReportTotals.setTotPositiveChangeLevel3s(TransformUtil.addValueIfExists(fundingReportTotals.getTotPositiveChangeLevel3s(), positiveChangeLevel3));
+                        fundingReportTotals.setTotNetLevel1s(TransformUtil.addValueIfExists(fundingReportTotals.getTotNetLevel1s(), netChangeLevel1));
+                        fundingReportTotals.setTotNetLevel2s(TransformUtil.addValueIfExists(fundingReportTotals.getTotNetLevel2s(), netChangeLevel2));
+                        fundingReportTotals.setTotNetLevel3s(TransformUtil.addValueIfExists(fundingReportTotals.getTotNetLevel3s(), netChangeLevel3));
+                    }
                 }
             }
-            csvPrinter.printRecord(getIndependentSchoolFundingTotalRow(totSeptLevel1s, totSeptLevel2s, totSeptLevel3s, totFebLevel1s, totFebLevel2s,
-                    totFebLevel3s, totPositiveChangeLevel1s, totPositiveChangeLevel2s, totPositiveChangeLevel3s, totNetLevel1s, totNetLevel2s, totNetLevel3s));
+            csvPrinter.printRecord(getIndependentSchoolFundingTotalRow(fundingReportTotals));
             csvPrinter.flush();
 
             var downloadableReport = new DownloadableReportResponse();
@@ -382,18 +380,7 @@ public class AllSchoolsHeadcountsReportService {
         }
     }
 
-    private List<String> getIndependentSchoolFundingTotalRow(int totSeptLevel1s,
-                                                                        int totSeptLevel2s,
-                                                                        int totSeptLevel3s,
-                                                                        int totFebLevel1s,
-                                                                        int totFebLevel2s,
-                                                                        int totFebLevel3s,
-                                                                        int totPositiveChangeLevel1s,
-                                                                        int totPositiveChangeLevel2s,
-                                                                        int totPositiveChangeLevel3s,
-                                                                        int totNetLevel1s,
-                                                                        int totNetLevel2s,
-                                                                        int totNetLevel3s){
+    private List<String> getIndependentSchoolFundingTotalRow(SpedFundingReportTotals totals){
         List<String> csvRowData = new ArrayList<>();
 
         csvRowData.addAll(Arrays.asList(
@@ -403,18 +390,18 @@ public class AllSchoolsHeadcountsReportService {
                 null,
                 null,
                 null,
-                Integer.toString(totSeptLevel1s),
-                Integer.toString(totSeptLevel2s),
-                Integer.toString(totSeptLevel3s),
-                Integer.toString(totFebLevel1s),
-                Integer.toString(totFebLevel2s),
-                Integer.toString(totFebLevel3s),
-                Integer.toString(totPositiveChangeLevel1s),
-                Integer.toString(totPositiveChangeLevel2s),
-                Integer.toString(totPositiveChangeLevel3s),
-                Integer.toString(totNetLevel1s),
-                Integer.toString(totNetLevel2s),
-                Integer.toString(totNetLevel3s)
+                Integer.toString(totals.getTotSeptLevel1s()),
+                Integer.toString(totals.getTotSeptLevel2s()),
+                Integer.toString(totals.getTotSeptLevel3s()),
+                Integer.toString(totals.getTotFebLevel1s()),
+                Integer.toString(totals.getTotFebLevel2s()),
+                Integer.toString(totals.getTotFebLevel3s()),
+                Integer.toString(totals.getTotPositiveChangeLevel1s()),
+                Integer.toString(totals.getTotPositiveChangeLevel2s()),
+                Integer.toString(totals.getTotPositiveChangeLevel3s()),
+                Integer.toString(totals.getTotNetLevel1s()),
+                Integer.toString(totals.getTotNetLevel2s()),
+                Integer.toString(totals.getTotNetLevel3s())
         ));
         return csvRowData;
     }
@@ -460,6 +447,15 @@ public class AllSchoolsHeadcountsReportService {
         }
     }
 
+    private Map<String, SpecialEdHeadcountResult> getLastSeptCollectionSchoolMap(UUID collectionID){
+        var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collectionID);
+        if(lastSeptCollectionOpt.isEmpty()) {
+            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+        }
+        List<SpecialEdHeadcountResult> lastSeptCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionId(lastSeptCollectionOpt.get().getCollectionID());
+        return lastSeptCollectionRawData.stream().collect(Collectors.toMap(SpecialEdHeadcountResult::getSchoolID, item -> item));
+    }
+
     private List<String> prepareIndyInclusiveEdFundingDataForCsv(SpecialEdHeadcountResult septCollectionRecord,
                                                                  SpecialEdHeadcountResult februaryCollectionRecord,
                                                                  School school,
@@ -474,8 +470,8 @@ public class AllSchoolsHeadcountsReportService {
         List<String> csvRowData = new ArrayList<>();
 
         csvRowData.addAll(Arrays.asList(
-                district.getDistrictNumber(),
-                district.getDisplayName(),
+                district != null ? district.getDistrictNumber() : null,
+                district != null ? district.getDisplayName() : null,
                 authority != null ? authority.getAuthorityNumber() : null,
                 authority != null ? authority.getDisplayName() : null,
                 school.getMincode(),
