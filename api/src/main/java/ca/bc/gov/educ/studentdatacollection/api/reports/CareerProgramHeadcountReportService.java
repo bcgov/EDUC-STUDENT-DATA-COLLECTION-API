@@ -103,15 +103,15 @@ public class CareerProgramHeadcountReportService extends BaseReportGenerationSer
   }
 
   private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix){
-    nodeMap.put(sectionPrefix + "Heading", new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false));
-    nodeMap.put(sectionPrefix + "XA", new GradeHeadcountChildNode("XA - Business & Applied Business", FALSE, sequencePrefix + "1", false));
-    nodeMap.put(sectionPrefix + "XB", new GradeHeadcountChildNode("XB - Fine Arts, Design & Media", FALSE, sequencePrefix + "2", false));
-    nodeMap.put(sectionPrefix + "XC", new GradeHeadcountChildNode("XC - Fitness & Recreation", FALSE, sequencePrefix + "3", false));
-    nodeMap.put(sectionPrefix + "XD", new GradeHeadcountChildNode("XD - Health & Human Services", FALSE, sequencePrefix + "4", false));
-    nodeMap.put(sectionPrefix + "XE", new GradeHeadcountChildNode("XE - Liberal Arts & Humanities", FALSE, sequencePrefix + "5", false));
-    nodeMap.put(sectionPrefix + "XF", new GradeHeadcountChildNode("XF - Science & Applied Science", FALSE, sequencePrefix + "6", false));
-    nodeMap.put(sectionPrefix + "XG", new GradeHeadcountChildNode("XG - Tourism, Hospitality & Foods", FALSE, sequencePrefix + "7", false));
-    nodeMap.put(sectionPrefix + "XH", new GradeHeadcountChildNode("XH - Trades & Technology", FALSE, sequencePrefix + "8", false));
+    nodeMap.put(sectionPrefix + "Heading", new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, false, false));
+    nodeMap.put(sectionPrefix + "XA", new GradeHeadcountChildNode("XA - Business & Applied Business", FALSE, sequencePrefix + "1", false, true, false, false));
+    nodeMap.put(sectionPrefix + "XB", new GradeHeadcountChildNode("XB - Fine Arts, Design & Media", FALSE, sequencePrefix + "2", false, true, false, false));
+    nodeMap.put(sectionPrefix + "XC", new GradeHeadcountChildNode("XC - Fitness & Recreation", FALSE, sequencePrefix + "3", false, true, false, false));
+    nodeMap.put(sectionPrefix + "XD", new GradeHeadcountChildNode("XD - Health & Human Services", FALSE, sequencePrefix + "4", false, true, false, false));
+    nodeMap.put(sectionPrefix + "XE", new GradeHeadcountChildNode("XE - Liberal Arts & Humanities", FALSE, sequencePrefix + "5", false, true, false, false));
+    nodeMap.put(sectionPrefix + "XF", new GradeHeadcountChildNode("XF - Science & Applied Science", FALSE, sequencePrefix + "6", false, true, false, false));
+    nodeMap.put(sectionPrefix + "XG", new GradeHeadcountChildNode("XG - Tourism, Hospitality & Foods", FALSE, sequencePrefix + "7", false, true, false, false));
+    nodeMap.put(sectionPrefix + "XH", new GradeHeadcountChildNode("XH - Trades & Technology", FALSE, sequencePrefix + "8", false, true, false, false));
   }
 
   public void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, CareerHeadcountResult gradeResult){

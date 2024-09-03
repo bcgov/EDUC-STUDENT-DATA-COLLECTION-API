@@ -98,7 +98,7 @@ public class CareerHeadcountHelper extends HeadcountHelper<CareerHeadcountResult
     headcountMethods = getHeadcountMethods();
     sectionTitles = getSelectionTitles();
     rowTitles = getRowTitles();
-    gradeCodes = SchoolGradeCodes.get8PlusGradesNoGA();
+    gradeCodes = SchoolGradeCodes.get8PlusGrades();
     perSchoolRowTitles = getPerSchoolReportRowTitles();
   }
   public void setComparisonValues(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, List<HeadcountHeader> headcountHeaderList) {
