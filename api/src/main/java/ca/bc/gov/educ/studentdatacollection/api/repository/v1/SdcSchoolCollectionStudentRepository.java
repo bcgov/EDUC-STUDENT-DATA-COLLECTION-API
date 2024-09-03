@@ -165,11 +165,11 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   @Query("""
        SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
-       WHERE s.assignedStudentId = :assignedStudentId
+       WHERE s.assignedStudentId IN :assignedStudentId
        AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
        """)
   long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(
-          @Param("assignedStudentId") UUID assignedStudentId,
+          @Param("assignedStudentId") List<UUID> assignedStudentId,
           @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
 
   @Query("""
@@ -194,6 +194,27 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
 
   long countAllByAssignedStudentIdInAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(List<UUID> assignedStudentId, String enrolledGradeCode, List<UUID> sdcSchoolCollectionID);
+
+  @Query("""
+       SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
+       WHERE s.assignedStudentId IN :assignedStudentId
+       AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
+       AND s.fte > 0
+       """)
+  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTE(
+          @Param("assignedStudentId") List<UUID> assignedStudentId,
+          @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
+
+  @Query("""
+       SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
+       WHERE s.assignedStudentId IN :assignedStudentId
+       AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
+       AND s.fte > 0
+       AND s.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', '08', '09')
+       """)
+  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTEAndInGradeKto9(
+          @Param("assignedStudentId") List<UUID> assignedStudentId,
+          @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
 
   @Query("SELECT " +
           "s.enrolledGradeCode AS enrolledGradeCode, " +
