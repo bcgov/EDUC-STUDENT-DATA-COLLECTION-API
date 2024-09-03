@@ -165,11 +165,11 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   @Query("""
        SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
-       WHERE s.assignedStudentId = :assignedStudentId
+       WHERE s.assignedStudentId IN :assignedStudentId
        AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
        """)
   long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(
-          @Param("assignedStudentId") UUID assignedStudentId,
+          @Param("assignedStudentId") List<UUID> assignedStudentId,
           @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
 
   @Query("""

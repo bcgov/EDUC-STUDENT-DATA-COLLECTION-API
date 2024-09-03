@@ -234,7 +234,6 @@ public class FteCalculatorUtils {
     }
 
     public boolean reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(StudentRuleData studentRuleData) {
-        var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
         var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
         List<UUID> onlineSchoolIds = restUtils.getSchools().stream().filter(
@@ -246,7 +245,7 @@ public class FteCalculatorUtils {
 
         if (previousCollections != null) {
             var collectionIds = previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList();
-            var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(student.getAssignedStudentId(), collectionIds);
+            var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(studentRuleData.getHistoricStudentIds(), collectionIds);
             return count > 0;
         }
         return false;
