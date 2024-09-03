@@ -451,7 +451,7 @@ public class RestUtils {
   public Optional<IndependentAuthority> getAuthorityByAuthorityID(final String authorityID) {
     if (this.authorityMap.isEmpty()) {
       log.info("Authority map is empty reloading authorities");
-      this.populateSchoolMap();
+      this.populateAuthorityMap();
     }
     return Optional.ofNullable(this.authorityMap.get(authorityID));
   }
