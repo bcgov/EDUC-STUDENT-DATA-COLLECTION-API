@@ -121,7 +121,7 @@ public class RestUtils {
     val writeLock = this.authorityLock.writeLock();
     try {
       writeLock.lock();
-      for (val authority : this.getAuthority()) {
+      for (val authority : this.getAuthorities()) {
         this.authorityMap.put(authority.getIndependentAuthorityId(), authority);
       }
     } catch (Exception ex) {
@@ -209,7 +209,7 @@ public class RestUtils {
             .block();
   }
 
-  public List<IndependentAuthority> getAuthority() {
+  public List<IndependentAuthority> getAuthorities() {
     log.info("Calling Institute api to load authority to memory");
     return this.webClient.get()
             .uri(this.props.getInstituteApiURL() + "/authority")
