@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -162,5 +163,64 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         assertEquals(mockStudentEntity.getAssignedStudentId().toString(), penMatchResult.getMatchingRecords().get(0).getStudentID());
         assertSame("MATCH", mockStudentEntity.getPenMatchResult());
         assertFalse(mockStudentEntity.getIsGraduated());
+    }
+
+    @Test
+    void testSetupMergedStudentIdValues_whenHistoricStudentIdsIsNull_ReturnAssignedStudentIdAndMergedStudentIds() {
+        var schoolTombstone = createMockSchoolTombstone();
+        SdcSchoolCollectionStudentEntity mockStudentEntity = createMockSchoolStudentEntity(createMockSdcSchoolCollectionEntity(createMockCollectionEntity(), UUID.fromString(schoolTombstone.getSchoolId())));
+        UUID assignedStudentId = UUID.randomUUID();
+        mockStudentEntity.setAssignedStudentId(assignedStudentId);
+        var studentRuleData = createMockStudentRuleData(mockStudentEntity, schoolTombstone);
+        studentRuleData.getSdcSchoolCollectionStudentEntity().setIsGraduated(false);
+        studentRuleData.getSdcSchoolCollectionStudentEntity().setPenMatchResult("MATCH");
+
+        var mergedStudent = getStudentMergeResult();
+        when(this.restUtils.getMergedStudentIds(any(UUID.class), any(UUID.class)))
+                .thenReturn(List.of(mergedStudent));
+
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
+
+        assertNotNull(studentRuleData.getHistoricStudentIds());
+        assertEquals(2, studentRuleData.getHistoricStudentIds().size());
+        assertTrue(studentRuleData.getHistoricStudentIds().contains(UUID.fromString(mergedStudent.getMergeStudentID())));
+        assertTrue(studentRuleData.getHistoricStudentIds().contains(assignedStudentId));
+    }
+
+    @Test
+    void testSetupMergedStudentIdValues_whenNoMergedStudents_ReturnOnlyAssignedId() {
+        var schoolTombstone = createMockSchoolTombstone();
+        SdcSchoolCollectionStudentEntity mockStudentEntity = createMockSchoolStudentEntity(createMockSdcSchoolCollectionEntity(createMockCollectionEntity(), UUID.fromString(schoolTombstone.getSchoolId())));
+        UUID assignedStudentId = UUID.randomUUID();
+        mockStudentEntity.setAssignedStudentId(assignedStudentId);
+        var studentRuleData = createMockStudentRuleData(mockStudentEntity, schoolTombstone);
+        studentRuleData.getSdcSchoolCollectionStudentEntity().setIsGraduated(false);
+        studentRuleData.getSdcSchoolCollectionStudentEntity().setPenMatchResult("MATCH");
+
+        when(this.restUtils.getMergedStudentIds(any(UUID.class), any(UUID.class)))
+                .thenReturn(List.of());
+
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
+
+        assertNotNull(studentRuleData.getHistoricStudentIds());
+        assertEquals(1, studentRuleData.getHistoricStudentIds().size());
+        assertTrue(studentRuleData.getHistoricStudentIds().contains(assignedStudentId));
+    }
+
+    @Test
+    void testSetupMergedStudentIdValues_whenHistoricStudentIdsIsNotNull_ReturnExisting() {
+        var schoolTombstone = createMockSchoolTombstone();
+        SdcSchoolCollectionStudentEntity mockStudentEntity = createMockSchoolStudentEntity(createMockSdcSchoolCollectionEntity(createMockCollectionEntity(), UUID.fromString(schoolTombstone.getSchoolId())));
+        UUID assignedStudentId = UUID.randomUUID();
+        mockStudentEntity.setAssignedStudentId(assignedStudentId);
+        var studentRuleData = createMockStudentRuleData(mockStudentEntity, schoolTombstone);
+        studentRuleData.setHistoricStudentIds(List.of(assignedStudentId));
+        studentRuleData.getSdcSchoolCollectionStudentEntity().setIsGraduated(false);
+        studentRuleData.getSdcSchoolCollectionStudentEntity().setPenMatchResult("MATCH");
+
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
+
+        assertEquals(1, studentRuleData.getHistoricStudentIds().size());
+        assertTrue(studentRuleData.getHistoricStudentIds().contains(assignedStudentId));
     }
 }

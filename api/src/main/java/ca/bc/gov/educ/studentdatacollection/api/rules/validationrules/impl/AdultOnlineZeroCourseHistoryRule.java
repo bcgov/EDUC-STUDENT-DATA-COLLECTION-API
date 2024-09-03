@@ -63,6 +63,7 @@ public class AdultOnlineZeroCourseHistoryRule implements ValidationBaseRule {
 
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
 
         boolean isAdult = DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
         String schoolType = studentRuleData.getSchool().getFacilityTypeCode();
