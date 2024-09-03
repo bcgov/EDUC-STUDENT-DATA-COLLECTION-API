@@ -475,6 +475,16 @@ public abstract class BaseStudentDataCollectionAPITest {
     return district;
   }
 
+  public IndependentAuthority createMockAuthority() {
+    final IndependentAuthority independentAuthority = IndependentAuthority.builder().build();
+    independentAuthority.setIndependentAuthorityId(UUID.randomUUID().toString());
+    independentAuthority.setDisplayName("Marco's authority");
+    independentAuthority.setAuthorityNumber("777");
+    independentAuthority.setAuthorityTypeCode("INDEPENDNT");
+    independentAuthority.setPhoneNumber("123456789");
+    return independentAuthority;
+  }
+
   public StudentRuleData createMockStudentRuleData(final SdcSchoolCollectionStudentEntity student, final SchoolTombstone schoolTombstone) {
     final StudentRuleData studentRuleData = new StudentRuleData();
     studentRuleData.setSchool(schoolTombstone);

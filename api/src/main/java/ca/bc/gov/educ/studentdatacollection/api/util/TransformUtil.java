@@ -221,4 +221,29 @@ public class TransformUtil {
     incomingStudentEntity.setIndigenousSupportProgramNonEligReasonCode(null);
     incomingStudentEntity.setFrenchProgramNonEligReasonCode(null);
   }
+
+  public static int addValueIfExists(int totalValue, String actualValue){
+    if(StringUtils.isNumeric(actualValue)){
+      totalValue = totalValue + Integer.parseInt(actualValue);
+    }
+    return totalValue;
+  }
+
+  public static String getNetChange(String septValue, String febValue){
+    if(StringUtils.isNumeric(septValue) && StringUtils.isNumeric(febValue)){
+      var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
+      return Integer.toString(change);
+    }
+    return null;
+  }
+
+  public static String getPositiveChange(String septValue, String febValue){
+    if(StringUtils.isNumeric(septValue) && StringUtils.isNumeric(febValue)){
+      var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
+      if(change > 0){
+        return Integer.toString(change);
+      }
+    }
+    return null;
+  }
 }
