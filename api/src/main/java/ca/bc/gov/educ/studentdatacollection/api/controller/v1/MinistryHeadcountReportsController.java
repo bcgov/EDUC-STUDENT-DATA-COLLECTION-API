@@ -64,6 +64,7 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
             case OFFSHORE_ENROLLMENT_HEADCOUNTS -> ministryReportsService.generateOffshoreSchoolsHeadcounts(collectionID);
             case INDY_INCLUSIVE_ED_ENROLLMENT_HEADCOUNTS -> ministryReportsService.generateIndySpecialEducationHeadcounts(collectionID);
             case OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS -> ministryReportsService.generateOffshoreSpokenLanguageHeadcounts(collectionID);
+            case INDY_INCLUSIVE_ED_FUNDING_HEADCOUNTS -> ministryReportsService.generateIndySpecialEducationFundingHeadcounts(collectionID);
             default -> new DownloadableReportResponse();
         };
     }

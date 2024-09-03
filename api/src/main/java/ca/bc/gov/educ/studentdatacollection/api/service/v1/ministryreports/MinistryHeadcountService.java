@@ -191,8 +191,22 @@ public class MinistryHeadcountService {
       headerList.add(header.getCode());
     }
     resultsTable.setHeaders(headerList);
+
+    int totSeptLevel1s = 0;
+    int totSeptLevel2s = 0;
+    int totSeptLevel3s = 0;
+    int totFebLevel1s = 0;
+    int totFebLevel2s = 0;
+    int totFebLevel3s = 0;
+    int totPositiveChangeLevel1s = 0;
+    int totPositiveChangeLevel2s = 0;
+    int totPositiveChangeLevel3s = 0;
+    int totNetLevel1s = 0;
+    int totNetLevel2s = 0;
+    int totNetLevel3s = 0;
+
     var rows = new ArrayList<Map<String, String>>();
-    collectionRawData.stream().forEach(februaryCollectionRecord -> {
+    for(SpecialEdHeadcountResult februaryCollectionRecord: collectionRawData) {
       var septCollectionRecord = mappedSeptData.get(februaryCollectionRecord.getSchoolID());
 
       var school = restUtils.getAllSchoolBySchoolID(februaryCollectionRecord.getSchoolID()).get();
@@ -203,6 +217,13 @@ public class MinistryHeadcountService {
       }
 
       if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
+        var positiveChangeLevel1 = getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : null, februaryCollectionRecord.getLevelOnes());
+        var positiveChangeLevel2 = getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : null, februaryCollectionRecord.getLevelTwos());
+        var positiveChangeLevel3 = getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : null, februaryCollectionRecord.getLevelThrees());
+        var netChangeLevel1 = getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : null, februaryCollectionRecord.getLevelOnes());
+        var netChangeLevel2 = getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : null, februaryCollectionRecord.getLevelTwos());
+        var netChangeLevel3 = getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : null, februaryCollectionRecord.getLevelThrees());
+
         var rowMap = new HashMap<String, String>();
         rowMap.put(IndySpecialEducationFundingHeadcountHeader.DISTRICT_NUMBER.getCode(), district.getDistrictNumber());
         rowMap.put(IndySpecialEducationFundingHeadcountHeader.DISTRICT_NAME.getCode(), district.getDisplayName());
@@ -216,22 +237,81 @@ public class MinistryHeadcountService {
         rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_1.getCode(), februaryCollectionRecord.getLevelOnes());
         rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_2.getCode(), februaryCollectionRecord.getLevelTwos());
         rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_3.getCode(), februaryCollectionRecord.getLevelThrees());
-        rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_1.getCode(), getPositiveChange(septCollectionRecord.getLevelOnes(), februaryCollectionRecord.getLevelOnes()));
-        rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_2.getCode(), getPositiveChange(septCollectionRecord.getLevelTwos(), februaryCollectionRecord.getLevelTwos()));
-        rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_3.getCode(), getPositiveChange(septCollectionRecord.getLevelThrees(), februaryCollectionRecord.getLevelThrees()));
-        rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_1.getCode(), getNetChange(septCollectionRecord.getLevelOnes(), februaryCollectionRecord.getLevelOnes()));
-        rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_2.getCode(), getNetChange(septCollectionRecord.getLevelTwos(), februaryCollectionRecord.getLevelTwos()));
-        rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_3.getCode(), getNetChange(septCollectionRecord.getLevelThrees(), februaryCollectionRecord.getLevelThrees()));
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_1.getCode(), positiveChangeLevel1);
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_2.getCode(), positiveChangeLevel2);
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_3.getCode(), positiveChangeLevel3);
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_1.getCode(), netChangeLevel1);
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_2.getCode(), netChangeLevel2);
+        rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_3.getCode(), netChangeLevel3);
         rows.add(rowMap);
+
+        if(septCollectionRecord != null){
+          totSeptLevel1s = addValueIfExists(totSeptLevel1s, septCollectionRecord.getLevelOnes());
+          totSeptLevel2s = addValueIfExists(totSeptLevel2s, septCollectionRecord.getLevelTwos());
+          totSeptLevel3s = addValueIfExists(totSeptLevel3s, septCollectionRecord.getLevelThrees());
+        }
+        totFebLevel1s = addValueIfExists(totFebLevel1s, februaryCollectionRecord.getLevelOnes());
+        totFebLevel2s = addValueIfExists(totFebLevel2s, februaryCollectionRecord.getLevelTwos());
+        totFebLevel3s = addValueIfExists(totFebLevel3s, februaryCollectionRecord.getLevelThrees());
+        totPositiveChangeLevel1s = addValueIfExists(totPositiveChangeLevel1s, positiveChangeLevel1);
+        totPositiveChangeLevel2s = addValueIfExists(totPositiveChangeLevel2s, positiveChangeLevel2);
+        totPositiveChangeLevel3s = addValueIfExists(totPositiveChangeLevel3s, positiveChangeLevel3);
+        totNetLevel1s = addValueIfExists(totNetLevel1s, netChangeLevel1);
+        totNetLevel2s = addValueIfExists(totNetLevel2s, netChangeLevel2);
+        totNetLevel3s = addValueIfExists(totNetLevel3s, netChangeLevel3);
       }
-    });
+    }
+
+    rows.add(getIndependentSchoolFundingTotalRow(totSeptLevel1s, totSeptLevel2s, totSeptLevel3s, totFebLevel1s, totFebLevel2s,
+            totFebLevel3s, totPositiveChangeLevel1s, totPositiveChangeLevel2s, totPositiveChangeLevel3s, totNetLevel1s, totNetLevel2s, totNetLevel3s));
 
     resultsTable.setRows(rows);
     return resultsTable;
   }
 
+  private HashMap<String, String> getIndependentSchoolFundingTotalRow(int totSeptLevel1s,
+                                                                      int totSeptLevel2s,
+                                                                      int totSeptLevel3s,
+                                                                      int totFebLevel1s,
+                                                                      int totFebLevel2s,
+                                                                      int totFebLevel3s,
+                                                                      int totPositiveChangeLevel1s,
+                                                                      int totPositiveChangeLevel2s,
+                                                                      int totPositiveChangeLevel3s,
+                                                                      int totNetLevel1s,
+                                                                      int totNetLevel2s,
+                                                                      int totNetLevel3s){
+    var rowMap = new HashMap<String, String>();
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.DISTRICT_NUMBER.getCode(), null);
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.DISTRICT_NAME.getCode(), null);
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NUMBER.getCode(), null);
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NAME.getCode(), null);
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.MINCODE.getCode(), null);
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.SCHOOL_NAME.getCode(), null);
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_1.getCode(), Integer.toString(totSeptLevel1s));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_2.getCode(), Integer.toString(totSeptLevel2s));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_3.getCode(), Integer.toString(totSeptLevel3s));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_1.getCode(), Integer.toString(totFebLevel1s));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_2.getCode(), Integer.toString(totFebLevel2s));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_3.getCode(), Integer.toString(totFebLevel3s));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_1.getCode(), Integer.toString(totPositiveChangeLevel1s));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_2.getCode(), Integer.toString(totPositiveChangeLevel2s));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_3.getCode(), Integer.toString(totPositiveChangeLevel3s));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_1.getCode(), Integer.toString(totNetLevel1s));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_2.getCode(), Integer.toString(totNetLevel2s));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_3.getCode(), Integer.toString(totNetLevel3s));
+    return rowMap;
+  }
+
+  private int addValueIfExists(int totalValue, String actualValue){
+    if(StringUtils.isNumeric(actualValue)){
+      totalValue = totalValue + Integer.parseInt(actualValue);
+    }
+    return totalValue;
+  }
+
   private String getNetChange(String septValue, String febValue){
-    if(StringUtils.isNotEmpty(septValue) && StringUtils.isNotEmpty(febValue)){
+    if(StringUtils.isNumeric(septValue) && StringUtils.isNumeric(febValue)){
       var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
       return Integer.toString(change);
     }
@@ -239,7 +319,7 @@ public class MinistryHeadcountService {
   }
 
   private String getPositiveChange(String septValue, String febValue){
-    if(StringUtils.isNotEmpty(septValue) && StringUtils.isNotEmpty(febValue)){
+    if(StringUtils.isNumeric(septValue) && StringUtils.isNumeric(febValue)){
       var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
       if(change > 0){
         return Integer.toString(change);
