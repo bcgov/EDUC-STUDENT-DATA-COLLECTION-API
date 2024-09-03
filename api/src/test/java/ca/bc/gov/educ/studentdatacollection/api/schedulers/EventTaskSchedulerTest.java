@@ -145,7 +145,6 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
     @Test
     void testFindIndySchoolSubmissions_WithStatusCode_LOADEDAndNEW_shouldReturnOk() {
-        setMockDataForSchoolCollectionsForSubmissionFn();
 
         var collection = createMockCollectionEntity();
         collection.setCollectionStatusCode("INPROGRESS");
@@ -181,7 +180,6 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
     @Test
     void testFindIndySchoolSubmissions_WithStatusCode_LOADEDAndNEW_ExistingSaga_shouldReturnOk() throws JsonProcessingException {
-        setMockDataForSchoolCollectionsForSubmissionFn();
 
         var collection = createMockCollectionEntity();
         collection.setCollectionStatusCode("INPROGRESS");
