@@ -141,6 +141,24 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             LIMIT 1""")
     Optional<CollectionEntity> findLastCollectionByType(String collectionTypeCode, UUID currentCollectionID);
 
+    @Query("""
+        SELECT C FROM CollectionEntity C
+        WHERE C.collectionTypeCode = :collectionTypeCode
+        AND C.snapshotDate <= (SELECT C2.snapshotDate FROM CollectionEntity C2 WHERE C2.collectionID = :referenceCollectionID)
+        ORDER BY C.snapshotDate DESC
+        LIMIT 1
+    """)
+    Optional<CollectionEntity> findLastOrCurrentCollectionByType(String collectionTypeCode, UUID referenceCollectionID);
+
+    @Query("""
+        SELECT C FROM CollectionEntity C
+        WHERE C.collectionTypeCode = :collectionTypeCode
+        AND C.snapshotDate < (SELECT C2.snapshotDate FROM CollectionEntity C2 WHERE C2.collectionID = :referenceCollectionID)
+        ORDER BY C.snapshotDate DESC
+        LIMIT 1
+    """)
+    Optional<CollectionEntity> findLastCollectionByTypeBefore(String collectionTypeCode, UUID referenceCollectionID);
+
     List<SdcSchoolCollectionEntity> findAllBySchoolID(UUID schoolID);
     Optional<SdcSchoolCollectionEntity> findBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
     List<SdcSchoolCollectionEntity> findAllByCollectionEntityCollectionID(UUID collectionID);

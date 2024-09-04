@@ -335,6 +335,38 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  public SimpleHeadcountResultsTable getInclusiveEducationVarianceHeadcounts(UUID collectionID) {
+    Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
+    if(entityOptional.isEmpty()) {
+      throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+    }
+
+    // Get previous February collection relative to given collectionID
+    CollectionEntity febCollection = sdcSchoolCollectionRepository.findLastOrCurrentCollectionByType(CollectionTypeCodes.FEBRUARY.getTypeCode(), collectionID)
+            .orElseThrow(() -> new RuntimeException("No previous or current February collection found."));
+
+    // Get previous September collection relative to previous February collection
+    CollectionEntity septCollection = sdcSchoolCollectionRepository.findLastCollectionByTypeBefore(CollectionTypeCodes.SEPTEMBER.getTypeCode(), febCollection.getCollectionID())
+            .orElseThrow(() -> new RuntimeException("No previous September collection found relative to the February collection."));
+
+    // need to get sped headcounts for each district in each collection - start with feb
+    List<SpecialEdHeadcountResult> febCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionIdGroupBySdcDistrictCollectionID(febCollection.getCollectionID());
+    List<SpecialEdHeadcountResult> septCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionIdGroupBySdcDistrictCollectionID(septCollection.getCollectionID());
+
+
+    for(SpecialEdHeadcountResult februaryCollectionRecord: febCollectionRawData) {
+      log.debug(februaryCollectionRecord.getSdcDistrictCollectionID());
+    }
+
+      var rows = new ArrayList<Map<String, String>>();
+
+
+    SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
+    resultsTable.setRows(rows);
+
+    return resultsTable;
+  }
+
   public SimpleHeadcountResultsTable getOffshoreSchoolEnrollmentHeadcounts(UUID collectionID) {
     Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
     if(entityOptional.isEmpty()) {

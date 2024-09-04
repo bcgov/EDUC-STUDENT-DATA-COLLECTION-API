@@ -406,6 +406,33 @@ public class AllSchoolsHeadcountsReportService {
         return csvRowData;
     }
 
+    public DownloadableReportResponse generateInclusiveEducationVarianceReport(UUID collectionID) {
+        var collectionOpt = collectionRepository.findById(collectionID);
+        if(collectionOpt.isEmpty()){
+            throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
+        }
+
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader("test").build();
+
+
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(INCLUSIVE_EDUCATION_VARIANCE_HEADCOUNTS.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+
+    }
+
     public DownloadableReportResponse generateOffshoreSchoolsHeadcounts(UUID collectionID) {
         List<IndySchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
         var collectionOpt = collectionRepository.findById(collectionID);
