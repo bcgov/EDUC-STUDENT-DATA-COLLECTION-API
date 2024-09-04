@@ -234,7 +234,7 @@ public class TransformUtil {
       var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
       return Integer.toString(change);
     }
-    return null;
+    return "0";
   }
 
   public static String getPositiveChange(String septValue, String febValue){
@@ -244,6 +244,6 @@ public class TransformUtil {
         return Integer.toString(change);
       }
     }
-    return null;
+    return "0";
   }
 }
