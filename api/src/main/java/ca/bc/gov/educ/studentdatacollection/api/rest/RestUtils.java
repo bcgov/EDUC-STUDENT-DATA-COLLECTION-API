@@ -300,12 +300,13 @@ public class RestUtils {
   @Retryable(retryFor = {Exception.class}, noRetryFor = {SagaRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public List<StudentMerge> getMergedStudentIds(UUID correlationID, UUID assignedStudentId) {
     try {
-      final TypeReference<List<StudentMerge>> refMergedStudentResponse = new TypeReference<>() {
-      };
+      final TypeReference<Event> refEventResponse = new TypeReference<>() {};
+      final TypeReference<List<StudentMerge>> refMergedStudentResponse = new TypeReference<>() {};
       Object event = Event.builder().sagaId(correlationID).eventType(EventType.GET_MERGES).eventPayload(String.valueOf(assignedStudentId)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.PEN_SERVICES_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (responseMessage != null) {
-        return objectMapper.readValue(responseMessage.getData(), refMergedStudentResponse);
+        val eventResponse = objectMapper.readValue(responseMessage.getData(), refEventResponse);
+        return objectMapper.readValue(eventResponse.getEventPayload(), refMergedStudentResponse);
       } else {
         throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
