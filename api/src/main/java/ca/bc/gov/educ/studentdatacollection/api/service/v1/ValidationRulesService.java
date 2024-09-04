@@ -102,7 +102,7 @@ public class ValidationRulesService {
     public void setupMergedStudentIdValues(StudentRuleData studentRuleData) {
         setupPENMatchAndEllAndGraduateValues(studentRuleData);
         var mergedStudentIds = studentRuleData.getHistoricStudentIds();
-        if(mergedStudentIds == null) {
+        if(mergedStudentIds == null && studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
             mergedStudentIds = new ArrayList<>(
                 this.restUtils.getMergedStudentIds(UUID.randomUUID(), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId()).stream()
                     .map(studentMerge -> UUID.fromString(studentMerge.getMergeStudentID())).toList());
