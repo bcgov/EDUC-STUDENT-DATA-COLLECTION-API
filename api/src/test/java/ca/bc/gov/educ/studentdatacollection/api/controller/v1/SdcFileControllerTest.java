@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
@@ -72,7 +73,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   private MockMvc mockMvc;
 
   @Autowired
-  private SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+  private SdcDuplicatesService sdcDuplicatesService;
 
   protected final static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
@@ -536,7 +537,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       this.schoolStudentRepository.save(sdcSchoolCollectionStudentEntity);
     });
 
-    sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(students.get(0).getSdcSchoolCollectionStudentID());
+    sdcDuplicatesService.softDeleteSdcSchoolCollectionStudent(students.get(0).getSdcSchoolCollectionStudentID());
 
     var studentsAfterDelete = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     var deletedStudent = studentsAfterDelete.stream().filter(student -> student.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase("DELETED"));

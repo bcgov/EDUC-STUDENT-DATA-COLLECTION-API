@@ -1,18 +1,21 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDuplicateRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
+import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorChainProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicatesByInstituteID;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import lombok.val;
@@ -22,14 +25,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 
 class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
@@ -47,6 +49,12 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
   SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   @Autowired
   SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+  @Autowired
+  SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;
+  @Autowired
+  SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService;
+  @Autowired
+  FteCalculatorChainProcessor fteCalculatorChainProcessor;
   @Autowired
   CodeTableService codeTableService;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
@@ -425,7 +433,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
     var student2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
     student2.setAssignedStudentId(studentID);
-    student2.setCareerProgramCode("XA");
+    student2.setCareerProgramCode("XB");
     student2.setEnrolledProgramCodes("40");
     sdcSchoolCollectionStudentRepository.save(student2);
 
@@ -450,16 +458,102 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
     assertThat(resolvedDuplicate.getDuplicateResolutionCode()).isEqualTo("GRADE_CHNG");
 
-    val nonAllowEnrollDupes = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudent(UUID.fromString(student1Entity.getSdcSchoolCollectionStudentID()), DuplicateTypeCode.ENROLLMENT.getCode(), DuplicateSeverityCode.NON_ALLOWABLE.getCode());
+    val nonAllowEnrollDupes = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudentByTypeAndSeverity(UUID.fromString(student1Entity.getSdcSchoolCollectionStudentID()), DuplicateTypeCode.ENROLLMENT.getCode(), DuplicateSeverityCode.NON_ALLOWABLE.getCode());
     assertThat(nonAllowEnrollDupes).isEmpty();
 
-    val nonAllowProgramDupes = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudent(UUID.fromString(student1Entity.getSdcSchoolCollectionStudentID()), DuplicateTypeCode.PROGRAM.getCode(), DuplicateSeverityCode.NON_ALLOWABLE.getCode());
+    val nonAllowProgramDupes = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudentByTypeAndSeverity(UUID.fromString(student1Entity.getSdcSchoolCollectionStudentID()), DuplicateTypeCode.PROGRAM.getCode(), DuplicateSeverityCode.NON_ALLOWABLE.getCode());
     assertThat(nonAllowProgramDupes).hasSize(2);
-    assertThat(nonAllowProgramDupes.get(0).getProgramDuplicateTypeCode()).isEqualTo("CAREER");
-    assertThat(nonAllowProgramDupes.get(1).getProgramDuplicateTypeCode()).isEqualTo("SPECIAL_ED");
+    assertThat(nonAllowProgramDupes.get(0).getProgramDuplicateTypeCode()).isEqualTo("SPECIAL_ED");
+    assertThat(nonAllowProgramDupes.get(1).getProgramDuplicateTypeCode()).isEqualTo("CAREER");
 
-    val allowEnrollDupes = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudent(UUID.fromString(student1Entity.getSdcSchoolCollectionStudentID()), DuplicateTypeCode.ENROLLMENT.getCode(), DuplicateSeverityCode.ALLOWABLE.getCode());
+    val allowEnrollDupes = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudentByTypeAndSeverity(UUID.fromString(student1Entity.getSdcSchoolCollectionStudentID()), DuplicateTypeCode.ENROLLMENT.getCode(), DuplicateSeverityCode.ALLOWABLE.getCode());
     assertThat(allowEnrollDupes).hasSize(2);
+  }
+
+  @Test
+  void testSavingStudentWithoutDuplicate_savesSuccessfully() {
+    // Given
+    UUID studentID = UUID.randomUUID();
+    UUID schoolCollectionID = UUID.randomUUID();
+    UUID collectionID = UUID.randomUUID();
+    UUID schoolID = UUID.randomUUID();
+
+    SdcSchoolCollectionStudentEntity studentEntity = new SdcSchoolCollectionStudentEntity();
+    studentEntity.setAssignedStudentId(studentID);
+
+    CollectionEntity collectionEntity = new CollectionEntity();
+    collectionEntity.setCollectionID(collectionID);
+    collectionEntity.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
+
+    SdcSchoolCollectionEntity schoolCollection = new SdcSchoolCollectionEntity();
+    schoolCollection.setCollectionEntity(collectionEntity);
+    schoolCollection.setSdcSchoolCollectionID(schoolCollectionID);
+    schoolCollection.setSchoolID(schoolID);
+
+    studentEntity.setSdcSchoolCollection(schoolCollection);
+
+    // Mock FTE Calculator Processor
+    FteCalculationResult fteCalculationResult = new FteCalculationResult();
+    fteCalculationResult.setFte(new BigDecimal("1.0"));
+    when(fteCalculatorChainProcessor.processFteCalculator(any(StudentRuleData.class))).thenReturn(fteCalculationResult);
+
+    // Mock repository responses
+    when(sdcSchoolCollectionRepository.findById(schoolCollectionID)).thenReturn(Optional.of(schoolCollection));
+    when(sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(collectionID, Collections.singletonList(studentID)))
+            .thenReturn(Collections.emptyList());
+
+    // When
+    SdcSchoolCollectionStudentEntity result = sdcDuplicateService.validateAndProcessSdcSchoolCollectionStudent(studentEntity, studentEntity, false);
+
+    // Assert
+    assertNotSame(studentEntity, result);
+    verify(sdcSchoolCollectionStudentRepository, times(1)).save(any(SdcSchoolCollectionStudentEntity.class));
+  }
+
+  @Test
+  void testSavingStudentWithDuplicateAssignedId_doesNotSave() {
+    // Given
+    UUID studentID = UUID.randomUUID();
+    UUID schoolCollectionID = UUID.randomUUID();
+    UUID collectionID = UUID.randomUUID();
+    UUID schoolID = UUID.randomUUID();
+
+    SdcSchoolCollectionStudentEntity studentEntity = new SdcSchoolCollectionStudentEntity();
+    studentEntity.setAssignedStudentId(studentID);
+
+    SdcSchoolCollectionStudentEntity existingDuplicate = new SdcSchoolCollectionStudentEntity();
+    existingDuplicate.setAssignedStudentId(studentID);
+
+    CollectionEntity collectionEntity = new CollectionEntity();
+    collectionEntity.setCollectionID(collectionID);
+    collectionEntity.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
+
+    SdcSchoolCollectionEntity schoolCollection = new SdcSchoolCollectionEntity();
+    schoolCollection.setCollectionEntity(collectionEntity);
+    schoolCollection.setSdcSchoolCollectionID(schoolCollectionID);
+    schoolCollection.setSchoolID(schoolID);
+
+    studentEntity.setSdcSchoolCollection(schoolCollection);
+
+    // Mock FTE Calculator Processor
+    FteCalculationResult fteCalculationResult = new FteCalculationResult();
+    fteCalculationResult.setFte(new BigDecimal("1.0"));
+    when(fteCalculatorChainProcessor.processFteCalculator(any(StudentRuleData.class))).thenReturn(fteCalculationResult);
+
+    // Mock repository responses to simulate the existing duplicate
+    when(sdcSchoolCollectionRepository.findById(schoolCollectionID)).thenReturn(Optional.of(schoolCollection));
+    when(sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(collectionID, Collections.singletonList(studentID)))
+            .thenReturn(Collections.singletonList(existingDuplicate));
+
+    // When and assert
+    InvalidPayloadException thrown = assertThrows(InvalidPayloadException.class, () -> {
+      sdcDuplicateService.validateAndProcessSdcSchoolCollectionStudent(studentEntity, studentEntity, false);
+    }, "SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate.");
+
+    assertNotNull(thrown.getError());
+    assertEquals("SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate.", thrown.getError().getMessage());
+
+    verify(sdcSchoolCollectionStudentRepository, never()).save(studentEntity);
   }
 
   @Test
@@ -719,5 +813,27 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     assertThat(result.get(indySchoolCollectionEntity.getSdcSchoolCollectionID()).getNumEnrollmentDuplicates()).isEqualTo(1);
     assertThat(result.get(indySchoolCollectionEntity2.getSdcSchoolCollectionID())).isNotNull();
     assertThat(result.get(indySchoolCollectionEntity2.getSdcSchoolCollectionID()).getNumEnrollmentDuplicates()).isEqualTo(1);
+  }
+
+
+  @Test
+  void testSoftDeleteSdcSchoolCollectionStudents_WhenStudentExists_SavesEntity() {
+    var collection = collectionRepository.save(createMockCollectionEntity());
+    var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID()));
+    var mockStudentEntity = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(sdcSchoolCollection));
+
+    sdcDuplicateService.softDeleteSdcSchoolCollectionStudent(mockStudentEntity.getSdcSchoolCollectionStudentID());
+
+    var updatedStudentEntity = sdcSchoolCollectionStudentRepository.findById(mockStudentEntity.getSdcSchoolCollectionStudentID());
+    assertThat(updatedStudentEntity.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.DELETED.toString());
+  }
+
+  @Test
+  void testSoftDeleteSdcSchoolCollectionStudent_WhenStudentDoesNotExist_ThrowsError() {
+    UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
+
+    assertThrows(EntityNotFoundException.class, () -> {
+      sdcDuplicateService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
+    });
   }
 }

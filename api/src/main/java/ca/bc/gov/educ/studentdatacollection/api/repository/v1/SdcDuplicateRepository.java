@@ -46,8 +46,28 @@ public interface SdcDuplicateRepository extends JpaRepository<SdcDuplicateEntity
         and sde.duplicateSeverityCode = :duplicateSeverityCode
         and sde.sdcDuplicateID IN (SELECT sds.sdcDuplicateEntity.sdcDuplicateID FROM SdcDuplicateStudentEntity sds where sds.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID = :sdcSchoolCollectionStudentID)
         """)
-    List<SdcDuplicateEntity> findAllUnresolvedDuplicatesForStudent(UUID sdcSchoolCollectionStudentID, String duplicateTypeCode, String duplicateSeverityCode);
+    List<SdcDuplicateEntity> findAllUnresolvedDuplicatesForStudentByTypeAndSeverity(UUID sdcSchoolCollectionStudentID, String duplicateTypeCode, String duplicateSeverityCode);
 
+    @Query("""
+        SELECT sde FROM SdcDuplicateEntity sde
+        WHERE sde.duplicateResolutionCode is null
+        and sde.duplicateTypeCode = 'ENROLLMENT'
+        and sde.sdcDuplicateID IN (SELECT sds.sdcDuplicateEntity.sdcDuplicateID FROM SdcDuplicateStudentEntity sds where sds.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID = :sdcSchoolCollectionStudentID)
+        """)
+    List<SdcDuplicateEntity> findAllUnresolvedEnrollmentDuplicatesForStudent(UUID sdcSchoolCollectionStudentID);
+
+    @Query("""
+        SELECT sde FROM SdcDuplicateEntity sde
+        WHERE sde.retainedSdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID = :sdcSchoolCollectionStudentID
+        """)
+    List<SdcDuplicateEntity> findAllResolvedEnrollmentDuplicatesForStudent(UUID sdcSchoolCollectionStudentID);
+
+    @Query("""
+        SELECT sde FROM SdcDuplicateEntity sde
+        WHERE sde.duplicateResolutionCode = 'GRADE_CHNG'
+        and sde.sdcDuplicateID IN (SELECT sds.sdcDuplicateEntity.sdcDuplicateID FROM SdcDuplicateStudentEntity sds where sds.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID = :sdcSchoolCollectionStudentID)
+        """)
+    List<SdcDuplicateEntity> findAllResolvedGradeChangeDuplicatesForStudent(UUID sdcSchoolCollectionStudentID);
     @Query("""
         SELECT sde FROM SdcDuplicateEntity sde
         WHERE sde.collectionID = (SELECT C.collectionID FROM CollectionEntity C WHERE C.collectionStatusCode = 'PROVDUPES')

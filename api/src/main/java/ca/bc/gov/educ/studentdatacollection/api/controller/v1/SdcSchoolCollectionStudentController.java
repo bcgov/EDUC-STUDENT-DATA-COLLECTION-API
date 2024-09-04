@@ -8,6 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionSt
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentHeadcountService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
@@ -47,6 +48,8 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     private final SdcSchoolCollectionStudentValidator schoolCollectionStudentValidator;
 
     private final SdcSchoolCollectionStudentHeadcountService sdcSchoolCollectionStudentHeadcountService;
+
+    private final SdcDuplicatesService sdcDuplicatesService;
 
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
@@ -97,11 +100,11 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
         ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
          if(StringUtils.isNotBlank(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())) {
              RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
-            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent
+            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcDuplicatesService.updateSdcSchoolCollectionStudent
                     (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent), false));
         } else {
              RequestUtil.setAuditColumnsForCreate(sdcSchoolCollectionStudent);
-            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.createSdcSchoolCollectionStudent
+            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcDuplicatesService.createSdcSchoolCollectionStudent
                     (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
         }
 
@@ -109,13 +112,13 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
 
     @Override
     public SdcSchoolCollectionStudent deleteSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID) {
-        SdcSchoolCollectionStudentEntity softDeletedSdcSchoolCollectionStudent = this.sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
+        SdcSchoolCollectionStudentEntity softDeletedSdcSchoolCollectionStudent = this.sdcDuplicatesService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
         return mapper.toSdcSchoolStudent(softDeletedSdcSchoolCollectionStudent);
     }
 
     @Override
     public List<SdcSchoolCollectionStudent> softDeleteSdcSchoolCollectionStudents(List<UUID> sdcStudentIDs) {
-        return this.sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudents(sdcStudentIDs).stream().map(mapper::toSdcSchoolStudent).toList();
+        return this.sdcDuplicatesService.softDeleteSdcSchoolCollectionStudents(sdcStudentIDs).stream().map(mapper::toSdcSchoolStudent).toList();
     }
 
     @Override
