@@ -384,7 +384,7 @@ public class AllSchoolsHeadcountsReportService {
         List<String> csvRowData = new ArrayList<>();
 
         csvRowData.addAll(Arrays.asList(
-                null,
+                "Totals",
                 null,
                 null,
                 null,

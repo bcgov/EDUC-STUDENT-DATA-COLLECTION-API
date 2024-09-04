@@ -278,7 +278,7 @@ public class MinistryHeadcountService {
 
   private HashMap<String, String> getIndependentSchoolFundingTotalRow(SpedFundingReportTotals totals){
     var rowMap = new HashMap<String, String>();
-    rowMap.put(IndySpecialEducationFundingHeadcountHeader.DISTRICT_NUMBER.getCode(), null);
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.DISTRICT_NUMBER.getCode(), "Totals");
     rowMap.put(IndySpecialEducationFundingHeadcountHeader.DISTRICT_NAME.getCode(), null);
     rowMap.put(IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NUMBER.getCode(), null);
     rowMap.put(IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NAME.getCode(), null);
