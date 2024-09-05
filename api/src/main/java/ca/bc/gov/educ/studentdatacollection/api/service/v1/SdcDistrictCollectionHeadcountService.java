@@ -79,6 +79,25 @@ public class SdcDistrictCollectionHeadcountService {
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
   }
 
+  public SdcSchoolCollectionStudentHeadcounts getSpecialEdVarianceHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
+    var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
+    specialEdHeadcountHelper.setGradeCodesForDistricts();
+
+    //TODO
+    // from district collection entity we need to make sure it is Feb collection or find the previous feb collection
+    // from feb collection we need to find the previous sept collection
+    // from these two collections we need to pull our raw data
+    // from this raw data we should be able to find the variance
+    // lay it all out nicely
+
+    List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionID);
+
+    HeadcountResultsTable collectionData = specialEdHeadcountHelper.convertHeadcountResults(collectionRawData);
+    List<HeadcountHeader> headcountHeaderList = specialEdHeadcountHelper.getHeaders(sdcDistrictCollectionID, true);
+
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
+  }
+
   public SdcSchoolCollectionStudentHeadcounts getFrenchHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
     var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
     frenchCombinedHeadcountHelper.setGradeCodesForDistricts();

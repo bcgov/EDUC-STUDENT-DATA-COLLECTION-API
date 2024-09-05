@@ -22,7 +22,8 @@ public enum HeadcountReportTypeCodes {
     GRADE_ENROLLMENT("grade-enrollment"),
     CAREER_PER_SCHOOL("career-per-school"),
     ELL_PER_SCHOOL("ell-per-school"),
-    REFUGEE_PER_SCHOOL("refugee-per-school");
+    REFUGEE_PER_SCHOOL("refugee-per-school"),
+    INCLUSIVE_EDUCATION_VARIANCE("INCLUSIVE_EDUCATION_VARIANCE");
 
     private final String code;
     HeadcountReportTypeCodes(String code) { this.code = code; }
