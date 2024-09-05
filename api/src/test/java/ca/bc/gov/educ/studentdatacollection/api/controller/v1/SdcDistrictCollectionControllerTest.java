@@ -1267,11 +1267,13 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     sdcSchoolCollectionRepository.save(schoolCollectionEntity2);
 
     SdcSchoolCollectionEntity schoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
+    schoolCollectionEntity1.setUploadDate(schoolCollectionEntity1.getUploadDate().plusMinutes(1));
     schoolCollectionEntity1.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
     schoolCollectionEntity1.setSdcSchoolCollectionStatusCode("NEW");
     sdcSchoolCollectionRepository.save(schoolCollectionEntity1);
 
     SdcSchoolCollectionEntity schoolCollectionEntity3 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone3.getSchoolId()));
+    schoolCollectionEntity3.setUploadDate(schoolCollectionEntity1.getUploadDate().plusMinutes(2));
     schoolCollectionEntity3.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
     schoolCollectionEntity3.setSdcSchoolCollectionStatusCode("NEW");
     sdcSchoolCollectionRepository.save(schoolCollectionEntity3);
