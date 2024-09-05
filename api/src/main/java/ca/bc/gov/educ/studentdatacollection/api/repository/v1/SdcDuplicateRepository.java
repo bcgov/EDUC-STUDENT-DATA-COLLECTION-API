@@ -58,6 +58,14 @@ public interface SdcDuplicateRepository extends JpaRepository<SdcDuplicateEntity
 
     @Query("""
         SELECT sde FROM SdcDuplicateEntity sde
+        WHERE sde.duplicateResolutionCode is null
+        and sde.duplicateTypeCode = 'PROGRAM'
+        and sde.sdcDuplicateID IN (SELECT sds.sdcDuplicateEntity.sdcDuplicateID FROM SdcDuplicateStudentEntity sds where sds.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID = :sdcSchoolCollectionStudentID)
+        """)
+    List<SdcDuplicateEntity> findAllUnresolvedProgramDuplicatesForStudent(UUID sdcSchoolCollectionStudentID);
+
+    @Query("""
+        SELECT sde FROM SdcDuplicateEntity sde
         WHERE sde.retainedSdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID = :sdcSchoolCollectionStudentID
         """)
     List<SdcDuplicateEntity> findAllResolvedEnrollmentDuplicatesForStudent(UUID sdcSchoolCollectionStudentID);

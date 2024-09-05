@@ -66,7 +66,6 @@ public class SdcDuplicatesService {
   private static final String SDC_SCHOOL_COLLECTION_STUDENT_STRING = "SdcSchoolCollectionStudentEntity";
   private static final List<String> independentSchoolCategoryCodes = Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode());
 
-
   @Autowired
   public SdcDuplicatesService(SdcDuplicateRepository sdcDuplicateRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, ValidationRulesService validationRulesService, ScheduleHandlerService scheduleHandlerService, DuplicateClassNumberGenerationService duplicateClassNumberGenerationService, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, CollectionRepository collectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository, SdcSchoolCollectionService sdcSchoolCollectionService, RestUtils restUtils) {
       this.sdcDuplicateRepository = sdcDuplicateRepository;
@@ -154,6 +153,40 @@ public class SdcDuplicatesService {
     }
   }
 
+  @Transactional
+  public SdcSchoolCollectionStudentEntity routeSdcSchoolCollectionStudentUpdate(SdcSchoolCollectionStudentEntity studentEntity, boolean allowDuplicateCreation){
+    SdcSchoolCollectionStudentEntity updatedStudent =  updateSdcSchoolCollectionStudent(studentEntity, allowDuplicateCreation);
+
+    // check to see if existing dupes can be resolved by the update - not creating any new dupes
+    List<SdcDuplicateEntity> existingProgramDupes = sdcDuplicateRepository.findAllUnresolvedProgramDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
+    if(!existingProgramDupes.isEmpty()){
+      Optional<CollectionEntity> currCollection = collectionRepository.findActiveCollection();
+      String collectionStatusCode = currCollection.map(CollectionEntity::getCollectionStatusCode).orElse(null);
+      DuplicateLevelCode dupeLevel = Objects.equals(collectionStatusCode, CollectionStatus.INPROGRESS.getCode()) ? DuplicateLevelCode.IN_DIST : DuplicateLevelCode.PROVINCIAL;
+      existingProgramDupes.forEach(dupe -> {
+        Optional<SdcDuplicateStudentEntity> otherStudentDupeEntity = dupe.getSdcDuplicateStudentEntities().stream().filter(std -> std.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID() != studentEntity.getSdcSchoolCollectionStudentID()).findFirst();
+        SdcSchoolCollectionStudentEntity otherStudentEntity= otherStudentDupeEntity.isPresent() ? otherStudentDupeEntity.get().getSdcSchoolCollectionStudentEntity() : null;
+        List<SdcDuplicateEntity> newDupes = runDuplicatesCheck(dupeLevel, sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(updatedStudent), sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(otherStudentEntity), true);
+
+        // if dupe is no longer present, resolve it
+        if (newDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
+          if(Objects.equals(dupe.getDuplicateTypeCode(), DuplicateTypeCode.ENROLLMENT.getCode())){
+            dupe.setDuplicateResolutionCode(DuplicateResolutionCode.GRADE_CHNG.getCode());
+          } else {
+            dupe.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
+          }
+
+          dupe.setUpdateUser(studentEntity.getUpdateUser());
+          dupe.setUpdateDate(LocalDateTime.now());
+          TransformUtil.uppercaseFields(dupe);
+          sdcDuplicateRepository.save(dupe);
+        }
+      });
+    }
+
+    return updatedStudent;
+  }
+
   @Transactional(propagation = Propagation.REQUIRED)
   public SdcSchoolCollectionStudentEntity updateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity, boolean allowDuplicateCreation) {
     var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID());
@@ -191,10 +224,8 @@ public class SdcDuplicatesService {
       }
       return processedSdcSchoolCollectionStudent;
     }
-    if (!allowDuplicateCreation) {
+    if (!allowDuplicateCreation || (currentStudentEntity != null && sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionStatusCode().equals( CollectionStatus.PROVDUPES.getCode()))) {
       checkIfUpdateWouldGenerateNewDupes(originalAssignedPen, currentStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID());
-    } else {
-
     }
 
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
