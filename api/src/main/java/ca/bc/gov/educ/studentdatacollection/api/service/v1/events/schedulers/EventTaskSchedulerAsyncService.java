@@ -100,7 +100,9 @@ public class EventTaskSchedulerAsyncService {
   @Async("taskExecutor")
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void findAndProcessUncompletedSagas() {
+    log.debug("Processing uncompleted sagas");
     final var sagas = this.getSagaRepository().findTop100ByStatusInOrderByCreateDate(this.getStatusFilters());
+    log.debug("Found {} sagas to be retried", sagas.size());
     if (!sagas.isEmpty()) {
       this.processUncompletedSagas(sagas);
     }
