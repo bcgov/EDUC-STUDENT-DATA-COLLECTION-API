@@ -28,9 +28,11 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.InclusiveEducationVarianceHeaders.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.SCHOOL;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.KIND_FT_COUNT;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.SCHOOL_NAME;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader.*;
@@ -349,22 +351,93 @@ public class MinistryHeadcountService {
     CollectionEntity septCollection = sdcSchoolCollectionRepository.findLastCollectionByTypeBefore(CollectionTypeCodes.SEPTEMBER.getTypeCode(), febCollection.getCollectionID())
             .orElseThrow(() -> new RuntimeException("No previous September collection found relative to the February collection."));
 
-    // need to get sped headcounts for each district in each collection - start with feb
-    List<SpecialEdHeadcountResult> febCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionIdGroupBySdcDistrictCollectionID(febCollection.getCollectionID());
-    List<SpecialEdHeadcountResult> septCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionIdGroupBySdcDistrictCollectionID(septCollection.getCollectionID());
+    // need to get sped headcounts for each district in each collection
+    List<SpecialEdHeadcountByCategoryResult> febCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountByCategory(febCollection.getCollectionID());
+    List<SpecialEdHeadcountByCategoryResult> septCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountByCategory(septCollection.getCollectionID());
 
-
-    for(SpecialEdHeadcountResult februaryCollectionRecord: febCollectionRawData) {
-      log.debug(februaryCollectionRecord.getSdcDistrictCollectionID());
-    }
-
-      var rows = new ArrayList<Map<String, String>>();
-
+    Map<String, Map<String, String>> dataMap = new HashMap<>();
+    populateDataMapInclusiveEdVariance(dataMap, febCollectionRawData, true);
+    populateDataMapInclusiveEdVariance(dataMap, septCollectionRawData, false);
 
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
+    var headerList = new ArrayList<String>();
+    for (InclusiveEducationVarianceHeaders header : InclusiveEducationVarianceHeaders.values()) {
+      headerList.add(header.getCode());
+    }
+    resultsTable.setHeaders(headerList);
+
+    // sort by sdc district collection id -> then sort by sped code
+    ArrayList<Map<String, String>> rows = new ArrayList<>(dataMap.values());
+    rows.sort(Comparator.comparing((Map<String, String> row) -> row.get(DISTRICT_ID.getCode()))
+            .thenComparing(row -> row.get(SPED_TYPE.getCode())));
     resultsTable.setRows(rows);
 
     return resultsTable;
+  }
+
+  private void populateDataMapInclusiveEdVariance(Map<String, Map<String, String>> dataMap, List<SpecialEdHeadcountByCategoryResult> rawData, boolean isFebruary) {
+    for (SpecialEdHeadcountByCategoryResult result : rawData) {
+      String key = result.getSdcDistrictCollectionID() + "-" + result.getSpecialEducationCategoryCode();
+      Map<String, String> row = dataMap.computeIfAbsent(key, k -> new HashMap<>());
+      if (!row.containsKey(DISTRICT_ID.getCode())) {
+        initializeRowWithDefaultsInclusiveEdVariance(row, result.getSdcDistrictCollectionID(), result.getSpecialEducationCategoryCode());
+      }
+      updateRowWithDataInclusiveEdVariance(row, result, isFebruary);
+    }
+  }
+
+  private void initializeRowWithDefaultsInclusiveEdVariance(Map<String, String> row, String districtId, String categoryCode) {
+    row.put(DISTRICT_ID.getCode(), districtId);
+    row.put(SPED_TYPE.getCode(), categoryCode);
+    for (InclusiveEducationVarianceHeaders header : InclusiveEducationVarianceHeaders.values()) {
+      if (!header.getCode().equals(DISTRICT_ID.getCode()) && !header.getCode().equals(SPED_TYPE.getCode())) {
+        row.put(header.getCode(), "0");
+      }
+    }
+  }
+
+  private void updateRowWithDataInclusiveEdVariance(Map<String, String> row, SpecialEdHeadcountByCategoryResult result, boolean isFebruary) {
+    if (isFebruary) {
+      row.put(InclusiveEducationVarianceHeaders.KIND_HT_COUNT_FEB.getCode(), result.getKindHCount());
+      row.put(InclusiveEducationVarianceHeaders.KIND_FT_COUNT_FEB.getCode(), result.getKindFCount());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_01_COUNT_FEB.getCode(), result.getGrade1Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_02_COUNT_FEB.getCode(), result.getGrade2Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_03_COUNT_FEB.getCode(), result.getGrade3Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_04_COUNT_FEB.getCode(), result.getGrade4Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_05_COUNT_FEB.getCode(), result.getGrade5Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_06_COUNT_FEB.getCode(), result.getGrade6Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_07_COUNT_FEB.getCode(), result.getGrade7Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_EU_COUNT_FEB.getCode(), result.getGradeEUCount());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_08_COUNT_FEB.getCode(), result.getGrade8Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_09_COUNT_FEB.getCode(), result.getGrade9Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_10_COUNT_FEB.getCode(), result.getGrade10Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_11_COUNT_FEB.getCode(), result.getGrade11Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_12_COUNT_FEB.getCode(), result.getGrade12Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_SU_COUNT_FEB.getCode(), result.getGradeSUCount());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_GA_COUNT_FEB.getCode(), result.getGradeGACount());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_HS_COUNT_FEB.getCode(), result.getGradeHSCount());
+      row.put(InclusiveEducationVarianceHeaders.TOTAL_COUNT_FEB.getCode(), result.getTotalCount());
+    } else {
+      row.put(InclusiveEducationVarianceHeaders.KIND_HT_COUNT_SEPT.getCode(), result.getKindHCount());
+      row.put(InclusiveEducationVarianceHeaders.KIND_FT_COUNT_SEPT.getCode(), result.getKindFCount());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_01_COUNT_SEPT.getCode(), result.getGrade1Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_02_COUNT_SEPT.getCode(), result.getGrade2Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_03_COUNT_SEPT.getCode(), result.getGrade3Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_04_COUNT_SEPT.getCode(), result.getGrade4Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_05_COUNT_SEPT.getCode(), result.getGrade5Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_06_COUNT_SEPT.getCode(), result.getGrade6Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_07_COUNT_SEPT.getCode(), result.getGrade7Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_EU_COUNT_SEPT.getCode(), result.getGradeEUCount());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_08_COUNT_SEPT.getCode(), result.getGrade8Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_09_COUNT_SEPT.getCode(), result.getGrade9Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_10_COUNT_SEPT.getCode(), result.getGrade10Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_11_COUNT_SEPT.getCode(), result.getGrade11Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_12_COUNT_SEPT.getCode(), result.getGrade12Count());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_SU_COUNT_SEPT.getCode(), result.getGradeSUCount());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_GA_COUNT_SEPT.getCode(), result.getGradeGACount());
+      row.put(InclusiveEducationVarianceHeaders.GRADE_HS_COUNT_SEPT.getCode(), result.getGradeHSCount());
+      row.put(InclusiveEducationVarianceHeaders.TOTAL_COUNT_SEPT.getCode(), result.getTotalCount());
+    }
   }
 
   public SimpleHeadcountResultsTable getOffshoreSchoolEnrollmentHeadcounts(UUID collectionID) {
