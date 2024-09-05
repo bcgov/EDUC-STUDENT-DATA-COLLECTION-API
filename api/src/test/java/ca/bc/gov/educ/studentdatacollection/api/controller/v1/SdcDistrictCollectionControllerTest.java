@@ -75,7 +75,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
   @Autowired
   SdcDuplicatesService sdcDuplicateService;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
-  protected final static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+  protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
   @Autowired
   RestUtils restUtils;
@@ -1267,11 +1267,13 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     sdcSchoolCollectionRepository.save(schoolCollectionEntity2);
 
     SdcSchoolCollectionEntity schoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone1.getSchoolId()));
+    schoolCollectionEntity1.setUploadDate(schoolCollectionEntity1.getUploadDate().plusMinutes(1));
     schoolCollectionEntity1.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
     schoolCollectionEntity1.setSdcSchoolCollectionStatusCode("NEW");
     sdcSchoolCollectionRepository.save(schoolCollectionEntity1);
 
     SdcSchoolCollectionEntity schoolCollectionEntity3 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone3.getSchoolId()));
+    schoolCollectionEntity3.setUploadDate(schoolCollectionEntity1.getUploadDate().plusMinutes(2));
     schoolCollectionEntity3.setSdcDistrictCollectionID(mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID());
     schoolCollectionEntity3.setSdcSchoolCollectionStatusCode("NEW");
     sdcSchoolCollectionRepository.save(schoolCollectionEntity3);
@@ -1308,15 +1310,12 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileName").value(schoolCollectionEntity2.getUploadFileName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].percentageStudentsProcessed").value("100"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolDisplayName").value(schoolTombstone2.getMincode() + " - " + schoolTombstone2.getDisplayName()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].positionInQueue").value("0"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].fileName").value(schoolCollectionEntity1.getUploadFileName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].percentageStudentsProcessed").value("33"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].schoolDisplayName").value(schoolTombstone1.getMincode() + " - " + schoolTombstone1.getDisplayName()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].positionInQueue").value("0"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[2].fileName").value(schoolCollectionEntity3.getUploadFileName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[2].percentageStudentsProcessed").value("0"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[2].schoolDisplayName").value(schoolTombstone3.getMincode() + " - " + schoolTombstone3.getDisplayName()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[2].positionInQueue").value("2"))
             .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(3)));
   }
 

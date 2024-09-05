@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ICountValidationIssuesBySeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ProgressCountsForDistrict;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -144,6 +145,24 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<ICountValidationIssuesBySeverityCode> getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
   long countBySdcSchoolCollection_SdcSchoolCollectionID(UUID sdcSchoolCollectionID);
+
+
+  @Query(value = """
+     SELECT new ca.bc.gov.educ.studentdatacollection.api.struct.v1.ProgressCountsForDistrict(SSC.sdcSchoolCollectionID,
+     SSC.uploadDate,
+     SSC.uploadFileName,
+     SSC.schoolID,
+     COUNT(SSCS.sdcSchoolCollectionStudentID) as totalCount,
+     SUM(CASE
+       WHEN SSCS.sdcSchoolCollectionStudentStatusCode = 'LOADED' THEN 1
+       ELSE 0
+     END) AS loadedCount)
+     FROM SdcSchoolCollectionStudentEntity SSCS, SdcSchoolCollectionEntity SSC
+     WHERE SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
+     AND SSC.sdcDistrictCollectionID = :sdcDistrictCollectionID
+     GROUP BY SSC.sdcSchoolCollectionID, SSC.uploadDate , SSC.uploadFileName , SSC.schoolID
+    """)
+  List<ProgressCountsForDistrict> getProgressCountsBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
 
   @Query(value = """
     SELECT COUNT(*) FROM SDC_SCHOOL_COLLECTION_STUDENT SSCS 
