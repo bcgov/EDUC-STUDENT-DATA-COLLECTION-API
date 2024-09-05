@@ -1,7 +1,9 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.*;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHeadcounts;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
@@ -11,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -26,6 +27,7 @@ public class SdcDistrictCollectionHeadcountService {
   private final BandResidenceHeadcountHelper bandResidenceHeadcountHelper;
   private final EllHeadcountHelper ellHeadcountHelper;
   private final RefugeeHeadcountHelper refugeeHeadcountHelper;
+  private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
 
   public SdcSchoolCollectionStudentHeadcounts getEnrollmentHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
     var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
@@ -80,7 +82,6 @@ public class SdcDistrictCollectionHeadcountService {
   }
 
   public SdcSchoolCollectionStudentHeadcounts getSpecialEdVarianceHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
-    var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
     specialEdHeadcountHelper.setGradeCodesForDistricts();
 
     //TODO
@@ -90,12 +91,19 @@ public class SdcDistrictCollectionHeadcountService {
     // from this raw data we should be able to find the variance
     // lay it all out nicely
 
-    List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionID);
+    // Get previous February collection relative to given collectionID
+    SdcDistrictCollectionEntity febCollection = sdcDistrictCollectionRepository.findLastOrCurrentSdcDistrictCollectionByCollectionType(CollectionTypeCodes.FEBRUARY.getTypeCode(), sdcDistrictCollectionEntity.getSdcDistrictCollectionID())
+            .orElseThrow(() -> new RuntimeException("No previous or current February sdc district collection found."));
 
-    HeadcountResultsTable collectionData = specialEdHeadcountHelper.convertHeadcountResults(collectionRawData);
-    List<HeadcountHeader> headcountHeaderList = specialEdHeadcountHelper.getHeaders(sdcDistrictCollectionID, true);
+    // Get previous September collection relative to previous February collection
+    SdcDistrictCollectionEntity septCollection = sdcDistrictCollectionRepository.findLastSdcDistrictCollectionByCollectionTypeBefore(CollectionTypeCodes.SEPTEMBER.getTypeCode(), febCollection.getSdcDistrictCollectionID())
+            .orElseThrow(() -> new RuntimeException("No previous September sdc district collection found relative to the February collection."));
 
-    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
+    List<SpecialEdHeadcountResult> febCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcDistrictCollectionId(febCollection.getSdcDistrictCollectionID());
+
+    HeadcountResultsTable collectionData = specialEdHeadcountHelper.convertHeadcountResults(febCollectionRawData);
+
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountResultsTable(collectionData).build();
   }
 
   public SdcSchoolCollectionStudentHeadcounts getFrenchHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {

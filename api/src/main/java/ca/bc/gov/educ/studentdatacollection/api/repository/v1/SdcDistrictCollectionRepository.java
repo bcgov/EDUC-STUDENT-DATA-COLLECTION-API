@@ -51,6 +51,30 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
             """)
   List<MonitorSdcDistrictCollectionQueryResponse> findAllSdcDistrictCollectionMonitoringByCollectionID(UUID collectionID);
 
+  @Query("""
+    SELECT sdc FROM SdcDistrictCollectionEntity sdc
+    JOIN sdc.collectionEntity c
+    WHERE c.collectionTypeCode = :collectionTypeCode
+    AND c.snapshotDate <= (SELECT c2.snapshotDate FROM SdcDistrictCollectionEntity sdc2
+                           JOIN sdc2.collectionEntity c2
+                           WHERE sdc2.sdcDistrictCollectionID = :referenceSdcDistrictCollectionID)
+    ORDER BY c.snapshotDate DESC
+    LIMIT 1
+    """)
+  Optional<SdcDistrictCollectionEntity> findLastOrCurrentSdcDistrictCollectionByCollectionType(String collectionTypeCode, UUID referenceSdcDistrictCollectionID);
+
+  @Query("""
+    SELECT sdc FROM SdcDistrictCollectionEntity sdc
+    JOIN sdc.collectionEntity c
+    WHERE c.collectionTypeCode = :collectionTypeCode
+    AND c.snapshotDate < (SELECT c2.snapshotDate FROM SdcDistrictCollectionEntity sdc2
+                          JOIN sdc2.collectionEntity c2
+                          WHERE sdc2.sdcDistrictCollectionID = :referenceSdcDistrictCollectionID)
+    ORDER BY c.snapshotDate DESC
+    LIMIT 1
+    """)
+  Optional<SdcDistrictCollectionEntity> findLastSdcDistrictCollectionByCollectionTypeBefore(String collectionTypeCode, UUID referenceSdcDistrictCollectionID);
+
   @Modifying
   @Query(value = "UPDATE SdcDistrictCollectionEntity sdc SET sdc.sdcDistrictCollectionStatusCode = :sdcDistrictCollectionStatusCode WHERE sdc.collectionEntity.collectionID = :collectionID")
   void updateAllDistrictCollectionStatus(UUID collectionID, String sdcDistrictCollectionStatusCode);
