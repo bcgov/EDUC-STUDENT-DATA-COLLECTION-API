@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.beans.Expression;
 import java.beans.Statement;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -245,5 +246,12 @@ public class TransformUtil {
       }
     }
     return "0";
+  }
+
+  public static UUID convertBytesToUUID(byte[] bytes) {
+    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+    long high = byteBuffer.getLong();
+    long low = byteBuffer.getLong();
+    return new UUID(high, low);
   }
 }

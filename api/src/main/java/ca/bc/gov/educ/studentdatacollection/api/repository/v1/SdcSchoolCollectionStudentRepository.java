@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ICountValidationIssuesBySeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.IProgressCountsForDistrict;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -144,6 +145,23 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<ICountValidationIssuesBySeverityCode> getCountByValidationIssueSeverityCodeAndSdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
   long countBySdcSchoolCollection_SdcSchoolCollectionID(UUID sdcSchoolCollectionID);
+
+
+  @Query(value = """
+     SELECT SSC.SDC_SCHOOL_COLLECTION_ID AS SDCSCHOOLCOLLECTIONID, SSC.UPLOAD_DATE AS UPLOADDATE, SSC.UPLOAD_FILE_NAME AS UPLOADFILENAME, SSC.SCHOOL_ID AS SCHOOLID, COUNT(SSCS.*) AS TOTALCOUNT, SUM(CASE
+                  WHEN SSCS.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE = 'LOADED' THEN 1
+                  ELSE 0
+                END) AS LOADEDCOUNT,
+          (SELECT COUNT(DISTINCT SSC2.SDC_SCHOOL_COLLECTION_ID) FROM SDC_SCHOOL_COLLECTION SSC2, SDC_SCHOOL_COLLECTION_STUDENT SSCS2
+           WHERE SSC2.SDC_SCHOOL_COLLECTION_ID = SSCS2.SDC_SCHOOL_COLLECTION_ID
+           AND SSCS2.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE  = 'LOADED'
+           AND SSC2.UPLOAD_DATE <= SSC.UPLOAD_DATE) AS POSITION
+     FROM SDC_SCHOOL_COLLECTION_STUDENT SSCS, SDC_SCHOOL_COLLECTION SSC
+     WHERE SSC.SDC_SCHOOL_COLLECTION_ID = SSCS.SDC_SCHOOL_COLLECTION_ID
+     AND SSC.SDC_DISTRICT_COLLECTION_ID = :sdcDistrictCollectionID
+     GROUP BY SSC.SDC_SCHOOL_COLLECTION_ID, SSC.UPLOAD_DATE , SSC.UPLOAD_FILE_NAME , SSC.SCHOOL_ID
+    """, nativeQuery = true)
+  List<IProgressCountsForDistrict> getProgressCountsBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
 
   @Query(value = """
     SELECT COUNT(*) FROM SDC_SCHOOL_COLLECTION_STUDENT SSCS 
