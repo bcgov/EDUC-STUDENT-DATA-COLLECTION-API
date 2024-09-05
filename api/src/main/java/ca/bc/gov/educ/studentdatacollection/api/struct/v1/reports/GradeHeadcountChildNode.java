@@ -193,6 +193,10 @@ public class GradeHeadcountChildNode extends HeadcountChildNode implements Seria
     setStringValuesForAll(null);
   }
 
+  public void setAllValuesToZero(){
+    setStringValuesForAll("0");
+  }
+
   public void setValueForGrade(SchoolGradeCodes gradeCode, String value){
     switch (gradeCode){
       case KINDHALF:

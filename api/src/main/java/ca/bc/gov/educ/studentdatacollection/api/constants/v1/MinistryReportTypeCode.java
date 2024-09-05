@@ -13,8 +13,8 @@ public enum MinistryReportTypeCode {
     FSA_REGISTRATION_REPORT("fsa-registration-report"),
     OFFSHORE_ENROLLMENT_HEADCOUNTS("offshore-enrollment-headcounts"),
     INDY_INCLUSIVE_ED_ENROLLMENT_HEADCOUNTS("indy-inclusive-ed-enrollment-headcounts"),
-    OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS("offshore-languages-headcounts")
-    ;
+    OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS("offshore-languages-headcounts"),
+    INDY_INCLUSIVE_ED_FUNDING_HEADCOUNTS("indy-inclusive-ed-funding-headcounts");
 
 
     private final String code;

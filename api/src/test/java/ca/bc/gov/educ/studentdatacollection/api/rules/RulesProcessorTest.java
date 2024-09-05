@@ -32,8 +32,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTy
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes.DISTONLINE;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes.DIST_LEARN;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @Slf4j
@@ -1849,7 +1848,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         sdcSchoolCollectionStudentRepository.save(studFeb);
 
         PenMatchResult penMatchResult = getPenMatchResult();
+        var studentMergeResult = getStudentMergeResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+        when(this.restUtils.getMergedStudentIds(any(),any())).thenReturn(List.of(studentMergeResult));
 
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()

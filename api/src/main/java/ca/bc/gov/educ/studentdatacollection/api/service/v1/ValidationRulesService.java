@@ -99,6 +99,18 @@ public class ValidationRulesService {
         return restUtils.getSchoolFundingGroupsBySchoolID(schoolID);
     }
 
+    public void setupMergedStudentIdValues(StudentRuleData studentRuleData) {
+        setupPENMatchAndEllAndGraduateValues(studentRuleData);
+        var mergedStudentIds = studentRuleData.getHistoricStudentIds();
+        if(mergedStudentIds == null && studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
+            mergedStudentIds = new ArrayList<>(
+                this.restUtils.getMergedStudentIds(UUID.randomUUID(), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId()).stream()
+                    .map(studentMerge -> UUID.fromString(studentMerge.getMergeStudentID())).toList());
+            mergedStudentIds.add(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId());
+            studentRuleData.setHistoricStudentIds(mergedStudentIds);
+        }
+    }
+
     public void setupPENMatchAndEllAndGraduateValues(StudentRuleData studentRuleData) {
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         if(student.getPenMatchResult() == null){
@@ -175,9 +187,8 @@ public class ValidationRulesService {
         var school = studentRuleData.getSchool();
         var twoYearsAgo = student.getSdcSchoolCollection().getCollectionEntity().getOpenDate().getYear() - 2;
 
-
         var listOfNumCoursesLastTwoYears = getSdcSchoolStudentRepository().getCollectionHistory(UUID.fromString(school.getSchoolId()),
-                student.getAssignedStudentId(), student.getSdcSchoolCollection().getCollectionEntity().getOpenDate(), FteCalculatorUtils.getCollectionTypeCode(studentRuleData), twoYearsAgo);
+                studentRuleData.getHistoricStudentIds(), student.getSdcSchoolCollection().getCollectionEntity().getOpenDate(), FteCalculatorUtils.getCollectionTypeCode(studentRuleData), twoYearsAgo);
 
         for (String numString : listOfNumCoursesLastTwoYears) {
             try {
@@ -188,7 +199,6 @@ public class ValidationRulesService {
                 //Do nothing
             }
         }
-
         return false;
     }
 

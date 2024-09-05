@@ -145,7 +145,6 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
     @Test
     void testFindIndySchoolSubmissions_WithStatusCode_LOADEDAndNEW_shouldReturnOk() {
-        setMockDataForSchoolCollectionsForSubmissionFn();
 
         var collection = createMockCollectionEntity();
         collection.setCollectionStatusCode("INPROGRESS");
@@ -181,7 +180,6 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
     @Test
     void testFindIndySchoolSubmissions_WithStatusCode_LOADEDAndNEW_ExistingSaga_shouldReturnOk() throws JsonProcessingException {
-        setMockDataForSchoolCollectionsForSubmissionFn();
 
         var collection = createMockCollectionEntity();
         collection.setCollectionStatusCode("INPROGRESS");
@@ -227,6 +225,56 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
         var sagas = sagaRepository.findAll();
         assertThat(sagas).hasSize(2);
+    }
+
+    @Test
+    void testFindIndySchoolSubmissions_InJulyCollection_shouldNotSendNotifications() throws JsonProcessingException {
+
+        var collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode("JULY");
+        collection.setCollectionStatusCode("INPROGRESS");
+        collectionRepository.save(collection);
+
+        var schoolDetail1 = createMockSchoolDetail();
+        schoolDetail1.setDisplayName("School1");
+        schoolDetail1.setMincode("0000001");
+        var schoolDetail2 = createMockSchoolDetail();
+        schoolDetail2.setDisplayName("School2");
+        schoolDetail2.setMincode("0000002");
+
+        when(this.restUtils.getSchoolDetails(UUID.fromString(schoolDetail1.getSchoolId()))).thenReturn(schoolDetail1);
+        when(this.restUtils.getSchoolDetails(UUID.fromString(schoolDetail2.getSchoolId()))).thenReturn(schoolDetail2);
+
+        firstSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolDetail1.getSchoolId()));
+        firstSchoolCollection.setUploadDate(null);
+        firstSchoolCollection.setUploadFileName(null);
+        firstSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
+        var savedCollection1 = sdcSchoolCollectionRepository.save(firstSchoolCollection);
+
+        secondSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolDetail2.getSchoolId()));
+        secondSchoolCollection.setUploadDate(null);
+        secondSchoolCollection.setUploadFileName(null);
+        secondSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.LOADED.getCode());
+        secondSchoolCollection.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+        sdcSchoolCollectionRepository.save(secondSchoolCollection);
+
+        var saga = SdcSagaEntity.builder()
+                .updateDate(LocalDateTime.now().minusMinutes(15))
+                .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+                .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+                .createDate(LocalDateTime.now().minusMinutes(15))
+                .sagaName(SagaEnum.INDY_SCHOOLS_NO_ACTIVITY_EMAIL_SAGA.toString())
+                .sdcSchoolCollectionID(savedCollection1.getSdcSchoolCollectionID())
+                .status(SagaStatusEnum.COMPLETED.toString())
+                .sagaState(EventType.MARK_SAGA_COMPLETE.toString())
+                .payload(JsonUtil.getJsonStringFromObject(schoolDetail1))
+                .build();
+        sagaRepository.save(saga);
+
+        eventTaskSchedulerAsyncService.findAllUnsubmittedIndependentSchoolsInCurrentCollection();
+
+        var sagas = sagaRepository.findAll();
+        assertThat(sagas).hasSize(1);
     }
 
     @Test

@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.beans.Expression;
 import java.beans.Statement;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -220,5 +221,37 @@ public class TransformUtil {
     incomingStudentEntity.setEllNonEligReasonCode(null);
     incomingStudentEntity.setIndigenousSupportProgramNonEligReasonCode(null);
     incomingStudentEntity.setFrenchProgramNonEligReasonCode(null);
+  }
+
+  public static int addValueIfExists(int totalValue, String actualValue){
+    if(StringUtils.isNumeric(actualValue)){
+      totalValue = totalValue + Integer.parseInt(actualValue);
+    }
+    return totalValue;
+  }
+
+  public static String getNetChange(String septValue, String febValue){
+    if(StringUtils.isNumeric(septValue) && StringUtils.isNumeric(febValue)){
+      var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
+      return Integer.toString(change);
+    }
+    return "0";
+  }
+
+  public static String getPositiveChange(String septValue, String febValue){
+    if(StringUtils.isNumeric(septValue) && StringUtils.isNumeric(febValue)){
+      var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
+      if(change > 0){
+        return Integer.toString(change);
+      }
+    }
+    return "0";
+  }
+
+  public static UUID convertBytesToUUID(byte[] bytes) {
+    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+    long high = byteBuffer.getLong();
+    long low = byteBuffer.getLong();
+    return new UUID(high, low);
   }
 }

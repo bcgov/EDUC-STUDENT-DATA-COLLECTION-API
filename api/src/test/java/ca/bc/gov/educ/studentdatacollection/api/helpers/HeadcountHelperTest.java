@@ -99,7 +99,7 @@ class HeadcountHelperTest {
 
     Optional<SdcSchoolCollectionEntity> septemberCollections = Optional.of(schoolCollectionEntity);
 
-    when(schoolCollectionRepository.findLastCollectionByType(eq(schoolId), any(), any()))
+    when(schoolCollectionRepository.findLastCollectionBySchoolIDAndType(eq(schoolId), any(), any()))
             .thenReturn(septemberCollections);
 
     // When
@@ -107,7 +107,7 @@ class HeadcountHelperTest {
 
     // Then
     assertEquals(schoolCollectionId, result);
-    verify(schoolCollectionRepository).findLastCollectionByType(
+    verify(schoolCollectionRepository).findLastCollectionBySchoolIDAndType(
             schoolId,
             CollectionTypeCodes.SEPTEMBER.getTypeCode(),
             schoolCollectionEntity.getSdcSchoolCollectionID());
@@ -140,7 +140,7 @@ class HeadcountHelperTest {
 
     Optional<SdcSchoolCollectionEntity> septemberCollections = Optional.of(schoolCollectionEntity);
 
-    when(schoolCollectionRepository.findLastCollectionByType(eq(schoolId), any(), any()))
+    when(schoolCollectionRepository.findLastCollectionBySchoolIDAndType(eq(schoolId), any(), any()))
             .thenReturn(septemberCollections);
 
     // When
@@ -148,7 +148,7 @@ class HeadcountHelperTest {
 
     // Then
     assertEquals(schoolCollectionId, result);
-    verify(schoolCollectionRepository).findLastCollectionByType(
+    verify(schoolCollectionRepository).findLastCollectionBySchoolIDAndType(
             schoolId,
             CollectionTypeCodes.JULY.getTypeCode(),
             schoolCollectionEntity.getSdcSchoolCollectionID());

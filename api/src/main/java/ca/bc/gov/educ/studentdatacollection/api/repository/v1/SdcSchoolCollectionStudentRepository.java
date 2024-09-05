@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ICountValidationIssuesBySeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.IProgressCountsForDistrict;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -145,6 +146,23 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   long countBySdcSchoolCollection_SdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
+
+  @Query(value = """
+     SELECT SSC.SDC_SCHOOL_COLLECTION_ID AS SDCSCHOOLCOLLECTIONID, SSC.UPLOAD_DATE AS UPLOADDATE, SSC.UPLOAD_FILE_NAME AS UPLOADFILENAME, SSC.SCHOOL_ID AS SCHOOLID, COUNT(SSCS.*) AS TOTALCOUNT, SUM(CASE
+                  WHEN SSCS.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE = 'LOADED' THEN 1
+                  ELSE 0
+                END) AS LOADEDCOUNT,
+          (SELECT COUNT(DISTINCT SSC2.SDC_SCHOOL_COLLECTION_ID) FROM SDC_SCHOOL_COLLECTION SSC2, SDC_SCHOOL_COLLECTION_STUDENT SSCS2
+           WHERE SSC2.SDC_SCHOOL_COLLECTION_ID = SSCS2.SDC_SCHOOL_COLLECTION_ID
+           AND SSCS2.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE  = 'LOADED'
+           AND SSC2.UPLOAD_DATE <= SSC.UPLOAD_DATE) AS POSITION
+     FROM SDC_SCHOOL_COLLECTION_STUDENT SSCS, SDC_SCHOOL_COLLECTION SSC
+     WHERE SSC.SDC_SCHOOL_COLLECTION_ID = SSCS.SDC_SCHOOL_COLLECTION_ID
+     AND SSC.SDC_DISTRICT_COLLECTION_ID = :sdcDistrictCollectionID
+     GROUP BY SSC.SDC_SCHOOL_COLLECTION_ID, SSC.UPLOAD_DATE , SSC.UPLOAD_FILE_NAME , SSC.SCHOOL_ID
+    """, nativeQuery = true)
+  List<IProgressCountsForDistrict> getProgressCountsBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
+
   @Query(value = """
     SELECT COUNT(*) FROM SDC_SCHOOL_COLLECTION_STUDENT SSCS 
     WHERE SSCS.sdc_school_collection_id = :sdcSchoolID 
@@ -161,39 +179,60 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     LIMIT :numberOfStudentsToProcess""")
   List<SdcSchoolCollectionStudentEntity> findTopLoadedStudentForProcessing(String numberOfStudentsToProcess);
 
-  long countByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(UUID assignedStudentId, List<UUID> sdcSchoolCollectionID, String numberOfCourses);
+  long countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(List<UUID> assignedStudentId, List<UUID> sdcSchoolCollectionID, String numberOfCourses);
 
   @Query("""
        SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
-       WHERE s.assignedStudentId = :assignedStudentId
+       WHERE s.assignedStudentId IN :assignedStudentId
        AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
        """)
   long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(
-          @Param("assignedStudentId") UUID assignedStudentId,
+          @Param("assignedStudentId") List<UUID> assignedStudentId,
           @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
 
   @Query("""
        SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
-       WHERE s.assignedStudentId = :assignedStudentId
+       WHERE s.assignedStudentId IN :assignedStudentId
        AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
        AND s.enrolledGradeCode <> 'HS'
        """)
-  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInExcludingHomeschool(
-          @Param("assignedStudentId") UUID assignedStudentId,
+  long countAllByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInExcludingHomeschool(
+          @Param("assignedStudentId") List<UUID> assignedStudentId,
           @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
 
   @Query("""
        SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
-       WHERE s.assignedStudentId = :assignedStudentId
+       WHERE s.assignedStudentId IN :assignedStudentId
        AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
        AND s.enrolledGradeCode <> 'HS'
        AND s.fte > 0
        """)
-  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInExcludingHomeschoolWithNonZeroFTE(
-          @Param("assignedStudentId") UUID assignedStudentId,
+  long countAllByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInExcludingHomeschoolWithNonZeroFTE(
+          @Param("assignedStudentId") List<UUID> assignedStudentId,
           @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
 
-  long countAllByAssignedStudentIdAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(UUID assignedStudentId, String enrolledGradeCode, List<UUID> sdcSchoolCollectionID);
+  long countAllByAssignedStudentIdInAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(List<UUID> assignedStudentId, String enrolledGradeCode, List<UUID> sdcSchoolCollectionID);
+
+  @Query("""
+       SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
+       WHERE s.assignedStudentId IN :assignedStudentId
+       AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
+       AND s.fte > 0
+       """)
+  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTE(
+          @Param("assignedStudentId") List<UUID> assignedStudentId,
+          @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
+
+  @Query("""
+       SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
+       WHERE s.assignedStudentId IN :assignedStudentId
+       AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
+       AND s.fte > 0
+       AND s.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', '08', '09')
+       """)
+  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTEAndInGradeKto9(
+          @Param("assignedStudentId") List<UUID> assignedStudentId,
+          @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
 
   @Query("SELECT " +
           "s.enrolledGradeCode AS enrolledGradeCode, " +
@@ -336,11 +375,11 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
            SELECT SSCS.numberOfCourses FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS WHERE SSC.schoolID = :schoolID
             AND C.collectionID = SSC.collectionEntity.collectionID
             AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
-            AND SSCS.assignedStudentId = :assignedStudentID
+            AND SSCS.assignedStudentId IN :assignedStudentID
             AND C.openDate < :currentOpenDate
             AND C.openDate >= (SELECT C.openDate FROM CollectionEntity C WHERE C.collectionTypeCode = :collectionTypeCode AND EXTRACT(YEAR FROM C.openDate) = :targetYear)
             """)
-  List<String> getCollectionHistory(UUID schoolID, UUID assignedStudentID, LocalDateTime currentOpenDate, String collectionTypeCode, Integer targetYear);
+  List<String> getCollectionHistory(UUID schoolID, List<UUID> assignedStudentID, LocalDateTime currentOpenDate, String collectionTypeCode, Integer targetYear);
 
   @Query("SELECT " +
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '08' AND s.frenchProgramNonEligReasonCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS totalCoreFrench, " +
@@ -1037,6 +1076,34 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "GROUP BY s.sdcSchoolCollection.schoolID " +
           "ORDER BY s.sdcSchoolCollection.schoolID")
   List<IndySpecialEdAdultHeadcountResult> getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(UUID collectionID);
+
+  @Query("SELECT " +
+          "s.sdcSchoolCollection.schoolID AS schoolID, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B') THEN 1 END) AS levelOnes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'A' THEN 1 END) AS specialEdACodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'B' THEN 1 END) AS specialEdBCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('C', 'D', 'E', 'F', 'G') THEN 1 END) AS levelTwos, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'C' THEN 1 END) AS specialEdCCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'D' THEN 1 END) AS specialEdDCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'E' THEN 1 END) AS specialEdECodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'F' THEN 1 END) AS specialEdFCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'G' THEN 1 END) AS specialEdGCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('H') THEN 1 END) AS levelThrees, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'H' THEN 1 END) AS specialEdHCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('K', 'P', 'Q', 'R') THEN 1 END) AS otherLevels, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'K' THEN 1 END) AS specialEdKCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'P' THEN 1 END) AS specialEdPCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'Q' THEN 1 END) AS specialEdQCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'R' THEN 1 END) AS specialEdRCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'P', 'Q', 'R') THEN 1 END) AS allLevels " +
+          "FROM SdcSchoolCollectionStudentEntity s " +
+          "WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
+          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
+          "AND s.sdcSchoolCollection.sdcDistrictCollectionID is null " +
+          "AND s.specialEducationNonEligReasonCode IS NULL " +
+          "GROUP BY s.sdcSchoolCollection.schoolID " +
+          "ORDER BY s.sdcSchoolCollection.schoolID")
+  List<SpecialEdHeadcountResult> getSpecialEdHeadcountsByCollectionId(@Param("collectionID") UUID collectionID);
 
   @Query(value = """
         SELECT sscs.sdcSchoolCollection.schoolID as schoolID,

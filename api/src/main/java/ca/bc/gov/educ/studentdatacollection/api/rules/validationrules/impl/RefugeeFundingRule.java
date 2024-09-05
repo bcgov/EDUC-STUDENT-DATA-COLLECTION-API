@@ -99,7 +99,7 @@ public class RefugeeFundingRule implements ValidationBaseRule {
 
         var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
         var allPreviousCollections  = sdcSchoolCollectionRepository.findAllPreviousCollectionsForStudent(assignedStudentId, currentSnapshotDate);
-        var previousCollectionCount = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(assignedStudentId, allPreviousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList());
+        var previousCollectionCount = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(studentRuleData.getHistoricStudentIds(), allPreviousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList());
 
         return previousCollectionCount > 0;
     }
