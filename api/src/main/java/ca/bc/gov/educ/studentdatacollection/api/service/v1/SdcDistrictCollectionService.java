@@ -93,15 +93,15 @@ public class SdcDistrictCollectionService {
   public List<SdcSchoolFileSummary> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
     List<SdcSchoolFileSummary> fileSummaries = new ArrayList<>();
 
-    List<IProgressCountsForDistrict> progressCountsForDistrict = sdcSchoolCollectionStudentRepository.getProgressCountsBySdcDistrictCollectionID(sdcDistrictCollectionID);
-    for(IProgressCountsForDistrict progressCount: progressCountsForDistrict) {
+    List<ProgressCountsForDistrict> progressCountsForDistrict = sdcSchoolCollectionStudentRepository.getProgressCountsBySdcDistrictCollectionID(sdcDistrictCollectionID);
+    for(ProgressCountsForDistrict progressCount: progressCountsForDistrict) {
       var totalProcessed = progressCount.getTotalCount() - progressCount.getLoadedCount();
       int percentageStudentsProcessed = (int) Math.floor((double) totalProcessed / progressCount.getTotalCount() * 100);
-      UUID schoolID = TransformUtil.convertBytesToUUID(progressCount.getSchoolID());
+      UUID schoolID = progressCount.getSchoolID();
       Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
       String schoolName = school.map(SchoolTombstone::getMincode).orElse(null) + " - " + school.map(SchoolTombstone::getDisplayName).orElse(null);
 
-      SdcSchoolFileSummary collectionSummary = new SdcSchoolFileSummary(TransformUtil.convertBytesToUUID(progressCount.getSdcSchoolCollectionID()), schoolID, schoolName, progressCount.getUploadFileName(), progressCount.getUploadDate(), String.valueOf(percentageStudentsProcessed), String.valueOf(progressCount.getPosition()));
+      SdcSchoolFileSummary collectionSummary = new SdcSchoolFileSummary(progressCount.getSdcSchoolCollectionID(), schoolID, schoolName, progressCount.getUploadFileName(), progressCount.getUploadDate(), String.valueOf(percentageStudentsProcessed));
       fileSummaries.add(collectionSummary);
     }
     return fileSummaries;
