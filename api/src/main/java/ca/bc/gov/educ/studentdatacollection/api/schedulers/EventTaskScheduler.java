@@ -39,7 +39,9 @@ public class EventTaskScheduler {
     lockAtLeastFor = "${scheduled.jobs.extract.uncompleted.sagas.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.extract.uncompleted.sagas.cron.lockAtMostFor}")
   public void findAndProcessPendingSagaEvents() {
     LockAssert.assertLocked();
+    log.debug("Started findAndProcessPendingSagaEvents scheduler");
     this.getTaskSchedulerAsyncService().findAndProcessUncompletedSagas();
+    log.debug("Scheduler findAndProcessPendingSagaEvents complete");
   }
 
 
@@ -47,7 +49,9 @@ public class EventTaskScheduler {
   @SchedulerLock(name = "PROCESS_LOADED_STUDENTS", lockAtLeastFor = "${scheduled.jobs.process.loaded.sdc.students.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.loaded.sdc.students.cron.lockAtMostFor}")
   public void processLoadedStudents() {
     LockAssert.assertLocked();
+    log.debug("Started processLoadedStudents scheduler");
     this.getTaskSchedulerAsyncService().findAndPublishLoadedStudentRecordsForProcessing();
+    log.debug("Scheduler processLoadedStudents complete");
   }
 
   @Scheduled(cron = "${scheduled.jobs.process.school.collection.for.submission.cron}")
