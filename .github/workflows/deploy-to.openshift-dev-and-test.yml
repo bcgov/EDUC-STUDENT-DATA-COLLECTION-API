@@ -45,7 +45,7 @@ env:
   MAX_REPLICAS_TEST: "5"
   MIN_CPU: "500m"
   MAX_CPU: "1"
-  MIN_MEM: "800Mi"
+  MIN_MEM: "1000Mi"
   MAX_MEM: "1200Mi"
 
 on:
