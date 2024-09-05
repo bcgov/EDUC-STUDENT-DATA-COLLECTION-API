@@ -2,7 +2,6 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.service;
 
 import ca.bc.gov.educ.studentdatacollection.api.batch.processor.SdcBatchFileProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +24,6 @@ public class SdcFileService {
 
   @Getter(PRIVATE)
   private final SdcBatchFileProcessor sdcBatchProcessor;
-
-  private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public SdcSchoolCollectionEntity runFileLoad(SdcFileUpload sdcFileUpload, String sdcSchoolCollectionID) {

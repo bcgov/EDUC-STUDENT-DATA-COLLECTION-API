@@ -2,7 +2,6 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -48,7 +47,6 @@ public class SdcDistrictCollectionService {
 
   @Autowired
   public SdcDistrictCollectionService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, CollectionRepository collectionRepository, RestUtils restUtils, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionSubmissionSignatureRepository sdcDistrictCollectionSubmissionSignatureRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService) {
-
     this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.collectionRepository = collectionRepository;
@@ -93,27 +91,18 @@ public class SdcDistrictCollectionService {
   }
 
   public List<SdcSchoolFileSummary> getSchoolCollectionsInProgress(UUID sdcDistrictCollectionID) {
-    List<SdcSchoolCollectionEntity> schoolCollectionRecords = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
     List<SdcSchoolFileSummary> fileSummaries = new ArrayList<>();
-    for (SdcSchoolCollectionEntity schoolCollectionRecord : schoolCollectionRecords) {
-      UUID schoolCollectionID = schoolCollectionRecord.getSdcSchoolCollectionID();
 
-      long totalCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollection_SdcSchoolCollectionID(schoolCollectionID);
-      long loadedCount = sdcSchoolCollectionStudentRepository.countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollection_SdcSchoolCollectionID(SdcSchoolStudentStatus.LOADED.getCode(), schoolCollectionID);
-      var totalProcessed = totalCount - loadedCount;
-      int percentageStudentsProcessed = (int) Math.floor((double) totalProcessed / totalCount * 100);
-      long positionInQueue = 0;
-      if (totalProcessed == 0) {
-        positionInQueue = sdcSchoolCollectionRepository.findSdcSchoolCollectionsPositionInQueue(schoolCollectionRecord.getUploadDate());
-      }
-
-      UUID schoolID = schoolCollectionRecord.getSchoolID();
+    List<IProgressCountsForDistrict> progressCountsForDistrict = sdcSchoolCollectionStudentRepository.getProgressCountsBySdcDistrictCollectionID(sdcDistrictCollectionID);
+    for(IProgressCountsForDistrict progressCount: progressCountsForDistrict) {
+      var totalProcessed = progressCount.getTotalCount() - progressCount.getLoadedCount();
+      int percentageStudentsProcessed = (int) Math.floor((double) totalProcessed / progressCount.getTotalCount() * 100);
+      UUID schoolID = TransformUtil.convertBytesToUUID(progressCount.getSchoolID());
       Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
       String schoolName = school.map(SchoolTombstone::getMincode).orElse(null) + " - " + school.map(SchoolTombstone::getDisplayName).orElse(null);
 
-      SdcSchoolFileSummary collectionSummary = new SdcSchoolFileSummary(schoolCollectionID, schoolID, schoolName, schoolCollectionRecord.getUploadFileName(), schoolCollectionRecord.getUploadDate(), String.valueOf(percentageStudentsProcessed), String.valueOf(positionInQueue));
+      SdcSchoolFileSummary collectionSummary = new SdcSchoolFileSummary(TransformUtil.convertBytesToUUID(progressCount.getSdcSchoolCollectionID()), schoolID, schoolName, progressCount.getUploadFileName(), progressCount.getUploadDate(), String.valueOf(percentageStudentsProcessed), String.valueOf(progressCount.getPosition()));
       fileSummaries.add(collectionSummary);
-
     }
     return fileSummaries;
   }

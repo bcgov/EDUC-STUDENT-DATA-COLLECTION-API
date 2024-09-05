@@ -75,7 +75,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
   @Autowired
   SdcDuplicatesService sdcDuplicateService;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
-  protected final static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+  protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
   @Autowired
   RestUtils restUtils;
@@ -1312,7 +1312,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].fileName").value(schoolCollectionEntity1.getUploadFileName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].percentageStudentsProcessed").value("33"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].schoolDisplayName").value(schoolTombstone1.getMincode() + " - " + schoolTombstone1.getDisplayName()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].positionInQueue").value("0"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].positionInQueue").value("1"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[2].fileName").value(schoolCollectionEntity3.getUploadFileName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[2].percentageStudentsProcessed").value("0"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[2].schoolDisplayName").value(schoolTombstone3.getMincode() + " - " + schoolTombstone3.getDisplayName()))
