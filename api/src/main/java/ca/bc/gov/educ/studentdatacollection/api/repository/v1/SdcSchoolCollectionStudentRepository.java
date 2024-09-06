@@ -1118,4 +1118,32 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
         GROUP BY sscs.sdcSchoolCollection.schoolID, sscs.homeLanguageSpokenCode
   """)
   List<SpokenLanguageHeadcountResult> getAllHomeLanguageSpokenCodesForIndiesAndOffshoreInCollection(@Param("collectionID") UUID collectionID);
+
+  @Query("SELECT " +
+          "CASE WHEN s.fteZeroReasonCode is not null then s.fteZeroReasonCode ELSE 'Other' END AS fteZeroReasonCode, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = 'KF' THEN 1 END) AS gradeKF, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = '01' THEN 1 END) AS grade01, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = '02' THEN 1 END) AS grade02, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = '03' THEN 1 END) AS grade03, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = '04' THEN 1 END) AS grade04, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = '05' THEN 1 END) AS grade05, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = '06' THEN 1 END) AS grade06, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = '07' THEN 1 END) AS grade07, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = 'EU' THEN 1 END) AS gradeEU, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = '08' THEN 1 END) AS grade08, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = '09' THEN 1 END) AS grade09, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = '10' THEN 1 END) AS grade10, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = '11' THEN 1 END) AS grade11, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = '12' THEN 1 END) AS grade12, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = 'SU' THEN 1 END) AS gradeSU, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = 'GA' THEN 1 END) AS gradeGA, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode = 'HS' THEN 1 END) AS gradeHS, " +
+          "COUNT(CASE WHEN s.enrolledGradeCode is not null THEN 1 END) AS allLevels "+
+          "FROM SdcSchoolCollectionStudentEntity s " +
+          "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
+          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
+          "and s.fte = 0 " +
+          "GROUP BY s.fteZeroReasonCode " +
+          "ORDER BY s.fteZeroReasonCode")
+  List<ZeroFTEHeadcountResult> getZeroFTEHeadcountsBySdcDistrictCollectionId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 }
