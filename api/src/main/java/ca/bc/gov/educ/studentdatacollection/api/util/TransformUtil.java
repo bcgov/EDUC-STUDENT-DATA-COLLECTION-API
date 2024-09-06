@@ -247,11 +247,4 @@ public class TransformUtil {
     }
     return "0";
   }
-
-  public static UUID convertBytesToUUID(byte[] bytes) {
-    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-    long high = byteBuffer.getLong();
-    long low = byteBuffer.getLong();
-    return new UUID(high, low);
-  }
 }

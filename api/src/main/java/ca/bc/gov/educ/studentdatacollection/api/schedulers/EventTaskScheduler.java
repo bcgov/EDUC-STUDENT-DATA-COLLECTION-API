@@ -39,7 +39,9 @@ public class EventTaskScheduler {
     lockAtLeastFor = "${scheduled.jobs.extract.uncompleted.sagas.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.extract.uncompleted.sagas.cron.lockAtMostFor}")
   public void findAndProcessPendingSagaEvents() {
     LockAssert.assertLocked();
+    log.debug("Started findAndProcessPendingSagaEvents scheduler");
     this.getTaskSchedulerAsyncService().findAndProcessUncompletedSagas();
+    log.debug("Scheduler findAndProcessPendingSagaEvents complete");
   }
 
 
@@ -47,7 +49,9 @@ public class EventTaskScheduler {
   @SchedulerLock(name = "PROCESS_LOADED_STUDENTS", lockAtLeastFor = "${scheduled.jobs.process.loaded.sdc.students.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.loaded.sdc.students.cron.lockAtMostFor}")
   public void processLoadedStudents() {
     LockAssert.assertLocked();
+    log.debug("Started processLoadedStudents scheduler");
     this.getTaskSchedulerAsyncService().findAndPublishLoadedStudentRecordsForProcessing();
+    log.debug("Scheduler processLoadedStudents complete");
   }
 
   @Scheduled(cron = "${scheduled.jobs.process.school.collection.for.submission.cron}")
@@ -62,13 +66,6 @@ public class EventTaskScheduler {
   public void notifyIndySchoolsToSubmit() {
     LockAssert.assertLocked();
     this.getTaskSchedulerAsyncService().findAllUnsubmittedIndependentSchoolsInCurrentCollection();
-  }
-
-  @Scheduled(cron = "${scheduled.jobs.process.update.student.downstream.cron}")
-  @SchedulerLock(name = "UPDATE_STUDENT_DEMOG", lockAtLeastFor = "${scheduled.jobs.process.update.student.downstream.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.update.student.downstream.cron.lockAtMostFor}")
-  public void updateStudentDemogDownstream() {
-    LockAssert.assertLocked();
-    this.getTaskSchedulerAsyncService().updateStudentDemogDownstream();
   }
   
   @Scheduled(cron = "${scheduled.jobs.process.new.schools.collection.cron}")
