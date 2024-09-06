@@ -384,7 +384,7 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
    */
   @Override
   @Transactional
-  @Async("taskExecutor")
+  @Async("sagaRetryTaskExecutor")
   public void replaySaga(final SdcSagaEntity saga) throws IOException, InterruptedException, TimeoutException {
     final var eventStates = this.getSagaService().findAllSagaStates(saga);
     final var t = JsonUtil.getJsonObjectFromString(this.clazz, saga.getPayload());

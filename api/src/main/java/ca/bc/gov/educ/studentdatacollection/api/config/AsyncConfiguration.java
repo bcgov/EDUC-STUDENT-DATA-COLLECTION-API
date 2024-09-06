@@ -29,16 +29,46 @@ public class AsyncConfiguration {
       .setCorePoolSize(applicationProperties.getMinSubscriberThreads()).setMaximumPoolSize(applicationProperties.getMaxSubscriberThreads()).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
 
-  /**
-   * Controller task executor executor.
-   *
-   * @return the executor
-   */
-  @Bean(name = "taskExecutor")
-  public Executor controllerTaskExecutor() {
+  @Bean(name = "sagaRetryTaskExecutor")
+  public Executor sagaRetryTaskExecutor() {
     return new EnhancedQueueExecutor.Builder()
-      .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-executor-%d").get())
-      .setCorePoolSize(10).setMaximumPoolSize(15).setKeepAliveTime(Duration.ofSeconds(60)).build();
+            .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-saga-retry-executor-%d").get())
+            .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
+  }
+
+  @Bean(name = "processLoadedStudentsTaskExecutor")
+  public Executor processLoadedStudentsTaskExecutor() {
+    return new EnhancedQueueExecutor.Builder()
+      .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-loaded-stud-executor-%d").get())
+      .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
+  }
+
+  @Bean(name = "processUncompletedSagasTaskExecutor")
+  public Executor processUncompletedSagasTaskExecutor() {
+    return new EnhancedQueueExecutor.Builder()
+            .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-uncompleted-saga-executor-%d").get())
+            .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
+  }
+
+  @Bean(name = "findSchoolCollectionsForSubmissionTaskExecutor")
+  public Executor findSchoolCollectionsForSubmissionTaskExecutor() {
+    return new EnhancedQueueExecutor.Builder()
+            .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-school-collections-executor-%d").get())
+            .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
+  }
+
+  @Bean(name = "findAllUnsubmittedIndependentSchoolsTaskExecutor")
+  public Executor findAllUnsubmittedIndependentSchoolsTaskExecutor() {
+    return new EnhancedQueueExecutor.Builder()
+            .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-unsubmitted-indies-executor-%d").get())
+            .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
+  }
+
+  @Bean(name = "updateStudentDemogDownstreamTaskExecutor")
+  public Executor updateStudentDemogDownstreamTaskExecutor() {
+    return new EnhancedQueueExecutor.Builder()
+            .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-update-demog-executor-%d").get())
+            .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
 
   @Bean(name = "publisherExecutor")

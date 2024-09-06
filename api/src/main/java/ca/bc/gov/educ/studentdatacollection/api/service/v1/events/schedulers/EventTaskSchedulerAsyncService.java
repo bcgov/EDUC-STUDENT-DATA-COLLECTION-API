@@ -97,7 +97,7 @@ public class EventTaskSchedulerAsyncService {
     orchestrators.forEach(orchestrator -> this.sagaOrchestrators.put(orchestrator.getSagaName(), orchestrator));
   }
 
-  @Async("taskExecutor")
+  @Async("processUncompletedSagasTaskExecutor")
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void findAndProcessUncompletedSagas() {
     log.debug("Processing uncompleted sagas");
@@ -125,7 +125,7 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
-  @Async("taskExecutor")
+  @Async("processLoadedStudentsTaskExecutor")
   public void findAndPublishLoadedStudentRecordsForProcessing() {
     log.debug("Querying for loaded students to process");
     if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 100) { // at max there will be 40 parallel sagas.
@@ -139,7 +139,7 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
-  @Async("taskExecutor")
+  @Async("findSchoolCollectionsForSubmissionTaskExecutor")
   @Transactional
   public void findSchoolCollectionsForSubmission() {
     final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findSchoolCollectionsWithStudentsNotInLoadedStatus();
@@ -162,7 +162,7 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
-  @Async("taskExecutor")
+  @Async("findAllUnsubmittedIndependentSchoolsTaskExecutor")
   @Transactional
   public void findAllUnsubmittedIndependentSchoolsInCurrentCollection() {
     final Optional<CollectionEntity> activeCollectionOptional = collectionRepository.findActiveCollection();
@@ -179,7 +179,7 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
-  @Async("taskExecutor")
+  @Async("updateStudentDemogDownstreamTaskExecutor")
   @Transactional
   public void updateStudentDemogDownstream() {
     log.debug("Querying for DEMOG_UPD students to process");
