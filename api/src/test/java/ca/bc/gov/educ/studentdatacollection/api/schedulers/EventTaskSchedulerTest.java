@@ -105,11 +105,11 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         studentInSecondSchool.setSdcSchoolCollectionStudentStatusCode("ERROR");
         sdcSchoolCollectionStudentRepository.save(studentInSecondSchool);
 
-        final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findSchoolCollectionsWithStudentsNotInLoadedStatus();
+        final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findSchoolCollectionsWithStudentsNotInLoadedStatus("10");
         assertThat(sdcSchoolCollectionEntity).hasSize(2);
         eventTaskScheduler.submitSchoolCollections();
 
-        var sdcSchoolCollectionEntityAfterSubmit = sdcSchoolCollectionRepository.findSchoolCollectionsWithStudentsNotInLoadedStatus();
+        var sdcSchoolCollectionEntityAfterSubmit = sdcSchoolCollectionRepository.findSchoolCollectionsWithStudentsNotInLoadedStatus("10");
         assertThat(sdcSchoolCollectionEntityAfterSubmit).isEmpty();
 
         var firstSchoolEntity = sdcSchoolCollectionRepository.findById(firstSchoolCollection.getSdcSchoolCollectionID());
@@ -139,7 +139,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         studentInSecondSchool.setSdcSchoolCollectionStudentStatusCode("ERROR");
         sdcSchoolCollectionStudentRepository.save(studentInSecondSchool);
 
-        final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findSchoolCollectionsWithStudentsNotInLoadedStatus();
+        final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findSchoolCollectionsWithStudentsNotInLoadedStatus("10");
         assertThat(sdcSchoolCollectionEntity).hasSize(1);
     }
 
