@@ -158,12 +158,12 @@ public class SdcDuplicatesService {
     SdcSchoolCollectionStudentEntity updatedStudent =  updateSdcSchoolCollectionStudent(studentEntity, allowDuplicateCreation);
 
     // check to see if existing dupes can be resolved by the update - not creating any new dupes
-    List<SdcDuplicateEntity> existingProgramDupes = sdcDuplicateRepository.findAllUnresolvedProgramDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
-    if(!existingProgramDupes.isEmpty()){
+    List<SdcDuplicateEntity> existingDupes = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
+    if(!existingDupes.isEmpty()){
       Optional<CollectionEntity> currCollection = collectionRepository.findActiveCollection();
       String collectionStatusCode = currCollection.map(CollectionEntity::getCollectionStatusCode).orElse(null);
       DuplicateLevelCode dupeLevel = Objects.equals(collectionStatusCode, CollectionStatus.INPROGRESS.getCode()) ? DuplicateLevelCode.IN_DIST : DuplicateLevelCode.PROVINCIAL;
-      existingProgramDupes.forEach(dupe -> {
+      existingDupes.forEach(dupe -> {
         Optional<SdcDuplicateStudentEntity> otherStudentDupeEntity = dupe.getSdcDuplicateStudentEntities().stream().filter(std -> std.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID() != studentEntity.getSdcSchoolCollectionStudentID()).findFirst();
         SdcSchoolCollectionStudentEntity otherStudentEntity= otherStudentDupeEntity.isPresent() ? otherStudentDupeEntity.get().getSdcSchoolCollectionStudentEntity() : null;
         List<SdcDuplicateEntity> newDupes = runDuplicatesCheck(dupeLevel, sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(updatedStudent), sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(otherStudentEntity), true);

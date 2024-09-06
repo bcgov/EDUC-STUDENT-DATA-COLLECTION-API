@@ -504,6 +504,8 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     GradStatusResult gradStatusResult = new GradStatusResult();
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
+    sdcDuplicateService.validateAndProcessSdcSchoolCollectionStudent(newStudentEntity, studentEntity, false);
+
     Optional<SdcSchoolCollectionStudentEntity> savedStudent = sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID());
 
     assertThat(savedStudent.get().getNumberOfCourses()).isEqualTo("1000");
