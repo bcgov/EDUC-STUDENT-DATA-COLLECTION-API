@@ -33,35 +33,35 @@ public class AsyncConfiguration {
   public Executor sagaRetryTaskExecutor() {
     return new EnhancedQueueExecutor.Builder()
             .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-saga-retry-executor-%d").get())
-            .setCorePoolSize(2).setMaximumPoolSize(3).setKeepAliveTime(Duration.ofSeconds(60)).build();
+            .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
 
   @Bean(name = "processLoadedStudentsTaskExecutor")
   public Executor processLoadedStudentsTaskExecutor() {
     return new EnhancedQueueExecutor.Builder()
       .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-loaded-stud-executor-%d").get())
-      .setCorePoolSize(2).setMaximumPoolSize(3).setKeepAliveTime(Duration.ofSeconds(60)).build();
+      .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
 
   @Bean(name = "processUncompletedSagasTaskExecutor")
   public Executor processUncompletedSagasTaskExecutor() {
     return new EnhancedQueueExecutor.Builder()
             .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-uncompleted-saga-executor-%d").get())
-            .setCorePoolSize(2).setMaximumPoolSize(3).setKeepAliveTime(Duration.ofSeconds(60)).build();
+            .setCorePoolSize(1).setMaximumPoolSize(2).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
 
   @Bean(name = "findSchoolCollectionsForSubmissionTaskExecutor")
   public Executor findSchoolCollectionsForSubmissionTaskExecutor() {
     return new EnhancedQueueExecutor.Builder()
             .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-school-collections-executor-%d").get())
-            .setCorePoolSize(2).setMaximumPoolSize(3).setKeepAliveTime(Duration.ofSeconds(60)).build();
+            .setCorePoolSize(1).setMaximumPoolSize(2).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
 
   @Bean(name = "findAllUnsubmittedIndependentSchoolsTaskExecutor")
   public Executor findAllUnsubmittedIndependentSchoolsTaskExecutor() {
     return new EnhancedQueueExecutor.Builder()
             .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-unsubmitted-indies-executor-%d").get())
-            .setCorePoolSize(2).setMaximumPoolSize(3).setKeepAliveTime(Duration.ofSeconds(60)).build();
+            .setCorePoolSize(1).setMaximumPoolSize(2).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
 
   @Bean(name = "updateStudentDemogDownstreamTaskExecutor")

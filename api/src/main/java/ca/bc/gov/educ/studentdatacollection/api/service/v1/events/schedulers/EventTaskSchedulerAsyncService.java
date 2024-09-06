@@ -129,7 +129,7 @@ public class EventTaskSchedulerAsyncService {
   public void findAndPublishLoadedStudentRecordsForProcessing() {
     log.debug("Querying for loaded students to process");
     if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 100) { // at max there will be 100 parallel sagas.
-      log.info("Saga count is greater than 100, so not processing student records");
+      log.debug("Saga count is greater than 100, so not processing student records");
       return;
     }
     final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTopLoadedStudentForProcessing(numberOfStudentsToProcess);
@@ -184,7 +184,7 @@ public class EventTaskSchedulerAsyncService {
   public void updateStudentDemogDownstream() {
     log.debug("Querying for DEMOG_UPD students to process");
     if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 100) { // at max there will be 40 parallel sagas.
-      log.info("Saga count is greater than 100, so not processing student records");
+      log.debug("Saga count is greater than 100, so not processing student records");
       return;
     }
 
