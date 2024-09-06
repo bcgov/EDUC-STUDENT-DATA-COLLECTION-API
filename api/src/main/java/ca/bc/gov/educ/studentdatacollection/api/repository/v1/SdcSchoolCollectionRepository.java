@@ -195,7 +195,7 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
         SELECT sscs.sdcSchoolCollection.sdcSchoolCollectionID
         FROM SdcSchoolCollectionStudentEntity sscs
         WHERE sscs.sdcSchoolCollectionStudentStatusCode = 'LOADED')
-    ORDER BY ssc.createDate""")
+    ORDER BY ssc.uploadDate asc""")
     List<SdcSchoolCollectionEntity> findSchoolCollectionsWithStudentsNotInLoadedStatus();
 
     @Query(value="""

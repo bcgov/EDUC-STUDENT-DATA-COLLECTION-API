@@ -67,13 +67,6 @@ public class EventTaskScheduler {
     LockAssert.assertLocked();
     this.getTaskSchedulerAsyncService().findAllUnsubmittedIndependentSchoolsInCurrentCollection();
   }
-
-  @Scheduled(cron = "${scheduled.jobs.process.update.student.downstream.cron}")
-  @SchedulerLock(name = "UPDATE_STUDENT_DEMOG", lockAtLeastFor = "${scheduled.jobs.process.update.student.downstream.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.update.student.downstream.cron.lockAtMostFor}")
-  public void updateStudentDemogDownstream() {
-    LockAssert.assertLocked();
-    this.getTaskSchedulerAsyncService().updateStudentDemogDownstream();
-  }
   
   @Scheduled(cron = "${scheduled.jobs.process.new.schools.collection.cron}")
   @SchedulerLock(name = "ADD_NEW_SCHOOLS_TO_COLLECTION", lockAtLeastFor = "${scheduled.jobs.process.new.schools.collection.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.new.schools.collection.cron.lockAtMostFor}")
