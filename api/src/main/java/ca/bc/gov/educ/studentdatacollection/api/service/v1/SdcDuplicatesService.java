@@ -165,7 +165,7 @@ public class SdcDuplicatesService {
       DuplicateLevelCode dupeLevel = Objects.equals(collectionStatusCode, CollectionStatus.INPROGRESS.getCode()) ? DuplicateLevelCode.IN_DIST : DuplicateLevelCode.PROVINCIAL;
       existingDupes.forEach(dupe -> {
         Optional<SdcDuplicateStudentEntity> otherStudentDupeEntity = dupe.getSdcDuplicateStudentEntities().stream().filter(std -> std.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID() != studentEntity.getSdcSchoolCollectionStudentID()).findFirst();
-        SdcSchoolCollectionStudentEntity otherStudentEntity= otherStudentDupeEntity.isPresent() ? otherStudentDupeEntity.get().getSdcSchoolCollectionStudentEntity() : null;
+        SdcSchoolCollectionStudentEntity otherStudentEntity= otherStudentDupeEntity.map(SdcDuplicateStudentEntity::getSdcSchoolCollectionStudentEntity).orElse(null);
         List<SdcDuplicateEntity> newDupes = runDuplicatesCheck(dupeLevel, sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(updatedStudent), sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(otherStudentEntity), true);
 
         // if dupe is no longer present, resolve it
@@ -176,6 +176,12 @@ public class SdcDuplicatesService {
             dupe.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
           }
 
+//          Set<SdcDuplicateStudentEntity> studentDupeEntities = new HashSet<>();
+//          studentDupeEntities.add(otherStudentDupeEntity.get());
+//          SdcDuplicateStudentEntity updatedStudentDupeEntity = createSdcDuplicateStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(updatedStudent), dupe);
+//          studentDupeEntities.add(updatedStudentDupeEntity);
+//
+//          dupe.setSdcDuplicateStudentEntities(studentDupeEntities);
           dupe.setUpdateUser(studentEntity.getUpdateUser());
           dupe.setUpdateDate(LocalDateTime.now());
           TransformUtil.uppercaseFields(dupe);

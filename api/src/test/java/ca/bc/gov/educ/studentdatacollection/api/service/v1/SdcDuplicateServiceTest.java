@@ -4,13 +4,11 @@ import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
-import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
-import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
@@ -545,7 +543,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  @Transactional
+//  @Transactional
   void testSavingStudentWithDuplicateAssignedId_resolvesExistingDuplicate() {
     CollectionEntity collectionEntity = createMockCollectionEntity();
     collectionEntity.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
