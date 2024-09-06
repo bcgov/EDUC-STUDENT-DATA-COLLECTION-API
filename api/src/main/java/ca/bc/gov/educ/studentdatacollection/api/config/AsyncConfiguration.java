@@ -64,13 +64,6 @@ public class AsyncConfiguration {
             .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
 
-  @Bean(name = "updateStudentDemogDownstreamTaskExecutor")
-  public Executor updateStudentDemogDownstreamTaskExecutor() {
-    return new EnhancedQueueExecutor.Builder()
-            .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-update-demog-executor-%d").get())
-            .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
-  }
-
   @Bean(name = "publisherExecutor")
   public Executor publisherExecutor() {
     return new EnhancedQueueExecutor.Builder()
