@@ -176,12 +176,6 @@ public class SdcDuplicatesService {
             dupe.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
           }
 
-//          Set<SdcDuplicateStudentEntity> studentDupeEntities = new HashSet<>();
-//          studentDupeEntities.add(otherStudentDupeEntity.get());
-//          SdcDuplicateStudentEntity updatedStudentDupeEntity = createSdcDuplicateStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(updatedStudent), dupe);
-//          studentDupeEntities.add(updatedStudentDupeEntity);
-//
-//          dupe.setSdcDuplicateStudentEntities(studentDupeEntities);
           dupe.setUpdateUser(studentEntity.getUpdateUser());
           dupe.setUpdateDate(LocalDateTime.now());
           TransformUtil.uppercaseFields(dupe);
@@ -230,8 +224,8 @@ public class SdcDuplicatesService {
       }
       return processedSdcSchoolCollectionStudent;
     }
-    if (!allowDuplicateCreation || (currentStudentEntity != null && sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionStatusCode().equals( CollectionStatus.PROVDUPES.getCode()))) {
-      checkIfUpdateWouldGenerateNewDupes(originalAssignedPen, currentStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID());
+    if (!allowDuplicateCreation ||  sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionStatusCode().equals( CollectionStatus.PROVDUPES.getCode())) {
+      checkIfUpdateWouldGenerateNewDupes(originalAssignedPen, sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID());
     }
 
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));

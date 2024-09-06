@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
@@ -543,7 +544,6 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-//  @Transactional
   void testSavingStudentWithDuplicateAssignedId_resolvesExistingDuplicate() {
     CollectionEntity collectionEntity = createMockCollectionEntity();
     collectionEntity.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
@@ -584,6 +584,41 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     Optional<SdcDuplicateEntity> resolvedDupe = sdcDuplicateRepository.findBySdcDuplicateID(savedDupe.getSdcDuplicateID());
 
     assertThat(resolvedDupe.get().getDuplicateResolutionCode()).isEqualTo("RESOLVED");
+
+  }
+
+  @Test
+  void testCreatingNewStudentThatWouldCreateDupe_ShouldThrowError(){
+    CollectionEntity collectionEntity = createMockCollectionEntity();
+    collectionEntity.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
+    CollectionEntity savedCollectionEntity = collectionRepository.save(collectionEntity);
+
+    SchoolTombstone school = createMockSchool();
+    SdcSchoolCollectionEntity schoolCollection = createMockSdcSchoolCollectionEntity(savedCollectionEntity, UUID.fromString(school.getSchoolId()));
+    SdcSchoolCollectionEntity savedSchoolCollection = sdcSchoolCollectionRepository.save(schoolCollection);
+
+    UUID assignedStudentID = UUID.randomUUID();
+    SdcSchoolCollectionStudentEntity studentEntity = createMockSchoolStudentEntity(savedSchoolCollection);
+    studentEntity.setAssignedStudentId(assignedStudentID);
+
+    SdcSchoolCollectionStudentEntity potentialDupeStudent = createMockSchoolStudentEntity(savedSchoolCollection);
+    potentialDupeStudent.setAssignedStudentId(assignedStudentID);
+    sdcSchoolCollectionStudentRepository.save(potentialDupeStudent);
+
+    when(restUtils.getSchoolBySchoolID(any(String.class))).thenReturn(Optional.of(school));
+    PenMatchResult penMatchResult = new PenMatchResult();
+    PenMatchRecord penMatchRecord = new PenMatchRecord(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+    penMatchResult.setMatchingRecords(List.of(penMatchRecord));
+    penMatchResult.setPenStatus("AA");
+    penMatchResult.setPenStatusMessage("blah");
+    when(restUtils.getPenMatchResult(any(UUID.class), any(SdcSchoolCollectionStudentEntity.class), any(String.class))).thenReturn(penMatchResult);
+
+    GradStatusResult gradStatusResult = new GradStatusResult();
+    when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
+
+    assertThrows(InvalidPayloadException.class, () -> {
+      sdcDuplicateService.createSdcSchoolCollectionStudent(studentEntity);
+    }, "SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate.");
 
   }
 
