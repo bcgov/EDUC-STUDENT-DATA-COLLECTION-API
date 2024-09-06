@@ -15,11 +15,8 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStat
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorChainProcessor;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicatesByInstituteID;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -507,10 +504,6 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     GradStatusResult gradStatusResult = new GradStatusResult();
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
-    // When
-    SdcSchoolCollectionStudentEntity result = sdcDuplicateService.validateAndProcessSdcSchoolCollectionStudent(newStudentEntity, studentEntity, false);
-
-    // Assert
     Optional<SdcSchoolCollectionStudentEntity> savedStudent = sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID());
 
     assertThat(savedStudent.get().getNumberOfCourses()).isEqualTo("1000");
@@ -544,10 +537,54 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     GradStatusResult gradStatusResult = new GradStatusResult();
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
-    // When and assert
-    IllegalTransactionStateException thrown = assertThrows(IllegalTransactionStateException.class, () -> {
+    assertThrows(IllegalTransactionStateException.class, () -> {
       sdcDuplicateService.validateAndProcessSdcSchoolCollectionStudent(studentEntity, studentEntity, false);
     }, "SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate.");
+  }
+
+  @Test
+  @Transactional
+  void testSavingStudentWithDuplicateAssignedId_resolvesExistingDuplicate() {
+    CollectionEntity collectionEntity = createMockCollectionEntity();
+    collectionEntity.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
+    CollectionEntity savedCollectionEntity = collectionRepository.save(collectionEntity);
+
+    SchoolTombstone school = createMockSchool();
+    SdcSchoolCollectionEntity schoolCollection = createMockSdcSchoolCollectionEntity(savedCollectionEntity, UUID.fromString(school.getSchoolId()));
+    SdcSchoolCollectionEntity savedSchoolCollection = sdcSchoolCollectionRepository.save(schoolCollection);
+
+    SdcSchoolCollectionStudentEntity studentEntity = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(savedSchoolCollection));
+
+    SdcSchoolCollectionStudentEntity editedStudentEntity = createMockSchoolStudentEntity(savedSchoolCollection);
+    editedStudentEntity.setAssignedStudentId(studentEntity.getAssignedStudentId());
+    editedStudentEntity.setSdcSchoolCollectionStudentID(studentEntity.getSdcSchoolCollectionStudentID());
+    editedStudentEntity.setSpecialEducationCategoryCode(null);
+
+    SdcSchoolCollectionStudentEntity dupeStudentEntity = createMockSchoolStudentEntity(savedSchoolCollection);
+    dupeStudentEntity.setAssignedStudentId(studentEntity.getAssignedStudentId());
+    sdcSchoolCollectionStudentRepository.save(dupeStudentEntity);
+
+    SdcDuplicateEntity duplicate = createMockSdcDuplicateEntity(studentEntity, dupeStudentEntity, savedCollectionEntity.getCollectionID());
+    duplicate.setDuplicateTypeCode("PROGRAM");
+    SdcDuplicateEntity savedDupe = sdcDuplicateRepository.save(duplicate);
+
+    when(restUtils.getSchoolBySchoolID(any(String.class))).thenReturn(Optional.of(school));
+    PenMatchResult penMatchResult = new PenMatchResult();
+    PenMatchRecord penMatchRecord = new PenMatchRecord(UUID.randomUUID().toString(), studentEntity.getSdcSchoolCollectionStudentID().toString());
+    penMatchResult.setMatchingRecords(List.of(penMatchRecord));
+    penMatchResult.setPenStatus("AA");
+    penMatchResult.setPenStatusMessage("blah");
+    when(restUtils.getPenMatchResult(any(UUID.class), any(SdcSchoolCollectionStudentEntity.class), any(String.class))).thenReturn(penMatchResult);
+
+    GradStatusResult gradStatusResult = new GradStatusResult();
+    when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
+
+    sdcDuplicateService.routeSdcSchoolCollectionStudentUpdate(editedStudentEntity, false);
+
+    Optional<SdcDuplicateEntity> resolvedDupe = sdcDuplicateRepository.findBySdcDuplicateID(savedDupe.getSdcDuplicateID());
+
+    assertThat(resolvedDupe.get().getDuplicateResolutionCode()).isEqualTo("RESOLVED");
+
   }
 
   @Test

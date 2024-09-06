@@ -360,6 +360,7 @@ public class SdcDuplicatesService {
     return sdcSchoolCollectionStudentService.saveAllSdcStudentWithHistory(sdcSchoolCollectionStudentEntities);
   }
 
+  @Transactional(propagation = Propagation.REQUIRED)
   public void checkForDupesAndStartTrickle(UUID sdcSchoolCollectionStudentID, SdcSchoolCollectionStudentEntity student){
     List<SdcDuplicateEntity> existingDupes = sdcDuplicateRepository.findAllUnresolvedEnrollmentDuplicatesForStudent(sdcSchoolCollectionStudentID);
 
