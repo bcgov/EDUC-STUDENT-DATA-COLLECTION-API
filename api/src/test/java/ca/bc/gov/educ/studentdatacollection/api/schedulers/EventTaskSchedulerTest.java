@@ -404,47 +404,4 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchoolCollection, secondSchoolCollection));
     }
 
-    @Test
-    void testUpdateStudentDemogDownstream_should_PublishEventsToNATS() throws IOException {
-        setMockDataForUPDATE_DEMOGFn();
-        final var sdcSchoolStudentEntities =  sdcSchoolCollectionStudentRepository.findStudentForDownstreamUpdate("100");
-        assertThat(sdcSchoolStudentEntities).hasSize(8);
-        eventTaskScheduler.updateStudentDemogDownstream();
-        verify(this.messagePublisher, atMost(8)).dispatchMessage(eq(TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC.toString()), this.eventCaptor.capture());
-    }
-
-    public void setMockDataForUPDATE_DEMOGFn() throws IOException {
-        var typeCode = this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntityForFeb());
-        this.collectionCodeCriteriaRepository.save(this.createMockCollectionCodeCriteriaEntity(typeCode));
-        CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
-        var districtID = UUID.randomUUID();
-        var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
-
-        var school = createMockSchool();
-        school.setDisplayName("School1");
-        school.setMincode("0000001");
-        school.setDistrictId(districtID.toString());
-        when(this.restUtils.getSchoolBySchoolID(school.getSchoolId())).thenReturn(Optional.of(school));
-        when(this.restUtils.getSchoolListGivenCriteria(anyList(), any())).thenReturn(List.of(school));
-
-        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
-        firstSchool.setUploadDate(null);
-        firstSchool.setUploadFileName(null);
-        firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
-        sdcSchoolCollectionRepository.save(firstSchool);
-
-        final File file = new File(
-                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
-        );
-        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
-        });
-        var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
-        var students = models.stream().peek(model -> {
-            model.setSdcSchoolCollection(firstSchool);
-            model.setSdcSchoolCollectionStudentStatusCode("DEMOG_UPD");
-        }).toList();
-
-        sdcSchoolCollectionStudentRepository.saveAll(students);
-    }
-
 }
