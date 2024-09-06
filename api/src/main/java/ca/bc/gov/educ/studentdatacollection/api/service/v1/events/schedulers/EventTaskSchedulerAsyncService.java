@@ -149,7 +149,8 @@ public class EventTaskSchedulerAsyncService {
   @Async("findSchoolCollectionsForSubmissionTaskExecutor")
   @Transactional
   public void findSchoolCollectionsForSubmission() {
-    final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findSchoolCollectionsWithStudentsNotInLoadedStatus();
+    String numberOfSchoolCollToProcess = "75";
+    final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findSchoolCollectionsWithStudentsNotInLoadedStatus(numberOfSchoolCollToProcess);
     log.debug("Found :: {}  school collection entities for processing", sdcSchoolCollectionEntity.size());
     if (!sdcSchoolCollectionEntity.isEmpty()) {
       sdcSchoolCollectionEntity.forEach(sdcSchoolCollection -> {
