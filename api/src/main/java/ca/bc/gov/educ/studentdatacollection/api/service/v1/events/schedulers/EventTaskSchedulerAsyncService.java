@@ -101,7 +101,7 @@ public class EventTaskSchedulerAsyncService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void findAndProcessUncompletedSagas() {
     log.debug("Processing uncompleted sagas");
-    final var sagas = this.getSagaRepository().findTop100ByStatusInOrderByCreateDate(this.getStatusFilters());
+    final var sagas = this.getSagaRepository().findTop300ByStatusInOrderByCreateDate(this.getStatusFilters());
     log.debug("Found {} sagas to be retried", sagas.size());
     if (!sagas.isEmpty()) {
       this.processUncompletedSagas(sagas);
@@ -128,7 +128,7 @@ public class EventTaskSchedulerAsyncService {
   @Async("processLoadedStudentsTaskExecutor")
   public void findAndPublishLoadedStudentRecordsForProcessing() {
     log.debug("Querying for loaded students to process");
-    if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 100) { // at max there will be 40 parallel sagas.
+    if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 100) { // at max there will be 100 parallel sagas.
       log.info("Saga count is greater than 100, so not processing student records");
       return;
     }

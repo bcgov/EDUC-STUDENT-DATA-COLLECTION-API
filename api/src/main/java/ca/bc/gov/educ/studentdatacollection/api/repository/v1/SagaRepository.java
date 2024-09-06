@@ -24,7 +24,7 @@ public interface SagaRepository extends JpaRepository<SdcSagaEntity, UUID>, JpaS
 
   Optional<SdcSagaEntity> findBySdcSchoolCollectionIDAndSagaNameAndStatusEquals(UUID sdcSchoolCollectionID, String sagaName, String status);
 
-  List<SdcSagaEntity> findTop100ByStatusInOrderByCreateDate(List<String> statuses);
+  List<SdcSagaEntity> findTop300ByStatusInOrderByCreateDate(List<String> statuses);
 
   Optional<SdcSagaEntity> findByCollectionIDAndSagaNameAndStatusNot(UUID collectionID, String sagaName, String status);
 
