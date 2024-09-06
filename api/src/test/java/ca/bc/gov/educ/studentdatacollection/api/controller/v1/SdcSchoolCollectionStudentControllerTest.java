@@ -803,6 +803,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
         entity.setPostalCode(null);
+        sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
                         post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
@@ -2480,6 +2481,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setBandCode("0600");
         entity.setIsSchoolAged(true);
         entity.setIsAdult(false);
+        sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
                         post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)

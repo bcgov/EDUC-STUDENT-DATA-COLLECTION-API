@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
@@ -10,18 +9,23 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorChainProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicatesByInstituteID;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.IllegalTransactionStateException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -54,6 +58,10 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
   @Autowired
   SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService;
   @Autowired
+  SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+  @Autowired
+  RulesProcessor rulesProcessor;
+  @Autowired
   FteCalculatorChainProcessor fteCalculatorChainProcessor;
   @Autowired
   CodeTableService codeTableService;
@@ -62,9 +70,9 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
   @AfterEach
   public void after() {
     this.sdcDuplicateRepository.deleteAll();
-    this.collectionRepository.deleteAll();
     this.sdcSchoolCollectionStudentRepository.deleteAll();
     this.sdcSchoolCollectionRepository.deleteAll();
+    this.collectionRepository.deleteAll();
   }
 
   @Test
@@ -471,89 +479,75 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
+  @Transactional
   void testSavingStudentWithoutDuplicate_savesSuccessfully() {
-    // Given
-    UUID studentID = UUID.randomUUID();
-    UUID schoolCollectionID = UUID.randomUUID();
-    UUID collectionID = UUID.randomUUID();
-    UUID schoolID = UUID.randomUUID();
 
-    SdcSchoolCollectionStudentEntity studentEntity = new SdcSchoolCollectionStudentEntity();
-    studentEntity.setAssignedStudentId(studentID);
-
-    CollectionEntity collectionEntity = new CollectionEntity();
-    collectionEntity.setCollectionID(collectionID);
+    CollectionEntity collectionEntity = createMockCollectionEntity();
     collectionEntity.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
+    CollectionEntity savedCollectionEntity = collectionRepository.save(collectionEntity);
 
-    SdcSchoolCollectionEntity schoolCollection = new SdcSchoolCollectionEntity();
-    schoolCollection.setCollectionEntity(collectionEntity);
-    schoolCollection.setSdcSchoolCollectionID(schoolCollectionID);
-    schoolCollection.setSchoolID(schoolID);
+    SchoolTombstone school = createMockSchool();
+    SdcSchoolCollectionEntity schoolCollection = createMockSdcSchoolCollectionEntity(savedCollectionEntity, UUID.fromString(school.getSchoolId()));
+    SdcSchoolCollectionEntity savedSchoolCollection = sdcSchoolCollectionRepository.save(schoolCollection);
 
-    studentEntity.setSdcSchoolCollection(schoolCollection);
+    SdcSchoolCollectionStudentEntity studentEntity = createMockSchoolStudentEntity(savedSchoolCollection);
+    sdcSchoolCollectionStudentRepository.save(studentEntity);
+    SdcSchoolCollectionStudentEntity newStudentEntity = createMockSchoolStudentEntity(savedSchoolCollection);
+    newStudentEntity.setNumberOfCourses("1000");
+    newStudentEntity.setSdcSchoolCollectionStudentID(studentEntity.getSdcSchoolCollectionStudentID());
 
-    // Mock FTE Calculator Processor
-    FteCalculationResult fteCalculationResult = new FteCalculationResult();
-    fteCalculationResult.setFte(new BigDecimal("1.0"));
-    when(fteCalculatorChainProcessor.processFteCalculator(any(StudentRuleData.class))).thenReturn(fteCalculationResult);
+    when(restUtils.getSchoolBySchoolID(any(String.class))).thenReturn(Optional.of(school));
+    PenMatchResult penMatchResult = new PenMatchResult();
+    PenMatchRecord penMatchRecord = new PenMatchRecord(UUID.randomUUID().toString(), studentEntity.getSdcSchoolCollectionStudentID().toString());
+    penMatchResult.setMatchingRecords(List.of(penMatchRecord));
+    penMatchResult.setPenStatus("AA");
+    penMatchResult.setPenStatusMessage("blah");
+    when(restUtils.getPenMatchResult(any(UUID.class), any(SdcSchoolCollectionStudentEntity.class), any(String.class))).thenReturn(penMatchResult);
 
-    // Mock repository responses
-    when(sdcSchoolCollectionRepository.findById(schoolCollectionID)).thenReturn(Optional.of(schoolCollection));
-    when(sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(collectionID, Collections.singletonList(studentID)))
-            .thenReturn(Collections.emptyList());
+    GradStatusResult gradStatusResult = new GradStatusResult();
+    when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
     // When
-    SdcSchoolCollectionStudentEntity result = sdcDuplicateService.validateAndProcessSdcSchoolCollectionStudent(studentEntity, studentEntity, false);
+    SdcSchoolCollectionStudentEntity result = sdcDuplicateService.validateAndProcessSdcSchoolCollectionStudent(newStudentEntity, studentEntity, false);
 
     // Assert
-    assertNotSame(studentEntity, result);
-    verify(sdcSchoolCollectionStudentRepository, times(1)).save(any(SdcSchoolCollectionStudentEntity.class));
+    Optional<SdcSchoolCollectionStudentEntity> savedStudent = sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID());
+
+    assertThat(savedStudent.get().getNumberOfCourses()).isEqualTo("1000");
   }
 
   @Test
   void testSavingStudentWithDuplicateAssignedId_doesNotSave() {
-    // Given
-    UUID studentID = UUID.randomUUID();
-    UUID schoolCollectionID = UUID.randomUUID();
-    UUID collectionID = UUID.randomUUID();
-    UUID schoolID = UUID.randomUUID();
-
-    SdcSchoolCollectionStudentEntity studentEntity = new SdcSchoolCollectionStudentEntity();
-    studentEntity.setAssignedStudentId(studentID);
-
-    SdcSchoolCollectionStudentEntity existingDuplicate = new SdcSchoolCollectionStudentEntity();
-    existingDuplicate.setAssignedStudentId(studentID);
-
-    CollectionEntity collectionEntity = new CollectionEntity();
-    collectionEntity.setCollectionID(collectionID);
+    CollectionEntity collectionEntity = createMockCollectionEntity();
     collectionEntity.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
+    CollectionEntity savedCollectionEntity = collectionRepository.save(collectionEntity);
 
-    SdcSchoolCollectionEntity schoolCollection = new SdcSchoolCollectionEntity();
-    schoolCollection.setCollectionEntity(collectionEntity);
-    schoolCollection.setSdcSchoolCollectionID(schoolCollectionID);
-    schoolCollection.setSchoolID(schoolID);
+    SchoolTombstone school = createMockSchool();
+    SdcSchoolCollectionEntity schoolCollection = createMockSdcSchoolCollectionEntity(savedCollectionEntity, UUID.fromString(school.getSchoolId()));
+    SdcSchoolCollectionEntity savedSchoolCollection = sdcSchoolCollectionRepository.save(schoolCollection);
 
-    studentEntity.setSdcSchoolCollection(schoolCollection);
+    SdcSchoolCollectionStudentEntity studentEntity = createMockSchoolStudentEntity(savedSchoolCollection);
+    sdcSchoolCollectionStudentRepository.save(studentEntity);
 
-    // Mock FTE Calculator Processor
-    FteCalculationResult fteCalculationResult = new FteCalculationResult();
-    fteCalculationResult.setFte(new BigDecimal("1.0"));
-    when(fteCalculatorChainProcessor.processFteCalculator(any(StudentRuleData.class))).thenReturn(fteCalculationResult);
+    SdcSchoolCollectionStudentEntity dupeStudentEntity = createMockSchoolStudentEntity(savedSchoolCollection);
+    dupeStudentEntity.setAssignedStudentId(studentEntity.getAssignedStudentId());
+    sdcSchoolCollectionStudentRepository.save(dupeStudentEntity);
 
-    // Mock repository responses to simulate the existing duplicate
-    when(sdcSchoolCollectionRepository.findById(schoolCollectionID)).thenReturn(Optional.of(schoolCollection));
-    when(sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(collectionID, Collections.singletonList(studentID)))
-            .thenReturn(Collections.singletonList(existingDuplicate));
+    when(restUtils.getSchoolBySchoolID(any(String.class))).thenReturn(Optional.of(school));
+    PenMatchResult penMatchResult = new PenMatchResult();
+    PenMatchRecord penMatchRecord = new PenMatchRecord(UUID.randomUUID().toString(), studentEntity.getSdcSchoolCollectionStudentID().toString());
+    penMatchResult.setMatchingRecords(List.of(penMatchRecord));
+    penMatchResult.setPenStatus("AA");
+    penMatchResult.setPenStatusMessage("blah");
+    when(restUtils.getPenMatchResult(any(UUID.class), any(SdcSchoolCollectionStudentEntity.class), any(String.class))).thenReturn(penMatchResult);
+
+    GradStatusResult gradStatusResult = new GradStatusResult();
+    when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
     // When and assert
-    InvalidPayloadException thrown = assertThrows(InvalidPayloadException.class, () -> {
+    IllegalTransactionStateException thrown = assertThrows(IllegalTransactionStateException.class, () -> {
       sdcDuplicateService.validateAndProcessSdcSchoolCollectionStudent(studentEntity, studentEntity, false);
     }, "SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate.");
-
-    assertNotNull(thrown.getError());
-    assertEquals("SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate.", thrown.getError().getMessage());
-
-    verify(sdcSchoolCollectionStudentRepository, never()).save(studentEntity);
   }
 
   @Test

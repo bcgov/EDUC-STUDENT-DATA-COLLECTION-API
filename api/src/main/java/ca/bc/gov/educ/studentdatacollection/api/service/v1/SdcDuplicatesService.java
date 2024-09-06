@@ -404,7 +404,7 @@ public class SdcDuplicatesService {
 
       // update student
       RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
-      SdcSchoolCollectionStudentEntity updatedStudent = updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent), false);
+      SdcSchoolCollectionStudentEntity updatedStudent = updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent), true);
 
       if (!updatedStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
         //resolve
