@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionsForAutoSubmit;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorIndySdcSchoolCollectionQueryResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionQueryResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -189,15 +190,18 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     List<SdcSchoolCollectionEntity> findAllBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
 
     @Query(value="""
-    SELECT ssc FROM SdcSchoolCollectionEntity ssc
-    WHERE ssc.sdcSchoolCollectionStatusCode = 'DIS_UPLOAD'
-    AND ssc.sdcSchoolCollectionID NOT IN (
-        SELECT sscs.sdcSchoolCollection.sdcSchoolCollectionID
-        FROM SdcSchoolCollectionStudentEntity sscs
-        WHERE sscs.sdcSchoolCollectionStudentStatusCode = 'LOADED')
-    ORDER BY ssc.uploadDate asc
+    SELECT new ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionsForAutoSubmit(
+    SSC.sdcSchoolCollectionID,
+    count(case when SSCS.sdcSchoolCollectionStudentStatusCode = 'ERROR' then 1 end) as errorCount
+    )
+    FROM SdcSchoolCollectionStudentEntity SSCS, SdcSchoolCollectionEntity SSC
+    WHERE SSC.sdcSchoolCollectionStatusCode = 'DIS_UPLOAD'
+    AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
+    and SSCS.sdcSchoolCollectionStudentStatusCode != 'LOADED'
+    group by SSC.sdcSchoolCollectionID
+    order by SSC.uploadDate asc
     LIMIT :numberOfSchoolCollToProcess""")
-    List<SdcSchoolCollectionEntity> findSchoolCollectionsWithStudentsNotInLoadedStatus(String numberOfSchoolCollToProcess);
+    List<SdcSchoolCollectionsForAutoSubmit> findSchoolCollectionsWithStudentsNotInLoadedStatus(String numberOfSchoolCollToProcess);
 
     @Query(value="""
     SELECT COUNT(DISTINCT ssc.sdcSchoolCollectionID) FROM SdcSchoolCollectionEntity ssc, SdcSchoolCollectionStudentEntity sscs
