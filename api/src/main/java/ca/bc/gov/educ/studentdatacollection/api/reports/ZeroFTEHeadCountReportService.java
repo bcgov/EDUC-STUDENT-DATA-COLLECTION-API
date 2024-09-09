@@ -29,7 +29,6 @@ import java.util.*;
 public class ZeroFTEHeadCountReportService extends BaseReportGenerationService<ZeroFTEHeadcountResult>{
     protected static final String HEADER = "FTEREASONS";
     protected static final String FOOTER = "TOTAL";
-    private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final ZeroFTEHeadcountHelper zeroFTEHeadcountHelper;
@@ -40,7 +39,6 @@ public class ZeroFTEHeadCountReportService extends BaseReportGenerationService<Z
 
     public ZeroFTEHeadCountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, ZeroFTEHeadcountHelper zeroFTEHeadcountHelper) {
         super(restUtils, sdcSchoolCollectionRepository);
-        this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
         this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
         this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
         this.zeroFTEHeadcountHelper = zeroFTEHeadcountHelper;
@@ -117,9 +115,9 @@ public class ZeroFTEHeadCountReportService extends BaseReportGenerationService<Z
         addValuesForSectionToMap(nodeMap, HEADER, "Non-Funded Students", "00");
         int sequencePrefix = 10;
         //Iterate over the reasons and generate node
-        for (String key : fteReasons.keySet()) {
+        for (Map.Entry<String, String> entry: fteReasons.entrySet()) {
             int finalSequencePrefix = sequencePrefix;
-            addValuesForSectionToMap(nodeMap, key, fteReasons.get(key), String.valueOf(finalSequencePrefix));
+            addValuesForSectionToMap(nodeMap, entry.getKey(), entry.getValue(), String.valueOf(finalSequencePrefix));
             sequencePrefix += 10;
         }
         //Footer node
@@ -178,7 +176,7 @@ public class ZeroFTEHeadCountReportService extends BaseReportGenerationService<Z
      * @param nodeMap
      * @param fteHeadCountResults
      */
-    public void setRowTotal(HashMap<String, HeadcountChildNode> nodeMap, List<ZeroFTEHeadcountResult> fteHeadCountResults){
+    public void setRowTotal(Map<String, HeadcountChildNode> nodeMap, List<ZeroFTEHeadcountResult> fteHeadCountResults){
         //Populate total node
         ZeroFTEHeadcountChildNode totalFteNode = (ZeroFTEHeadcountChildNode)nodeMap.getOrDefault(FOOTER, new ZeroFTEHeadcountChildNode());
         BigDecimal sectionTotal = BigDecimal.ZERO;

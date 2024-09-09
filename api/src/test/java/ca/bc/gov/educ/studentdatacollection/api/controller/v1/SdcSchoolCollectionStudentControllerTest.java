@@ -4128,7 +4128,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
         var districtID = UUID.randomUUID();
         var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
-        //createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
 
         var school1 = createMockSchool();
         school1.setDisplayName("School1");
@@ -4202,63 +4201,63 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         sdcSchoolCollectionStudentRepository.saveAll(students);
 
         //Create History Collection - Begin
-        CollectionEntity previous_collection = collectionRepository.save(createMockCollectionEntity());
+        CollectionEntity previousCollection = collectionRepository.save(createMockCollectionEntity());
         LocalDate mayCloseDate = LocalDate.parse(LocalDate.now().getYear() + "-05-30");
-        previous_collection.setCloseDate(LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT));
-        previous_collection.setCollectionStatusCode("COMPLETED");
-        var previous_districtID = UUID.randomUUID();
-        var mockPreviousDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(previous_collection, previous_districtID));
+        previousCollection.setCloseDate(LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT));
+        previousCollection.setCollectionStatusCode("COMPLETED");
+        var previousDistrictID = UUID.randomUUID();
+        var mockPreviousDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(previousCollection, previousDistrictID));
 
-        var previous_school1 = createMockSchool();
-        previous_school1.setDisplayName("School1");
-        previous_school1.setMincode("0000001");
-        previous_school1.setDistrictId(districtID.toString());
-        var previous_school2 = createMockSchool();
-        previous_school2.setDisplayName("School2");
-        previous_school2.setMincode("0000002");
-        previous_school2.setDistrictId(districtID.toString());
-        var previous_school3 = createMockSchool();
-        previous_school3.setDisplayName("School3");
-        previous_school3.setMincode("0000003");
-        previous_school3.setDistrictId(districtID.toString());
-        var previous_school4 = createMockSchool();
-        previous_school4.setDisplayName("School4");
-        previous_school4.setMincode("0000004");
-        previous_school4.setDistrictId(districtID.toString());
+        var previousSchool1 = createMockSchool();
+        previousSchool1.setDisplayName("School1");
+        previousSchool1.setMincode("0000001");
+        previousSchool1.setDistrictId(districtID.toString());
+        var previousSchool2 = createMockSchool();
+        previousSchool2.setDisplayName("School2");
+        previousSchool2.setMincode("0000002");
+        previousSchool2.setDistrictId(districtID.toString());
+        var previousSchool3 = createMockSchool();
+        previousSchool3.setDisplayName("School3");
+        previousSchool3.setMincode("0000003");
+        previousSchool3.setDistrictId(districtID.toString());
+        var previousSchool4 = createMockSchool();
+        previousSchool4.setDisplayName("School4");
+        previousSchool4.setMincode("0000004");
+        previousSchool4.setDistrictId(districtID.toString());
 
-        when(this.restUtils.getSchoolBySchoolID(previous_school1.getSchoolId())).thenReturn(Optional.of(previous_school1));
-        when(this.restUtils.getSchoolBySchoolID(previous_school2.getSchoolId())).thenReturn(Optional.of(previous_school2));
-        when(this.restUtils.getSchoolBySchoolID(previous_school3.getSchoolId())).thenReturn(Optional.of(previous_school3));
-        when(this.restUtils.getSchoolBySchoolID(previous_school4.getSchoolId())).thenReturn(Optional.of(previous_school4));
+        when(this.restUtils.getSchoolBySchoolID(previousSchool1.getSchoolId())).thenReturn(Optional.of(previousSchool1));
+        when(this.restUtils.getSchoolBySchoolID(previousSchool2.getSchoolId())).thenReturn(Optional.of(previousSchool2));
+        when(this.restUtils.getSchoolBySchoolID(previousSchool3.getSchoolId())).thenReturn(Optional.of(previousSchool3));
+        when(this.restUtils.getSchoolBySchoolID(previousSchool4.getSchoolId())).thenReturn(Optional.of(previousSchool4));
 
-        var previous_firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(previous_school1.getSchoolId()));
-        previous_firstSchool.setUploadDate(null);
-        previous_firstSchool.setUploadFileName(null);
-        previous_firstSchool.setSdcDistrictCollectionID(mockPreviousDistrictCollectionEntity.getSdcDistrictCollectionID());
-        var previous_secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(previous_school2.getSchoolId()));
-        previous_secondSchool.setUploadDate(null);
-        previous_secondSchool.setUploadFileName(null);
-        previous_secondSchool.setSdcDistrictCollectionID(mockPreviousDistrictCollectionEntity.getSdcDistrictCollectionID());
-        var previous_thirdSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(previous_school3.getSchoolId()));
-        previous_thirdSchool.setUploadDate(null);
-        previous_thirdSchool.setUploadFileName(null);
-        previous_thirdSchool.setSdcDistrictCollectionID(mockPreviousDistrictCollectionEntity.getSdcDistrictCollectionID());
-        var previous_fourthSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(previous_school4.getSchoolId()));
-        previous_fourthSchool.setUploadDate(null);
-        previous_fourthSchool.setUploadFileName(null);
-        previous_fourthSchool.setSdcDistrictCollectionID(mockPreviousDistrictCollectionEntity.getSdcDistrictCollectionID());
+        var previousFirstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(previousSchool1.getSchoolId()));
+        previousFirstSchool.setUploadDate(null);
+        previousFirstSchool.setUploadFileName(null);
+        previousFirstSchool.setSdcDistrictCollectionID(mockPreviousDistrictCollectionEntity.getSdcDistrictCollectionID());
+        var previousSecondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(previousSchool2.getSchoolId()));
+        previousSecondSchool.setUploadDate(null);
+        previousSecondSchool.setUploadFileName(null);
+        previousSecondSchool.setSdcDistrictCollectionID(mockPreviousDistrictCollectionEntity.getSdcDistrictCollectionID());
+        var previousThirdSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(previousSchool3.getSchoolId()));
+        previousThirdSchool.setUploadDate(null);
+        previousThirdSchool.setUploadFileName(null);
+        previousThirdSchool.setSdcDistrictCollectionID(mockPreviousDistrictCollectionEntity.getSdcDistrictCollectionID());
+        var previousFourthSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(previousSchool4.getSchoolId()));
+        previousFourthSchool.setUploadDate(null);
+        previousFourthSchool.setUploadFileName(null);
+        previousFourthSchool.setSdcDistrictCollectionID(mockPreviousDistrictCollectionEntity.getSdcDistrictCollectionID());
 
-        sdcSchoolCollectionRepository.saveAll(Arrays.asList(previous_firstSchool, previous_secondSchool, previous_thirdSchool, previous_fourthSchool));
+        sdcSchoolCollectionRepository.saveAll(Arrays.asList(previousFirstSchool, previousSecondSchool, previousThirdSchool, previousFourthSchool));
 
-        final File previous_file = new File(
+        final File previousFile = new File(
                 Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
         );
-        final List<SdcSchoolCollectionStudent> previous_entities = new ObjectMapper().readValue(previous_file, new TypeReference<>() {
+        final List<SdcSchoolCollectionStudent> previousEntities = new ObjectMapper().readValue(previousFile, new TypeReference<>() {
         });
-        var previous_models = previous_entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+        var previous_models = previousEntities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
 
-        List<SdcSchoolCollectionStudentEntity> previous_students = new ArrayList<>();
-        UUID[] previous_schoolIds = {previous_firstSchool.getSdcSchoolCollectionID(), previous_secondSchool.getSdcSchoolCollectionID(), previous_thirdSchool.getSdcSchoolCollectionID(), previous_fourthSchool.getSdcSchoolCollectionID()};
+        List<SdcSchoolCollectionStudentEntity> previousStudents = new ArrayList<>();
+        UUID[] previous_schoolIds = {previousFirstSchool.getSdcSchoolCollectionID(), previousSecondSchool.getSdcSchoolCollectionID(), previousThirdSchool.getSdcSchoolCollectionID(), previousFourthSchool.getSdcSchoolCollectionID()};
 
         for (var model : previous_models) {
             for (int i = 0; i < previous_schoolIds.length; i++) {
@@ -4274,10 +4273,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 newModel.setBandCode(bandCodes[i]);
                 newModel.setFte(BigDecimal.ZERO);
                 newModel.setFteZeroReasonCode(ZeroFteReasonCodes.OUT_OF_PROVINCE.getCode());
-                previous_students.add(newModel);
+                previousStudents.add(newModel);
             }
         }
-        sdcSchoolCollectionStudentRepository.saveAll(previous_students);
+        sdcSchoolCollectionStudentRepository.saveAll(previousStudents);
 
         //Create History Collection - End
 
