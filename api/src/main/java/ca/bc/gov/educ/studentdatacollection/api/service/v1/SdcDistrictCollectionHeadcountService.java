@@ -26,6 +26,8 @@ public class SdcDistrictCollectionHeadcountService {
   private final BandResidenceHeadcountHelper bandResidenceHeadcountHelper;
   private final EllHeadcountHelper ellHeadcountHelper;
   private final RefugeeHeadcountHelper refugeeHeadcountHelper;
+  private final ZeroFTEHeadcountHelper zeroFTEHeadcountHelper;
+
 
   public SdcSchoolCollectionStudentHeadcounts getEnrollmentHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
     var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
@@ -276,6 +278,19 @@ public class SdcDistrictCollectionHeadcountService {
     }
 
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(headcountResultsTable).build();
+  }
+
+  public SdcSchoolCollectionStudentHeadcounts getZeroFTESummaryHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
+    var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
+
+    List<ZeroFTEHeadcountResult> collectionRawDataForHeadcount = sdcSchoolCollectionStudentRepository.getZeroFTEHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionID);
+    HeadcountResultsTable collectionData = zeroFTEHeadcountHelper.convertFteZeroHeadcountResults(collectionRawDataForHeadcount);
+    List<HeadcountHeader> headcountHeaderList = zeroFTEHeadcountHelper.getHeaders(collectionData);
+
+    if (compare) {
+      zeroFTEHeadcountHelper.setComparisonValuesForDistrictReporting(sdcDistrictCollectionEntity, headcountHeaderList, collectionData);
+    }
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
   }
 
 }
