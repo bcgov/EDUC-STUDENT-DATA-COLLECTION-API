@@ -97,10 +97,12 @@ public class EventTaskSchedulerAsyncService {
     orchestrators.forEach(orchestrator -> this.sagaOrchestrators.put(orchestrator.getSagaName(), orchestrator));
   }
 
-  @Async("taskExecutor")
+  @Async("processUncompletedSagasTaskExecutor")
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void findAndProcessUncompletedSagas() {
-    final var sagas = this.getSagaRepository().findTop100ByStatusInOrderByCreateDate(this.getStatusFilters());
+    log.debug("Processing uncompleted sagas");
+    final var sagas = this.getSagaRepository().findTop500ByStatusInOrderByCreateDate(this.getStatusFilters());
+    log.debug("Found {} sagas to be retried", sagas.size());
     if (!sagas.isEmpty()) {
       this.processUncompletedSagas(sagas);
     }
@@ -108,7 +110,7 @@ public class EventTaskSchedulerAsyncService {
 
   private void processUncompletedSagas(final List<SdcSagaEntity> sagas) {
     for (val saga : sagas) {
-      if (saga  .getUpdateDate().isBefore(LocalDateTime.now().minusMinutes(2))
+      if (saga.getUpdateDate().isBefore(LocalDateTime.now().minusMinutes(2))
         && this.getSagaOrchestrators().containsKey(saga.getSagaName())) {
         try {
           this.setRetryCountAndLog(saga);
@@ -123,21 +125,28 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
-  @Async("taskExecutor")
+  @Async("processLoadedStudentsTaskExecutor")
   public void findAndPublishLoadedStudentRecordsForProcessing() {
     log.debug("Querying for loaded students to process");
-    if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 100) { // at max there will be 40 parallel sagas.
-      log.info("Saga count is greater than 100, so not processing student records");
+    if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 100) { // at max there will be 100 parallel sagas.
+      log.debug("Saga count is greater than 100, so not processing student records");
       return;
     }
     final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTopLoadedStudentForProcessing(numberOfStudentsToProcess);
     log.debug("Found :: {}  records in loaded status", sdcSchoolStudentEntities.size());
     if (!sdcSchoolStudentEntities.isEmpty()) {
       this.getSdcSchoolCollectionStudentService().prepareAndSendSdcStudentsForFurtherProcessing(sdcSchoolStudentEntities);
+    }else{
+      log.debug("Querying for DEMOG_UPD students to process");
+      final var sdcSchoolStudentDemogUpdEntities = this.getSdcSchoolStudentRepository().findStudentForDownstreamUpdate(numberOfStudentsToProcess);
+      log.debug("Found :: {}  records in DEMOG_UPD status", sdcSchoolStudentDemogUpdEntities.size());
+      if (!sdcSchoolStudentDemogUpdEntities.isEmpty()) {
+        this.getSdcSchoolCollectionStudentService().prepareStudentsForDemogUpdate(sdcSchoolStudentDemogUpdEntities);
+      }
     }
   }
 
-  @Async("taskExecutor")
+  @Async("findSchoolCollectionsForSubmissionTaskExecutor")
   @Transactional
   public void findSchoolCollectionsForSubmission() {
     final List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findSchoolCollectionsWithStudentsNotInLoadedStatus();
@@ -160,7 +169,7 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
-  @Async("taskExecutor")
+  @Async("findAllUnsubmittedIndependentSchoolsTaskExecutor")
   @Transactional
   public void findAllUnsubmittedIndependentSchoolsInCurrentCollection() {
     final Optional<CollectionEntity> activeCollectionOptional = collectionRepository.findActiveCollection();
@@ -174,23 +183,6 @@ public class EventTaskSchedulerAsyncService {
     log.info("Found :: {} independent schools which have not yet submitted.", sdcSchoolCollectionEntities.size());
     if (!sdcSchoolCollectionEntities.isEmpty()) {
       scheduleHandlerService.createAndStartUnsubmittedEmailSagas(sdcSchoolCollectionEntities);
-    }
-  }
-
-  @Async("taskExecutor")
-  @Transactional
-  public void updateStudentDemogDownstream() {
-    log.debug("Querying for DEMOG_UPD students to process");
-    if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 100) { // at max there will be 40 parallel sagas.
-      log.info("Saga count is greater than 100, so not processing student records");
-      return;
-    }
-
-    log.debug("Querying for DEMOG_UPD students to process");
-    final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findStudentForDownstreamUpdate(numberOfStudentsToProcess);
-    log.debug("Found :: {}  records in DEMOG_UPD status", sdcSchoolStudentEntities.size());
-    if (!sdcSchoolStudentEntities.isEmpty()) {
-      this.getSdcSchoolCollectionStudentService().prepareStudentsForDemogUpdate(sdcSchoolStudentEntities);
     }
   }
   

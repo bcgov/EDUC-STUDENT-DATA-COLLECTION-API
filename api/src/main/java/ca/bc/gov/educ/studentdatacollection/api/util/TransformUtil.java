@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.beans.Expression;
 import java.beans.Statement;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -223,10 +224,13 @@ public class TransformUtil {
   }
 
   public static int addValueIfExists(int totalValue, String actualValue){
-    if(StringUtils.isNumeric(actualValue)){
-      totalValue = totalValue + Integer.parseInt(actualValue);
+    int value;
+    try{
+      value = Integer.parseInt(actualValue);
+    } catch (Exception e) {
+      value = 0;
     }
-    return totalValue;
+    return totalValue + value;
   }
 
   public static String getNetChange(String septValue, String febValue){

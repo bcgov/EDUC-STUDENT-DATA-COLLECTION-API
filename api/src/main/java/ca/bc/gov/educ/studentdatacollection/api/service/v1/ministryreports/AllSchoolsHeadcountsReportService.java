@@ -306,9 +306,10 @@ public class AllSchoolsHeadcountsReportService {
         var mappedSeptData = getLastSeptCollectionSchoolMap(collectionID);
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(DISTRICT_NUMBER.getCode(), DISTRICT_NAME.getCode(), AUTHORITY_NUMBER.getCode(), AUTHORITY_NAME.getCode(), MINCODE.getCode(), SCHOOL_NAME.getCode(), SEPT_LEVEL_1.getCode(), SEPT_LEVEL_2.getCode(),
-                        SEPT_LEVEL_3.getCode(),FEB_LEVEL_1.getCode(),FEB_LEVEL_2.getCode(),FEB_LEVEL_3.getCode(),POSITIVE_CHANGE_LEVEL_1.getCode(),POSITIVE_CHANGE_LEVEL_2.getCode(),
-                        POSITIVE_CHANGE_LEVEL_3.getCode(), NET_CHANGE_LEVEL_1.getCode(), NET_CHANGE_LEVEL_2.getCode(), NET_CHANGE_LEVEL_3.getCode())
+                .setHeader(DISTRICT_NUMBER.getCode(), DISTRICT_NAME.getCode(), AUTHORITY_NUMBER.getCode(), AUTHORITY_NAME.getCode(), MINCODE.getCode(), SCHOOL_NAME.getCode(),
+                        POSITIVE_CHANGE_LEVEL_1.getCode(),POSITIVE_CHANGE_LEVEL_2.getCode(),
+                        POSITIVE_CHANGE_LEVEL_3.getCode(), NET_CHANGE_LEVEL_1.getCode(), NET_CHANGE_LEVEL_2.getCode(), NET_CHANGE_LEVEL_3.getCode(),SEPT_LEVEL_1.getCode(), SEPT_LEVEL_2.getCode(),
+                        SEPT_LEVEL_3.getCode(),FEB_LEVEL_1.getCode(),FEB_LEVEL_2.getCode(),FEB_LEVEL_3.getCode())
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -342,7 +343,7 @@ public class AllSchoolsHeadcountsReportService {
 
                     if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
                         var positiveChangeLevel1 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : "0", februaryCollectionRecord.getLevelOnes());
-                        var positiveChangeLevel2 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : null, februaryCollectionRecord.getLevelTwos());
+                        var positiveChangeLevel2 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : "0", februaryCollectionRecord.getLevelTwos());
                         var positiveChangeLevel3 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : "0", februaryCollectionRecord.getLevelThrees());
                         var netChangeLevel1 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : "0", februaryCollectionRecord.getLevelOnes());
                         var netChangeLevel2 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : "0", februaryCollectionRecord.getLevelTwos());
@@ -390,18 +391,18 @@ public class AllSchoolsHeadcountsReportService {
                 null,
                 null,
                 null,
-                Integer.toString(totals.getTotSeptLevel1s()),
-                Integer.toString(totals.getTotSeptLevel2s()),
-                Integer.toString(totals.getTotSeptLevel3s()),
-                Integer.toString(totals.getTotFebLevel1s()),
-                Integer.toString(totals.getTotFebLevel2s()),
-                Integer.toString(totals.getTotFebLevel3s()),
                 Integer.toString(totals.getTotPositiveChangeLevel1s()),
                 Integer.toString(totals.getTotPositiveChangeLevel2s()),
                 Integer.toString(totals.getTotPositiveChangeLevel3s()),
                 Integer.toString(totals.getTotNetLevel1s()),
                 Integer.toString(totals.getTotNetLevel2s()),
-                Integer.toString(totals.getTotNetLevel3s())
+                Integer.toString(totals.getTotNetLevel3s()),
+                Integer.toString(totals.getTotSeptLevel1s()),
+                Integer.toString(totals.getTotSeptLevel2s()),
+                Integer.toString(totals.getTotSeptLevel3s()),
+                Integer.toString(totals.getTotFebLevel1s()),
+                Integer.toString(totals.getTotFebLevel2s()),
+                Integer.toString(totals.getTotFebLevel3s())
         ));
         return csvRowData;
     }
@@ -503,18 +504,18 @@ public class AllSchoolsHeadcountsReportService {
                 authority != null ? authority.getDisplayName() : null,
                 school.getMincode(),
                 school.getDisplayName(),
-                septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : "0",
-                septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : "0",
-                septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : "0",
-                februaryCollectionRecord.getLevelOnes(),
-                februaryCollectionRecord.getLevelTwos(),
-                februaryCollectionRecord.getLevelThrees(),
                 positiveChangeLevel1,
                 positiveChangeLevel2,
                 positiveChangeLevel3,
                 netChangeLevel1,
                 netChangeLevel2,
-                netChangeLevel3
+                netChangeLevel3,
+                septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : "0",
+                septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : "0",
+                septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : "0",
+                februaryCollectionRecord.getLevelOnes(),
+                februaryCollectionRecord.getLevelTwos(),
+                februaryCollectionRecord.getLevelThrees()
         ));
         return csvRowData;
     }
