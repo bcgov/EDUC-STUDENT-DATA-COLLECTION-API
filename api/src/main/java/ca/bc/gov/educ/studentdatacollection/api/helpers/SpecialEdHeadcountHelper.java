@@ -18,6 +18,8 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 
@@ -314,6 +316,75 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
 
     table.setRows(rows);
     return table;
+  }
+
+  public HeadcountResultsTable convertHeadcountResultsToSpecialEdVarianceReport(List<SpecialEdHeadcountResult> febResults, List<SpecialEdHeadcountResult> septResults, SdcDistrictCollectionEntity febCollection, SdcDistrictCollectionEntity septCollection) {
+    HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
+
+    List<String> columnTitles = new ArrayList<>(gradeCodes.size() * 3 + 4);
+    columnTitles.add(TITLE);
+    columnTitles.add("Total Feb " + febCollection.getCollectionEntity().getOpenDate().format(DateTimeFormatter.ISO_DATE));
+    columnTitles.add("Total Sep " + septCollection.getCollectionEntity().getOpenDate().format(DateTimeFormatter.ISO_DATE));
+    columnTitles.add("Total Variance");
+
+    gradeCodes.forEach(code -> columnTitles.add(code + " Feb"));
+    gradeCodes.forEach(code -> columnTitles.add(code + " Sep"));
+    gradeCodes.forEach(code -> columnTitles.add(code + " Variance"));
+    headcountResultsTable.setHeaders(columnTitles);
+
+    List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
+    for (Map.Entry<String, String> title : rowTitles.entrySet()) {
+      String section = sectionTitles.get(title.getKey());
+
+      Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
+      rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
+      rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(section).build());
+
+      BigDecimal totalFeb = processGradeResults(rowData, febResults, title.getKey(), " Feb");
+      BigDecimal totalSept = processGradeResults(rowData, septResults, title.getKey(), " Sep");
+
+      rowData.put("Total Feb " + febCollection.getCollectionEntity().getOpenDate().format(DateTimeFormatter.ISO_DATE), HeadcountHeaderColumn.builder().currentValue(totalFeb.toString()).build());
+      rowData.put("Total Sep " + septCollection.getCollectionEntity().getOpenDate().format(DateTimeFormatter.ISO_DATE), HeadcountHeaderColumn.builder().currentValue(totalSept.toString()).build());
+
+      BigDecimal totalVariance = calculateGradeVariance(rowData);
+
+      rowData.put("Total Variance", HeadcountHeaderColumn.builder().currentValue(totalVariance.toString()).build());
+      rows.add(rowData);
+    }
+    headcountResultsTable.setRows(rows);
+    return headcountResultsTable;
+  }
+
+  private BigDecimal processGradeResults(Map<String, HeadcountHeaderColumn> rowData, List<SpecialEdHeadcountResult> results, String titleKey, String suffix) {
+    BigDecimal total = BigDecimal.ZERO;
+    Function<SpecialEdHeadcountResult, String> headcountFunction = headcountMethods.get(titleKey);
+    for (String gradeCode : gradeCodes) {
+      var result = results.stream()
+              .filter(r -> r.getEnrolledGradeCode().equals(gradeCode))
+              .findFirst()
+              .orElse(null);
+      String headcount = "0";
+      if (result != null && result.getEnrolledGradeCode().equals(gradeCode)) {
+        headcount = headcountFunction.apply(result);
+      }
+      rowData.put(gradeCode + suffix, HeadcountHeaderColumn.builder().currentValue(headcount).build());
+      total = total.add(new BigDecimal(headcount));
+    }
+    return total;
+  }
+
+  private BigDecimal calculateGradeVariance(Map<String, HeadcountHeaderColumn> rowData) {
+    BigDecimal totalVariance = BigDecimal.ZERO;
+    for (String gradeCode : gradeCodes) {
+      String febCount = rowData.get(gradeCode + " Feb").getCurrentValue();
+      String septCount = rowData.get(gradeCode + " Sep").getCurrentValue();
+      BigDecimal feb = new BigDecimal(febCount);
+      BigDecimal sept = new BigDecimal(septCount);
+      BigDecimal variance = feb.subtract(sept);
+      rowData.put(gradeCode + " Variance", HeadcountHeaderColumn.builder().currentValue(variance.toString()).build());
+      totalVariance = totalVariance.add(variance);
+    }
+    return totalVariance;
   }
 
   private List<Map<String, HeadcountHeaderColumn>> populateSpedCatRows(List<SpecialEdHeadcountResult> results, Map<String, String> schoolDetails){

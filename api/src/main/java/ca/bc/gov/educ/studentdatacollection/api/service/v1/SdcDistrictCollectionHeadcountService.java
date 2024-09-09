@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -83,25 +84,20 @@ public class SdcDistrictCollectionHeadcountService {
 
   public SdcSchoolCollectionStudentHeadcounts getSpecialEdVarianceHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
     specialEdHeadcountHelper.setGradeCodesForDistricts();
-
-    //TODO
-    // from district collection entity we need to make sure it is Feb collection or find the previous feb collection
-    // from feb collection we need to find the previous sept collection
-    // from these two collections we need to pull our raw data
-    // from this raw data we should be able to find the variance
-    // lay it all out nicely
+    UUID districtID = sdcDistrictCollectionEntity.getDistrictID();
 
     // Get previous February collection relative to given collectionID
-    SdcDistrictCollectionEntity febCollection = sdcDistrictCollectionRepository.findLastOrCurrentSdcDistrictCollectionByCollectionType(CollectionTypeCodes.FEBRUARY.getTypeCode(), sdcDistrictCollectionEntity.getSdcDistrictCollectionID())
+    SdcDistrictCollectionEntity febCollection = sdcDistrictCollectionRepository.findLastOrCurrentSdcDistrictCollectionByCollectionType(CollectionTypeCodes.FEBRUARY.getTypeCode(), districtID, sdcDistrictCollectionEntity.getCollectionEntity().getSnapshotDate())
             .orElseThrow(() -> new RuntimeException("No previous or current February sdc district collection found."));
 
     // Get previous September collection relative to previous February collection
-    SdcDistrictCollectionEntity septCollection = sdcDistrictCollectionRepository.findLastSdcDistrictCollectionByCollectionTypeBefore(CollectionTypeCodes.SEPTEMBER.getTypeCode(), febCollection.getSdcDistrictCollectionID())
+    SdcDistrictCollectionEntity septCollection = sdcDistrictCollectionRepository.findLastSdcDistrictCollectionByCollectionTypeBefore(CollectionTypeCodes.SEPTEMBER.getTypeCode(), districtID, febCollection.getCollectionEntity().getSnapshotDate())
             .orElseThrow(() -> new RuntimeException("No previous September sdc district collection found relative to the February collection."));
 
     List<SpecialEdHeadcountResult> febCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcDistrictCollectionId(febCollection.getSdcDistrictCollectionID());
+    List<SpecialEdHeadcountResult> septCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsBySdcDistrictCollectionId(septCollection.getSdcDistrictCollectionID());
 
-    HeadcountResultsTable collectionData = specialEdHeadcountHelper.convertHeadcountResults(febCollectionRawData);
+    HeadcountResultsTable collectionData = specialEdHeadcountHelper.convertHeadcountResultsToSpecialEdVarianceReport(febCollectionRawData, septCollectionRawData, febCollection, septCollection);
 
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountResultsTable(collectionData).build();
   }

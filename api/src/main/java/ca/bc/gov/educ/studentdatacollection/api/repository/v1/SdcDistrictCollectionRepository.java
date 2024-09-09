@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -55,25 +56,23 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
     SELECT sdc FROM SdcDistrictCollectionEntity sdc
     JOIN sdc.collectionEntity c
     WHERE c.collectionTypeCode = :collectionTypeCode
-    AND c.snapshotDate <= (SELECT c2.snapshotDate FROM SdcDistrictCollectionEntity sdc2
-                           JOIN sdc2.collectionEntity c2
-                           WHERE sdc2.sdcDistrictCollectionID = :referenceSdcDistrictCollectionID)
+    AND sdc.districtID = :districtID
+    AND c.snapshotDate <= :currentSnapshotDate
     ORDER BY c.snapshotDate DESC
     LIMIT 1
     """)
-  Optional<SdcDistrictCollectionEntity> findLastOrCurrentSdcDistrictCollectionByCollectionType(String collectionTypeCode, UUID referenceSdcDistrictCollectionID);
+  Optional<SdcDistrictCollectionEntity> findLastOrCurrentSdcDistrictCollectionByCollectionType(String collectionTypeCode, UUID districtID, LocalDate currentSnapshotDate);
 
   @Query("""
     SELECT sdc FROM SdcDistrictCollectionEntity sdc
     JOIN sdc.collectionEntity c
     WHERE c.collectionTypeCode = :collectionTypeCode
-    AND c.snapshotDate < (SELECT c2.snapshotDate FROM SdcDistrictCollectionEntity sdc2
-                          JOIN sdc2.collectionEntity c2
-                          WHERE sdc2.sdcDistrictCollectionID = :referenceSdcDistrictCollectionID)
+    AND sdc.districtID = :districtID
+    AND c.snapshotDate < :currentSnapshotDate
     ORDER BY c.snapshotDate DESC
     LIMIT 1
     """)
-  Optional<SdcDistrictCollectionEntity> findLastSdcDistrictCollectionByCollectionTypeBefore(String collectionTypeCode, UUID referenceSdcDistrictCollectionID);
+  Optional<SdcDistrictCollectionEntity> findLastSdcDistrictCollectionByCollectionTypeBefore(String collectionTypeCode, UUID districtID, LocalDate currentSnapshotDate);
 
   @Modifying
   @Query(value = "UPDATE SdcDistrictCollectionEntity sdc SET sdc.sdcDistrictCollectionStatusCode = :sdcDistrictCollectionStatusCode WHERE sdc.collectionEntity.collectionID = :collectionID")
