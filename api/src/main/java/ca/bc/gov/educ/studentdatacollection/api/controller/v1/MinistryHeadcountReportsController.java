@@ -62,7 +62,6 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
             case FSA_REGISTRATION_REPORT -> ministryReportsService.generateFsaRegistrationCsv(collectionID);
             case INDY_SCHOOL_ENROLLMENT_HEADCOUNTS -> ministryReportsService.generateIndySchoolsHeadcounts(collectionID);
             case OFFSHORE_ENROLLMENT_HEADCOUNTS -> ministryReportsService.generateOffshoreSchoolsHeadcounts(collectionID);
-            case INCLUSIVE_EDUCATION_VARIANCE_HEADCOUNTS -> ministryReportsService.generateInclusiveEducationVarianceReport(collectionID);
             case INDY_INCLUSIVE_ED_ENROLLMENT_HEADCOUNTS -> ministryReportsService.generateIndySpecialEducationHeadcounts(collectionID);
             case OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS -> ministryReportsService.generateOffshoreSpokenLanguageHeadcounts(collectionID);
             case INDY_INCLUSIVE_ED_FUNDING_HEADCOUNTS -> ministryReportsService.generateIndySpecialEducationFundingHeadcounts(collectionID);
