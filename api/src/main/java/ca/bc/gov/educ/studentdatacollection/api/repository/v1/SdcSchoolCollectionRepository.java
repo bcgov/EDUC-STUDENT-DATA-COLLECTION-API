@@ -190,16 +190,28 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     List<SdcSchoolCollectionEntity> findAllBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
 
     @Query(value="""
-    SELECT new ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionsForAutoSubmit(
-    SSC.sdcSchoolCollectionID,
-    count(case when SSCS.sdcSchoolCollectionStudentStatusCode = 'ERROR' then 1 end) as errorCount
-    )
-    FROM SdcSchoolCollectionStudentEntity SSCS, SdcSchoolCollectionEntity SSC
-    WHERE SSC.sdcSchoolCollectionStatusCode = 'DIS_UPLOAD'
-    AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
-    and SSCS.sdcSchoolCollectionStudentStatusCode != 'LOADED'
-    group by SSC.sdcSchoolCollectionID
-    order by SSC.uploadDate asc
+    SELECT ssc.sdcSchoolCollectionID as sdcSchoolCollectionID,
+    (SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = ssc.sdcSchoolCollectionID
+    AND s.sdcSchoolCollectionStudentStatusCode = 'ERROR') as errorCount,
+    (SELECT COUNT(stud)
+    FROM SdcSchoolCollectionStudentEntity stud
+    WHERE assignedStudentId IN (SELECT assignedStudentId
+                FROM SdcSchoolCollectionStudentEntity
+                where sdcSchoolCollection.sdcSchoolCollectionID = ssc.sdcSchoolCollectionID
+                and assignedStudentId is not null
+                and sdcSchoolCollectionStudentStatusCode != 'DELETED'
+                GROUP BY assignedStudentId
+                HAVING COUNT(assignedStudentId) > 1)
+    and sdcSchoolCollection.sdcSchoolCollectionID = ssc.sdcSchoolCollectionID
+    and sdcSchoolCollectionStudentStatusCode != 'DELETED'
+    and assignedStudentId is not null) as dupeCount
+    FROM SdcSchoolCollectionEntity ssc
+    WHERE ssc.sdcSchoolCollectionStatusCode = 'DIS_UPLOAD'
+    AND ssc.sdcSchoolCollectionID NOT IN (
+        SELECT sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        FROM SdcSchoolCollectionStudentEntity sscs
+        WHERE sscs.sdcSchoolCollectionStudentStatusCode = 'LOADED')
+    ORDER BY ssc.uploadDate asc
     LIMIT :numberOfSchoolCollToProcess""")
     List<SdcSchoolCollectionsForAutoSubmit> findSchoolCollectionsWithStudentsNotInLoadedStatus(String numberOfSchoolCollToProcess);
 
