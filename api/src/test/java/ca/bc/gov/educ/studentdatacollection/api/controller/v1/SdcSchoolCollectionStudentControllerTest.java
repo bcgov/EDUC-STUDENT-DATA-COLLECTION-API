@@ -4254,16 +4254,16 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         );
         final List<SdcSchoolCollectionStudent> previousEntities = new ObjectMapper().readValue(previousFile, new TypeReference<>() {
         });
-        var previous_models = previousEntities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+        var previousModels = previousEntities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
 
         List<SdcSchoolCollectionStudentEntity> previousStudents = new ArrayList<>();
-        UUID[] previous_schoolIds = {previousFirstSchool.getSdcSchoolCollectionID(), previousSecondSchool.getSdcSchoolCollectionID(), previousThirdSchool.getSdcSchoolCollectionID(), previousFourthSchool.getSdcSchoolCollectionID()};
+        UUID[] previousSchoolIds = {previousFirstSchool.getSdcSchoolCollectionID(), previousSecondSchool.getSdcSchoolCollectionID(), previousThirdSchool.getSdcSchoolCollectionID(), previousFourthSchool.getSdcSchoolCollectionID()};
 
-        for (var model : previous_models) {
-            for (int i = 0; i < previous_schoolIds.length; i++) {
+        for (var model : previousModels) {
+            for (int i = 0; i < previousSchoolIds.length; i++) {
                 var newModel = new SdcSchoolCollectionStudentEntity();
                 BeanUtils.copyProperties(model, newModel);
-                newModel.setSdcSchoolCollection(SdcSchoolCollectionEntity.builder().sdcSchoolCollectionID(previous_schoolIds[i]).build());
+                newModel.setSdcSchoolCollection(SdcSchoolCollectionEntity.builder().sdcSchoolCollectionID(previousSchoolIds[i]).build());
                 if (Objects.equals(newModel.getGender(), "F") && i == 2) {
                     continue;
                 }
