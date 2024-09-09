@@ -7,17 +7,11 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollection
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.LogHelper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.Orchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.properties.EmailProperties;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ScheduleHandlerService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionHistoryService;
@@ -85,9 +79,10 @@ public class EventTaskSchedulerAsyncService {
   @Value("${number.school.coll.process.saga}")
   private String numberOfSchoolCollToProcess;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+  private final SdcSchoolCollectionLightRepository sdcSchoolCollectionLightRepository;
   private final SdcSchoolCollectionService sdcSchoolCollectionService;
 
-  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, EmailProperties emailProperties, ScheduleHandlerService scheduleHandlerService, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, RestUtils restUtils, CollectionRepository collectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionService sdcSchoolCollectionService) {
+  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, EmailProperties emailProperties, ScheduleHandlerService scheduleHandlerService, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, RestUtils restUtils, CollectionRepository collectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionLightRepository sdcSchoolCollectionLightRepository, SdcSchoolCollectionService sdcSchoolCollectionService) {
     this.emailProperties = emailProperties;
     this.scheduleHandlerService = scheduleHandlerService;
     this.sagaRepository = sagaRepository;
@@ -95,6 +90,7 @@ public class EventTaskSchedulerAsyncService {
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
     this.sdcSchoolCollectionHistoryService = sdcSchoolCollectionHistoryService;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
+    this.sdcSchoolCollectionLightRepository = sdcSchoolCollectionLightRepository;
     this.sdcSchoolCollectionService = sdcSchoolCollectionService;
     this.collectionRepository = collectionRepository;
     this.restUtils = restUtils;
@@ -155,12 +151,12 @@ public class EventTaskSchedulerAsyncService {
   public void findSchoolCollectionsForSubmission() {
     final List<SdcSchoolCollectionsForAutoSubmit> schoolsForSubmission = sdcSchoolCollectionRepository.findSchoolCollectionsWithStudentsNotInLoadedStatus(numberOfSchoolCollToProcess);
     log.debug("Found :: {}  school collection entities for processing", schoolsForSubmission.size());
-    final List<SdcSchoolCollectionEntity> updatedCollections = new ArrayList<>();
+    final List<SdcSchoolCollectionLightEntity> updatedCollections = new ArrayList<>();
     if (!schoolsForSubmission.isEmpty()) {
       schoolsForSubmission.forEach(submission -> {
-        var schoolCollectionEntity = sdcSchoolCollectionRepository.findBySdcSchoolCollectionID(UUID.fromString(submission.getSdcSchoolCollectionID())).get();
+        var schoolCollectionEntity = sdcSchoolCollectionLightRepository.findBySdcSchoolCollectionID(UUID.fromString(submission.getSdcSchoolCollectionID())).get();
          if(submission.getErrorCount() == 0) {
-           if (submission.getDupeCount() == 0) {
+            if (submission.getDupeCount() == 0) {
               schoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
             } else {
               schoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.VERIFIED.getCode());
@@ -170,7 +166,7 @@ public class EventTaskSchedulerAsyncService {
           }
          updatedCollections.add(schoolCollectionEntity);
       });
-      updatedCollections.forEach(sdcSchoolCollectionService::saveSdcSchoolCollectionWithHistory);
+      updatedCollections.forEach(sdcSchoolCollectionService::saveSdcSchoolCollectionLightWithHistory);
     }
   }
 
