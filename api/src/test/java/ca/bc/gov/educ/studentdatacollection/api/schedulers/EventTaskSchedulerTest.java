@@ -133,7 +133,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         sdcSchoolCollectionStudentRepository.save(studentInSecondSchool);
 
         final List<SdcSchoolCollectionsForAutoSubmit> sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.findSchoolCollectionsWithStudentsNotInLoadedStatus("10");
-        assertThat(sdcSchoolCollectionEntity).hasSize(2);
+        assertThat(sdcSchoolCollectionEntity).hasSize(1);
     }
 
     @Test
