@@ -68,6 +68,8 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
   private static final String SECTION = "section";
   private static final String TITLE = "title";
   private static final String TOTAL = "Total";
+  private static final String TOTAL_FEB = "Total Feb";
+  private static final String TOTAL_SEP = "Total Sep";
   private final RestUtils restUtils;
 
   public SpecialEdHeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository,
@@ -320,22 +322,33 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
 
   public HeadcountResultsTable convertHeadcountResultsToSpecialEdVarianceReport(List<SpecialEdHeadcountResult> febResults, List<SpecialEdHeadcountResult> septResults, SdcDistrictCollectionEntity febCollection, SdcDistrictCollectionEntity septCollection) {
     HeadcountResultsTable headcountResultsTable = new HeadcountResultsTable();
+    List<String> columnTitles = new ArrayList<>();
 
-    List<String> columnTitles = new ArrayList<>(gradeCodes.size() * 3 + 4);
+    // columns
     columnTitles.add(TITLE);
-    columnTitles.add("Total Feb " + febCollection.getCollectionEntity().getOpenDate().format(DateTimeFormatter.ISO_DATE));
-    columnTitles.add("Total Sep " + septCollection.getCollectionEntity().getOpenDate().format(DateTimeFormatter.ISO_DATE));
-    columnTitles.add("Total Variance");
-
+    columnTitles.addAll(Arrays.asList(TOTAL_FEB, TOTAL_SEP, "Total Variance"));
     gradeCodes.forEach(code -> columnTitles.add(code + " Feb"));
     gradeCodes.forEach(code -> columnTitles.add(code + " Sep"));
     gradeCodes.forEach(code -> columnTitles.add(code + " Variance"));
     headcountResultsTable.setHeaders(columnTitles);
 
+    // date row
+    Map<String, HeadcountHeaderColumn> snapshotDateRow = new LinkedHashMap<>();
+    snapshotDateRow.put(TITLE, HeadcountHeaderColumn.builder().currentValue("Snapshot Date").build());
+    snapshotDateRow.put(SECTION, HeadcountHeaderColumn.builder().currentValue("Snapshot Date").build());
+    snapshotDateRow.put(TOTAL_FEB, HeadcountHeaderColumn.builder().currentValue(febCollection.getCollectionEntity().getOpenDate().format(DateTimeFormatter.ISO_DATE)).build());
+    snapshotDateRow.put(TOTAL_SEP, HeadcountHeaderColumn.builder().currentValue(septCollection.getCollectionEntity().getOpenDate().format(DateTimeFormatter.ISO_DATE)).build());
+    gradeCodes.forEach(code -> {
+      snapshotDateRow.put(code + " Feb", HeadcountHeaderColumn.builder().currentValue(febCollection.getCollectionEntity().getOpenDate().format(DateTimeFormatter.ISO_DATE)).build());
+      snapshotDateRow.put(code + " Sep", HeadcountHeaderColumn.builder().currentValue(septCollection.getCollectionEntity().getOpenDate().format(DateTimeFormatter.ISO_DATE)).build());
+    });
+
     List<Map<String, HeadcountHeaderColumn>> rows = new ArrayList<>();
+    rows.add(snapshotDateRow);
+
+    // main report rows
     for (Map.Entry<String, String> title : rowTitles.entrySet()) {
       String section = sectionTitles.get(title.getKey());
-
       Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
       rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(title.getValue()).build());
       rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(section).build());
@@ -343,11 +356,10 @@ public class SpecialEdHeadcountHelper extends HeadcountHelper<SpecialEdHeadcount
       BigDecimal totalFeb = processGradeResults(rowData, febResults, title.getKey(), " Feb");
       BigDecimal totalSept = processGradeResults(rowData, septResults, title.getKey(), " Sep");
 
-      rowData.put("Total Feb " + febCollection.getCollectionEntity().getOpenDate().format(DateTimeFormatter.ISO_DATE), HeadcountHeaderColumn.builder().currentValue(totalFeb.toString()).build());
-      rowData.put("Total Sep " + septCollection.getCollectionEntity().getOpenDate().format(DateTimeFormatter.ISO_DATE), HeadcountHeaderColumn.builder().currentValue(totalSept.toString()).build());
+      rowData.put(TOTAL_FEB, HeadcountHeaderColumn.builder().currentValue(totalFeb.toString()).build());
+      rowData.put(TOTAL_SEP, HeadcountHeaderColumn.builder().currentValue(totalSept.toString()).build());
 
       BigDecimal totalVariance = calculateGradeVariance(rowData);
-
       rowData.put("Total Variance", HeadcountHeaderColumn.builder().currentValue(totalVariance.toString()).build());
       rows.add(rowData);
     }
