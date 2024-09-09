@@ -158,10 +158,9 @@ public class EventTaskSchedulerAsyncService {
     final List<SdcSchoolCollectionEntity> updatedCollections = new ArrayList<>();
     if (!schoolsForSubmission.isEmpty()) {
       schoolsForSubmission.forEach(submission -> {
-        var schoolCollectionEntity = sdcSchoolCollectionRepository.findBySdcSchoolCollectionID(submission.getSdcSchoolCollectionID()).get();
+        var schoolCollectionEntity = sdcSchoolCollectionRepository.findBySdcSchoolCollectionID(UUID.fromString(submission.getSdcSchoolCollectionID())).get();
          if(submission.getErrorCount() == 0) {
-            List<SdcSchoolCollectionStudentEntity> duplicates = sdcSchoolCollectionService.getAllSchoolCollectionDuplicates(schoolCollectionEntity.getSdcSchoolCollectionID());
-            if (duplicates.isEmpty()) {
+           if (submission.getDupeCount() == 0) {
               schoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
             } else {
               schoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.VERIFIED.getCode());
