@@ -1106,39 +1106,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "ORDER BY s.sdcSchoolCollection.schoolID")
   List<SpecialEdHeadcountResult> getSpecialEdHeadcountsByCollectionId(@Param("collectionID") UUID collectionID);
 
-  @Query("SELECT " +
-          "sc.sdcDistrictCollectionID AS sdcDistrictCollectionID, " +
-          "s.specialEducationCategoryCode AS specialEducationCategoryCode, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = 'KH' THEN 1 END) AS kindHCount, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = 'KF' THEN 1 END) AS kindFCount, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = '01' THEN 1 END) AS grade1Count, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = '02' THEN 1 END) AS grade2Count, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = '03' THEN 1 END) AS grade3Count, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = '04' THEN 1 END) AS grade4Count, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = '05' THEN 1 END) AS grade5Count, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = '06' THEN 1 END) AS grade6Count, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = '07' THEN 1 END) AS grade7Count, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = 'EU' THEN 1 END) AS gradeEUCount, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = '08' THEN 1 END) AS grade8Count, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = '09' THEN 1 END) AS grade9Count, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = '10' THEN 1 END) AS grade10Count, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = '11' THEN 1 END) AS grade11Count, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = '12' THEN 1 END) AS grade12Count, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = 'SU' THEN 1 END) AS gradeSUCount, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = 'GA' THEN 1 END) AS gradeGACount, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode = 'HS' THEN 1 END) AS gradeHSCount, " +
-          "COUNT(CASE WHEN s.enrolledGradeCode IS NOT NULL THEN 1 END) AS totalCount " +
-          "FROM SdcSchoolCollectionStudentEntity s " +
-          "JOIN s.sdcSchoolCollection sc " +
-          "WHERE sc.collectionEntity.collectionID = :collectionID " +
-          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
-          "AND sc.sdcDistrictCollectionID IS NOT NULL " +
-          "AND s.specialEducationCategoryCode IS NOT NULL " +
-          "AND s.specialEducationNonEligReasonCode IS NULL " +
-          "GROUP BY sc.sdcDistrictCollectionID, s.specialEducationCategoryCode " +
-          "ORDER BY sc.sdcDistrictCollectionID, s.specialEducationCategoryCode")
-  List<SpecialEdHeadcountByCategoryResult> getSpecialEdHeadcountByCategory(@Param("collectionID") UUID collectionID);
-
   @Query(value = """
         SELECT sscs.sdcSchoolCollection.schoolID as schoolID,
         sscs.homeLanguageSpokenCode as spokenLanguageCode,
