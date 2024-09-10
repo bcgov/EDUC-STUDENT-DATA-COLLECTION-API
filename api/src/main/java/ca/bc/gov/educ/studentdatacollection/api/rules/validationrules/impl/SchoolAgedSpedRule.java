@@ -58,10 +58,7 @@ public class SchoolAgedSpedRule implements ValidationBaseRule {
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
         log.debug("SchoolAgedSpedRule-V79: Only school-aged students or non-graduated adults will receive funding for Inclusive Education for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        if (StringUtils.isNotEmpty(student.getSpecialEducationCategoryCode()) &&
-                ((DOBUtil.isAdult(student.getDob()) && BooleanUtils.isFalse(student.getIsGraduated()) && student.getEnrolledGradeCode().equals("GA"))
-                || (DOBUtil.isAdult(student.getDob()) && BooleanUtils.isTrue(student.getIsGraduated()))
-                || (!DOBUtil.isAdult(student.getDob()) && !DOBUtil.isSchoolAged(student.getDob())))) {
+        if (DOBUtil.isAdult(student.getDob()) && StringUtils.isNotEmpty(student.getSpecialEducationCategoryCode()) && student.getEnrolledGradeCode().equals("GA")) {
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SPECIAL_EDUCATION_CATEGORY_CODE, StudentValidationIssueTypeCode.SCHOOL_AGED_SPED));
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.DOB, StudentValidationIssueTypeCode.SCHOOL_AGED_SPED));
         }
