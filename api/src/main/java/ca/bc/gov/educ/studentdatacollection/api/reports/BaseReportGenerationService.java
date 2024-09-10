@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -50,7 +50,7 @@ public abstract class BaseReportGenerationService<T> {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
   }
 
-  protected DownloadableReportResponse generateJasperReport(String reportJSON, JasperReport jasperReport, ReportTypeCode reportTypeCode){
+  protected DownloadableReportResponse generateJasperReport(String reportJSON, JasperReport jasperReport, String schoolReportTypeCode){
     try{
       var params = getJasperParams();
       InputStream targetStream = new ByteArrayInputStream(reportJSON.getBytes());
@@ -58,7 +58,7 @@ public abstract class BaseReportGenerationService<T> {
 
       JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, params);
       var downloadableReport = new DownloadableReportResponse();
-      downloadableReport.setReportType(reportTypeCode.getCode());
+      downloadableReport.setReportType(schoolReportTypeCode);
       downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(JasperExportManager.exportReportToPdf(jasperPrint)));
       return downloadableReport;
     } catch (JRException e) {

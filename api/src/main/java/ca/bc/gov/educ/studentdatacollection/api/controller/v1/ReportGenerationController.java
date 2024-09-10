@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DistrictReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.ReportGenerationEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -52,8 +53,8 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     private static final SdcSchoolCollectionStudentMapper sdcSchoolCollectionStudentMapper = SdcSchoolCollectionStudentMapper.mapper;
 
     @Override
-    public DownloadableReportResponse generateSDCReport(UUID collectionID, String reportTypeCode) {
-        Optional<ReportTypeCode> code = ReportTypeCode.findByValue(reportTypeCode);
+    public DownloadableReportResponse generateSDCSchoolReport(UUID sdcSchoolCollectionID, String reportTypeCode) {
+        Optional<SchoolReportTypeCode> code = SchoolReportTypeCode.findByValue(reportTypeCode);
 
         if(code.isEmpty()){
             ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid report type code.").status(BAD_REQUEST).build();
@@ -61,29 +62,45 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
         }
 
         return switch (code.get()) {
-            case GRADE_ENROLLMENT_HEADCOUNT -> gradeEnrollmentHeadcountReportService.generateGradeEnrollmentHeadcountReport(collectionID, false);
-            case DIS_GRADE_ENROLLMENT_HEADCOUNT -> gradeEnrollmentHeadcountReportService.generateGradeEnrollmentHeadcountReport(collectionID, true);
-            case DIS_GRADE_ENROLLMENT_HEADCOUNT_PER_SCHOOL -> gradeEnrollmentHeadcountPerSchoolReportService.generatePerSchoolReport(collectionID);
-            case CAREER_HEADCOUNT -> careerProgramHeadcountReportService.generateCareerProgramHeadcountReport(collectionID, false);
-            case DIS_CAREER_HEADCOUNT -> careerProgramHeadcountReportService.generateCareerProgramHeadcountReport(collectionID, true);
-            case DIS_CAREER_HEADCOUNT_PER_SCHOOL -> careerProgramHeadcountPerSchoolReportService.generateCareerProgramHeadcountPerSchoolReport(collectionID);
-            case FRENCH_HEADCOUNT -> frenchProgramHeadcountReportService.generateFrenchProgramHeadcountReport(collectionID, false);
-            case DIS_FRENCH_HEADCOUNT -> frenchProgramHeadcountReportService.generateFrenchProgramHeadcountReport(collectionID, true);
-            case DIS_FRENCH_HEADCOUNT_PER_SCHOOL -> frenchPerSchoolHeadcountReportService.generatePerSchoolReport(collectionID);
-            case INDIGENOUS_HEADCOUNT -> indigenousHeadcountReportService.generateIndigenousHeadcountReport(collectionID, false);
-            case DIS_INDIGENOUS_HEADCOUNT -> indigenousHeadcountReportService.generateIndigenousHeadcountReport(collectionID, true);
-            case DIS_INDIGENOUS_HEADCOUNT_PER_SCHOOL -> indigenousPerSchoolHeadcountReportService.generateIndigenousHeadcountPerSchoolReport(collectionID);
-            case BAND_RESIDENCE_HEADCOUNT -> bandOfResidenceHeadcountReportService.generateBandOfResdienceReport(collectionID);
-            case DIS_REFUGEE_HEADCOUNT_PER_SCHOOL -> refugeeHeadcountPerSchoolReportService.generateRefugeePerSchoolReport(collectionID);
-            case ELL_HEADCOUNT -> ellHeadcountReportService.generateEllHeadcountReport(collectionID, false);
-            case DIS_ELL_HEADCOUNT -> ellHeadcountReportService.generateEllHeadcountReport(collectionID, true);
-            case DIS_ELL_HEADCOUNT_PER_SCHOOL -> ellHeadcountPerSchoolReportService.generateEllHeadcountPerSchoolReport(collectionID);
-            case SPECIAL_EDUCATION_HEADCOUNT -> specialEdHeadcountReportService.generateSpecialEdHeadcountReport(collectionID, false);
-            case DIS_SPECIAL_EDUCATION_HEADCOUNT -> specialEdHeadcountReportService.generateSpecialEdHeadcountReport(collectionID, true);
-            case DIS_SPECIAL_EDUCATION_HEADCOUNT_PER_SCHOOL -> specialEdHeadcountPerSchoolReportService.generateSpecialEdHeadcountPerSchoolReport(collectionID);
-            case DIS_SPECIAL_EDUCATION_HEADCOUNT_CATEGORY_PER_SCHOOL-> inclusiveEdCategoryHeadcountPerSchoolReportService.generateInclusiveEdCategoryHeadcountPerSchoolReport(collectionID);
-            case ALL_STUDENT_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateFromSdcSchoolCollectionID(collectionID);
-            case ALL_STUDENT_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateFromSdcDistrictCollectionID(collectionID);
+            case GRADE_ENROLLMENT_HEADCOUNT -> gradeEnrollmentHeadcountReportService.generateSchoolGradeEnrollmentHeadcountReport(sdcSchoolCollectionID);
+            case CAREER_HEADCOUNT -> careerProgramHeadcountReportService.generateSchoolCareerProgramHeadcountReport(sdcSchoolCollectionID);
+            case FRENCH_HEADCOUNT -> frenchProgramHeadcountReportService.generateSchoolFrenchProgramHeadcountReport(sdcSchoolCollectionID);
+            case INDIGENOUS_HEADCOUNT -> indigenousHeadcountReportService.generateSchoolIndigenousHeadcountReport(sdcSchoolCollectionID);
+            case BAND_RESIDENCE_HEADCOUNT -> bandOfResidenceHeadcountReportService.generateBandOfResidenceReport(sdcSchoolCollectionID);
+            case ELL_HEADCOUNT -> ellHeadcountReportService.generateSchoolEllHeadcountReport(sdcSchoolCollectionID);
+            case SPECIAL_EDUCATION_HEADCOUNT -> specialEdHeadcountReportService.generateSchoolSpecialEdHeadcountReport(sdcSchoolCollectionID);
+            case ALL_STUDENT_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateFromSdcSchoolCollectionID(sdcSchoolCollectionID);
+            case ALL_STUDENT_ERRORS_WARNS_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateErrorWarnInfoReportFromSdcSchoolCollectionID(sdcSchoolCollectionID);
+            default -> new DownloadableReportResponse();
+        };
+    }
+
+    @Override
+    public DownloadableReportResponse generateSDCDistrictReport(UUID sdcDistrictCollectionID, String reportTypeCode) {
+        Optional<DistrictReportTypeCode> code = DistrictReportTypeCode.findByValue(reportTypeCode);
+
+        if(code.isEmpty()){
+            ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid report type code.").status(BAD_REQUEST).build();
+            throw new InvalidPayloadException(error);
+        }
+
+        return switch (code.get()) {
+            case DIS_GRADE_ENROLLMENT_HEADCOUNT -> gradeEnrollmentHeadcountReportService.generateDistrictGradeEnrollmentHeadcountReport(sdcDistrictCollectionID);
+            case DIS_GRADE_ENROLLMENT_HEADCOUNT_PER_SCHOOL -> gradeEnrollmentHeadcountPerSchoolReportService.generatePerSchoolReport(sdcDistrictCollectionID);
+            case DIS_CAREER_HEADCOUNT -> careerProgramHeadcountReportService.generateDistrictCareerProgramHeadcountReport(sdcDistrictCollectionID);
+            case DIS_CAREER_HEADCOUNT_PER_SCHOOL -> careerProgramHeadcountPerSchoolReportService.generateCareerProgramHeadcountPerSchoolReport(sdcDistrictCollectionID);
+            case DIS_FRENCH_HEADCOUNT -> frenchProgramHeadcountReportService.generateDistrictFrenchProgramHeadcountReport(sdcDistrictCollectionID);
+            case DIS_FRENCH_HEADCOUNT_PER_SCHOOL -> frenchPerSchoolHeadcountReportService.generatePerSchoolReport(sdcDistrictCollectionID);
+            case DIS_INDIGENOUS_HEADCOUNT -> indigenousHeadcountReportService.generateDistrictIndigenousHeadcountReport(sdcDistrictCollectionID);
+            case DIS_INDIGENOUS_HEADCOUNT_PER_SCHOOL -> indigenousPerSchoolHeadcountReportService.generateIndigenousHeadcountPerSchoolReport(sdcDistrictCollectionID);
+            case DIS_REFUGEE_HEADCOUNT_PER_SCHOOL -> refugeeHeadcountPerSchoolReportService.generateRefugeePerSchoolReport(sdcDistrictCollectionID);
+            case DIS_ELL_HEADCOUNT -> ellHeadcountReportService.generateDistrictEllHeadcountReport(sdcDistrictCollectionID);
+            case DIS_ELL_HEADCOUNT_PER_SCHOOL -> ellHeadcountPerSchoolReportService.generateEllHeadcountPerSchoolReport(sdcDistrictCollectionID);
+            case DIS_SPECIAL_EDUCATION_HEADCOUNT -> specialEdHeadcountReportService.generateDistrictSpecialEdHeadcountReport(sdcDistrictCollectionID);
+            case DIS_SPECIAL_EDUCATION_HEADCOUNT_PER_SCHOOL -> specialEdHeadcountPerSchoolReportService.generateSpecialEdHeadcountPerSchoolReport(sdcDistrictCollectionID);
+            case DIS_SPECIAL_EDUCATION_HEADCOUNT_CATEGORY_PER_SCHOOL-> inclusiveEdCategoryHeadcountPerSchoolReportService.generateInclusiveEdCategoryHeadcountPerSchoolReport(sdcDistrictCollectionID);
+            case ALL_STUDENT_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateFromSdcDistrictCollectionID(sdcDistrictCollectionID);
+            case ALL_STUDENT_ERRORS_WARNS_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateErrorWarnInfoReportFromSdcDistrictCollectionID(sdcDistrictCollectionID);
             default -> new DownloadableReportResponse();
         };
     }
