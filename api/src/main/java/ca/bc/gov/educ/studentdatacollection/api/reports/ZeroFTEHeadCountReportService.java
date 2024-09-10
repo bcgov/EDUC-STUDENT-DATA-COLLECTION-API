@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DistrictReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.ZeroFTEHeadcountHelper;
@@ -10,7 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollect
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.ZeroFTEHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.PostConstruct;
@@ -74,7 +74,7 @@ public class ZeroFTEHeadCountReportService extends BaseReportGenerationService<Z
                         new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection ID: " + collectionID));
                 fteReasons = zeroFTEHeadcountHelper.getZeroFTEReasonCodes();
                 fteReasonHeadcounts = sdcSchoolCollectionStudentRepository.getZeroFTEHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
-                return generateJasperReport(convertToGradeEnrollmentProgramReportJSONStringDistrict(fteReasonHeadcounts, sdcDistrictCollectionEntity), ineligibleFteHeadcountReport, ReportTypeCode.DIS_ZERO_FTE_SUMMARY);
+                return generateJasperReport(convertToGradeEnrollmentProgramReportJSONStringDistrict(fteReasonHeadcounts, sdcDistrictCollectionEntity), ineligibleFteHeadcountReport, DistrictReportTypeCode.DIS_ZERO_FTE_SUMMARY.getCode());
             } catch (JsonProcessingException e) {
                 log.error("Exception occurred while writing PDF report for district Zero FTE summary :: " + e.getMessage());
                 throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for district Zero FTE summary :: " + e.getMessage());

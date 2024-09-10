@@ -1534,7 +1534,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     setEnrolledProgramCode(student4, "05");
 
     this.mockMvc.perform(
-                    get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_ZERO_FTE_SUMMARY").with(mockAuthority))
+                    get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_ZERO_FTE_SUMMARY").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk());
   }
 
@@ -1554,7 +1554,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     sdcMockDistrict = sdcDistricCollectionRepository.save(sdcMockDistrict);
 
     this.mockMvc.perform(
-                    get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_ZERO_FTE_SUMMARY").with(mockAuthority))
+                    get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_ZERO_FTE_SUMMARY").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk());
   }
 
