@@ -4,4 +4,5 @@ public interface HeadcountResult {
     String getEnrolledGradeCode();
     String getSchoolID();
     String getSpecialEducationCategoryCode();
+    String getSdcDistrictCollectionID();
 }
