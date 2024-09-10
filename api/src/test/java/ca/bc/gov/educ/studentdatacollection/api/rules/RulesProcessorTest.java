@@ -1117,9 +1117,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var validationErrorNotSchoolAged = rulesProcessor.processRules(createMockStudentRuleData(notSchoolAged, createMockSchool()));
         boolean errorNotSchoolAged = validationErrorNotSchoolAged.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SCHOOL_AGED_SPED.getCode()));
 
-        assertThat(errorGraduatedAdult).isTrue();
+        assertThat(errorGraduatedAdult).isFalse();
         assertThat(errorNonGraduatedAdultInGA).isTrue();
-        assertThat(errorNotSchoolAged).isTrue();
+        assertThat(errorNotSchoolAged).isFalse();
     }
 
     @Test

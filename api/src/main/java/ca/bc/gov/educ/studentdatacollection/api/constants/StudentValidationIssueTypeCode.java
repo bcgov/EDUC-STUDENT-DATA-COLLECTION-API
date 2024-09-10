@@ -96,7 +96,7 @@ public enum StudentValidationIssueTypeCode {
   SCHOOL_AGED_ZERO_COURSE_HISTORY("SCHOOLAGEDZEROCOURSEH", "Student has zero courses reported and no course activity for the past two years. This student will not receive program funding.", FUNDING_WARNING),
   SCHOOL_AGED_INDIGENOUS_SUPPORT("SCHOOLAGEDINDIGENOUSSUPPORT", "Only school-aged students will receive funding for Indigenous Support Programs.", FUNDING_WARNING),
   SCHOOL_AGED_ELL("SCHOOLAGEDELL", "Only school-aged students will receive funding for English Language Learning.", FUNDING_WARNING),
-  SCHOOL_AGED_SPED("SCHOOLAGEDSPED", "Only school-aged students or non-graduated adults (not reported in the ‘GA’ grade) will receive funding for Special Education.", FUNDING_WARNING),
+  SCHOOL_AGED_SPED("SCHOOLAGEDSPED", "Only school-aged students or non-graduated adults (not reported in the ‘GA’ grade) will receive funding for Inclusive Education.", FUNDING_WARNING),
   REFUGEE_IN_PREV_COL("REFUGEEINPREVCOL", "School-aged students reported in the previous collection are not eligible for newcomer refugee funding.", FUNDING_WARNING),
   REFUGEE_IS_ADULT("REFUGEEISADULT", "Adults are not eligible for February newcomer refugee funding.", FUNDING_WARNING),
   SUMMER_PUBLIC_SCHOOL_GRADE_ERROR("SUMMERPUBLICSCHOOLGRADEERROR","8/9 cross enrolment students must be in grades 8 or 9", ERROR),

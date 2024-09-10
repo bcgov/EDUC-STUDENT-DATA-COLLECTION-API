@@ -24,7 +24,7 @@ public interface ValidationBaseRule extends Rule<StudentRuleData, SdcSchoolColle
     Optional<ValidationRulesDependencyMatrix> errorCodesToCheck = ValidationRulesDependencyMatrix.findByValue(fieldName);
     if(errorCodesToCheck.isPresent()) {
       String[] errorCodes = errorCodesToCheck.get().getBaseRuleErrorCode();
-      return validationErrorsMap.stream().noneMatch(val -> Arrays.stream(errorCodes).anyMatch(val.getValidationIssueCode()::contains));
+      return validationErrorsMap.stream().noneMatch(val -> Arrays.stream(errorCodes).anyMatch(val.getValidationIssueCode()::contentEquals));
     }
     return false;
   }
