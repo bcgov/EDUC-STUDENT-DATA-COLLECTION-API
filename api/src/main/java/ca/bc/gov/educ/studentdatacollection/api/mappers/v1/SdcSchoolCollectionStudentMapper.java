@@ -48,6 +48,7 @@ public interface SdcSchoolCollectionStudentMapper {
   SdcSchoolCollectionStudentLightEntity toSdcSchoolStudentLightEntity(SdcSchoolCollectionStudentEntity sdcSchoolStudentEntity);
 
   @Mapping(target = "sdcSchoolCollectionStudentID", source = "sdcSchoolCollectionStudentID")
+  @Mapping(target = "sdcSchoolCollectionEntity.sdcSchoolCollectionID", source = "sdcSchoolCollectionID")
   SdcSchoolCollectionStudentLightEntity toSdcSchoolStudentLightEntityFromSdcStudent(SdcSchoolCollectionStudent sdcSchoolStudent);
 
   @Mapping(target = "sdcDistrictCollectionID", source = "sdcSchoolCollectionEntity.sdcDistrictCollectionID")

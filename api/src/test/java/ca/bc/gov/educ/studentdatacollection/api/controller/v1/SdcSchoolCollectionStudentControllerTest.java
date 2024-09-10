@@ -2462,11 +2462,13 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
         when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
 
-        var collection = collectionRepository.save(createMockCollectionEntity());
+        var mockCollection = createMockCollectionEntity();
+        mockCollection.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
+        var collection = collectionRepository.save(mockCollection);
         var sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()));
-        sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
+        var schoolCollection = sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
 
-        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val entity = this.createMockSchoolStudentEntity(schoolCollection);
         entity.setCreateDate(null);
         entity.setUpdateDate(null);
         entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
