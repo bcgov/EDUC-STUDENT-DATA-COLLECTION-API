@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -17,7 +18,7 @@ public class EdxUserDistrict extends BaseRequest implements Serializable {
 
     String edxUserDistrictID;
     String edxUserID;
-    String districtID;
+    UUID districtID;
     String expiryDate;
 
     private List<EdxUserDistrictRole> edxUserDistrictRoles;

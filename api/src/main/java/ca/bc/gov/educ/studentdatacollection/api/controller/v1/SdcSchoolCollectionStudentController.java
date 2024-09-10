@@ -100,7 +100,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
         ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
          if(StringUtils.isNotBlank(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())) {
              RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
-            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcDuplicatesService.routeSdcSchoolCollectionStudentUpdate
+            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcDuplicatesService.updateSdcSchoolCollectionStudent
                     (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent), false));
         } else {
              RequestUtil.setAuditColumnsForCreate(sdcSchoolCollectionStudent);

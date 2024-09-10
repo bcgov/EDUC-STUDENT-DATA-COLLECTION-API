@@ -555,7 +555,7 @@ public abstract class BaseStudentDataCollectionAPITest {
             .build();
   }
 
-  public EdxUser createMockEdxUser(List<String> edxUserSchoolRoleCodes, List<String> edxUserDistrictRoleCodes, String schoolID, String districtID){
+  public EdxUser createMockEdxUser(List<String> edxUserSchoolRoleCodes, List<String> edxUserDistrictRoleCodes, UUID schoolID, UUID districtID){
     EdxUser edxUser = new EdxUser();
 
     edxUser.setEdxUserID(String.valueOf(UUID.randomUUID()));
@@ -586,9 +586,9 @@ public abstract class BaseStudentDataCollectionAPITest {
     return edxUser;
   }
 
-  private static EdxUserSchool createMockEdxUserSchool(List<String> edxUserSchoolRoleCodes, String schoolID, String edxUserID){
+  private static EdxUserSchool createMockEdxUserSchool(List<String> edxUserSchoolRoleCodes, UUID schoolID, String edxUserID){
     EdxUserSchool edxUserSchool = new EdxUserSchool();
-    edxUserSchool.setSchoolID(UUID.fromString(schoolID));
+    edxUserSchool.setSchoolID(schoolID);
     edxUserSchool.setEdxUserID(edxUserID);
     edxUserSchool.setEdxUserSchoolID(String.valueOf(UUID.randomUUID()));
     edxUserSchool.setExpiryDate(null);
@@ -612,7 +612,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     return schoolRoles;
   }
 
-  private static EdxUserDistrict createMockEdxUserDistrict(List<String> edxUserDistrictRoleCodes, String districtID, String edxUserID){
+  private static EdxUserDistrict createMockEdxUserDistrict(List<String> edxUserDistrictRoleCodes, UUID districtID, String edxUserID){
     EdxUserDistrict edxUserDistrict = new EdxUserDistrict();
     edxUserDistrict.setEdxUserID(edxUserID);
     edxUserDistrict.setDistrictID(districtID);

@@ -2,7 +2,6 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateResolutionCode;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
@@ -12,7 +11,6 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
@@ -33,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
@@ -483,7 +480,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     GradStatusResult gradStatusResult = new GradStatusResult();
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
-    sdcDuplicateService.routeSdcSchoolCollectionStudentUpdate(editedStudentEntity, false);
+    sdcDuplicateService.updateSdcSchoolCollectionStudent(editedStudentEntity, false);
 
     Optional<SdcDuplicateEntity> resolvedDupe = sdcDuplicateRepository.findBySdcDuplicateID(savedDupe.getSdcDuplicateID());
 

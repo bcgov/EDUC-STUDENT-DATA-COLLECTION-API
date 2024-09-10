@@ -10,7 +10,6 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -54,7 +53,6 @@ public class SdcDuplicatesService {
   private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
   private final ScheduleHandlerService scheduleHandlerService;
   private final SdcSchoolCollectionService sdcSchoolCollectionService;
-  private static final SdcSchoolCollectionMapper sdcSchoolCollectionMapper = SdcSchoolCollectionMapper.mapper;
   private static final SdcSchoolCollectionStudentMapper sdcSchoolCollectionStudentMapper = SdcSchoolCollectionStudentMapper.mapper;
   private static final SdcDuplicateMapper sdcDuplicateMapper = SdcDuplicateMapper.mapper;
   private final RestUtils restUtils;
@@ -159,8 +157,8 @@ public class SdcDuplicatesService {
   }
 
   @Transactional
-  public SdcSchoolCollectionStudentEntity routeSdcSchoolCollectionStudentUpdate(SdcSchoolCollectionStudentEntity studentEntity, boolean allowDuplicateCreation){
-    SdcSchoolCollectionStudentEntity updatedStudent =  updateSdcSchoolCollectionStudent(studentEntity, allowDuplicateCreation);
+  public SdcSchoolCollectionStudentEntity updateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity, boolean allowDuplicateCreation){
+    SdcSchoolCollectionStudentEntity updatedStudent =  performUpdateSdcSchoolCollectionStudent(studentEntity, allowDuplicateCreation);
 
     // If collection is in PROVDUPES stage, resolve existing dupes where possible
     Optional<CollectionEntity> collection = collectionRepository.findActiveCollection();
@@ -201,7 +199,7 @@ public class SdcDuplicatesService {
     });
   }
 
-  private SdcSchoolCollectionStudentEntity updateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity, boolean allowDuplicateCreation) {
+  private SdcSchoolCollectionStudentEntity performUpdateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity, boolean allowDuplicateCreation) {
     var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID());
     if(currentStudentEntity.isPresent()) {
       SdcSchoolCollectionStudentEntity getCurStudentEntity = currentStudentEntity.get();
@@ -308,7 +306,7 @@ public class SdcDuplicatesService {
       // update student
       sdcSchoolCollectionStudent.forEach(student -> {
         RequestUtil.setAuditColumnsForUpdate(student);
-        SdcSchoolCollectionStudentEntity updatedStudentEntity = updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentEntity(student), true);
+        SdcSchoolCollectionStudentEntity updatedStudentEntity = performUpdateSdcSchoolCollectionStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentEntity(student), true);
         // There might only be one student to update, but we need both for dup check, so get both added
         curGetSdcDuplicateEntity.getSdcDuplicateStudentEntities().stream()
                 .filter(duplicateStudent -> duplicateStudent.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().equals(updatedStudentEntity.getSdcSchoolCollectionStudentID()))
@@ -490,7 +488,7 @@ public class SdcDuplicatesService {
 
       // update student
       RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
-      SdcSchoolCollectionStudentEntity updatedStudent = updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent), true);
+      SdcSchoolCollectionStudentEntity updatedStudent = performUpdateSdcSchoolCollectionStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent), true);
 
       if (!updatedStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
         //resolve
@@ -672,7 +670,7 @@ public class SdcDuplicatesService {
     List<SdcDuplicateEntity> finalDuplicatesSet =  generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL, false);
     sdcDuplicateRepository.saveAll(finalDuplicatesSet);
 
-    activeCollection.ifPresent(collectionEntity -> sendEmailNotificationsForProvinceDuplicates(formatter.format(collectionEntity.getDuplicationResolutionDueDate())));
+    activeCollection.ifPresent(collectionEntity -> sendEmailNotificationsForProvinceDuplicates(finalDuplicatesSet, formatter.format(collectionEntity.getDuplicationResolutionDueDate())));
 
     this.collectionRepository.updateCollectionStatus(collectionID, String.valueOf(CollectionStatus.PROVDUPES));
 
@@ -886,8 +884,8 @@ public class SdcDuplicatesService {
     return instituteNumber;
   }
 
-  private void sendEmailNotificationsForProvinceDuplicates(String dueDate){
-    Map<UUID, SdcSchoolCollection1701Users> emailList = generateEmailListForProvinceDuplicates();
+  private void sendEmailNotificationsForProvinceDuplicates(List<SdcDuplicateEntity> finalDuplicatesSet, String dueDate){
+    Map<UUID, SdcSchoolCollection1701Users> emailList = generateEmailListForProvinceDuplicates(finalDuplicatesSet);
     if(!emailList.isEmpty()){
       scheduleHandlerService.createAndStartProvinceDuplicateEmailSagas(emailList, dueDate);
     }
@@ -900,34 +898,33 @@ public class SdcDuplicatesService {
     });
   }
 
-  public Map<UUID, SdcSchoolCollection1701Users> generateEmailListForProvinceDuplicates(){
-    List<SdcDuplicateEntity> sdcDuplicateEntities = sdcDuplicateRepository.findAllProvincialDuplicatesForCurrentCollection();
+  public Map<UUID, SdcSchoolCollection1701Users> generateEmailListForProvinceDuplicates(List<SdcDuplicateEntity> sdcDuplicateEntities){
     final HashMap<UUID, SdcSchoolCollection1701Users> schoolAndDistrict1701Emails = new HashMap<>();
 
-    sdcDuplicateEntities.forEach(provinceDupe -> provinceDupe.getSdcDuplicateStudentEntities().forEach(student -> {
-      Optional<SdcSchoolCollectionEntity> optionalEntity = sdcSchoolCollectionRepository.findBySdcSchoolCollectionID(student.getSdcSchoolCollectionID());
+    var sdcSchoolCollectionIDs = new ArrayList<UUID>();
 
-      SdcSchoolCollection sdcSchoolCollection = optionalEntity.map(sdcSchoolCollectionMapper::toStructure)
-              .orElse(null);
+    sdcDuplicateEntities.forEach(provinceDupe -> provinceDupe.getSdcDuplicateStudentEntities().forEach(student ->  sdcSchoolCollectionIDs.add(student.getSdcSchoolCollectionID())));
 
-      assert sdcSchoolCollection != null;
-      UUID schoolID = UUID.fromString(sdcSchoolCollection.getSchoolID());
-      UUID districtID = getDistrictID(schoolID);
+    List<SchoolCollectionSchoolID> schoolCollectionSchoolIDS = sdcSchoolCollectionRepository.findSchoolIDBySdcSchoolCollectionIDIn(sdcSchoolCollectionIDs);
 
-      List<EdxUser> schoolEdxUsers = restUtils.get1701Users(schoolID, null);
-      List<EdxUser> districtEdxUsers = restUtils.get1701Users(null, districtID);
-      Set<String> emails = pluckEmailAddresses(schoolEdxUsers, schoolID, null);
-      emails.addAll(pluckEmailAddresses(districtEdxUsers, null, districtID));
+    schoolCollectionSchoolIDS.forEach(schoolCollectionSchoolID -> {
+      if (!schoolAndDistrict1701Emails.containsKey(schoolCollectionSchoolID.getSdcSchoolCollectionID())){
+        UUID schoolID = schoolCollectionSchoolID.getSchoolID();
+        UUID districtID = getDistrictID(schoolID);
 
-      if (!schoolAndDistrict1701Emails.containsKey(student.getSdcSchoolCollectionID())){
+        List<EdxUser> schoolEdxUsers = restUtils.getEdxUsersForSchool(schoolID);
+        List<EdxUser> districtEdxUsers = restUtils.getEdxUsersForDistrict(districtID);
+        Set<String> emails = pluckEmailAddressesFromSchool(schoolEdxUsers);
+        emails.addAll(pluckEmailAddressesFromDistrict(districtEdxUsers));
+
         SdcSchoolCollection1701Users schoolAndDistrictUsers = new SdcSchoolCollection1701Users();
 
         schoolAndDistrictUsers.setSchoolDisplayName(getSchoolName(schoolID));
         schoolAndDistrictUsers.setEmails(emails);
 
-        schoolAndDistrict1701Emails.put(student.getSdcSchoolCollectionID(), schoolAndDistrictUsers);
+        schoolAndDistrict1701Emails.put(schoolCollectionSchoolID.getSdcSchoolCollectionID(), schoolAndDistrictUsers);
       }
-    }));
+    });
 
     log.info("Found :: {} school collections with provincial duplicates.", schoolAndDistrict1701Emails.size());
 
@@ -956,31 +953,27 @@ public class SdcDuplicatesService {
     return null;
   }
 
-  public Set<String> pluckEmailAddresses (List<EdxUser> edxUsers, UUID schoolID, UUID districtID){
+  public Set<String> pluckEmailAddressesFromSchool(List<EdxUser> edxUsers){
     final Set<String> emailSet = new HashSet<>();
-    edxUsers.forEach(user -> {
-      if (schoolID != null && districtID == null) {
-        user.getEdxUserSchools().forEach(school -> {
-          if (school.getSchoolID().equals(schoolID)) {
-            school.getEdxUserSchoolRoles().forEach(role -> {
-              if (Objects.equals(role.getEdxRoleCode(), "SCHOOL_SDC")) {
-                emailSet.add(user.getEmail());
-              }
-            });
+    edxUsers.forEach(user ->
+      user.getEdxUserSchools().forEach(school ->
+        school.getEdxUserSchoolRoles().forEach(role -> {
+          if (Objects.equals(role.getEdxRoleCode(), "SCHOOL_SDC")) {
+            emailSet.add(user.getEmail());
           }
-        });
-      } else if(districtID != null && schoolID == null) {
-        user.getEdxUserDistricts().forEach(district -> {
-          if (district.getDistrictID().equals(districtID.toString())) {
-            district.getEdxUserDistrictRoles().forEach(role -> {
-              if (Objects.equals(role.getEdxRoleCode(), "DISTRICT_SDC")) {
-                emailSet.add(user.getEmail());
-              }
-            });
+    })));
+    return emailSet;
+  }
+
+  public Set<String> pluckEmailAddressesFromDistrict(List<EdxUser> edxUsers){
+    final Set<String> emailSet = new HashSet<>();
+    edxUsers.forEach(user ->
+      user.getEdxUserDistricts().forEach(district ->
+        district.getEdxUserDistrictRoles().forEach(role -> {
+          if (Objects.equals(role.getEdxRoleCode(), "DISTRICT_SDC")) {
+            emailSet.add(user.getEmail());
           }
-        });
-      }
-    });
+    })));
     return emailSet;
   }
 
