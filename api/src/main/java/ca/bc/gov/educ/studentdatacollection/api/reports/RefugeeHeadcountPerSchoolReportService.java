@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DistrictReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
@@ -36,7 +37,6 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
     private JasperReport refugeeHeadcountReport;
     private List<RefugeeHeadcountResult> refugeeHeadcounts;
     private List<SchoolTombstone> allSchoolsTombstones;
-    private final ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
     private static final String HEADING = "Heading";
     private static final String HEADCOUNT = "Headcount";
     private static final String ALL_REFUGEE_HEADING = "allRefugeeHeading";
@@ -64,15 +64,15 @@ public class RefugeeHeadcountPerSchoolReportService extends BaseReportGeneration
         }
     }
 
-    public DownloadableReportResponse generateRefugeePerSchoolReport(UUID collectionID){
+    public DownloadableReportResponse generateRefugeePerSchoolReport(UUID sdcDistrictCollectionID){
         try {
-            Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional =  sdcDistrictCollectionRepository.findById(collectionID);
+            Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional =  sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
             SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
-                    new EntityNotFoundException(SdcDistrictCollectionEntity.class, "CollectionId", collectionID.toString()));
+                    new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionID", sdcDistrictCollectionID.toString()));
 
             refugeeHeadcounts = sdcSchoolCollectionStudentRepository.getRefugeeHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
-            this.allSchoolsTombstones = getAllSchoolTombstones(collectionID);
-            return generateJasperReport(convertToRefugeeReportJSONStringDistrict(refugeeHeadcounts, sdcDistrictCollectionEntity), refugeeHeadcountReport, ReportTypeCode.DIS_REFUGEE_HEADCOUNT_PER_SCHOOL);
+            this.allSchoolsTombstones = getAllSchoolTombstones(sdcDistrictCollectionID);
+            return generateJasperReport(convertToRefugeeReportJSONStringDistrict(refugeeHeadcounts, sdcDistrictCollectionEntity), refugeeHeadcountReport, DistrictReportTypeCode.DIS_REFUGEE_HEADCOUNT_PER_SCHOOL.getCode());
         } catch (JsonProcessingException e) {
             log.error("Exception occurred while writing PDF report for band of residence report :: " + e.getMessage());
             throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for band of residence report :: " + e.getMessage());

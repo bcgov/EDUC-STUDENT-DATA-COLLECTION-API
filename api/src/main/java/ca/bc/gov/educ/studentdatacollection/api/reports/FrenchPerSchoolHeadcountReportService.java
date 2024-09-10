@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DistrictReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -37,7 +38,6 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
     private List<SchoolTombstone> allSchoolsTombstones;
     private List<FrenchCombinedHeadcountResult> frenchCombinedHeadcountList;
     private JasperReport frenchPerSchoolHeadcountReport;
-    private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     public FrenchPerSchoolHeadcountReportService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository , RestUtils restUtils) {
         super(restUtils, sdcSchoolCollectionRepository);
@@ -64,16 +64,16 @@ public class FrenchPerSchoolHeadcountReportService extends BaseReportGenerationS
         }
     }
 
-    public DownloadableReportResponse generatePerSchoolReport(UUID collectionID){
+    public DownloadableReportResponse generatePerSchoolReport(UUID sdcDistrictCollectionID){
         try {
-            Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional = sdcDistrictCollectionRepository.findById(collectionID);
+            Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
             SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
-                    new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection by Id", collectionID.toString()));
+                    new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionID", sdcDistrictCollectionID.toString()));
 
-            this.allSchoolsTombstones = getAllSchoolTombstones(collectionID);
+            this.allSchoolsTombstones = getAllSchoolTombstones(sdcDistrictCollectionID);
             var programList = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
             this.frenchCombinedHeadcountList = programList;
-            return generateJasperReport(convertToFrenchProgramReportJSONStringDistrict(programList, sdcDistrictCollectionEntity), frenchPerSchoolHeadcountReport, ReportTypeCode.DIS_FRENCH_HEADCOUNT_PER_SCHOOL);
+            return generateJasperReport(convertToFrenchProgramReportJSONStringDistrict(programList, sdcDistrictCollectionEntity), frenchPerSchoolHeadcountReport, DistrictReportTypeCode.DIS_FRENCH_HEADCOUNT_PER_SCHOOL.getCode());
         } catch (JsonProcessingException e) {
             log.error("Exception occurred while writing PDF report for dis french programs :: " + e.getMessage());
             throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for dis french programs :: " + e.getMessage());

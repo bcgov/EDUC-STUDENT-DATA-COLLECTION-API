@@ -56,13 +56,14 @@ public class SdcSchoolCollectionService {
 
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private final SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;
+  private final SdcSchoolCollectionLightRepository sdcSchoolCollectionLightRepository;
 
   private static final String INVALID_PAYLOAD_MSG = "Payload contains invalid data.";
   private static final String SDC_SCHOOL_COLLECTION_ID_KEY = "sdcSchoolCollectionID";
   private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   @Autowired
-  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcDistrictCollectionService sdcDistrictCollectionService, SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository) {
+  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcDistrictCollectionService sdcDistrictCollectionService, SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository, SdcSchoolCollectionLightRepository sdcSchoolCollectionLightRepository) {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
     this.sdcSchoolCollectionHistoryService = sdcSchoolCollectionHistoryService;
@@ -74,6 +75,7 @@ public class SdcSchoolCollectionService {
     this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
     this.sdcDistrictCollectionService = sdcDistrictCollectionService;
     this.sdcSchoolCollectionStudentValidationIssueRepository = sdcSchoolCollectionStudentValidationIssueRepository;
+    this.sdcSchoolCollectionLightRepository = sdcSchoolCollectionLightRepository;
   }
 
   @Transactional(propagation = Propagation.MANDATORY)
@@ -309,5 +311,11 @@ public class SdcSchoolCollectionService {
     TransformUtil.uppercaseFields(sdcSchoolCollectionEntity);
     sdcSchoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser()));
     return this.sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
+  }
+
+  public SdcSchoolCollectionLightEntity saveSdcSchoolCollectionLightWithHistory(SdcSchoolCollectionLightEntity sdcSchoolCollectionEntity) {
+    TransformUtil.uppercaseFields(sdcSchoolCollectionEntity);
+    sdcSchoolCollectionEntity.getSdcSchoolCollectionLightHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCLightSchoolHistory(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser()));
+    return this.sdcSchoolCollectionLightRepository.save(sdcSchoolCollectionEntity);
   }
 }

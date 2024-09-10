@@ -73,4 +73,6 @@ public class ApplicationProperties {
   private String chesTokenURL;
   @Value("${url.api.student}")
   private String studentApiURL;
+  @Value("${number.school.coll.process.saga}")
+  private String numberOfSchoolCollToProcess;
 }

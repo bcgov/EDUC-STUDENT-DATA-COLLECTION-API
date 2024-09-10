@@ -1,4 +1,4 @@
-package ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports;
+package ca.bc.gov.educ.studentdatacollection.api.service.v1.reports;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
@@ -18,6 +18,10 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolAddress;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HomeLanguageSpokenCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
@@ -54,7 +58,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class AllSchoolsHeadcountsReportService {
+public class CSVReportService {
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final CollectionRepository collectionRepository;
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
@@ -306,9 +310,10 @@ public class AllSchoolsHeadcountsReportService {
         var mappedSeptData = getLastSeptCollectionSchoolMap(collectionID);
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(DISTRICT_NUMBER.getCode(), DISTRICT_NAME.getCode(), AUTHORITY_NUMBER.getCode(), AUTHORITY_NAME.getCode(), MINCODE.getCode(), SCHOOL_NAME.getCode(), SEPT_LEVEL_1.getCode(), SEPT_LEVEL_2.getCode(),
-                        SEPT_LEVEL_3.getCode(),FEB_LEVEL_1.getCode(),FEB_LEVEL_2.getCode(),FEB_LEVEL_3.getCode(),POSITIVE_CHANGE_LEVEL_1.getCode(),POSITIVE_CHANGE_LEVEL_2.getCode(),
-                        POSITIVE_CHANGE_LEVEL_3.getCode(), NET_CHANGE_LEVEL_1.getCode(), NET_CHANGE_LEVEL_2.getCode(), NET_CHANGE_LEVEL_3.getCode())
+                .setHeader(DISTRICT_NUMBER.getCode(), DISTRICT_NAME.getCode(), AUTHORITY_NUMBER.getCode(), AUTHORITY_NAME.getCode(), MINCODE.getCode(), SCHOOL_NAME.getCode(),
+                        POSITIVE_CHANGE_LEVEL_1.getCode(),POSITIVE_CHANGE_LEVEL_2.getCode(),
+                        POSITIVE_CHANGE_LEVEL_3.getCode(), NET_CHANGE_LEVEL_1.getCode(), NET_CHANGE_LEVEL_2.getCode(), NET_CHANGE_LEVEL_3.getCode(),SEPT_LEVEL_1.getCode(), SEPT_LEVEL_2.getCode(),
+                        SEPT_LEVEL_3.getCode(),FEB_LEVEL_1.getCode(),FEB_LEVEL_2.getCode(),FEB_LEVEL_3.getCode())
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -342,7 +347,7 @@ public class AllSchoolsHeadcountsReportService {
 
                     if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
                         var positiveChangeLevel1 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : "0", februaryCollectionRecord.getLevelOnes());
-                        var positiveChangeLevel2 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : null, februaryCollectionRecord.getLevelTwos());
+                        var positiveChangeLevel2 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : "0", februaryCollectionRecord.getLevelTwos());
                         var positiveChangeLevel3 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : "0", februaryCollectionRecord.getLevelThrees());
                         var netChangeLevel1 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : "0", februaryCollectionRecord.getLevelOnes());
                         var netChangeLevel2 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : "0", februaryCollectionRecord.getLevelTwos());
@@ -390,18 +395,18 @@ public class AllSchoolsHeadcountsReportService {
                 null,
                 null,
                 null,
-                Integer.toString(totals.getTotSeptLevel1s()),
-                Integer.toString(totals.getTotSeptLevel2s()),
-                Integer.toString(totals.getTotSeptLevel3s()),
-                Integer.toString(totals.getTotFebLevel1s()),
-                Integer.toString(totals.getTotFebLevel2s()),
-                Integer.toString(totals.getTotFebLevel3s()),
                 Integer.toString(totals.getTotPositiveChangeLevel1s()),
                 Integer.toString(totals.getTotPositiveChangeLevel2s()),
                 Integer.toString(totals.getTotPositiveChangeLevel3s()),
                 Integer.toString(totals.getTotNetLevel1s()),
                 Integer.toString(totals.getTotNetLevel2s()),
-                Integer.toString(totals.getTotNetLevel3s())
+                Integer.toString(totals.getTotNetLevel3s()),
+                Integer.toString(totals.getTotSeptLevel1s()),
+                Integer.toString(totals.getTotSeptLevel2s()),
+                Integer.toString(totals.getTotSeptLevel3s()),
+                Integer.toString(totals.getTotFebLevel1s()),
+                Integer.toString(totals.getTotFebLevel2s()),
+                Integer.toString(totals.getTotFebLevel3s())
         ));
         return csvRowData;
     }
@@ -476,18 +481,18 @@ public class AllSchoolsHeadcountsReportService {
                 authority != null ? authority.getDisplayName() : null,
                 school.getMincode(),
                 school.getDisplayName(),
-                septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : "0",
-                septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : "0",
-                septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : "0",
-                februaryCollectionRecord.getLevelOnes(),
-                februaryCollectionRecord.getLevelTwos(),
-                februaryCollectionRecord.getLevelThrees(),
                 positiveChangeLevel1,
                 positiveChangeLevel2,
                 positiveChangeLevel3,
                 netChangeLevel1,
                 netChangeLevel2,
-                netChangeLevel3
+                netChangeLevel3,
+                septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : "0",
+                septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : "0",
+                septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : "0",
+                februaryCollectionRecord.getLevelOnes(),
+                februaryCollectionRecord.getLevelTwos(),
+                februaryCollectionRecord.getLevelThrees()
         ));
         return csvRowData;
     }
@@ -712,7 +717,214 @@ public class AllSchoolsHeadcountsReportService {
         return csvRowData;
     }
 
+    public DownloadableReportResponse generateEnrolledHeadcountsAndFteReport(UUID collectionID) {
+        List<EnrolmentHeadcountFteResult> results = sdcSchoolCollectionStudentRepository.getEnrolmentHeadcountsAndFteByCollectionId(collectionID);
+        var collectionOpt = collectionRepository.findById(collectionID);
+
+        if(collectionOpt.isEmpty()){
+            throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
+        }
+
+        List<String> headers = Arrays.stream(EnrolmentAndFteHeader.values()).map(EnrolmentAndFteHeader::getCode).toList();
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(headers.toArray(String[]::new))
+                .build();
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (EnrolmentHeadcountFteResult result : results) {
+                var schoolOpt = restUtils.getSchoolBySchoolID(result.getSchoolID());
+                if(schoolOpt.isPresent()) {
+                    List<String> csvRowData = prepareEnrolmentFteDataForCsv(result, schoolOpt.get());
+                    csvPrinter.printRecord(csvRowData);
+                }
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(ENROLLED_HEADCOUNTS_AND_FTE_REPORT.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
     private ApiError createError() {
         return ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_COLLECTION_TYPE).status(BAD_REQUEST).build();
+    }
+
+    private List<String> prepareEnrolmentFteDataForCsv(EnrolmentHeadcountFteResult headcountResult, SchoolTombstone school) {
+        var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
+        return new ArrayList<>(Arrays.asList(
+                school.getMincode().substring(0, 3),
+                school.getSchoolNumber(),
+                school.getDisplayName(),
+                facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
+                headcountResult.getKhTotalCount(),
+                headcountResult.getGradeOneTotalCount(),
+                headcountResult.getGradeTwoTotalCount(),
+                headcountResult.getGradeThreeTotalCount(),
+                headcountResult.getGradeFourTotalCount(),
+                headcountResult.getGradeFiveTotalCount(),
+                headcountResult.getGradeSixTotalCount(),
+                headcountResult.getGradeSevenTotalCount(),
+                headcountResult.getGradeEightTotalCount(),
+                headcountResult.getGradeNineTotalCount(),
+                headcountResult.getGradeTenTotalCount(),
+                headcountResult.getGradeElevenTotalCount(),
+                headcountResult.getGradeTwelveTotalCount(),
+                headcountResult.getGradeEuTotalCount(),
+                headcountResult.getGradeSuTotalCount(),
+                headcountResult.getGradeHSCount(),
+                headcountResult.getGradAdultCount(),
+                headcountResult.getNonGradAdultCount(),
+
+                headcountResult.getKhTotalFte(),
+                headcountResult.getGradeOneTotalFte(),
+                headcountResult.getGradeTwoTotalFte(),
+                headcountResult.getGradeThreeTotalFte(),
+                headcountResult.getGradeFourTotalFte(),
+                headcountResult.getGradeFiveTotalFte(),
+                headcountResult.getGradeSixTotalFte(),
+                headcountResult.getGradeSevenTotalFte(),
+                headcountResult.getGradeEightTotalFte(),
+                headcountResult.getGradeNineTotalFte(),
+                headcountResult.getGradeTenTotalFte(),
+                headcountResult.getGradeElevenTotalFte(),
+                headcountResult.getGradeTwelveTotalFte(),
+                headcountResult.getGradeEuTotalFte(),
+                headcountResult.getGradeSuTotalFte(),
+
+                headcountResult.getKhLevelOneCount(),
+                headcountResult.getKhLevelTwoCount(),
+                headcountResult.getKhLevelThreeCount(),
+                headcountResult.getKhEllCount(),
+                headcountResult.getKhIndigenousCount(),
+                headcountResult.getKhCoreFrenchCount(),
+                headcountResult.getKhEarlyFrenchCount(),
+
+                headcountResult.getGradeOneLevelOneCount(),
+                headcountResult.getGradeOneLevelTwoCount(),
+                headcountResult.getGradeOneLevelThreeCount(),
+                headcountResult.getGradeOneEllCount(),
+                headcountResult.getGradeOneIndigenousCount(),
+                headcountResult.getGradeOneCoreFrenchCount(),
+                headcountResult.getGradeOneEarlyFrenchCount(),
+
+                headcountResult.getGradeTwoLevelOneCount(),
+                headcountResult.getGradeTwoLevelTwoCount(),
+                headcountResult.getGradeTwoLevelThreeCount(),
+                headcountResult.getGradeTwoEllCount(),
+                headcountResult.getGradeTwoIndigenousCount(),
+                headcountResult.getGradeTwoCoreFrenchCount(),
+                headcountResult.getGradeTwoEarlyFrenchCount(),
+
+                headcountResult.getGradeThreeLevelOneCount(),
+                headcountResult.getGradeThreeLevelTwoCount(),
+                headcountResult.getGradeThreeLevelThreeCount(),
+                headcountResult.getGradeThreeEllCount(),
+                headcountResult.getGradeThreeIndigenousCount(),
+                headcountResult.getGradeThreeCoreFrenchCount(),
+                headcountResult.getGradeThreeEarlyFrenchCount(),
+
+                headcountResult.getGradeFourLevelOneCount(),
+                headcountResult.getGradeFourLevelTwoCount(),
+                headcountResult.getGradeFourLevelThreeCount(),
+                headcountResult.getGradeFourEllCount(),
+                headcountResult.getGradeFourIndigenousCount(),
+                headcountResult.getGradeFourCoreFrenchCount(),
+                headcountResult.getGradeFourEarlyFrenchCount(),
+
+                headcountResult.getGradeFiveLevelOneCount(),
+                headcountResult.getGradeFiveLevelTwoCount(),
+                headcountResult.getGradeFiveLevelThreeCount(),
+                headcountResult.getGradeFiveEllCount(),
+                headcountResult.getGradeFiveIndigenousCount(),
+                headcountResult.getGradeFiveCoreFrenchCount(),
+                headcountResult.getGradeFiveEarlyFrenchCount(),
+                headcountResult.getGradeFiveLateFrenchCount(),
+
+                headcountResult.getGradeSixLevelOneCount(),
+                headcountResult.getGradeSixLevelTwoCount(),
+                headcountResult.getGradeSixLevelThreeCount(),
+                headcountResult.getGradeSixEllCount(),
+                headcountResult.getGradeSixIndigenousCount(),
+                headcountResult.getGradeSixCoreFrenchCount(),
+                headcountResult.getGradeSixEarlyFrenchCount(),
+                headcountResult.getGradeSixLateFrenchCount(),
+
+                headcountResult.getGradeSevenLevelOneCount(),
+                headcountResult.getGradeSevenLevelTwoCount(),
+                headcountResult.getGradeSevenLevelThreeCount(),
+                headcountResult.getGradeSevenEllCount(),
+                headcountResult.getGradeSevenIndigenousCount(),
+                headcountResult.getGradeSevenCoreFrenchCount(),
+                headcountResult.getGradeSevenEarlyFrenchCount(),
+                headcountResult.getGradeSevenLateFrenchCount(),
+
+                headcountResult.getGradeEightLevelOneCount(),
+                headcountResult.getGradeEightLevelTwoCount(),
+                headcountResult.getGradeEightLevelThreeCount(),
+                headcountResult.getGradeEightEllCount(),
+                headcountResult.getGradeEightIndigenousCount(),
+                headcountResult.getGradeEightCoreFrenchCount(),
+                headcountResult.getGradeEightEarlyFrenchCount(),
+
+                headcountResult.getGradeNineLevelOneCount(),
+                headcountResult.getGradeNineLevelTwoCount(),
+                headcountResult.getGradeNineLevelThreeCount(),
+                headcountResult.getGradeNineEllCount(),
+                headcountResult.getGradeNineIndigenousCount(),
+                headcountResult.getGradeNineCoreFrenchCount(),
+                headcountResult.getGradeNineEarlyFrenchCount(),
+
+                headcountResult.getGradeTenLevelOneCount(),
+                headcountResult.getGradeTenLevelTwoCount(),
+                headcountResult.getGradeTenLevelThreeCount(),
+                headcountResult.getGradeTenEllCount(),
+                headcountResult.getGradeTenIndigenousCount(),
+                headcountResult.getGradeTenCoreFrenchCount(),
+                headcountResult.getGradeTenEarlyFrenchCount(),
+
+                headcountResult.getGradeElevenLevelOneCount(),
+                headcountResult.getGradeElevenLevelTwoCount(),
+                headcountResult.getGradeElevenLevelThreeCount(),
+                headcountResult.getGradeElevenEllCount(),
+                headcountResult.getGradeElevenIndigenousCount(),
+                headcountResult.getGradeElevenCoreFrenchCount(),
+                headcountResult.getGradeElevenEarlyFrenchCount(),
+
+                headcountResult.getGradeTwelveLevelOneCount(),
+                headcountResult.getGradeTwelveLevelTwoCount(),
+                headcountResult.getGradeTwelveLevelThreeCount(),
+                headcountResult.getGradeTwelveEllCount(),
+                headcountResult.getGradeTwelveIndigenousCount(),
+                headcountResult.getGradeTwelveCoreFrenchCount(),
+                headcountResult.getGradeTwelveEarlyFrenchCount(),
+
+                headcountResult.getGradeEuLevelOneCount(),
+                headcountResult.getGradeEuLevelTwoCount(),
+                headcountResult.getGradeEuLevelThreeCount(),
+                headcountResult.getGradeEuEllCount(),
+                headcountResult.getGradeEuIndigenousCount(),
+                headcountResult.getGradeEuCoreFrenchCount(),
+                headcountResult.getGradeEuEarlyFrenchCount(),
+
+                headcountResult.getGradeSuLevelOneCount(),
+                headcountResult.getGradeSuLevelTwoCount(),
+                headcountResult.getGradeSuLevelThreeCount(),
+                headcountResult.getGradeSuEllCount(),
+                headcountResult.getGradeSuIndigenousCount(),
+                headcountResult.getGradeSuCoreFrenchCount(),
+                headcountResult.getGradeSuEarlyFrenchCount(),
+
+                headcountResult.getNonGradAdultLevelOneCount(),
+                headcountResult.getNonGradAdultLevelTwoCount(),
+                headcountResult.getNonGradAdultLevelThreeCount()
+        ));
     }
 }

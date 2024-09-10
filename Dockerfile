@@ -1,4 +1,4 @@
-FROM artifacts.developer.gov.bc.ca/docker-remote/maven:3.8.5-openjdk-17 AS build
+FROM artifacts.developer.gov.bc.ca/docker-remote/maven:3.8.1-openjdk-17-slim AS build
 WORKDIR /workspace/app
 
 COPY api/pom.xml .

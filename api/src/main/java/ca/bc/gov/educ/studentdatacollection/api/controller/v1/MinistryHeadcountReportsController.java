@@ -4,8 +4,8 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeC
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.MinistryHeadcountReports;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports.AllSchoolsHeadcountsReportService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports.MinistryHeadcountService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.CSVReportService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.MinistryHeadcountService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 public class MinistryHeadcountReportsController implements MinistryHeadcountReports {
 
     private final MinistryHeadcountService ministryHeadcountService;
-    private final AllSchoolsHeadcountsReportService ministryReportsService;
+    private final CSVReportService ministryReportsService;
 
     @Override
     public SimpleHeadcountResultsTable getMinistryHeadcounts(UUID collectionID, String type) {
@@ -65,6 +65,7 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
             case INDY_INCLUSIVE_ED_ENROLLMENT_HEADCOUNTS -> ministryReportsService.generateIndySpecialEducationHeadcounts(collectionID);
             case OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS -> ministryReportsService.generateOffshoreSpokenLanguageHeadcounts(collectionID);
             case INDY_INCLUSIVE_ED_FUNDING_HEADCOUNTS -> ministryReportsService.generateIndySpecialEducationFundingHeadcounts(collectionID);
+            case ENROLLED_HEADCOUNTS_AND_FTE_REPORT -> ministryReportsService.generateEnrolledHeadcountsAndFteReport(collectionID);
             default -> new DownloadableReportResponse();
         };
     }

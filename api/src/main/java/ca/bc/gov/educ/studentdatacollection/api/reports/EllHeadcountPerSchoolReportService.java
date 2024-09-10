@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DistrictReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -66,15 +67,15 @@ public class EllHeadcountPerSchoolReportService extends BaseReportGenerationServ
         }
     }
 
-    public DownloadableReportResponse generateEllHeadcountPerSchoolReport(UUID collectionID) {
+    public DownloadableReportResponse generateEllHeadcountPerSchoolReport(UUID sdcDistrictCollectionID) {
         try {
-            Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional = sdcDistrictCollectionRepository.findById(collectionID);
+            Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
             SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
-                    new EntityNotFoundException(SdcDistrictCollectionEntity.class, "CollectionId", collectionID.toString()));
+                    new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionID", sdcDistrictCollectionID.toString()));
 
             ellHeadcounts = sdcSchoolCollectionStudentRepository.getEllHeadcountsByBySchoolIdAndSdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
-            this.allSchoolsTombstones = getAllSchoolTombstones(collectionID);
-            return generateJasperReport(convertToReportJSONStringDistrict(ellHeadcounts, sdcDistrictCollectionEntity), ellHeadcountPerSchoolReport, ReportTypeCode.DIS_ELL_HEADCOUNT_PER_SCHOOL);
+            this.allSchoolsTombstones = getAllSchoolTombstones(sdcDistrictCollectionID);
+            return generateJasperReport(convertToReportJSONStringDistrict(ellHeadcounts, sdcDistrictCollectionEntity), ellHeadcountPerSchoolReport, DistrictReportTypeCode.DIS_ELL_HEADCOUNT_PER_SCHOOL.getCode());
         } catch (JsonProcessingException e) {
             log.error("Exception occurred while writing PDF report for ell dis per school :: " + e.getMessage());
             throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for ell dis per school :: " + e.getMessage());

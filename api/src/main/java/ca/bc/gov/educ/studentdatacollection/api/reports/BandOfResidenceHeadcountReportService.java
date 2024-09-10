@@ -1,6 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.BandCodeEntity;
@@ -60,14 +60,14 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
         }
     }
 
-    public DownloadableReportResponse generateBandOfResdienceReport(UUID collectionID){
+    public DownloadableReportResponse generateBandOfResidenceReport(UUID collectionID){
         try {
             Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional =  sdcSchoolCollectionRepository.findById(collectionID);
             SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
-                    new EntityNotFoundException(SdcSchoolCollectionEntity.class, "Collection by Id", collectionID.toString()));
+                    new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionID", collectionID.toString()));
 
             this.headcountsList = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-            return generateJasperReport(convertToReportJSONString(headcountsList, sdcSchoolCollectionEntity), bandOfResidenceHeadcountReport, ReportTypeCode.BAND_RESIDENCE_HEADCOUNT);
+            return generateJasperReport(convertToReportJSONString(headcountsList, sdcSchoolCollectionEntity), bandOfResidenceHeadcountReport, SchoolReportTypeCode.BAND_RESIDENCE_HEADCOUNT.getCode());
         } catch (JsonProcessingException e) {
             log.error("Exception occurred while writing PDF report for band of residence report :: " + e.getMessage());
             throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for band of residence report :: " + e.getMessage());
