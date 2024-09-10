@@ -18,11 +18,17 @@ import java.util.UUID;
 @RequestMapping(URL.BASE_URL_REPORT_GENERATION)
 public interface ReportGenerationEndpoint {
 
-  @GetMapping("/{sdcSchoolCollectionID}/{reportTypeCode}")
+  @GetMapping("/sdcSchoolCollection/{sdcSchoolCollectionID}/{reportTypeCode}")
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
   @Transactional(readOnly = true)
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
-  DownloadableReportResponse generateSDCReport(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID, @PathVariable("reportTypeCode") String reportTypeCode);
+  DownloadableReportResponse generateSDCSchoolReport(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID, @PathVariable("reportTypeCode") String reportTypeCode);
+
+  @GetMapping("/sdcDistrictCollection/{sdcDistrictCollectionID}/{reportTypeCode}")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @Transactional(readOnly = true)
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  DownloadableReportResponse generateSDCDistrictReport(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID, @PathVariable("reportTypeCode") String reportTypeCode);
 
   @GetMapping("/differences")
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")

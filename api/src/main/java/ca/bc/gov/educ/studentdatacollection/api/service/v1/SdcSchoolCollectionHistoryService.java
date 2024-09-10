@@ -1,8 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionHistoryEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -24,6 +22,19 @@ public class SdcSchoolCollectionHistoryService {
     BeanUtils.copyProperties(curSDCSchoolEntity, sdcSchoolHistoryEntity);
     sdcSchoolHistoryEntity.setSdcSchoolCollection(curSDCSchoolEntity);
     sdcSchoolHistoryEntity.setCollectionID(curSDCSchoolEntity.getCollectionEntity().getCollectionID());
+    sdcSchoolHistoryEntity.setCreateUser(updateUser);
+    sdcSchoolHistoryEntity.setCreateDate(LocalDateTime.now());
+    sdcSchoolHistoryEntity.setUpdateUser(updateUser);
+    sdcSchoolHistoryEntity.setUpdateDate(LocalDateTime.now());
+
+    return sdcSchoolHistoryEntity;
+  }
+
+  public SdcSchoolCollectionLightHistoryEntity createSDCLightSchoolHistory(SdcSchoolCollectionLightEntity curSDCSchoolEntity, String updateUser) {
+    final SdcSchoolCollectionLightHistoryEntity sdcSchoolHistoryEntity = new SdcSchoolCollectionLightHistoryEntity();
+    BeanUtils.copyProperties(curSDCSchoolEntity, sdcSchoolHistoryEntity);
+    sdcSchoolHistoryEntity.setSdcSchoolCollection(curSDCSchoolEntity);
+    sdcSchoolHistoryEntity.setCollectionID(curSDCSchoolEntity.getCollectionID());
     sdcSchoolHistoryEntity.setCreateUser(updateUser);
     sdcSchoolHistoryEntity.setCreateDate(LocalDateTime.now());
     sdcSchoolHistoryEntity.setUpdateUser(updateUser);

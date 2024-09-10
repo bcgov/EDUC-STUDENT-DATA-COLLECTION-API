@@ -19,8 +19,6 @@ import java.util.UUID;
 @Repository
 public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcSchoolCollectionStudentEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionStudentEntity> {
 
-  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionID(UUID collectionID);
-
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_SdcSchoolCollectionID(UUID sdcSchoolCollectionID);
 
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollectionStudentIDIn(List<UUID> sdcSchoolCollectionStudentIDs);
@@ -40,6 +38,22 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     and assignedStudentId is not null
     """)
   List<SdcSchoolCollectionStudentEntity> findAllDuplicateStudentsInSdcSchoolCollection(UUID sdcSchoolCollectionID);
+
+  @Query(value = """  
+    SELECT validationIssue.sdcSchoolCollectionStudentEntity
+    FROM SdcSchoolCollectionStudentValidationIssueEntity validationIssue
+    WHERE validationIssue.sdcSchoolCollectionStudentEntity.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionID
+    and validationIssue.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+    """)
+  List<SdcSchoolCollectionStudentEntity> findAllStudentsWithErrorsWarningInfoBySchoolCollectionID(UUID sdcSchoolCollectionID);
+
+  @Query(value = """  
+    SELECT validationIssue.sdcSchoolCollectionStudentEntity
+    FROM SdcSchoolCollectionStudentValidationIssueEntity validationIssue
+    WHERE validationIssue.sdcSchoolCollectionStudentEntity.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID
+    and validationIssue.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+    """)
+  List<SdcSchoolCollectionStudentEntity> findAllStudentsWithErrorsWarningInfoByDistrictCollectionID(UUID sdcDistrictCollectionID);
 
   long countBySdcSchoolCollection_SdcSchoolCollectionIDAndSdcSchoolCollectionStudentStatusCode(UUID sdcSchoolCollectionID, String sdcSchoolCollectionStatusCode);
 

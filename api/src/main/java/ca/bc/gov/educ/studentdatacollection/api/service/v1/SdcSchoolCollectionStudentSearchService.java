@@ -2,10 +2,12 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.filter.SdcSchoolCollectionStudentFilterSpecs;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentLightRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentPaginationRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -40,6 +42,8 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
   private final SdcSchoolCollectionStudentPaginationRepository sdcSchoolCollectionStudentPaginationRepository;
 
   private final SdcSchoolCollectionStudentLightRepository sdcSchoolCollectionStudentLightRepository;
+
+  private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
   private final CustomPaginationService customPaginationService;
 
@@ -80,6 +84,26 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
         throw new CompletionException(ex);
       }
     }, paginatedQueryExecutor);
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public List<SdcSchoolCollectionStudentEntity> findAllStudentsWithErrorsWarningInfoByDistrictCollectionID(UUID sdcDistrictCollectionID) {
+    try {
+      return this.sdcSchoolCollectionStudentRepository.findAllStudentsWithErrorsWarningInfoByDistrictCollectionID(sdcDistrictCollectionID);
+    } catch (final Exception ex) {
+      log.error("Failure querying for all SDC school students with errors and warnings by School Collection ID: {}", ex.getMessage());
+      throw new CompletionException(ex);
+    }
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public List<SdcSchoolCollectionStudentEntity> findAllStudentsWithErrorsWarningInfoBySchoolCollectionID(UUID sdcSchoolCollectionID) {
+    try {
+      return this.sdcSchoolCollectionStudentRepository.findAllStudentsWithErrorsWarningInfoBySchoolCollectionID(sdcSchoolCollectionID);
+    } catch (final Exception ex) {
+      log.error("Failure querying for all SDC school students with errors and warnings by School Collection ID: {}", ex.getMessage());
+      throw new CompletionException(ex);
+    }
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
