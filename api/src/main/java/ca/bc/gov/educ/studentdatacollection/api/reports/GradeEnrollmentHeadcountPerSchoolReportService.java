@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DistrictReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -43,7 +44,6 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
     private List<EnrollmentHeadcountResult> gradeEnrollmentHeadcountList;
     private List<SchoolTombstone> allSchoolsTombstones;
     private JasperReport gradeEnrollmentPerSchoolHeadcountReport;
-    private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     public GradeEnrollmentHeadcountPerSchoolReportService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository , RestUtils restUtils) {
         super(restUtils, sdcSchoolCollectionRepository);
@@ -70,16 +70,16 @@ public class GradeEnrollmentHeadcountPerSchoolReportService extends BaseReportGe
         }
     }
 
-    public DownloadableReportResponse generatePerSchoolReport(UUID collectionID){
+    public DownloadableReportResponse generatePerSchoolReport(UUID sdcDistrictCollectionID){
         try {
-            Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional = sdcDistrictCollectionRepository.findById(collectionID);
+            Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
             SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
-                    new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection by Id", collectionID.toString()));
+                    new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionID", sdcDistrictCollectionID.toString()));
 
-            this.allSchoolsTombstones = getAllSchoolTombstones(collectionID);
+            this.allSchoolsTombstones = getAllSchoolTombstones(sdcDistrictCollectionID);
             var programList = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySchoolIdAndBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
             this.gradeEnrollmentHeadcountList = programList;
-            return generateJasperReport(convertToGradeEnrollmentProgramReportJSONStringDistrict(programList, sdcDistrictCollectionEntity), gradeEnrollmentPerSchoolHeadcountReport, ReportTypeCode.DIS_GRADE_ENROLLMENT_HEADCOUNT_PER_SCHOOL);
+            return generateJasperReport(convertToGradeEnrollmentProgramReportJSONStringDistrict(programList, sdcDistrictCollectionEntity), gradeEnrollmentPerSchoolHeadcountReport, DistrictReportTypeCode.DIS_GRADE_ENROLLMENT_HEADCOUNT_PER_SCHOOL.getCode());
         } catch (JsonProcessingException e) {
             log.error("Exception occurred while writing PDF report for dis grade enrolment programs :: " + e.getMessage());
             throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for dis grade enrolment programs :: " + e.getMessage());

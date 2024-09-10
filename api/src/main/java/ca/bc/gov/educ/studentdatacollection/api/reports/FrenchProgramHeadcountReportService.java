@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DistrictReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportingRequirementCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
@@ -40,7 +41,6 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private final RestUtils restUtils;
   private JasperReport frenchProgramHeadcountReport;
-  private ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
   public FrenchProgramHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
       super(restUtils, sdcSchoolCollectionRepository);
@@ -68,38 +68,38 @@ public class FrenchProgramHeadcountReportService extends BaseReportGenerationSer
     }
   }
 
-  public DownloadableReportResponse generateFrenchProgramHeadcountReport(UUID collectionID, Boolean isDistrict){
-    if (Boolean.TRUE.equals(isDistrict)) {
-      try {
-        Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional = sdcDistrictCollectionRepository.findById(collectionID);
-        SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
-            new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection by Id", collectionID.toString()));
+  public DownloadableReportResponse generateSchoolFrenchProgramHeadcountReport(UUID sdcSchoolCollectionID){
+    try {
+      Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional = sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID);
+      SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
+              new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionID", sdcSchoolCollectionID.toString()));
 
-        var frenchProgramList = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
-        return generateJasperReport(convertToFrenchProgramReportJSONStringDistrict(frenchProgramList, sdcDistrictCollectionEntity), frenchProgramHeadcountReport, ReportTypeCode.DIS_FRENCH_HEADCOUNT);
-      } catch (JsonProcessingException e) {
-        log.error("Exception occurred while writing PDF report for dis french programs :: " + e.getMessage());
-        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for dis french programs :: " + e.getMessage());
+      var school = restUtils.getSchoolBySchoolID(sdcSchoolCollectionEntity.getSchoolID().toString());
+
+      if (school.get().getSchoolReportingRequirementCode().equalsIgnoreCase(SchoolReportingRequirementCodes.CSF.getCode())) {
+        var frenchProgramList = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+        return generateJasperReport(convertToCSFFrenchProgramReportJSONString(frenchProgramList, sdcSchoolCollectionEntity, school.get()), frenchProgramHeadcountReport, SchoolReportTypeCode.FRENCH_HEADCOUNT.getCode());
+      } else {
+        var frenchProgramList = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+        return generateJasperReport(convertToFrenchProgramReportJSONString(frenchProgramList, sdcSchoolCollectionEntity, school.get()), frenchProgramHeadcountReport, SchoolReportTypeCode.FRENCH_HEADCOUNT.getCode());
       }
-    } else {
-      try {
-        Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional = sdcSchoolCollectionRepository.findById(collectionID);
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
-                new EntityNotFoundException(SdcSchoolCollectionEntity.class, "Collection by Id", collectionID.toString()));
+    } catch (JsonProcessingException e) {
+      log.error("Exception occurred while writing PDF report for school french programs :: " + e.getMessage());
+      throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for school french programs :: " + e.getMessage());
+    }
+  }
 
-        var school = restUtils.getSchoolBySchoolID(sdcSchoolCollectionEntity.getSchoolID().toString());
+  public DownloadableReportResponse generateDistrictFrenchProgramHeadcountReport(UUID sdcDistrictCollectionID){
+    try {
+      Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
+      SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
+              new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionID", sdcDistrictCollectionID.toString()));
 
-        if (school.get().getSchoolReportingRequirementCode().equalsIgnoreCase(SchoolReportingRequirementCodes.CSF.getCode())) {
-          var frenchProgramList = sdcSchoolCollectionStudentRepository.getCsfFrenchHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-          return generateJasperReport(convertToCSFFrenchProgramReportJSONString(frenchProgramList, sdcSchoolCollectionEntity, school.get()), frenchProgramHeadcountReport, ReportTypeCode.FRENCH_HEADCOUNT);
-        } else {
-          var frenchProgramList = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-          return generateJasperReport(convertToFrenchProgramReportJSONString(frenchProgramList, sdcSchoolCollectionEntity, school.get()), frenchProgramHeadcountReport, ReportTypeCode.FRENCH_HEADCOUNT);
-        }
-      } catch (JsonProcessingException e) {
-        log.error("Exception occurred while writing PDF report for sch french programs :: " + e.getMessage());
-        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for school french programs :: " + e.getMessage());
-      }
+      var frenchProgramList = sdcSchoolCollectionStudentRepository.getFrenchHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+      return generateJasperReport(convertToFrenchProgramReportJSONStringDistrict(frenchProgramList, sdcDistrictCollectionEntity), frenchProgramHeadcountReport, DistrictReportTypeCode.DIS_FRENCH_HEADCOUNT.getCode());
+    } catch (JsonProcessingException e) {
+      log.error("Exception occurred while writing PDF report for dis french programs :: " + e.getMessage());
+      throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for dis french programs :: " + e.getMessage());
     }
   }
 
