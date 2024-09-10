@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DistrictReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -62,31 +63,31 @@ public class IndigenousHeadcountReportService extends BaseReportGenerationServic
     }
   }
 
-  public DownloadableReportResponse generateIndigenousHeadcountReport(UUID collectionID, Boolean isDistrict){
-    if (Boolean.TRUE.equals(isDistrict)) {
-      try {
-        Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional = sdcDistrictCollectionRepository.findById(collectionID);
-        SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
-                new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection ID: " + collectionID));
+  public DownloadableReportResponse generateSchoolIndigenousHeadcountReport(UUID sdcSchoolCollectionID){
+    try {
+      Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional = sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID);
+      SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
+              new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionID", sdcSchoolCollectionID.toString()));
 
-        var programList = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
-        return generateJasperReport(convertToReportJSONStringDistrict(programList, sdcDistrictCollectionEntity), indigenousHeadcountReport, ReportTypeCode.DIS_INDIGENOUS_HEADCOUNT);
-      } catch (JsonProcessingException e) {
-        log.error("Exception occurred while writing PDF report for district indigenous programs :: " + e.getMessage());
-        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for district indigenous programs :: " + e.getMessage());
-      }
-    } else {
-      try {
-        Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional = sdcSchoolCollectionRepository.findById(collectionID);
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
-                new EntityNotFoundException(SdcSchoolCollectionEntity.class, "Collection by Id", collectionID.toString()));
+      var headcountsList = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+      return generateJasperReport(convertToReportJSONString(headcountsList, sdcSchoolCollectionEntity), indigenousHeadcountReport, SchoolReportTypeCode.INDIGENOUS_HEADCOUNT.getCode());
+    } catch (JsonProcessingException e) {
+      log.error("Exception occurred while writing PDF report for indigenous programs :: " + e.getMessage());
+      throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for indigenous programs :: " + e.getMessage());
+    }
+  }
 
-        var headcountsList = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-        return generateJasperReport(convertToReportJSONString(headcountsList, sdcSchoolCollectionEntity), indigenousHeadcountReport, ReportTypeCode.INDIGENOUS_HEADCOUNT);
-      } catch (JsonProcessingException e) {
-        log.error("Exception occurred while writing PDF report for indigenous programs :: " + e.getMessage());
-        throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for indigenous programs :: " + e.getMessage());
-      }
+  public DownloadableReportResponse generateDistrictIndigenousHeadcountReport(UUID sdcDistrictCollectionID){
+    try {
+      Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
+      SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
+              new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionID " + sdcDistrictCollectionID));
+
+      var programList = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+      return generateJasperReport(convertToReportJSONStringDistrict(programList, sdcDistrictCollectionEntity), indigenousHeadcountReport, DistrictReportTypeCode.DIS_INDIGENOUS_HEADCOUNT.getCode());
+    } catch (JsonProcessingException e) {
+      log.error("Exception occurred while writing PDF report for district indigenous programs :: " + e.getMessage());
+      throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for district indigenous programs :: " + e.getMessage());
     }
   }
 

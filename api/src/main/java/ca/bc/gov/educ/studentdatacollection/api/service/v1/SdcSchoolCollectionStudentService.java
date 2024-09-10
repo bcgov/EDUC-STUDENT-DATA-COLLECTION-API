@@ -178,6 +178,7 @@ public class SdcSchoolCollectionStudentService {
   }
 
   public SdcSchoolCollectionStudentEntity saveSdcStudentWithHistory(SdcSchoolCollectionStudentEntity studentEntity) {
+    studentEntity.setUpdateDate(LocalDateTime.now());
     var savedEntity = this.sdcSchoolCollectionStudentRepository.save(studentEntity);
     sdcSchoolCollectionStudentHistoryRepository.save(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(savedEntity, studentEntity.getUpdateUser()));
     return savedEntity;
@@ -185,7 +186,10 @@ public class SdcSchoolCollectionStudentService {
 
   public List<SdcSchoolCollectionStudentEntity> saveAllSdcStudentWithHistory(List<SdcSchoolCollectionStudentEntity> studentEntities) {
     List<SdcSchoolCollectionStudentHistoryEntity> history = new ArrayList<>();
-    studentEntities.forEach(entity -> history.add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, entity.getUpdateUser())));
+    studentEntities.forEach(entity -> {
+      entity.setUpdateDate(LocalDateTime.now());
+      history.add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(entity, entity.getUpdateUser()));
+    });
     sdcSchoolCollectionStudentHistoryRepository.saveAll(history);
     return this.sdcSchoolCollectionStudentRepository.saveAll(studentEntities);
   }

@@ -1,4 +1,4 @@
-package ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports;
+package ca.bc.gov.educ.studentdatacollection.api.service.v1.reports;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;

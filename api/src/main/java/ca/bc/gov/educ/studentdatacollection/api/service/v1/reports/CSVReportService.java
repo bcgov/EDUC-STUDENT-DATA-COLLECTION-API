@@ -1,4 +1,4 @@
-package ca.bc.gov.educ.studentdatacollection.api.service.v1.ministryreports;
+package ca.bc.gov.educ.studentdatacollection.api.service.v1.reports;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
@@ -54,7 +54,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class AllSchoolsHeadcountsReportService {
+public class CSVReportService {
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final CollectionRepository collectionRepository;
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;

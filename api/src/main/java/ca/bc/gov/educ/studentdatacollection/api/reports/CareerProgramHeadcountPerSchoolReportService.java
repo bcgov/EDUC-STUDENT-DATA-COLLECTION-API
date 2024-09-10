@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DistrictReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -68,15 +69,15 @@ public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGene
     }
   }
 
-  public DownloadableReportResponse generateCareerProgramHeadcountPerSchoolReport(UUID collectionID){
+  public DownloadableReportResponse generateCareerProgramHeadcountPerSchoolReport(UUID sdcDistrictCollectionID){
       try {
-        Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional =  sdcDistrictCollectionRepository.findById(collectionID);
+        Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional =  sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
         SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
-                new EntityNotFoundException(SdcDistrictCollectionEntity.class, "CollectionId", collectionID.toString()));
+                new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionID", sdcDistrictCollectionID.toString()));
 
         careerHeadcounts = sdcSchoolCollectionStudentRepository.getCareerHeadcountsBySchoolIdAndBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
-        this.allSchoolsTombstones = getAllSchoolTombstones(collectionID);
-        return generateJasperReport(convertToReportJSONStringDistrict(careerHeadcounts, sdcDistrictCollectionEntity), careerProgramHeadcountPerSchoolReport, ReportTypeCode.DIS_CAREER_HEADCOUNT_PER_SCHOOL);
+        this.allSchoolsTombstones = getAllSchoolTombstones(sdcDistrictCollectionID);
+        return generateJasperReport(convertToReportJSONStringDistrict(careerHeadcounts, sdcDistrictCollectionEntity), careerProgramHeadcountPerSchoolReport, DistrictReportTypeCode.DIS_CAREER_HEADCOUNT_PER_SCHOOL.getCode());
       } catch (JsonProcessingException e) {
         log.error("Exception occurred while writing PDF report for grade enrolment dis :: " + e.getMessage());
         throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrolment dis :: " + e.getMessage());
@@ -155,7 +156,7 @@ public class CareerProgramHeadcountPerSchoolReportService extends BaseReportGene
     }
   }
 
-  public void setRowValuesZero(HashMap<String, HeadcountChildNode> nodeMap, String schoolID){
+  public void setRowValuesZero(Map<String, HeadcountChildNode> nodeMap, String schoolID){
     if (nodeMap.containsKey(schoolID + CAREER_PREP)) {
       ((GradeHeadcountChildNode)nodeMap.get(schoolID + CAREER_PREP)).setAllValuesToZero();
     }
