@@ -736,7 +736,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     sdcDuplicateService.deleteResolvedDupes(student1.getSdcSchoolCollectionStudentID());
 
     List<SdcDuplicateEntity> updatedDupes = sdcDuplicateRepository.findAll();
-    assertThat(updatedDupes).hasSize(0);
+    assertThat(updatedDupes).isEmpty();
   }
 
   @Test

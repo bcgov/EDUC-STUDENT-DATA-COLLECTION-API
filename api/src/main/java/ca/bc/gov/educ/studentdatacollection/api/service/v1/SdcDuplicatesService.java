@@ -168,29 +168,34 @@ public class SdcDuplicatesService {
         String collectionStatusCode = currCollection.map(CollectionEntity::getCollectionStatusCode).orElse(null);
         DuplicateLevelCode dupeLevel = Objects.equals(collectionStatusCode, CollectionStatus.INPROGRESS.getCode()) ? DuplicateLevelCode.IN_DIST : DuplicateLevelCode.PROVINCIAL;
 
-        existingDupes.forEach(dupe -> {
-          Optional<SdcDuplicateStudentEntity> otherStudentDupeEntity = dupe.getSdcDuplicateStudentEntities().stream().filter(std -> std.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID() != studentEntity.getSdcSchoolCollectionStudentID()).findFirst();
-          SdcSchoolCollectionStudentEntity otherStudentEntity= otherStudentDupeEntity.map(SdcDuplicateStudentEntity::getSdcSchoolCollectionStudentEntity).orElse(null);
-          List<SdcDuplicateEntity> newDupes = runDuplicatesCheck(dupeLevel, sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(updatedStudent), sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(otherStudentEntity), true);
-
-          // if dupe is no longer present, resolve it
-          if (newDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
-            if(Objects.equals(dupe.getDuplicateTypeCode(), DuplicateTypeCode.ENROLLMENT.getCode())){
-              dupe.setDuplicateResolutionCode(DuplicateResolutionCode.GRADE_CHNG.getCode());
-            } else {
-              dupe.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
-            }
-
-            dupe.setUpdateUser(studentEntity.getUpdateUser());
-            dupe.setUpdateDate(LocalDateTime.now());
-            TransformUtil.uppercaseFields(dupe);
-            sdcDuplicateRepository.save(dupe);
-          }
-        });
+        resolveDupesFromUpdate(existingDupes, dupeLevel, updatedStudent);
       }
     }
 
     return updatedStudent;
+  }
+
+  @Transactional
+  public void resolveDupesFromUpdate(List<SdcDuplicateEntity> existingDupes, DuplicateLevelCode dupeLevel, SdcSchoolCollectionStudentEntity updatedStudent){
+    existingDupes.forEach(dupe -> {
+      Optional<SdcDuplicateStudentEntity> otherStudentDupeEntity = dupe.getSdcDuplicateStudentEntities().stream().filter(std -> std.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID() != updatedStudent.getSdcSchoolCollectionStudentID()).findFirst();
+      SdcSchoolCollectionStudentEntity otherStudentEntity= otherStudentDupeEntity.map(SdcDuplicateStudentEntity::getSdcSchoolCollectionStudentEntity).orElse(null);
+      List<SdcDuplicateEntity> newDupes = runDuplicatesCheck(dupeLevel, sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(updatedStudent), sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(otherStudentEntity), true);
+
+      // if dupe is no longer present, resolve it
+      if (newDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
+        if(Objects.equals(dupe.getDuplicateTypeCode(), DuplicateTypeCode.ENROLLMENT.getCode())){
+          dupe.setDuplicateResolutionCode(DuplicateResolutionCode.GRADE_CHNG.getCode());
+        } else {
+          dupe.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
+        }
+
+        dupe.setUpdateUser(updatedStudent.getUpdateUser());
+        dupe.setUpdateDate(LocalDateTime.now());
+        TransformUtil.uppercaseFields(dupe);
+        sdcDuplicateRepository.save(dupe);
+      }
+    });
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
