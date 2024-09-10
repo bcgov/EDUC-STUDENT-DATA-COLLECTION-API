@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateResolutionCode;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
@@ -11,6 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
@@ -711,6 +713,30 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     assertThrows(InvalidParameterException.class, () -> {
       sdcDuplicateService.getInFlightProvincialDuplicates(collectionID, false);
     });
+  }
+
+  @Test
+  @Transactional
+  void testDeleteResolvedDupes_ShouldDeleteExistingDupe(){
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SchoolTombstone school = createMockSchool();
+    SdcSchoolCollectionEntity schoolCollection= sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
+
+    SdcSchoolCollectionStudentEntity student1 = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(schoolCollection));
+
+    SdcSchoolCollectionStudentEntity mockStudent2 = createMockSchoolStudentEntity(schoolCollection);
+    mockStudent2.setSdcSchoolCollectionStudentStatusCode("DELETED");
+    SdcSchoolCollectionStudentEntity student2 = sdcSchoolCollectionStudentRepository.save(mockStudent2);
+
+    SdcDuplicateEntity mockDupe = createMockSdcDuplicateEntity(student1, student2, collection.getCollectionID());
+    mockDupe.setDuplicateResolutionCode(DuplicateResolutionCode.RELEASED.getCode());
+    mockDupe.setRetainedSdcSchoolCollectionStudentEntity(student1);
+    sdcDuplicateRepository.save(mockDupe);
+
+    sdcDuplicateService.deleteResolvedDupes(student1.getSdcSchoolCollectionStudentID());
+
+    List<SdcDuplicateEntity> updatedDupes = sdcDuplicateRepository.findAll();
+    assertThat(updatedDupes).hasSize(0);
   }
 
   @Test
