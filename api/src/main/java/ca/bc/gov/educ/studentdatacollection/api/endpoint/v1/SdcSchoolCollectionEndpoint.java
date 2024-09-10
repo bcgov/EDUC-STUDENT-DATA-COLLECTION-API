@@ -30,27 +30,6 @@ public interface SdcSchoolCollectionEndpoint {
   @Tag(name = "Sdc School Collection", description = "Endpoints to get school collection entity.")
   SdcSchoolCollection getSchoolCollection(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
-  @GetMapping("/{sdcSchoolCollectionID}/duplicates")
-  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
-  @Transactional(readOnly = true)
-  @Tag(name = "Sdc School Collection", description = "Endpoints to get school collection duplicates.")
-  List<SdcSchoolCollectionStudent>  getSchoolCollectionDuplicates(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
-
-  @GetMapping("/{sdcSchoolCollectionID}/sdc-duplicates")
-  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
-  @Transactional(readOnly = true)
-  @Tag(name = "Sdc School Collection", description = "Endpoints to get all school collection sdc duplicates.")
-  List<SdcDuplicate>  getSchoolCollectionSdcDuplicates(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
-
-  @GetMapping("/duplicate/{sdcDuplicateID}")
-  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
-  @Transactional(readOnly = true)
-  @Tag(name = "Sdc Duplicate", description = "Endpoints to get school collection duplicate.")
-  SdcDuplicate getDuplicateByID(@PathVariable("sdcDuplicateID") UUID sdcDuplicateID);
-
   @PutMapping("/{sdcSchoolCollectionID}")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
@@ -109,13 +88,6 @@ public interface SdcSchoolCollectionEndpoint {
   @Tag(name = "Sdc School Collection", description = "Endpoints to report zero enrolment for school collection entity.")
   @Schema(name = "SdcSchoolCollection", implementation = SdcSchoolCollection.class)
   SdcSchoolCollection reportZeroEnrollment(@RequestBody ReportZeroEnrollmentSdcSchoolCollection reportZeroEnrollmentData);
-
-  @GetMapping("/{sdcSchoolCollectionID}/provincial-duplicates")
-  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
-  @Transactional(readOnly = true)
-  @Tag(name = "Sdc School Collection", description = "Endpoints to get school collection's provincial duplicates.")
-  List<SdcDuplicate> getSchoolCollectionProvincialDuplicates(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
 
   @GetMapping("/{sdcSchoolCollectionID}/student-validation-issue-codes")
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")

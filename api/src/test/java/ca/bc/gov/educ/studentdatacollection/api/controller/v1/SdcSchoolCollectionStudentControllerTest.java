@@ -2517,7 +2517,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
-                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT +"/mark-for-review")
+                        post(URL.BASE_URL_DUPLICATE +"/mark-for-review")
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
@@ -2597,7 +2597,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         sdcDuplicateRepository.save(dup);
 
         this.mockMvc.perform(
-                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT +"/mark-for-review")
+                        post(URL.BASE_URL_DUPLICATE +"/mark-for-review")
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))

@@ -14,7 +14,10 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcStudentEllMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentHistoryRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityRulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
@@ -59,8 +62,6 @@ public class SdcSchoolCollectionStudentService {
 
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
-  private final SdcDuplicateRepository sdcDuplicateRepository;
-
   private final FteCalculatorChainProcessor fteCalculatorChainProcessor;
 
   private final ProgramEligibilityRulesProcessor programEligibilityRulesProcessor;
@@ -72,7 +73,6 @@ public class SdcSchoolCollectionStudentService {
 
   private final RulesProcessor rulesProcessor;
   private static final String SDC_SCHOOL_COLLECTION_STUDENT_ID = "sdcSchoolCollectionStudentId";
-  private static final String IN_REVIEW = "INREVIEW";
 
   public SdcSchoolCollectionStudentEntity getSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID) {
     Optional<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntityOptional = sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
@@ -335,19 +335,6 @@ public class SdcSchoolCollectionStudentService {
 
   public List<SdcStudentEll> createOrReturnSdcStudentEll(List<SdcStudentEll> studentEll) {
     return studentEll.stream().map(this::createOrReturnSdcStudentEll).toList();
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void markPENForReview(SdcSchoolCollectionStudentEntity studentEntity) {
-    var curStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
-            new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, studentEntity.getSdcSchoolCollectionStudentID().toString()));
-
-    sdcDuplicateRepository.deleteAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentID(curStudentEntity.getSdcSchoolCollectionStudentID());
-    curStudentEntity.setPenMatchResult(IN_REVIEW);
-    curStudentEntity.setAssignedStudentId(null);
-    curStudentEntity.setAssignedPen(null);
-
-    saveSdcStudentWithHistory(curStudentEntity);
   }
 
   public StudentRuleData createStudentRuleDataForValidation(SdcSchoolCollectionStudentEntity studentEntity) {
