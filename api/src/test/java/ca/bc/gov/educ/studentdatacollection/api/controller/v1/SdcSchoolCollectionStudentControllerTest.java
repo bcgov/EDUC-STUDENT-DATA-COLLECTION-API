@@ -4432,7 +4432,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
-    void testMoveSldRecords() {
+    void testMoveSldRecords() throws Exception {
+        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
+                grantedAuthority);
         UUID randomStudentID = UUID.randomUUID();
         String fromPen = "123456789";
         String toPen = "987654321";
@@ -4451,12 +4454,14 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         sldMove.setToStudentPen(toPen);
         sldMove.setSdcSchoolCollectionIdsToUpdate(List.of(studentEntity.getSdcSchoolCollectionStudentID()));
 
-        List<SdcSchoolCollectionStudentEntity> updatedStudents = sdcSchoolCollectionStudentService.moveSldRecords(sldMove);
-
-        assertThat(updatedStudents).hasSize(1);
-        SdcSchoolCollectionStudentEntity updatedStudent = updatedStudents.get(0);
-        assertThat(updatedStudent.getAssignedStudentId()).isEqualTo(randomStudentID);
-        assertThat(updatedStudent.getAssignedPen()).isEqualTo(toPen);
+        this.mockMvc
+            .perform(
+                post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/move-sld")
+                    .contentType(APPLICATION_JSON)
+                    .content(asJsonString(sldMove))
+                    .with(mockAuthority))
+                    .andDo(print())
+                    .andExpect(status().isOk());
 
         var savedEntity = sdcSchoolCollectionStudentRepository.findAll();
         assertThat(savedEntity).hasSize(1);
