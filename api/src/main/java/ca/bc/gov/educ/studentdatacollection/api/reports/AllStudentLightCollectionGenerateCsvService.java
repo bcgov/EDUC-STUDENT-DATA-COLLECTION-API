@@ -216,7 +216,7 @@ public class AllStudentLightCollectionGenerateCsvService {
             if(!errorAndWarnSet.contains(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueCode())) {
                 var optIssueCode = StudentValidationIssueSeverityCode.findByValue(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueSeverityCode());
                 var issueTypeCode = StudentValidationIssueTypeCode.findByValue(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueCode());
-                builder.append(optIssueCode.isPresent() ? optIssueCode.get().getCode() : "N/A");
+                builder.append(optIssueCode.isPresent() ? optIssueCode.get().getLabel() : "N/A");
                 builder.append(" - ");
                 builder.append(issueTypeCode != null ? issueTypeCode.getMessage() : "N/A");
                 builder.append("\n");
