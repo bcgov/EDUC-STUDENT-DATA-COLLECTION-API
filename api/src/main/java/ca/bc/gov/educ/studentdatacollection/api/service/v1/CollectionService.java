@@ -143,33 +143,6 @@ public class CollectionService {
     return response;
   }
 
-  public List<MonitorSdcSchoolCollection> getMonitorSdcSchoolCollectionResponse(UUID collectionID) {
-    Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
-    if (entityOptional.isEmpty()) {
-      throw new EntityNotFoundException(CollectionEntity.class, "CollectionID", collectionID.toString());
-    }
-    List<MonitorSdcSchoolCollectionQueryResponse> monitorSdcSchoolCollectionQueryResponses = sdcSchoolCollectionRepository.findAllSdcSchoolCollectionMonitoringBySdcCollectionId(collectionID);
-    List<MonitorSdcSchoolCollection> monitorSdcSchoolCollections = new ArrayList<>();
-    monitorSdcSchoolCollectionQueryResponses.forEach(monitorSdcSchoolCollectionQueryResponse -> {
-      SchoolTombstone schoolTombstone = this.restUtils.getSchoolBySchoolID(monitorSdcSchoolCollectionQueryResponse.getSchoolId().toString()).orElseThrow(() -> new StudentDataCollectionAPIRuntimeException("SdcSchoolCollection :: " + monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionId() + " has invalid schoolId :: " + monitorSdcSchoolCollectionQueryResponse.getSchoolId()));
-      MonitorSdcSchoolCollection monitorSdcSchoolCollection = new MonitorSdcSchoolCollection();
-
-      monitorSdcSchoolCollection.setSchoolTitle(schoolTombstone.getMincode() + " - " + schoolTombstone.getDisplayName());
-      monitorSdcSchoolCollection.setSchoolId(schoolTombstone.getSchoolId());
-      monitorSdcSchoolCollection.setSdcSchoolCollectionId(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionId());
-      monitorSdcSchoolCollection.setUploadDate(monitorSdcSchoolCollectionQueryResponse.getUploadDate());
-      monitorSdcSchoolCollection.setErrors(monitorSdcSchoolCollectionQueryResponse.getErrors());
-      monitorSdcSchoolCollection.setInfoWarnings(monitorSdcSchoolCollectionQueryResponse.getInfoWarnings());
-      monitorSdcSchoolCollection.setFundingWarnings(monitorSdcSchoolCollectionQueryResponse.getFundingWarnings());
-
-      monitorSdcSchoolCollection.setSchoolStatus(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode());
-      monitorSdcSchoolCollection.setSubmittedToDistrict(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode()));
-
-      monitorSdcSchoolCollections.add(monitorSdcSchoolCollection);
-    });
-    return monitorSdcSchoolCollections;
-  }
-
   private boolean isStatusConfirmed(String statusCode, String... confirmedStatuses) {
     return Arrays.asList(confirmedStatuses).contains(statusCode);
   }

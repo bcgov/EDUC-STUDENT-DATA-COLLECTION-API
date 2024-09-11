@@ -194,30 +194,6 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     """)
     List<MonitorIndySdcSchoolCollectionQueryResponse> findAllIndySdcSchoolCollectionMonitoringBySdcCollectionId(@Param("collectionID") UUID collectionID);
 
-    @Query("""
-    SELECT
-        s.sdcSchoolCollectionID as sdcSchoolCollectionId,
-        s.schoolID as schoolId,
-        s.sdcSchoolCollectionStatusCode as sdcSchoolCollectionStatusCode,
-        s.uploadDate as uploadDate,
-        s.uploadReportDate as uploadReportDate,
-        COUNT(DISTINCT stu.sdcSchoolCollectionStudentID) as headcount,
-        COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'ERROR' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as errors,
-        COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'FUNDING_WARNING' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as fundingWarnings,
-        COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'INFO_WARNING' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as infoWarnings,
-        COUNT(DISTINCT CASE WHEN de.duplicateResolutionCode IS NULL AND de.duplicateLevelCode = 'PROVINCIAL' AND de.duplicateTypeCode = 'PROGRAM' THEN de.sdcDuplicateID END) as unresolvedProgramDuplicates,
-        COUNT(DISTINCT CASE WHEN de.duplicateResolutionCode IS NULL AND de.duplicateLevelCode = 'PROVINCIAL' AND de.duplicateTypeCode = 'ENROLLMENT' THEN de.sdcDuplicateID END) as unresolvedEnrollmentDuplicates
-        FROM SdcSchoolCollectionEntity s
-        LEFT JOIN s.sdcSchoolStudentEntities stu
-        LEFT JOIN stu.sdcStudentValidationIssueEntities i
-        LEFT JOIN SdcDuplicateStudentEntity ds ON stu.sdcSchoolCollectionStudentID = ds.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID
-        LEFT JOIN SdcDuplicateEntity de ON ds.sdcDuplicateEntity.sdcDuplicateID = de.sdcDuplicateID
-    WHERE s.collectionEntity.collectionID = :collectionID
-    AND s.sdcDistrictCollectionID IS NOT NULL
-    GROUP BY s.sdcSchoolCollectionID
-    """)
-    List<MonitorSdcSchoolCollectionQueryResponse> findAllSdcSchoolCollectionMonitoringBySdcCollectionId(@Param("collectionID") UUID collectionID);
-
     List<SdcSchoolCollectionEntity> findAllBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
 
     @Query(value="""

@@ -91,13 +91,6 @@ public interface CollectionEndpoint {
   @Tag(name = "Collection Entity", description = "Endpoint to get monitoring objects for all indy sdc school collections in the collection.")
   MonitorIndySdcSchoolCollectionsResponse getMonitorIndySdcSchoolCollectionResponse(@PathVariable("collectionID") UUID collectionID);
 
-  @GetMapping("/{collectionID}/monitorSdcSchoolCollections")
-  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
-  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
-  @Transactional(readOnly = true)
-  @Tag(name = "Collection Entity", description = "Endpoint to get monitoring objects for all sdc school collections in the collection.")
-  List<MonitorSdcSchoolCollection> getMonitorSdcSchoolCollectionResponse(@PathVariable("collectionID") UUID collectionID);
-
   @GetMapping("/{collectionID}/duplicates")
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
