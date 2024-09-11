@@ -1,10 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHeadcounts;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcStudentEll;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -99,5 +96,11 @@ public interface SdcSchoolCollectionStudentEndpoint {
   @Transactional
   @Tag(name = "Sdc School Collection Student", description = "Endpoints to update PEN status on student entity.")
   ResponseEntity<Void> updatePENStatus(@PathVariable("penCode") String penCode, @Validated @RequestBody SdcSchoolCollectionStudent sdcSchoolCollectionStudent);
+
+  @PostMapping("/move-sld")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional
+  List<SdcSchoolCollectionStudent> moveSldRecords(@Validated @RequestBody SldMove sldMove);
 
 }

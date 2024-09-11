@@ -74,7 +74,8 @@ public enum FilterOperation {
    * Contains ignore case filter operation.
    */
   CONTAINS_IGNORE_CASE("like_ignore_case"),
-  IN_LEFT_JOIN("in_left_join");
+  IN_LEFT_JOIN("in_left_join"),
+  IN_NOT_DISTINCT("in_not_distinct");
 
   private final String value;
 

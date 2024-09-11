@@ -14,10 +14,8 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Search;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SearchCriteria;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValueType;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.Student;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.val;
@@ -4431,5 +4429,38 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         assertThat(studentEntity.getPenMatchResult()).isEqualTo("MATCH");
         assertThat(studentEntity.getAssignedPen()).isEqualTo("123456789");
         assertThat(studentEntity.getAssignedStudentId()).isEqualTo(assignedPenUUID);
+    }
+
+    @Test
+    void testMoveSldRecords() {
+        UUID randomStudentID = UUID.randomUUID();
+        String fromPen = "123456789";
+        String toPen = "987654321";
+
+        Student toStudent = new Student();
+        toStudent.setStudentID(randomStudentID.toString());
+        toStudent.setPen(toPen);
+        when(restUtils.getStudentByPEN(any(), any())).thenReturn(toStudent);
+
+        SdcSchoolCollectionStudentEntity studentEntity = new SdcSchoolCollectionStudentEntity();
+        studentEntity.setAssignedStudentId(UUID.randomUUID()); // some existing ID
+        studentEntity.setAssignedPen(fromPen);
+        studentEntity = sdcSchoolCollectionStudentRepository.save(studentEntity);
+
+        SldMove sldMove = new SldMove();
+        sldMove.setToStudentPen(toPen);
+        sldMove.setSdcSchoolCollectionIdsToUpdate(List.of(studentEntity.getSdcSchoolCollectionStudentID()));
+
+        List<SdcSchoolCollectionStudentEntity> updatedStudents = sdcSchoolCollectionStudentService.moveSldRecords(sldMove);
+
+        assertThat(updatedStudents).hasSize(1);
+        SdcSchoolCollectionStudentEntity updatedStudent = updatedStudents.get(0);
+        assertThat(updatedStudent.getAssignedStudentId()).isEqualTo(randomStudentID);
+        assertThat(updatedStudent.getAssignedPen()).isEqualTo(toPen);
+
+        var savedEntity = sdcSchoolCollectionStudentRepository.findAll();
+        assertThat(savedEntity).hasSize(1);
+        assertThat(savedEntity.get(0).getAssignedStudentId()).isEqualTo(randomStudentID);
+        assertThat(savedEntity.get(0).getAssignedPen()).isEqualTo(toPen);
     }
 }

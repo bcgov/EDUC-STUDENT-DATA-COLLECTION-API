@@ -11,10 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentHeadcountService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHeadcounts;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssueErrorWarningCount;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcStudentEll;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
@@ -169,5 +166,8 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
         return null;
     }
 
-
+    @Override
+    public List<SdcSchoolCollectionStudent> moveSldRecords(SldMove sldMove) {
+        return this.sdcSchoolCollectionStudentService.moveSldRecords(sldMove).stream().map(mapper::toSdcSchoolStudent).toList();
+    }
 }

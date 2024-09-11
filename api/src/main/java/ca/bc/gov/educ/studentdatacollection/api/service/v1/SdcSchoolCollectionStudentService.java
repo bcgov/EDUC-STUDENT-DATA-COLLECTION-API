@@ -503,4 +503,15 @@ public class SdcSchoolCollectionStudentService {
     var ruleData = createStudentRuleDataForValidation(curStudentEntity);
     saveSdcStudentWithHistory(processStudentRecord(ruleData.getSchool(), curStudentEntity, false));
   }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public List<SdcSchoolCollectionStudentEntity> moveSldRecords(SldMove sldMove) {
+    var toStudent = this.restUtils.getStudentByPEN(UUID.randomUUID(), sldMove.getToStudentPen());
+    var sdcSchoolCollectionStudentEntities = sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollectionStudentIDIn(sldMove.getSdcSchoolCollectionIdsToUpdate());
+    sdcSchoolCollectionStudentEntities.forEach(sdcSchoolCollectionStudentEntity -> {
+      sdcSchoolCollectionStudentEntity.setAssignedStudentId(UUID.fromString(toStudent.getStudentID()));
+      sdcSchoolCollectionStudentEntity.setAssignedPen(toStudent.getPen());
+    });
+    return sdcSchoolCollectionStudentRepository.saveAll(sdcSchoolCollectionStudentEntities);
+  }
 }
