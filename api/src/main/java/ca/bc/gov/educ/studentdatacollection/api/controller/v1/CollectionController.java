@@ -126,6 +126,11 @@ public class CollectionController implements CollectionEndpoint {
   }
 
   @Override
+  public List<MonitorSdcSchoolCollection> getMonitorSdcSchoolCollectionResponse(UUID collectionId) {
+    return this.collectionService.getMonitorSdcSchoolCollectionResponse(collectionId);
+  }
+
+  @Override
   public List<String> findDuplicatesInCollection(UUID collectionID, List<String> matchedAssignedIDs) {
     return this.collectionService.findDuplicatesInCollection(collectionID, matchedAssignedIDs);
   }

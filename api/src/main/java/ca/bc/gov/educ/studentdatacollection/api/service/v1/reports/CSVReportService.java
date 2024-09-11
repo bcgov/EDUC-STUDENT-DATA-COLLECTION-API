@@ -51,6 +51,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryrepo
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndyFundingReportHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -68,6 +69,118 @@ public class CSVReportService {
     private static final String COLLECTION_ID = "collectionID";
     private static final String INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and SEPT collections";
 
+    public DownloadableReportResponse generateIndyFundingReport(UUID collectionID) {
+        List<IndyFundingResult> results = sdcSchoolCollectionStudentRepository.getIndyFundingHeadcountsByCollectionId(collectionID);
+        var collectionOpt = collectionRepository.findById(collectionID);
+        if(collectionOpt.isEmpty()){
+            throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
+        }
+        var collection = collectionOpt.get();
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(DISTRICT_NUMBER.getCode(), IndyFundingReportHeader.DISTRICT_NAME.getCode(), IndyFundingReportHeader.AUTHORITY_NUMBER.getCode(), IndyFundingReportHeader.AUTHORITY_NAME.getCode(), IndyFundingReportHeader.SCHOOL_NUMBER.getCode(),
+                        SCHOOL_NAME.getCode(), FUNDING_GROUP.getCode(), TOTAL_HEADCOUNT.getCode(), TOTAL_FTE.getCode(), KIND_HT_HEADCOUNT.getCode(), GRADE_01_HEADCOUNT.getCode(), GRADE_02_HEADCOUNT.getCode(),
+                        GRADE_03_HEADCOUNT.getCode(),GRADE_04_HEADCOUNT.getCode(),GRADE_05_HEADCOUNT.getCode(),GRADE_06_HEADCOUNT.getCode(),GRADE_07_HEADCOUNT.getCode(),GRADE_08_HEADCOUNT.getCode(),GRADE_09_HEADCOUNT.getCode(),
+                        GRADE_10_HEADCOUNT.getCode(), GRADE_11_HEADCOUNT.getCode(),GRADE_12_HEADCOUNT.getCode(),GRADE_EU_HEADCOUNT.getCode(), GRADE_SU_HEADCOUNT.getCode(), GRADE_HS_HEADCOUNT.getCode(), GRAD_ADULT_HEADCOUNT.getCode(),
+                        NON_GRAD_ADULT_HEADCOUNT.getCode(), KIND_HT_FTE_COUNT.getCode(), GRADE_ONE_FTE_COUNT.getCode(), GRADE_TWO_FTE_COUNT.getCode(), GRADE_THREE_FTE_COUNT.getCode(), GRADE_FOUR_FTE_COUNT.getCode(),
+                        GRADE_FIVE_FTE_COUNT.getCode(),GRADE_SIX_FTE_COUNT.getCode(),GRADE_SEVEN_FTE_COUNT.getCode(),GRADE_EIGHT_FTE_COUNT.getCode(),GRADE_NINE_FTE_COUNT.getCode(),GRADE_TEN_FTE_COUNT.getCode(),
+                        GRADE_ELEVEN_FTE_COUNT.getCode(), GRADE_TWELVE_FTE_COUNT.getCode(),EU_FTE_COUNT.getCode(), SU_FTE_COUNT.getCode())
+                .build();
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (IndyFundingResult result : results) {
+                var schoolOpt = restUtils.getAllSchoolBySchoolID(result.getSchoolID());
+                if(schoolOpt.isPresent()) {
+                    var school = schoolOpt.get();
+                    var districtOpt = restUtils.getDistrictByDistrictID(school.getDistrictId());
+
+                    District district = null;
+                    if (districtOpt.isPresent()) {
+                        district = districtOpt.get();
+                    }
+
+                    Optional<IndependentAuthority> authorityOpt = Optional.empty();
+                    if (school.getIndependentAuthorityId() != null) {
+                        authorityOpt = restUtils.getAuthorityByAuthorityID(school.getIndependentAuthorityId());
+                    }
+
+                    IndependentAuthority authority = null;
+                    if (authorityOpt.isPresent()) {
+                        authority = authorityOpt.get();
+                    }
+
+
+                    List<String> csvRowData = prepareIndyFundingDataForCsv(result, collection, school, district, authority);
+                    csvPrinter.printRecord(csvRowData);
+                }
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(INDY_FUNDING_REPORT.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
+    private List<String> prepareIndyFundingDataForCsv(IndyFundingResult indyFundingResult, CollectionEntity collection, School school, District district, IndependentAuthority authority) {
+        List<String> csvRowData = new ArrayList<>();
+        csvRowData.addAll(Arrays.asList(
+                district != null ? district.getDistrictNumber() : null,
+                district != null ? district.getDisplayName() : null,
+                authority != null ? authority.getAuthorityNumber() : null,
+                authority != null ? authority.getDisplayName() : null,
+                school.getSchoolNumber(),
+                school.getDisplayName(),
+                null,
+                indyFundingResult.getTotalCount(),
+                indyFundingResult.getTotalFTE(),
+
+                indyFundingResult.getKindHCount(),
+                indyFundingResult.getKindFCount(),
+                indyFundingResult.getGrade1Count(),
+                indyFundingResult.getGrade2Count(),
+                indyFundingResult.getGrade3Count(),
+                indyFundingResult.getGrade4Count(),
+                indyFundingResult.getGrade5Count(),
+                indyFundingResult.getGrade6Count(),
+                indyFundingResult.getGrade7Count(),
+                indyFundingResult.getGradeEUCount(),
+                indyFundingResult.getGrade8Count(),
+                indyFundingResult.getGrade9Count(),
+                indyFundingResult.getGrade10Count(),
+                indyFundingResult.getGrade11Count(),
+                indyFundingResult.getGrade12Count(),
+                indyFundingResult.getGradeSUCount(),
+                indyFundingResult.getGradeGACount(),
+                indyFundingResult.getGradeHSCount(),
+
+                indyFundingResult.getKindHFTE(),
+                indyFundingResult.getKindFFTE(),
+                indyFundingResult.getGrade1FTE(),
+                indyFundingResult.getGrade2FTE(),
+                indyFundingResult.getGrade3FTE(),
+                indyFundingResult.getGrade4FTE(),
+                indyFundingResult.getGrade5FTE(),
+                indyFundingResult.getGrade6FTE(),
+                indyFundingResult.getGrade7FTE(),
+                indyFundingResult.getGradeEUFTE(),
+                indyFundingResult.getGrade8FTE(),
+                indyFundingResult.getGrade9FTE(),
+                indyFundingResult.getGrade10FTE(),
+                indyFundingResult.getGrade11FTE(),
+                indyFundingResult.getGrade12FTE(),
+                indyFundingResult.getGradeSUFTE(),
+                indyFundingResult.getGradeGAFTE(),
+                indyFundingResult.getGradeHSFTE()
+        ));
+        return csvRowData;
+    }
 
     public DownloadableReportResponse generateAllSchoolsHeadcounts(UUID collectionID) {
         List<SchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllEnrollmentHeadcountsByCollectionId(collectionID);
@@ -77,7 +190,7 @@ public class CSVReportService {
         }
         var collection = collectionOpt.get();
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SCHOOL_YEAR.getCode(), DISTRICT_NUMBER.getCode(), SCHOOL_NUMBER.getCode(), SCHOOL_NAME.getCode(), FACILITY_TYPE.getCode(),
+                .setHeader(SCHOOL_YEAR.getCode(), DISTRICT_NUMBER.getCode(), SchoolEnrolmentHeader.SCHOOL_NUMBER.getCode(), SCHOOL_NAME.getCode(), FACILITY_TYPE.getCode(),
                         SCHOOL_CATEGORY.getCode(), GRADE_RANGE.getCode(), REPORT_DATE.getCode(), KIND_HT_COUNT.getCode(), KIND_FT_COUNT.getCode(), GRADE_01_COUNT.getCode(), GRADE_02_COUNT.getCode(),
                         GRADE_03_COUNT.getCode(),GRADE_04_COUNT.getCode(),GRADE_05_COUNT.getCode(),GRADE_06_COUNT.getCode(),GRADE_07_COUNT.getCode(),GRADE_08_COUNT.getCode(),GRADE_09_COUNT.getCode(),
                         GRADE_10_COUNT.getCode(), GRADE_11_COUNT.getCode(),GRADE_12_COUNT.getCode())
@@ -310,7 +423,8 @@ public class CSVReportService {
         var mappedSeptData = getLastSeptCollectionSchoolMap(collectionID);
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(DISTRICT_NUMBER.getCode(), DISTRICT_NAME.getCode(), AUTHORITY_NUMBER.getCode(), AUTHORITY_NAME.getCode(), MINCODE.getCode(), SCHOOL_NAME.getCode(),
+                .setHeader(DISTRICT_NUMBER.getCode(), IndySpecialEducationFundingHeadcountHeader.DISTRICT_NAME.getCode(), IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NUMBER.getCode(),
+                        IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NAME.getCode(), MINCODE.getCode(), SCHOOL_NAME.getCode(),
                         POSITIVE_CHANGE_LEVEL_1.getCode(),POSITIVE_CHANGE_LEVEL_2.getCode(),
                         POSITIVE_CHANGE_LEVEL_3.getCode(), NET_CHANGE_LEVEL_1.getCode(), NET_CHANGE_LEVEL_2.getCode(), NET_CHANGE_LEVEL_3.getCode(),SEPT_LEVEL_1.getCode(), SEPT_LEVEL_2.getCode(),
                         SEPT_LEVEL_3.getCode(),FEB_LEVEL_1.getCode(),FEB_LEVEL_2.getCode(),FEB_LEVEL_3.getCode())
