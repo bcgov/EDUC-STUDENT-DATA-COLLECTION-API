@@ -211,13 +211,17 @@ public class AllStudentLightCollectionGenerateCsvService {
 
     private String getErrorsAndWarningString(SdcSchoolCollectionStudentEntity student){
         StringBuilder builder = new StringBuilder();
-        student.getSDCStudentValidationIssueEntities().stream().forEach(sdcSchoolCollectionStudentValidationIssueEntity -> {
-            var optIssueCode = StudentValidationIssueSeverityCode.findByValue(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueSeverityCode());
-            var issueTypeCode = StudentValidationIssueTypeCode.findByValue(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueCode());
-            builder.append(optIssueCode.isPresent() ? optIssueCode.get().getCode() : "N/A");
-            builder.append(" - ");
-            builder.append(issueTypeCode != null ? issueTypeCode.getCode() : "N/A");
-            builder.append("\n");
+        student.getSDCStudentValidationIssueEntities().forEach(sdcSchoolCollectionStudentValidationIssueEntity -> {
+            var errorAndWarnSet = new HashSet<String>();
+            if(!errorAndWarnSet.contains(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueCode())) {
+                var optIssueCode = StudentValidationIssueSeverityCode.findByValue(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueSeverityCode());
+                var issueTypeCode = StudentValidationIssueTypeCode.findByValue(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueCode());
+                builder.append(optIssueCode.isPresent() ? optIssueCode.get().getCode() : "N/A");
+                builder.append(" - ");
+                builder.append(issueTypeCode != null ? issueTypeCode.getMessage() : "N/A");
+                builder.append("\n");
+                errorAndWarnSet.add(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueCode());
+            }
         });
         if(!builder.isEmpty()){
             return builder.toString().substring(0, builder.length()-2);
