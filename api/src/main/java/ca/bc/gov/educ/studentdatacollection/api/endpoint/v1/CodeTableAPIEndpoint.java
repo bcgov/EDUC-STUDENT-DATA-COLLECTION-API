@@ -128,7 +128,7 @@ public interface CodeTableAPIEndpoint {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
     @Transactional(readOnly = true)
     @Tag(name = "Collection Codes", description = "Endpoints to get collection codes.")
-    @Schema(name = "DuplicateResolutionCodes", implementation = ZeroFteReasonCode.class)
+    @Schema(name = "DuplicateResolutionCodes", implementation = DuplicateResolutionCode.class)
     List<DuplicateResolutionCode> getDuplicateResolutionCodes();
 
     @PreAuthorize("hasAuthority('SCOPE_READ_COLLECTION_CODES')")
@@ -136,7 +136,7 @@ public interface CodeTableAPIEndpoint {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK")})
     @Transactional(readOnly = true)
     @Tag(name = "Collection Codes", description = "Endpoints to get collection codes.")
-    @Schema(name = "ProgramDuplicateTypeCodes", implementation = ZeroFteReasonCode.class)
+    @Schema(name = "ProgramDuplicateTypeCodes", implementation = ProgramDuplicateTypeCode.class)
     List<ProgramDuplicateTypeCode> getProgramDuplicateTypeCodes();
 
     @PreAuthorize("hasAuthority('SCOPE_READ_COLLECTION_CODES')")
