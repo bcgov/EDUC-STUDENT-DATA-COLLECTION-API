@@ -109,7 +109,7 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
 
     @Test
     void testParseEnrolledProgramCodes_Standard() {
-        Map<String, String> result = service.parseEnrolledProgramCodes("05EF");
+        Map<String, String> result = service.parseEnrolledProgramCodes("05EF", "1");
         assertEquals("1", result.get("05"));
         assertEquals("", result.get("08"));
         assertNull(result.get("EF"));
@@ -117,13 +117,13 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
 
     @Test
     void testParseEnrolledProgramCodes_EmptyString() {
-        Map<String, String> result = service.parseEnrolledProgramCodes("");
+        Map<String, String> result = service.parseEnrolledProgramCodes("", "1");
         result.values().forEach(value -> assertEquals("", value));
     }
 
     @Test
     void testParseEnrolledProgramCodes_NonStandardCodes() {
-        Map<String, String> result = service.parseEnrolledProgramCodes("0508E");
+        Map<String, String> result = service.parseEnrolledProgramCodes("0508E", "1");
         assertEquals("1", result.get("05"));
         assertEquals("1", result.get("08"));
         assertNull(result.get("E "));
@@ -131,7 +131,7 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
 
     @Test
     void testParseEnrolledProgramCodes_NullInput() {
-        Map<String, String> result = service.parseEnrolledProgramCodes(null);
+        Map<String, String> result = service.parseEnrolledProgramCodes(null, "1");
         result.values().forEach(value -> assertEquals("", value));
     }
 

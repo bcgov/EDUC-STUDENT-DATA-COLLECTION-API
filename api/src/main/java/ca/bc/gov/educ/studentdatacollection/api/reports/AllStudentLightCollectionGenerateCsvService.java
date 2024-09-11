@@ -163,10 +163,10 @@ public class AllStudentLightCollectionGenerateCsvService {
         }
         String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
         String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());
-        String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "1" : "";
-        String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "1" : "";
-        String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "1" : "";
-        Map<String, String> enrolledProgramCodesMap = parseEnrolledProgramCodes(student.getEnrolledProgramCodes());
+        String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "Y" : "";
+        String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "Y" : "";
+        String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "Y" : "";
+        Map<String, String> enrolledProgramCodesMap = parseEnrolledProgramCodes(student.getEnrolledProgramCodes(), "Y");
 
         csvRowData.addAll(Arrays.asList(
                 getErrorsAndWarningString(student),
@@ -179,11 +179,11 @@ public class AllStudentLightCollectionGenerateCsvService {
                 student.getLocalID(),
                 student.getEnrolledGradeCode(),
                 student.getFte(),
-                Boolean.TRUE.equals(student.getIsAdult()) ? "1" : "",
-                Boolean.TRUE.equals(student.getIsGraduated()) ? "1" : "",
+                Boolean.TRUE.equals(student.getIsAdult()) ? "Y" : "",
+                Boolean.TRUE.equals(student.getIsGraduated()) ? "Y" : "",
                 feePayer,
                 refugee,
-                convertToBinary(student.getNativeAncestryInd()),
+                student.getNativeAncestryInd(),
                 ordinarilyResidentOnReserve,
                 student.getBandCode(),
                 student.getHomeLanguageSpokenCode(),
@@ -246,7 +246,7 @@ public class AllStudentLightCollectionGenerateCsvService {
         String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "1" : "";
         String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "1" : "";
         String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "1" : "";
-        Map<String, String> enrolledProgramCodesMap = parseEnrolledProgramCodes(student.getEnrolledProgramCodes());
+        Map<String, String> enrolledProgramCodesMap = parseEnrolledProgramCodes(student.getEnrolledProgramCodes(), "1");
 
         csvRowData.addAll(Arrays.asList(
                     student.getStudentPen(),
@@ -316,7 +316,7 @@ public class AllStudentLightCollectionGenerateCsvService {
         return fullName.toString().trim();
     }
 
-    public Map<String, String> parseEnrolledProgramCodes(String enrolledProgramCodes) {
+    public Map<String, String> parseEnrolledProgramCodes(String enrolledProgramCodes, String displayValue) {
         Map<String, String> codesMap = Arrays.stream(new String[] {
                 EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode(),
                 EnrolledProgramCodes.CORE_FRENCH.getCode(),
@@ -337,7 +337,7 @@ public class AllStudentLightCollectionGenerateCsvService {
                     .mapToObj(i -> enrolledProgramCodes.substring(i, Math.min(i + 2, enrolledProgramCodes.length())))
                     .forEach(code -> {
                         if (codesMap.containsKey(code)) {
-                            codesMap.put(code, "1");
+                            codesMap.put(code, displayValue);
                         }
                     });
         }
