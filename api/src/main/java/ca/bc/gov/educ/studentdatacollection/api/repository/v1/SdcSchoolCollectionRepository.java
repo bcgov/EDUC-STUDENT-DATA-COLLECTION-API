@@ -2,9 +2,10 @@ package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionsForAutoSubmit;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorIndySdcSchoolCollectionQueryResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionQueryResponse;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolCollectionSchoolID;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionsForAutoSubmit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -143,6 +144,12 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     Optional<CollectionEntity> findLastCollectionByType(String collectionTypeCode, UUID currentCollectionID);
 
     List<SdcSchoolCollectionEntity> findAllBySchoolID(UUID schoolID);
+
+    @Query(value="""
+            SELECT new ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolCollectionSchoolID(sdc.sdcSchoolCollectionID, sdc.schoolID) FROM SdcSchoolCollectionEntity sdc 
+            WHERE sdc.sdcSchoolCollectionID in :sdcSchoolCollectionIDs
+            """)
+    List<SchoolCollectionSchoolID> findSchoolIDBySdcSchoolCollectionIDIn(List<UUID> sdcSchoolCollectionIDs);
     Optional<SdcSchoolCollectionEntity> findBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
     List<SdcSchoolCollectionEntity> findAllByCollectionEntityCollectionID(UUID collectionID);
 

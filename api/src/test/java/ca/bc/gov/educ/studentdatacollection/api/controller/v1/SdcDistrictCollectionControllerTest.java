@@ -886,7 +886,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     val sdcDuplicates = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List<SdcDuplicate>>() {
     });
 
-    assertThat(sdcDuplicates).hasSize(3);
+    assertThat(sdcDuplicates).hasSize(4);
   }
 
   @Test

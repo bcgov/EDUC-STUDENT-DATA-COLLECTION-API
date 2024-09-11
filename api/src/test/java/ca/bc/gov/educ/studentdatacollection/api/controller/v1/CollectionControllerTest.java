@@ -100,7 +100,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   @Autowired
   SagaEventRepository sagaEventRepository;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
-  protected final static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+  protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
   @BeforeEach
   public void setUp() {
@@ -276,17 +276,17 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     this.sdcSchoolCollectionStudentRepository.saveAll(Arrays.asList(student2, student3));
 
     List<String> sdcSchoolRoleCodes = Arrays.asList("SCHOOL_SDC");
-    EdxUser school1EdxUser1 = createMockEdxUser(sdcSchoolRoleCodes, null, school1.getSchoolId(), null);
+    EdxUser school1EdxUser1 = createMockEdxUser(sdcSchoolRoleCodes, null, UUID.fromString(school1.getSchoolId()), null);
     List<EdxUser> school1Users = Arrays.asList(school1EdxUser1);
 
     List<String> sdcDistrictRoleCodes = Arrays.asList("DISTRICT_SDC");
-    EdxUser school2EdxUser = createMockEdxUser(null, sdcDistrictRoleCodes, null, school2.getDistrictId());
+    EdxUser school2EdxUser = createMockEdxUser(null, sdcDistrictRoleCodes, null, UUID.fromString(school2.getDistrictId()));
     List<EdxUser> school2Users = Arrays.asList(school2EdxUser);
 
     when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
     when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
-    when(this.restUtils.get1701Users(UUID.fromString(school1.getSchoolId()), null)).thenReturn(school1Users);
-    when(this.restUtils.get1701Users(null, UUID.fromString(school2.getDistrictId()))).thenReturn(school2Users);
+    when(this.restUtils.getEdxUsersForSchool(UUID.fromString(school1.getSchoolId()))).thenReturn(school1Users);
+    when(this.restUtils.getEdxUsersForDistrict(UUID.fromString(school2.getDistrictId()))).thenReturn(school2Users);
 
     this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/" + currentCollection.getCollectionID() + "/in-province-duplicates").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk());
@@ -320,6 +320,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
             .andDo(print()).andExpect(status().isBadRequest());
   }
 
+  @Test
   void testGetMonitorSdcDistrictCollectionResponse_WithInValidId_ReturnsNotFound() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);

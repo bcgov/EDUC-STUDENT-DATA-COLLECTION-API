@@ -61,6 +61,8 @@ public class RestUtils {
   public static final String OPEN_DATE = "openedDate";
   public static final String CLOSE_DATE = "closedDate";
   private static final String CONTENT_TYPE = "Content-Type";
+  private final Map<UUID, List<EdxUser>> edxSchoolUserMap = new ConcurrentHashMap<>();
+  private final Map<UUID, List<EdxUser>> edxDistrictUserMap = new ConcurrentHashMap<>();
   private final Map<String, IndependentAuthority> authorityMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolTombstone> schoolMincodeMap = new ConcurrentHashMap<>();
@@ -74,6 +76,7 @@ public class RestUtils {
   private final MessagePublisher messagePublisher;
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final ReadWriteLock facilityTypesLock = new ReentrantReadWriteLock();
+  private final ReadWriteLock edxUsersLock = new ReentrantReadWriteLock();
   private final ReadWriteLock schoolCategoriesLock = new ReentrantReadWriteLock();
   private final ReadWriteLock authorityLock = new ReentrantReadWriteLock();
   private final ReadWriteLock schoolLock = new ReentrantReadWriteLock();
@@ -110,11 +113,41 @@ public class RestUtils {
     this.populateSchoolMincodeMap();
     this.populateDistrictMap();
     this.populateAuthorityMap();
+    this.populateEdxUsersMap();
   }
 
   @Scheduled(cron = "${schedule.jobs.load.school.cron}")
   public void scheduled() {
     this.init();
+  }
+
+  public void populateEdxUsersMap() {
+    val writeLock = this.edxUsersLock.writeLock();
+    try {
+      writeLock.lock();
+      for (val edxUser : this.getEdxUsers()) {
+        for(val edxUserSchool: edxUser.getEdxUserSchools()) {
+          if(this.edxSchoolUserMap.containsKey(edxUserSchool.getSchoolID())) {
+            this.edxSchoolUserMap.get(edxUserSchool.getSchoolID()).add(edxUser);
+          }else {
+            this.edxSchoolUserMap.put(edxUserSchool.getSchoolID(), Arrays.asList(edxUser));
+          }
+        }
+        for(val edxUserDistrict: edxUser.getEdxUserDistricts()) {
+          if(this.edxDistrictUserMap.containsKey(edxUserDistrict.getDistrictID())) {
+            this.edxDistrictUserMap.get(edxUserDistrict.getDistrictID()).add(edxUser);
+          }else {
+            this.edxDistrictUserMap.put(edxUserDistrict.getDistrictID(), Arrays.asList(edxUser));
+          }
+        }
+      }
+    } catch (Exception ex) {
+      log.error("Unable to load map cache EDX users {}", ex);
+    } finally {
+      writeLock.unlock();
+    }
+    log.info("Loaded  {} EDX school users to memory", this.edxSchoolUserMap.values().size());
+    log.info("Loaded  {} EDX district users to memory", this.edxDistrictUserMap.values().size());
   }
 
   public void populateAuthorityMap() {
@@ -252,18 +285,10 @@ public class RestUtils {
             .blockFirst();
   }
 
-  public List<EdxUser> get1701Users(UUID schoolID, UUID districtID) {
-    log.debug("Retrieving users for school: {}", schoolID);
-    String url;
-    if (schoolID != null && districtID == null) {
-      url = this.props.getEdxApiURL() + "/users?schoolID=" + schoolID;
-    } else if (districtID != null && schoolID == null) {
-      url = this.props.getEdxApiURL() + "/users?districtID=" + districtID;
-    } else {
-      return Collections.emptyList();
-    }
+  public List<EdxUser> getEdxUsers() {
+    log.info("Calling Institute api to load EDX users to memory");
     return this.webClient.get()
-            .uri(url)
+            .uri(this.props.getEdxApiURL() + "/users")
             .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .retrieve()
             .bodyToFlux(EdxUser.class)
@@ -577,6 +602,25 @@ public class RestUtils {
       this.populateAllSchoolMap();
     }
     return Optional.ofNullable(this.allSchoolMap.get(schoolID));
+  }
+
+  public List<EdxUser> getEdxUsersForSchool(final UUID schoolID) {
+    if (this.edxSchoolUserMap.isEmpty()) {
+      log.info("EDX users school map is empty reloading schools");
+      this.populateEdxUsersMap();
+    }
+
+    var users = this.edxSchoolUserMap.get(schoolID);
+    return users != null ? users : new ArrayList<>();
+  }
+
+  public List<EdxUser> getEdxUsersForDistrict(final UUID districtID) {
+    if (this.edxDistrictUserMap.isEmpty()) {
+      log.info("EDX users district map is empty reloading schools");
+      this.populateEdxUsersMap();
+    }
+    var users = this.edxDistrictUserMap.get(districtID);
+    return users != null ? users : new ArrayList<>();
   }
 
   @Retryable(retryFor = {Exception.class}, noRetryFor = {StudentDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))

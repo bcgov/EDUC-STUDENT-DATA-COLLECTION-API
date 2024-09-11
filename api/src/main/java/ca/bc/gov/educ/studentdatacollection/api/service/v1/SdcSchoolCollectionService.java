@@ -60,7 +60,7 @@ public class SdcSchoolCollectionService {
 
   private static final String INVALID_PAYLOAD_MSG = "Payload contains invalid data.";
   private static final String SDC_SCHOOL_COLLECTION_ID_KEY = "sdcSchoolCollectionID";
-  private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+  private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   @Autowired
   public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcDistrictCollectionService sdcDistrictCollectionService, SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository, SdcSchoolCollectionLightRepository sdcSchoolCollectionLightRepository) {
@@ -95,7 +95,7 @@ public class SdcSchoolCollectionService {
 
     log.debug("About to persist history records for students: {}", curSDCSchoolEntity.getSdcSchoolCollectionID());
     List<SdcSchoolCollectionStudentHistoryEntity> newHistoryEntities = new ArrayList<>();
-    newStudents.stream().forEach(sdcSchoolCollectionStudentEntity -> newHistoryEntities.add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser())));
+    newStudents.forEach(sdcSchoolCollectionStudentEntity -> newHistoryEntities.add(this.sdcSchoolCollectionStudentHistoryService.createSDCSchoolStudentHistory(sdcSchoolCollectionStudentEntity, curSDCSchoolEntity.getUpdateUser())));
     this.sdcSchoolCollectionStudentHistoryRepository.saveAll(newHistoryEntities);
 
     return returnedEntities;
@@ -118,10 +118,6 @@ public class SdcSchoolCollectionService {
     } else {
       throw new IllegalArgumentException("Invalid query param");
     }
-  }
-
-  public List<SdcSchoolCollectionStudentEntity> getAllSchoolCollectionDuplicates(UUID sdcSchoolCollectionID) {
-    return sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsInSdcSchoolCollection(sdcSchoolCollectionID);
   }
 
   public SdcSchoolCollectionEntity getSdcSchoolCollection(UUID sdcSchoolCollectionID) {
@@ -278,7 +274,7 @@ public class SdcSchoolCollectionService {
     SdcSchoolCollectionEntity septemberCollection = septemberCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, sdcSchoolCollectionID.toString()));
 
     currentSchoolCollectionEntity.getSDCSchoolStudentEntities().clear();
-    septemberCollection.getSDCSchoolStudentEntities().stream().forEach(sdcSchoolCollectionStudentEntity -> {
+    septemberCollection.getSDCSchoolStudentEntities().forEach(sdcSchoolCollectionStudentEntity -> {
       if(!sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentStatusCode().equals(SdcSchoolStudentStatus.DELETED.getCode())) {
         var studentEntity = new SdcSchoolCollectionStudentEntity();
         BeanUtils.copyProperties(sdcSchoolCollectionStudentEntity, studentEntity, "sdcSchoolCollectionStudentID", "sdcStudentEnrolledProgramEntities", "sdcStudentValidationIssueEntities");
@@ -313,9 +309,9 @@ public class SdcSchoolCollectionService {
     return this.sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
   }
 
-  public SdcSchoolCollectionLightEntity saveSdcSchoolCollectionLightWithHistory(SdcSchoolCollectionLightEntity sdcSchoolCollectionEntity) {
+  public void saveSdcSchoolCollectionLightWithHistory(SdcSchoolCollectionLightEntity sdcSchoolCollectionEntity) {
     TransformUtil.uppercaseFields(sdcSchoolCollectionEntity);
     sdcSchoolCollectionEntity.getSdcSchoolCollectionLightHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCLightSchoolHistory(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser()));
-    return this.sdcSchoolCollectionLightRepository.save(sdcSchoolCollectionEntity);
+    this.sdcSchoolCollectionLightRepository.save(sdcSchoolCollectionEntity);
   }
 }

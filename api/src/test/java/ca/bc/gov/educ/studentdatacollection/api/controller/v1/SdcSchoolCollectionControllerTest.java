@@ -50,9 +50,6 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
   private MockMvc mockMvc;
 
   @Autowired
-  SdcSchoolCollectionController sdcSchoolCollectionController;
-
-  @Autowired
   CollectionRepository collectionRepository;
 
   @Autowired
@@ -123,7 +120,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     var savedDupe = sdcDuplicateRepository.save(inDistDupe);
 
     this.mockMvc.perform(
-                    get(URL.BASE_URL_SCHOOL_COLLECTION + "/duplicate/" + savedDupe.getSdcDuplicateID()).with(mockAuthority))
+                    get(URL.BASE_URL_DUPLICATE + "/" + savedDupe.getSdcDuplicateID()).with(mockAuthority))
             .andDo(print()).andExpect(status().isOk()).andExpect(
                     MockMvcResultMatchers.jsonPath("$.sdcDuplicateID",
                             equalTo(savedDupe.getSdcDuplicateID().toString())));
@@ -332,7 +329,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     sdcSchoolCollectionStudentRepository.save(student2);
 
     this.mockMvc.perform(
-            get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcSchoolCollectionEntity.getSdcSchoolCollectionID()
+            get(URL.BASE_URL_DUPLICATE + "/sdcSchoolCollection/" + sdcSchoolCollectionEntity.getSdcSchoolCollectionID()
                     + "/duplicates").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
   }
@@ -362,7 +359,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     sdcSchoolCollectionStudentRepository.save(student2);
 
     this.mockMvc.perform(
-                    get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcSchoolCollectionEntity.getSdcSchoolCollectionID()
+                    get(URL.BASE_URL_DUPLICATE + "/sdcSchoolCollection/" + sdcSchoolCollectionEntity.getSdcSchoolCollectionID()
                             + "/duplicates").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(0)));
   }
@@ -795,7 +792,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     provincialDuplicate.setDuplicateLevelCode(DuplicateLevelCode.PROVINCIAL.getCode());
     var resultEntity = sdcDuplicateRepository.save(provincialDuplicate);
 
-    this.mockMvc.perform(get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcSchoolCollectionEntity1.getSdcSchoolCollectionID() + "/provincial-duplicates")
+    this.mockMvc.perform(get(URL.BASE_URL_DUPLICATE + "/sdcSchoolCollection/" + sdcSchoolCollectionEntity1.getSdcSchoolCollectionID() + "/provincial-duplicates")
                     .with(mockAuthority)
                     .header("correlationID", UUID.randomUUID().toString())
                     .contentType(APPLICATION_JSON)).andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$[0]").value(duplicateMapper.toSdcDuplicate(resultEntity)))

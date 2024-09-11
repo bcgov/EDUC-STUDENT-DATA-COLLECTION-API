@@ -801,6 +801,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
         entity.setPostalCode(null);
+        sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
                         post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
@@ -2459,11 +2460,13 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
         when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
 
-        var collection = collectionRepository.save(createMockCollectionEntity());
+        var mockCollection = createMockCollectionEntity();
+        mockCollection.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
+        var collection = collectionRepository.save(mockCollection);
         var sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId()));
-        sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
+        var schoolCollection = sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
 
-        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        val entity = this.createMockSchoolStudentEntity(schoolCollection);
         entity.setCreateDate(null);
         entity.setUpdateDate(null);
         entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
@@ -2478,6 +2481,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setBandCode("0600");
         entity.setIsSchoolAged(true);
         entity.setIsAdult(false);
+        sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
                         post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
@@ -2513,7 +2517,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
-                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT +"/mark-for-review")
+                        post(URL.BASE_URL_DUPLICATE +"/mark-for-review")
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
@@ -2593,7 +2597,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         sdcDuplicateRepository.save(dup);
 
         this.mockMvc.perform(
-                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT +"/mark-for-review")
+                        post(URL.BASE_URL_DUPLICATE +"/mark-for-review")
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
