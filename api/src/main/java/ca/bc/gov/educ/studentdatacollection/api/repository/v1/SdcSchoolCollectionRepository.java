@@ -181,8 +181,8 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
         COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'ERROR' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as errors,
         COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'FUNDING_WARNING' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as fundingWarnings,
         COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'INFO_WARNING' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as infoWarnings,
-        COUNT(DISTINCT CASE WHEN de.duplicateResolutionCode IS NULL AND de.duplicateLevelCode = 'PROVINCIAL' AND de.duplicateTypeCode = 'PROGRAM' THEN de.sdcDuplicateID END) as unresolvedProgramDuplicates,
-        COUNT(DISTINCT CASE WHEN de.duplicateResolutionCode IS NULL AND de.duplicateLevelCode = 'PROVINCIAL' AND de.duplicateTypeCode = 'ENROLLMENT' THEN de.sdcDuplicateID END) as unresolvedEnrollmentDuplicates
+        COUNT(DISTINCT CASE WHEN de.duplicateResolutionCode IS NULL AND de.duplicateLevelCode = 'PROVINCIAL' AND de.duplicateTypeCode = 'PROGRAM' AND de.duplicateSeverityCode = 'NON_ALLOWABLE' THEN de.sdcDuplicateID END) as unresolvedProgramDuplicates,
+        COUNT(DISTINCT CASE WHEN de.duplicateResolutionCode IS NULL AND de.duplicateLevelCode = 'PROVINCIAL' AND de.duplicateTypeCode = 'ENROLLMENT' AND de.duplicateSeverityCode = 'NON_ALLOWABLE' THEN de.sdcDuplicateID END) as unresolvedEnrollmentDuplicates
         FROM SdcSchoolCollectionEntity s
         LEFT JOIN s.sdcSchoolStudentEntities stu
         LEFT JOIN stu.sdcStudentValidationIssueEntities i

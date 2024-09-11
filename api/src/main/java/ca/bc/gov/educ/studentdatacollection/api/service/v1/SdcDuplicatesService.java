@@ -592,6 +592,7 @@ public class SdcDuplicatesService {
     }
     List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInCollection(collectionID);
     List<SdcDuplicateEntity> generatedDuplicates = generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL, false);
+    generatedDuplicates.removeIf(duplicate -> duplicate.getDuplicateSeverityCode().equals(DuplicateSeverityCode.ALLOWABLE.getCode()));
 
     Map<UUID, List<SdcDuplicateEntity>> groupedByInstituteID;
     if(isIndySchoolView) {
