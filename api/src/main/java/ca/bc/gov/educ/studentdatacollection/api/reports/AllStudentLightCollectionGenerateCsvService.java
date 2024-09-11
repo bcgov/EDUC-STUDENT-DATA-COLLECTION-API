@@ -211,8 +211,8 @@ public class AllStudentLightCollectionGenerateCsvService {
 
     private String getErrorsAndWarningString(SdcSchoolCollectionStudentEntity student){
         StringBuilder builder = new StringBuilder();
+        var errorAndWarnSet = new HashSet<String>();
         student.getSDCStudentValidationIssueEntities().forEach(sdcSchoolCollectionStudentValidationIssueEntity -> {
-            var errorAndWarnSet = new HashSet<String>();
             if(!errorAndWarnSet.contains(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueCode())) {
                 var optIssueCode = StudentValidationIssueSeverityCode.findByValue(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueSeverityCode());
                 var issueTypeCode = StudentValidationIssueTypeCode.findByValue(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueCode());
