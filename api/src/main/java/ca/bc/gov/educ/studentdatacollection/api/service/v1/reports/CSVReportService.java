@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.reports;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.*;
@@ -67,6 +68,7 @@ public class CSVReportService {
     private final ValidationRulesService validationService;
     private static final String COLLECTION_ID = "collectionID";
     private static final String INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and SEPT collections";
+    private static final String HEADCOUNTS_INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and MAY collections";
 
 
     public DownloadableReportResponse generateAllSchoolsHeadcounts(UUID collectionID) {
@@ -194,7 +196,7 @@ public class CSVReportService {
         } else if(collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode())) {
             return generateFebFsaCsv(collection.getCollectionID());
         }
-        throw new InvalidPayloadException(createError());
+        throw new InvalidPayloadException(createError(INVALID_COLLECTION_TYPE));
     }
 
     private DownloadableReportResponse generateFebFsaCsv(UUID collectionID) {
@@ -753,8 +755,65 @@ public class CSVReportService {
         }
     }
 
-    private ApiError createError() {
-        return ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_COLLECTION_TYPE).status(BAD_REQUEST).build();
+    public DownloadableReportResponse generateEnrolmentHeadcountsAndFteReportForCEAndOLSchools(UUID collectionID) {
+        var collectionOpt = collectionRepository.findById(collectionID);
+
+        if(collectionOpt.isEmpty()){
+            throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
+        }
+
+        CollectionEntity collection = collectionOpt.get();
+        if(!collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.MAY.getTypeCode()) && !collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode())) {
+            throw new InvalidPayloadException(createError(HEADCOUNTS_INVALID_COLLECTION_TYPE));
+        }
+
+        List<EnrolmentHeadcountFteResult> results = sdcSchoolCollectionStudentRepository.getEnrolmentHeadcountsAndFteWithRefugeeByCollectionId(collectionID);
+        var mappedSeptData = getEnrolmentHeadcountFteResultForLastSeptCollection(collectionID);
+
+        List<String> headers = Arrays.stream(CEAndOLEnrolmentAndFteHeader.values()).map(CEAndOLEnrolmentAndFteHeader::getCode).toList();
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(headers.toArray(String[]::new))
+                .build();
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (EnrolmentHeadcountFteResult result : results) {
+                var septCollectionRecord = mappedSeptData.get(result.getSchoolID());
+
+                var schoolOpt = restUtils.getSchoolBySchoolID(result.getSchoolID());
+                if(schoolOpt.isPresent() &&
+                        (schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.CONT_ED.getCode()) ||
+                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DISTONLINE.getCode()) ||
+                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DIST_LEARN.getCode()))) {
+                    List<String> csvRowData = prepareEnrolmentFteDataForCEAndOLSchools(result, septCollectionRecord, schoolOpt.get());
+                    csvPrinter.printRecord(csvRowData);
+                }
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(ENROLMENT_HEADCOUNTS_AND_FTE_REPORT_FOR_OL_AND_CE_SCHOOLS.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
+    private Map<String, EnrolmentHeadcountFteResult> getEnrolmentHeadcountFteResultForLastSeptCollection(UUID collectionID){
+        var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collectionID);
+        if(lastSeptCollectionOpt.isEmpty()) {
+            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+        }
+        List<EnrolmentHeadcountFteResult> lastSeptCollectionRawData = sdcSchoolCollectionStudentRepository.getEnrolmentHeadcountsAndFteWithRefugeeByCollectionId(lastSeptCollectionOpt.get().getCollectionID());
+        return lastSeptCollectionRawData.stream().collect(Collectors.toMap(EnrolmentHeadcountFteResult::getSchoolID, item -> item));
+    }
+
+    private ApiError createError(String message) {
+        return ApiError.builder().timestamp(LocalDateTime.now()).message(message).status(BAD_REQUEST).build();
     }
 
     private List<String> prepareEnrolmentFteDataForCsv(EnrolmentHeadcountFteResult headcountResult, SchoolTombstone school) {
@@ -798,6 +857,8 @@ public class CSVReportService {
                 headcountResult.getGradeTwelveTotalFte(),
                 headcountResult.getGradeEuTotalFte(),
                 headcountResult.getGradeSuTotalFte(),
+                headcountResult.getGradAdultTotalFte(),
+                headcountResult.getNonGradAdultTotalFte(),
 
                 headcountResult.getKhLevelOneCount(),
                 headcountResult.getKhLevelTwoCount(),
@@ -925,6 +986,127 @@ public class CSVReportService {
                 headcountResult.getNonGradAdultLevelOneCount(),
                 headcountResult.getNonGradAdultLevelTwoCount(),
                 headcountResult.getNonGradAdultLevelThreeCount()
+        ));
+    }
+
+    private List<String> prepareEnrolmentFteDataForCEAndOLSchools(EnrolmentHeadcountFteResult headcountResult, EnrolmentHeadcountFteResult septHeadcountResult, SchoolTombstone school) {
+        var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
+        return new ArrayList<>(Arrays.asList(
+                school.getMincode().substring(0, 3),
+                school.getSchoolNumber(),
+                school.getDisplayName(),
+                facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhTotalCount() : "0", headcountResult.getKhTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhRefugeeCount() : "0", headcountResult.getKhRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhEllCount() : "0", headcountResult.getKhEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneTotalCount() : "0", headcountResult.getGradeOneTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneRefugeeCount() : "0", headcountResult.getGradeOneRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneEllCount() : "0", headcountResult.getGradeOneEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwoTotalCount() : "0", headcountResult.getGradeTwoTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwoRefugeeCount() : "0", headcountResult.getGradeTwoRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwoEllCount() : "0", headcountResult.getGradeTwoEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeThreeTotalCount() : "0", headcountResult.getGradeThreeTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeThreeRefugeeCount() : "0", headcountResult.getGradeThreeRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeThreeEllCount() : "0", headcountResult.getGradeThreeEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFourTotalCount() : "0", headcountResult.getGradeFourTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFourRefugeeCount() : "0", headcountResult.getGradeFourRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFourEllCount() : "0", headcountResult.getGradeFourEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFiveTotalCount() : "0", headcountResult.getGradeFiveTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFiveRefugeeCount() : "0", headcountResult.getGradeFiveRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFiveEllCount() : "0", headcountResult.getGradeFiveEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSixTotalCount() : "0", headcountResult.getGradeSixTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSixRefugeeCount() : "0", headcountResult.getGradeSixRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSixEllCount() : "0", headcountResult.getGradeSixEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSevenTotalCount() : "0", headcountResult.getGradeSevenTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSevenRefugeeCount() : "0", headcountResult.getGradeSevenRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSevenEllCount() : "0", headcountResult.getGradeSevenEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEightTotalCount() : "0", headcountResult.getGradeEightTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEightRefugeeCount() : "0", headcountResult.getGradeEightRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEightEllCount() : "0", headcountResult.getGradeEightEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeNineTotalCount() : "0", headcountResult.getGradeNineTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeNineRefugeeCount() : "0", headcountResult.getGradeNineRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeNineEllCount() : "0", headcountResult.getGradeNineEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTenTotalCount() : "0", headcountResult.getGradeTenTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTenRefugeeCount() : "0", headcountResult.getGradeTenRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTenEllCount() : "0", headcountResult.getGradeTenEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeElevenTotalCount() : "0", headcountResult.getGradeElevenTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeElevenRefugeeCount() : "0", headcountResult.getGradeElevenRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeElevenEllCount() : "0", headcountResult.getGradeElevenEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwelveTotalCount() : "0", headcountResult.getGradeTwelveTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwelveRefugeeCount() : "0", headcountResult.getGradeTwelveRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwelveEllCount() : "0", headcountResult.getGradeTwelveEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEuTotalCount() : "0", headcountResult.getGradeEuTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEuRefugeeCount() : "0", headcountResult.getGradeEuRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEuEllCount() : "0", headcountResult.getGradeEuEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSuTotalCount() : "0", headcountResult.getGradeSuTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSuRefugeeCount() : "0", headcountResult.getGradeSuRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSuEllCount() : "0", headcountResult.getGradeSuEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradAdultCount() : "0", headcountResult.getGradAdultCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getNonGradAdultCount() : "0", headcountResult.getNonGradAdultCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhTotalFte() : "0", headcountResult.getKhTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhRefugeeTotalFte() : "0", headcountResult.getKhRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneTotalFte() : "0", headcountResult.getGradeOneTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneRefugeeTotalFte() : "0", headcountResult.getGradeOneRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwoTotalFte() : "0", headcountResult.getGradeTwoTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwoRefugeeTotalFte() : "0", headcountResult.getGradeTwoRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeThreeTotalFte() : "0", headcountResult.getGradeThreeTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeThreeRefugeeTotalFte() : "0", headcountResult.getGradeThreeRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFourTotalFte() : "0", headcountResult.getGradeFourTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFourRefugeeTotalFte() : "0", headcountResult.getGradeFourRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFiveTotalFte() : "0", headcountResult.getGradeFiveTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFiveRefugeeTotalFte() : "0", headcountResult.getGradeFiveRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSixTotalFte() : "0", headcountResult.getGradeSixTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSixRefugeeTotalFte() : "0", headcountResult.getGradeSixRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSevenTotalFte() : "0", headcountResult.getGradeSevenTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSevenRefugeeTotalFte() : "0", headcountResult.getGradeSevenRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEightTotalFte() : "0", headcountResult.getGradeEightTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEightRefugeeTotalFte() : "0", headcountResult.getGradeEightRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeNineTotalFte() : "0", headcountResult.getGradeNineTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeNineRefugeeTotalFte() : "0", headcountResult.getGradeNineRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTenTotalFte() : "0", headcountResult.getGradeTenTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTenRefugeeTotalFte() : "0", headcountResult.getGradeTenRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeElevenTotalFte() : "0", headcountResult.getGradeElevenTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeElevenRefugeeTotalFte() : "0", headcountResult.getGradeElevenRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwelveTotalFte() : "0", headcountResult.getGradeTwelveTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwelveRefugeeTotalFte() : "0", headcountResult.getGradeTwelveRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEuTotalFte() : "0", headcountResult.getGradeEuTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEuRefugeeTotalFte() : "0", headcountResult.getGradeEuRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSuTotalFte() : "0", headcountResult.getGradeSuTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSuRefugeeTotalFte() : "0", headcountResult.getGradeSuRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradAdultTotalFte() : "0", headcountResult.getGradAdultTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getNonGradAdultTotalFte() : "0", headcountResult.getNonGradAdultTotalFte())
         ));
     }
 }
