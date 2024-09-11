@@ -16,7 +16,8 @@ public enum MinistryReportTypeCode {
     INDY_INCLUSIVE_ED_ENROLLMENT_HEADCOUNTS("indy-inclusive-ed-enrollment-headcounts"),
     OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS("offshore-languages-headcounts"),
     INDY_INCLUSIVE_ED_FUNDING_HEADCOUNTS("indy-inclusive-ed-funding-headcounts"),
-    ENROLLED_HEADCOUNTS_AND_FTE_REPORT("enrolled-fte-headcounts")
+    ENROLLED_HEADCOUNTS_AND_FTE_REPORT("enrolled-fte-headcounts"),
+    ENROLMENT_HEADCOUNTS_AND_FTE_REPORT_FOR_OL_AND_CE_SCHOOLS("enrolment-fte-headcounts-for-ce-ol-schools")
     ;
 
     private final String code;
