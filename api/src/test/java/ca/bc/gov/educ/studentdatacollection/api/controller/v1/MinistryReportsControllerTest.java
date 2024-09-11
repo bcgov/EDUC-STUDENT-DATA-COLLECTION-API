@@ -1058,6 +1058,21 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     school.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
+    CollectionEntity collectionSept = createMockCollectionEntity();
+    collectionSept.setCloseDate(LocalDateTime.now().minusDays(20));
+    collectionSept.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+    var savedSeptColl = collectionRepository.save(collectionSept);
+
+    SdcDistrictCollectionEntity sdcMockDistrictSept = createMockSdcDistrictCollectionEntity(savedSeptColl, null);
+    sdcDistrictCollectionRepository.save(sdcMockDistrictSept).getSdcDistrictCollectionID();
+
+    school.setDistrictId(sdcMockDistrictSept.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntitySept = createMockSdcSchoolCollectionEntity(savedSeptColl, UUID.fromString(school.getSchoolId()));
+    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntitySept);
+
+    var sdcSchoolCollectionStudentSept1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntitySept);
+    sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudentSept1));
+
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
@@ -1069,11 +1084,11 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     SdcDistrictCollectionEntity sdcMockDistrict2 = createMockSdcDistrictCollectionEntity(collection, null);
     sdcDistrictCollectionRepository.save(sdcMockDistrict2);
 
-    SchoolTombstone school1 = createMockSchool();
-    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
 
     SchoolTombstone school2 = createMockSchool();
+    school2.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+    school2.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
     school2.setDistrictId(sdcMockDistrict2.getDistrictID().toString());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
 
@@ -1082,8 +1097,6 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
     var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
     sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2));
-
-    createHistoricalCollectionWithStudent(sdcMockDistrict.getDistrictID(), UUID.fromString(school1.getSchoolId()));
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/enrolment-fte-headcounts-for-ce-ol-schools/download").with(mockAuthority))
@@ -1131,28 +1144,9 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
     sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2));
 
-    createHistoricalCollectionWithStudent(sdcMockDistrict.getDistrictID(), UUID.fromString(school1.getSchoolId()));
-
-    var resultActions1 = this.mockMvc.perform(
+    this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/enrolment-fte-headcounts-for-ce-ol-schools/download").with(mockAuthority))
             .andDo(print()).andExpect(status().isBadRequest());
-  }
-
-  private void createHistoricalCollectionWithStudent(UUID districtID, UUID schoolID) {
-    var collection = createMockCollectionEntity();
-    collection.setCollectionTypeCode("SEPTEMBER");
-    collection.setCloseDate(LocalDateTime.of(LocalDate.parse((LocalDate.now().getYear() -1) + "-09-30"), LocalTime.MIDNIGHT));
-    collection.setCollectionStatusCode("COMPLETED");
-    collectionRepository.save(collection);
-
-    SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, districtID);
-    sdcDistrictCollectionRepository.save(sdcDistrictCollection);
-
-    var sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, schoolID);
-    sdcSchoolCollectionEntity.setSdcDistrictCollectionID(sdcDistrictCollection.getSdcDistrictCollectionID());
-    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
-    val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-    sdcSchoolCollectionStudentRepository.save(entity);
   }
 
 }
