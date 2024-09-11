@@ -7,6 +7,9 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.Dis
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.Student;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.EdxUser;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.EdxUserDistrict;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.EdxUserSchool;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -286,6 +289,43 @@ class RestUtilsTest {
         //when
         var result = restUtils.getStudentByPEN(UUID.randomUUID(), "123456789");
         assertEquals(studentPayload, result);
+    }
+
+    @Test
+    void testGetEdxUsers_shouldReturnUsers(){
+        val schoolID = String.valueOf(UUID.randomUUID());
+        val districtID = String.valueOf(UUID.randomUUID());
+        val schoolEdxUserID = UUID.randomUUID();
+        val districtEdxUserID = UUID.randomUUID();
+
+        EdxUserSchool userSchool = new EdxUserSchool();
+        userSchool.setEdxUserSchoolID(schoolID);
+        userSchool.setEdxUserID(String.valueOf(schoolEdxUserID));
+        userSchool.setSchoolID(UUID.fromString(schoolID));
+
+        EdxUser schoolUser = new EdxUser();
+        schoolUser.setEdxUserID(String.valueOf(schoolEdxUserID));
+        schoolUser.setDigitalIdentityID(String.valueOf(UUID.randomUUID()));
+        schoolUser.setFirstName("John");
+        schoolUser.setLastName("Doe");
+        schoolUser.setEmail("john.doe@example.com");
+        schoolUser.setEdxUserSchools(List.of(userSchool));
+
+        EdxUserDistrict userDistrict = new EdxUserDistrict();
+        userDistrict.setEdxUserDistrictID(districtID);
+        userDistrict.setEdxUserID(String.valueOf(districtEdxUserID));
+
+        EdxUser districtUser = new EdxUser();
+        districtUser.setDigitalIdentityID(String.valueOf(UUID.randomUUID()));
+        districtUser.setFirstName("Jane");
+        districtUser.setLastName("Smith");
+        districtUser.setEmail("jane.smith@example.com");
+        districtUser.setEdxUserDistricts(List.of(userDistrict));
+
+        doReturn(List.of(schoolUser, districtUser)).when(restUtils).getEdxUsers();
+
+        List<EdxUser> returnedSchoolUser = restUtils.getEdxUsersForSchool(UUID.fromString(schoolID));
+        assert(returnedSchoolUser.get(0).getEdxUserID()).equals(schoolUser.getEdxUserID());
     }
 
     @Test
