@@ -127,18 +127,10 @@ public class RestUtils {
       writeLock.lock();
       for (val edxUser : this.getEdxUsers()) {
         for(val edxUserSchool: edxUser.getEdxUserSchools()) {
-          if(this.edxSchoolUserMap.containsKey(edxUserSchool.getSchoolID())) {
-            this.edxSchoolUserMap.get(edxUserSchool.getSchoolID()).add(edxUser);
-          }else {
-            this.edxSchoolUserMap.put(edxUserSchool.getSchoolID(), Arrays.asList(edxUser));
-          }
+          this.edxSchoolUserMap.computeIfAbsent(edxUserSchool.getSchoolID(), k -> new ArrayList<>()).add(edxUser);
         }
         for(val edxUserDistrict: edxUser.getEdxUserDistricts()) {
-          if(this.edxDistrictUserMap.containsKey(edxUserDistrict.getDistrictID())) {
-            this.edxDistrictUserMap.get(edxUserDistrict.getDistrictID()).add(edxUser);
-          }else {
-            this.edxDistrictUserMap.put(edxUserDistrict.getDistrictID(), Arrays.asList(edxUser));
-          }
+          this.edxDistrictUserMap.computeIfAbsent(edxUserDistrict.getDistrictID(), k -> new ArrayList<>()).add(edxUser);
         }
       }
     } catch (Exception ex) {
