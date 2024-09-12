@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.reports;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.*;
@@ -69,8 +70,11 @@ public class CSVReportService {
     private static final String COLLECTION_ID = "collectionID";
     private static final String INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and SEPT collections";
 
-    public DownloadableReportResponse generateIndyFundingReport(UUID collectionID) {
-        List<IndyFundingResult> results = sdcSchoolCollectionStudentRepository.getIndyFundingHeadcountsByCollectionId(collectionID);
+    public DownloadableReportResponse generateIndyFundingReport(UUID collectionID, Boolean isOnlineLearning, Boolean isNonGraduatedAdult) {
+        List<IndyFundingResult> results;
+        // if it's non-graduated adult report variant use query for non-graduated adults
+        if (Boolean.TRUE.equals(isNonGraduatedAdult)) results = sdcSchoolCollectionStudentRepository.getIndyFundingHeadcountsNonGraduatedAdultByCollectionId(collectionID);
+        else results = sdcSchoolCollectionStudentRepository.getIndyFundingHeadcountsByCollectionId(collectionID);
         var collectionOpt = collectionRepository.findById(collectionID);
         if(collectionOpt.isEmpty()){
             throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
@@ -120,15 +124,23 @@ public class CSVReportService {
                         authority = authorityOpt.get();
                     }
 
+                    // If it's online learning, only include schools with online facility types
+                    List<String> csvRowData = null;
+                    if (!Boolean.TRUE.equals(isOnlineLearning) || FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.getFacilityTypeCode())) {
+                        csvRowData = prepareIndyFundingDataForCsv(result, school, district, authority);
+                    }
 
-                    List<String> csvRowData = prepareIndyFundingDataForCsv(result, school, district, authority);
-                    csvPrinter.printRecord(csvRowData);
+                    if (csvRowData != null) {
+                        csvPrinter.printRecord(csvRowData);
+                    }
                 }
             }
             csvPrinter.flush();
 
             var downloadableReport = new DownloadableReportResponse();
-            downloadableReport.setReportType(INDY_FUNDING_REPORT.getCode());
+            if (Boolean.TRUE.equals(isOnlineLearning)) downloadableReport.setReportType(ONLINE_INDY_FUNDING_REPORT.getCode());
+            else if (Boolean.TRUE.equals(isNonGraduatedAdult)) downloadableReport.setReportType(NON_GRADUATED_ADULT_INDY_FUNDING_REPORT.getCode());
+            else downloadableReport.setReportType(INDY_FUNDING_REPORT.getCode());
             downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
 
             return downloadableReport;

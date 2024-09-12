@@ -17,7 +17,9 @@ public enum MinistryReportTypeCode {
     OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS("offshore-languages-headcounts"),
     INDY_INCLUSIVE_ED_FUNDING_HEADCOUNTS("indy-inclusive-ed-funding-headcounts"),
     ENROLLED_HEADCOUNTS_AND_FTE_REPORT("enrolled-fte-headcounts"),
-    INDY_FUNDING_REPORT("indy-funding-report")
+    INDY_FUNDING_REPORT("indy-funding-report"),
+    ONLINE_INDY_FUNDING_REPORT("online-indy-funding-report"),
+    NON_GRADUATED_ADULT_INDY_FUNDING_REPORT("non-graduated-adult-indy-funding-report"),
     ;
 
     private final String code;
