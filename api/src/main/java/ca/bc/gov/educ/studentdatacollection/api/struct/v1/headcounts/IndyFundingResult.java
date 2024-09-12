@@ -41,4 +41,21 @@ public interface IndyFundingResult extends HeadcountResult {
     String getGradeSUFTE();
     String getGradeGAFTE();
     String getGradeHSFTE();
+
+    String getKindHFundingGroup();
+    String getKindFFundingGroup();
+    String getGrade1FundingGroup();
+    String getGrade2FundingGroup();
+    String getGrade3FundingGroup();
+    String getGrade4FundingGroup();
+    String getGrade5FundingGroup();
+    String getGrade6FundingGroup();
+    String getGrade7FundingGroup();
+    String getGradeEUFundingGroup();
+    String getGrade8FundingGroup();
+    String getGrade9FundingGroup();
+    String getGrade10FundingGroup();
+    String getGrade11FundingGroup();
+    String getGrade12FundingGroup();
+    String getGradeSUFundingGroup();
 }

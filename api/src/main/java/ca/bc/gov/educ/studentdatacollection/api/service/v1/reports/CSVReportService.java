@@ -78,12 +78,22 @@ public class CSVReportService {
         var collection = collectionOpt.get();
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                 .setHeader(DISTRICT_NUMBER.getCode(), IndyFundingReportHeader.DISTRICT_NAME.getCode(), IndyFundingReportHeader.AUTHORITY_NUMBER.getCode(), IndyFundingReportHeader.AUTHORITY_NAME.getCode(), IndyFundingReportHeader.SCHOOL_NUMBER.getCode(),
-                        SCHOOL_NAME.getCode(), FUNDING_GROUP.getCode(), TOTAL_HEADCOUNT.getCode(), TOTAL_FTE.getCode(), KIND_HT_HEADCOUNT.getCode(), GRADE_01_HEADCOUNT.getCode(), GRADE_02_HEADCOUNT.getCode(),
-                        GRADE_03_HEADCOUNT.getCode(),GRADE_04_HEADCOUNT.getCode(),GRADE_05_HEADCOUNT.getCode(),GRADE_06_HEADCOUNT.getCode(),GRADE_07_HEADCOUNT.getCode(),GRADE_08_HEADCOUNT.getCode(),GRADE_09_HEADCOUNT.getCode(),
-                        GRADE_10_HEADCOUNT.getCode(), GRADE_11_HEADCOUNT.getCode(),GRADE_12_HEADCOUNT.getCode(),GRADE_EU_HEADCOUNT.getCode(), GRADE_SU_HEADCOUNT.getCode(), GRADE_HS_HEADCOUNT.getCode(), GRAD_ADULT_HEADCOUNT.getCode(),
-                        NON_GRAD_ADULT_HEADCOUNT.getCode(), KIND_HT_FTE_COUNT.getCode(), GRADE_ONE_FTE_COUNT.getCode(), GRADE_TWO_FTE_COUNT.getCode(), GRADE_THREE_FTE_COUNT.getCode(), GRADE_FOUR_FTE_COUNT.getCode(),
-                        GRADE_FIVE_FTE_COUNT.getCode(),GRADE_SIX_FTE_COUNT.getCode(),GRADE_SEVEN_FTE_COUNT.getCode(),GRADE_EIGHT_FTE_COUNT.getCode(),GRADE_NINE_FTE_COUNT.getCode(),GRADE_TEN_FTE_COUNT.getCode(),
-                        GRADE_ELEVEN_FTE_COUNT.getCode(), GRADE_TWELVE_FTE_COUNT.getCode(),EU_FTE_COUNT.getCode(), SU_FTE_COUNT.getCode())
+                        SCHOOL_NAME.getCode(), FUNDING_GROUP.getCode(),
+
+                        KIND_HT_FUNDING_GROUP.getCode(), KIND_FT_FUNDING_GROUP.getCode(), GRADE_01_FUNDING_GROUP.getCode(),
+                        GRADE_02_FUNDING_GROUP.getCode(), GRADE_03_FUNDING_GROUP.getCode(), GRADE_04_FUNDING_GROUP.getCode(), GRADE_05_FUNDING_GROUP.getCode(),GRADE_06_FUNDING_GROUP.getCode(),
+                        GRADE_07_FUNDING_GROUP.getCode(), GRADE_EU_FUNDING_GROUP.getCode(), GRADE_08_FUNDING_GROUP.getCode(),GRADE_09_FUNDING_GROUP.getCode(), GRADE_10_FUNDING_GROUP.getCode(),
+                        GRADE_11_FUNDING_GROUP.getCode(),GRADE_12_FUNDING_GROUP.getCode(), GRADE_SU_FUNDING_GROUP.getCode(),
+
+                        TOTAL_HEADCOUNT.getCode(), TOTAL_FTE.getCode(),
+
+                        KIND_HT_HEADCOUNT.getCode(), KIND_FT_HEADCOUNT.getCode(), GRADE_01_HEADCOUNT.getCode(), GRADE_02_HEADCOUNT.getCode(), GRADE_03_HEADCOUNT.getCode(),GRADE_04_HEADCOUNT.getCode(),
+                        GRADE_05_HEADCOUNT.getCode(), GRADE_06_HEADCOUNT.getCode(),GRADE_07_HEADCOUNT.getCode(), GRADE_EU_HEADCOUNT.getCode(), GRADE_08_HEADCOUNT.getCode(),GRADE_09_HEADCOUNT.getCode(),
+                        GRADE_10_HEADCOUNT.getCode(), GRADE_11_HEADCOUNT.getCode(),GRADE_12_HEADCOUNT.getCode(), GRADE_SU_HEADCOUNT.getCode(), GRAD_ADULT_HEADCOUNT.getCode(), GRADE_HS_HEADCOUNT.getCode(),
+
+                        KIND_HT_FTE_COUNT.getCode(), KIND_FT_FTE_COUNT.getCode(), GRADE_ONE_FTE_COUNT.getCode(), GRADE_TWO_FTE_COUNT.getCode(), GRADE_THREE_FTE_COUNT.getCode(), GRADE_FOUR_FTE_COUNT.getCode(),
+                        GRADE_FIVE_FTE_COUNT.getCode(), GRADE_SIX_FTE_COUNT.getCode(),GRADE_SEVEN_FTE_COUNT.getCode(), EU_FTE_COUNT.getCode(), GRADE_EIGHT_FTE_COUNT.getCode(),GRADE_NINE_FTE_COUNT.getCode(),
+                        GRADE_TEN_FTE_COUNT.getCode(), GRADE_ELEVEN_FTE_COUNT.getCode(), GRADE_TWELVE_FTE_COUNT.getCode(), SU_FTE_COUNT.getCode(), GA_FTE_COUNT.getCode(), HS_FTE_COUNT.getCode())
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -112,7 +122,7 @@ public class CSVReportService {
                     }
 
 
-                    List<String> csvRowData = prepareIndyFundingDataForCsv(result, collection, school, district, authority);
+                    List<String> csvRowData = prepareIndyFundingDataForCsv(result, school, district, authority);
                     csvPrinter.printRecord(csvRowData);
                 }
             }
@@ -128,7 +138,7 @@ public class CSVReportService {
         }
     }
 
-    private List<String> prepareIndyFundingDataForCsv(IndyFundingResult indyFundingResult, CollectionEntity collection, School school, District district, IndependentAuthority authority) {
+    private List<String> prepareIndyFundingDataForCsv(IndyFundingResult indyFundingResult, School school, District district, IndependentAuthority authority) {
         List<String> csvRowData = new ArrayList<>();
         csvRowData.addAll(Arrays.asList(
                 district != null ? district.getDistrictNumber() : null,
@@ -137,7 +147,25 @@ public class CSVReportService {
                 authority != null ? authority.getDisplayName() : null,
                 school.getSchoolNumber(),
                 school.getDisplayName(),
-                null,
+                school.getFacilityTypeCode(),
+
+                indyFundingResult.getKindHFundingGroup(),
+                indyFundingResult.getKindFFundingGroup(),
+                indyFundingResult.getGrade1FundingGroup(),
+                indyFundingResult.getGrade2FundingGroup(),
+                indyFundingResult.getGrade3FundingGroup(),
+                indyFundingResult.getGrade4FundingGroup(),
+                indyFundingResult.getGrade5FundingGroup(),
+                indyFundingResult.getGrade6FundingGroup(),
+                indyFundingResult.getGrade7FundingGroup(),
+                indyFundingResult.getGradeEUFundingGroup(),
+                indyFundingResult.getGrade8FundingGroup(),
+                indyFundingResult.getGrade9FundingGroup(),
+                indyFundingResult.getGrade10FundingGroup(),
+                indyFundingResult.getGrade11FundingGroup(),
+                indyFundingResult.getGrade12FundingGroup(),
+                indyFundingResult.getGradeSUFundingGroup(),
+
                 indyFundingResult.getTotalCount(),
                 indyFundingResult.getTotalFTE(),
 
