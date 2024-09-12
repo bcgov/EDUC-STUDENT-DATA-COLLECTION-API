@@ -5,22 +5,15 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationField
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
-import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
-import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes.*;
 
 /**
  *  | ID  | Severity | Rule                                                                  | Dependent On |
@@ -35,9 +28,9 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityType
 @Slf4j
 @Order(290)
 public class AdultOnlineZeroCourseHistoryRule implements ValidationBaseRule {
-    private final ValidationRulesService validationRulesService;
-    public AdultOnlineZeroCourseHistoryRule(ValidationRulesService validationRulesService) {
-        this.validationRulesService = validationRulesService;
+    private final FteCalculatorUtils fteCalculatorUtils;
+    public AdultOnlineZeroCourseHistoryRule(FteCalculatorUtils fteCalculatorUtils) {
+        this.fteCalculatorUtils = fteCalculatorUtils;
     }
 
     @Override
@@ -61,43 +54,26 @@ public class AdultOnlineZeroCourseHistoryRule implements ValidationBaseRule {
         log.debug("In executeValidation of ZeroCoursesReportedRule-V34 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
-        validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
-        validationRulesService.setupMergedStudentIdValues(studentRuleData);
+        if(fteCalculatorUtils.noCoursesForAdultStudentInLastTwoYears(studentRuleData)) {
+            log.debug("InvalidUsualLastNameRule-V34: Student has no courses reported within last two years for sdcSchoolCollectionStudentID::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+            errors.add(createValidationIssue(
+                StudentValidationIssueSeverityCode.FUNDING_WARNING,
+                StudentValidationFieldCode.NUMBER_OF_COURSES,
+                StudentValidationIssueTypeCode.ADULT_ZERO_COURSE_HISTORY
+            ));
 
-        boolean isAdult = DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
-        String schoolType = studentRuleData.getSchool().getFacilityTypeCode();
-        boolean isOnline = Objects.equals(schoolType, String.valueOf(CONT_ED)) || Objects.equals(schoolType, String.valueOf(DIST_LEARN)) || Objects.equals(schoolType, String.valueOf(DISTONLINE));
+            errors.add(createValidationIssue(
+                StudentValidationIssueSeverityCode.FUNDING_WARNING,
+                StudentValidationFieldCode.ENROLLED_GRADE_CODE,
+                StudentValidationIssueTypeCode.ADULT_ZERO_COURSE_HISTORY
+            ));
 
-        if(isAdult && isOnline){
-            final String courseCountStr = student.getNumberOfCourses();
-            final Double courseCount = TransformUtil.parseNumberOfCourses(courseCountStr, student.getSdcSchoolCollection().getSdcSchoolCollectionID());
-
-            var hasRelevantGrade = SchoolGradeCodes.getAllowedAdultGrades().contains(student.getEnrolledGradeCode());
-            boolean hasEnrollmentHistory = validationRulesService.hasEnrollmentHistory(studentRuleData);
-
-            if(courseCount <= 0 && hasRelevantGrade && !hasEnrollmentHistory){
-                log.debug("InvalidUsualLastNameRule-V34: Student has no courses reported within last two years for sdcSchoolCollectionStudentID::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-                errors.add(createValidationIssue(
-                        StudentValidationIssueSeverityCode.FUNDING_WARNING,
-                        StudentValidationFieldCode.NUMBER_OF_COURSES,
-                        StudentValidationIssueTypeCode.ADULT_ZERO_COURSE_HISTORY
-                ));
-
-                errors.add(createValidationIssue(
-                        StudentValidationIssueSeverityCode.FUNDING_WARNING,
-                        StudentValidationFieldCode.ENROLLED_GRADE_CODE,
-                        StudentValidationIssueTypeCode.ADULT_ZERO_COURSE_HISTORY
-                ));
-
-                errors.add(createValidationIssue(
-                        StudentValidationIssueSeverityCode.FUNDING_WARNING,
-                        StudentValidationFieldCode.DOB,
-                        StudentValidationIssueTypeCode.ADULT_ZERO_COURSE_HISTORY
-                ));
-            }
+            errors.add(createValidationIssue(
+                StudentValidationIssueSeverityCode.FUNDING_WARNING,
+                StudentValidationFieldCode.DOB,
+                StudentValidationIssueTypeCode.ADULT_ZERO_COURSE_HISTORY
+            ));
         }
-
         return errors;
     }
 }
