@@ -2,11 +2,6 @@ package ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports;
 
 import lombok.Getter;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 @Getter
 public enum IndySpecialEducationHeadcountHeader {
     AUTHORITY_NUMBER("Authority Number"),
