@@ -154,8 +154,21 @@ public class MinistryHeadcountService {
     collectionRawData.stream().forEach(specialEdHeadcountResult -> {
       var school = restUtils.getAllSchoolBySchoolID(specialEdHeadcountResult.getSchoolID()).get();
 
+      Optional<IndependentAuthority> authorityOpt = Optional.empty();
+      if(school.getIndependentAuthorityId() != null) {
+        authorityOpt = restUtils.getAuthorityByAuthorityID(school.getIndependentAuthorityId());
+      }
+
+      IndependentAuthority authority = null;
+      if(authorityOpt.isPresent()){
+        authority = authorityOpt.get();
+      }
+
       if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
         var rowMap = new HashMap<String, String>();
+        rowMap.put(SpecialEducationHeadcountHeader.AUTHORITY_NUMBER.getCode(), authority != null ? authority.getAuthorityNumber() : null );
+        rowMap.put(SpecialEducationHeadcountHeader.AUTHORITY_NAME.getCode(), authority != null ? authority.getDisplayName() : null );
+        rowMap.put(SpecialEducationHeadcountHeader.MIN_CODE.getCode(), school.getMincode());
         rowMap.put(SpecialEducationHeadcountHeader.SCHOOL.getCode(), school.getDisplayName());
         rowMap.put(A.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdACodes(), specialEdHeadcountResult.getAdultsInSpecialEdA()));
         rowMap.put(B.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdBCodes(), specialEdHeadcountResult.getAdultsInSpecialEdB()));
@@ -169,6 +182,10 @@ public class MinistryHeadcountService {
         rowMap.put(P.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdPCodes(), specialEdHeadcountResult.getAdultsInSpecialEdP()));
         rowMap.put(Q.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdQCodes(), specialEdHeadcountResult.getAdultsInSpecialEdQ()));
         rowMap.put(R.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdRCodes(), specialEdHeadcountResult.getAdultsInSpecialEdR()));
+        rowMap.put(SpecialEducationHeadcountHeader.LEVEL_1.getCode(), specialEdHeadcountResult.getLevelOnes());
+        rowMap.put(SpecialEducationHeadcountHeader.LEVEL_2.getCode(), specialEdHeadcountResult.getLevelTwos());
+        rowMap.put(SpecialEducationHeadcountHeader.LEVEL_3.getCode(), specialEdHeadcountResult.getLevelThrees());
+        rowMap.put(SpecialEducationHeadcountHeader.LEVEL_OTHER.getCode(), specialEdHeadcountResult.getOtherLevels());
         rowMap.put(SpecialEducationHeadcountHeader.TOTAL.getCode(), TransformUtil.getTotalHeadcount(specialEdHeadcountResult));
         rows.add(rowMap);
       }
