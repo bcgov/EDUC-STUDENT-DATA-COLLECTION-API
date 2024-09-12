@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 @Getter
 public enum SpecialEducationHeadcountHeader {
+
     SCHOOL("School Name"),
     A("A - Physically Dependent"),
     B("B - Deafblind"),

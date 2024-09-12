@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum IndySpecialEducationHeadcountHeader {
+
     AUTHORITY_NUMBER("Authority Number"),
     AUTHORITY_NAME("Authority Name"),
     MIN_CODE("Mincode"),
@@ -28,6 +29,5 @@ public enum IndySpecialEducationHeadcountHeader {
 
     private final String code;
     IndySpecialEducationHeadcountHeader(String code) { this.code = code; }
-
 
 }
