@@ -34,7 +34,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryrepo
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.KIND_FT_COUNT;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.SCHOOL_NAME;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
 
 
@@ -146,7 +146,7 @@ public class MinistryHeadcountService {
     List<IndySpecialEdAdultHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();
-    for (SpecialEducationHeadcountHeader header : SpecialEducationHeadcountHeader.values()) {
+    for (IndySpecialEducationHeadcountHeader header : IndySpecialEducationHeadcountHeader.values()) {
       headerList.add(header.getCode());
     }
     resultsTable.setHeaders(headerList);
@@ -166,27 +166,27 @@ public class MinistryHeadcountService {
 
       if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
         var rowMap = new HashMap<String, String>();
-        rowMap.put(SpecialEducationHeadcountHeader.AUTHORITY_NUMBER.getCode(), authority != null ? authority.getAuthorityNumber() : null );
-        rowMap.put(SpecialEducationHeadcountHeader.AUTHORITY_NAME.getCode(), authority != null ? authority.getDisplayName() : null );
-        rowMap.put(SpecialEducationHeadcountHeader.MIN_CODE.getCode(), school.getMincode());
-        rowMap.put(SpecialEducationHeadcountHeader.SCHOOL.getCode(), school.getDisplayName());
+        rowMap.put(IndySpecialEducationHeadcountHeader.AUTHORITY_NUMBER.getCode(), authority != null ? authority.getAuthorityNumber() : null );
+        rowMap.put(IndySpecialEducationHeadcountHeader.AUTHORITY_NAME.getCode(), authority != null ? authority.getDisplayName() : null );
+        rowMap.put(IndySpecialEducationHeadcountHeader.MIN_CODE.getCode(), school.getMincode());
+        rowMap.put(IndySpecialEducationHeadcountHeader.SCHOOL.getCode(), school.getDisplayName());
+        rowMap.put(IndySpecialEducationHeadcountHeader.LEVEL_1.getCode(), specialEdHeadcountResult.getLevelOnes());
         rowMap.put(A.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdACodes(), specialEdHeadcountResult.getAdultsInSpecialEdA()));
         rowMap.put(B.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdBCodes(), specialEdHeadcountResult.getAdultsInSpecialEdB()));
+        rowMap.put(IndySpecialEducationHeadcountHeader.LEVEL_2.getCode(), specialEdHeadcountResult.getLevelTwos());
         rowMap.put(C.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdCCodes(), specialEdHeadcountResult.getAdultsInSpecialEdC()));
         rowMap.put(D.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdDCodes(), specialEdHeadcountResult.getAdultsInSpecialEdD()));
         rowMap.put(E.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdECodes(), specialEdHeadcountResult.getAdultsInSpecialEdE()));
         rowMap.put(F.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdFCodes(), specialEdHeadcountResult.getAdultsInSpecialEdF()));
         rowMap.put(G.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdGCodes(), specialEdHeadcountResult.getAdultsInSpecialEdG()));
+        rowMap.put(IndySpecialEducationHeadcountHeader.LEVEL_3.getCode(), specialEdHeadcountResult.getLevelThrees());
         rowMap.put(H.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdHCodes(), specialEdHeadcountResult.getAdultsInSpecialEdH()));
+        rowMap.put(IndySpecialEducationHeadcountHeader.LEVEL_OTHER.getCode(), specialEdHeadcountResult.getOtherLevels());
         rowMap.put(K.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdKCodes(), specialEdHeadcountResult.getAdultsInSpecialEdK()));
         rowMap.put(P.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdPCodes(), specialEdHeadcountResult.getAdultsInSpecialEdP()));
         rowMap.put(Q.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdQCodes(), specialEdHeadcountResult.getAdultsInSpecialEdQ()));
         rowMap.put(R.getCode(), TransformUtil.flagSpecialEdHeadcountIfRequired(specialEdHeadcountResult.getSpecialEdRCodes(), specialEdHeadcountResult.getAdultsInSpecialEdR()));
-        rowMap.put(SpecialEducationHeadcountHeader.LEVEL_1.getCode(), specialEdHeadcountResult.getLevelOnes());
-        rowMap.put(SpecialEducationHeadcountHeader.LEVEL_2.getCode(), specialEdHeadcountResult.getLevelTwos());
-        rowMap.put(SpecialEducationHeadcountHeader.LEVEL_3.getCode(), specialEdHeadcountResult.getLevelThrees());
-        rowMap.put(SpecialEducationHeadcountHeader.LEVEL_OTHER.getCode(), specialEdHeadcountResult.getOtherLevels());
-        rowMap.put(SpecialEducationHeadcountHeader.TOTAL.getCode(), TransformUtil.getTotalHeadcount(specialEdHeadcountResult));
+        rowMap.put(IndySpecialEducationHeadcountHeader.TOTAL.getCode(), TransformUtil.getTotalHeadcount(specialEdHeadcountResult));
         rows.add(rowMap);
       }
     });

@@ -51,7 +51,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryrepo
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.SCHOOL_NAME;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -275,13 +275,15 @@ public class CSVReportService {
         }
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SpecialEducationHeadcountHeader.AUTHORITY_NUMBER.getCode(), SpecialEducationHeadcountHeader.AUTHORITY_NAME.getCode(),
-                        SpecialEducationHeadcountHeader.MIN_CODE.getCode(), SpecialEducationHeadcountHeader.SCHOOL.getCode(),
-                        SpecialEducationHeadcountHeader.LEVEL_1.getCode(), A.getCode(), B.getCode(),
-                        SpecialEducationHeadcountHeader.LEVEL_2.getCode(), C.getCode(), D.getCode(), E.getCode(), F.getCode(),G.getCode(),
-                        SpecialEducationHeadcountHeader.LEVEL_3.getCode(), H.getCode(),
-                        SpecialEducationHeadcountHeader.LEVEL_OTHER.getCode(), K.getCode(),P.getCode(),Q.getCode(), R.getCode(),
-                        SpecialEducationHeadcountHeader.TOTAL.getCode())
+                .setHeader(
+                        IndySpecialEducationHeadcountHeader.AUTHORITY_NUMBER.getCode(), IndySpecialEducationHeadcountHeader.AUTHORITY_NAME.getCode(),
+                        IndySpecialEducationHeadcountHeader.MIN_CODE.getCode(),
+                        IndySpecialEducationHeadcountHeader.SCHOOL.getCode(),
+                        IndySpecialEducationHeadcountHeader.LEVEL_1.getCode(), A.getCode(), B.getCode(),
+                        IndySpecialEducationHeadcountHeader.LEVEL_2.getCode(), C.getCode(), D.getCode(), E.getCode(), F.getCode(), G.getCode(),
+                        IndySpecialEducationHeadcountHeader.LEVEL_3.getCode(), H.getCode(),
+                        IndySpecialEducationHeadcountHeader.LEVEL_OTHER.getCode(), K.getCode(), P.getCode(), Q.getCode(), R.getCode(),
+                        IndySpecialEducationHeadcountHeader.TOTAL.getCode())
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
