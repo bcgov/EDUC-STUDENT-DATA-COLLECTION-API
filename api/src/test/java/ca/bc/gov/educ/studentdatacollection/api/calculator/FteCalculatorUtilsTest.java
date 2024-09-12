@@ -993,6 +993,7 @@ class FteCalculatorUtilsTest {
         student.setNumberOfCourses(numberOfCourses);
         student.setAssignedStudentId(UUID.randomUUID());
         student.setIsSchoolAged(false);
+        student.setSdcSchoolCollection(schoolCollection1);
 
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSchool(schoolTombstone);
@@ -1005,7 +1006,7 @@ class FteCalculatorUtilsTest {
                 .thenReturn(0L);
 
         // When
-        boolean result = fteCalculatorUtils.noCoursesForStudentInLastTwoYears(studentData);
+        boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData);
 
         // Then
         assertFalse(result);
@@ -1055,7 +1056,7 @@ class FteCalculatorUtilsTest {
                 .thenReturn(0L);
 
         // When
-        boolean result = fteCalculatorUtils.noCoursesForStudentInLastTwoYears(studentData);
+        boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData);
 
         // Then
         assertTrue(result);
@@ -1105,7 +1106,7 @@ class FteCalculatorUtilsTest {
                 .thenReturn(1L);
 
         // When
-        boolean result = fteCalculatorUtils.noCoursesForStudentInLastTwoYears(studentData);
+        boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData);
 
         // Then
         assertFalse(result);
@@ -1115,15 +1116,18 @@ class FteCalculatorUtilsTest {
         // Given
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
         SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
         schoolTombstone.setFacilityTypeCode("DIST_LEARN");
         sdcStudentSagaData.setSchool(schoolTombstone);
+        SdcSchoolCollectionEntity sdcSchoolCollection = createMockSdcSchoolCollectionEntity(createMockCollectionEntity(), UUID.fromString(schoolTombstone.getSchoolId()));
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setSdcSchoolCollection(sdcSchoolCollection);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
         sdcStudentSagaData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
-        boolean result = fteCalculatorUtils.noCoursesForStudentInLastTwoYears(sdcStudentSagaData);
+        boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(sdcStudentSagaData);
 
         // Then
         assertFalse(result);
@@ -1170,7 +1174,7 @@ class FteCalculatorUtilsTest {
                 .thenReturn(1L);
 
         // When
-        boolean result = fteCalculatorUtils.noCoursesForStudentInLastTwoYears(studentData);
+        boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData);
 
         // Then
         assertTrue(result);
@@ -1228,7 +1232,7 @@ class FteCalculatorUtilsTest {
                 .thenReturn(0L);
 
         // When
-        boolean result = fteCalculatorUtils.noCoursesForStudentInLastTwoYears(studentData);
+        boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData);
 
         // Then
         assertEquals(expectedResult, result);
@@ -1297,7 +1301,7 @@ class FteCalculatorUtilsTest {
                 .thenReturn(0L);
 
         // When
-        boolean result = fteCalculatorUtils.noCoursesForStudentInLastTwoYears(studentData);
+        boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData);
 
         // Then
         assertEquals(expectedResult, result);
@@ -1345,7 +1349,7 @@ class FteCalculatorUtilsTest {
                 .thenReturn(0L);
 
         // When
-        boolean result = fteCalculatorUtils.noCoursesForStudentInLastTwoYears(studentData);
+        boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData);
 
         // Then
         assertTrue(result);

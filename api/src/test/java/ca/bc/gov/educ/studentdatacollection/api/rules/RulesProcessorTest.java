@@ -1911,7 +1911,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setMatchingPEN("123456789");
         penMatchResult.getMatchingRecords().get(0).setStudentID(assignedStudentId.toString());
+        var studentMergeResult = getStudentMergeResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+        when(this.restUtils.getMergedStudentIds(any(),any())).thenReturn(List.of(studentMergeResult));
         List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(createMockStudentRuleData(studFeb, school));
         boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream()
                 .anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));

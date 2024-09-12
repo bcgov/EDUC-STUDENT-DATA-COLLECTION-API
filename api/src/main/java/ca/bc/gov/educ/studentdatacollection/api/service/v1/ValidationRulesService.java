@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
-import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CodeTableMapper;
@@ -180,26 +179,6 @@ public class ValidationRulesService {
                 }
             }
         }
-    }
-
-    public boolean hasEnrollmentHistory(StudentRuleData studentRuleData) {
-        var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
-        var school = studentRuleData.getSchool();
-        var twoYearsAgo = student.getSdcSchoolCollection().getCollectionEntity().getOpenDate().getYear() - 2;
-
-        var listOfNumCoursesLastTwoYears = getSdcSchoolStudentRepository().getCollectionHistory(UUID.fromString(school.getSchoolId()),
-                studentRuleData.getHistoricStudentIds(), student.getSdcSchoolCollection().getCollectionEntity().getOpenDate(), FteCalculatorUtils.getCollectionTypeCode(studentRuleData), twoYearsAgo);
-
-        for (String numString : listOfNumCoursesLastTwoYears) {
-            try {
-                if (Integer.parseInt(numString) > 0) {
-                    return true;
-                }
-            } catch (Exception e) {
-                //Do nothing
-            }
-        }
-        return false;
     }
 
      public List<SdcSchoolCollectionStudentEntity> getStudentInHistoricalCollectionWithInSameDistrict(StudentRuleData studentRuleData) {

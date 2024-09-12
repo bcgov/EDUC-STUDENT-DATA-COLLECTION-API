@@ -28,7 +28,7 @@ public class NoCoursesInLastTwoYearsCalculator implements FteCalculator {
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
         log.debug("NoCoursesInLastTwoYearsCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        if(fteCalculatorUtils.noCoursesForStudentInLastTwoYears(studentData)) {
+        if(fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData)) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
             fteCalculationResult.setFteZeroReason(INACTIVE.getCode());
