@@ -75,7 +75,6 @@ public class CSVReportService {
         if(collectionOpt.isEmpty()){
             throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
         }
-        var collection = collectionOpt.get();
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                 .setHeader(DISTRICT_NUMBER.getCode(), IndyFundingReportHeader.DISTRICT_NAME.getCode(), IndyFundingReportHeader.AUTHORITY_NUMBER.getCode(), IndyFundingReportHeader.AUTHORITY_NAME.getCode(), IndyFundingReportHeader.SCHOOL_NUMBER.getCode(),
                         SCHOOL_NAME.getCode(), FUNDING_GROUP.getCode(),
