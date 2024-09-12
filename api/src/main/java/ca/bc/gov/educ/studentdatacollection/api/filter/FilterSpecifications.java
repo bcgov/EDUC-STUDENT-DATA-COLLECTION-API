@@ -105,6 +105,14 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
             return root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues());
         });
 
+        map.put(FilterOperation.IN_NOT_DISTINCT, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
+            if (filterCriteria.getFieldName().contains(".")) {
+                String[] splits = filterCriteria.getFieldName().split("\\.");
+                return root.join(splits[0]).get(splits[1]).in(filterCriteria.getConvertedValues());
+            }
+            return root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues());
+        });
+
         map.put(FilterOperation.NOT_IN, filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
             if (filterCriteria.getFieldName().contains(".")) {
                 String[] splits = filterCriteria.getFieldName().split("\\.");
