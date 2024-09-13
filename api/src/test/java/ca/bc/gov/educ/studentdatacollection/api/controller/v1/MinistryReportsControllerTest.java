@@ -1300,7 +1300,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var school = this.createMockSchool();
     school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
-    school.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
+    school.setFacilityTypeCode(FacilityTypeCodes.STANDARD.getCode());
     when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
     CollectionEntity collection = createMockCollectionEntity();
