@@ -51,6 +51,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryrepo
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.SCHOOL_NAME;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndyFundingReportHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
@@ -69,6 +70,7 @@ public class CSVReportService {
     private final ValidationRulesService validationService;
     private static final String COLLECTION_ID = "collectionID";
     private static final String INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and SEPT collections";
+    private static final String HEADCOUNTS_INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and MAY collections";
 
     public DownloadableReportResponse generateIndyFundingReport(UUID collectionID, Boolean isOnlineLearning, Boolean isNonGraduatedAdult) {
         List<IndyFundingResult> results;
@@ -149,80 +151,6 @@ public class CSVReportService {
         }
     }
 
-    private List<String> prepareIndyFundingDataForCsv(IndyFundingResult indyFundingResult, School school, District district, IndependentAuthority authority) {
-        List<String> csvRowData = new ArrayList<>();
-        csvRowData.addAll(Arrays.asList(
-                district != null ? district.getDistrictNumber() : null,
-                district != null ? district.getDisplayName() : null,
-                authority != null ? authority.getAuthorityNumber() : null,
-                authority != null ? authority.getDisplayName() : null,
-                school.getSchoolNumber(),
-                school.getDisplayName(),
-                school.getFacilityTypeCode(),
-
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.KINDHALF.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.KINDFULL.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE01.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE02.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE03.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE04.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE05.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE06.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE07.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.ELEMUNGR.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE08.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE09.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE10.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE11.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE12.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADUATED_ADULT.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.HOMESCHOOL.getTypeCode()),
-
-                indyFundingResult.getTotalCount(),
-                indyFundingResult.getTotalFTE(),
-
-                indyFundingResult.getKindHCount(),
-                indyFundingResult.getKindFCount(),
-                indyFundingResult.getGrade1Count(),
-                indyFundingResult.getGrade2Count(),
-                indyFundingResult.getGrade3Count(),
-                indyFundingResult.getGrade4Count(),
-                indyFundingResult.getGrade5Count(),
-                indyFundingResult.getGrade6Count(),
-                indyFundingResult.getGrade7Count(),
-                indyFundingResult.getGradeEUCount(),
-                indyFundingResult.getGrade8Count(),
-                indyFundingResult.getGrade9Count(),
-                indyFundingResult.getGrade10Count(),
-                indyFundingResult.getGrade11Count(),
-                indyFundingResult.getGrade12Count(),
-                indyFundingResult.getGradeSUCount(),
-                indyFundingResult.getGradeGACount(),
-                indyFundingResult.getGradeHSCount(),
-
-                indyFundingResult.getKindHFTE(),
-                indyFundingResult.getKindFFTE(),
-                indyFundingResult.getGrade1FTE(),
-                indyFundingResult.getGrade2FTE(),
-                indyFundingResult.getGrade3FTE(),
-                indyFundingResult.getGrade4FTE(),
-                indyFundingResult.getGrade5FTE(),
-                indyFundingResult.getGrade6FTE(),
-                indyFundingResult.getGrade7FTE(),
-                indyFundingResult.getGradeEUFTE(),
-                indyFundingResult.getGrade8FTE(),
-                indyFundingResult.getGrade9FTE(),
-                indyFundingResult.getGrade10FTE(),
-                indyFundingResult.getGrade11FTE(),
-                indyFundingResult.getGrade12FTE(),
-                indyFundingResult.getGradeSUFTE(),
-                indyFundingResult.getGradeGAFTE(),
-                indyFundingResult.getGradeHSFTE()
-        ));
-        return csvRowData;
-    }
-
     public DownloadableReportResponse generateAllSchoolsHeadcounts(UUID collectionID) {
         List<SchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllEnrollmentHeadcountsByCollectionId(collectionID);
         var collectionOpt = collectionRepository.findById(collectionID);
@@ -264,7 +192,7 @@ public class CSVReportService {
         List<IndySchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SCHOOL.getCode(), GRADE_01.getCode(), GRADE_02.getCode(), GRADE_03.getCode(), GRADE_04.getCode(),
+                .setHeader(SCHOOL.getCode(), KIND_HT.getCode(), KIND_FT.getCode(),GRADE_01.getCode(), GRADE_02.getCode(), GRADE_03.getCode(), GRADE_04.getCode(),
                         GRADE_05.getCode(), GRADE_06.getCode(), GRADE_07.getCode(), GRADE_EU.getCode(), GRADE_08.getCode(), GRADE_09.getCode(), GRADE_10.getCode(),
                         GRADE_11.getCode(),GRADE_12.getCode(),GRADE_SU.getCode(),GRADE_GA.getCode(),GRADE_HS.getCode(),IndySchoolEnrolmentHeadcountHeader.TOTAL.getCode())
                 .build();
@@ -348,7 +276,7 @@ public class CSVReportService {
         } else if(collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode())) {
             return generateFebFsaCsv(collection.getCollectionID());
         }
-        throw new InvalidPayloadException(createError());
+        throw new InvalidPayloadException(createError(INVALID_COLLECTION_TYPE));
     }
 
     private DownloadableReportResponse generateFebFsaCsv(UUID collectionID) {
@@ -427,9 +355,15 @@ public class CSVReportService {
         }
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SpecialEducationHeadcountHeader.SCHOOL.getCode(), A.getCode(), B.getCode(), C.getCode(), D.getCode(), E.getCode(),
-                        F.getCode(),G.getCode(),H.getCode(),K.getCode(),P.getCode(),Q.getCode(),
-                        R.getCode(), SpecialEducationHeadcountHeader.TOTAL.getCode())
+                .setHeader(
+                        IndySpecialEducationHeadcountHeader.AUTHORITY_NUMBER.getCode(), IndySpecialEducationHeadcountHeader.AUTHORITY_NAME.getCode(),
+                        IndySpecialEducationHeadcountHeader.MIN_CODE.getCode(),
+                        IndySpecialEducationHeadcountHeader.SCHOOL.getCode(),
+                        IndySpecialEducationHeadcountHeader.LEVEL_1.getCode(), IndySpecialEducationHeadcountHeader.A.getCode(), IndySpecialEducationHeadcountHeader.B.getCode(),
+                        IndySpecialEducationHeadcountHeader.LEVEL_2.getCode(), IndySpecialEducationHeadcountHeader.C.getCode(), IndySpecialEducationHeadcountHeader.D.getCode(), IndySpecialEducationHeadcountHeader.E.getCode(), IndySpecialEducationHeadcountHeader.F.getCode(), IndySpecialEducationHeadcountHeader.G.getCode(),
+                        IndySpecialEducationHeadcountHeader.LEVEL_3.getCode(), IndySpecialEducationHeadcountHeader.H.getCode(),
+                        IndySpecialEducationHeadcountHeader.LEVEL_OTHER.getCode(), IndySpecialEducationHeadcountHeader.K.getCode(), IndySpecialEducationHeadcountHeader.P.getCode(), IndySpecialEducationHeadcountHeader.Q.getCode(), IndySpecialEducationHeadcountHeader.R.getCode(),
+                        IndySpecialEducationHeadcountHeader.TOTAL.getCode())
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -441,8 +375,17 @@ public class CSVReportService {
 
                 if(schoolOpt.isPresent()) {
                     var school = schoolOpt.get();
+                    Optional<IndependentAuthority> authorityOpt = Optional.empty();
+                    if (school.getIndependentAuthorityId() != null) {
+                        authorityOpt = restUtils.getAuthorityByAuthorityID(school.getIndependentAuthorityId());
+                    }
+
+                    IndependentAuthority authority = null;
+                    if (authorityOpt.isPresent()) {
+                        authority = authorityOpt.get();
+                    }
                     if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
-                        List<String> csvRowData = prepareIndyInclusiveEdDataForCsv(result, school);
+                        List<String> csvRowData = prepareIndyInclusiveEdDataForCsv(result, school, authority);
                         csvPrinter.printRecord(csvRowData);
                     }
                 }
@@ -464,8 +407,7 @@ public class CSVReportService {
         var mappedSeptData = getLastSeptCollectionSchoolMap(collectionID);
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(DISTRICT_NUMBER.getCode(), IndySpecialEducationFundingHeadcountHeader.DISTRICT_NAME.getCode(), IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NUMBER.getCode(),
-                        IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NAME.getCode(), MINCODE.getCode(), SCHOOL_NAME.getCode(),
+                .setHeader(DISTRICT_NUMBER.getCode(), IndySpecialEducationFundingHeadcountHeader.DISTRICT_NAME.getCode(), IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NUMBER.getCode(), IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NAME.getCode(), MINCODE.getCode(), SCHOOL_NAME.getCode(),
                         POSITIVE_CHANGE_LEVEL_1.getCode(),POSITIVE_CHANGE_LEVEL_2.getCode(),
                         POSITIVE_CHANGE_LEVEL_3.getCode(), NET_CHANGE_LEVEL_1.getCode(), NET_CHANGE_LEVEL_2.getCode(), NET_CHANGE_LEVEL_3.getCode(),SEPT_LEVEL_1.getCode(), SEPT_LEVEL_2.getCode(),
                         SEPT_LEVEL_3.getCode(),FEB_LEVEL_1.getCode(),FEB_LEVEL_2.getCode(),FEB_LEVEL_3.getCode())
@@ -652,19 +594,26 @@ public class CSVReportService {
         return csvRowData;
     }
 
-    private List<String> prepareIndyInclusiveEdDataForCsv(IndySpecialEdAdultHeadcountResult result, School school) {
+    private List<String> prepareIndyInclusiveEdDataForCsv(IndySpecialEdAdultHeadcountResult result, School school, IndependentAuthority authority) {
         List<String> csvRowData = new ArrayList<>();
 
         csvRowData.addAll(Arrays.asList(
+                authority != null ? authority.getAuthorityNumber() : "",
+                authority != null ? authority.getDisplayName() : "",
+                school.getMincode(),
                 school.getDisplayName(),
+                result.getLevelOnes(),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdACodes(), result.getAdultsInSpecialEdA()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdBCodes(), result.getAdultsInSpecialEdB()),
+                result.getLevelTwos(),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdCCodes(), result.getAdultsInSpecialEdC()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdDCodes(), result.getAdultsInSpecialEdD()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdECodes(), result.getAdultsInSpecialEdE()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdFCodes(), result.getAdultsInSpecialEdF()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdGCodes(), result.getAdultsInSpecialEdG()),
+                result.getLevelThrees(),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdHCodes(), result.getAdultsInSpecialEdH()),
+                result.getOtherLevels(),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdKCodes(), result.getAdultsInSpecialEdK()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdPCodes(), result.getAdultsInSpecialEdP()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdQCodes(), result.getAdultsInSpecialEdQ()),
@@ -908,8 +857,65 @@ public class CSVReportService {
         }
     }
 
-    private ApiError createError() {
-        return ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_COLLECTION_TYPE).status(BAD_REQUEST).build();
+    public DownloadableReportResponse generateEnrolmentHeadcountsAndFteReportForCEAndOLSchools(UUID collectionID) {
+        var collectionOpt = collectionRepository.findById(collectionID);
+
+        if(collectionOpt.isEmpty()){
+            throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
+        }
+
+        CollectionEntity collection = collectionOpt.get();
+        if(!collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.MAY.getTypeCode()) && !collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode())) {
+            throw new InvalidPayloadException(createError(HEADCOUNTS_INVALID_COLLECTION_TYPE));
+        }
+
+        List<EnrolmentHeadcountFteResult> results = sdcSchoolCollectionStudentRepository.getEnrolmentHeadcountsAndFteWithRefugeeByCollectionId(collectionID);
+        var mappedSeptData = getEnrolmentHeadcountFteResultForLastSeptCollection(collectionID);
+
+        List<String> headers = Arrays.stream(CEAndOLEnrolmentAndFteHeader.values()).map(CEAndOLEnrolmentAndFteHeader::getCode).toList();
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(headers.toArray(String[]::new))
+                .build();
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (EnrolmentHeadcountFteResult result : results) {
+                var septCollectionRecord = mappedSeptData.get(result.getSchoolID());
+
+                var schoolOpt = restUtils.getSchoolBySchoolID(result.getSchoolID());
+                if(schoolOpt.isPresent() &&
+                        (schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.CONT_ED.getCode()) ||
+                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DISTONLINE.getCode()) ||
+                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DIST_LEARN.getCode()))) {
+                    List<String> csvRowData = prepareEnrolmentFteDataForCEAndOLSchools(result, septCollectionRecord, schoolOpt.get());
+                    csvPrinter.printRecord(csvRowData);
+                }
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(ENROLMENT_HEADCOUNTS_AND_FTE_REPORT_FOR_OL_AND_CE_SCHOOLS.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
+    private Map<String, EnrolmentHeadcountFteResult> getEnrolmentHeadcountFteResultForLastSeptCollection(UUID collectionID){
+        var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collectionID);
+        if(lastSeptCollectionOpt.isEmpty()) {
+            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+        }
+        List<EnrolmentHeadcountFteResult> lastSeptCollectionRawData = sdcSchoolCollectionStudentRepository.getEnrolmentHeadcountsAndFteWithRefugeeByCollectionId(lastSeptCollectionOpt.get().getCollectionID());
+        return lastSeptCollectionRawData.stream().collect(Collectors.toMap(EnrolmentHeadcountFteResult::getSchoolID, item -> item));
+    }
+
+    private ApiError createError(String message) {
+        return ApiError.builder().timestamp(LocalDateTime.now()).message(message).status(BAD_REQUEST).build();
     }
 
     private List<String> prepareEnrolmentFteDataForCsv(EnrolmentHeadcountFteResult headcountResult, SchoolTombstone school) {
@@ -953,6 +959,8 @@ public class CSVReportService {
                 headcountResult.getGradeTwelveTotalFte(),
                 headcountResult.getGradeEuTotalFte(),
                 headcountResult.getGradeSuTotalFte(),
+                headcountResult.getGradAdultTotalFte(),
+                headcountResult.getNonGradAdultTotalFte(),
 
                 headcountResult.getKhLevelOneCount(),
                 headcountResult.getKhLevelTwoCount(),
@@ -1081,5 +1089,200 @@ public class CSVReportService {
                 headcountResult.getNonGradAdultLevelTwoCount(),
                 headcountResult.getNonGradAdultLevelThreeCount()
         ));
+    }
+
+    private List<String> prepareEnrolmentFteDataForCEAndOLSchools(EnrolmentHeadcountFteResult headcountResult, EnrolmentHeadcountFteResult septHeadcountResult, SchoolTombstone school) {
+        var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
+        return new ArrayList<>(Arrays.asList(
+                school.getMincode().substring(0, 3),
+                school.getSchoolNumber(),
+                school.getDisplayName(),
+                facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhTotalCount() : "0", headcountResult.getKhTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhRefugeeCount() : "0", headcountResult.getKhRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhEllCount() : "0", headcountResult.getKhEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneTotalCount() : "0", headcountResult.getGradeOneTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneRefugeeCount() : "0", headcountResult.getGradeOneRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneEllCount() : "0", headcountResult.getGradeOneEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwoTotalCount() : "0", headcountResult.getGradeTwoTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwoRefugeeCount() : "0", headcountResult.getGradeTwoRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwoEllCount() : "0", headcountResult.getGradeTwoEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeThreeTotalCount() : "0", headcountResult.getGradeThreeTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeThreeRefugeeCount() : "0", headcountResult.getGradeThreeRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeThreeEllCount() : "0", headcountResult.getGradeThreeEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFourTotalCount() : "0", headcountResult.getGradeFourTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFourRefugeeCount() : "0", headcountResult.getGradeFourRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFourEllCount() : "0", headcountResult.getGradeFourEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFiveTotalCount() : "0", headcountResult.getGradeFiveTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFiveRefugeeCount() : "0", headcountResult.getGradeFiveRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFiveEllCount() : "0", headcountResult.getGradeFiveEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSixTotalCount() : "0", headcountResult.getGradeSixTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSixRefugeeCount() : "0", headcountResult.getGradeSixRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSixEllCount() : "0", headcountResult.getGradeSixEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSevenTotalCount() : "0", headcountResult.getGradeSevenTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSevenRefugeeCount() : "0", headcountResult.getGradeSevenRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSevenEllCount() : "0", headcountResult.getGradeSevenEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEightTotalCount() : "0", headcountResult.getGradeEightTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEightRefugeeCount() : "0", headcountResult.getGradeEightRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEightEllCount() : "0", headcountResult.getGradeEightEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeNineTotalCount() : "0", headcountResult.getGradeNineTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeNineRefugeeCount() : "0", headcountResult.getGradeNineRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeNineEllCount() : "0", headcountResult.getGradeNineEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTenTotalCount() : "0", headcountResult.getGradeTenTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTenRefugeeCount() : "0", headcountResult.getGradeTenRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTenEllCount() : "0", headcountResult.getGradeTenEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeElevenTotalCount() : "0", headcountResult.getGradeElevenTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeElevenRefugeeCount() : "0", headcountResult.getGradeElevenRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeElevenEllCount() : "0", headcountResult.getGradeElevenEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwelveTotalCount() : "0", headcountResult.getGradeTwelveTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwelveRefugeeCount() : "0", headcountResult.getGradeTwelveRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwelveEllCount() : "0", headcountResult.getGradeTwelveEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEuTotalCount() : "0", headcountResult.getGradeEuTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEuRefugeeCount() : "0", headcountResult.getGradeEuRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEuEllCount() : "0", headcountResult.getGradeEuEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSuTotalCount() : "0", headcountResult.getGradeSuTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSuRefugeeCount() : "0", headcountResult.getGradeSuRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSuEllCount() : "0", headcountResult.getGradeSuEllCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradAdultCount() : "0", headcountResult.getGradAdultCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getNonGradAdultCount() : "0", headcountResult.getNonGradAdultCount()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhTotalFte() : "0", headcountResult.getKhTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhRefugeeTotalFte() : "0", headcountResult.getKhRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneTotalFte() : "0", headcountResult.getGradeOneTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneRefugeeTotalFte() : "0", headcountResult.getGradeOneRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwoTotalFte() : "0", headcountResult.getGradeTwoTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwoRefugeeTotalFte() : "0", headcountResult.getGradeTwoRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeThreeTotalFte() : "0", headcountResult.getGradeThreeTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeThreeRefugeeTotalFte() : "0", headcountResult.getGradeThreeRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFourTotalFte() : "0", headcountResult.getGradeFourTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFourRefugeeTotalFte() : "0", headcountResult.getGradeFourRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFiveTotalFte() : "0", headcountResult.getGradeFiveTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFiveRefugeeTotalFte() : "0", headcountResult.getGradeFiveRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSixTotalFte() : "0", headcountResult.getGradeSixTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSixRefugeeTotalFte() : "0", headcountResult.getGradeSixRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSevenTotalFte() : "0", headcountResult.getGradeSevenTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSevenRefugeeTotalFte() : "0", headcountResult.getGradeSevenRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEightTotalFte() : "0", headcountResult.getGradeEightTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEightRefugeeTotalFte() : "0", headcountResult.getGradeEightRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeNineTotalFte() : "0", headcountResult.getGradeNineTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeNineRefugeeTotalFte() : "0", headcountResult.getGradeNineRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTenTotalFte() : "0", headcountResult.getGradeTenTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTenRefugeeTotalFte() : "0", headcountResult.getGradeTenRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeElevenTotalFte() : "0", headcountResult.getGradeElevenTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeElevenRefugeeTotalFte() : "0", headcountResult.getGradeElevenRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwelveTotalFte() : "0", headcountResult.getGradeTwelveTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwelveRefugeeTotalFte() : "0", headcountResult.getGradeTwelveRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEuTotalFte() : "0", headcountResult.getGradeEuTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEuRefugeeTotalFte() : "0", headcountResult.getGradeEuRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSuTotalFte() : "0", headcountResult.getGradeSuTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSuRefugeeTotalFte() : "0", headcountResult.getGradeSuRefugeeTotalFte()),
+
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradAdultTotalFte() : "0", headcountResult.getGradAdultTotalFte()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getNonGradAdultTotalFte() : "0", headcountResult.getNonGradAdultTotalFte())
+        ));
+    }
+
+    private List<String> prepareIndyFundingDataForCsv(IndyFundingResult indyFundingResult, School school, District district, IndependentAuthority authority) {
+        List<String> csvRowData = new ArrayList<>();
+        csvRowData.addAll(Arrays.asList(
+                district != null ? district.getDistrictNumber() : null,
+                district != null ? district.getDisplayName() : null,
+                authority != null ? authority.getAuthorityNumber() : null,
+                authority != null ? authority.getDisplayName() : null,
+                school.getSchoolNumber(),
+                school.getDisplayName(),
+                school.getFacilityTypeCode(),
+
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.KINDHALF.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.KINDFULL.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE01.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE02.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE03.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE04.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE05.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE06.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE07.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.ELEMUNGR.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE08.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE09.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE10.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE11.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE12.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADUATED_ADULT.getTypeCode()),
+                TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.HOMESCHOOL.getTypeCode()),
+
+                indyFundingResult.getTotalCount(),
+                indyFundingResult.getTotalFTE(),
+
+                indyFundingResult.getKindHCount(),
+                indyFundingResult.getKindFCount(),
+                indyFundingResult.getGrade1Count(),
+                indyFundingResult.getGrade2Count(),
+                indyFundingResult.getGrade3Count(),
+                indyFundingResult.getGrade4Count(),
+                indyFundingResult.getGrade5Count(),
+                indyFundingResult.getGrade6Count(),
+                indyFundingResult.getGrade7Count(),
+                indyFundingResult.getGradeEUCount(),
+                indyFundingResult.getGrade8Count(),
+                indyFundingResult.getGrade9Count(),
+                indyFundingResult.getGrade10Count(),
+                indyFundingResult.getGrade11Count(),
+                indyFundingResult.getGrade12Count(),
+                indyFundingResult.getGradeSUCount(),
+                indyFundingResult.getGradeGACount(),
+                indyFundingResult.getGradeHSCount(),
+
+                indyFundingResult.getKindHFTE(),
+                indyFundingResult.getKindFFTE(),
+                indyFundingResult.getGrade1FTE(),
+                indyFundingResult.getGrade2FTE(),
+                indyFundingResult.getGrade3FTE(),
+                indyFundingResult.getGrade4FTE(),
+                indyFundingResult.getGrade5FTE(),
+                indyFundingResult.getGrade6FTE(),
+                indyFundingResult.getGrade7FTE(),
+                indyFundingResult.getGradeEUFTE(),
+                indyFundingResult.getGrade8FTE(),
+                indyFundingResult.getGrade9FTE(),
+                indyFundingResult.getGrade10FTE(),
+                indyFundingResult.getGrade11FTE(),
+                indyFundingResult.getGrade12FTE(),
+                indyFundingResult.getGradeSUFTE(),
+                indyFundingResult.getGradeGAFTE(),
+                indyFundingResult.getGradeHSFTE()
+        ));
+        return csvRowData;
     }
 }

@@ -12,6 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import lombok.extern.slf4j.Slf4j;
@@ -41,10 +42,12 @@ public class RefugeeFundingRule implements ValidationBaseRule {
 
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+    private final ValidationRulesService validationRulesService;
 
-    public RefugeeFundingRule(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
+    public RefugeeFundingRule(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, ValidationRulesService validationRulesService) {
         this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
         this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+        this.validationRulesService = validationRulesService;
     }
 
     @Override
@@ -96,7 +99,7 @@ public class RefugeeFundingRule implements ValidationBaseRule {
         if (assignedStudentId == null) {
             return false;
         }
-
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
         var allPreviousCollections  = sdcSchoolCollectionRepository.findAllPreviousCollectionsForStudent(assignedStudentId, currentSnapshotDate);
         var previousCollectionCount = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(studentRuleData.getHistoricStudentIds(), allPreviousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList());

@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
+import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,18 +176,41 @@ public class FteCalculatorUtils {
     }
 
     /**
-     * Returns true if the given student (of the correct grade) is reported by a provincial or district online school
+     * Returns true if the given school aged student (of the correct grade) is reported by a provincial or district online school
      * with zero courses and the student has not been reported with courses > 0 for the last two years
      */
-    public boolean noCoursesForStudentInLastTwoYears(StudentRuleData studentRuleData) {
+    public boolean noCoursesForSchoolAgedStudentInLastTwoYears(StudentRuleData studentRuleData) {
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         var school = studentRuleData.getSchool();
         var isEightPlusGradeCode = SchoolGradeCodes.get8PlusGrades().contains(student.getEnrolledGradeCode());
-        var reportedByOnlineSchoolWithNoCourses = (StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DISTONLINE.getCode())) &&
-                (StringUtils.isBlank(student.getNumberOfCourses()) || StringUtils.equals(student.getNumberOfCourses(), "0000") || StringUtils.equals(student.getNumberOfCourses(), "000") || StringUtils.equals(student.getNumberOfCourses(), "00") || StringUtils.equals(student.getNumberOfCourses(), "0"));
+        var reportedByOnlineOrContEdSchool = StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DISTONLINE.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.CONT_ED.getCode());
+        var zeroCourses = TransformUtil.parseNumberOfCourses(student.getNumberOfCourses(), student.getSdcSchoolCollection().getSdcSchoolCollectionID()) == 0;
         boolean isSchoolAged = Boolean.TRUE.equals(student.getIsSchoolAged());
 
-        if (isSchoolAged && isEightPlusGradeCode && reportedByOnlineSchoolWithNoCourses) {
+        if (isSchoolAged && isEightPlusGradeCode && reportedByOnlineOrContEdSchool && zeroCourses) {
+            if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
+                return true;
+            }
+            validationRulesService.setupMergedStudentIdValues(studentRuleData);
+            var lastTwoYearsOfCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(UUID.fromString(school.getSchoolId()), student.getSdcSchoolCollection().getSdcSchoolCollectionID());
+            return lastTwoYearsOfCollections.isEmpty() || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(studentRuleData.getHistoricStudentIds(), lastTwoYearsOfCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(), "0") == 0;
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the given adult student (of the correct grade) is reported by a provincial or district online school
+     * with zero courses and the student has not been reported with courses > 0 for the last two years
+     */
+    public boolean noCoursesForAdultStudentInLastTwoYears(StudentRuleData studentRuleData) {
+        var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
+        var school = studentRuleData.getSchool();
+        var isAllowedAdultGradeCode = SchoolGradeCodes.getAllowedAdultGrades().contains(student.getEnrolledGradeCode());
+        var reportedByOnlineOrContEdSchool = StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DISTONLINE.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.CONT_ED.getCode());
+        var zeroCourses = TransformUtil.parseNumberOfCourses(student.getNumberOfCourses(), student.getSdcSchoolCollection().getSdcSchoolCollectionID()) == 0;
+        boolean isAdult = Boolean.TRUE.equals(student.getIsAdult());
+
+        if (isAdult && isAllowedAdultGradeCode && reportedByOnlineOrContEdSchool && zeroCourses) {
             if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
                 return true;
             }
@@ -209,6 +233,7 @@ public class FteCalculatorUtils {
         var previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(notOnlineSchoolIdsInSameDistrict, fiscalSnapshotDate, currentSnapshotDate);
         if (previousCollections != null) {
             var collectionIds = previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList();
+            validationRulesService.setupMergedStudentIdValues(studentRuleData);
             var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTE(studentRuleData.getHistoricStudentIds(), collectionIds);
             return count > 0;
         }

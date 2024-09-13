@@ -43,6 +43,8 @@ public enum EnrolmentAndFteHeader {
     GRADE_TWELVE_FTE_TOTAL("Funded FTE Grade 12 Total"),
     EU_FTE_TOTAL("Funded FTE EU Total"),
     SU_FTE_TOTAL("Funded FTE SU Total"),
+    GRAD_ADULT_FTE_TOTAL("Funded FTE Grad Adult Total"),
+    NON_GRAD_ADULT_FTE_TOTAL("Funded FTE Non-Grad Total"),
 
     KIND_HT_IE_LEVEL_ONE_COUNT("Headcount Kind(H/T) IE Level 1"),
     KIND_HT_IE_LEVEL_TWO_COUNT("Headcount Kind(H/T) IE Level 2"),

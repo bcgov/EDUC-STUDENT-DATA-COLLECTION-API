@@ -35,7 +35,7 @@ class NoCoursesInLastTwoYearsCalculatorTest {
         // Given
         StudentRuleData student = new StudentRuleData();
         student.setSdcSchoolCollectionStudentEntity(new SdcSchoolCollectionStudentEntity());
-        when(fteCalculatorUtils.noCoursesForStudentInLastTwoYears(any())).thenReturn(true);
+        when(fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(any())).thenReturn(true);
 
         // When
         FteCalculationResult result = noCoursesInLastTwoYearsCalculator.calculateFte(student);
@@ -51,7 +51,7 @@ class NoCoursesInLastTwoYearsCalculatorTest {
         // Given
         StudentRuleData student = new StudentRuleData();
         student.setSdcSchoolCollectionStudentEntity(new SdcSchoolCollectionStudentEntity());
-        when(fteCalculatorUtils.noCoursesForStudentInLastTwoYears(any())).thenReturn(false);
+        when(fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(any())).thenReturn(false);
 
         // When
         FteCalculationResult expectedResult = new FteCalculationResult();

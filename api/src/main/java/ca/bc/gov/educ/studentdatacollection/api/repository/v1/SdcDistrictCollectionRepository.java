@@ -40,8 +40,8 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
                     s.sdcDistrictCollectionStatusCode as sdcDistrictCollectionStatusCode,
                     COUNT(DISTINCT CASE WHEN sc.sdcSchoolCollectionStatusCode = 'SUBMITTED' OR sc.sdcSchoolCollectionStatusCode = 'COMPLETED' THEN sc.sdcSchoolCollectionID END) as submittedSchools,
                     COUNT(DISTINCT sc.sdcSchoolCollectionID) as totalSchools,
-                    COUNT(DISTINCT CASE WHEN de.duplicateResolutionCode IS NULL AND de.duplicateLevelCode = 'PROVINCIAL' AND de.duplicateTypeCode = 'PROGRAM' THEN de.sdcDuplicateID END) as unresolvedProgramDuplicates,
-                    COUNT(DISTINCT CASE WHEN de.duplicateResolutionCode IS NULL AND de.duplicateLevelCode = 'PROVINCIAL' AND de.duplicateTypeCode = 'ENROLLMENT' THEN de.sdcDuplicateID END) as unresolvedEnrollmentDuplicates
+                    COUNT(DISTINCT CASE WHEN de.duplicateResolutionCode IS NULL AND de.duplicateLevelCode = 'PROVINCIAL' AND de.duplicateTypeCode = 'PROGRAM' AND de.duplicateSeverityCode = 'NON_ALLOW' THEN de.sdcDuplicateID END) as unresolvedProgramDuplicates,
+                    COUNT(DISTINCT CASE WHEN de.duplicateResolutionCode IS NULL AND de.duplicateLevelCode = 'PROVINCIAL' AND de.duplicateTypeCode = 'ENROLLMENT' AND de.duplicateSeverityCode = 'NON_ALLOW' THEN de.sdcDuplicateID END) as unresolvedEnrollmentDuplicates
                 FROM SdcDistrictCollectionEntity s
                      LEFT JOIN SdcSchoolCollectionEntity sc ON s.sdcDistrictCollectionID = sc.sdcDistrictCollectionID
                      LEFT JOIN SdcDuplicateStudentEntity ds ON s.sdcDistrictCollectionID = ds.sdcDistrictCollectionID
