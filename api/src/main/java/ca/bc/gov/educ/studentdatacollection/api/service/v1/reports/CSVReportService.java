@@ -51,8 +51,6 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryrepo
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.SCHOOL_NAME;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationHeadcountHeader.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndyFundingReportHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -246,11 +244,13 @@ public class CSVReportService {
                 var schoolOpt = restUtils.getAllSchoolBySchoolID(String.valueOf(schoolEntity.getSchoolID()));
                 if(schoolOpt.isPresent()) {
                     var school = schoolOpt.get();
-                    var schoolAddr = school.getAddresses().stream().filter(address -> address.getAddressTypeCode().equalsIgnoreCase("PHYSICAL")).findFirst();
-                    if(schoolAddr.isPresent()) {
-                        var address = schoolAddr.get();
-                        List<String> csvRowData = prepareSchoolAddressDataForCsv(school, address);
-                        csvPrinter.printRecord(csvRowData);
+                    if(!school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode()) && !school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
+                        var schoolAddr = school.getAddresses().stream().filter(address -> address.getAddressTypeCode().equalsIgnoreCase("PHYSICAL")).findFirst();
+                        if(schoolAddr.isPresent()) {
+                            var address = schoolAddr.get();
+                            List<String> csvRowData = prepareSchoolAddressDataForCsv(school, address);
+                            csvPrinter.printRecord(csvRowData);
+                        }
                     }
                 }
             }
@@ -302,8 +302,12 @@ public class CSVReportService {
                 } else if(student.getEnrolledGradeCode().equalsIgnoreCase(SchoolGradeCodes.GRADE06.getCode())) {
                     projectedGrade = SchoolGradeCodes.GRADE07.getCode();
                 }
-                List<String> csvRowData = prepareFsaDataForCsv(student, projectedGrade);
-                csvPrinter.printRecord(csvRowData);
+                var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
+                if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode()) &&
+                                !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
+                    List<String> csvRowData = prepareFsaDataForCsv(student, projectedGrade, schoolOpt.get());
+                    csvPrinter.printRecord(csvRowData);
+                }
             }
             csvPrinter.flush();
 
@@ -333,8 +337,11 @@ public class CSVReportService {
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
             for (SdcSchoolCollectionStudentEntity student : students) {
-                List<String> csvRowData = prepareFsaDataForCsv(student, student.getEnrolledGradeCode());
-                csvPrinter.printRecord(csvRowData);
+                var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
+                if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
+                    List<String> csvRowData = prepareFsaDataForCsv(student, student.getEnrolledGradeCode(), schoolOpt.get());
+                    csvPrinter.printRecord(csvRowData);
+                }
             }
             csvPrinter.flush();
 
@@ -789,22 +796,18 @@ public class CSVReportService {
         return csvRowData;
     }
 
-    private List<String> prepareFsaDataForCsv(SdcSchoolCollectionStudentEntity student, String studentGrade) {
-        var schoolOpt = restUtils.getAllSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
-        List<String> csvRowData = new ArrayList<>();
-        if(schoolOpt.isPresent()) {
-            var school = schoolOpt.get();
+    private List<String> prepareFsaDataForCsv(SdcSchoolCollectionStudentEntity student, String studentGrade, SchoolTombstone school) {
 
-            csvRowData.addAll(Arrays.asList(
-                    student.getAssignedPen(),
-                    school.getMincode().substring(0,3),
-                    school.getSchoolNumber(),
-                    studentGrade,
-                    student.getLocalID(),
-                    student.getLegalFirstName(),
-                    student.getLegalLastName()
+        List<String> csvRowData = new ArrayList<>();
+        csvRowData.addAll(Arrays.asList(
+                student.getAssignedPen(),
+                school.getMincode().substring(0,3),
+                school.getSchoolNumber(),
+                studentGrade,
+                student.getLocalID(),
+                student.getLegalFirstName(),
+                student.getLegalLastName()
             ));
-        }
         return csvRowData;
     }
 
