@@ -334,18 +334,20 @@ public class MinistryHeadcountService {
 
     schoolsInCollection.forEach(result -> {
       var school = restUtils.getAllSchoolBySchoolID(String.valueOf(result.getSchoolID())).get();
-      var schoolAddr = school.getAddresses().stream().filter(address -> address.getAddressTypeCode().equalsIgnoreCase("PHYSICAL")).findFirst();
-      if(schoolAddr.isPresent()) {
-        var address = schoolAddr.get();
-        var rowMap = new HashMap<String, String>();
-        rowMap.put(MINCODE.getCode(), school.getMincode());
-        rowMap.put(SCHOOL_NAME.getCode(), school.getDisplayName());
-        rowMap.put(ADDRESS_LINE1.getCode(),address.getAddressLine1());
-        rowMap.put(ADDRESS_LINE2.getCode(), address.getAddressLine2());
-        rowMap.put(CITY.getCode(), address.getCity());
-        rowMap.put(PROVINCE.getCode(), address.getProvinceCode());
-        rowMap.put(POSTAL.getCode(), address.getPostal());
-        rows.add(rowMap);
+      if(!school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode()) && !school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
+        var schoolAddr = school.getAddresses().stream().filter(address -> address.getAddressTypeCode().equalsIgnoreCase("PHYSICAL")).findFirst();
+        if(schoolAddr.isPresent()) {
+          var address = schoolAddr.get();
+          var rowMap = new HashMap<String, String>();
+          rowMap.put(MINCODE.getCode(), school.getMincode());
+          rowMap.put(SCHOOL_NAME.getCode(), school.getDisplayName());
+          rowMap.put(ADDRESS_LINE1.getCode(),address.getAddressLine1());
+          rowMap.put(ADDRESS_LINE2.getCode(), address.getAddressLine2());
+          rowMap.put(CITY.getCode(), address.getCity());
+          rowMap.put(PROVINCE.getCode(), address.getProvinceCode());
+          rowMap.put(POSTAL.getCode(), address.getPostal());
+          rows.add(rowMap);
+        }
       }
   });
 
