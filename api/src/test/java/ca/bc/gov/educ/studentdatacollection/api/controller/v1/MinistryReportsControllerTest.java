@@ -1292,4 +1292,93 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(summary1).isNotNull();
     assertThat(summary1.getReportType()).isEqualTo(NON_GRADUATED_ADULT_INDY_FUNDING_REPORT.getCode());
   }
+
+  @Test
+  void testGetMinistryReportCSV_TypeREFUGEE_ENROLMENT_HEADCOUNTS_AND_FTE_REPORT_ShouldReturnReportData() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    var school = this.createMockSchool();
+    school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+    school.setFacilityTypeCode(FacilityTypeCodes.STANDARD.getCode());
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection = collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
+    sdcDistrictCollectionRepository.save(sdcMockDistrict);
+
+    SdcDistrictCollectionEntity sdcMockDistrict2 = createMockSdcDistrictCollectionEntity(collection, null);
+    sdcDistrictCollectionRepository.save(sdcMockDistrict2);
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+
+    SchoolTombstone school2 = createMockSchool();
+    school2.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+    school2.setFacilityTypeCode(FacilityTypeCodes.STANDARD.getCode());
+    school2.setDistrictId(sdcMockDistrict2.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+
+    sdcSchoolCollectionRepository.saveAll(List.of(sdcSchoolCollectionEntity1, sdcSchoolCollectionEntity2));
+
+    var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    sdcSchoolCollectionStudent1.setSchoolFundingCode("16");
+    var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+    sdcSchoolCollectionStudent1.setSchoolFundingCode("16");
+    sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2));
+
+    var resultActions1 = this.mockMvc.perform(
+                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/refugee-enrolment-fte-headcounts/download").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
+
+    val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
+    });
+
+    assertThat(summary1).isNotNull();
+    assertThat(summary1.getReportType()).isEqualTo(REFUGEE_ENROLMENT_HEADCOUNTS_AND_FTE_REPORT.getCode());
+  }
+
+  @Test
+  void testGetMinistryReportCSV_TypeREFUGEE_ENROLMENT_HEADCOUNTS_AND_FTE_REPORT_ShouldReturnBadData() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    var school = this.createMockSchool();
+    school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+    school.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection = collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
+    sdcDistrictCollectionRepository.save(sdcMockDistrict);
+
+    SdcDistrictCollectionEntity sdcMockDistrict2 = createMockSdcDistrictCollectionEntity(collection, null);
+    sdcDistrictCollectionRepository.save(sdcMockDistrict2);
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+
+    SchoolTombstone school2 = createMockSchool();
+    school2.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+    school2.setFacilityTypeCode(FacilityTypeCodes.STANDARD.getCode());
+    school2.setDistrictId(sdcMockDistrict2.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+
+    sdcSchoolCollectionRepository.saveAll(List.of(sdcSchoolCollectionEntity1, sdcSchoolCollectionEntity2));
+
+    var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+    sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2));
+
+    this.mockMvc.perform(
+                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/refugee-enrolment-fte-headcounts/download").with(mockAuthority))
+            .andDo(print()).andExpect(status().isBadRequest());
+
+  }
 }

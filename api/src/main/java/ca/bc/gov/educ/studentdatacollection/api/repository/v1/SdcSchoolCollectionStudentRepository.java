@@ -1550,4 +1550,135 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           " AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is null " +
           " GROUP BY sscs.sdcSchoolCollection.schoolID ")
   List<IndyFundingResult> getIndyFundingHeadcountsNonGraduatedAdultByCollectionId(@Param("collectionID") UUID collectionID);
+
+  @Query(value = """
+          SELECT
+          sscs.sdcSchoolCollection.schoolID as schoolID,
+          COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS khRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS khEllCount,
+         
+          COUNT(CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeOneRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS gradeOneEllCount,
+         
+          COUNT(CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeTwoRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS gradeTwoEllCount,
+          
+          COUNT(CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeThreeRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS gradeThreeEllCount,
+          
+          COUNT(CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeFourRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS gradeFourEllCount,
+          
+          COUNT(CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeFiveRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS gradeFiveEllCount,
+         
+          COUNT(CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeSixRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS gradeSixEllCount,
+          
+          COUNT(CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeSevenRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS gradeSevenEllCount,
+
+          COUNT(CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeEightRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS gradeEightEllCount,
+          
+          COUNT(CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeNineRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS gradeNineEllCount,
+          
+          COUNT(CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeTenRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS gradeTenEllCount,
+          
+          COUNT(CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeElevenRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS gradeElevenEllCount,
+          
+          COUNT(CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeTwelveRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS gradeTwelveEllCount,
+          
+          COUNT(CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeEuRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL  AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS gradeEuEllCount,
+
+          COUNT(CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeSuRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.schoolFundingCode = '16' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode
+          IN ('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.sdcSchoolCollectionStudentID END) AS gradeSuEllCount,
+          
+          SUM(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as khRefugeeTotalFte,
+
+          SUM(CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as gradeOneRefugeeTotalFte,
+
+          SUM(CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as gradeTwoRefugeeTotalFte,
+
+          SUM(CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as gradeThreeRefugeeTotalFte,
+
+          SUM(CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as gradeFourRefugeeTotalFte,
+
+          SUM(CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as gradeFiveRefugeeTotalFte,
+
+          SUM(CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as gradeSixRefugeeTotalFte,
+
+          SUM(CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as gradeSevenRefugeeTotalFte,
+
+          SUM(CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as gradeEightRefugeeTotalFte,
+
+          SUM(CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as gradeNineRefugeeTotalFte,
+
+          SUM(CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as gradeTenRefugeeTotalFte,
+
+          SUM(CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as gradeElevenRefugeeTotalFte,
+
+          SUM(CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as gradeTwelveRefugeeTotalFte,
+
+          SUM(CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as gradeEuRefugeeTotalFte,
+
+          SUM(CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE 
+          si.sdcSchoolCollectionStudentEntity = sscs AND si.validationIssueCode IN('REFUGEEINPREVCOL', 'REFUGEEISADULT')) THEN sscs.fte ELSE 0 END ) as gradeSuRefugeeTotalFte
+          
+          FROM SdcSchoolCollectionStudentEntity sscs
+          LEFT JOIN sscs.sdcStudentEnrolledProgramEntities ep
+          WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
+          AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is null
+          GROUP BY sscs.sdcSchoolCollection.schoolID""")
+  List<EnrolmentHeadcountFteResult> getNewRefugeeEnrolmentHeadcountsAndFteWithByCollectionId(@Param("collectionID") UUID collectionID);
 }
