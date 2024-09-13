@@ -51,7 +51,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryrepo
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.SCHOOL_NAME;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SpecialEducationHeadcountHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -275,9 +275,15 @@ public class CSVReportService {
         }
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SpecialEducationHeadcountHeader.SCHOOL.getCode(), A.getCode(), B.getCode(), C.getCode(), D.getCode(), E.getCode(),
-                        F.getCode(),G.getCode(),H.getCode(),K.getCode(),P.getCode(),Q.getCode(),
-                        R.getCode(), SpecialEducationHeadcountHeader.TOTAL.getCode())
+                .setHeader(
+                        IndySpecialEducationHeadcountHeader.AUTHORITY_NUMBER.getCode(), IndySpecialEducationHeadcountHeader.AUTHORITY_NAME.getCode(),
+                        IndySpecialEducationHeadcountHeader.MIN_CODE.getCode(),
+                        IndySpecialEducationHeadcountHeader.SCHOOL.getCode(),
+                        IndySpecialEducationHeadcountHeader.LEVEL_1.getCode(), A.getCode(), B.getCode(),
+                        IndySpecialEducationHeadcountHeader.LEVEL_2.getCode(), C.getCode(), D.getCode(), E.getCode(), F.getCode(), G.getCode(),
+                        IndySpecialEducationHeadcountHeader.LEVEL_3.getCode(), H.getCode(),
+                        IndySpecialEducationHeadcountHeader.LEVEL_OTHER.getCode(), K.getCode(), P.getCode(), Q.getCode(), R.getCode(),
+                        IndySpecialEducationHeadcountHeader.TOTAL.getCode())
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -289,8 +295,17 @@ public class CSVReportService {
 
                 if(schoolOpt.isPresent()) {
                     var school = schoolOpt.get();
+                    Optional<IndependentAuthority> authorityOpt = Optional.empty();
+                    if (school.getIndependentAuthorityId() != null) {
+                        authorityOpt = restUtils.getAuthorityByAuthorityID(school.getIndependentAuthorityId());
+                    }
+
+                    IndependentAuthority authority = null;
+                    if (authorityOpt.isPresent()) {
+                        authority = authorityOpt.get();
+                    }
                     if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
-                        List<String> csvRowData = prepareIndyInclusiveEdDataForCsv(result, school);
+                        List<String> csvRowData = prepareIndyInclusiveEdDataForCsv(result, school, authority);
                         csvPrinter.printRecord(csvRowData);
                     }
                 }
@@ -312,7 +327,7 @@ public class CSVReportService {
         var mappedSeptData = getLastSeptCollectionSchoolMap(collectionID);
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(DISTRICT_NUMBER.getCode(), DISTRICT_NAME.getCode(), AUTHORITY_NUMBER.getCode(), AUTHORITY_NAME.getCode(), MINCODE.getCode(), SCHOOL_NAME.getCode(),
+                .setHeader(DISTRICT_NUMBER.getCode(), DISTRICT_NAME.getCode(), IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NUMBER.getCode(), IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NAME.getCode(), MINCODE.getCode(), SCHOOL_NAME.getCode(),
                         POSITIVE_CHANGE_LEVEL_1.getCode(),POSITIVE_CHANGE_LEVEL_2.getCode(),
                         POSITIVE_CHANGE_LEVEL_3.getCode(), NET_CHANGE_LEVEL_1.getCode(), NET_CHANGE_LEVEL_2.getCode(), NET_CHANGE_LEVEL_3.getCode(),SEPT_LEVEL_1.getCode(), SEPT_LEVEL_2.getCode(),
                         SEPT_LEVEL_3.getCode(),FEB_LEVEL_1.getCode(),FEB_LEVEL_2.getCode(),FEB_LEVEL_3.getCode())
@@ -499,19 +514,26 @@ public class CSVReportService {
         return csvRowData;
     }
 
-    private List<String> prepareIndyInclusiveEdDataForCsv(IndySpecialEdAdultHeadcountResult result, School school) {
+    private List<String> prepareIndyInclusiveEdDataForCsv(IndySpecialEdAdultHeadcountResult result, School school, IndependentAuthority authority) {
         List<String> csvRowData = new ArrayList<>();
 
         csvRowData.addAll(Arrays.asList(
+                authority != null ? authority.getAuthorityNumber() : "",
+                authority != null ? authority.getDisplayName() : "",
+                school.getMincode(),
                 school.getDisplayName(),
+                result.getLevelOnes(),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdACodes(), result.getAdultsInSpecialEdA()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdBCodes(), result.getAdultsInSpecialEdB()),
+                result.getLevelTwos(),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdCCodes(), result.getAdultsInSpecialEdC()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdDCodes(), result.getAdultsInSpecialEdD()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdECodes(), result.getAdultsInSpecialEdE()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdFCodes(), result.getAdultsInSpecialEdF()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdGCodes(), result.getAdultsInSpecialEdG()),
+                result.getLevelThrees(),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdHCodes(), result.getAdultsInSpecialEdH()),
+                result.getOtherLevels(),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdKCodes(), result.getAdultsInSpecialEdK()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdPCodes(), result.getAdultsInSpecialEdP()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdQCodes(), result.getAdultsInSpecialEdQ()),

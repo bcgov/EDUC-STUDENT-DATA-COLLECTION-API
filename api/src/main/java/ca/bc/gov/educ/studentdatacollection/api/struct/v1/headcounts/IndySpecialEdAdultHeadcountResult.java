@@ -1,6 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts;
 
 public interface IndySpecialEdAdultHeadcountResult extends HeadcountResult {
+
+  String getLevelOnes();
+  String getLevelTwos();
+  String getLevelThrees();
+  String getOtherLevels();
   String getSpecialEdACodes();
   boolean getAdultsInSpecialEdA();
   String getSpecialEdBCodes();
