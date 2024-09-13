@@ -21,6 +21,8 @@ public enum MinistryReportTypeCode {
     INDY_FUNDING_REPORT("indy-funding-report"),
     ONLINE_INDY_FUNDING_REPORT("online-indy-funding-report"),
     NON_GRADUATED_ADULT_INDY_FUNDING_REPORT("non-graduated-adult-indy-funding-report"),
+    REFUGEE_ENROLMENT_HEADCOUNTS_AND_FTE_REPORT("refugee-enrolment-fte-headcounts")
+
     ;
 
     private final String code;

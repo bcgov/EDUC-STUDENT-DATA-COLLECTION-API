@@ -71,6 +71,7 @@ public class CSVReportService {
     private static final String COLLECTION_ID = "collectionID";
     private static final String INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and SEPT collections";
     private static final String HEADCOUNTS_INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and MAY collections";
+    private static final String REFUGEE_HEADCOUNTS_INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB collection";
 
     public DownloadableReportResponse generateIndyFundingReport(UUID collectionID, Boolean isOnlineLearning, Boolean isNonGraduatedAdult) {
         List<IndyFundingResult> results;
@@ -905,6 +906,52 @@ public class CSVReportService {
         }
     }
 
+    public DownloadableReportResponse generateRefugeeEnrolmentHeadcountsAndFteReport(UUID collectionID) {
+        var collectionOpt = collectionRepository.findById(collectionID);
+
+        if(collectionOpt.isEmpty()){
+            throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
+        }
+
+        CollectionEntity collection = collectionOpt.get();
+        if(!collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode())) {
+            throw new InvalidPayloadException(createError(REFUGEE_HEADCOUNTS_INVALID_COLLECTION_TYPE));
+        }
+
+        List<EnrolmentHeadcountFteResult> results = sdcSchoolCollectionStudentRepository.getNewRefugeeEnrolmentHeadcountsAndFteWithByCollectionId(collectionID);
+
+        List<String> headers = Arrays.stream(RefugeeEnrolmentAndFteHeader.values()).map(RefugeeEnrolmentAndFteHeader::getCode).toList();
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(headers.toArray(String[]::new))
+                .build();
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (EnrolmentHeadcountFteResult result : results) {
+                var schoolOpt = restUtils.getSchoolBySchoolID(result.getSchoolID());
+                if(schoolOpt.isPresent() &&
+                        (schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.STANDARD.getCode()) ||
+                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.ALT_PROGS.getCode()) ||
+                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.YOUTH.getCode()) ||
+                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.SHORT_PRP.getCode()) ||
+                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.LONG_PRP.getCode()))) {
+                    List<String> csvRowData = prepareRefugeeEnrolmentFteData(result, schoolOpt.get());
+                    csvPrinter.printRecord(csvRowData);
+                }
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(REFUGEE_ENROLMENT_HEADCOUNTS_AND_FTE_REPORT.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
     private Map<String, EnrolmentHeadcountFteResult> getEnrolmentHeadcountFteResultForLastSeptCollection(UUID collectionID){
         var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collectionID);
         if(lastSeptCollectionOpt.isEmpty()) {
@@ -1284,5 +1331,61 @@ public class CSVReportService {
                 indyFundingResult.getGradeHSFTE()
         ));
         return csvRowData;
+    }
+    private List<String> prepareRefugeeEnrolmentFteData(EnrolmentHeadcountFteResult headcountResult, SchoolTombstone school) {
+        var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
+        return new ArrayList<>(Arrays.asList(
+                school.getMincode().substring(0, 3),
+                school.getSchoolNumber(),
+                school.getDisplayName(),
+                facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
+
+                headcountResult.getKhRefugeeCount(),
+                headcountResult.getKhEllCount(),
+                headcountResult.getGradeOneRefugeeCount(),
+                headcountResult.getGradeOneEllCount(),
+                headcountResult.getGradeTwoRefugeeCount(),
+                headcountResult.getGradeTwoEllCount(),
+                headcountResult.getGradeThreeRefugeeCount(),
+                headcountResult.getGradeThreeEllCount(),
+                headcountResult.getGradeFourRefugeeCount(),
+                headcountResult.getGradeFourEllCount(),
+                headcountResult.getGradeFiveRefugeeCount(),
+                headcountResult.getGradeFiveEllCount(),
+                headcountResult.getGradeSixRefugeeCount(),
+                headcountResult.getGradeSixEllCount(),
+                headcountResult.getGradeSevenRefugeeCount(),
+                headcountResult.getGradeSevenEllCount(),
+                headcountResult.getGradeEightRefugeeCount(),
+                headcountResult.getGradeEightEllCount(),
+                headcountResult.getGradeNineRefugeeCount(),
+                headcountResult.getGradeNineEllCount(),
+                headcountResult.getGradeTenRefugeeCount(),
+                headcountResult.getGradeTenEllCount(),
+                headcountResult.getGradeElevenRefugeeCount(),
+                headcountResult.getGradeElevenEllCount(),
+                headcountResult.getGradeTwelveRefugeeCount(),
+                headcountResult.getGradeTwelveEllCount(),
+                headcountResult.getGradeEuRefugeeCount(),
+                headcountResult.getGradeEuEllCount(),
+                headcountResult.getGradeSuRefugeeCount(),
+                headcountResult.getGradeSuEllCount(),
+
+                headcountResult.getKhRefugeeTotalFte(),
+                headcountResult.getGradeOneRefugeeTotalFte(),
+                headcountResult.getGradeTwoRefugeeTotalFte(),
+                headcountResult.getGradeThreeRefugeeTotalFte(),
+                headcountResult.getGradeFourRefugeeTotalFte(),
+                headcountResult.getGradeFiveRefugeeTotalFte(),
+                headcountResult.getGradeSixRefugeeTotalFte(),
+                headcountResult.getGradeSevenRefugeeTotalFte(),
+                headcountResult.getGradeEightRefugeeTotalFte(),
+                headcountResult.getGradeNineRefugeeTotalFte(),
+                headcountResult.getGradeTenRefugeeTotalFte(),
+                headcountResult.getGradeElevenRefugeeTotalFte(),
+                headcountResult.getGradeTwelveRefugeeTotalFte(),
+                headcountResult.getGradeEuRefugeeTotalFte(),
+                headcountResult.getGradeSuRefugeeTotalFte()
+        ));
     }
 }
