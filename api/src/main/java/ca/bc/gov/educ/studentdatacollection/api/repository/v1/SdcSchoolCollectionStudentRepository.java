@@ -1438,4 +1438,116 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is null
           GROUP BY sscs.sdcSchoolCollection.schoolID""")
   List<EnrolmentHeadcountFteResult> getEnrolmentHeadcountsAndFteWithRefugeeByCollectionId(@Param("collectionID") UUID collectionID);
+
+  @Query("SELECT " +
+          " sscs.sdcSchoolCollection.schoolID as schoolID, " +
+
+          // Headcount for each grade
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' THEN 1 END) as kindHCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KF' THEN 1 END) as kindFCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '01' THEN 1 END) as grade1Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '02' THEN 1 END) as grade2Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '03' THEN 1 END) as grade3Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '04' THEN 1 END) as grade4Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '05' THEN 1 END) as grade5Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '06' THEN 1 END) as grade6Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '07' THEN 1 END) as grade7Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'EU' THEN 1 END) as gradeEUCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '08' THEN 1 END) as grade8Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '09' THEN 1 END) as grade9Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '10' THEN 1 END) as grade10Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '11' THEN 1 END) as grade11Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '12' THEN 1 END) as grade12Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'SU' THEN 1 END) as gradeSUCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'GA' THEN 1 END) as gradeGACount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'HS' THEN 1 END) as gradeHSCount, " +
+
+          // Total headcount
+          " SUM(CASE WHEN sscs.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', 'EU', '08', '09', '10', '11', '12', 'SU', 'GA', 'HS') THEN 1 ELSE 0 END) as totalCount, " +
+
+          // FTE counts for each grade
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as kindHFTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'KF' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as kindFFTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade1FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade2FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade3FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade4FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade5FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade6FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade7FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeEUFTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade8FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade9FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade10FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade11FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade12FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeSUFTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'GA' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeGAFTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'HS' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeHSFTE, " +
+
+          // Total FTE
+          " SUM(CASE WHEN sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as totalFTE " +
+
+          " FROM SdcSchoolCollectionStudentEntity sscs " +
+          " WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
+          " AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
+          " AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is null " +
+          " GROUP BY sscs.sdcSchoolCollection.schoolID ")
+  List<IndyFundingResult> getIndyFundingHeadcountsByCollectionId(@Param("collectionID") UUID collectionID);
+
+  @Query("SELECT " +
+          " sscs.sdcSchoolCollection.schoolID as schoolID, " +
+
+          // Headcount for each grade
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as kindHCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KF' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as kindFCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as grade1Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as grade2Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as grade3Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as grade4Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as grade5Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as grade6Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as grade7Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as gradeEUCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as grade8Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as grade9Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as grade10Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as grade11Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as grade12Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as gradeSUCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'GA' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as gradeGACount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'HS' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as gradeHSCount, " +
+
+          // Total headcount
+          " SUM(CASE WHEN sscs.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', 'EU', '08', '09', '10', '11', '12', 'SU', 'GA', 'HS') AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 ELSE 0 END) as totalCount, " +
+
+          // FTE counts for each grade
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END ) as kindHFTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'KF' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as kindFFTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as grade1FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as grade2FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as grade3FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as grade4FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as grade5FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as grade6FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as grade7FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as gradeEUFTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as grade8FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as grade9FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as grade10FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as grade11FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as grade12FTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as gradeSUFTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'GA' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as gradeGAFTE, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'HS' AND sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as gradeHSFTE, " +
+
+          // Total FTE
+          " SUM(CASE WHEN sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as totalFTE " +
+
+          " FROM SdcSchoolCollectionStudentEntity sscs " +
+          " WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
+          " AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
+          " AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is null " +
+          " GROUP BY sscs.sdcSchoolCollection.schoolID ")
+  List<IndyFundingResult> getIndyFundingHeadcountsNonGraduatedAdultByCollectionId(@Param("collectionID") UUID collectionID);
 }

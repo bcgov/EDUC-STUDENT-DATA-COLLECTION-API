@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGrade;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySpecialEdAdultHeadcountResult;
@@ -188,6 +189,15 @@ public class TransformUtil {
       return value;
     }
     return value + "*";
+  }
+
+  public static String getFundingGroupForGrade(School school, String gradeCode) {
+    return school.getSchoolFundingGroups()
+            .stream()
+            .filter(group -> gradeCode.equals(group.getSchoolGradeCode()))
+            .map(IndependentSchoolFundingGroup::getSchoolFundingGroupCode)
+            .findFirst()
+            .orElse(null);
   }
 
   public static String sanitizeEnrolledProgramString(String enrolledProgramCode) {
