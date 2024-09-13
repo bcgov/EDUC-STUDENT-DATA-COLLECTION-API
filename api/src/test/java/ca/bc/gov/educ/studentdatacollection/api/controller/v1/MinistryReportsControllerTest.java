@@ -1376,7 +1376,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
     sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2));
 
-    var resultActions1 = this.mockMvc.perform(
+    this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/refugee-enrolment-fte-headcounts/download").with(mockAuthority))
             .andDo(print()).andExpect(status().isBadRequest());
 
