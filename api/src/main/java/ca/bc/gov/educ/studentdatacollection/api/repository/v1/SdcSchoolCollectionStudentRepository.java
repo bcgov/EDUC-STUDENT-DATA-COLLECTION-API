@@ -1328,24 +1328,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   @Query("SELECT " +
           " sscs.sdcSchoolCollection.schoolID as schoolID, " +
 
-          // Funding group codes for each grade
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'KINDHALF' THEN isfgs.schoolFundingGroupCode ELSE null END) as kindHFundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'KINDFULL' THEN isfgs.schoolFundingGroupCode ELSE null END) as kindFFundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE01' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade1FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE02' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade2FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE03' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade3FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE04' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade4FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE05' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade5FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE06' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade6FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE07' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade7FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'ELEMUNGR' THEN isfgs.schoolFundingGroupCode ELSE null END) as gradeEUFundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE08' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade8FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE09' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade9FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE10' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade10FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE11' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade11FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE12' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade12FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'SECUNGR' THEN isfgs.schoolFundingGroupCode ELSE null END) as gradeSUFundingGroup, " +
-
           // Headcount for each grade
           " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' THEN 1 END) as kindHCount, " +
           " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KF' THEN 1 END) as kindFCount, " +
@@ -1393,33 +1375,14 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           " SUM(CASE WHEN sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as totalFTE " +
 
           " FROM SdcSchoolCollectionStudentEntity sscs " +
-          " JOIN IndependentSchoolFundingGroupSnapshotEntity isfgs ON sscs.sdcSchoolCollection.schoolID = isfgs.schoolID " +
           " WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           " AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
-          " AND isfgs.collectionID = :collectionID " +
+          " AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is null " +
           " GROUP BY sscs.sdcSchoolCollection.schoolID ")
   List<IndyFundingResult> getIndyFundingHeadcountsByCollectionId(@Param("collectionID") UUID collectionID);
 
   @Query("SELECT " +
           " sscs.sdcSchoolCollection.schoolID as schoolID, " +
-
-          // Funding group codes for each grade
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'KINDHALF' THEN isfgs.schoolFundingGroupCode ELSE null END) as kindHFundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'KINDFULL' THEN isfgs.schoolFundingGroupCode ELSE null END) as kindFFundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE01' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade1FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE02' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade2FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE03' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade3FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE04' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade4FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE05' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade5FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE06' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade6FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE07' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade7FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'ELEMUNGR' THEN isfgs.schoolFundingGroupCode ELSE null END) as gradeEUFundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE08' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade8FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE09' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade9FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE10' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade10FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE11' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade11FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'GRADE12' THEN isfgs.schoolFundingGroupCode ELSE null END) as grade12FundingGroup, " +
-          " MAX(CASE WHEN isfgs.schoolGradeCode = 'SECUNGR' THEN isfgs.schoolFundingGroupCode ELSE null END) as gradeSUFundingGroup, " +
 
           // Headcount for each grade
           " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN 1 END) as kindHCount, " +
@@ -1468,10 +1431,9 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           " SUM(CASE WHEN sscs.fte IS NOT NULL AND sscs.isAdult = TRUE AND sscs.isGraduated = FALSE THEN sscs.fte ELSE 0 END) as totalFTE " +
 
           " FROM SdcSchoolCollectionStudentEntity sscs " +
-          " JOIN IndependentSchoolFundingGroupSnapshotEntity isfgs ON sscs.sdcSchoolCollection.schoolID = isfgs.schoolID " +
           " WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           " AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
-          " AND isfgs.collectionID = :collectionID " +
+          " AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is null " +
           " GROUP BY sscs.sdcSchoolCollection.schoolID ")
   List<IndyFundingResult> getIndyFundingHeadcountsNonGraduatedAdultByCollectionId(@Param("collectionID") UUID collectionID);
 }

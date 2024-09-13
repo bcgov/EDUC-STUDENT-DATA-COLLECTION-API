@@ -68,7 +68,9 @@ public enum IndyFundingReportHeader {
     GRADE_10_FUNDING_GROUP("Grade 10 Funding Group #"),
     GRADE_11_FUNDING_GROUP("Grade 11 Funding Group #"),
     GRADE_12_FUNDING_GROUP("Grade 12 Funding Group #"),
-    GRADE_SU_FUNDING_GROUP("Grade SU Funding Group #");
+    GRADE_SU_FUNDING_GROUP("Grade SU Funding Group #"),
+    GRADE_GA_FUNDING_GROUP("Grade GA Funding Group #"),
+    GRADE_HS_FUNDING_GROUP("Grade HS Funding Group #");
 
     private final String code;
     IndyFundingReportHeader(String code) { this.code = code; }
