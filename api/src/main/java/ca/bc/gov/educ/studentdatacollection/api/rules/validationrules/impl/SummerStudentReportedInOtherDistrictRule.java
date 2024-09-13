@@ -20,7 +20,7 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                          | Dependent On |
  *  |-----|----------|-------------------------------------------------------------- |--------------|
- *  | V99 | ERROR    | Student must NOT be reported in Grade 8 or 9                  |V92           |
+ *  | V99 | WARNING    | Student must NOT be reported in Grade 8 or 9                |V92           |
  *                     with FTE>0 in any other districts in previous
  *                     collection this school year.
  */
@@ -53,7 +53,7 @@ public class SummerStudentReportedInOtherDistrictRule implements ValidationBaseR
             var isStudentReportedInCurrentFiscal = validationRulesService.findStudentInHistoricalCollectionInOtherDistricts(studentRuleData);
 
             if (isStudentReportedInCurrentFiscal) {
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_NOT_IN_DISTRICT_ERROR));
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_NOT_IN_DISTRICT_ERROR));
             }
         }
         return errors;
