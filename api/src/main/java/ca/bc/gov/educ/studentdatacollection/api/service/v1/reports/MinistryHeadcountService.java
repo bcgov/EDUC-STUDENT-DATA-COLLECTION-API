@@ -333,8 +333,10 @@ public class MinistryHeadcountService {
     var rows = new ArrayList<Map<String, String>>();
 
     schoolsInCollection.forEach(result -> {
-      var school = restUtils.getAllSchoolBySchoolID(String.valueOf(result.getSchoolID())).get();
-      if(!school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode()) && !school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
+      var schoolOpt = restUtils.getAllSchoolBySchoolID(String.valueOf(result.getSchoolID()));
+      if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())
+              && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
+        var school = schoolOpt.get();
         var schoolAddr = school.getAddresses().stream().filter(address -> address.getAddressTypeCode().equalsIgnoreCase("PHYSICAL")).findFirst();
         if(schoolAddr.isPresent()) {
           var address = schoolAddr.get();
