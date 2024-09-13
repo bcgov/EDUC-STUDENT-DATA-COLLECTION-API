@@ -24,7 +24,7 @@ import java.util.Optional;
 /**
  * | ID   | Severity | Rule                                                          | Dependent On |
  * |------|----------|-------------------------------------------------------------- |--------------|
- * | V102 | ERROR    | The student is not reported in the Online School in July and  | V92          |
+ * | V102 | ERROR    | The student is not reported in the Online School in July and  | V92 , V99         |
  *                     was not reported in the online school in any previous
  *                     collections this school year
  */

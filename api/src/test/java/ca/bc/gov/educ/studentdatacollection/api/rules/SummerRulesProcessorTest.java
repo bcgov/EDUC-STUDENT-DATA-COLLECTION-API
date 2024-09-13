@@ -606,6 +606,50 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
+    void testSummerStudentOnlineLearningRuleIsExecuted_WithErrors_WhenStudentIsReportedInMAYCollectionInAnotherDistrictInOnlineSchool() {
+        UUID assignedStudentID = UUID.randomUUID();
+        LocalDate mayCloseDate = LocalDate.parse(LocalDate.now().getYear() + "-05-30");
+        SchoolTombstone school = createMockSchool();
+        District district = createMockDistrict();
+        school.setDistrictId(district.getDistrictId());
+        school.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
+        UUID schoolId = UUID.fromString(school.getSchoolId());
+        LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
+        doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
+        createHistoricalCollectionWithStudentInGrade07(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID);
+        var collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(JULY.getTypeCode());
+        collection.setCloseDate(currentCloseDate);
+        collectionRepository.save(collection);
+
+        SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+        sdcDistrictCollectionRepository.save(sdcDistrictCollection);
+
+        var sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, schoolId);
+        sdcSchoolCollectionEntity.setSdcDistrictCollectionID(sdcDistrictCollection.getSdcDistrictCollectionID());
+        sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
+
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+
+        PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+        entity.setDob(LocalDateTime.now().minusYears(8).format(format));
+        entity.setAssignedStudentId(assignedStudentID);
+        entity.setEnrolledGradeCode("08");
+        entity.setFte(BigDecimal.valueOf(0));
+        val saga = createMockStudentRuleData(entity, school);
+        saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
+        val validationGradRule = rulesProcessor.processRules(saga);
+        assertThat(validationGradRule.size()).isNotZero();
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_NOT_IN_DISTRICT_ERROR.getCode()));
+        assertThat(error).isTrue();
+
+    }
+
+    @Test
     void testSummerStudentOnlineLearningRuleIsExecuted_WithNoErrors_WhenStudentInOnlineSchoolIsReportedInMAYCollectionInSameDistrictInStandardSchool() {
         UUID assignedStudentID = UUID.randomUUID();
         LocalDate mayCloseDate = LocalDate.parse(LocalDate.now().getYear() + "-05-30");
