@@ -7,6 +7,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -32,9 +33,16 @@ public class SdcSchoolCollectionStudentPaginationRepositoryLightImpl implements 
 
         if (pageable.getSort().isSorted()) {
             query.orderBy(pageable.getSort().stream()
-                    .map(order -> order.isAscending()
-                            ? cb.asc(root.get(order.getProperty()))
-                            : cb.desc(root.get(order.getProperty())))
+                    .map(order -> {
+                        if (order.getProperty().equals("sdcSchoolCollection")) {
+                            Join<Object, Object> schoolCollectionJoin = root.join("sdcSchoolCollection");
+                            return order.isAscending() ? cb.asc(schoolCollectionJoin.get("sdcSchoolCollectionID"))
+                                    : cb.desc(schoolCollectionJoin.get("sdcSchoolCollectionID"));
+                        } else {
+                            return order.isAscending() ? cb.asc(root.get(order.getProperty()))
+                                    : cb.desc(root.get(order.getProperty()));
+                        }
+                    })
                     .toList());
         }
 
