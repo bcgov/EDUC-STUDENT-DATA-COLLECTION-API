@@ -5,8 +5,11 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
@@ -25,9 +28,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.FsaFebRegistrationHeader.NEXT_YEAR_GRADE;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.FsaSeptRegistrationHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.FsaSeptRegistrationHeader.DISTRICT_NUMBER;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.FsaSeptRegistrationHeader.SCHOOL_NUMBER;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.SCHOOL;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders.*;
@@ -36,6 +44,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryrepo
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 
 @Service
@@ -47,6 +56,7 @@ public class MinistryHeadcountService {
   private final RestUtils restUtils;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final ValidationRulesService validationService;
+  private static final String INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and SEPT collections";
   private static final String COLLECTION_ID = "collectionID";
 
   public SimpleHeadcountResultsTable getAllSchoolEnrollmentHeadcounts(UUID collectionID) {
@@ -357,6 +367,87 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  public SimpleHeadcountResultsTable getFsaRegistrationReport(UUID collectionID) {
+    Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
+    if(entityOptional.isEmpty()) {
+      throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+    }
+    CollectionEntity collection = entityOptional.get();
+    if(collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.SEPTEMBER.getTypeCode())) {
+      return generateSeptFsaCsv(collection.getCollectionID());
+    } else if(collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode())) {
+      return generateFebFsaCsv(collection.getCollectionID());
+    }
+    throw new InvalidPayloadException(createError(INVALID_COLLECTION_TYPE));
+  }
+
+  public SimpleHeadcountResultsTable generateSeptFsaCsv(UUID collectionID) {
+    List<String> grades = Arrays.asList(SchoolGradeCodes.GRADE04.getCode(), SchoolGradeCodes.GRADE07.getCode());
+    List<SdcSchoolCollectionStudentEntity> students =
+            sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(collectionID, grades);
+
+    SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
+    var headerList = new ArrayList<String>();
+    for (FsaSeptRegistrationHeader header : FsaSeptRegistrationHeader.values()) {
+      headerList.add(header.getCode());
+    }
+    resultsTable.setHeaders(headerList);
+    var rows = new ArrayList<Map<String, String>>();
+
+    students.forEach(student -> {
+      var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
+      if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
+        var school = schoolOpt.get();
+        var rowMap = new HashMap<String, String>();
+        rowMap.put(STUDENT_PEN.getCode(), student.getAssignedPen());
+        rowMap.put(DISTRICT_NUMBER.getCode(), school.getMincode().substring(0,3));
+        rowMap.put(SCHOOL_NUMBER.getCode(), school.getSchoolNumber());
+        rowMap.put(ENROLLED_GRADE.getCode(), student.getEnrolledGradeCode());
+        rowMap.put(LOCAL_ID.getCode(), student.getLocalID());
+        rowMap.put(LEGAL_FIRST_NAME.getCode(), student.getLegalFirstName());
+        rowMap.put(LEGAL_LAST_NAME.getCode(), student.getLegalLastName());
+        rows.add(rowMap);
+      }
+
+    });
+    resultsTable.setRows(rows);
+    return resultsTable;
+  }
+
+  public SimpleHeadcountResultsTable generateFebFsaCsv(UUID collectionID) {
+    List<String> grades = Arrays.asList(SchoolGradeCodes.GRADE03.getCode(), SchoolGradeCodes.GRADE06.getCode());
+    List<SdcSchoolCollectionStudentEntity> students =
+            sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(collectionID, grades);
+
+    SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
+    var headerList = new ArrayList<String>();
+    for (FsaFebRegistrationHeader header : FsaFebRegistrationHeader.values()) {
+      headerList.add(header.getCode());
+    }
+    resultsTable.setHeaders(headerList);
+    var rows = new ArrayList<Map<String, String>>();
+
+    students.forEach(student -> {
+      var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
+      if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())
+              && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
+        var school = schoolOpt.get();
+        var rowMap = new HashMap<String, String>();
+        rowMap.put(STUDENT_PEN.getCode(), student.getAssignedPen());
+        rowMap.put(DISTRICT_NUMBER.getCode(), school.getMincode().substring(0,3));
+        rowMap.put(SCHOOL_NUMBER.getCode(), school.getSchoolNumber());
+        rowMap.put(NEXT_YEAR_GRADE.getCode(), TransformUtil.getProjectedGrade(student));
+        rowMap.put(LOCAL_ID.getCode(), student.getLocalID());
+        rowMap.put(LEGAL_FIRST_NAME.getCode(), student.getLegalFirstName());
+        rowMap.put(LEGAL_LAST_NAME.getCode(), student.getLegalLastName());
+        rows.add(rowMap);
+      }
+
+    });
+    resultsTable.setRows(rows);
+    return resultsTable;
+  }
+
   public SimpleHeadcountResultsTable getOffshoreSchoolEnrollmentHeadcounts(UUID collectionID) {
     Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
     if(entityOptional.isEmpty()) {
@@ -456,6 +547,10 @@ public class MinistryHeadcountService {
 
     resultsTable.setRows(rows);
     return resultsTable;
+  }
+
+  private ApiError createError(String message) {
+    return ApiError.builder().timestamp(LocalDateTime.now()).message(message).status(BAD_REQUEST).build();
   }
 
 }
