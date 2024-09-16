@@ -119,7 +119,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     List<SdcSchoolCollectionStudent> students = new ArrayList<>();
     students.add(student1Entity);
     students.add(student2Entity);
-    val resolvedDuplicate = sdcDuplicateService.updateStudentAndResolveDuplicates(UUID.fromString(programDupe.get().getSdcDuplicateID()), students);
+    val resolvedDuplicate = sdcDuplicateService.updateStudentAndResolveProgramDuplicates(UUID.fromString(programDupe.get().getSdcDuplicateID()), students);
     assertThat(resolvedDuplicate.getDuplicateResolutionCode()).isEqualTo("RESOLVED");
   }
 
@@ -180,7 +180,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     List<SdcSchoolCollectionStudent> students = new ArrayList<>();
     students.add(student1Entity);
     students.add(student2Entity);
-    val resolvedDuplicate = sdcDuplicateService.updateStudentAndResolveDuplicates(UUID.fromString(programDupe.get().getSdcDuplicateID()), students);
+    val resolvedDuplicate = sdcDuplicateService.updateStudentAndResolveProgramDuplicates(UUID.fromString(programDupe.get().getSdcDuplicateID()), students);
     assertThat(resolvedDuplicate.getDuplicateResolutionCode()).isNull();
     var updatedStudent = resolvedDuplicate.getSdcDuplicateStudentEntities().stream().map(SdcDuplicateStudentEntity::getSdcSchoolCollectionStudentEntity).filter(sdcSchoolCollectionStudentEntity -> sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID().equals(UUID.fromString(student1Entity.getSdcSchoolCollectionStudentID()))).toList().get(0);
     assertThat(updatedStudent.getEnrolledProgramCodes()).isEqualTo("08");
@@ -235,7 +235,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     List<SdcSchoolCollectionStudent> students = new ArrayList<>();
     students.add(student1Entity);
     students.add(student2Entity);
-    val resolvedDuplicate = sdcDuplicateService.updateStudentAndResolveDuplicates(UUID.fromString(programDupe.get().getSdcDuplicateID()), students);
+    val resolvedDuplicate = sdcDuplicateService.updateStudentAndResolveProgramDuplicates(UUID.fromString(programDupe.get().getSdcDuplicateID()), students);
     assertThat(resolvedDuplicate.getDuplicateResolutionCode()).isNull();
   }
 
@@ -357,7 +357,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     val student1Entity = Objects.equals(programDupe.get().getSdcSchoolCollectionStudent1Entity().getSdcSchoolCollectionStudentID(), student1.getSdcSchoolCollectionStudentID().toString()) ? programDupe.get().getSdcSchoolCollectionStudent1Entity() : programDupe.get().getSdcSchoolCollectionStudent2Entity();
     student1Entity.setEnrolledGradeCode("10");
 
-    val resolvedDuplicate = sdcDuplicateService.trickleGradeChangeDupeUpdates(UUID.fromString(programDupe.get().getSdcDuplicateID()), student1Entity);
+    val resolvedDuplicate = sdcDuplicateService.changeGrade(UUID.fromString(programDupe.get().getSdcDuplicateID()), student1Entity);
 
     // Should be 2 resolved non-allowable enrollment dupes, 1 unresolved non-allowable enrollment dupe, 2 allowable enrollment dupes, 2 non-allowable program dupes - spec_ed & career
 
@@ -480,7 +480,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     GradStatusResult gradStatusResult = new GradStatusResult();
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
-    sdcDuplicateService.updateSdcSchoolCollectionStudent(editedStudentEntity, false);
+    sdcDuplicateService.updateSdcSchoolCollectionStudent(editedStudentEntity);
 
     Optional<SdcDuplicateEntity> resolvedDupe = sdcDuplicateRepository.findBySdcDuplicateID(savedDupe.getSdcDuplicateID());
 

@@ -71,16 +71,13 @@ public interface SdcDuplicateRepository extends JpaRepository<SdcDuplicateEntity
         """)
     List<SdcDuplicateEntity> findAllUnresolvedDuplicatesForStudent(UUID sdcSchoolCollectionStudentID);
 
-    @Query("""
-        SELECT sde FROM SdcDuplicateEntity sde
-        WHERE sde.retainedSdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID = :sdcSchoolCollectionStudentID
-        """)
-    List<SdcDuplicateEntity> findAllResolvedEnrollmentDuplicatesForStudent(UUID sdcSchoolCollectionStudentID);
+    List<SdcDuplicateEntity> findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentID(UUID sdcSchoolCollectionStudentID);
 
     @Query("""
         SELECT sde FROM SdcDuplicateEntity sde
         WHERE sde.duplicateResolutionCode = 'GRADE_CHNG'
-        and sde.sdcDuplicateID IN (SELECT sds.sdcDuplicateEntity.sdcDuplicateID FROM SdcDuplicateStudentEntity sds where sds.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID = :sdcSchoolCollectionStudentID)
+        and sde.sdcDuplicateID IN (SELECT sds.sdcDuplicateEntity.sdcDuplicateID FROM SdcDuplicateStudentEntity sds 
+        where sds.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID = :sdcSchoolCollectionStudentID)
         """)
     List<SdcDuplicateEntity> findAllResolvedGradeChangeDuplicatesForStudent(UUID sdcSchoolCollectionStudentID);
     @Query("""
