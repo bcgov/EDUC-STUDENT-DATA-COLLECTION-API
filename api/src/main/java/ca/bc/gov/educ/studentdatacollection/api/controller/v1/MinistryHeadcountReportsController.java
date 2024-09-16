@@ -38,6 +38,7 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
         return switch(code.get()) {
             case SCHOOL_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getAllSchoolEnrollmentHeadcounts(collectionID);
             case SCHOOL_ADDRESS_REPORT -> ministryHeadcountService.getSchoolAddressReport(collectionID);
+            case FSA_REGISTRATION_REPORT -> ministryHeadcountService.getFsaRegistrationReport(collectionID);
             case INDY_SCHOOL_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getIndySchoolsEnrollmentHeadcounts(collectionID);
             case OFFSHORE_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getOffshoreSchoolEnrollmentHeadcounts(collectionID);
             case INDY_INCLUSIVE_ED_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getSpecialEducationHeadcountsForIndependentsByCollectionID(collectionID);

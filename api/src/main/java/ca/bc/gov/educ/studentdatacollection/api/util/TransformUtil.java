@@ -233,6 +233,15 @@ public class TransformUtil {
     incomingStudentEntity.setFrenchProgramNonEligReasonCode(null);
   }
 
+  public static String getProjectedGrade(SdcSchoolCollectionStudentEntity student) {
+    if(student.getEnrolledGradeCode().equalsIgnoreCase(SchoolGradeCodes.GRADE03.getCode())) {
+      return SchoolGradeCodes.GRADE04.getCode();
+    } else if(student.getEnrolledGradeCode().equalsIgnoreCase(SchoolGradeCodes.GRADE06.getCode())) {
+      return SchoolGradeCodes.GRADE07.getCode();
+    }
+    return null;
+  }
+
   public static int addValueIfExists(int totalValue, String actualValue){
     int value;
     try{

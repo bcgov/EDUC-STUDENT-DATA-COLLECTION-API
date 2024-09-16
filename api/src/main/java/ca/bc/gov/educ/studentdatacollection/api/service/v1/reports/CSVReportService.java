@@ -296,16 +296,10 @@ public class CSVReportService {
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
             for (SdcSchoolCollectionStudentEntity student : students) {
-                String projectedGrade = null;
-                if(student.getEnrolledGradeCode().equalsIgnoreCase(SchoolGradeCodes.GRADE03.getCode())) {
-                    projectedGrade = SchoolGradeCodes.GRADE04.getCode();
-                } else if(student.getEnrolledGradeCode().equalsIgnoreCase(SchoolGradeCodes.GRADE06.getCode())) {
-                    projectedGrade = SchoolGradeCodes.GRADE07.getCode();
-                }
                 var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
                 if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode()) &&
                                 !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
-                    List<String> csvRowData = prepareFsaDataForCsv(student, projectedGrade, schoolOpt.get());
+                    List<String> csvRowData = prepareFsaDataForCsv(student, TransformUtil.getProjectedGrade(student), schoolOpt.get());
                     csvPrinter.printRecord(csvRowData);
                 }
             }
