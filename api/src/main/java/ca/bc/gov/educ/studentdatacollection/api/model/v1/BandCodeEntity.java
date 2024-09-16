@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.model.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.util.UpperCase;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,9 +28,11 @@ public class BandCodeEntity {
   @Column(name = "BAND_CODE", unique = true, length = 10)
   private String bandCode;
 
+  @UpperCase
   @Column(name = "LABEL", length = 100)
   private String label;
 
+  @UpperCase
   @Column(name = "DESCRIPTION")
   private String description;
 
