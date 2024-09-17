@@ -1,11 +1,14 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DistrictReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.BandCodeEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -32,16 +35,18 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
 
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+    private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private JasperReport bandOfResidenceHeadcountReport;
     private List<BandResidenceHeadcountResult> headcountsList;
     private final CodeTableService codeTableService;
     private static final String HEADING = "Heading";
 
-    public BandOfResidenceHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, CodeTableService codeTableService) {
+    public BandOfResidenceHeadcountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, CodeTableService codeTableService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
         super(restUtils, sdcSchoolCollectionRepository);
         this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
         this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
         this.codeTableService = codeTableService;
+        this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
     }
 
     @PostConstruct
@@ -60,17 +65,31 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
         }
     }
 
-    public DownloadableReportResponse generateBandOfResidenceReport(UUID collectionID){
+    public DownloadableReportResponse generateSchoolBandOfResidenceReport(UUID sdcSchoolCollectionID){
         try {
-            Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional =  sdcSchoolCollectionRepository.findById(collectionID);
+            Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionEntityOptional =  sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID);
             SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
-                    new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionID", collectionID.toString()));
+                    new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionID", sdcSchoolCollectionID.toString()));
 
             this.headcountsList = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
             return generateJasperReport(convertToReportJSONString(headcountsList, sdcSchoolCollectionEntity), bandOfResidenceHeadcountReport, SchoolReportTypeCode.BAND_RESIDENCE_HEADCOUNT.getCode());
         } catch (JsonProcessingException e) {
             log.error("Exception occurred while writing PDF report for band of residence report :: " + e.getMessage());
             throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for band of residence report :: " + e.getMessage());
+        }
+    }
+
+    public DownloadableReportResponse generateDistrictBandOfResidenceReport(UUID sdcDistrictCollectionID){
+        try {
+            Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional =  sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID);
+            SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
+                    new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionID", sdcDistrictCollectionID.toString()));
+
+            this.headcountsList = sdcSchoolCollectionStudentRepository.getBandResidenceHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+            return generateJasperReport(convertToReportJSONStringDistrict(headcountsList, sdcDistrictCollectionEntity), bandOfResidenceHeadcountReport, DistrictReportTypeCode.DIS_BAND_RESIDENCE_HEADCOUNT.getCode());
+        } catch (JsonProcessingException e) {
+            log.error("Exception occurred while writing PDF report for district band of residence report :: " + e.getMessage());
+            throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for district band of residence report :: " + e.getMessage());
         }
     }
 
