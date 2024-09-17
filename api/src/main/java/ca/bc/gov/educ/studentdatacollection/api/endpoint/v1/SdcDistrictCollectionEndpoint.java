@@ -102,7 +102,7 @@ public interface SdcDistrictCollectionEndpoint {
   List<SdcSchoolCollection> getSchoolCollectionsInDistrictCollection(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @PostMapping("/{sdcDistrictCollectionID}/sign-off")
-  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_DISTRICT_COLLECTION')")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_DISTRICT_COLLECTION') or hasAnyRole('SUPERINT','SECR_TRES')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional
   @Schema(name = "SdcDistrictCollectionSubmissionSignature", implementation = SdcDistrictCollectionSubmissionSignature.class)
