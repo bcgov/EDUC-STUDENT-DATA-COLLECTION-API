@@ -125,8 +125,8 @@ public class BandOfResidenceHeadcountReportService extends BaseReportGenerationS
             for (BandResidenceHeadcountResult each : headcountsList) {
                 try {
                     String bandKey = each.getBandCode();
-                    double fteTotal = numberFormat.parse(each.getFteTotal()).doubleValue();
-                    int headcountTotal = numberFormat.parse(each.getHeadcount()).intValue();
+                    double fteTotal = each.getFteTotal() != null ? numberFormat.parse(each.getFteTotal()).doubleValue() : 0.0;
+                    int headcountTotal = each.getHeadcount() != null ? numberFormat.parse(each.getHeadcount()).intValue() : 0;
 
                     runningTotalFTE += fteTotal;
                     runningTotalHeadcount += headcountTotal;

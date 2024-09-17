@@ -3,7 +3,6 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
-import ca.bc.gov.educ.studentdatacollection.api.helpers.ZeroFTEHeadcountHelper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -964,24 +963,23 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(sdcMockSchool);
     student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+    student1.setSpecialEducationCategoryCode("A");
     sdcSchoolCollectionStudentRepository.save(student1);
 
     SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(sdcMockSchool);
     student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE11.getCode());
+    student2.setSpecialEducationCategoryCode("B");
     sdcSchoolCollectionStudentRepository.save(student2);
 
     SdcSchoolCollectionStudentEntity student3 = createMockSchoolStudentEntity(sdcMockSchool);
     student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
+    student3.setSpecialEducationCategoryCode("C");
     sdcSchoolCollectionStudentRepository.save(student3);
 
     SdcSchoolCollectionStudentEntity student4 = createMockSchoolStudentEntity(sdcMockSchool2);
     student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE08.getCode());
-    sdcSchoolCollectionStudentRepository.save(student4);
-
-    student1.setSpecialEducationCategoryCode("A");
-    student2.setSpecialEducationCategoryCode("B");
-    student3.setSpecialEducationCategoryCode("C");
     student4.setSpecialEducationCategoryCode("D");
+    sdcSchoolCollectionStudentRepository.save(student4);
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_SPECIAL_EDUCATION_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
@@ -1042,23 +1040,22 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(sdcMockSchool);
     student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+    student1.setNativeAncestryInd("Y");
     sdcSchoolCollectionStudentRepository.save(student1);
 
     SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(sdcMockSchool);
     student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
+    student2.setNativeAncestryInd("Y");
     sdcSchoolCollectionStudentRepository.save(student2);
 
     SdcSchoolCollectionStudentEntity student3 = createMockSchoolStudentEntity(sdcMockSchool);
     student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE11.getCode());
+    student3.setNativeAncestryInd("Y");
     sdcSchoolCollectionStudentRepository.save(student3);
 
     SdcSchoolCollectionStudentEntity student4 = createMockSchoolStudentEntity(sdcCsfMockSchool);
-    sdcSchoolCollectionStudentRepository.save(student4);
-
-    student1.setNativeAncestryInd("Y");
-    student2.setNativeAncestryInd("Y");
-    student3.setNativeAncestryInd("Y");
     student4.setNativeAncestryInd("Y");
+    sdcSchoolCollectionStudentRepository.save(student4);
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_INDIGENOUS_HEADCOUNT").with(mockAuthority))
@@ -1098,27 +1095,86 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(sdcMockSchool);
     student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+    student1.setNativeAncestryInd("Y");
     sdcSchoolCollectionStudentRepository.save(student1);
 
     SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(sdcMockSchool);
     student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE11.getCode());
+    student2.setNativeAncestryInd("Y");
     sdcSchoolCollectionStudentRepository.save(student2);
 
     SdcSchoolCollectionStudentEntity student3 = createMockSchoolStudentEntity(sdcMockSchool);
     student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
+    student3.setNativeAncestryInd("Y");
     sdcSchoolCollectionStudentRepository.save(student3);
 
     SdcSchoolCollectionStudentEntity student4 = createMockSchoolStudentEntity(sdcMockSchool2);
     student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE08.getCode());
-    sdcSchoolCollectionStudentRepository.save(student4);
-
-    student1.setNativeAncestryInd("Y");
-    student2.setNativeAncestryInd("Y");
-    student3.setNativeAncestryInd("Y");
     student4.setNativeAncestryInd("Y");
+    sdcSchoolCollectionStudentRepository.save(student4);
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_INDIGENOUS_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
+  }
+
+  @Test
+  void testBandDistrictReport_ShouldReturnOk() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    var districtMock = this.createMockDistrict();
+    when(this.restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(districtMock));
+    var schoolMock = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolMock));
+    var csfSchoolMock = this.createMockSchool();
+    csfSchoolMock.setSchoolReportingRequirementCode(SchoolReportingRequirementCodes.CSF.getCode());
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(csfSchoolMock));
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(districtMock.getDistrictId()));
+    sdcMockDistrict = sdcDistricCollectionRepository.save(sdcMockDistrict);
+
+    SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolMock.getSchoolId()));
+    sdcMockSchool.setUploadDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setSdcDistrictCollectionID(sdcMockDistrict.getSdcDistrictCollectionID());
+    sdcMockSchool = sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+    SdcSchoolCollectionEntity sdcCsfMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(csfSchoolMock.getSchoolId()));
+    sdcCsfMockSchool.setUploadDate(null);
+    sdcCsfMockSchool.setUploadFileName(null);
+    sdcCsfMockSchool.setSdcDistrictCollectionID(sdcMockDistrict.getSdcDistrictCollectionID());
+    sdcCsfMockSchool = sdcSchoolCollectionRepository.save(sdcCsfMockSchool);
+
+    SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(sdcMockSchool);
+    student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+    student1.setNativeAncestryInd("Y");
+    student1.setBandCode("0500");
+    sdcSchoolCollectionStudentRepository.save(student1);
+
+    SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(sdcMockSchool);
+    student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
+    student2.setNativeAncestryInd("Y");
+    student2.setBandCode("0500");
+    sdcSchoolCollectionStudentRepository.save(student2);
+
+    SdcSchoolCollectionStudentEntity student3 = createMockSchoolStudentEntity(sdcMockSchool);
+    student1.setEnrolledGradeCode(SchoolGradeCodes.GRADE11.getCode());
+    student3.setNativeAncestryInd("Y");
+    student3.setBandCode("0600");
+    sdcSchoolCollectionStudentRepository.save(student3);
+
+    SdcSchoolCollectionStudentEntity student4 = createMockSchoolStudentEntity(sdcCsfMockSchool);
+    student4.setNativeAncestryInd("Y");
+    student4.setBandCode("0600");
+    sdcSchoolCollectionStudentRepository.save(student4);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_BAND_RESIDENCE_HEADCOUNT").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk());
   }
 
