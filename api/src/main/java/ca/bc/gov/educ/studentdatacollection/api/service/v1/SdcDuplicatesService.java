@@ -164,39 +164,7 @@ public class SdcDuplicatesService {
     var isCollectionInProvDupes = isCollectionInProvDupes(activeCollection);
     SdcSchoolCollectionStudentEntity updatedStudent = performUpdateSdcSchoolCollectionStudent(studentEntity, isCollectionInProvDupes);
 
-    // If collection is in PROVDUPES stage, resolve existing dupes where possible
-//    if(isCollectionInProvDupes && !updatedStudent.getSdcSchoolCollectionStudentStatusCode().equals(SdcSchoolStudentStatus.ERROR.getCode())){
-//      List<SdcDuplicateEntity> existingDupes = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
-//
-//      if(!existingDupes.isEmpty()){
-//        resolveDupesFromUpdate(existingDupes, DuplicateLevelCode.PROVINCIAL, updatedStudent);
-//      }
-//    }
-
     return updatedStudent;
-  }
-
-  private void resolveDupesFromUpdate(List<SdcDuplicateEntity> existingDupes, DuplicateLevelCode dupeLevel, SdcSchoolCollectionStudentEntity updatedStudent){
-//    existingDupes.forEach(dupe -> {
-//      Optional<SdcDuplicateStudentEntity> otherStudentDupeEntity = dupe.getSdcDuplicateStudentEntities().stream().filter(std -> std.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID() != updatedStudent.getSdcSchoolCollectionStudentID()).findFirst();
-//
-//      otherStudentDupeEntity.orElseThrow(() -> new EntityNotFoundException(SdcDuplicateStudentEntity.class, "sdcSchoolCollectionStudentID", updatedStudent.getSdcSchoolCollectionStudentID().toString()));
-//      List<SdcDuplicateEntity> newDupes = runDuplicatesCheck(dupeLevel, sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(updatedStudent), sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(otherStudentDupeEntity.get().getSdcSchoolCollectionStudentEntity()), true);
-//
-//      // if dupe is no longer present, resolve it
-//      if (newDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
-//        if(Objects.equals(dupe.getDuplicateTypeCode(), DuplicateTypeCode.ENROLLMENT.getCode())){
-//          dupe.setDuplicateResolutionCode(DuplicateResolutionCode.GRADE_CHNG.getCode());
-//        } else {
-//          dupe.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
-//        }
-//
-//        dupe.setUpdateUser(updatedStudent.getUpdateUser());
-//        dupe.setUpdateDate(LocalDateTime.now());
-//        TransformUtil.uppercaseFields(dupe);
-//        sdcDuplicateRepository.save(dupe);
-//      }
-//    });
   }
 
   private SdcSchoolCollectionStudentEntity performUpdateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity, boolean checkForNewNonAllowableDups) {
@@ -250,6 +218,8 @@ public class SdcDuplicatesService {
     List<SdcSchoolCollectionStudentEntity> allStudentsWithSameAssignedStudentId = sdcSchoolCollectionStudentRepository
             .findAllDuplicateStudentsByCollectionID(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID(), studentAssignedIdList);
 
+    allStudentsWithSameAssignedStudentId.add(sdcSchoolCollectionStudentEntity);
+
     //map to light object
     List<SdcSchoolCollectionStudentLightEntity> duplicateStudentEntities = allStudentsWithSameAssignedStudentId.stream().map(sdcSchoolCollectionStudentMapper::toSdcSchoolStudentLightEntity).toList();
     //generate new PROV dupes
@@ -270,7 +240,9 @@ public class SdcDuplicatesService {
         log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate on save :: {}", studentAssignedIdList.stream().findFirst());
         throw new InvalidPayloadException(createError(sdcSchoolCollectionStudentEntity.getAssignedPen()));
       }
-    } else if(!existingUnresolvedDupesForStudent.isEmpty()) {
+    }
+
+    if(!existingUnresolvedDupesForStudent.isEmpty()) {
       Set<Integer> newDupeHashes = generatedDuplicates.stream()
               .map(SdcDuplicateEntity::getUniqueObjectHash)
               .collect(Collectors.toSet());
@@ -396,16 +368,15 @@ public class SdcDuplicatesService {
   }
 
   public SdcDuplicateEntity performSoftDeleteEnrollmentDuplicate(UUID sdcDuplicateID, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+    performSoftDeleteSdcSchoolCollectionStudent(UUID.fromString(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID()));
     final Optional<SdcDuplicateEntity> curSdcDuplicateEntity = sdcDuplicateRepository.findBySdcDuplicateID(sdcDuplicateID);
-
     if (curSdcDuplicateEntity.isPresent()) {
       SdcDuplicateEntity curGetSdcDuplicateEntity = curSdcDuplicateEntity.get();
       curGetSdcDuplicateEntity = releaseEnrollmentDupe(curGetSdcDuplicateEntity, sdcSchoolCollectionStudent);
 
-      // update student
-      performSoftDeleteSdcSchoolCollectionStudent(UUID.fromString(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID()));
+      var savedDupe = sdcDuplicateRepository.save(curGetSdcDuplicateEntity);
 
-      return sdcDuplicateRepository.save(curGetSdcDuplicateEntity);
+      return savedDupe;
     } else {
       throw new EntityNotFoundException(SdcDuplicateEntity.class, SDC_DUPLICATE_ID_KEY, sdcDuplicateID.toString());
     }
@@ -466,7 +437,7 @@ public class SdcDuplicatesService {
     List<SdcDuplicateEntity> resolvedEnrollmentDupes = sdcDuplicateRepository.findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
     resolvedEnrollmentDupes.forEach(dupe -> {
       Optional<SdcDuplicateStudentEntity> otherStudent = dupe.getSdcDuplicateStudentEntities().stream().filter(dupeStd -> dupeStd.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID() != sdcSchoolCollectionStudentID).findFirst();
-      if(dupe.getDuplicateResolutionCode().equals(DuplicateResolutionCode.RELEASED.getCode()) || dupe.getDuplicateTypeCode().equals(DuplicateTypeCode.PROGRAM.getCode())){
+      if((StringUtils.isNotBlank(dupe.getDuplicateResolutionCode()) && dupe.getDuplicateResolutionCode().equals(DuplicateResolutionCode.RELEASED.getCode())) || dupe.getDuplicateTypeCode().equals(DuplicateTypeCode.PROGRAM.getCode())){
         sdcDuplicateRepository.delete(dupe);
       }else{
         dupe.setDuplicateResolutionCode(DuplicateResolutionCode.RELEASED.getCode());

@@ -74,7 +74,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
   void testUpdateStudentAndResolveDistrictDuplicates_typePROGRAM_WithNoValidationError_shouldSetDuplicateStatus_RESOLVED() throws Exception {
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
-    collection.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
+    collection.setCollectionStatusCode(CollectionStatus.INPROGRESS.getCode());
     collectionRepository.save(collection);
 
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
@@ -508,7 +508,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
     when(restUtils.getSchoolBySchoolID(any(String.class))).thenReturn(Optional.of(school));
     PenMatchResult penMatchResult = new PenMatchResult();
-    PenMatchRecord penMatchRecord = new PenMatchRecord(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+    PenMatchRecord penMatchRecord = new PenMatchRecord(UUID.randomUUID().toString(), assignedStudentID.toString());
     penMatchResult.setMatchingRecords(List.of(penMatchRecord));
     penMatchResult.setPenStatus("AA");
     penMatchResult.setPenStatusMessage("blah");
