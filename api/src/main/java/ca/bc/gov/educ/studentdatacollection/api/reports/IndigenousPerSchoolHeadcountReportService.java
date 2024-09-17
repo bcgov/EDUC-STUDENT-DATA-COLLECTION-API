@@ -163,5 +163,4 @@ public class IndigenousPerSchoolHeadcountReportService extends BaseReportGenerat
         int accumulatedTotal = Integer.parseInt(allIndNode.getValueForGrade(code));
         allIndNode.setValueForGrade(code, String.valueOf(accumulatedTotal + currentTotal));
     }
-
 }
