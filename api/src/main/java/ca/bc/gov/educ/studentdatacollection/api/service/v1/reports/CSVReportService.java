@@ -518,10 +518,10 @@ public class CSVReportService {
         }
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SCHOOL.getCode(), KIND_HT.getCode(), KIND_FT.getCode(), GRADE_01.getCode(), GRADE_02.getCode(),
+                .setHeader(SCHOOL.getCode(), KIND_FT.getCode(), GRADE_01.getCode(), GRADE_02.getCode(),
                         GRADE_03.getCode(),GRADE_04.getCode(),GRADE_05.getCode(),GRADE_06.getCode(),GRADE_07.getCode(),GRADE_EU.getCode(),
                         GRADE_08.getCode(),GRADE_09.getCode(), GRADE_10.getCode(), GRADE_11.getCode(),GRADE_12.getCode(),
-                        GRADE_SU.getCode(),GRADE_GA.getCode(),GRADE_HS.getCode(), IndySchoolEnrolmentHeadcountHeader.TOTAL.getCode())
+                        GRADE_SU.getCode(),GRADE_GA.getCode(),GRADE_HS.getCode(), OffshoreSchoolEnrolmentHeadcountHeader.TOTAL.getCode())
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -627,9 +627,15 @@ public class CSVReportService {
 
     public DownloadableReportResponse generateOffshoreSpokenLanguageHeadcounts(UUID collectionID) {
         List<SpokenLanguageHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllHomeLanguageSpokenCodesForIndiesAndOffshoreInCollection(collectionID);
+
+        List<SpokenLanguageHeadcountResult> offshoreSchoolResults = results.stream().filter(result -> {
+            var school = restUtils.getSchoolBySchoolID(result.getSchoolID()).get();
+            return school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode());
+        }).toList();
+
         var mappedHeaders = validationService.getActiveHomeLanguageSpokenCodes().stream().filter(languages ->
-                        results.stream().anyMatch(language -> language.getSpokenLanguageCode().equalsIgnoreCase(languages.getHomeLanguageSpokenCode())))
-                .map(HomeLanguageSpokenCode::getDescription).toList();
+                        offshoreSchoolResults.stream().anyMatch(language -> language.getSpokenLanguageCode().equalsIgnoreCase(languages.getHomeLanguageSpokenCode())))
+                .map(HomeLanguageSpokenCode::getDescription).sorted().toList();
 
         List<String> columns = new ArrayList<>();
         columns.add(SCHOOL.getCode());
@@ -649,7 +655,7 @@ public class CSVReportService {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
-            for (Map<String, String> map : prepareSpokenLanguageData(results, mappedHeaders)) {
+            for (Map<String, String> map : prepareSpokenLanguageData(offshoreSchoolResults, mappedHeaders)) {
                 List<String> csvRowData = new ArrayList<>(map.values());
                 csvPrinter.printRecord(csvRowData);
             }
@@ -670,7 +676,6 @@ public class CSVReportService {
 
         results.forEach(languageResult -> {
             var school = restUtils.getSchoolBySchoolID(languageResult.getSchoolID()).get();
-            if(school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())) {
                 LinkedHashMap<String, String> rowMap = new LinkedHashMap<>();
 
                 var existingRowOpt = rows.stream().filter(row -> row.containsValue(school.getDisplayName())).findFirst();
@@ -696,7 +701,6 @@ public class CSVReportService {
                     });
                     rows.add(rowMap);
                 }
-            }
         });
 
         return rows;
@@ -707,7 +711,6 @@ public class CSVReportService {
 
         csvRowData.addAll(Arrays.asList(
                 school.getDisplayName(),
-                result.getKindHCount(),
                 result.getKindFCount(),
                 result.getGrade1Count(),
                 result.getGrade2Count(),

@@ -457,7 +457,7 @@ public class MinistryHeadcountService {
     List<IndySchoolHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();
-    for (IndySchoolEnrolmentHeadcountHeader header : IndySchoolEnrolmentHeadcountHeader.values()) {
+    for (OffshoreSchoolEnrolmentHeadcountHeader header : OffshoreSchoolEnrolmentHeadcountHeader.values()) {
       headerList.add(header.getCode());
     }
     resultsTable.setHeaders(headerList);
@@ -469,7 +469,6 @@ public class MinistryHeadcountService {
       if(school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())) {
         var rowMap = new HashMap<String, String>();
         rowMap.put(SCHOOL.getCode(), school.getDisplayName());
-        rowMap.put(KIND_HT.getCode(), indySchoolHeadcountResult.getKindHCount());
         rowMap.put(KIND_FT.getCode(), indySchoolHeadcountResult.getKindFCount());
         rowMap.put(GRADE_01.getCode(), indySchoolHeadcountResult.getGrade1Count());
         rowMap.put(GRADE_02.getCode(), indySchoolHeadcountResult.getGrade2Count());
@@ -503,9 +502,15 @@ public class MinistryHeadcountService {
     }
     List<SpokenLanguageHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllHomeLanguageSpokenCodesForIndiesAndOffshoreInCollection(collectionID);
     var headerList = new ArrayList<String>();
+
+    List<SpokenLanguageHeadcountResult> offshoreSchoolResults = results.stream().filter(result -> {
+      var school = restUtils.getSchoolBySchoolID(result.getSchoolID()).get();
+      return school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode());
+    }).toList();
+
     List<String> columns = validationService.getActiveHomeLanguageSpokenCodes().stream().filter(languages ->
-                    results.stream().anyMatch(language -> language.getSpokenLanguageCode().equalsIgnoreCase(languages.getHomeLanguageSpokenCode())))
-            .map(HomeLanguageSpokenCode::getDescription).toList();
+                    offshoreSchoolResults.stream().anyMatch(language -> language.getSpokenLanguageCode().equalsIgnoreCase(languages.getHomeLanguageSpokenCode())))
+            .map(HomeLanguageSpokenCode::getDescription).sorted().toList();
 
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     headerList.add(SCHOOL.getCode());
@@ -514,9 +519,8 @@ public class MinistryHeadcountService {
 
     var rows = new ArrayList<Map<String, String>>();
 
-    results.forEach(languageResult -> {
+    offshoreSchoolResults.forEach(languageResult -> {
       var school = restUtils.getSchoolBySchoolID(languageResult.getSchoolID()).get();
-      if(school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())) {
         var rowMap = new HashMap<String, String>();
 
         var existingRowOpt = rows.stream().filter(row -> row.containsValue(school.getDisplayName())).findFirst();
@@ -542,7 +546,6 @@ public class MinistryHeadcountService {
           });
           rows.add(rowMap);
         }
-      }
     });
 
     resultsTable.setRows(rows);
