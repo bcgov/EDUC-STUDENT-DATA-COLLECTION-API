@@ -1,7 +1,9 @@
 package ca.bc.gov.educ.studentdatacollection.api.util;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
@@ -268,5 +270,9 @@ public class TransformUtil {
       }
     }
     return "0";
+  }
+
+  public static boolean isCollectionInProvDupes(CollectionEntity collection){
+    return collection.getCollectionStatusCode().equals(CollectionStatus.PROVDUPES.getCode());
   }
 }
