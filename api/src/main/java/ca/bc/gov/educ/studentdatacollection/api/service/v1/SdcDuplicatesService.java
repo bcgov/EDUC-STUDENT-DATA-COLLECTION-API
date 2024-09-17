@@ -165,38 +165,38 @@ public class SdcDuplicatesService {
     SdcSchoolCollectionStudentEntity updatedStudent = performUpdateSdcSchoolCollectionStudent(studentEntity, isCollectionInProvDupes);
 
     // If collection is in PROVDUPES stage, resolve existing dupes where possible
-    if(isCollectionInProvDupes && !updatedStudent.getSdcSchoolCollectionStudentStatusCode().equals(SdcSchoolStudentStatus.ERROR.getCode())){
-      List<SdcDuplicateEntity> existingDupes = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
-
-      if(!existingDupes.isEmpty()){
-        resolveDupesFromUpdate(existingDupes, DuplicateLevelCode.PROVINCIAL, updatedStudent);
-      }
-    }
+//    if(isCollectionInProvDupes && !updatedStudent.getSdcSchoolCollectionStudentStatusCode().equals(SdcSchoolStudentStatus.ERROR.getCode())){
+//      List<SdcDuplicateEntity> existingDupes = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
+//
+//      if(!existingDupes.isEmpty()){
+//        resolveDupesFromUpdate(existingDupes, DuplicateLevelCode.PROVINCIAL, updatedStudent);
+//      }
+//    }
 
     return updatedStudent;
   }
 
   private void resolveDupesFromUpdate(List<SdcDuplicateEntity> existingDupes, DuplicateLevelCode dupeLevel, SdcSchoolCollectionStudentEntity updatedStudent){
-    existingDupes.forEach(dupe -> {
-      Optional<SdcDuplicateStudentEntity> otherStudentDupeEntity = dupe.getSdcDuplicateStudentEntities().stream().filter(std -> std.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID() != updatedStudent.getSdcSchoolCollectionStudentID()).findFirst();
-
-      otherStudentDupeEntity.orElseThrow(() -> new EntityNotFoundException(SdcDuplicateStudentEntity.class, "sdcSchoolCollectionStudentID", updatedStudent.getSdcSchoolCollectionStudentID().toString()));
-      List<SdcDuplicateEntity> newDupes = runDuplicatesCheck(dupeLevel, sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(updatedStudent), sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(otherStudentDupeEntity.get().getSdcSchoolCollectionStudentEntity()), true);
-
-      // if dupe is no longer present, resolve it
-      if (newDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
-        if(Objects.equals(dupe.getDuplicateTypeCode(), DuplicateTypeCode.ENROLLMENT.getCode())){
-          dupe.setDuplicateResolutionCode(DuplicateResolutionCode.GRADE_CHNG.getCode());
-        } else {
-          dupe.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
-        }
-
-        dupe.setUpdateUser(updatedStudent.getUpdateUser());
-        dupe.setUpdateDate(LocalDateTime.now());
-        TransformUtil.uppercaseFields(dupe);
-        sdcDuplicateRepository.save(dupe);
-      }
-    });
+//    existingDupes.forEach(dupe -> {
+//      Optional<SdcDuplicateStudentEntity> otherStudentDupeEntity = dupe.getSdcDuplicateStudentEntities().stream().filter(std -> std.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID() != updatedStudent.getSdcSchoolCollectionStudentID()).findFirst();
+//
+//      otherStudentDupeEntity.orElseThrow(() -> new EntityNotFoundException(SdcDuplicateStudentEntity.class, "sdcSchoolCollectionStudentID", updatedStudent.getSdcSchoolCollectionStudentID().toString()));
+//      List<SdcDuplicateEntity> newDupes = runDuplicatesCheck(dupeLevel, sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(updatedStudent), sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(otherStudentDupeEntity.get().getSdcSchoolCollectionStudentEntity()), true);
+//
+//      // if dupe is no longer present, resolve it
+//      if (newDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
+//        if(Objects.equals(dupe.getDuplicateTypeCode(), DuplicateTypeCode.ENROLLMENT.getCode())){
+//          dupe.setDuplicateResolutionCode(DuplicateResolutionCode.GRADE_CHNG.getCode());
+//        } else {
+//          dupe.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
+//        }
+//
+//        dupe.setUpdateUser(updatedStudent.getUpdateUser());
+//        dupe.setUpdateDate(LocalDateTime.now());
+//        TransformUtil.uppercaseFields(dupe);
+//        sdcDuplicateRepository.save(dupe);
+//      }
+//    });
   }
 
   private SdcSchoolCollectionStudentEntity performUpdateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity, boolean checkForNewNonAllowableDups) {
@@ -244,45 +244,69 @@ public class SdcDuplicatesService {
     return sdcSchoolCollectionStudentService.saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
   }
 
-  public void checkIfUpdateWouldGenerateNonAllowableNewDupes(UUID originalAssignedPen, SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity) {
-    List<UUID> studentAssignedIdList = Collections.singletonList(originalAssignedPen);
-    List<SdcSchoolCollectionStudentEntity> duplicateStudentsList = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID(), studentAssignedIdList);
-    List<SdcDuplicateEntity> dupesWithUpdatedStudent = new ArrayList<>();
+  public void checkIfUpdateWouldGenerateNonAllowableNewDupes(UUID originalAssignedStudentId, SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity) {
+    List<UUID> studentAssignedIdList = Collections.singletonList(originalAssignedStudentId);
+    //get students with the same assignedStudentID
+    List<SdcSchoolCollectionStudentEntity> allStudentsWithSameAssignedStudentId = sdcSchoolCollectionStudentRepository
+            .findAllDuplicateStudentsByCollectionID(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID(), studentAssignedIdList);
 
-    duplicateStudentsList.forEach(std -> {
-      List<SdcDuplicateEntity> updatedDupes = runDuplicatesCheck(DuplicateLevelCode.PROVINCIAL, sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(std), sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(sdcSchoolCollectionStudentEntity), false);
-      dupesWithUpdatedStudent.addAll(updatedDupes);
-    });
+    //map to light object
+    List<SdcSchoolCollectionStudentLightEntity> duplicateStudentEntities = allStudentsWithSameAssignedStudentId.stream().map(sdcSchoolCollectionStudentMapper::toSdcSchoolStudentLightEntity).toList();
+    //generate new PROV dupes
+    List<SdcDuplicateEntity> generatedDuplicates = generateFinalDuplicatesSet(duplicateStudentEntities, DuplicateLevelCode.PROVINCIAL, false);
+    List<SdcDuplicateEntity> nonAllowableDupes = generatedDuplicates.stream().filter(duplicate -> duplicate.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode())).toList();
 
-    if(!dupesWithUpdatedStudent.isEmpty()) {
-      List<SdcDuplicateEntity> existingUnresolvedDupesForStudent = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudent(sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID());
+    //get Existing PROV dupes for the student
+    List<SdcDuplicateEntity> existingUnresolvedDupesForStudent = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudent(sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID());
+    List<SdcDuplicateEntity> existingNonAllowableDupes = existingUnresolvedDupesForStudent.stream().filter(duplicate -> duplicate.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode())).toList();
 
-      Set<Integer> existingDupeHashes = existingUnresolvedDupesForStudent.stream()
+    //TODO: QUES- What to do with ALLOWABLE and PROGRAM dupes if any
+    if(!nonAllowableDupes.isEmpty()) {
+      Set<Integer> existingNonAllowableDupeHashes = existingNonAllowableDupes.stream()
               .map(SdcDuplicateEntity::getUniqueObjectHash)
               .collect(Collectors.toSet());
-
-      if (existingUnresolvedDupesForStudent.isEmpty() || dupesWithUpdatedStudent.stream().map(SdcDuplicateEntity::getUniqueObjectHash).anyMatch(existingDupeHashes::contains)) {
-          log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate on save :: {}", studentAssignedIdList.stream().findFirst());
-
-          ApiError error = ApiError.builder()
-                  .timestamp(LocalDateTime.now())
-                  .message("SdcSchoolCollectionStudent was not saved to the database because it would create a new duplicate.")
-                  .status(HttpStatus.BAD_REQUEST)
-                  .build();
-
-          var validationError = ValidationUtil.createFieldError(
-                  "sdcSchoolCollectionStudent",
-                  originalAssignedPen.toString(),
-                  "Edits would create a new duplicate."
-          );
-
-          List<FieldError> fieldErrorList = new ArrayList<>();
-          fieldErrorList.add(validationError);
-
-          error.addValidationErrors(fieldErrorList);
-          throw new InvalidPayloadException(error);
+      boolean hasNewNonAllowableDuplicate = !nonAllowableDupes.stream().filter(newDupe -> !existingNonAllowableDupeHashes.contains(newDupe.getUniqueObjectHash())).toList().isEmpty();
+      if(hasNewNonAllowableDuplicate) {
+        log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate on save :: {}", studentAssignedIdList.stream().findFirst());
+        throw new InvalidPayloadException(createError(sdcSchoolCollectionStudentEntity.getAssignedPen()));
       }
+    } else if(!existingUnresolvedDupesForStudent.isEmpty()) {
+      Set<Integer> newDupeHashes = generatedDuplicates.stream()
+              .map(SdcDuplicateEntity::getUniqueObjectHash)
+              .collect(Collectors.toSet());
+      List<SdcDuplicateEntity> resolvedDupes = existingUnresolvedDupesForStudent.stream().filter(existingDupes -> !newDupeHashes.contains(existingDupes.getUniqueObjectHash())).toList();
+      resolvedDupes.forEach(dupe -> {
+        if(dupe.getDuplicateTypeCode().equalsIgnoreCase(DuplicateTypeCode.ENROLLMENT.getCode())) {
+          dupe.setDuplicateResolutionCode(DuplicateResolutionCode.GRADE_CHNG.getCode());
+        } else {
+          dupe.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
+        }
+        dupe.setUpdateUser(sdcSchoolCollectionStudentEntity.getUpdateUser());
+        dupe.setUpdateDate(LocalDateTime.now());
+        TransformUtil.uppercaseFields(dupe);
+      });
+      sdcDuplicateRepository.saveAll(resolvedDupes);
     }
+  }
+
+  private ApiError createError(String assignedPEN) {
+    ApiError error = ApiError.builder()
+            .timestamp(LocalDateTime.now())
+            .message("SdcSchoolCollectionStudent was not saved to the database because it would create a new duplicate.")
+            .status(HttpStatus.BAD_REQUEST)
+            .build();
+
+    var validationError = ValidationUtil.createFieldError(
+            "sdcSchoolCollectionStudent",
+            assignedPEN,
+            "Edits would create a new duplicate."
+    );
+
+    List<FieldError> fieldErrorList = new ArrayList<>();
+    fieldErrorList.add(validationError);
+    error.addValidationErrors(fieldErrorList);
+
+    return error;
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
