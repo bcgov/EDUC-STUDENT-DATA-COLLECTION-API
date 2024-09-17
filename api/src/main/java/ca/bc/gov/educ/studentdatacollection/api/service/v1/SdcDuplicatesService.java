@@ -162,9 +162,7 @@ public class SdcDuplicatesService {
   public SdcSchoolCollectionStudentEntity updateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity){
     var activeCollection = collectionRepository.findActiveCollection().orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "collectionID", "activeCollection"));
     var isCollectionInProvDupes = isCollectionInProvDupes(activeCollection);
-    SdcSchoolCollectionStudentEntity updatedStudent = performUpdateSdcSchoolCollectionStudent(studentEntity, isCollectionInProvDupes);
-
-    return updatedStudent;
+    return performUpdateSdcSchoolCollectionStudent(studentEntity, isCollectionInProvDupes);
   }
 
   private SdcSchoolCollectionStudentEntity performUpdateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity, boolean checkForNewNonAllowableDups) {
@@ -224,18 +222,27 @@ public class SdcDuplicatesService {
     List<SdcSchoolCollectionStudentLightEntity> duplicateStudentEntities = allStudentsWithSameAssignedStudentId.stream().map(sdcSchoolCollectionStudentMapper::toSdcSchoolStudentLightEntity).toList();
     //generate new PROV dupes
     List<SdcDuplicateEntity> generatedDuplicates = generateFinalDuplicatesSet(duplicateStudentEntities, DuplicateLevelCode.PROVINCIAL, false);
-    List<SdcDuplicateEntity> nonAllowableDupes = generatedDuplicates.stream().filter(duplicate -> duplicate.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode())).toList();
+    List<SdcDuplicateEntity> nonAllowableEnrolmentDupes = generatedDuplicates.stream().filter(duplicate -> duplicate.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode()) &&
+            duplicate.getDuplicateTypeCode().equals(DuplicateTypeCode.ENROLLMENT.getCode())).toList();
 
     //get Existing PROV dupes for the student
     List<SdcDuplicateEntity> existingUnresolvedDupesForStudent = sdcDuplicateRepository.findAllUnresolvedDuplicatesForStudent(sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID());
     List<SdcDuplicateEntity> existingNonAllowableDupes = existingUnresolvedDupesForStudent.stream().filter(duplicate -> duplicate.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode())).toList();
 
     //TODO: QUES- What to do with ALLOWABLE and PROGRAM dupes if any
-    if(!nonAllowableDupes.isEmpty()) {
+
+    // if it's a new student OR there are no existing dupes
+    if((!nonAllowableEnrolmentDupes.isEmpty() && sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID() == null) ||
+            (!nonAllowableEnrolmentDupes.isEmpty() && existingUnresolvedDupesForStudent.isEmpty())) {
+      log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate on save :: {}", studentAssignedIdList.stream().findFirst());
+      throw new InvalidPayloadException(createError(sdcSchoolCollectionStudentEntity.getAssignedPen()));
+    }
+
+    if(!nonAllowableEnrolmentDupes.isEmpty()) {
       Set<Integer> existingNonAllowableDupeHashes = existingNonAllowableDupes.stream()
               .map(SdcDuplicateEntity::getUniqueObjectHash)
               .collect(Collectors.toSet());
-      boolean hasNewNonAllowableDuplicate = !nonAllowableDupes.stream().filter(newDupe -> !existingNonAllowableDupeHashes.contains(newDupe.getUniqueObjectHash())).toList().isEmpty();
+      boolean hasNewNonAllowableDuplicate = !nonAllowableEnrolmentDupes.stream().filter(newDupe -> !existingNonAllowableDupeHashes.contains(newDupe.getUniqueObjectHash())).toList().isEmpty();
       if(hasNewNonAllowableDuplicate) {
         log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate on save :: {}", studentAssignedIdList.stream().findFirst());
         throw new InvalidPayloadException(createError(sdcSchoolCollectionStudentEntity.getAssignedPen()));
