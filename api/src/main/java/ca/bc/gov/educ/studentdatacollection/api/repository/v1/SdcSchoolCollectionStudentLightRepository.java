@@ -12,5 +12,5 @@ public interface SdcSchoolCollectionStudentLightRepository extends JpaRepository
 
     List<SdcSchoolCollectionStudentLightEntity> findAllBySdcSchoolCollectionID(UUID sdcSchoolCollectionUUID);
 
-
+    List<SdcSchoolCollectionStudentLightEntity> findAllBySdcSchoolCollectionEntity_SdcDistrictCollectionIDAndSdcSchoolCollectionStudentStatusCodeNot(UUID sdcDistrictCollectionID, String statusCode);
 }
