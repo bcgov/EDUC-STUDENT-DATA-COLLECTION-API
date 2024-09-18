@@ -262,4 +262,8 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
 
     @Query(value = "SELECT ssc FROM SdcSchoolCollectionEntity ssc WHERE ssc.collectionEntity.collectionID = :collectionID AND ssc.sdcSchoolCollectionStatusCode != 'COMPLETED'")
     List<SdcSchoolCollectionEntity> findUncompletedSchoolCollections(UUID collectionID);
+
+    @Query("SELECT s FROM SdcSchoolCollectionEntity s WHERE s.collectionEntity.collectionID = :collectionID AND s.sdcDistrictCollectionID IS NULL AND s.sdcSchoolCollectionStatusCode = 'COMPLETED'")
+    List<SdcSchoolCollectionEntity> findSchoolsInCollectionWithStatus(UUID collectionID);
+
 }

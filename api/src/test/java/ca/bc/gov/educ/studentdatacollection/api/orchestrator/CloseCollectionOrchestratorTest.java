@@ -31,14 +31,11 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.io.File;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.FUNDING_GROUP_SNAPSHOT_SAVED;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.NEW_COLLECTION_CREATED;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.CLOSE_CURRENT_COLLECTION_AND_OPEN_NEW_COLLECTION;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.SEND_CLOSURE_NOTIFICATIONS;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.COMPLETED;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,6 +66,8 @@ class CloseCollectionOrchestratorTest extends BaseStudentDataCollectionAPITest {
     SagaRepository sagaRepository;
     @Autowired
     MessagePublisher messagePublisher;
+    @Autowired
+    IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository;
     @Captor
     ArgumentCaptor<byte[]> eventCaptor;
 
@@ -153,6 +152,71 @@ class CloseCollectionOrchestratorTest extends BaseStudentDataCollectionAPITest {
 
     @SneakyThrows
     @Test
+    void testHandleEvent_givenEventTypeSAVE_FUNDING_GROUP_SNAPSHOT_shouldExecuteSaveFundingGroupSnapshotNotifications() {
+        var typeCode = this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntityForFeb());
+        this.collectionCodeCriteriaRepository.save(this.createMockCollectionCodeCriteriaEntity(typeCode));
+        CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+        var districtID = UUID.randomUUID();
+
+        var school = createMockSchool();
+        school.setDisplayName("School1");
+        school.setMincode("0000001");
+        school.setDistrictId(districtID.toString());
+        when(this.restUtils.getSchoolBySchoolID(school.getSchoolId())).thenReturn(Optional.of(school));
+        when(this.restUtils.getSchoolListGivenCriteria(anyList(), any())).thenReturn(List.of(school));
+
+        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        firstSchool.setUploadDate(null);
+        firstSchool.setUploadFileName(null);
+        firstSchool.setSdcDistrictCollectionID(null);
+        firstSchool.setSdcSchoolCollectionStatusCode("COMPLETED");
+        sdcSchoolCollectionRepository.save(firstSchool);
+
+        final File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+        );
+        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+        });
+        var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+        var students = models.stream().peek(model -> model.setSdcSchoolCollection(firstSchool)).toList();
+
+        sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        CollectionSagaData sagaData = new CollectionSagaData();
+        sagaData.setExistingCollectionID(collection.getCollectionID().toString());
+        sagaData.setNewCollectionSignOffDueDate(String.valueOf(LocalDate.now()));
+        sagaData.setNewCollectionDuplicationResolutionDueDate(String.valueOf(LocalDate.now()));
+        sagaData.setNewCollectionSnapshotDate(String.valueOf(LocalDate.now()));
+        sagaData.setNewCollectionSubmissionDueDate(String.valueOf(LocalDate.now()));
+        when(this.restUtils.getSchoolFundingGroupsBySchoolID(school.getSchoolId())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(school.getSchoolId(), "08"), getIndependentSchoolFundingGroup(school.getSchoolId(), "09"), getIndependentSchoolFundingGroup(school.getSchoolId(), "10")));
+        doReturn(List.of(school)).when(restUtils).getAllSchoolList(any());
+
+        val saga = this.createMockCloseCollectionSaga(sagaData);
+        saga.setSagaId(null);
+        this.sagaRepository.save(saga);
+
+        val event = Event.builder()
+                .sagaId(saga.getSagaId())
+                .eventType(CLOSE_CURRENT_COLLECTION_AND_OPEN_NEW_COLLECTION)
+                .eventOutcome(NEW_COLLECTION_CREATED)
+                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+        this.closeCollectionOrchestrator.handleEvent(event);
+
+        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(this.closeCollectionOrchestrator.getTopicToSubscribe()), this.eventCaptor.capture());
+        final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
+        assertThat(newEvent.getEventType()).isEqualTo(SAVE_FUNDING_GROUP_SNAPSHOT);
+        assertThat(newEvent.getEventOutcome()).isEqualTo(FUNDING_GROUP_SNAPSHOT_SAVED);
+
+        val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+        val fundingSnapshots = this.independentSchoolFundingGroupSnapshotRepository.findAll();
+        assertThat(savedSagaInDB).isPresent();
+        assertThat(savedSagaInDB.get().getStatus()).isEqualTo(IN_PROGRESS.toString());
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(SAVE_FUNDING_GROUP_SNAPSHOT.toString());
+        assertThat(fundingSnapshots).hasSize(3);
+    }
+
+    @SneakyThrows
+    @Test
     void testHandleEvent_givenEventTypeSEND_CLOSURE_NOTIFICATIONS_shouldExecuteSendClosureNotifications() {
         var typeCode = this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntityForFeb());
         this.collectionCodeCriteriaRepository.save(this.createMockCollectionCodeCriteriaEntity(typeCode));
@@ -171,8 +235,8 @@ class CloseCollectionOrchestratorTest extends BaseStudentDataCollectionAPITest {
 
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
-                .eventType(CLOSE_CURRENT_COLLECTION_AND_OPEN_NEW_COLLECTION)
-                .eventOutcome(NEW_COLLECTION_CREATED)
+                .eventType(SAVE_FUNDING_GROUP_SNAPSHOT)
+                .eventOutcome(FUNDING_GROUP_SNAPSHOT_SAVED)
                 .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
         this.closeCollectionOrchestrator.handleEvent(event);
 
