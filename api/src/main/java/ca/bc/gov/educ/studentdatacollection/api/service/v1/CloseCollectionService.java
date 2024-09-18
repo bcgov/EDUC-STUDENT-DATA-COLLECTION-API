@@ -256,14 +256,18 @@ public class CloseCollectionService {
         List<IndependentSchoolFundingGroup> independentSchoolFundingGroupsForCollection = new ArrayList<>();
         indySchoolsInCollection.forEach(sdcSchoolCollectionEntity -> independentSchoolFundingGroupsForCollection.addAll(this.restUtils.getSchoolFundingGroupsBySchoolID(String.valueOf(sdcSchoolCollectionEntity.getSchoolID()))));
         List<IndependentSchoolFundingGroupSnapshotEntity> independentSchoolFundingGroupSnapshots = independentSchoolFundingGroupsForCollection.stream()
-                .map(fundingGroup -> IndependentSchoolFundingGroupSnapshotMapper.mapper.toModel(IndependentSchoolFundingGroupSnapshot.builder()
-                        .schoolFundingGroupID(fundingGroup.getSchoolFundingGroupID())
-                        .collectionID(String.valueOf(entity.getCollectionID()))
-                        .schoolID(fundingGroup.getSchoolID())
-                        .schoolGradeCode(fundingGroup.getSchoolGradeCode())
-                        .schoolFundingGroupCode(fundingGroup.getSchoolFundingGroupCode())
-                        .build()))
-                .toList();
+            .map(fundingGroup -> IndependentSchoolFundingGroupSnapshotMapper.mapper.toModel(IndependentSchoolFundingGroupSnapshot.builder()
+                .schoolFundingGroupID(fundingGroup.getSchoolFundingGroupID())
+                .collectionID(String.valueOf(entity.getCollectionID()))
+                .schoolID(fundingGroup.getSchoolID())
+                .schoolGradeCode(fundingGroup.getSchoolGradeCode())
+                .schoolFundingGroupCode(fundingGroup.getSchoolFundingGroupCode())
+                .createDate(LocalDateTime.now().toString())
+                .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+                .updateDate(LocalDateTime.now().toString())
+                .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+                .build()))
+            .toList();
         this.independentSchoolFundingGroupSnapshotRepository.saveAll(independentSchoolFundingGroupSnapshots);
     }
 }
