@@ -119,7 +119,7 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
   @Transactional(propagation = Propagation.SUPPORTS)
   public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightByDistrictCollectionId(UUID sdcDistrictCollectionID) {
     try {
-      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionEntity_SdcDistrictCollectionID(sdcDistrictCollectionID);
+      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionEntity_SdcDistrictCollectionIDAndSdcSchoolCollectionStudentStatusCodeNot(sdcDistrictCollectionID, "DELETED");
     } catch (final Exception ex) {
       log.error("Failure querying for light SDC school students by District Collection ID: {}", ex.getMessage());
       throw new CompletionException(ex);
