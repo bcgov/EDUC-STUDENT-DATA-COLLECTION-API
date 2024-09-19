@@ -147,7 +147,10 @@ class CloseCollectionOrchestratorTest extends BaseStudentDataCollectionAPITest {
 
         val updatedStudents = sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(savedSchoolColl.getSdcSchoolCollectionID());
         assertThat(updatedStudents).isNotEmpty();
-        updatedStudents.forEach(student -> assertThat(student.getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.DEMOG_UPD.toString()));
+        val notDeletedStudents = updatedStudents.stream().filter(student -> student.getSdcSchoolCollectionStudentStatusCode().equals(SdcSchoolStudentStatus.DEMOG_UPD.toString())).toList();
+        val deletedStudents = updatedStudents.stream().filter(student -> student.getSdcSchoolCollectionStudentStatusCode().equals(SdcSchoolStudentStatus.DELETED.toString())).toList();
+        assertThat(deletedStudents.size()).isEqualTo(2);
+        assertThat(notDeletedStudents.size()).isEqualTo(6);
     }
 
     @SneakyThrows
