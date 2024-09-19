@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.IndependentSchoolFundingGroupSnapshotMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.properties.EmailProperties;
@@ -10,7 +11,9 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.CollectionSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.EmailSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.UpdateStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.IndependentSchoolFundingGroupSnapshot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -40,8 +43,9 @@ public class CloseCollectionService {
     private final EmailService emailService;
     private final EmailProperties emailProperties;
     private static final String SDC_COLLECTION_ID_KEY = "collectionID";
+    private final IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository;
 
-    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcSchoolCollectionService sdcSchoolCollectionService, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties) {
+    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcSchoolCollectionService sdcSchoolCollectionService, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties, IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository) {
         this.collectionRepository = collectionRepository;
         this.collectionTypeCodeRepository = collectionTypeCodeRepository;
         this.collectionCodeCriteriaRepository = collectionCodeCriteriaRepository;
@@ -56,6 +60,7 @@ public class CloseCollectionService {
         this.sdcDuplicateRepository = sdcDuplicateRepository;
         this.emailService = emailService;
         this.emailProperties = emailProperties;
+        this.independentSchoolFundingGroupSnapshotRepository = independentSchoolFundingGroupSnapshotRepository;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -240,5 +245,29 @@ public class CloseCollectionService {
                 .templateName(templateName)
                 .emailFields(emailFields)
                 .build();
+    }
+
+    public void saveIndependentSchoolFundingGroupSnapshot(final CollectionSagaData collectionSagaData) {
+        Optional<CollectionEntity> entityOptional = collectionRepository.findById(UUID.fromString(collectionSagaData.getExistingCollectionID()));
+        CollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));
+
+        var indySchoolsInCollection = this.sdcSchoolCollectionRepository.findSchoolsInCollectionWithStatus(entity.getCollectionID());
+        this.restUtils.populateAllSchoolMap();
+        List<IndependentSchoolFundingGroup> independentSchoolFundingGroupsForCollection = new ArrayList<>();
+        indySchoolsInCollection.forEach(sdcSchoolCollectionEntity -> independentSchoolFundingGroupsForCollection.addAll(this.restUtils.getSchoolFundingGroupsBySchoolID(String.valueOf(sdcSchoolCollectionEntity.getSchoolID()))));
+        List<IndependentSchoolFundingGroupSnapshotEntity> independentSchoolFundingGroupSnapshots = independentSchoolFundingGroupsForCollection.stream()
+            .map(fundingGroup -> IndependentSchoolFundingGroupSnapshotMapper.mapper.toModel(IndependentSchoolFundingGroupSnapshot.builder()
+                .schoolFundingGroupID(fundingGroup.getSchoolFundingGroupID())
+                .collectionID(String.valueOf(entity.getCollectionID()))
+                .schoolID(fundingGroup.getSchoolID())
+                .schoolGradeCode(fundingGroup.getSchoolGradeCode())
+                .schoolFundingGroupCode(fundingGroup.getSchoolFundingGroupCode())
+                .createDate(LocalDateTime.now().toString())
+                .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+                .updateDate(LocalDateTime.now().toString())
+                .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+                .build()))
+            .toList();
+        this.independentSchoolFundingGroupSnapshotRepository.saveAll(independentSchoolFundingGroupSnapshots);
     }
 }

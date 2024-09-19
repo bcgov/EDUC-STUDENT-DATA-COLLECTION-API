@@ -1,5 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.orchestrator;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
+import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
@@ -16,10 +18,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.CLOSURE_NOTIFICATIONS_DISPATCHED;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.NEW_COLLECTION_CREATED;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.CLOSE_CURRENT_COLLECTION_AND_OPEN_NEW_COLLECTION;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.SEND_CLOSURE_NOTIFICATIONS;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 
 @Component
@@ -38,7 +38,8 @@ public class CloseCollectionOrchestrator extends BaseOrchestrator<CollectionSaga
     public void populateStepsToExecuteMap() {
         this.stepBuilder()
                 .begin(CLOSE_CURRENT_COLLECTION_AND_OPEN_NEW_COLLECTION, this::closeCurrentCollAndOpenNewColl)
-                .step(CLOSE_CURRENT_COLLECTION_AND_OPEN_NEW_COLLECTION, NEW_COLLECTION_CREATED, SEND_CLOSURE_NOTIFICATIONS, this::sendClosureNotifications)
+                .step(CLOSE_CURRENT_COLLECTION_AND_OPEN_NEW_COLLECTION, NEW_COLLECTION_CREATED, SAVE_FUNDING_GROUP_SNAPSHOT, this::saveFundingGroupSnapshot)
+                .step(SAVE_FUNDING_GROUP_SNAPSHOT, FUNDING_GROUP_SNAPSHOT_SAVED, SEND_CLOSURE_NOTIFICATIONS, this::sendClosureNotifications)
                 .end(SEND_CLOSURE_NOTIFICATIONS, CLOSURE_NOTIFICATIONS_DISPATCHED);
     }
 
@@ -51,15 +52,19 @@ public class CloseCollectionOrchestrator extends BaseOrchestrator<CollectionSaga
         //service call
         closeCollectionService.closeCurrentCollAndOpenNewCollection(collectionSagaData);
 
-        final Event nextEvent = Event.builder()
-                .sagaId(saga.getSagaId())
-                .eventType(CLOSE_CURRENT_COLLECTION_AND_OPEN_NEW_COLLECTION)
-                .eventOutcome(NEW_COLLECTION_CREATED)
-                .eventPayload(JsonUtil.getJsonStringFromObject(collectionSagaData))
-                .build();
-        this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
-        publishToJetStream(nextEvent, saga);
-        log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
+        postEvent(saga, collectionSagaData, CLOSE_CURRENT_COLLECTION_AND_OPEN_NEW_COLLECTION, NEW_COLLECTION_CREATED);
+    }
+
+    public void saveFundingGroupSnapshot(final Event event, final SdcSagaEntity saga, final CollectionSagaData collectionSagaData) throws JsonProcessingException {
+        final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
+        saga.setSagaState(SAVE_FUNDING_GROUP_SNAPSHOT.toString());
+        saga.setStatus(IN_PROGRESS.toString());
+        this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
+
+        //service call
+        closeCollectionService.saveIndependentSchoolFundingGroupSnapshot(collectionSagaData);
+
+        postEvent(saga, collectionSagaData, SAVE_FUNDING_GROUP_SNAPSHOT, FUNDING_GROUP_SNAPSHOT_SAVED);
     }
 
     public void sendClosureNotifications(final Event event, final SdcSagaEntity saga, final CollectionSagaData collectionSagaData) throws JsonProcessingException {
@@ -71,17 +76,22 @@ public class CloseCollectionOrchestrator extends BaseOrchestrator<CollectionSaga
         //service call
         closeCollectionService.sendClosureNotification(collectionSagaData);
 
-        final Event nextEvent = Event.builder()
-                .sagaId(saga.getSagaId())
-                .eventType(SEND_CLOSURE_NOTIFICATIONS)
-                .eventOutcome(CLOSURE_NOTIFICATIONS_DISPATCHED)
-                .eventPayload(JsonUtil.getJsonStringFromObject(collectionSagaData))
-                .build();
-        this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
-        log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
+        postEvent(saga, collectionSagaData, SEND_CLOSURE_NOTIFICATIONS, CLOSURE_NOTIFICATIONS_DISPATCHED);
     }
 
     private void publishToJetStream(final Event event, SdcSagaEntity saga) {
         publisher.dispatchChoreographyEvent(event, saga);
+    }
+
+    private void postEvent(final SdcSagaEntity saga, final CollectionSagaData collectionSagaData, EventType eventType, EventOutcome eventOutcome) throws JsonProcessingException{
+        final Event nextEvent = Event.builder()
+                .sagaId(saga.getSagaId())
+                .eventType(eventType)
+                .eventOutcome(eventOutcome)
+                .eventPayload(JsonUtil.getJsonStringFromObject(collectionSagaData))
+                .build();
+        this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
+        publishToJetStream(nextEvent, saga);
+        log.debug("message sent to {} for {} Event. :: {}", this.getTopicToSubscribe(), nextEvent, saga.getSagaId());
     }
 }
