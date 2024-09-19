@@ -223,8 +223,8 @@ public class AllStudentLightCollectionGenerateCsvService {
                 errorAndWarnSet.add(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueCode());
             }
         });
-        if(!builder.isEmpty()){
-            return builder.toString().substring(0, builder.length()-2);
+        if(!builder.isEmpty()) {
+            return StringUtils.removeEnd(builder.toString(), "\n");
         }
         return "";
     }
