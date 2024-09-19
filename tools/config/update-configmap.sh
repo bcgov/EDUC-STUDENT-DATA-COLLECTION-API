@@ -256,10 +256,9 @@ MINIMUM_IDLE_DB_POOL_SIZE=15
 NUMBER_OF_STUDENTS_TO_PROCESS_SAGA=500
 NUMBER_OF_SCHOOL_COLL_TO_PROCESS_SAGA=10
 
-
 EMAIL_SUBJECT_CLOSURE_NOTIFICATION="1701 Closure Reports"
-EMAIL_TEMPLATE_CLOSURE_REPORT_NOTIFICATION="<!DOCTYPE html><html xmlns:th=\"http://www.thymeleaf.org\"><head><meta charset=\"ISO-8859-1\"><title>1701 Closure Reports</title></head><body>Closure reports are now available for ${closeCollectionMonth}, ${closeCollectionYear} collection.<br/><br/>Please log into the Student-Admin platform and open the collection to view the reports.<br><br><br><b>The Data Management Unit Team</b><br>Ministry of Education and Child Care<br>educationdataexchange@gov.bc.ca</body></html>"
-EMAIL_CLOSURE_NOTIFICATION_TO="EDUC.Compliance@gov.bc.ca,EDEDWNOT@Victoria1.gov.bc.ca,cmb@gov.bc.ca,educ.fsascore@gov.bc.ca,international.education@gov.bc.ca,EDUC.FundingandAllocationUnit@gov.bc.ca"
+EMAIL_TEMPLATE_CLOSURE_REPORT_NOTIFICATION="<!DOCTYPE html><html xmlns:th=\"http://www.thymeleaf.org\"><head><meta charset=\"ISO-8859-1\"><title>1701 Closure Reports</title></head><body>Reports are now available in EDX for the ${closeCollectionMonth} ${closeCollectionYear} Student Level Data Collection.<br/><br/>To view the reports, and open “Data Collections” in the menu. Reports can be found in each of the collections<a href="https://student-admin-8878b4-prod.apps.silver.devops.gov.bc.ca/login"> log into the Student-Admin platform </a>listed.<br><br><b>The Data Management Unit Team</b><br>Ministry of Education and Child Care<br>educationdataexchange@gov.bc.ca</body></html>"
+EMAIL_CLOSURE_NOTIFICATION_TO="EDUC.Compliance@gov.bc.ca,EDEDWNOT@Victoria1.gov.bc.ca,cmb@gov.bc.ca,educ.fsascore@gov.bc.ca,international.education@gov.bc.ca,EDUC.FundingandAllocationUnit@gov.bc.ca,faa.is@gov.bc.ca,EDUC.independentschoolsoffice@gov.bc.ca,EDUC.Compliance@gov.bc.ca"
 
 if [ "$envValue" = "dev" ]
 then
