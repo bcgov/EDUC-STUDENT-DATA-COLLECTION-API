@@ -999,7 +999,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   @Query(value = """
            UPDATE SDC_SCHOOL_COLLECTION_STUDENT
            SET sdc_school_collection_student_status_code = 'DEMOG_UPD', update_user = 'STUDENT_DATA_COLLECTION_API', update_date = CURRENT_TIMESTAMP
-           WHERE sdc_school_collection_id IN 
+           WHERE sdc_school_collection_student_status_code != 'DELETED'
+           AND sdc_school_collection_id IN 
            (SELECT sdc_school_collection_id FROM SDC_SCHOOL_COLLECTION WHERE collection_id = :collectionID)
            """, nativeQuery = true)
   void updateAllSdcSchoolCollectionStudentStatus(UUID collectionID);
