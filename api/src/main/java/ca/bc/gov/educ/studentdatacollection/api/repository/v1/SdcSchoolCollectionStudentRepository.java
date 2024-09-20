@@ -1329,7 +1329,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           LEFT JOIN sscs.sdcStudentEnrolledProgramEntities ep
           WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
           AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
-          AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is null
+          AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is not null
           GROUP BY sscs.sdcSchoolCollection.schoolID """)
   List<EnrolmentHeadcountFteResult> getEnrolmentHeadcountsAndFteByCollectionId(@Param("collectionID") UUID collectionID);
 
@@ -1437,7 +1437,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           LEFT JOIN sscs.sdcStudentEnrolledProgramEntities ep
           WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
           AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
-          AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is null
+          AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is not null
           GROUP BY sscs.sdcSchoolCollection.schoolID""")
   List<EnrolmentHeadcountFteResult> getEnrolmentHeadcountsAndFteWithRefugeeByCollectionId(@Param("collectionID") UUID collectionID);
 
@@ -1680,7 +1680,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           LEFT JOIN sscs.sdcStudentEnrolledProgramEntities ep
           WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
           AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
-          AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is null
+          AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is not null
           GROUP BY sscs.sdcSchoolCollection.schoolID""")
   List<EnrolmentHeadcountFteResult> getNewRefugeeEnrolmentHeadcountsAndFteWithByCollectionId(@Param("collectionID") UUID collectionID);
 }
