@@ -67,6 +67,7 @@ public class CSVReportService {
     private final RestUtils restUtils;
     private final ValidationRulesService validationService;
     private static final String COLLECTION_ID = "collectionID";
+    private static final String SCHOOL_ID = "schoolID";
     private static final String INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and SEPT collections";
     private static final String HEADCOUNTS_INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and MAY collections";
     private static final String REFUGEE_HEADCOUNTS_INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB collection";
@@ -678,7 +679,7 @@ public class CSVReportService {
             var school = restUtils.getSchoolBySchoolID(languageResult.getSchoolID()).get();
                 LinkedHashMap<String, String> rowMap = new LinkedHashMap<>();
 
-                var existingRowOpt = rows.stream().filter(row -> row.containsValue(school.getDisplayName())).findFirst();
+                var existingRowOpt = rows.stream().filter(row -> row.containsValue(school.getSchoolId())).findFirst();
                 if(existingRowOpt.isPresent()) {
                     //if school row already exist
                     var existingRow = existingRowOpt.get();
@@ -689,6 +690,7 @@ public class CSVReportService {
                 } else {
                     //create new rows
                     rowMap.put(SCHOOL.getCode(), school.getDisplayName());
+                    rowMap.put(SCHOOL_ID, school.getSchoolId());
                     //look-up spoken language code and add its value
                     var spokenDesc = validationService.getActiveHomeLanguageSpokenCodes().stream()
                             .filter(code -> code.getHomeLanguageSpokenCode().equalsIgnoreCase(languageResult.getSpokenLanguageCode())).findFirst();
@@ -703,6 +705,7 @@ public class CSVReportService {
                 }
         });
 
+        rows.forEach(row -> row.remove(SCHOOL_ID));
         return rows;
     }
 
