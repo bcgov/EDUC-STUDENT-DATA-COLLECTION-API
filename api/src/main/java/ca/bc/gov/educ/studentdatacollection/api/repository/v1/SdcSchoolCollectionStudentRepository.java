@@ -1050,7 +1050,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
             AND SSCS.assignedStudentId = :assignedStudentID
             AND SSCS.enrolledGradeCode NOT IN ('08', '09')
-            AND SSCS.fte > 0
+            AND SSCS.fte >= 0
             AND C.collectionID IN
                   (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
             """)
