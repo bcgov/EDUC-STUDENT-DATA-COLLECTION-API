@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.calculator;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -392,6 +393,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollectionEntity);
         this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("12");
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0700");
+        this.studentData.getSchool().setFacilityTypeCode(FacilityTypeCodes.SUMMER.getCode());
 
         // When
         PenMatchResult penMatchResult = getPenMatchResult();

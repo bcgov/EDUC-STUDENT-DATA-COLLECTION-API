@@ -1374,8 +1374,7 @@ class FteCalculatorUtilsTest {
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
         studentRuleData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(any(List.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
-        when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTE(any(List.class), anyList())).thenReturn(0L);
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(any(UUID.class), any(UUID.class), any(String.class))).thenReturn(Collections.emptyList());
 
         // When
         var result = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(studentRuleData);
@@ -1402,9 +1401,9 @@ class FteCalculatorUtilsTest {
         student.setAssignedStudentId(UUID.randomUUID());
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
         studentRuleData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
+        SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(any(List.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.singletonList(sdcSchoolCollectionEntity));
-        when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTE(any(List.class), anyList())).thenReturn(0L);
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(any(UUID.class), any(UUID.class), any(String.class))).thenReturn(Collections.singletonList(sdcSchoolCollectionStudentEntity));
 
         // When
         var result = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(studentRuleData);
@@ -1426,14 +1425,13 @@ class FteCalculatorUtilsTest {
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
         SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
-        student.setFte(BigDecimal.ZERO);
-        student.setCreateDate(LocalDateTime.now());
+        student.setFte(BigDecimal.TEN);
         student.setAssignedStudentId(UUID.randomUUID());
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
-        studentRuleData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
+        studentRuleData.setHistoricStudentIds(List.of(UUID.randomUUID(), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(any(List.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.singletonList(sdcSchoolCollectionEntity));
-        when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTE(any(List.class), anyList())).thenReturn(1L);
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(any(UUID.class), any(UUID.class), any(String.class))).thenReturn(Collections.singletonList(student));
+        when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
         // When
         var result = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(studentRuleData);
@@ -1462,8 +1460,7 @@ class FteCalculatorUtilsTest {
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
         studentRuleData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(any(List.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
-        when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTEAndInGradeKto9(any(List.class), anyList())).thenReturn(0L);
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(any(UUID.class), any(UUID.class), any(String.class))).thenReturn(Collections.emptyList());
 
         // When
         var result = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentRuleData);
@@ -1492,8 +1489,7 @@ class FteCalculatorUtilsTest {
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
         studentRuleData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(any(List.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
-        when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTEAndInGradeKto9(any(List.class), anyList())).thenReturn(0L);
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(any(UUID.class), any(UUID.class), any(String.class))).thenReturn(Collections.emptyList());
 
         // When
         var result = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentRuleData);
@@ -1521,9 +1517,9 @@ class FteCalculatorUtilsTest {
         student.setAssignedStudentId(UUID.randomUUID());
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
         studentRuleData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
+        SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = studentRuleData.getSdcSchoolCollectionStudentEntity();
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(any(List.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.singletonList(sdcSchoolCollectionEntity));
-        when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTEAndInGradeKto9(any(List.class), anyList())).thenReturn(0L);
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(any(UUID.class), any(UUID.class), any(String.class))).thenReturn(Collections.singletonList(sdcSchoolCollectionStudentEntity));
 
         // When
         var result = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentRuleData);
@@ -1546,14 +1542,14 @@ class FteCalculatorUtilsTest {
         SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setFte(BigDecimal.TEN);
-        student.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
+        student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
         student.setAssignedStudentId(UUID.randomUUID());
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
-        studentRuleData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
+        studentRuleData.setHistoricStudentIds(List.of(UUID.randomUUID(), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(any(List.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.singletonList(sdcSchoolCollectionEntity));
-        when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTEAndInGradeKto9(any(List.class), anyList())).thenReturn(1L);
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(any(UUID.class), any(UUID.class), any(String.class))).thenReturn(Collections.singletonList(student));
+        when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
         // When
         var result = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentRuleData);
@@ -1582,8 +1578,7 @@ class FteCalculatorUtilsTest {
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
         studentRuleData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(any(List.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
-        when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(List.class), anyList())).thenReturn(0L);
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(any(UUID.class), any(UUID.class), any(String.class))).thenReturn(Collections.emptyList());
 
         // When
         var result = fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentRuleData);
@@ -1607,13 +1602,12 @@ class FteCalculatorUtilsTest {
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setFte(BigDecimal.TEN);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
-        student.setCreateDate(LocalDateTime.now());
         student.setAssignedStudentId(UUID.randomUUID());
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
-        studentRuleData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
+        studentRuleData.setHistoricStudentIds(List.of(UUID.randomUUID(), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(any(List.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.singletonList(sdcSchoolCollectionEntity));
-        when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(List.class), anyList())).thenReturn(1L);
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(any(UUID.class), any(String.class))).thenReturn(Collections.singletonList(student));
+        when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
         // When
         var result = fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentRuleData);
@@ -1639,10 +1633,10 @@ class FteCalculatorUtilsTest {
         student.setCreateDate(LocalDateTime.now());
         student.setAssignedStudentId(UUID.randomUUID());
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
-        studentRuleData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
+        studentRuleData.setHistoricStudentIds(List.of(UUID.randomUUID(), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(any(List.class), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.singletonList(sdcSchoolCollectionEntity));
-        when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(any(List.class), anyList())).thenReturn(1L);
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(any(UUID.class), any(String.class))).thenReturn(Collections.singletonList(student));
+        when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
 
         // When
         var result = fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentRuleData);
