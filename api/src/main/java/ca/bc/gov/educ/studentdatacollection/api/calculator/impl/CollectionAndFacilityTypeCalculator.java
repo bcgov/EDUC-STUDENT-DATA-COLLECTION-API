@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 
 @Component
 @Slf4j
-@Order(16)
+@Order(8)
 public class CollectionAndFacilityTypeCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Autowired
