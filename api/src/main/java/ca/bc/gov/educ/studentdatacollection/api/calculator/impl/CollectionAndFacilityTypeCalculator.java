@@ -26,9 +26,9 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
         log.debug("CollectionAndFacilityTypeCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        var isJulyCollection = StringUtils.equals(FteCalculatorUtils.getCollectionTypeCode(studentData), CollectionTypeCodes.JULY.getTypeCode());
-        var isFacilityTypeSummerSchool = StringUtils.equals(studentData.getSchool().getFacilityTypeCode(), FacilityTypeCodes.SUMMER.getCode());
-        var isFacilityTypeOnline = FacilityTypeCodes.getOnlineFacilityTypeCodes().stream().anyMatch(code -> code.equals(studentData.getSchool().getFacilityTypeCode()));
+        var isJulyCollection = FteCalculatorUtils.getCollectionTypeCode(studentData).equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode());
+        var isFacilityTypeSummerSchool = studentData.getSchool().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.SUMMER.getCode());
+        var isFacilityTypeOnline = FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(studentData.getSchool().getFacilityTypeCode());
         // For July Collection and facility type different than Summer School:
         if (isJulyCollection && !isFacilityTypeSummerSchool) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
