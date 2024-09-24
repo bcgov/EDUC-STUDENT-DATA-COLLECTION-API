@@ -347,7 +347,10 @@ public class MinistryHeadcountService {
       if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())
               && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
         var school = schoolOpt.get();
-        var schoolAddr = school.getAddresses().stream().filter(address -> address.getAddressTypeCode().equalsIgnoreCase("PHYSICAL")).findFirst();
+        var schoolAddr = school.getAddresses().stream()
+                .filter(address -> address.getAddressTypeCode().equalsIgnoreCase("PHYSICAL"))
+                .findFirst()
+                .or(() -> school.getAddresses().stream().filter(address -> address.getAddressTypeCode().equalsIgnoreCase("MAILING")).findFirst());
         if(schoolAddr.isPresent()) {
           var address = schoolAddr.get();
           var rowMap = new HashMap<String, String>();
