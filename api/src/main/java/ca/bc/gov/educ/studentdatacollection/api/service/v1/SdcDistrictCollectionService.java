@@ -205,9 +205,9 @@ public class SdcDistrictCollectionService {
         TransformUtil.uppercaseFields(sign);
       }
     });
-    var savedEntities = sdcDistrictCollectionRepository.save(curDistrictCollectionEntity);
+    var savedEntity = sdcDistrictCollectionRepository.save(curDistrictCollectionEntity);
 
-    List<String> signedRoles = savedEntities.getSdcDistrictCollectionSubmissionSignatureEntities().stream().map(SdcDistrictCollectionSubmissionSignatureEntity::getDistrictSignatoryRole).toList();
+    List<String> signedRoles = savedEntity.getSdcDistrictCollectionSubmissionSignatureEntities().stream().map(SdcDistrictCollectionSubmissionSignatureEntity::getDistrictSignatoryRole).toList();
     boolean hasAllRoles = new HashSet<>(signedRoles).equals(new HashSet<>(List.of(allowedRoles)));
     if(signedRoles.size() == 3 && hasAllRoles) {
       List<SdcSchoolCollectionEntity> sdcSchoolCollectionEntities = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
@@ -217,9 +217,10 @@ public class SdcDistrictCollectionService {
       });
       sdcSchoolCollectionRepository.saveAll(sdcSchoolCollectionEntities);
 
-      sdcDistrictCollectionEntity.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.COMPLETED.getCode());
-      sdcDistrictCollectionRepository.save(sdcDistrictCollectionEntity);
+      savedEntity.setSdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.COMPLETED.getCode());
+      sdcDistrictCollectionRepository.save(savedEntity);
     }
+
 
   }
 }
