@@ -246,7 +246,10 @@ public class CSVReportService {
                 if(schoolOpt.isPresent()) {
                     var school = schoolOpt.get();
                     if(!school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode()) && !school.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
-                        var schoolAddr = school.getAddresses().stream().filter(address -> address.getAddressTypeCode().equalsIgnoreCase("PHYSICAL")).findFirst();
+                        var schoolAddr = school.getAddresses().stream()
+                                .filter(address -> address.getAddressTypeCode().equalsIgnoreCase("PHYSICAL"))
+                                .findFirst()
+                                .or(() -> school.getAddresses().stream().filter(address -> address.getAddressTypeCode().equalsIgnoreCase("MAILING")).findFirst());
                         if(schoolAddr.isPresent()) {
                             var address = schoolAddr.get();
                             List<String> csvRowData = prepareSchoolAddressDataForCsv(school, address);
