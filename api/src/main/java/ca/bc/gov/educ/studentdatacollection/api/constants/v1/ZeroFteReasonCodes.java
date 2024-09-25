@@ -14,7 +14,8 @@ public enum ZeroFteReasonCodes {
   NOMINAL_ROLL_ELIGIBLE("NOMROLL", "The student is Nominal Roll eligible and is federally funded."),
   IND_AUTH_DUPLICATE_FUNDING("AUTHDUP", "The authority has already received funding for the student this year."),
   GRADUATED_ADULT_IND_AUTH("INDYADULT", "The student is graduated adult reported by an independent school."),
-  DISTRICT_DUPLICATE_FUNDING("DISTDUP", "The district has already received funding for the student this year.")
+  DISTRICT_DUPLICATE_FUNDING("DISTDUP", "The district has already received funding for the student this year."),
+  NO_ONLINE_LEARNING("NOONLINE", "None of student's educational program was delivered through online learning this year.")
   ;
 
   @Getter

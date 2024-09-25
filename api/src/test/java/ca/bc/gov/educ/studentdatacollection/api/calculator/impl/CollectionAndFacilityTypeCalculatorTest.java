@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
@@ -78,7 +79,7 @@ class CollectionAndFacilityTypeCalculatorTest extends BaseStudentDataCollectionA
         BigDecimal expectedFte = new BigDecimal("0");
 
         assertEquals(expectedFte, result.getFte());
-        assertEquals("The district has already received funding for the student this year.", result.getFteZeroReason());
+        assertEquals(ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING.getCode(), result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
@@ -120,7 +121,7 @@ class CollectionAndFacilityTypeCalculatorTest extends BaseStudentDataCollectionA
         BigDecimal expectedFte = new BigDecimal("0");
 
         assertEquals(expectedFte, result.getFte());
-        assertEquals("The district has already received funding for the student this year.", result.getFteZeroReason());
+        assertEquals(ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING.getCode(), result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
@@ -161,7 +162,7 @@ class CollectionAndFacilityTypeCalculatorTest extends BaseStudentDataCollectionA
         BigDecimal expectedFte = new BigDecimal("0");
 
         assertEquals(expectedFte, result.getFte());
-        assertEquals("None of student's educational program was delivered through online learning this year.", result.getFteZeroReason());
+        assertEquals(ZeroFteReasonCodes.NO_ONLINE_LEARNING.getCode(), result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 }
