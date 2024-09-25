@@ -4,10 +4,10 @@ import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -38,7 +38,7 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
             if (includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline) {
                 log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; The district has already received funding for the student this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 fteCalculationResult.setFte(BigDecimal.ZERO);
-                fteCalculationResult.setFteZeroReason("The district has already received funding for the student this year.");
+                fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING.getCode());
             }
 
             var includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9 = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData);
@@ -47,7 +47,7 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
             if (includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9) {
                 log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; The district has already received funding for the student this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 fteCalculationResult.setFte(BigDecimal.ZERO);
-                fteCalculationResult.setFteZeroReason("The district has already received funding for the student this year.");
+                fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING.getCode());
             }
 
             //  The student was not reported in the Online School in July.
@@ -57,7 +57,7 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
                 if (!reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear) {
                     log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; None of student's educational program was delivered through online learning this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                     fteCalculationResult.setFte(BigDecimal.ZERO);
-                    fteCalculationResult.setFteZeroReason("None of student's educational program was delivered through online learning this year.");
+                    fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.NO_ONLINE_LEARNING.getCode());
                 }
             }
 
