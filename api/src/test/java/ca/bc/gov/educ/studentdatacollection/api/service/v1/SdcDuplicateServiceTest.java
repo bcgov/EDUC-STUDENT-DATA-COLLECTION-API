@@ -282,7 +282,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     val student1Entity = programDupe.get().getSdcSchoolCollectionStudent1Entity();
     val student2Entity = programDupe.get().getSdcSchoolCollectionStudent2Entity();
 
-    val resolvedDuplicate = sdcDuplicateService.softDeleteEnrollmentDuplicate(UUID.fromString(programDupe.get().getSdcDuplicateID()), student1Entity);
+    val resolvedDuplicate = sdcDuplicateService.softDeleteStudent(UUID.fromString(programDupe.get().getSdcDuplicateID()), student1Entity);
     assertThat(resolvedDuplicate.getDuplicateResolutionCode()).isEqualTo("RELEASED");
     assertThat(resolvedDuplicate.getRetainedSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().toString()).isEqualTo(student2Entity.getSdcSchoolCollectionStudentID());
 
@@ -519,7 +519,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
     assertThrows(InvalidPayloadException.class, () -> {
-      sdcDuplicateService.createSdcSchoolCollectionStudent(studentEntity);
+      sdcSchoolCollectionStudentService.createSdcSchoolCollectionStudent(studentEntity);
     }, "SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate.");
 
   }
@@ -790,7 +790,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     var sdcSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID()));
     var mockStudentEntity = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(sdcSchoolCollection));
 
-    sdcDuplicateService.softDeleteSdcSchoolCollectionStudent(mockStudentEntity.getSdcSchoolCollectionStudentID());
+    sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(mockStudentEntity.getSdcSchoolCollectionStudentID());
 
     var updatedStudentEntity = sdcSchoolCollectionStudentRepository.findById(mockStudentEntity.getSdcSchoolCollectionStudentID());
     assertThat(updatedStudentEntity.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.DELETED.toString());
@@ -801,7 +801,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     UUID sdcSchoolCollectionStudentID = UUID.randomUUID();
 
     assertThrows(EntityNotFoundException.class, () -> {
-      sdcDuplicateService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
+      sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
     });
   }
 }

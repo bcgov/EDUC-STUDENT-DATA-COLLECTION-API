@@ -46,8 +46,6 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
 
     private final SdcSchoolCollectionStudentHeadcountService sdcSchoolCollectionStudentHeadcountService;
 
-    private final SdcDuplicatesService sdcDuplicatesService;
-
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
     private static final SdcSchoolCollectionStudentMapper mapper = SdcSchoolCollectionStudentMapper.mapper;
@@ -97,25 +95,19 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
         ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
          if(StringUtils.isNotBlank(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())) {
              RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
-            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcDuplicatesService.updateSdcSchoolCollectionStudent
+            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent
                     (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
         } else {
              RequestUtil.setAuditColumnsForCreate(sdcSchoolCollectionStudent);
-            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcDuplicatesService.createSdcSchoolCollectionStudent
+            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.createSdcSchoolCollectionStudent
                     (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
         }
 
     }
 
     @Override
-    public SdcSchoolCollectionStudent deleteSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID) {
-        SdcSchoolCollectionStudentEntity softDeletedSdcSchoolCollectionStudent = this.sdcDuplicatesService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
-        return mapper.toSdcSchoolStudent(softDeletedSdcSchoolCollectionStudent);
-    }
-
-    @Override
-    public List<SdcSchoolCollectionStudent> softDeleteSdcSchoolCollectionStudents(List<UUID> sdcStudentIDs) {
-        return this.sdcDuplicatesService.softDeleteSdcSchoolCollectionStudents(sdcStudentIDs).stream().map(mapper::toSdcSchoolStudent).toList();
+    public List<SdcSchoolCollectionStudent> softDeleteSdcSchoolCollectionStudents(SoftDeleteRecordSet softDeleteRecordSet) {
+        return this.sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudents(softDeleteRecordSet).stream().map(mapper::toSdcSchoolStudent).toList();
     }
 
     @Override

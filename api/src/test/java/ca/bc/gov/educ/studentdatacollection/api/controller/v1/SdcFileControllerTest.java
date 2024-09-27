@@ -58,6 +58,9 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   SdcSchoolCollectionStudentRepository schoolStudentRepository;
 
   @Autowired
+  SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+
+  @Autowired
   SdcDuplicateRepository sdcDuplicateRepository;
 
   @Autowired
@@ -537,7 +540,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       this.schoolStudentRepository.save(sdcSchoolCollectionStudentEntity);
     });
 
-    sdcDuplicatesService.softDeleteSdcSchoolCollectionStudent(students.get(0).getSdcSchoolCollectionStudentID());
+    sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudent(students.get(0).getSdcSchoolCollectionStudentID());
 
     var studentsAfterDelete = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     var deletedStudent = studentsAfterDelete.stream().filter(student -> student.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase("DELETED"));

@@ -42,9 +42,9 @@ public class SdcDuplicateStudentEntity {
   private SdcDuplicateEntity sdcDuplicateEntity;
 
   @ToString.Exclude
-  @ManyToOne(optional = false, targetEntity = SdcSchoolCollectionStudentEntity.class)
+  @ManyToOne(optional = false, targetEntity = SdcSchoolCollectionStudentLightEntity.class)
   @JoinColumn(name = "SDC_SCHOOL_COLLECTION_STUDENT_ID", referencedColumnName = "SDC_SCHOOL_COLLECTION_STUDENT_ID", updatable = false)
-  SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity;
+  SdcSchoolCollectionStudentLightEntity sdcSchoolCollectionStudentEntity;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;

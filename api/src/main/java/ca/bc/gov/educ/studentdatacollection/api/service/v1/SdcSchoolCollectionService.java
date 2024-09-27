@@ -300,7 +300,7 @@ public class SdcSchoolCollectionService {
     currentSchoolCollectionEntity.setUpdateUser(updateUser);
 
     saveSdcSchoolCollectionWithHistory(currentSchoolCollectionEntity);
-    sdcSchoolCollectionStudentService.saveAllSdcStudentWithHistory(currentSchoolCollectionEntity.getSDCSchoolStudentEntities().stream().toList());
+    sdcSchoolCollectionStudentService.saveAllSDCStudentsWithHistory(currentSchoolCollectionEntity.getSDCSchoolStudentEntities().stream().toList());
   }
 
   public SdcSchoolCollectionEntity saveSdcSchoolCollectionWithHistory(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
