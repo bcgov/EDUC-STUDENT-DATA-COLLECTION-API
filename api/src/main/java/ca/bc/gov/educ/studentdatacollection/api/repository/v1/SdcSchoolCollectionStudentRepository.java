@@ -1404,108 +1404,236 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   @Query(value = """
           SELECT
           sscs.sdcSchoolCollection.schoolID as schoolID,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' THEN 1 END) as khTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS khRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KH' THEN sscs.sdcSchoolCollectionStudentID END) as khTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS khRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KH' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS khEllCount,
          
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '01' THEN 1 END) as gradeOneTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeOneRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '01' THEN sscs.sdcSchoolCollectionStudentID END) as gradeOneTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeOneRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '01' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS gradeOneEllCount,
          
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '02' THEN 1 END) as gradeTwoTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeTwoRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '02' THEN sscs.sdcSchoolCollectionStudentID END) as gradeTwoTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeTwoRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '02' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS gradeTwoEllCount,
           
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '03' THEN 1 END) as gradeThreeTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeThreeRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '03' THEN sscs.sdcSchoolCollectionStudentID END) as gradeThreeTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeThreeRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '03' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS gradeThreeEllCount,
           
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '04' THEN 1 END) as gradeFourTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeFourRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '04' THEN sscs.sdcSchoolCollectionStudentID END) as gradeFourTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeFourRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '04' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS gradeFourEllCount,
           
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '05' THEN 1 END) as gradeFiveTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeFiveRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '05' THEN sscs.sdcSchoolCollectionStudentID END) as gradeFiveTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeFiveRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '05' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS gradeFiveEllCount,
           
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '06' THEN 1 END) as gradeSixTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeSixRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '06' THEN sscs.sdcSchoolCollectionStudentID END) as gradeSixTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeSixRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '06' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS gradeSixEllCount,
           
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '07' THEN 1 END) as gradeSevenTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeSevenRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '07' THEN sscs.sdcSchoolCollectionStudentID END) as gradeSevenTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeSevenRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '07' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS gradeSevenEllCount,
           
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '08' THEN 1 END) as gradeEightTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeEightRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '08' THEN sscs.sdcSchoolCollectionStudentID END) as gradeEightTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeEightRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '08' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS gradeEightEllCount,
           
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '09' THEN 1 END) as gradeNineTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeNineRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '09' THEN sscs.sdcSchoolCollectionStudentID END) as gradeNineTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeNineRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '09' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS gradeNineEllCount,
           
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '10' THEN 1 END) as gradeTenTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeTenRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '10' THEN sscs.sdcSchoolCollectionStudentID END) as gradeTenTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeTenRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '10' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS gradeTenEllCount,
           
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '11' THEN 1 END) as gradeElevenTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeElevenRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '11' THEN sscs.sdcSchoolCollectionStudentID END) as gradeElevenTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeElevenRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '11' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS gradeElevenEllCount,
           
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '12' THEN 1 END) as gradeTwelveTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeTwelveRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '12' THEN sscs.sdcSchoolCollectionStudentID END) as gradeTwelveTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeTwelveRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '12' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS gradeTwelveEllCount,
           
-          COUNT(CASE WHEN sscs.enrolledGradeCode = 'EU' THEN 1 END) as gradeEuTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeEuRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'EU' THEN sscs.sdcSchoolCollectionStudentID END) as gradeEuTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeEuRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'EU' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS gradeEuEllCount,
           
-          COUNT(CASE WHEN sscs.enrolledGradeCode = 'SU' THEN 1 END) as gradeSuTotalCount,
-          COUNT(CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeSuRefugeeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'SU' THEN sscs.sdcSchoolCollectionStudentID END) as gradeSuTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.schoolFundingCode = '16' THEN sscs.sdcSchoolCollectionStudentID ELSE NULL END) AS gradeSuRefugeeCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'SU' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) AS gradeSuEllCount,
           
-
-          COUNT(CASE WHEN sscs.isAdult = true AND sscs.isGraduated = true THEN 1 END) as gradAdultCount,
-          COUNT(CASE WHEN sscs.isAdult = true AND sscs.isGraduated = false THEN 1 END) as nonGradAdultCount,
+          COUNT(DISTINCT CASE WHEN sscs.isAdult = true AND sscs.isGraduated = true THEN sscs.sdcSchoolCollectionStudentID END) as gradAdultCount,
+          COUNT(DISTINCT CASE WHEN sscs.isAdult = true AND sscs.isGraduated = false THEN sscs.sdcSchoolCollectionStudentID END) as nonGradAdultCount,
           
-          SUM(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as khTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as khRefugeeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeOneTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeOneRefugeeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeTwoTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeTwoRefugeeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeThreeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeThreeRefugeeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeFourTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeFourRefugeeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeFiveTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeFiveRefugeeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeSixTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeSixRefugeeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeSevenTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeSevenRefugeeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeEightTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeEightRefugeeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeNineTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeNineRefugeeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeTenTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeTenRefugeeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeElevenTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeElevenRefugeeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeTwelveTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeTwelveRefugeeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeEuTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeEuRefugeeTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeSuTotalFte,
-          SUM(CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.schoolFundingCode = '16' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradeSuRefugeeTotalFte,
-          SUM(CASE WHEN sscs.isAdult = true AND sscs.isGraduated = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as gradAdultTotalFte,
-          SUM(CASE WHEN sscs.isAdult = true AND sscs.isGraduated = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as nonGradAdultTotalFte
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = 'KH' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as khTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = 'KH' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED'))
+          as khRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '01' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeOneTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '01' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeOneRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '02' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END )  FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeTwoTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '02' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END )  FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeTwoRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '03' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeThreeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '03' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeThreeRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '04' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeFourTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '04' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeFourRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '05' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeFiveTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '05' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeFiveRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '06' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeSixTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '06' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeSixRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '07' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeSevenTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '07' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeSevenRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '08' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeEightTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '08' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeEightRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '09' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeNineTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '09' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeNineRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '10' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeTenTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '10' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeTenRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '11' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeElevenTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '11' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeElevenRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '12' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeTwelveTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = '12' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeTwelveRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = 'EU' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeEuTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = 'EU' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeEuRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = 'SU' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeSuTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = 'SU' AND s.schoolFundingCode = '16' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradeSuRefugeeTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.isAdult = true AND s.isGraduated = true AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as gradAdultTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.isAdult = true AND s.isGraduated = false AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as nonGradAdultTotalFte
+          
           FROM SdcSchoolCollectionStudentEntity sscs
           LEFT JOIN sscs.sdcStudentEnrolledProgramEntities ep
           WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
           AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
           AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is not null
-          GROUP BY sscs.sdcSchoolCollection.schoolID""")
+          GROUP BY sscs.sdcSchoolCollection.schoolID, sscs.sdcSchoolCollection.sdcSchoolCollectionID""")
   List<EnrolmentHeadcountFteResult> getEnrolmentHeadcountsAndFteWithRefugeeByCollectionId(@Param("collectionID") UUID collectionID);
 
   @Query("SELECT " +
