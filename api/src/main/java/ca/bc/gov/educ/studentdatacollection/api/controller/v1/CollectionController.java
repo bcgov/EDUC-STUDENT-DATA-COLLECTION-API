@@ -129,6 +129,10 @@ public class CollectionController implements CollectionEndpoint {
   public List<String> findDuplicatesInCollection(UUID collectionID, List<String> matchedAssignedIDs) {
     return this.collectionService.findDuplicatesInCollection(collectionID, matchedAssignedIDs);
   }
+  @Override
+  public UnresolvedDuplicatesCheckReponse checkForUnresolvedNonAllowableDuplicatesByCollectionID(UUID collectionID) {
+    return UnresolvedDuplicatesCheckReponse.builder().hasUnresolvedDuplicates(!sdcDuplicatesService.unresolvedNonAllowableDuplicatesByCollectionID(collectionID).isEmpty()).build();
+  }
 
   private void validatePayload(Supplier<List<FieldError>> validator) {
     val validationResult = validator.get();

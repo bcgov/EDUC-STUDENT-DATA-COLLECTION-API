@@ -127,6 +127,11 @@ public class SdcDuplicatesService {
     return sdcDuplicateRepository.findAllDuplicatesByCollectionIDAndDuplicateLevelCode(collectionID, "PROVINCIAL");
   }
 
+  public List<SdcDuplicateEntity> unresolvedNonAllowableDuplicatesByCollectionID(UUID collectionID) {
+    CollectionEntity collectionEntity = collectionRepository.findById(collectionID).orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "CollectionID", collectionID.toString()));
+    return sdcDuplicateRepository.findAllUnresolvedNonAllowableDuplicatesByCollectionID(collectionEntity.getCollectionID());
+  }
+
   public List<SdcDuplicateEntity> getAllProvincialDuplicatesBySdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
     return sdcDuplicateRepository.findAllBySdcDuplicateStudentEntities_SdcDistrictCollectionIDAndDuplicateLevelCode(sdcDistrictCollectionID, DuplicateLevelCode.PROVINCIAL.getCode());
   }

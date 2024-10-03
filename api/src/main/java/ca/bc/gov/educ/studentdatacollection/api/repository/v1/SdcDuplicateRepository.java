@@ -91,6 +91,14 @@ public interface SdcDuplicateRepository extends JpaRepository<SdcDuplicateEntity
 
     List<SdcDuplicateEntity> findAllDuplicatesByCollectionIDAndDuplicateLevelCode(UUID collectionID, String duplicateLevelCode);
 
+    @Query("""
+        SELECT sde FROM SdcDuplicateEntity sde
+        WHERE sde.collectionID = :collectionID
+        and sde.duplicateResolutionCode is null
+        and sde.duplicateSeverityCode = 'NON_ALLOW'
+        """)
+    List<SdcDuplicateEntity> findAllUnresolvedNonAllowableDuplicatesByCollectionID(UUID collectionID);
+
     List<SdcDuplicateEntity> findAllBySdcDuplicateStudentEntities_SdcDistrictCollectionIDAndDuplicateLevelCode(UUID sdcDistrictCollectionID, String duplicateLevelCode);
 
     List<SdcDuplicateEntity> findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionIDAndDuplicateLevelCode(UUID sdcSchoolCollectionID, String duplicateLevelCode);

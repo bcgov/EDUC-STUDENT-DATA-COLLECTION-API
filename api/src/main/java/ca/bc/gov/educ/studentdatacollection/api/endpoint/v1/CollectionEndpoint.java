@@ -98,6 +98,11 @@ public interface CollectionEndpoint {
   @Tag(name = "Collection Entity", description = "Endpoints to find duplicates in collection.")
   List<String> findDuplicatesInCollection(@PathVariable("collectionID") UUID collectionID, @RequestParam("matchedAssignedIDs") List<String> matchedAssignedIDs);
 
+  @GetMapping("/{collectionID}/duplicates/unresolved")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  UnresolvedDuplicatesCheckReponse checkForUnresolvedNonAllowableDuplicatesByCollectionID(@PathVariable UUID collectionID);
+
   @PostMapping("/close-collection")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")
   @ApiResponses(value = {@ApiResponse(responseCode = "202", description = "ACCEPTED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST."), @ApiResponse(responseCode = "409", description = "CONFLICT.")})
