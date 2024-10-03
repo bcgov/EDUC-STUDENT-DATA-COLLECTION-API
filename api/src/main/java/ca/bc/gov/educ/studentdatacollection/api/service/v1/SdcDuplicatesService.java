@@ -119,7 +119,7 @@ public class SdcDuplicatesService {
     return sdcDuplicateEntity.orElseThrow(() -> new EntityNotFoundException(SdcDuplicateEntity.class, SDC_DUPLICATE_ID_KEY, sdcDuplicateID.toString()));
   }
 
-  public void generateAllowableDuplicatesOrElseThrow(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity, boolean checkForNewNonAllowableDups){
+  public void generateAllowableDuplicatesOrElseThrow(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity, boolean isCollectionInProvDupes){
     List<SdcSchoolCollectionStudentEntity> allStudentsWithSameAssignedStudentId = sdcSchoolCollectionStudentRepository
             .findAllDuplicateStudentsByCollectionID(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID(), Collections.singletonList(sdcSchoolCollectionStudentEntity.getAssignedStudentId()));
 
@@ -134,7 +134,7 @@ public class SdcDuplicatesService {
             (duplicate.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode()) &&
             duplicate.getDuplicateTypeCode().equals(DuplicateTypeCode.ENROLLMENT.getCode())) || duplicate.getDuplicateTypeCode().equals(DuplicateTypeCode.PROGRAM.getCode())).toList();
 
-    if(!nonAllowableOrProgramDupes.isEmpty() && checkForNewNonAllowableDups) {
+    if(!nonAllowableOrProgramDupes.isEmpty() && isCollectionInProvDupes) {
       log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate on save :: {}", sdcSchoolCollectionStudentEntity.getAssignedStudentId());
       throw new InvalidPayloadException(createDuplicatesThrow(sdcSchoolCollectionStudentEntity.getAssignedPen()));
     }
@@ -173,7 +173,7 @@ public class SdcDuplicatesService {
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
-  public void deleteAllDuplicatesForStudent(UUID sdcSchoolCollectionStudentID ) {
+  public void deleteAllDuplicatesForStudent(UUID sdcSchoolCollectionStudentID) {
     sdcDuplicateRepository.deleteAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
   }
 
