@@ -131,7 +131,7 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
 
     when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
 
-    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/" + programDupe.get().getSdcDuplicateID() + "/type/PROGRAM")
+    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/type/PROGRAM")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
@@ -242,7 +242,7 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
     List<SdcSchoolCollectionStudent> students = new ArrayList();
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
 
-    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/" + programDupe.get().getSdcDuplicateID() + "/type/CHANGE_GRADE")
+    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/type/CHANGE_GRADE")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
@@ -295,7 +295,7 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
 
-    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/" + programDupe.get().getSdcDuplicateID() + "/type/DELETE_ENROLLMENT_DUPLICATE")
+    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/type/DELETE_ENROLLMENT_DUPLICATE")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
@@ -354,7 +354,7 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
 
-    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/" + programDupe.get().getSdcDuplicateID() + "/type/CHANGE_GRADE")
+    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/type/CHANGE_GRADE")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))

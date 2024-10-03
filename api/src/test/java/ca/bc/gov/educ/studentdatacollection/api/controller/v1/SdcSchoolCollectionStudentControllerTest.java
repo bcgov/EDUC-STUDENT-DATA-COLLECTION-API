@@ -4425,6 +4425,11 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(toStudent);
 
         SdcSchoolCollectionStudentEntity studentEntity = new SdcSchoolCollectionStudentEntity();
+        var collection = createMockCollectionEntity();
+        collectionRepository.save(collection);
+        var sdcSchoolCollection = createMockSdcSchoolCollectionEntity(collection,UUID.randomUUID());
+        sdcSchoolCollectionRepository.save(sdcSchoolCollection);
+        studentEntity.setSdcSchoolCollection(sdcSchoolCollection);
         studentEntity.setAssignedStudentId(UUID.randomUUID()); // some existing ID
         studentEntity.setAssignedPen(fromPen);
         studentEntity = sdcSchoolCollectionStudentRepository.save(studentEntity);

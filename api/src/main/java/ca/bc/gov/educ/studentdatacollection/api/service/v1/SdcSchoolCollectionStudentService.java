@@ -378,7 +378,7 @@ public class SdcSchoolCollectionStudentService {
     return sdcSchoolCollectionStudentStorageService.saveAllSDCStudentsWithHistory(sdcSchoolCollectionStudentEntities);
   }
 
-  @Transactional(propagation = Propagation.MANDATORY)
+  @Transactional(propagation = Propagation.REQUIRED)
   public SdcSchoolCollectionStudentEntity markStudentSoftDeletedOnly(SdcSchoolCollectionStudent studentToMarkDeleted) {
     var studentID = UUID.fromString(studentToMarkDeleted.getSdcSchoolCollectionStudentID());
 
