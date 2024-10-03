@@ -43,6 +43,7 @@ public class SdcDuplicateResolutionService {
   private static final SdcSchoolCollectionStudentMapper sdcSchoolCollectionStudentMapper = SdcSchoolCollectionStudentMapper.mapper;
   private final RestUtils restUtils;
   private static final String SDC_DUPLICATE_ID_KEY = "sdcDuplicateID";
+  private static final String SDC_SCHOOL_COLLECTION_STUDENT_STRING = "SdcSchoolCollectionStudentEntity";
   private static final String COLLECTION_ID_NOT_ACTIVE_MSG = "Provided collectionID does not match currently active collectionID.";
   private static final List<String> independentSchoolCategoryCodes = Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode());
 
@@ -161,6 +162,17 @@ public class SdcDuplicateResolutionService {
         sdcDuplicateRepository.save(dupe);
       }
     });
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void changeGrade(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudent) {
+    var curStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
+            new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID().toString()));
+
+    curStudentEntity.setEnrolledGradeCode(sdcSchoolCollectionStudent.getEnrolledGradeCode());
+    sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(curStudentEntity);
+
+    sdcDuplicatesService.resolveAllExistingDuplicatesForType(curStudentEntity, DuplicateResolutionCode.GRADE_CHNG);
   }
 
   public SdcSchoolCollectionStudentLightEntity identifyStudentToEdit(SdcSchoolCollectionStudentLightEntity student1, SdcSchoolCollectionStudentLightEntity student2, SchoolTombstone school1, SchoolTombstone school2){

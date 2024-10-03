@@ -195,14 +195,14 @@ public class SdcDuplicatesService {
     });
   }
 
-  @Transactional(propagation = Propagation.REQUIRED)
+  @Transactional(propagation = Propagation.MANDATORY)
   public void resolveAllExistingDuplicatesForType(SdcSchoolCollectionStudentEntity curStudentEntity, DuplicateResolutionCode resolutionCode){
     List<SdcDuplicateEntity> existingStudentDuplicates = sdcDuplicateRepository.findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentID(curStudentEntity.getSdcSchoolCollectionStudentID());
     existingStudentDuplicates.forEach(dupe -> {
       Optional<SdcDuplicateStudentEntity> otherStudent = dupe.getSdcDuplicateStudentEntities().stream().filter(dupeStd -> dupeStd.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID() != curStudentEntity.getSdcSchoolCollectionStudentID()).findFirst();
       var studentDupes = runDuplicatesCheck(DuplicateLevelCode.PROVINCIAL, sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(curStudentEntity), otherStudent.get().getSdcSchoolCollectionStudentEntity(), true);
-      if(dupe.getDuplicateTypeCode().equals(DuplicateTypeCode.ENROLLMENT.getCode()) && dupe.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode())){
-        if (studentDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
+      if (studentDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
+        if(dupe.getDuplicateTypeCode().equals(DuplicateTypeCode.ENROLLMENT.getCode()) && dupe.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode())){
           if(StringUtils.isNotBlank(dupe.getDuplicateResolutionCode())){
             //CONFIRM THIS WITH ANNA
             sdcDuplicateRepository.delete(dupe);
@@ -218,11 +218,11 @@ public class SdcDuplicatesService {
               }
             });
           }
+        }else if(dupe.getDuplicateTypeCode().equals(DuplicateTypeCode.PROGRAM.getCode()) && studentDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
+          dupe.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
+          dupe.setRetainedSdcSchoolCollectionStudentEntity(otherStudent.get().getSdcSchoolCollectionStudentEntity());
+          sdcDuplicateRepository.save(dupe);
         }
-      }else if(dupe.getDuplicateTypeCode().equals(DuplicateTypeCode.PROGRAM.getCode()) && studentDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
-        dupe.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
-        dupe.setRetainedSdcSchoolCollectionStudentEntity(otherStudent.get().getSdcSchoolCollectionStudentEntity());
-        sdcDuplicateRepository.save(dupe);
       }
     });
   }

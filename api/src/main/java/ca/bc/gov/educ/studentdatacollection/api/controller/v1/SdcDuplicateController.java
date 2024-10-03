@@ -43,12 +43,12 @@ public class SdcDuplicateController implements SdcDuplicateEndpoint {
   }
 
   @Override
-  public SdcDuplicate updateStudentAndResolveDuplicates(String duplicateTypeResolutionCode, UUID sdcDuplicateID, List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent) {
-    sdcSchoolCollectionStudent.forEach(student -> ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(student)));
+  public SdcDuplicate updateStudentAndResolveDuplicates(String duplicateTypeResolutionCode, List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudents) {
+    sdcSchoolCollectionStudents.forEach(student -> ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(student)));
     if (DuplicateTypeResolutionCode.PROGRAM.getCode().equalsIgnoreCase(duplicateTypeResolutionCode)) {
-      sdcDuplicateResolutionService.updateStudentAndResolveProgramDuplicates(sdcSchoolCollectionStudent);
-    } else if (DuplicateTypeResolutionCode.CHANGE_GRADE.getCode().equalsIgnoreCase(duplicateTypeResolutionCode) && sdcSchoolCollectionStudent.size() == 1) {
-      sdcSchoolCollectionStudentService.changeGrade(studentMapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent.get(0)));
+      sdcDuplicateResolutionService.updateStudentAndResolveProgramDuplicates(sdcSchoolCollectionStudents);
+    } else if (DuplicateTypeResolutionCode.CHANGE_GRADE.getCode().equalsIgnoreCase(duplicateTypeResolutionCode) && sdcSchoolCollectionStudents.size() == 1) {
+      sdcDuplicateResolutionService.changeGrade(studentMapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudents.get(0)));
     }
     return null;
   }

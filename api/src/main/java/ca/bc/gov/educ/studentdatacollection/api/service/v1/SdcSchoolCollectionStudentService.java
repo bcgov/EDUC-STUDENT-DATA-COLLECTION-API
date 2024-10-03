@@ -70,8 +70,6 @@ public class SdcSchoolCollectionStudentService {
 
   private final SdcSchoolCollectionStudentValidationIssueRepository sdcStudentValidationErrorRepository;
 
-  private final ValidationRulesService validationRulesService;
-
   private final RestUtils restUtils;
 
   private static SdcStudentEllMapper sdcStudentEllMapper = SdcStudentEllMapper.mapper;
@@ -377,15 +375,15 @@ public class SdcSchoolCollectionStudentService {
       sdcSchoolCollectionStudentEntity.setAssignedStudentId(UUID.fromString(toStudent.getStudentID()));
       sdcSchoolCollectionStudentEntity.setAssignedPen(toStudent.getPen());
     });
-    return sdcSchoolCollectionStudentRepository.saveAll(sdcSchoolCollectionStudentEntities);
+    return sdcSchoolCollectionStudentStorageService.saveAllSDCStudentsWithHistory(sdcSchoolCollectionStudentEntities);
   }
 
-  @Transactional(propagation = Propagation.REQUIRED)
+  @Transactional(propagation = Propagation.MANDATORY)
   public SdcSchoolCollectionStudentEntity markStudentSoftDeletedOnly(SdcSchoolCollectionStudent studentToMarkDeleted) {
     var studentID = UUID.fromString(studentToMarkDeleted.getSdcSchoolCollectionStudentID());
 
     var sdcSchoolCollectionStudentEntity = sdcSchoolCollectionStudentRepository.findById(studentID).orElseThrow(() ->
-            new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, studentID.toString()));;
+            new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, studentID.toString()));
 
     this.sdcStudentValidationErrorRepository.deleteSdcStudentValidationErrors(studentID);
     sdcSchoolCollectionStudentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.DELETED.toString());
@@ -394,7 +392,7 @@ public class SdcSchoolCollectionStudentService {
     return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(sdcSchoolCollectionStudentEntity);
   }
 
-  @Transactional(propagation = Propagation.REQUIRED)
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public List<SdcSchoolCollectionStudentEntity> softDeleteSdcSchoolCollectionStudents(SoftDeleteRecordSet softDeleteRecordSet) {
     List<SdcSchoolCollectionStudentEntity> sdcSchoolCollectionStudentEntities = sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollectionStudentIDIn(softDeleteRecordSet.getSoftDeleteStudentIDs());
 
@@ -450,17 +448,6 @@ public class SdcSchoolCollectionStudentService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void changeGrade(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudent) {
-    var curStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
-            new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID().toString()));
-
-    curStudentEntity.setEnrolledGradeCode(sdcSchoolCollectionStudent.getEnrolledGradeCode());
-    sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(curStudentEntity);
-
-    sdcDuplicatesService.resolveAllExistingDuplicatesForType(curStudentEntity, DuplicateResolutionCode.GRADE_CHNG);
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public SdcSchoolCollectionStudentEntity updateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity){
     var activeCollection = collectionRepository.findActiveCollection().orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "collectionID", "activeCollection"));
     var isCollectionInProvDupes = isCollectionInProvDupes(activeCollection);
@@ -507,28 +494,5 @@ public class SdcSchoolCollectionStudentService {
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, studentEntity.getSdcSchoolCollectionStudentID().toString());
     }
-  }
-
-  @Transactional(propagation = Propagation.REQUIRED)
-  public SdcSchoolCollectionStudentLightEntity removeDupeProgram(SdcSchoolCollectionStudentLightEntity student, String programDuplicateTypeCode){
-    List<String> enrolledPrograms = new ArrayList<>(validationRulesService.splitEnrolledProgramsString(student.getEnrolledProgramCodes()));
-
-    if (Objects.equals(programDuplicateTypeCode, ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramDuplicateTypeCode.CAREER.getCode())){
-      List<String> studentCareerProgramCodes = EnrolledProgramCodes.getCareerProgramCodes().stream().filter(enrolledPrograms::contains).toList();
-      enrolledPrograms.removeAll(studentCareerProgramCodes);
-      student.setCareerProgramCode(null);
-    } else if (Objects.equals(programDuplicateTypeCode, ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramDuplicateTypeCode.INDIGENOUS.getCode())){
-      List<String> studentIndigenousProgramCodes = EnrolledProgramCodes.getIndigenousProgramCodes().stream().filter(enrolledPrograms::contains).toList();
-      enrolledPrograms.removeAll(studentIndigenousProgramCodes);
-    } else if (Objects.equals(programDuplicateTypeCode, ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramDuplicateTypeCode.LANGUAGE.getCode())){
-      List<String> studentLanguageProgramCodes = EnrolledProgramCodes.getFrenchProgramCodesWithEll().stream().filter(enrolledPrograms::contains).toList();
-      enrolledPrograms.removeAll(studentLanguageProgramCodes);
-    } else if (Objects.equals(programDuplicateTypeCode, ProgramDuplicateTypeCode.SPECIAL_ED.getCode())){
-      enrolledPrograms.remove(student.getSpecialEducationCategoryCode());
-      student.setSpecialEducationCategoryCode(null);
-    }
-
-    student.setEnrolledProgramCodes(String.join("", enrolledPrograms));
-    return student;
   }
 }
