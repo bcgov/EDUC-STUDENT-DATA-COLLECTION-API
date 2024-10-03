@@ -126,7 +126,9 @@ public class SdcDuplicatesService {
     List<SdcSchoolCollectionStudentLightEntity> duplicateStudentEntities = new ArrayList<>();
     //map to light object
     duplicateStudentEntities.addAll(allStudentsWithSameAssignedStudentId.stream().map(sdcSchoolCollectionStudentMapper::toSdcSchoolStudentLightEntity).toList());
-    duplicateStudentEntities.add(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(sdcSchoolCollectionStudentEntity));
+    if(sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID() == null) {
+      duplicateStudentEntities.add(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(sdcSchoolCollectionStudentEntity));
+    }
     //Generate new PROV dupes
     List<SdcDuplicateEntity> generatedDuplicates = generateFinalDuplicatesSet(duplicateStudentEntities, DuplicateLevelCode.PROVINCIAL, false);
     //Check if we have any non-allowable or program dupes created
