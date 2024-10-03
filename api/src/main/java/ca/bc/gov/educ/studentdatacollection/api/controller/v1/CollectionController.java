@@ -15,10 +15,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEn
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.CloseCollectionOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.CollectionSearchService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.CollectionService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.CollectionSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
@@ -58,15 +55,17 @@ public class CollectionController implements CollectionEndpoint {
   private final CollectionPayloadValidator collectionPayloadValidator;
   private final CollectionService collectionService;
   private final SdcDuplicatesService sdcDuplicatesService;
+  private final SdcDuplicateResolutionService sdcDuplicateResolutionService;
   private final CloseCollectionOrchestrator closeCollectionOrchestrator;
   private final SagaService sagaService;
   private final CollectionSearchService collectionSearchService;
 
   @Autowired
-  public CollectionController(final CollectionService collectionService, final CollectionPayloadValidator collectionPayloadValidator, final SdcDuplicatesService sdcDuplicatesService, CloseCollectionOrchestrator closeCollectionOrchestrator, SagaService sagaService, CollectionSearchService collectionSearchService) {
+  public CollectionController(final CollectionService collectionService, final CollectionPayloadValidator collectionPayloadValidator, final SdcDuplicatesService sdcDuplicatesService, SdcDuplicateResolutionService sdcDuplicateResolutionService, CloseCollectionOrchestrator closeCollectionOrchestrator, SagaService sagaService, CollectionSearchService collectionSearchService) {
     this.collectionService = collectionService;
     this.sdcDuplicatesService = sdcDuplicatesService;
     this.collectionPayloadValidator = collectionPayloadValidator;
+    this.sdcDuplicateResolutionService = sdcDuplicateResolutionService;
     this.closeCollectionOrchestrator = closeCollectionOrchestrator;
     this.sagaService = sagaService;
     this.collectionSearchService = collectionSearchService;
@@ -165,7 +164,7 @@ public class CollectionController implements CollectionEndpoint {
   }
   @Override
   public ResponseEntity<Void> resolveRemainingDuplicates(UUID collectionID){
-    this.sdcDuplicatesService.resolveRemainingDuplicates(collectionID);
+    this.sdcDuplicateResolutionService.resolveRemainingDuplicates(collectionID);
     return ResponseEntity.ok().build();
   }
 
