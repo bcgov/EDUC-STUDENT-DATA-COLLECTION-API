@@ -280,23 +280,23 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     val sdcDuplicates = sdcDuplicateService.getAllInDistrictCollectionDuplicates(sdcDistrictCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
 
     assertThat(sdcDuplicates).hasSize(1);
-    val programDupe = sdcDuplicates.stream().filter(duplicate -> duplicate.getDuplicateTypeCode().equalsIgnoreCase("ENROLLMENT")).findFirst();
-    val student1Entity = programDupe.get().getSdcSchoolCollectionStudent1Entity();
-    val student2Entity = programDupe.get().getSdcSchoolCollectionStudent2Entity();
+    val enrollmentDupe = sdcDuplicates.stream().filter(duplicate -> duplicate.getDuplicateTypeCode().equalsIgnoreCase("ENROLLMENT")).findFirst();
+    val student1Entity = enrollmentDupe.get().getSdcSchoolCollectionStudent1Entity();
+    val student2Entity = enrollmentDupe.get().getSdcSchoolCollectionStudent2Entity();
 
     SoftDeleteRecordSet softDeleteRecordSet = new SoftDeleteRecordSet();
     softDeleteRecordSet.setSoftDeleteStudentIDs(Arrays.asList(UUID.fromString(student1Entity.getSdcSchoolCollectionStudentID())));
     softDeleteRecordSet.setUpdateUser("ABC");
 
     sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudents(softDeleteRecordSet);
-    val resolvedDuplicate = sdcDuplicateRepository.findBySdcDuplicateID(UUID.fromString(programDupe.get().getSdcDuplicateID()));
+    val resolvedDuplicate = sdcDuplicateRepository.findBySdcDuplicateID(UUID.fromString(enrollmentDupe.get().getSdcDuplicateID()));
     assertThat(resolvedDuplicate.get().getDuplicateResolutionCode()).isEqualTo("RELEASED");
     assertThat(resolvedDuplicate.get().getRetainedSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().toString()).isEqualTo(student2Entity.getSdcSchoolCollectionStudentID());
 
     val deletedStudent = sdcSchoolCollectionStudentRepository.findById(UUID.fromString(student1Entity.getSdcSchoolCollectionStudentID()));
     assertThat(deletedStudent.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo("DELETED");
 
-    val duplicate = sdcDuplicateRepository.findBySdcDuplicateID(UUID.fromString(programDupe.get().getSdcDuplicateID()));
+    val duplicate = sdcDuplicateRepository.findBySdcDuplicateID(UUID.fromString(enrollmentDupe.get().getSdcDuplicateID()));
     assertThat(duplicate.get().getRetainedSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().toString()).isEqualTo(student2Entity.getSdcSchoolCollectionStudentID());
   }
 
