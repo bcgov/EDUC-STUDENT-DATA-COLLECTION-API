@@ -182,7 +182,7 @@ public class SdcDuplicatesService {
     //delete resolved enrollment dupes since both associated students have now been soft deleted
     List<SdcDuplicateEntity> studentDuplicates = sdcDuplicateRepository.findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentID(sdcSchoolCollectionStudentID);
     studentDuplicates.forEach(dupe -> {
-      Optional<SdcDuplicateStudentEntity> otherStudent = dupe.getSdcDuplicateStudentEntities().stream().filter(dupeStd -> dupeStd.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID() != sdcSchoolCollectionStudentID).findFirst();
+      Optional<SdcDuplicateStudentEntity> otherStudent = dupe.getSdcDuplicateStudentEntities().stream().filter(dupeStd -> !dupeStd.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().equals(sdcSchoolCollectionStudentID)).findFirst();
       if((StringUtils.isNotBlank(dupe.getDuplicateResolutionCode()) && dupe.getDuplicateResolutionCode().equals(DuplicateResolutionCode.RELEASED.getCode()))
               || dupe.getDuplicateTypeCode().equals(DuplicateTypeCode.PROGRAM.getCode()) ||
               (dupe.getDuplicateTypeCode().equals(DuplicateTypeCode.ENROLLMENT.getCode()) && dupe.getDuplicateSeverityCode().equals(DuplicateSeverityCode.ALLOWABLE.getCode()))){
@@ -199,7 +199,7 @@ public class SdcDuplicatesService {
   public void resolveAllExistingDuplicatesForType(SdcSchoolCollectionStudentEntity curStudentEntity, DuplicateResolutionCode resolutionCode){
     List<SdcDuplicateEntity> existingStudentDuplicates = sdcDuplicateRepository.findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentID(curStudentEntity.getSdcSchoolCollectionStudentID());
     existingStudentDuplicates.forEach(dupe -> {
-      Optional<SdcDuplicateStudentEntity> otherStudent = dupe.getSdcDuplicateStudentEntities().stream().filter(dupeStd -> dupeStd.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID() != curStudentEntity.getSdcSchoolCollectionStudentID()).findFirst();
+      Optional<SdcDuplicateStudentEntity> otherStudent = dupe.getSdcDuplicateStudentEntities().stream().filter(dupeStd -> !dupeStd.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().equals(curStudentEntity.getSdcSchoolCollectionStudentID())).findFirst();
       var studentDupes = runDuplicatesCheck(DuplicateLevelCode.PROVINCIAL, sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(curStudentEntity), otherStudent.get().getSdcSchoolCollectionStudentEntity(), true);
       if (studentDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
         if(dupe.getDuplicateTypeCode().equals(DuplicateTypeCode.ENROLLMENT.getCode()) && dupe.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode())){
