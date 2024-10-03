@@ -12,6 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SoftDeleteRecordSet;
@@ -129,7 +130,9 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
     students.add(student1Entity);
     students.add(student2Entity);
 
-    when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
+    PenMatchRecord rec = new PenMatchRecord();
+    rec.setStudentID(studentID.toString());
+    when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().penStatus("AA").matchingRecords(Arrays.asList(rec)).build());
 
     this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/type/PROGRAM")
             .with(mockAuthority)
