@@ -268,6 +268,17 @@ public class FteCalculatorUtils {
         return false;
     }
 
+    public boolean reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(StudentRuleData studentRuleData) {
+        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), "3");
+
+        for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
+            if (SchoolGradeCodes.getGrades8and9().contains(studentEntity.getEnrolledGradeCode()) && !studentEntity.getFte().equals(BigDecimal.ZERO)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private LocalDate getFiscalDateFromCurrentSnapshot(LocalDate currentSnapshotDate){
         return currentSnapshotDate.minusYears(1).withMonth(9).withDayOfMonth(1);
     }
