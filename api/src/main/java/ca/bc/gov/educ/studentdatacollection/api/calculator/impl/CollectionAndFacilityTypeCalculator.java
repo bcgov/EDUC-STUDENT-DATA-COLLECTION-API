@@ -43,7 +43,7 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
 
             var includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9 = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData);
             // The student was included in any collection in this school year for the district with a non-zero FTE
-            // and was reported in  an Online school in grade K to 9.
+            // and was reported in an Online school in grade K to 9.
             if (includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9) {
                 log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; The district has already received funding for the student this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 fteCalculationResult.setFte(BigDecimal.ZERO);
@@ -59,6 +59,14 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
                     fteCalculationResult.setFte(BigDecimal.ZERO);
                     fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.NO_ONLINE_LEARNING.getCode());
                 }
+            }
+
+            // The student was not reported in grade 8 or 9 with FTE>0 in any other districts in any previous collections this school year.
+            var reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte = fteCalculatorUtils.reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData);
+            if (!reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte) {
+                log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; Student was not reported in Grade 8 or 9 outside of district this school year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+                fteCalculationResult.setFte(BigDecimal.ZERO);
+                fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.NOT_REPORTED.getCode());
             }
 
             return fteCalculationResult;
