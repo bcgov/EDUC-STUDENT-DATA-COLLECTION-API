@@ -28,7 +28,6 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
         log.debug("CollectionAndFacilityTypeCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         var isJulyCollection = FteCalculatorUtils.getCollectionTypeCode(studentData).equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode());
         var isFacilityTypeSummerSchool = studentData.getSchool().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.SUMMER.getCode());
-        var isFacilityTypeOnline = FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(studentData.getSchool().getFacilityTypeCode());
         // For July Collection and facility type different than Summer School:
         if (isJulyCollection && !isFacilityTypeSummerSchool) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
@@ -50,16 +49,14 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
                 fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING.getCode());
             }
 
-            //  The student was not reported in the Online School in July.
-            if (!isFacilityTypeOnline) {
-                var reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear = fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentData);
-                //  and was not reported in the online school in any previous collections this school year.
-                if (!reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear) {
-                    log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; None of student's educational program was delivered through online learning this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-                    fteCalculationResult.setFte(BigDecimal.ZERO);
-                    fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.NO_ONLINE_LEARNING.getCode());
-                }
+            var reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear = fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentData);
+            //  The student was not reported in the Online School in July and was not reported in the online school in any previous collections this school year.
+            if (!reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear) {
+                log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; None of student's educational program was delivered through online learning this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+                fteCalculationResult.setFte(BigDecimal.ZERO);
+                fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.NO_ONLINE_LEARNING.getCode());
             }
+
 
             // The student was not reported in grade 8 or 9 with FTE>0 in any other districts in any previous collections this school year.
             var reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte = fteCalculatorUtils.reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData);
