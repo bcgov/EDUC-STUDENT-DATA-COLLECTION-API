@@ -20,6 +20,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Stopwatch;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -622,11 +623,14 @@ public class RestUtils {
       final TypeReference<List<School>> ref = new TypeReference<>() {
       };
       val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(PAGE_SIZE.concat("=").concat("100000")).build();
+      log.info("All schools event");
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
+      log.info("All schools event response");
       if (null != responseMessage) {
+        log.info("All schools response size", responseMessage.getData().length);
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {
-        throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+        throw new StudentDataCollectionAPIRuntimeException("Null response message" + correlationID);
       }
     } catch (final Exception ex) {
       Thread.currentThread().interrupt();
