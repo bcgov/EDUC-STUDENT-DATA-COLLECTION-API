@@ -227,7 +227,7 @@ public class FteCalculatorUtils {
 
     public boolean includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(StudentRuleData studentRuleData) {
         // non-zero fte is checked in query
-        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), "3");
+        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrictWithNonZeroFte(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), "3");
 
         for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
             String schoolId = studentEntity.getSdcSchoolCollection().getSchoolID().toString();
@@ -242,7 +242,7 @@ public class FteCalculatorUtils {
 
     public boolean includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(StudentRuleData studentRuleData) {
         // non-zero fte is checked in query
-        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), "3");
+        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrictWithNonZeroFte(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), "3");
 
         for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
             String schoolId = studentEntity.getSdcSchoolCollection().getSchoolID().toString();

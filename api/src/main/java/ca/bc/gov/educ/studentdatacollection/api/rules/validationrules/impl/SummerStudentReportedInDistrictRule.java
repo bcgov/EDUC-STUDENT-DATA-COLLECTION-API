@@ -58,7 +58,7 @@ public class SummerStudentReportedInDistrictRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
         if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
-            var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionWithInSameDistrict(studentRuleData);
+            var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionInAllDistrict(studentRuleData);
             for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {
                 Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
                 if (school.isPresent()) {
