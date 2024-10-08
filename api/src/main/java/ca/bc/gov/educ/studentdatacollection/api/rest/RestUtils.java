@@ -578,7 +578,7 @@ public class RestUtils {
     try {
       writeLock.lock();
       List<School> allSchools = this.getAllSchoolList(UUID.randomUUID());
-      log.info("populateAllSchoolMap", allSchools.size());
+      log.info("populateAllSchoolMap {}", allSchools.size());
       for (val school : allSchools) {
         this.allSchoolMap.put(school.getSchoolId(), school);
       }
@@ -628,7 +628,7 @@ public class RestUtils {
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
       log.info("All schools event response");
       if (null != responseMessage) {
-        log.info("All schools response meta", responseMessage.getHeaders(), responseMessage.getSubject());
+        log.info("All schools response meta {} and {}", responseMessage.getHeaders(), responseMessage.getSubject());
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {
         throw new StudentDataCollectionAPIRuntimeException("Null response message" + correlationID);
