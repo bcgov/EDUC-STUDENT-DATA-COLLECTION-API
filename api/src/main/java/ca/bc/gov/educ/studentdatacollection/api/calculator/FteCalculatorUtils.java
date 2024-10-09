@@ -227,7 +227,7 @@ public class FteCalculatorUtils {
 
     public boolean includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(StudentRuleData studentRuleData) {
         // non-zero fte is checked in query
-        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), "3");
+        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrictWithNonZeroFte(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), "3");
 
         for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
             String schoolId = studentEntity.getSdcSchoolCollection().getSchoolID().toString();
@@ -242,7 +242,7 @@ public class FteCalculatorUtils {
 
     public boolean includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(StudentRuleData studentRuleData) {
         // non-zero fte is checked in query
-        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), "3");
+        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrictWithNonZeroFte(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), "3");
 
         for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
             String schoolId = studentEntity.getSdcSchoolCollection().getSchoolID().toString();
@@ -262,6 +262,17 @@ public class FteCalculatorUtils {
             String schoolId = studentEntity.getSdcSchoolCollection().getSchoolID().toString();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolId);
             if (school.isPresent() && FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(StudentRuleData studentRuleData) {
+        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), "3");
+
+        for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
+            if (SchoolGradeCodes.getGrades8and9().contains(studentEntity.getEnrolledGradeCode()) && !studentEntity.getFte().equals(BigDecimal.ZERO)) {
                 return true;
             }
         }

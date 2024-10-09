@@ -56,7 +56,7 @@ public class SummerStudentOnlineLearningRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         boolean isOnlineEnrolled = false;
         validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
-        if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null && !isOnlineSchool(studentRuleData.getSchool().getFacilityTypeCode())) {
+        if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
             var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionInAllDistrict(studentRuleData);
             for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {
                 Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());

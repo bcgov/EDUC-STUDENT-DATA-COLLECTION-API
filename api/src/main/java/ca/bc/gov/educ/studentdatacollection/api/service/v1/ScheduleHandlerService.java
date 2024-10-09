@@ -188,6 +188,8 @@ public class ScheduleHandlerService {
       return Collections.emptyList();
     }
 
-    return contacts.stream().map(SchoolContact::getEmail).toList();
+    return contacts.stream()
+            .filter(schoolContact -> StringUtils.isNotBlank(schoolContact.getEmail()))
+            .map(SchoolContact::getEmail).toList();
   }
 }
