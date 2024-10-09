@@ -45,6 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Stream;
 
 /**
  * This class is used for REST calls
@@ -72,6 +73,8 @@ public class RestUtils {
   private final Map<String, FacilityTypeCode> facilityTypeCodesMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
+  public static final String PAGE_SIZE_VALUE = "2500";
+  public static final String PAGE_NUMBER = "pageNumber";
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
@@ -577,8 +580,11 @@ public class RestUtils {
     val writeLock = this.allSchoolLock.writeLock();
     try {
       writeLock.lock();
-      List<School> allSchools = this.getAllSchoolList(UUID.randomUUID());
-      log.info("populateAllSchoolMap {}", allSchools.size());
+      List<School> pageOneOfSchools = this.getAllSchoolList(UUID.randomUUID(),"0");
+      List<School> pageTwoOfSchools = this.getAllSchoolList(UUID.randomUUID(), "1");
+
+      List<School> allSchools = Stream.concat(pageOneOfSchools.stream(), pageTwoOfSchools.stream()).toList();
+
       for (val school : allSchools) {
         this.allSchoolMap.put(school.getSchoolId(), school);
       }
@@ -618,20 +624,18 @@ public class RestUtils {
   }
 
   @Retryable(retryFor = {Exception.class}, noRetryFor = {StudentDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public List<School> getAllSchoolList(UUID correlationID) {
+  public List<School> getAllSchoolList(UUID correlationID, String pageNumber) {
     try {
       log.info("Calling Institute api to load all schools to memory");
       final TypeReference<List<School>> ref = new TypeReference<>() {
       };
-      val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(PAGE_SIZE.concat("=").concat("100000")).build();
-      log.info("All schools event");
+      val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(PAGE_SIZE.concat("=").concat(PAGE_SIZE_VALUE)
+              .concat("&").concat(PAGE_NUMBER).concat("=").concat(pageNumber)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
-      log.info("All schools event response");
       if (null != responseMessage) {
-        log.info("All schools response {} ", responseMessage.getData().length);
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {
-        throw new StudentDataCollectionAPIRuntimeException("Null response message" + correlationID);
+        throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
     } catch (final Exception ex) {
       Thread.currentThread().interrupt();

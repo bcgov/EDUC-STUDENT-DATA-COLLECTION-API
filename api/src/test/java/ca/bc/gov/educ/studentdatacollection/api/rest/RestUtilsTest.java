@@ -349,7 +349,7 @@ class RestUtilsTest {
                 .independentAuthorityId("Authority 2")
                 .build();
 
-        doReturn(List.of(school1, school2, school3)).when(restUtils).getAllSchoolList(any());
+        doReturn(List.of(school1, school2, school3)).when(restUtils).getAllSchoolList(any(), any());
 
         // When
         restUtils.populateAllSchoolMap();
