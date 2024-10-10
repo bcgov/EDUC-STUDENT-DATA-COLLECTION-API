@@ -427,7 +427,11 @@ public class SdcSchoolCollectionStudentService {
     var curStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
             new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, studentEntity.getSdcSchoolCollectionStudentID().toString()));
 
+    var assignedPen = curStudentEntity.getAssignedPen();
+    var assignedStudentId = curStudentEntity.getAssignedStudentId();
     curStudentEntity.setPenMatchResult(IN_REVIEW);
+    curStudentEntity.setUnderReviewAssignedPen(assignedPen);
+    curStudentEntity.setUnderReviewAssignedStudentId(assignedStudentId);
     curStudentEntity.setAssignedStudentId(null);
     curStudentEntity.setAssignedPen(null);
 

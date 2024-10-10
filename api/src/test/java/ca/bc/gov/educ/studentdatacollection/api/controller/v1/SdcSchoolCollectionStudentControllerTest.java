@@ -2500,6 +2500,8 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var studentEntity = curStudentEntity.get();
         assertThat(studentEntity.getAssignedStudentId()).isNull();
         assertThat(studentEntity.getAssignedPen()).isNull();
+        assertThat(studentEntity.getUnderReviewAssignedPen()).isEqualTo(entity.getAssignedPen());
+        assertThat(studentEntity.getUnderReviewAssignedStudentId()).isEqualTo(entity.getAssignedStudentId());
         assertThat(studentEntity.getPenMatchResult()).isEqualTo("INREVIEW");
     }
 
