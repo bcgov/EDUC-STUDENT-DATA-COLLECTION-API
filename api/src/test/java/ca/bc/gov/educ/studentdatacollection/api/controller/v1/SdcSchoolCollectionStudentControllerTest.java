@@ -4347,9 +4347,14 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 grantedAuthority);
 
         var school = this.createMockSchool();
+
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
+
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
 
+        val assignedStudentId = UUID.randomUUID();
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setPenMatchResult("INREVIEW");
         entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
@@ -4358,6 +4363,8 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
+        entity.setAssignedStudentId(assignedStudentId);
+        entity.setAssignedPen("123456789");
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
@@ -4371,8 +4378,8 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         assertThat(curStudentEntity).isPresent();
         var studentEntity = curStudentEntity.get();
         assertThat(studentEntity.getPenMatchResult()).isEqualTo("NEW");
-        assertThat(studentEntity.getAssignedPen()).isNull();
-        assertThat(studentEntity.getAssignedStudentId()).isNull();
+        assertThat(studentEntity.getAssignedPen()).isEqualTo("123456789");
+        assertThat(studentEntity.getAssignedStudentId()).isEqualTo(assignedStudentId);
     }
 
     @Test
@@ -4382,6 +4389,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 grantedAuthority);
 
         var school = this.createMockSchool();
+
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
+
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
         var assignedPenUUID = UUID.randomUUID();

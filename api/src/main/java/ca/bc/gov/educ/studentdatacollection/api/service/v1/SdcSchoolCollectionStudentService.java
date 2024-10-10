@@ -341,30 +341,59 @@ public class SdcSchoolCollectionStudentService {
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
-  public void updatePenStatusToNEW(SdcSchoolCollectionStudentEntity studentEntity) {
+  public SdcSchoolCollectionStudentEntity updatePENStatus(String penCode, SdcSchoolCollectionStudentEntity studentEntity) {
+    var activeCollection = collectionRepository.findActiveCollection().orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "collectionID", "activeCollection"));
+    var isCollectionInProvDupes = isCollectionInProvDupes(activeCollection);
+
     var curStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
             new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, studentEntity.getSdcSchoolCollectionStudentID().toString()));
 
-    curStudentEntity.setPenMatchResult("NEW");
-    curStudentEntity.setAssignedStudentId(null);
-    curStudentEntity.setAssignedPen(null);
-
-    sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(curStudentEntity);
-  }
-
-  @Transactional(propagation = Propagation.REQUIRED)
-  public void updatePenStatusToMATCH(SdcSchoolCollectionStudentEntity studentEntity) {
-    var curStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
-            new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, studentEntity.getSdcSchoolCollectionStudentID().toString()));
-
-    curStudentEntity.setPenMatchResult("MATCH");
+    curStudentEntity.setPenMatchResult(penCode);
     curStudentEntity.setAssignedStudentId(studentEntity.getAssignedStudentId());
     curStudentEntity.setAssignedPen(studentEntity.getAssignedPen());
+    curStudentEntity.setUnderReviewAssignedPen(null);
+    curStudentEntity.setUnderReviewAssignedStudentId(null);
+
     if(StringUtils.isBlank(curStudentEntity.getStudentPen())){
       curStudentEntity.setStudentPen(studentEntity.getAssignedPen());
     }
-    var ruleData = createStudentRuleDataForValidation(curStudentEntity);
-    sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processStudentRecord(ruleData.getSchool(), curStudentEntity, false));
+
+    var studentRuleData = createStudentRuleDataForValidation(curStudentEntity);
+
+    var processedSdcSchoolCollectionStudent = processStudentRecord(studentRuleData.getSchool(), curStudentEntity, false);
+    if (processedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
+      log.debug("SdcSchoolCollectionStudent was not saved to the database because it has errors :: {}", processedSdcSchoolCollectionStudent);
+      processedSdcSchoolCollectionStudent.setUpdateDate(curStudentEntity.getUpdateDate());
+      processedSdcSchoolCollectionStudent.setUpdateUser(curStudentEntity.getUpdateUser());
+      return processedSdcSchoolCollectionStudent;
+    }
+
+    if(penCode.equalsIgnoreCase("NEW")) {
+      return runDuplicateAndUpdatePenStatusToNEW(processedSdcSchoolCollectionStudent, isCollectionInProvDupes);
+    } else if(penCode.equalsIgnoreCase("MATCH")) {
+      return runDuplicateAndUpdatePenStatusToMATCH(processedSdcSchoolCollectionStudent, isCollectionInProvDupes, studentEntity, curStudentEntity);
+    }
+    return null;
+  }
+
+  public SdcSchoolCollectionStudentEntity runDuplicateAndUpdatePenStatusToNEW(SdcSchoolCollectionStudentEntity processedSdcSchoolCollectionStudent, boolean isCollectionInProvDupes) {
+    if (isCollectionInProvDupes){
+      sdcDuplicatesService.resolveAllExistingDuplicatesForType(processedSdcSchoolCollectionStudent, DuplicateResolutionCode.RELEASED);
+    }
+    processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
+    return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
+  }
+
+  public SdcSchoolCollectionStudentEntity runDuplicateAndUpdatePenStatusToMATCH(SdcSchoolCollectionStudentEntity processedSdcSchoolCollectionStudent, boolean isCollectionInProvDupes,  SdcSchoolCollectionStudentEntity studentEntity,  SdcSchoolCollectionStudentEntity curStudentEntity) {
+    UUID originalAssignedStudentID = curStudentEntity.getUnderReviewAssignedStudentId();
+    if (hasAssignedStudentIDChanged(originalAssignedStudentID, processedSdcSchoolCollectionStudent.getAssignedStudentId())) {
+      sdcDuplicatesService.deleteAllDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
+      sdcDuplicatesService.generateAllowableDuplicatesOrElseThrow(processedSdcSchoolCollectionStudent, isCollectionInProvDupes);
+    } else if (isCollectionInProvDupes){
+      sdcDuplicatesService.resolveAllExistingDuplicatesForType(processedSdcSchoolCollectionStudent, DuplicateResolutionCode.RELEASED);
+    }
+    processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
+    return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
