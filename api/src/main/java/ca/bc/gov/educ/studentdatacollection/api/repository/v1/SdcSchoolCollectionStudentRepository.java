@@ -1030,15 +1030,25 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalWithInSameDistrict(UUID districtID, UUID assignedStudentID, String noOfCollections);
 
   @Query(value="""
-         SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS, SdcDistrictCollectionEntity SDC
-          WHERE C.collectionID = SDC.collectionEntity.collectionID
-          AND C.collectionID = SSC.collectionEntity.collectionID
-          AND SDC.sdcDistrictCollectionID = SSC.sdcDistrictCollectionID
+         SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS
+          WHERE C.collectionID = SSC.collectionEntity.collectionID
+          AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
+          AND SSCS.assignedStudentId = :assignedStudentID
+          AND SSCS.fte > 0
+          AND SSCS.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+          AND C.collectionID IN
+                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
+         """)
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInAllDistrictWithNonZeroFte(UUID assignedStudentID, String noOfCollections);
+
+  @Query(value="""
+         SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS
+          WHERE C.collectionID = SSC.collectionEntity.collectionID
           AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
           AND SSCS.assignedStudentId = :assignedStudentID
           AND C.collectionID IN
                   (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
-          """)
+         """)
   List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInAllDistrict(UUID assignedStudentID, String noOfCollections);
 
   @Query(value="""

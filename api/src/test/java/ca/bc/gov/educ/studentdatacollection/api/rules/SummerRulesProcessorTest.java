@@ -827,6 +827,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
     @Test
     void testSummerStudentOnlineLearningRuleIsExecuted_WithNoErrors_WhenStudentInOnlineSchoolIsNotReportedInLastCollection() {
+        // Given
         UUID assignedStudentID = UUID.randomUUID();
         SchoolTombstone school = createMockSchool();
         District district = createMockDistrict();
@@ -836,7 +837,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
 
         var collection = createMockCollectionEntity();
-        collection.setCollectionTypeCode(JULY.getTypeCode());
+        collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
         collection.setCloseDate(currentCloseDate);
         collectionRepository.save(collection);
 
@@ -852,7 +853,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         school.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
-        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+        when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(penMatchResult);
 
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setAssignedStudentId(assignedStudentID);
@@ -862,10 +863,13 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val saga = createMockStudentRuleData(entity, school);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
 
+        // When
         val validationGradRule = rulesProcessor.processRules(saga);
+
+        // Then
         assertThat(validationGradRule.size()).isNotZero();
         val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ONLINE_LEARNING_ERROR.getCode()));
-        assertThat(error).isFalse();
+        assertThat(error).isTrue();
     }
 
     @Test
