@@ -9,7 +9,6 @@ import java.util.Optional;
 public enum DuplicateTypeResolutionCode {
 
   CHANGE_GRADE("CHANGE_GRADE"),
-  DELETE_ENROLLMENT_DUPLICATE("DELETE_ENROLLMENT_DUPLICATE"),
   PROGRAM("PROGRAM");
 
   private final String code;

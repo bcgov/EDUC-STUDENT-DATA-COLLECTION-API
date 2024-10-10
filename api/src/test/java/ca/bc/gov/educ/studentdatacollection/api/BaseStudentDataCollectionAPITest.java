@@ -265,6 +265,42 @@ public abstract class BaseStudentDataCollectionAPITest {
     return sdcEntity;
   }
 
+  public SdcSchoolCollectionStudentLightEntity createMockSchoolStudentLightEntity(SdcSchoolCollectionEntity sdcSchoolCollectionEntity){
+    SdcSchoolCollectionStudentLightEntity sdcEntity = new SdcSchoolCollectionStudentLightEntity();
+    sdcEntity.setSdcSchoolCollectionID(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+    sdcEntity.setLocalID("A11111111");
+    sdcEntity.setStudentPen("120164447");
+    sdcEntity.setLegalFirstName("JIM");
+    sdcEntity.setLegalMiddleNames("BOB");
+    sdcEntity.setLegalLastName("DANDY");
+    sdcEntity.setUsualFirstName("JIMMY");
+    sdcEntity.setUsualMiddleNames("BOBBY");
+    sdcEntity.setUsualLastName("DANDY");
+    sdcEntity.setDob("20160101");
+    sdcEntity.setGender("M");
+    sdcEntity.setSpecialEducationCategoryCode("A");
+    sdcEntity.setSchoolFundingCode("20");
+    sdcEntity.setNativeAncestryInd("N");
+    sdcEntity.setHomeLanguageSpokenCode("001");
+    sdcEntity.setOtherCourses(null);
+    sdcEntity.setSupportBlocks(null);
+    sdcEntity.setEnrolledGradeCode("08");
+    sdcEntity.setEnrolledProgramCodes("");
+    sdcEntity.setCareerProgramCode("");
+    sdcEntity.setNumberOfCourses("0400");
+    sdcEntity.setBandCode("0500");
+    sdcEntity.setPostalCode("V0V0V0");
+    sdcEntity.setSdcSchoolCollectionStudentStatusCode("LOADED");
+    sdcEntity.setCreateUser("ABC");
+    sdcEntity.setCreateDate(LocalDateTime.now());
+    sdcEntity.setUpdateUser("ABC");
+    sdcEntity.setUpdateDate(LocalDateTime.now());
+    sdcEntity.setIsSchoolAged(true);
+    sdcEntity.setIsAdult(false);
+    sdcEntity.setIsGraduated(false);
+    return sdcEntity;
+  }
+
   public SdcSchoolCollectionStudentEntity createMockSchoolStudentForSagaEntity(SdcSchoolCollectionEntity sdcSchoolCollectionEntity){
     SdcSchoolCollectionStudentEntity sdcEntity = new SdcSchoolCollectionStudentEntity();
     sdcEntity.setSdcSchoolCollection(sdcSchoolCollectionEntity);
@@ -548,7 +584,7 @@ public abstract class BaseStudentDataCollectionAPITest {
   private static SdcDuplicateStudentEntity createMockSdcDuplicateStudentEntity(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity, SdcDuplicateEntity sdcDuplicateEntity) {
     return SdcDuplicateStudentEntity.builder()
             .sdcDuplicateStudentID(UUID.randomUUID())
-            .sdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentEntity)
+            .sdcSchoolCollectionStudentEntity(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudentLightEntity(sdcSchoolCollectionStudentEntity))
             .sdcDistrictCollectionID(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getSdcDistrictCollectionID())
             .sdcSchoolCollectionID(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID())
             .sdcDuplicateEntity(sdcDuplicateEntity)

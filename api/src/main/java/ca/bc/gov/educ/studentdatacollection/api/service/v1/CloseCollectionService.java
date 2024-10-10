@@ -34,7 +34,7 @@ public class CloseCollectionService {
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionHistoryService sdcSchoolHistoryService;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
-    private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+    private final SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService;
     private final SdcSchoolCollectionService sdcSchoolCollectionService;
     private final RestUtils restUtils;
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
@@ -45,14 +45,14 @@ public class CloseCollectionService {
     private static final String SDC_COLLECTION_ID_KEY = "collectionID";
     private final IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository;
 
-    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcSchoolCollectionService sdcSchoolCollectionService, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties, IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository) {
+    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService, SdcSchoolCollectionService sdcSchoolCollectionService, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties, IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository) {
         this.collectionRepository = collectionRepository;
         this.collectionTypeCodeRepository = collectionTypeCodeRepository;
         this.collectionCodeCriteriaRepository = collectionCodeCriteriaRepository;
         this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
         this.sdcSchoolHistoryService = sdcSchoolHistoryService;
         this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
-        this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
+        this.sdcSchoolCollectionStudentStorageService = sdcSchoolCollectionStudentStorageService;
         this.sdcSchoolCollectionService = sdcSchoolCollectionService;
         this.restUtils = restUtils;
         this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
@@ -182,7 +182,7 @@ public class CloseCollectionService {
         studentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.COMPLETED.getCode());
         studentEntity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         studentEntity.setUpdateDate(LocalDateTime.now());
-        sdcSchoolCollectionStudentService.saveSdcStudentWithHistory(studentEntity);
+        sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(studentEntity);
     }
 
     private List<SchoolTombstone> getListOfSchoolIDsFromCriteria(List<CollectionCodeCriteriaEntity> collectionCodeCriteria) {

@@ -8,7 +8,6 @@ public enum DuplicateResolutionCode {
   GRADE_CHNG("GRADE_CHNG", "Student grade was changed."),
   RESOLVED("RESOLVED", "Student removed from conflicting program.");
 
-
   @Getter
   private final String code;
 
