@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateResolutionCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.HeadcountReportTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcSchoolCollectionStudentEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
@@ -96,7 +97,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
          if(StringUtils.isNotBlank(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())) {
              RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
             return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent
-                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
+                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent), DuplicateResolutionCode.RELEASED));
         } else {
              RequestUtil.setAuditColumnsForCreate(sdcSchoolCollectionStudent);
             return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.createSdcSchoolCollectionStudent

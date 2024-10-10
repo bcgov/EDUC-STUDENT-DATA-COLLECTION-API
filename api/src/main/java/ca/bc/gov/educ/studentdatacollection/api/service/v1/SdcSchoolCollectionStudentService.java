@@ -448,13 +448,13 @@ public class SdcSchoolCollectionStudentService {
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
-  public SdcSchoolCollectionStudentEntity updateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity){
+  public SdcSchoolCollectionStudentEntity updateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity, DuplicateResolutionCode duplicateResolutionCode){
     var activeCollection = collectionRepository.findActiveCollection().orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "collectionID", "activeCollection"));
     var isCollectionInProvDupes = isCollectionInProvDupes(activeCollection);
-    return performUpdateSdcSchoolCollectionStudent(studentEntity, isCollectionInProvDupes);
+    return performUpdateSdcSchoolCollectionStudent(studentEntity, isCollectionInProvDupes, duplicateResolutionCode);
   }
 
-  private SdcSchoolCollectionStudentEntity performUpdateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity, boolean isCollectionInProvDupes) {
+  private SdcSchoolCollectionStudentEntity performUpdateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity, boolean isCollectionInProvDupes, DuplicateResolutionCode duplicateResolutionCode) {
     var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
           new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, studentEntity.getSdcSchoolCollectionStudentID().toString()));
     final SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = new SdcSchoolCollectionStudentEntity();
@@ -485,7 +485,7 @@ public class SdcSchoolCollectionStudentService {
       sdcDuplicatesService.deleteAllDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
       sdcDuplicatesService.generateAllowableDuplicatesOrElseThrow(processedSdcSchoolCollectionStudent, isCollectionInProvDupes);
     }else if (isCollectionInProvDupes){
-      sdcDuplicatesService.resolveAllExistingDuplicatesForType(processedSdcSchoolCollectionStudent, DuplicateResolutionCode.RELEASED);
+      sdcDuplicatesService.resolveAllExistingDuplicatesForType(processedSdcSchoolCollectionStudent, duplicateResolutionCode);
     }
 
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));

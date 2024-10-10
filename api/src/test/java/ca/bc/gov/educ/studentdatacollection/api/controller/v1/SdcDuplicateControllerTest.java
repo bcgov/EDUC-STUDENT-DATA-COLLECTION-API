@@ -198,12 +198,13 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  void testUpdateStudentAndResolveDistrictDuplicates_typeCHANGE_GRADE_shouldSetDuplicateStatus_GRADE_CHNG() throws Exception {
+  void testUpdateStudentAndResolveProvDuplicates_typeCHANGE_GRADE_shouldSetDuplicateStatus_GRADE_CHNG() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
     collectionRepository.save(collection);
 
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
@@ -223,8 +224,6 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
 
     when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
     when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
-
-    when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
     when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
 
     var studentID = UUID.randomUUID();
@@ -244,6 +243,10 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
 
     List<SdcSchoolCollectionStudent> students = new ArrayList();
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
+
+    PenMatchRecord rec = new PenMatchRecord();
+    rec.setStudentID(studentID.toString());
+    when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().penStatus("AA").matchingRecords(Arrays.asList(rec)).build());
 
     this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/type/CHANGE_GRADE")
             .with(mockAuthority)

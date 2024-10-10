@@ -1,10 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
@@ -412,7 +409,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     GradStatusResult gradStatusResult = new GradStatusResult();
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
-    sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(editedStudentEntity);
+    sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(editedStudentEntity, DuplicateResolutionCode.RELEASED);
 
     Optional<SdcDuplicateEntity> resolvedDupe = sdcDuplicateRepository.findBySdcDuplicateID(savedDupe.getSdcDuplicateID());
 

@@ -166,13 +166,7 @@ public class SdcDuplicateResolutionService {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void changeGrade(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudent) {
-    var curStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
-            new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID().toString()));
-
-    curStudentEntity.setEnrolledGradeCode(sdcSchoolCollectionStudent.getEnrolledGradeCode());
-    sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(curStudentEntity);
-
-    sdcDuplicatesService.resolveAllExistingDuplicatesForType(curStudentEntity, DuplicateResolutionCode.GRADE_CHNG);
+    sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudent, DuplicateResolutionCode.GRADE_CHNG);
   }
 
   public SdcSchoolCollectionStudentLightEntity identifyStudentToEdit(SdcSchoolCollectionStudentLightEntity student1, SdcSchoolCollectionStudentLightEntity student2, SchoolTombstone school1, SchoolTombstone school2){
@@ -246,7 +240,7 @@ public class SdcDuplicateResolutionService {
     // update students
     sdcSchoolCollectionStudent.forEach(student -> {
       RequestUtil.setAuditColumnsForUpdate(student);
-      sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentEntity(student));
+      sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentEntity(student), DuplicateResolutionCode.RELEASED);
     });
   }
 
