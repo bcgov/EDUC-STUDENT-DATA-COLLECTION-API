@@ -165,6 +165,12 @@ public class SdcSchoolCollectionStudentEntity {
   @Column(name = "CURRENT_DEMOG_HASH")
   private String currentDemogHash;
 
+  @Column(name = "UNDER_REVIEW_ASSIGNED_STUDENT_ID", columnDefinition = "BINARY(16)")
+  private UUID underReviewAssignedStudentId;
+
+  @Column(name = "UNDER_REVIEW_ASSIGNED_PEN")
+  private String underReviewAssignedPen;
+
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;
 

@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -802,7 +803,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     SdcDuplicateStudentEntity duplicateStudent1 = SdcDuplicateStudentEntity.builder()
             .sdcDuplicateStudentID(UUID.randomUUID())
-            .sdcSchoolCollectionStudentEntity(stud1)
+            .sdcSchoolCollectionStudentEntity(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudentLightEntity(stud1))
             .sdcDistrictCollectionID(sdcDistrictCollectionID)
             .sdcSchoolCollectionID(sdcSchoolCollectionEntity1.getSdcSchoolCollectionID())
             .build();
@@ -812,7 +813,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     SdcDuplicateStudentEntity duplicateStudent2 = SdcDuplicateStudentEntity.builder()
             .sdcDuplicateStudentID(UUID.randomUUID())
-            .sdcSchoolCollectionStudentEntity(stud2)
+            .sdcSchoolCollectionStudentEntity(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudentLightEntity(stud2))
             .sdcDistrictCollectionID(sdcDistrictCollectionID)
             .sdcSchoolCollectionID(sdcSchoolCollectionEntity2.getSdcSchoolCollectionID())
             .build();
@@ -843,7 +844,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     SdcDuplicateStudentEntity duplicateStudent3 = SdcDuplicateStudentEntity.builder()
             .sdcDuplicateStudentID(UUID.randomUUID())
-            .sdcSchoolCollectionStudentEntity(stud5)
+            .sdcSchoolCollectionStudentEntity(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudentLightEntity(stud5))
             .sdcDistrictCollectionID(sdcDistrictCollectionID)
             .sdcSchoolCollectionID(sdcSchoolCollectionEntity1.getSdcSchoolCollectionID())
             .build();
@@ -852,7 +853,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     SdcDuplicateStudentEntity duplicateStudent4 = SdcDuplicateStudentEntity.builder()
             .sdcDuplicateStudentID(UUID.randomUUID())
-            .sdcSchoolCollectionStudentEntity(stud6)
+            .sdcSchoolCollectionStudentEntity(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudentLightEntity(stud6))
             .sdcDistrictCollectionID(sdcDistrictCollectionID)
             .sdcSchoolCollectionID(sdcSchoolCollectionEntity2.getSdcSchoolCollectionID())
             .build();

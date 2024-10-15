@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateResolutionCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.HeadcountReportTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcSchoolCollectionStudentEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
@@ -45,8 +46,6 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     private final SdcSchoolCollectionStudentValidator schoolCollectionStudentValidator;
 
     private final SdcSchoolCollectionStudentHeadcountService sdcSchoolCollectionStudentHeadcountService;
-
-    private final SdcDuplicatesService sdcDuplicatesService;
 
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
@@ -97,25 +96,19 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
         ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
          if(StringUtils.isNotBlank(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())) {
              RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
-            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcDuplicatesService.updateSdcSchoolCollectionStudent
-                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
+            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent
+                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent), DuplicateResolutionCode.RELEASED));
         } else {
              RequestUtil.setAuditColumnsForCreate(sdcSchoolCollectionStudent);
-            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcDuplicatesService.createSdcSchoolCollectionStudent
+            return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.createSdcSchoolCollectionStudent
                     (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
         }
 
     }
 
     @Override
-    public SdcSchoolCollectionStudent deleteSdcSchoolCollectionStudent(UUID sdcSchoolCollectionStudentID) {
-        SdcSchoolCollectionStudentEntity softDeletedSdcSchoolCollectionStudent = this.sdcDuplicatesService.softDeleteSdcSchoolCollectionStudent(sdcSchoolCollectionStudentID);
-        return mapper.toSdcSchoolStudent(softDeletedSdcSchoolCollectionStudent);
-    }
-
-    @Override
-    public List<SdcSchoolCollectionStudent> softDeleteSdcSchoolCollectionStudents(List<UUID> sdcStudentIDs) {
-        return this.sdcDuplicatesService.softDeleteSdcSchoolCollectionStudents(sdcStudentIDs).stream().map(mapper::toSdcSchoolStudent).toList();
+    public List<SdcSchoolCollectionStudent> softDeleteSdcSchoolCollectionStudents(SoftDeleteRecordSet softDeleteRecordSet) {
+        return this.sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudents(softDeleteRecordSet).stream().map(mapper::toSdcSchoolStudent).toList();
     }
 
     @Override
@@ -148,17 +141,10 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
-    public ResponseEntity<Void> updatePENStatus(String penCode, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+    public SdcSchoolCollectionStudentEntity updatePENStatus(String penCode, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
         ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
         RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
-        if(penCode.equalsIgnoreCase("NEW")) {
-            sdcSchoolCollectionStudentService.updatePenStatusToNEW(mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent));
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else if(penCode.equalsIgnoreCase("MATCH")) {
-            sdcSchoolCollectionStudentService.updatePenStatusToMATCH(mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent));
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        return null;
+        return sdcSchoolCollectionStudentService.updatePENStatus(penCode, mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent));
     }
 
     @Override
