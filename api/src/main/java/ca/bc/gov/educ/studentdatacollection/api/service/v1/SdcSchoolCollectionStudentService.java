@@ -369,22 +369,22 @@ public class SdcSchoolCollectionStudentService {
     }
 
     if(penCode.equalsIgnoreCase("NEW")) {
-      return runDuplicateAndUpdatePenStatusToNEW(processedSdcSchoolCollectionStudent, isCollectionInProvDupes);
+      return runDuplicateAndUpdatePenStatusToNEW(processedSdcSchoolCollectionStudent, isCollectionInProvDupes, studentEntity);
     } else if(penCode.equalsIgnoreCase("MATCH")) {
       return runDuplicateAndUpdatePenStatusToMATCH(processedSdcSchoolCollectionStudent, isCollectionInProvDupes, studentEntity, curStudentEntity);
     }
     return null;
   }
 
-  public SdcSchoolCollectionStudentEntity runDuplicateAndUpdatePenStatusToNEW(SdcSchoolCollectionStudentEntity processedSdcSchoolCollectionStudent, boolean isCollectionInProvDupes) {
+  public SdcSchoolCollectionStudentEntity runDuplicateAndUpdatePenStatusToNEW(SdcSchoolCollectionStudentEntity processedSdcSchoolCollectionStudent, boolean isCollectionInProvDupes, SdcSchoolCollectionStudentEntity studentEntity) {
     if (isCollectionInProvDupes){
-      sdcDuplicatesService.resolveAllExistingDuplicatesForType(processedSdcSchoolCollectionStudent, DuplicateResolutionCode.RELEASED);
+      sdcDuplicatesService.deleteAllDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
     }
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
     return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
   }
 
-  public SdcSchoolCollectionStudentEntity runDuplicateAndUpdatePenStatusToMATCH(SdcSchoolCollectionStudentEntity processedSdcSchoolCollectionStudent, boolean isCollectionInProvDupes,  SdcSchoolCollectionStudentEntity studentEntity,  SdcSchoolCollectionStudentEntity curStudentEntity) {
+  public SdcSchoolCollectionStudentEntity runDuplicateAndUpdatePenStatusToMATCH(SdcSchoolCollectionStudentEntity processedSdcSchoolCollectionStudent, boolean isCollectionInProvDupes, SdcSchoolCollectionStudentEntity studentEntity,  SdcSchoolCollectionStudentEntity curStudentEntity) {
     UUID originalAssignedStudentID = curStudentEntity.getUnderReviewAssignedStudentId();
     if (hasAssignedStudentIDChanged(originalAssignedStudentID, processedSdcSchoolCollectionStudent.getAssignedStudentId())) {
       sdcDuplicatesService.deleteAllDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
