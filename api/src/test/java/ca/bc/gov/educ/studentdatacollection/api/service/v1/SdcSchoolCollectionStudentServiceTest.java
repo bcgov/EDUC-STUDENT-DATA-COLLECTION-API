@@ -525,4 +525,45 @@ class SdcSchoolCollectionStudentServiceTest {
         final var result = sdcSchoolCollectionStudentService.isCurrentStudentAttendingSchoolOfRecord(entity, List.of(entity1));
         assertTrue(result);
     }
+
+    @Test
+    void testIsCurrentStudentAttendingSchoolOfRecord_givenCurrentStudentSchoolTombstoneMissing_shouldReturnFalse() {
+        final SdcSchoolCollectionStudentEntity entity = new SdcSchoolCollectionStudentEntity();
+        entity.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+        entity.setAssignedStudentId(UUID.randomUUID());
+        entity.setNumberOfCourses("1.0");
+
+        final SdcSchoolCollectionEntity collectionEntity = new SdcSchoolCollectionEntity();
+        collectionEntity.setSdcSchoolCollectionID(UUID.randomUUID());
+        collectionEntity.setSchoolID(UUID.randomUUID());
+        entity.setSdcSchoolCollection(collectionEntity);
+
+        final SdcSchoolCollectionStudentEntity entity1 = new SdcSchoolCollectionStudentEntity();
+        entity1.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+        entity1.setAssignedStudentId(UUID.randomUUID());
+        entity1.setNumberOfCourses("1.0");
+
+        final SdcSchoolCollectionEntity collectionEntity1 = new SdcSchoolCollectionEntity();
+        collectionEntity1.setSdcSchoolCollectionID(UUID.randomUUID());
+        collectionEntity1.setSchoolID(UUID.randomUUID());
+        entity1.setSdcSchoolCollection(collectionEntity1);
+
+        when(restUtils.getSchoolBySchoolID(String.valueOf(collectionEntity.getSchoolID()))).thenReturn(Optional.empty());
+
+        final SchoolTombstone school1 = new SchoolTombstone();
+        school1.setMincode("12345679");
+        school1.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+        school1.setFacilityTypeCode(FacilityTypeCodes.STANDARD.getCode());
+        school1.setDistrictId("456");
+
+        when(restUtils.getSchoolBySchoolID(String.valueOf(collectionEntity1.getSchoolID()))).thenReturn(Optional.of(school1));
+
+        District mockDistrict = new District();
+        mockDistrict.setDistrictNumber("123");
+
+        when(restUtils.getDistrictByDistrictID("456")).thenReturn(Optional.of(mockDistrict));
+
+        final var result = sdcSchoolCollectionStudentService.isCurrentStudentAttendingSchoolOfRecord(entity, List.of(entity1));
+        assertFalse(result);
+    }
 }
