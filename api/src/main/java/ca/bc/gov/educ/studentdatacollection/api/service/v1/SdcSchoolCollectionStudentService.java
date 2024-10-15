@@ -221,7 +221,7 @@ public class SdcSchoolCollectionStudentService {
     publishStudentRecordsForDemogUpdate(updateStudentSagas);
   }
 
-  private boolean isCurrentStudentAttendingSchoolOfRecord(SdcSchoolCollectionStudentEntity currStudent, List<SdcSchoolCollectionStudentEntity> otherStudents){
+  public boolean isCurrentStudentAttendingSchoolOfRecord(SdcSchoolCollectionStudentEntity currStudent, List<SdcSchoolCollectionStudentEntity> otherStudents){
     List<Float> otherStudentCourseNumbers = otherStudents.stream().map(std -> Float.valueOf(std.getNumberOfCourses())).toList();
     Float maxCourseNumberFromOtherStudents = Collections.max(otherStudentCourseNumbers);
 
