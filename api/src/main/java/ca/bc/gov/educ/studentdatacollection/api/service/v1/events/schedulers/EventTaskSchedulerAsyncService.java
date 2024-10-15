@@ -6,7 +6,6 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.LogHelper;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.Orchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -23,6 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -186,7 +186,9 @@ public class EventTaskSchedulerAsyncService {
       scheduleHandlerService.createAndStartUnsubmittedEmailSagas(sdcSchoolCollectionEntities);
     }
   }
-  
+
+  @Async("findNewSchoolsAndAddSdcSchoolCollectionTaskExecutor")
+  @Transactional
   public void findNewSchoolsAndAddSdcSchoolCollection() {
     final Optional<CollectionEntity> activeCollectionOptional = collectionRepository.findActiveCollection();
     CollectionEntity activeCollection = activeCollectionOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "activeCollection"));
@@ -222,6 +224,33 @@ public class EventTaskSchedulerAsyncService {
 
     if (!newSchoolCollections.isEmpty()) {
       sdcSchoolCollectionRepository.saveAll(newSchoolCollections);
+    }
+  }
+
+  @Async("findClosedSchoolsAndDeleteSdcCollectionTaskExecutor")
+  @Transactional
+  public void findClosedSchoolsAndDeleteSdcCollection() {
+    final Optional<CollectionEntity> activeCollectionOptional = collectionRepository.findActiveCollection();
+    CollectionEntity activeCollection = activeCollectionOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "activeCollection"));
+
+    if (activeCollection.getCollectionStatusCode().equals(CollectionStatus.PROVDUPES.getCode())) {
+      return;
+    }
+    restUtils.populateSchoolMap();
+    final List<SchoolTombstone> schoolTombstones = restUtils.getSchools();
+    final List<SdcSchoolCollectionEntity> currentSchoolCollections = sdcSchoolCollectionRepository.findAllByCollectionEntityCollectionID(activeCollection.getCollectionID());
+
+    Set<UUID> closedSchoolIds = schoolTombstones.stream()
+            .filter(tombstone -> tombstone.getClosedDate() != null
+                    && LocalDateTime.parse(tombstone.getClosedDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")).isBefore(LocalDateTime.now()))
+            .map(SchoolTombstone::getSchoolId)
+            .map(UUID::fromString).collect(Collectors.toSet());
+
+    List<SdcSchoolCollectionEntity> closedSchoolCollections = currentSchoolCollections.stream()
+            .filter(sdcSchoolCollectionEntity -> closedSchoolIds.contains(sdcSchoolCollectionEntity.getSchoolID()))
+            .toList();
+    if (CollectionUtils.isNotEmpty(closedSchoolCollections)) {
+        closedSchoolCollections.stream().forEach(sdcSchoolCollectionEntity -> sdcSchoolCollectionService.deleteSdcCollection(sdcSchoolCollectionEntity.getSdcSchoolCollectionID()));
     }
   }
 

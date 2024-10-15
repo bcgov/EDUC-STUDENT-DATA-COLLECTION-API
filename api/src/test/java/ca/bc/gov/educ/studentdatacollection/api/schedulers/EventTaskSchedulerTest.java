@@ -365,6 +365,176 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         assertThat(savedSchoolCollections).isEmpty();
     }
 
+    @Test
+    void deleteClosedSchoolsSdcCollection_ProvDupeStatus() {
+        var collection = createMockCollectionEntity();
+        collection.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
+        CollectionEntity collectionEntity = collectionRepository.save(collection);
+
+        SchoolTombstone school1 = createMockSchoolTombstone();
+        school1.setSchoolId(UUID.randomUUID().toString());
+        school1.setDisplayName("School1");
+        school1.setMincode("0000001");
+        school1.setClosedDate(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(LocalDateTime.now().minusDays(1)));
+
+        var schoolDetail1 = createMockSchoolDetail();
+        schoolDetail1.setSchoolId(school1.getSchoolId());
+        schoolDetail1.setDisplayName(school1.getDisplayName());
+        schoolDetail1.setMincode(school1.getMincode());
+
+        when(this.restUtils.getSchoolDetails(UUID.fromString(school1.getSchoolId()))).thenReturn(schoolDetail1);
+
+        firstSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolDetail1.getSchoolId()));
+        firstSchoolCollection.setUploadDate(null);
+        firstSchoolCollection.setUploadFileName(null);
+        firstSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
+
+        sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchoolCollection));
+
+        assertThat(collectionEntity.getCollectionStatusCode()).isEqualTo(CollectionStatus.PROVDUPES.getCode());
+
+        eventTaskSchedulerAsyncService.findClosedSchoolsAndDeleteSdcCollection();
+
+        List<SdcSchoolCollectionEntity> activeSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(UUID.fromString(schoolDetail1.getSchoolId()));
+        assertThat(activeSchoolCollections).hasSize(1);
+    }
+
+    @Test
+    void deleteClosedSchoolsSdcCollection_ProvDupeStatus_Closed_StudentExists() {
+        var collection = createMockCollectionEntity();
+        collection.setCollectionStatusCode(CollectionStatus.INPROGRESS.getCode());
+        CollectionEntity collectionEntity = collectionRepository.save(collection);
+
+        SchoolTombstone school1 = createMockSchoolTombstone();
+        school1.setSchoolId(UUID.randomUUID().toString());
+        school1.setDisplayName("School1");
+        school1.setMincode("0000001");
+        school1.setClosedDate(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(LocalDateTime.now().minusDays(1)));
+        SchoolTombstone school2 = createMockSchoolTombstone();
+        school1.setSchoolId(UUID.randomUUID().toString());
+        List<SchoolTombstone> mockSchools = List.of(school1, school2);
+        when(restUtils.getSchools()).thenReturn(mockSchools);
+
+        var schoolDetail1 = createMockSchoolDetail();
+        schoolDetail1.setSchoolId(school1.getSchoolId());
+        schoolDetail1.setDisplayName(school1.getDisplayName());
+        schoolDetail1.setMincode(school1.getMincode());
+
+        var schoolDetail2 = createMockSchoolDetail();
+        schoolDetail2.setSchoolId(school2.getSchoolId());
+        schoolDetail2.setDisplayName(school2.getDisplayName());
+        schoolDetail2.setMincode(school2.getMincode());
+
+        when(this.restUtils.getSchoolDetails(UUID.fromString(school1.getSchoolId()))).thenReturn(schoolDetail1);
+        when(this.restUtils.getSchoolDetails(UUID.fromString(school1.getSchoolId()))).thenReturn(schoolDetail2);
+
+        firstSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolDetail1.getSchoolId()));
+        firstSchoolCollection.setUploadDate(null);
+        firstSchoolCollection.setUploadFileName(null);
+        firstSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
+
+        secondSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolDetail2.getSchoolId()));
+        secondSchoolCollection.setUploadDate(null);
+        secondSchoolCollection.setUploadFileName(null);
+        secondSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.LOADED.getCode());
+        secondSchoolCollection.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+        sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchoolCollection, secondSchoolCollection));
+
+        assertThat(collectionEntity.getCollectionStatusCode()).isNotEqualTo(CollectionStatus.PROVDUPES.getCode());
+
+        eventTaskSchedulerAsyncService.findClosedSchoolsAndDeleteSdcCollection();
+
+        List<SdcSchoolCollectionEntity> closedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(UUID.fromString(schoolDetail1.getSchoolId()));
+        assertThat(closedSchoolCollections).isEmpty();
+        List<SdcSchoolCollectionEntity> activeSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(UUID.fromString(schoolDetail2.getSchoolId()));
+        assertThat(activeSchoolCollections).hasSize(1);
+    }
+
+    @Test
+    void deleteClosedSchoolsSdcCollection_ProvDupeStatus_Closed_Empty() {
+        var collection = createMockCollectionEntity();
+        collection.setCollectionStatusCode(CollectionStatus.INPROGRESS.getCode());
+        CollectionEntity collectionEntity = collectionRepository.save(collection);
+
+        SchoolTombstone school1 = createMockSchoolTombstone();
+        school1.setSchoolId(UUID.randomUUID().toString());
+        school1.setDisplayName("School1");
+        school1.setMincode("0000001");
+        school1.setClosedDate(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(LocalDateTime.now().minusDays(1)));
+        SchoolTombstone school2 = createMockSchoolTombstone();
+        school1.setSchoolId(UUID.randomUUID().toString());
+        List<SchoolTombstone> mockSchools = List.of(school1, school2);
+        when(restUtils.getSchools()).thenReturn(mockSchools);
+
+        var schoolDetail1 = createMockSchoolDetail();
+        schoolDetail1.setSchoolId(school1.getSchoolId());
+        schoolDetail1.setDisplayName(school1.getDisplayName());
+        schoolDetail1.setMincode(school1.getMincode());
+
+        when(this.restUtils.getSchoolDetails(UUID.fromString(school1.getSchoolId()))).thenReturn(schoolDetail1);
+
+        assertThat(collectionEntity.getCollectionStatusCode()).isNotEqualTo(CollectionStatus.PROVDUPES.getCode());
+
+        eventTaskSchedulerAsyncService.findClosedSchoolsAndDeleteSdcCollection();
+
+        List<SdcSchoolCollectionEntity> closedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(UUID.fromString(schoolDetail1.getSchoolId()));
+        assertThat(closedSchoolCollections).isEmpty();
+
+    }
+
+    @Test
+    void deleteClosedSchoolsSdcCollection_ProvDupeStatus_Active_StudentExists() {
+        var collection = createMockCollectionEntity();
+        collection.setCollectionStatusCode(CollectionStatus.INPROGRESS.getCode());
+        CollectionEntity collectionEntity = collectionRepository.save(collection);
+
+        SchoolTombstone school1 = createMockSchoolTombstone();
+        school1.setSchoolId(UUID.randomUUID().toString());
+        school1.setDisplayName("School1");
+        school1.setMincode("0000001");
+        school1.setClosedDate(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(LocalDateTime.now().plusDays(20)));
+        SchoolTombstone school2 = createMockSchoolTombstone();
+        school1.setSchoolId(UUID.randomUUID().toString());
+        List<SchoolTombstone> mockSchools = List.of(school1, school2);
+        when(restUtils.getSchools()).thenReturn(mockSchools);
+
+        var schoolDetail1 = createMockSchoolDetail();
+        schoolDetail1.setSchoolId(school1.getSchoolId());
+        schoolDetail1.setDisplayName(school1.getDisplayName());
+        schoolDetail1.setMincode(school1.getMincode());
+
+        var schoolDetail2 = createMockSchoolDetail();
+        schoolDetail2.setSchoolId(school2.getSchoolId());
+        schoolDetail2.setDisplayName(school2.getDisplayName());
+        schoolDetail2.setMincode(school2.getMincode());
+
+        when(this.restUtils.getSchoolDetails(UUID.fromString(school1.getSchoolId()))).thenReturn(schoolDetail1);
+        when(this.restUtils.getSchoolDetails(UUID.fromString(school1.getSchoolId()))).thenReturn(schoolDetail2);
+
+        firstSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolDetail1.getSchoolId()));
+        firstSchoolCollection.setUploadDate(null);
+        firstSchoolCollection.setUploadFileName(null);
+        firstSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
+
+        secondSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolDetail2.getSchoolId()));
+        secondSchoolCollection.setUploadDate(null);
+        secondSchoolCollection.setUploadFileName(null);
+        secondSchoolCollection.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.LOADED.getCode());
+        secondSchoolCollection.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+        sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchoolCollection, secondSchoolCollection));
+
+        assertThat(collectionEntity.getCollectionStatusCode()).isNotEqualTo(CollectionStatus.PROVDUPES.getCode());
+
+        eventTaskSchedulerAsyncService.findClosedSchoolsAndDeleteSdcCollection();
+
+        List<SdcSchoolCollectionEntity> closedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(UUID.fromString(schoolDetail1.getSchoolId()));
+        assertThat(closedSchoolCollections).hasSize(1);
+        List<SdcSchoolCollectionEntity> activeSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(UUID.fromString(schoolDetail2.getSchoolId()));
+        assertThat(activeSchoolCollections).hasSize(1);
+    }
+
+
+
     public void setMockDataForSchoolCollectionsForSubmissionFn() {
         CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
         var districtID = UUID.randomUUID();
@@ -396,5 +566,6 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         secondSchoolCollection.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
         sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchoolCollection, secondSchoolCollection));
     }
+
 
 }

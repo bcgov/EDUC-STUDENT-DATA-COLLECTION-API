@@ -70,8 +70,9 @@ public class EventTaskScheduler {
   
   @Scheduled(cron = "${scheduled.jobs.process.new.schools.collection.cron}")
   @SchedulerLock(name = "ADD_NEW_SCHOOLS_TO_COLLECTION", lockAtLeastFor = "${scheduled.jobs.process.new.schools.collection.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.new.schools.collection.cron.lockAtMostFor}")
-  public void findNewSchoolsAndAddSdcSchoolCollection() {
+  public void findModifiedSchoolsAndUpdateSdcSchoolCollection() {
     LockAssert.assertLocked();
     this.getTaskSchedulerAsyncService().findNewSchoolsAndAddSdcSchoolCollection();
+    this.getTaskSchedulerAsyncService().findClosedSchoolsAndDeleteSdcCollection();
   }
 }
