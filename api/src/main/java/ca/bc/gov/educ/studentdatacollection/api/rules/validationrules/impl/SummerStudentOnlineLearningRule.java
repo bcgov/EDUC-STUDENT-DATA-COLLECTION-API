@@ -70,7 +70,7 @@ public class SummerStudentOnlineLearningRule implements ValidationBaseRule {
 
             for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {
                 Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
-                if (school.isPresent()) {
+                if (school.isPresent() && isOnlineSchool(school.get().getFacilityTypeCode())) {
                     boolean isOnlineSchool = FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode());
                     BigDecimal fte = studentEntity.getFte();
 
@@ -85,5 +85,9 @@ public class SummerStudentOnlineLearningRule implements ValidationBaseRule {
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_ONLINE_LEARNING_ERROR));
         }
         return errors;
+    }
+
+    private boolean isOnlineSchool(String facilityTypeCode) {
+        return FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(facilityTypeCode);
     }
 }
