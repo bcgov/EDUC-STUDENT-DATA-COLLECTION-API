@@ -262,7 +262,10 @@ public class FteCalculatorUtils {
             String schoolId = studentEntity.getSdcSchoolCollection().getSchoolID().toString();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolId);
             if (school.isPresent() && FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode())) {
-                return true;
+                BigDecimal fte = studentEntity.getFte();
+                if (fte != null && fte.compareTo(BigDecimal.ZERO) > 0) {
+                    return true;
+                }
             }
         }
         return false;
