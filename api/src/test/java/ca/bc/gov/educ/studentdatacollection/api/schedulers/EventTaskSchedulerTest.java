@@ -280,7 +280,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         List<SchoolTombstone> mockSchools = List.of(newSchool);
         when(restUtils.getSchools()).thenReturn(mockSchools);
 
-        eventTaskSchedulerAsyncService.findNewSchoolsAndAddSdcSchoolCollection();
+        eventTaskSchedulerAsyncService.findModifiedSchoolsAndUpdateSdcSchoolCollection();
 
         List<SdcSchoolCollectionEntity> savedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(newSchoolUUID);
 
@@ -298,7 +298,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         List<SchoolTombstone> mockSchools = List.of(newSchool);
         when(restUtils.getSchools()).thenReturn(mockSchools);
 
-        eventTaskSchedulerAsyncService.findNewSchoolsAndAddSdcSchoolCollection();
+        eventTaskSchedulerAsyncService.findModifiedSchoolsAndUpdateSdcSchoolCollection();
 
         List<SdcSchoolCollectionEntity> savedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(notNewSchoolUUID);
 
@@ -319,7 +319,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         List<SchoolTombstone> mockSchools = List.of(newSchool);
         when(restUtils.getSchools()).thenReturn(mockSchools);
 
-        eventTaskSchedulerAsyncService.findNewSchoolsAndAddSdcSchoolCollection();
+        eventTaskSchedulerAsyncService.findModifiedSchoolsAndUpdateSdcSchoolCollection();
 
         List<SdcSchoolCollectionEntity> savedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(newSchoolUUID);
 
@@ -337,7 +337,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         List<SchoolTombstone> mockSchools = List.of(newSchool);
         when(restUtils.getSchools()).thenReturn(mockSchools);
 
-        eventTaskSchedulerAsyncService.findNewSchoolsAndAddSdcSchoolCollection();
+        eventTaskSchedulerAsyncService.findModifiedSchoolsAndUpdateSdcSchoolCollection();
 
         List<SdcSchoolCollectionEntity> savedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(newSchoolUUID);
 
@@ -358,7 +358,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         List<SchoolTombstone> mockSchools = List.of(newSchool);
         when(restUtils.getSchools()).thenReturn(mockSchools);
 
-        eventTaskSchedulerAsyncService.findNewSchoolsAndAddSdcSchoolCollection();
+        eventTaskSchedulerAsyncService.findModifiedSchoolsAndUpdateSdcSchoolCollection();
 
         List<SdcSchoolCollectionEntity> savedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(newSchoolUUID);
 
@@ -393,7 +393,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
         assertThat(collectionEntity.getCollectionStatusCode()).isEqualTo(CollectionStatus.PROVDUPES.getCode());
 
-        eventTaskSchedulerAsyncService.findClosedSchoolsAndDeleteSdcCollection();
+        eventTaskSchedulerAsyncService.findModifiedSchoolsAndUpdateSdcSchoolCollection();
 
         List<SdcSchoolCollectionEntity> activeSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(UUID.fromString(schoolDetail1.getSchoolId()));
         assertThat(activeSchoolCollections).hasSize(1);
@@ -442,7 +442,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
         assertThat(collectionEntity.getCollectionStatusCode()).isNotEqualTo(CollectionStatus.PROVDUPES.getCode());
 
-        eventTaskSchedulerAsyncService.findClosedSchoolsAndDeleteSdcCollection();
+        eventTaskSchedulerAsyncService.findModifiedSchoolsAndUpdateSdcSchoolCollection();
 
         List<SdcSchoolCollectionEntity> closedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(UUID.fromString(schoolDetail1.getSchoolId()));
         assertThat(closedSchoolCollections).isEmpty();
@@ -475,7 +475,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
         assertThat(collectionEntity.getCollectionStatusCode()).isNotEqualTo(CollectionStatus.PROVDUPES.getCode());
 
-        eventTaskSchedulerAsyncService.findClosedSchoolsAndDeleteSdcCollection();
+        eventTaskSchedulerAsyncService.findModifiedSchoolsAndUpdateSdcSchoolCollection();
 
         List<SdcSchoolCollectionEntity> closedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(UUID.fromString(schoolDetail1.getSchoolId()));
         assertThat(closedSchoolCollections).isEmpty();
@@ -525,7 +525,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
         assertThat(collectionEntity.getCollectionStatusCode()).isNotEqualTo(CollectionStatus.PROVDUPES.getCode());
 
-        eventTaskSchedulerAsyncService.findClosedSchoolsAndDeleteSdcCollection();
+        eventTaskSchedulerAsyncService.findModifiedSchoolsAndUpdateSdcSchoolCollection();
 
         List<SdcSchoolCollectionEntity> closedSchoolCollections = sdcSchoolCollectionRepository.findAllBySchoolID(UUID.fromString(schoolDetail1.getSchoolId()));
         assertThat(closedSchoolCollections).hasSize(1);
