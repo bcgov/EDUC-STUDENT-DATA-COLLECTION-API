@@ -480,7 +480,6 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
         assertFalse(result);
     }
 
-
     private SchoolTombstone createSchoolTombstoneWithCategoryAndFacilityCode(String categoryCode, String facilityCode) {
         SchoolTombstone tombstone = createMockSchoolTombstone();
         tombstone.setSchoolCategoryCode(categoryCode);
