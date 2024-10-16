@@ -4,9 +4,11 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
+import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGrade;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySpecialEdAdultHeadcountResult;
@@ -16,7 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.beans.Expression;
 import java.beans.Statement;
 import java.lang.reflect.Field;
-import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -274,5 +276,18 @@ public class TransformUtil {
 
   public static boolean isCollectionInProvDupes(CollectionEntity collection){
     return collection.getCollectionStatusCode().equals(CollectionStatus.PROVDUPES.getCode());
+  }
+
+  public static void writeEnrolledProgramCodes(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity, List<String> enrolledProgramCodes) {
+    enrolledProgramCodes.forEach(enrolledProgramCode -> {
+      var enrolledProgramEntity = new SdcSchoolCollectionStudentEnrolledProgramEntity();
+      enrolledProgramEntity.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentEntity);
+      enrolledProgramEntity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      enrolledProgramEntity.setUpdateDate(LocalDateTime.now());
+      enrolledProgramEntity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+      enrolledProgramEntity.setCreateDate(LocalDateTime.now());
+      enrolledProgramEntity.setEnrolledProgramCode(enrolledProgramCode);
+      sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().add(enrolledProgramEntity);
+    });
   }
 }

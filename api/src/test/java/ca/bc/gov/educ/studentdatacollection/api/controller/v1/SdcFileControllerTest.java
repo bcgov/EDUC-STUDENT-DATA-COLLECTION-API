@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -58,6 +59,9 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   SdcSchoolCollectionStudentRepository schoolStudentRepository;
 
   @Autowired
+  SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+
+  @Autowired
   SdcDuplicateRepository sdcDuplicateRepository;
 
   @Autowired
@@ -75,7 +79,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   @Autowired
   private SdcDuplicatesService sdcDuplicatesService;
 
-  protected final static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+  protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
   @BeforeEach
   public void setUp() {
@@ -462,7 +466,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     SdcDuplicateStudentEntity stud1 = new SdcDuplicateStudentEntity();
     stud1.setSdcSchoolCollectionID(UUID.randomUUID());
     stud1.setSdcDuplicateEntity(dup);
-    stud1.setSdcSchoolCollectionStudentEntity(students.get(0));
+    stud1.setSdcSchoolCollectionStudentEntity(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudentLightEntity(students.get(0)));
     stud1.setCreateUser("ABC");
     stud1.setCreateDate(LocalDateTime.now());
     stud1.setUpdateUser("ABC");
@@ -471,7 +475,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     SdcDuplicateStudentEntity stud2 = new SdcDuplicateStudentEntity();
     stud2.setSdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     stud2.setSdcDuplicateEntity(dup);
-    stud2.setSdcSchoolCollectionStudentEntity(students.get(1));
+    stud2.setSdcSchoolCollectionStudentEntity(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudentLightEntity(students.get(1)));
     stud2.setCreateUser("ABC");
     stud2.setCreateDate(LocalDateTime.now());
     stud2.setUpdateUser("ABC");
@@ -537,7 +541,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       this.schoolStudentRepository.save(sdcSchoolCollectionStudentEntity);
     });
 
-    sdcDuplicatesService.softDeleteSdcSchoolCollectionStudent(students.get(0).getSdcSchoolCollectionStudentID());
+    sdcSchoolCollectionStudentService.markStudentSoftDeletedOnly(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(students.get(0)));
 
     var studentsAfterDelete = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     var deletedStudent = studentsAfterDelete.stream().filter(student -> student.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase("DELETED"));

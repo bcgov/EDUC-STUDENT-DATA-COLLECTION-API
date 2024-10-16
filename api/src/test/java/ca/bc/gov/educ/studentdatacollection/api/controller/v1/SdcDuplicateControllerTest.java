@@ -12,8 +12,10 @@ import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SoftDeleteRecordSet;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
@@ -22,13 +24,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -132,9 +130,11 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
     students.add(student1Entity);
     students.add(student2Entity);
 
-    when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
+    PenMatchRecord rec = new PenMatchRecord();
+    rec.setStudentID(studentID.toString());
+    when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().penStatus("AA").matchingRecords(Arrays.asList(rec)).build());
 
-    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/" + programDupe.get().getSdcDuplicateID() + "/type/PROGRAM")
+    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/type/PROGRAM")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
@@ -146,7 +146,7 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
 
   @Test
   void testUpdateStudentAndResolveDistrictDuplicates_typeDELETE_ENROLLMENT_DUPLICATE_shouldSetDuplicateStatus_RELEASED() throws Exception {
-    final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_DELETE_SDC_SCHOOL_COLLECTION_STUDENT";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     CollectionEntity collection = createMockCollectionEntity();
@@ -183,13 +183,14 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
 
     assertThat(sdcDuplicates).hasSize(1);
     val programDupe = sdcDuplicates.stream().filter(duplicate -> duplicate.getDuplicateTypeCode().equalsIgnoreCase("ENROLLMENT")).findFirst();
-    List<SdcSchoolCollectionStudent> students = new ArrayList();
-    students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
 
-    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/" + programDupe.get().getSdcDuplicateID() + "/type/DELETE_ENROLLMENT_DUPLICATE")
+    SoftDeleteRecordSet softDeleteRecordSet = new SoftDeleteRecordSet();
+    softDeleteRecordSet.setSoftDeleteStudentIDs(Arrays.asList(UUID.fromString(programDupe.get().getSdcSchoolCollectionStudent1Entity().getSdcSchoolCollectionStudentID())));
+
+    this.mockMvc.perform(post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/soft-delete-students")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
-            .content(JsonUtil.getJsonStringFromObject(students))
+            .content(JsonUtil.getJsonStringFromObject(softDeleteRecordSet))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
 
     val duplicate = sdcDuplicateRepository.findBySdcDuplicateID(UUID.fromString(programDupe.get().getSdcDuplicateID()));
@@ -197,12 +198,13 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  void testUpdateStudentAndResolveDistrictDuplicates_typeCHANGE_GRADE_shouldSetDuplicateStatus_GRADE_CHNG() throws Exception {
+  void testUpdateStudentAndResolveProvDuplicates_typeCHANGE_GRADE_shouldSetDuplicateStatus_GRADE_CHNG() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection.setCollectionStatusCode(CollectionStatus.PROVDUPES.getCode());
     collectionRepository.save(collection);
 
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
@@ -222,8 +224,6 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
 
     when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
     when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
-
-    when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
     when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
 
     var studentID = UUID.randomUUID();
@@ -244,7 +244,11 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
     List<SdcSchoolCollectionStudent> students = new ArrayList();
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
 
-    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/" + programDupe.get().getSdcDuplicateID() + "/type/CHANGE_GRADE")
+    PenMatchRecord rec = new PenMatchRecord();
+    rec.setStudentID(studentID.toString());
+    when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().penStatus("AA").matchingRecords(Arrays.asList(rec)).build());
+
+    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/type/CHANGE_GRADE")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
@@ -297,7 +301,7 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
 
-    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/" + programDupe.get().getSdcDuplicateID() + "/type/DELETE_ENROLLMENT_DUPLICATE")
+    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/type/DELETE_ENROLLMENT_DUPLICATE")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
@@ -356,7 +360,7 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
     students.add(programDupe.get().getSdcSchoolCollectionStudent1Entity());
 
-    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/" + programDupe.get().getSdcDuplicateID() + "/type/CHANGE_GRADE")
+    this.mockMvc.perform(post(URL.BASE_URL_DUPLICATE + "/type/CHANGE_GRADE")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
