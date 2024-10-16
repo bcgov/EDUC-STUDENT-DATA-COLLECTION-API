@@ -219,10 +219,8 @@ public class SdcDuplicatesService {
       if (studentDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
         // resolve non-allowable dupe
         if(dupe.getDuplicateTypeCode().equals(DuplicateTypeCode.ENROLLMENT.getCode()) && dupe.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode())){
-          if(StringUtils.isNotBlank(dupe.getDuplicateResolutionCode())){
-            //CONFIRM THIS WITH ANNA
-            sdcDuplicateRepository.delete(dupe);
-          } else {
+          if(StringUtils.isBlank(dupe.getDuplicateResolutionCode()))
+          {
             dupe.setDuplicateResolutionCode(resolutionCode.getCode());
             dupe.setRetainedSdcSchoolCollectionStudentEntity(otherStudent.get().getSdcSchoolCollectionStudentEntity());
             sdcDuplicateRepository.save(dupe);
