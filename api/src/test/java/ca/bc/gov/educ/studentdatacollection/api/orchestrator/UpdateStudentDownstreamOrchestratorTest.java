@@ -40,8 +40,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.INITIATE_SUCCESS;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.STUDENT_UPDATED;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.STUDENT_API_TOPIC;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC;
@@ -356,6 +355,137 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
         when(restUtils.getDistrictByDistrictID(school.getDistrictId())).thenReturn(Optional.of(district));
         Integer result = updateStudentDownstreamOrchestrator.extractRelevantMincode(school);
         assertEquals(987, result);
+    }
+
+    @Test
+    void isStudentAttendingSchoolOfRecord_shouldReturnFalse_whenCurrentStudentHasNullCourses_andAnotherStudentHasCourses() {
+        UpdateStudentSagaData currStudent = createUpdateStudentSagaDataWithCourses(null);
+        CollectionEntity collectionEntity = createMockCollectionEntity();
+        SdcSchoolCollectionEntity schoolCollectionEntity = createMockSdcSchoolCollectionEntity(collectionEntity, UUID.randomUUID());
+
+        SdcSchoolCollectionStudentEntity studentEntity1 = createMockSchoolStudentEntity(schoolCollectionEntity);
+        studentEntity1.setNumberOfCourses(String.valueOf(3.0));
+        studentEntity1.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+        studentEntity1.setAssignedPen("123456789");
+
+        List<SdcSchoolCollectionStudentEntity> otherStudents = List.of(studentEntity1);
+
+        boolean result = updateStudentDownstreamOrchestrator.isStudentAttendingSchoolOfRecord(currStudent, otherStudents);
+        assertFalse(result);
+    }
+
+    @Test
+    void isStudentAttendingSchoolOfRecord_shouldReturnTrue_whenCourseNumbersAreEqual_andBothSchoolsArePublic_andCurrentStudentSchoolIsStandard() {
+        UpdateStudentSagaData currStudent = createUpdateStudentSagaDataWithCourses("3.0");
+        currStudent.setMincode("1234567");
+
+        CollectionEntity collectionEntity = createMockCollectionEntity();
+        SdcSchoolCollectionEntity schoolCollectionEntity = createMockSdcSchoolCollectionEntity(collectionEntity, UUID.randomUUID());
+
+        SdcSchoolCollectionStudentEntity studentEntity1 = createMockSchoolStudentEntity(schoolCollectionEntity);
+        studentEntity1.setNumberOfCourses(String.valueOf(3.0));
+        studentEntity1.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+        studentEntity1.setAssignedPen("123456789");
+
+        List<SdcSchoolCollectionStudentEntity> otherStudents = List.of(studentEntity1);
+
+        SchoolTombstone currentSchool = createSchoolTombstoneWithCategoryAndFacilityCode(SchoolCategoryCodes.PUBLIC.getCode(), "STANDARD");
+        when(restUtils.getSchoolByMincode(currStudent.getMincode())).thenReturn(Optional.of(currentSchool));
+
+        SchoolTombstone otherSchool = createSchoolTombstoneWithCategoryAndFacilityCode(SchoolCategoryCodes.PUBLIC.getCode(), "NOT_STANDARD");
+        when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(otherSchool));
+
+        boolean result = updateStudentDownstreamOrchestrator.isStudentAttendingSchoolOfRecord(currStudent, otherStudents);
+        assertTrue(result);
+    }
+
+    @Test
+    void isStudentAttendingSchoolOfRecord_shouldReturnFalse_whenCourseNumbersAreEqual_andBothSchoolsArePublic_andOtherStudentSchoolIsStandard() {
+        UpdateStudentSagaData currStudent = createUpdateStudentSagaDataWithCourses("3.0");
+        currStudent.setMincode("1234567");
+
+        CollectionEntity collectionEntity = createMockCollectionEntity();
+        SdcSchoolCollectionEntity schoolCollectionEntity = createMockSdcSchoolCollectionEntity(collectionEntity, UUID.randomUUID());
+
+        SdcSchoolCollectionStudentEntity studentEntity1 = createMockSchoolStudentEntity(schoolCollectionEntity);
+        studentEntity1.setNumberOfCourses(String.valueOf(3.0));
+        studentEntity1.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+        studentEntity1.setAssignedPen("123456789");
+
+        List<SdcSchoolCollectionStudentEntity> otherStudents = List.of(studentEntity1);
+
+        SchoolTombstone currentSchool = createSchoolTombstoneWithCategoryAndFacilityCode(SchoolCategoryCodes.PUBLIC.getCode(), "NOT_STANDARD");
+        when(restUtils.getSchoolByMincode(currStudent.getMincode())).thenReturn(Optional.of(currentSchool));
+
+        SchoolTombstone otherSchool = createSchoolTombstoneWithCategoryAndFacilityCode(SchoolCategoryCodes.PUBLIC.getCode(), "STANDARD");
+        when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(otherSchool));
+
+        boolean result = updateStudentDownstreamOrchestrator.isStudentAttendingSchoolOfRecord(currStudent, otherStudents);
+        assertFalse(result);
+    }
+
+    @Test
+    void isStudentAttendingSchoolOfRecord_shouldReturnFalse_whenCourseNumbersAreEqual_andBothSchoolsArePublic_andBothSchoolsAreStandard_andOtherSchoolHasLowerMincode() {
+        UpdateStudentSagaData currStudent = createUpdateStudentSagaDataWithCourses("3.0");
+        currStudent.setMincode("1234567");
+
+        CollectionEntity collectionEntity = createMockCollectionEntity();
+        SdcSchoolCollectionEntity schoolCollectionEntity = createMockSdcSchoolCollectionEntity(collectionEntity, UUID.randomUUID());
+
+        SdcSchoolCollectionStudentEntity studentEntity1 = createMockSchoolStudentEntity(schoolCollectionEntity);
+        studentEntity1.setNumberOfCourses(String.valueOf(3.0));
+        studentEntity1.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+        studentEntity1.setAssignedPen("123456789");
+
+        List<SdcSchoolCollectionStudentEntity> otherStudents = List.of(studentEntity1);
+
+        SchoolTombstone currentSchool = createSchoolTombstoneWithCategoryAndFacilityCode(SchoolCategoryCodes.PUBLIC.getCode(), "STANDARD");
+        currentSchool.setDistrictId("DistrictID");
+        District currentDistrict = createMockDistrict();
+        currentDistrict.setDistrictNumber("987");
+        when(restUtils.getSchoolByMincode(currStudent.getMincode())).thenReturn(Optional.of(currentSchool));
+        when(restUtils.getDistrictByDistrictID(currentSchool.getDistrictId())).thenReturn(Optional.of(currentDistrict));
+
+
+        SchoolTombstone otherSchool = createSchoolTombstoneWithCategoryAndFacilityCode(SchoolCategoryCodes.PUBLIC.getCode(), "STANDARD");
+        otherSchool.setDistrictId("DistrictID2");
+        District otherDistrict = createMockDistrict();
+        otherDistrict.setDistrictNumber("654");
+        when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(otherSchool));
+        when(restUtils.getDistrictByDistrictID(otherSchool.getDistrictId())).thenReturn(Optional.of(otherDistrict));
+
+        boolean result = updateStudentDownstreamOrchestrator.isStudentAttendingSchoolOfRecord(currStudent, otherStudents);
+        assertFalse(result);
+    }
+
+    @Test
+    void isStudentAttendingSchoolOfRecord_shouldReturnFalse_whenCurrentStudentSchoolTombstoneIsMissing() {
+        UpdateStudentSagaData currStudent = createUpdateStudentSagaDataWithCourses("3.0");
+        currStudent.setMincode("1234567");
+
+        CollectionEntity collectionEntity = createMockCollectionEntity();
+        SdcSchoolCollectionEntity schoolCollectionEntity = createMockSdcSchoolCollectionEntity(collectionEntity, UUID.randomUUID());
+
+        SdcSchoolCollectionStudentEntity studentEntity1 = createMockSchoolStudentEntity(schoolCollectionEntity);
+        studentEntity1.setNumberOfCourses(String.valueOf(3.0));
+        studentEntity1.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+        studentEntity1.setAssignedPen("123456789");
+
+        List<SdcSchoolCollectionStudentEntity> otherStudents = List.of(studentEntity1);
+
+        when(restUtils.getSchoolByMincode(currStudent.getMincode())).thenReturn(Optional.empty());
+        when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(createMockSchoolTombstone()));
+
+        boolean result = updateStudentDownstreamOrchestrator.isStudentAttendingSchoolOfRecord(currStudent, otherStudents);
+        assertFalse(result);
+    }
+
+
+    private SchoolTombstone createSchoolTombstoneWithCategoryAndFacilityCode(String categoryCode, String facilityCode) {
+        SchoolTombstone tombstone = createMockSchoolTombstone();
+        tombstone.setSchoolCategoryCode(categoryCode);
+        tombstone.setFacilityTypeCode(facilityCode);
+        return tombstone;
     }
 
     private UpdateStudentSagaData createUpdateStudentSagaDataWithCourses(String numberOfCourses) {
