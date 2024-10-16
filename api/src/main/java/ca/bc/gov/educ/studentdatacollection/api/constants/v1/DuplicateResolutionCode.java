@@ -6,7 +6,9 @@ public enum DuplicateResolutionCode {
 
   RELEASED("RELEASED", "Student removed from school."),
   GRADE_CHNG("GRADE_CHNG", "Student grade was changed."),
-  RESOLVED("RESOLVED", "Student removed from conflicting program.");
+  RESOLVED("RESOLVED", "Student removed from conflicting program."),
+  MIN_UPDT("MIN_UPDT", "Updated by Ministry Staff."),
+  ;
 
   @Getter
   private final String code;

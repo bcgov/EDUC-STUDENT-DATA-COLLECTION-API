@@ -368,30 +368,24 @@ public class SdcSchoolCollectionStudentService {
       return processedSdcSchoolCollectionStudent;
     }
 
-    if(penCode.equalsIgnoreCase("NEW")) {
-      return runDuplicateAndUpdatePenStatusToNEW(processedSdcSchoolCollectionStudent, isCollectionInProvDupes, studentEntity);
-    } else if(penCode.equalsIgnoreCase("MATCH")) {
-      return runDuplicateAndUpdatePenStatusToMATCH(processedSdcSchoolCollectionStudent, isCollectionInProvDupes, studentEntity, curStudentEntity);
+    if(isCollectionInProvDupes && penCode.equalsIgnoreCase("MATCH")) {
+      return runDuplicateAndUpdatePenStatusToMATCH(processedSdcSchoolCollectionStudent, true, studentEntity);
+    } else {
+      return removeDuplicateAndUpdatePenStatusToNEW(processedSdcSchoolCollectionStudent, studentEntity);
     }
-    return null;
   }
 
-  public SdcSchoolCollectionStudentEntity runDuplicateAndUpdatePenStatusToNEW(SdcSchoolCollectionStudentEntity processedSdcSchoolCollectionStudent, boolean isCollectionInProvDupes, SdcSchoolCollectionStudentEntity studentEntity) {
-    if (isCollectionInProvDupes){
-      sdcDuplicatesService.deleteAllDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
-    }
+  public SdcSchoolCollectionStudentEntity removeDuplicateAndUpdatePenStatusToNEW(SdcSchoolCollectionStudentEntity processedSdcSchoolCollectionStudent, SdcSchoolCollectionStudentEntity studentEntity) {
+    sdcDuplicatesService.deleteAllDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
     return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
   }
 
-  public SdcSchoolCollectionStudentEntity runDuplicateAndUpdatePenStatusToMATCH(SdcSchoolCollectionStudentEntity processedSdcSchoolCollectionStudent, boolean isCollectionInProvDupes, SdcSchoolCollectionStudentEntity studentEntity,  SdcSchoolCollectionStudentEntity curStudentEntity) {
-    UUID originalAssignedStudentID = curStudentEntity.getUnderReviewAssignedStudentId();
-    if (hasAssignedStudentIDChanged(originalAssignedStudentID, processedSdcSchoolCollectionStudent.getAssignedStudentId())) {
-      sdcDuplicatesService.deleteAllDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
-      sdcDuplicatesService.generateAllowableDuplicatesOrElseThrow(processedSdcSchoolCollectionStudent, isCollectionInProvDupes);
-    } else if (isCollectionInProvDupes){
-      sdcDuplicatesService.resolveAllExistingDuplicatesForType(processedSdcSchoolCollectionStudent, DuplicateResolutionCode.RELEASED);
-    }
+  public SdcSchoolCollectionStudentEntity runDuplicateAndUpdatePenStatusToMATCH(SdcSchoolCollectionStudentEntity processedSdcSchoolCollectionStudent, boolean isCollectionInProvDupes, SdcSchoolCollectionStudentEntity studentEntity) {
+    sdcDuplicatesService.deleteAllDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
+    sdcDuplicatesService.generateAllowableDuplicatesOrElseThrow(processedSdcSchoolCollectionStudent, isCollectionInProvDupes);
+    sdcDuplicatesService.resolveAllExistingDuplicatesForType(processedSdcSchoolCollectionStudent, DuplicateResolutionCode.MIN_UPDT);
+
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
     return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
   }
@@ -445,7 +439,9 @@ public class SdcSchoolCollectionStudentService {
       return processedSdcSchoolCollectionStudent;
     }
 
-    sdcDuplicatesService.generateAllowableDuplicatesOrElseThrow(sdcSchoolCollectionStudentEntity, isCollectionInProvDupes);
+    if(isCollectionInProvDupes) {
+      sdcDuplicatesService.generateAllowableDuplicatesOrElseThrow(sdcSchoolCollectionStudentEntity, true);
+    }
 
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
     return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
@@ -516,9 +512,11 @@ public class SdcSchoolCollectionStudentService {
 
     if(hasAssignedStudentIDChanged(originalAssignedStudentID, processedSdcSchoolCollectionStudent.getAssignedStudentId())) {
       sdcDuplicatesService.deleteAllDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
-      sdcDuplicatesService.generateAllowableDuplicatesOrElseThrow(processedSdcSchoolCollectionStudent, isCollectionInProvDupes);
-    }else if (isCollectionInProvDupes){
+    }
+
+    if (isCollectionInProvDupes){
       sdcDuplicatesService.resolveAllExistingDuplicatesForType(processedSdcSchoolCollectionStudent, duplicateResolutionCode);
+      sdcDuplicatesService.generateAllowableDuplicatesOrElseThrow(processedSdcSchoolCollectionStudent, true);
     }
 
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));

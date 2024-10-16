@@ -97,7 +97,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
          if(StringUtils.isNotBlank(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())) {
              RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
             return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent
-                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent), DuplicateResolutionCode.RELEASED));
+                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent), DuplicateResolutionCode.MIN_UPDT));
         } else {
              RequestUtil.setAuditColumnsForCreate(sdcSchoolCollectionStudent);
             return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.createSdcSchoolCollectionStudent
