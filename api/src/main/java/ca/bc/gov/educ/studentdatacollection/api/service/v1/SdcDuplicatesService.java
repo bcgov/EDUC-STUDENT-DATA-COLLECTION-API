@@ -199,11 +199,25 @@ public class SdcDuplicatesService {
 
   @Transactional(propagation = Propagation.MANDATORY)
   public void resolveAllExistingDuplicatesForType(SdcSchoolCollectionStudentEntity curStudentEntity, DuplicateResolutionCode resolutionCode){
+    // get all existing dupes
     List<SdcDuplicateEntity> existingStudentDuplicates = sdcDuplicateRepository.findAllBySdcDuplicateStudentEntities_SdcSchoolCollectionStudentEntity_SdcSchoolCollectionStudentID(curStudentEntity.getSdcSchoolCollectionStudentID());
+    //for each existing dupe
     existingStudentDuplicates.forEach(dupe -> {
+      // get other student
       Optional<SdcDuplicateStudentEntity> otherStudent = dupe.getSdcDuplicateStudentEntities().stream().filter(dupeStd -> !dupeStd.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID().equals(curStudentEntity.getSdcSchoolCollectionStudentID())).findFirst();
+      // get new duplicates between the 2 students
       var studentDupes = runDuplicatesCheck(DuplicateLevelCode.PROVINCIAL, sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(curStudentEntity), otherStudent.get().getSdcSchoolCollectionStudentEntity(), true);
+      var nonAllowableDupes = studentDupes.stream().filter(sdcDuplicateEntity -> sdcDuplicateEntity.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode())
+              && sdcDuplicateEntity.getDuplicateTypeCode().equals(DuplicateTypeCode.ENROLLMENT.getCode())).toList();
+      // check if any new non-allowable enrollment dupes ?
+      if(!nonAllowableDupes.isEmpty()) {
+        log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate on save :: {}", curStudentEntity.getAssignedStudentId());
+        throw new InvalidPayloadException(createDuplicatesThrow(curStudentEntity.getAssignedPen()));
+      }
+
+      // check if existing dupe is also present in new dupes list
       if (studentDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
+        // resolve non-allowable dupe
         if(dupe.getDuplicateTypeCode().equals(DuplicateTypeCode.ENROLLMENT.getCode()) && dupe.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode())){
           if(StringUtils.isNotBlank(dupe.getDuplicateResolutionCode())){
             //CONFIRM THIS WITH ANNA
@@ -213,6 +227,7 @@ public class SdcDuplicatesService {
             dupe.setRetainedSdcSchoolCollectionStudentEntity(otherStudent.get().getSdcSchoolCollectionStudentEntity());
             sdcDuplicateRepository.save(dupe);
 
+            //save new allowable and prog. dupe
             var programAndAllowableDupes = studentDupes.stream().filter(sdcDuplicateEntity -> sdcDuplicateEntity.getDuplicateSeverityCode().equals(DuplicateSeverityCode.ALLOWABLE.getCode()) || sdcDuplicateEntity.getDuplicateTypeCode().equals(DuplicateTypeCode.PROGRAM.getCode()));
             programAndAllowableDupes.forEach(allowable -> {
               if (existingStudentDuplicates.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == allowable.getUniqueObjectHash())) {
@@ -220,7 +235,7 @@ public class SdcDuplicatesService {
               }
             });
           }
-        }else if(dupe.getDuplicateTypeCode().equals(DuplicateTypeCode.PROGRAM.getCode()) && studentDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
+        } else if(dupe.getDuplicateTypeCode().equals(DuplicateTypeCode.PROGRAM.getCode()) && studentDupes.stream().map(SdcDuplicateEntity::getUniqueObjectHash).noneMatch(duplicateHash -> duplicateHash == dupe.getUniqueObjectHash())) {
           dupe.setDuplicateResolutionCode(DuplicateResolutionCode.RESOLVED.getCode());
           dupe.setRetainedSdcSchoolCollectionStudentEntity(otherStudent.get().getSdcSchoolCollectionStudentEntity());
           sdcDuplicateRepository.save(dupe);

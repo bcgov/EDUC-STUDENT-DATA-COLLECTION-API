@@ -384,7 +384,6 @@ public class SdcSchoolCollectionStudentService {
   public SdcSchoolCollectionStudentEntity runDuplicateAndUpdatePenStatusToMATCH(SdcSchoolCollectionStudentEntity processedSdcSchoolCollectionStudent, boolean isCollectionInProvDupes, SdcSchoolCollectionStudentEntity studentEntity) {
     sdcDuplicatesService.deleteAllDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
     sdcDuplicatesService.generateAllowableDuplicatesOrElseThrow(processedSdcSchoolCollectionStudent, isCollectionInProvDupes);
-    sdcDuplicatesService.resolveAllExistingDuplicatesForType(processedSdcSchoolCollectionStudent, DuplicateResolutionCode.MIN_UPDT);
 
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
     return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
