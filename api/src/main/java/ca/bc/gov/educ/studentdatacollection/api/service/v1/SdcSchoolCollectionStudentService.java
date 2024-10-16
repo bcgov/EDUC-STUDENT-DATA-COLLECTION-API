@@ -189,17 +189,12 @@ public class SdcSchoolCollectionStudentService {
 
   @Async("publisherExecutor")
   public void prepareStudentsForDemogUpdate(final List<SdcSchoolCollectionStudentEntity> sdcStudentEntities) {
-    final List<UpdateStudentSagaData> updateStudentSagas = sdcStudentEntities.stream()
-            .map(el -> {
-              Optional<CollectionEntity> currCollection = collectionRepository.findActiveCollection();
 
-              List<SdcSchoolCollectionStudentEntity> otherStudentsWithSameAssignedID = sdcStudentEntities.stream()
-                      .filter(entity -> entity.getAssignedStudentId().equals(el.getAssignedStudentId()) && !entity.getSdcSchoolCollectionStudentID().equals(el.getSdcSchoolCollectionStudentID()))
-                      .toList();
-
-              if (currCollection.get().getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode()) || otherStudentsWithSameAssignedID.isEmpty() || isCurrentStudentAttendingSchoolOfRecord(el, otherStudentsWithSameAssignedID)){
+      final List<UpdateStudentSagaData> updateStudentSagas = sdcStudentEntities.stream()
+              .map(el -> {
                 val updateStudentSagaData = new UpdateStudentSagaData();
                 var school = this.restUtils.getSchoolBySchoolID(el.getSdcSchoolCollection().getSchoolID().toString());
+
                 updateStudentSagaData.setDob(el.getDob());
                 updateStudentSagaData.setSexCode(el.getGender());
                 updateStudentSagaData.setGenderCode(el.getGender());
@@ -212,69 +207,15 @@ public class SdcSchoolCollectionStudentService {
                 updateStudentSagaData.setMincode(school.get().getMincode());
                 updateStudentSagaData.setSdcSchoolCollectionStudentID(el.getSdcSchoolCollectionStudentID().toString());
                 updateStudentSagaData.setAssignedPEN(el.getAssignedPen());
+                updateStudentSagaData.setAssignedStudentID(el.getAssignedStudentId());
+                updateStudentSagaData.setNumberOfCourses(el.getNumberOfCourses());
+                updateStudentSagaData.setCollectionID(el.getSdcSchoolCollection().getCollectionEntity().getCollectionID());
+                updateStudentSagaData.setCollectionTypeCode(el.getSdcSchoolCollection().getCollectionEntity().getCollectionTypeCode());
 
                 return updateStudentSagaData;
-              }
-              return null;
 
-            }).toList();
-    publishStudentRecordsForDemogUpdate(updateStudentSagas);
-  }
-
-  public boolean isCurrentStudentAttendingSchoolOfRecord(SdcSchoolCollectionStudentEntity currStudent, List<SdcSchoolCollectionStudentEntity> otherStudents){
-    List<Float> otherStudentCourseNumbers = otherStudents.stream().map(std -> Float.valueOf(std.getNumberOfCourses())).toList();
-    Float maxCourseNumberFromOtherStudents = Collections.max(otherStudentCourseNumbers);
-
-    if(Float.valueOf(currStudent.getNumberOfCourses()) > maxCourseNumberFromOtherStudents){
-      return true;
-    } else if(Float.valueOf(currStudent.getNumberOfCourses()) < maxCourseNumberFromOtherStudents){
-      return false;
-    } else {
-
-      Optional<SchoolTombstone> currStudentSchoolTombstone = restUtils.getSchoolBySchoolID(String.valueOf(currStudent.getSdcSchoolCollection().getSchoolID()));
-      List<Optional<SchoolTombstone>> otherStudentSchoolTombstones = new ArrayList<>(otherStudents.stream().filter(std -> Float.valueOf(std.getNumberOfCourses()).equals(maxCourseNumberFromOtherStudents)).map(std -> restUtils.getSchoolBySchoolID(String.valueOf(std.getSdcSchoolCollection().getSchoolID()))).toList());
-
-      boolean otherSchoolsIncludePublic = otherStudentSchoolTombstones.stream().flatMap(Optional::stream).anyMatch(tombstone -> SchoolCategoryCodes.PUBLIC.getCode().equals(tombstone.getSchoolCategoryCode()));
-
-      if (currStudentSchoolTombstone.isPresent()){
-        if(currStudentSchoolTombstone.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode()) && !otherSchoolsIncludePublic){
-          return true;
-        } else if (!currStudentSchoolTombstone.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode()) && otherSchoolsIncludePublic) {
-          return false;
-        } else {
-          otherStudentSchoolTombstones.removeIf(sch -> !Objects.equals(sch.get().getSchoolCategoryCode(), SchoolCategoryCodes.PUBLIC.getCode()));
-          boolean otherSchoolsIncludeStandard = otherStudentSchoolTombstones.stream().flatMap(Optional::stream).anyMatch(tombstone -> FacilityTypeCodes.STANDARD.getCode().equals(tombstone.getFacilityTypeCode()));
-
-          if(currStudentSchoolTombstone.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.STANDARD.getCode()) && !otherSchoolsIncludeStandard){
-            return true;
-          } else if (!currStudentSchoolTombstone.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.STANDARD.getCode()) && otherSchoolsIncludeStandard){
-            return false;
-          } else {
-            otherStudentSchoolTombstones.removeIf(sch -> !Objects.equals(sch.get().getFacilityTypeCode(), FacilityTypeCodes.STANDARD.getCode()));
-            List<Integer> otherSchoolsMincodes = otherStudentSchoolTombstones.stream()
-                    .map(sch -> extractRelevantMincode(sch.get()))
-                    .toList();
-
-            Integer minOtherSchoolsMincodes = Collections.min(otherSchoolsMincodes);
-            Integer currSchoolMincode = extractRelevantMincode(currStudentSchoolTombstone.get());
-
-            return currSchoolMincode < minOtherSchoolsMincodes;
-          }
-        }
-      } else {
-        // School tombstone for current student record is missing so current student should not be considered the primary sdc school collection student record
-        return false;
-      }
-    }
-  }
-
-  private Integer extractRelevantMincode(SchoolTombstone school){
-    if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
-      return Integer.parseInt(school.getMincode());
-    } else {
-      Optional<District> district = restUtils.getDistrictByDistrictID(school.getDistrictId());
-      return Integer.parseInt(Objects.requireNonNull(district.map(District::getDistrictNumber).orElse(null)));
-    }
+              }).toList();
+      publishStudentRecordsForDemogUpdate(updateStudentSagas);
   }
 
   public void publishStudentRecordsForDemogUpdate(final List<UpdateStudentSagaData> updateStudentSagas) {
