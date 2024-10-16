@@ -512,11 +512,9 @@ public class SdcSchoolCollectionStudentService {
 
     if(hasAssignedStudentIDChanged(originalAssignedStudentID, processedSdcSchoolCollectionStudent.getAssignedStudentId())) {
       sdcDuplicatesService.deleteAllDuplicatesForStudent(studentEntity.getSdcSchoolCollectionStudentID());
-    }
-
-    if (isCollectionInProvDupes){
-      sdcDuplicatesService.resolveAllExistingDuplicatesForType(processedSdcSchoolCollectionStudent, duplicateResolutionCode);
       sdcDuplicatesService.generateAllowableDuplicatesOrElseThrow(processedSdcSchoolCollectionStudent, true);
+    } else if (isCollectionInProvDupes){
+      sdcDuplicatesService.resolveAllExistingDuplicatesForType(processedSdcSchoolCollectionStudent, duplicateResolutionCode);
     }
 
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
