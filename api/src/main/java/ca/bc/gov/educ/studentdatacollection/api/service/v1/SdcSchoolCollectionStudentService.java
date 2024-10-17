@@ -6,7 +6,6 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateResolutionCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramDuplicateTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
@@ -23,10 +22,8 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.UpdateStudentSagaData;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
@@ -80,6 +77,8 @@ public class SdcSchoolCollectionStudentService {
   private static final String IN_REVIEW = "INREVIEW";
 
   private static final String SDC_SCHOOL_COLLECTION_STUDENT_STRING = "SdcSchoolCollectionStudentEntity";
+
+  private static final String EVENT_EMPTY_MSG = "Event String is empty, skipping the publish to topic :: {}";
 
   private final RulesProcessor rulesProcessor;
 
@@ -181,7 +180,9 @@ public class SdcSchoolCollectionStudentService {
 
   @Async("publisherExecutor")
   public void prepareStudentsForDemogUpdate(final List<SdcSchoolCollectionStudentEntity> sdcStudentEntities) {
+    CollectionEntity collection = sdcStudentEntities.get(0).getSdcSchoolCollection().getCollectionEntity();
 
+    if(!Objects.equals(collection.getCollectionTypeCode(), CollectionTypeCodes.JULY.getTypeCode())) {
       final List<UpdateStudentSagaData> updateStudentSagas = sdcStudentEntities.stream()
               .map(el -> {
                 val updateStudentSagaData = new UpdateStudentSagaData();
@@ -208,10 +209,17 @@ public class SdcSchoolCollectionStudentService {
 
               }).toList();
       publishStudentRecordsForDemogUpdate(updateStudentSagas);
+    } else {
+      publishStudentRecordsForStatusUpdate(sdcStudentEntities);
+    }
   }
 
   public void publishStudentRecordsForDemogUpdate(final List<UpdateStudentSagaData> updateStudentSagas) {
     updateStudentSagas.forEach(this::sendStudentRecordsForDemogUpdateAsMessageToTopic);
+  }
+
+  public void publishStudentRecordsForStatusUpdate(final List<SdcSchoolCollectionStudentEntity> students) {
+    students.forEach(this::sendStudentRecordsStatusUpdateMessageToTopic);
   }
 
   private void sendStudentRecordsForDemogUpdateAsMessageToTopic(final UpdateStudentSagaData updateStudentSagaData) {
@@ -222,10 +230,25 @@ public class SdcSchoolCollectionStudentService {
       if (eventString.isPresent()) {
         this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString(), eventString.get().getBytes());
       } else {
-        log.error("Event String is empty, skipping the publish to topic :: {}", updateStudentSagaData);
+        log.error(EVENT_EMPTY_MSG, updateStudentSagaData);
       }
     } else {
-      log.error("Event payload is empty, skipping the publish to topic :: {}", updateStudentSagaData);
+      log.error(EVENT_EMPTY_MSG, updateStudentSagaData);
+    }
+  }
+
+  private void sendStudentRecordsStatusUpdateMessageToTopic(final SdcSchoolCollectionStudentEntity student) {
+    final var eventPayload = JsonUtil.getJsonString(student);
+    if (eventPayload.isPresent()) {
+      final Event event = Event.builder().eventType(EventType.UPDATE_SDC_STUDENT_STATUS).eventOutcome(EventOutcome.SDC_STUDENT_STATUS_UPDATED).eventPayload(eventPayload.get()).sdcSchoolStudentID(String.valueOf(student.getSdcSchoolCollectionStudentID())).build();
+      final var eventString = JsonUtil.getJsonString(event);
+      if (eventString.isPresent()) {
+        this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString(), eventString.get().getBytes());
+      } else {
+        log.error(EVENT_EMPTY_MSG, student);
+      }
+    } else {
+      log.error(EVENT_EMPTY_MSG, student);
     }
   }
 
@@ -240,10 +263,10 @@ public class SdcSchoolCollectionStudentService {
       if (eventString.isPresent()) {
         this.messagePublisher.dispatchMessage(TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC.toString(), eventString.get().getBytes());
       } else {
-        log.error("Event String is empty, skipping the publish to topic :: {}", sdcStudentSagaData);
+        log.error(EVENT_EMPTY_MSG, sdcStudentSagaData);
       }
     } else {
-      log.error("Event payload is empty, skipping the publish to topic :: {}", sdcStudentSagaData);
+      log.error(EVENT_EMPTY_MSG, sdcStudentSagaData);
     }
   }
 

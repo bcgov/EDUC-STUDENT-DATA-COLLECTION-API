@@ -1,11 +1,12 @@
 package ca.bc.gov.educ.studentdatacollection.api.orchestrator;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.BaseOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -59,6 +60,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
                 .begin(UPDATE_STUDENT, this::updateStudent)
                 .step(UPDATE_STUDENT, STUDENT_UPDATED, UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
                 .step(UPDATE_STUDENT, NO_STUDENT_UPDATE_NEEDED, UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
+                .begin(UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
                 .end(UPDATE_SDC_STUDENT_STATUS, SDC_STUDENT_STATUS_UPDATED);
     }
 
@@ -71,9 +73,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         final Student studentDataFromEventResponse = this.restUtils.getStudentByPEN(UUID.randomUUID(), updateStudentSagaData.getAssignedPEN());
         final List<SdcSchoolCollectionStudentEntity> otherStudentsWithSameAssignedID = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(updateStudentSagaData.getCollectionID(), Collections.singletonList(updateStudentSagaData.getAssignedStudentID()));
 
-        if (updateStudentSagaData.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode()) ||
-                otherStudentsWithSameAssignedID.isEmpty() ||
-                isStudentAttendingSchoolOfRecord(updateStudentSagaData, otherStudentsWithSameAssignedID)){
+        if (otherStudentsWithSameAssignedID.isEmpty() || isStudentAttendingSchoolOfRecord(updateStudentSagaData, otherStudentsWithSameAssignedID)){
 
             studentDataFromEventResponse.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
             studentDataFromEventResponse.setMincode(updateStudentSagaData.getMincode());
@@ -99,7 +99,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
                     .eventPayload(JsonUtil.getJsonStringFromObject(updateStudentSagaData))
                     .build();
             this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
-            log.debug("message sent to UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC for STUDENT_NOT_UPDATED Event.");
+            log.debug("message sent to UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC for NO_STUDENT_UPDATE_NEEDED Event.");
         }
     }
 
@@ -143,8 +143,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
                     }
                 }
             } else {
-                // School tombstone for current student record is missing so current student should not be considered the primary sdc school collection student record
-                return false;
+                throw new EntityNotFoundException(SchoolTombstone.class, "SchoolTombstone", currStudent.getMincode());
             }
         }
     }
