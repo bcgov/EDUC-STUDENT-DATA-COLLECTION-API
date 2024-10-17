@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
@@ -459,7 +460,7 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
     }
 
     @Test
-    void isStudentAttendingSchoolOfRecord_shouldReturnFalse_whenCurrentStudentSchoolTombstoneIsMissing() {
+    void isStudentAttendingSchoolOfRecord_shouldThrowError_whenCurrentStudentSchoolTombstoneIsMissing() {
         UpdateStudentSagaData currStudent = createUpdateStudentSagaDataWithCourses("3.0");
         currStudent.setMincode("1234567");
 
@@ -476,8 +477,9 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
         when(restUtils.getSchoolByMincode(currStudent.getMincode())).thenReturn(Optional.empty());
         when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(createMockSchoolTombstone()));
 
-        boolean result = updateStudentDownstreamOrchestrator.isStudentAttendingSchoolOfRecord(currStudent, otherStudents);
-        assertFalse(result);
+        assertThrows(EntityNotFoundException.class, () -> {
+            updateStudentDownstreamOrchestrator.isStudentAttendingSchoolOfRecord(currStudent, otherStudents);
+        });
     }
 
     private SchoolTombstone createSchoolTombstoneWithCategoryAndFacilityCode(String categoryCode, String facilityCode) {
