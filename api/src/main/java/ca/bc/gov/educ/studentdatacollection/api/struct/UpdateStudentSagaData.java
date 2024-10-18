@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.UUID;
+
 @Data
 @SuperBuilder
 @AllArgsConstructor
@@ -14,6 +16,7 @@ import lombok.experimental.SuperBuilder;
 public class UpdateStudentSagaData {
     String sdcSchoolCollectionStudentID;
     String assignedPEN;
+    UUID assignedStudentID;
     String dob;
     String sexCode;
     String genderCode;
@@ -24,5 +27,8 @@ public class UpdateStudentSagaData {
     String mincode;
     String localID;
     String gradeCode;
+    String numberOfCourses;
+    String collectionTypeCode;
+    UUID collectionID;
 
 }

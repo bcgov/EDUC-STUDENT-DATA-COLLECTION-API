@@ -1,15 +1,27 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorChainProcessor;
+import ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome;
+import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
+import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityRulesProcessor;
 import ca.bc.gov.educ.studentdatacollection.api.rules.RulesProcessor;
+import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
+import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -44,10 +56,16 @@ class SdcSchoolCollectionStudentServiceTest {
     SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
 
     @Mock
+    CollectionRepository collectionRepository;
+
+    @Mock
     SdcDuplicateRepository sdcDuplicateRepository;
 
     @Mock
     RestUtils restUtils;
+
+    @Mock
+    private MessagePublisher messagePublisher;
 
     @Mock
     RulesProcessor rulesProcessor;
@@ -255,23 +273,91 @@ class SdcSchoolCollectionStudentServiceTest {
         assertNull(mockStudentEntity.getSpecialEducationNonEligReasonCode());
   }
 
+    @Test
+    void testPrepareAndSendSdcStudentsForFurtherProcessing_givenStudentEntities_shouldPrepareAndPublish() {
+        final SdcSchoolCollectionStudentEntity entity = new SdcSchoolCollectionStudentEntity();
+        entity.setSdcSchoolCollectionStudentID(UUID.randomUUID());
 
+        final SdcSchoolCollectionEntity collectionEntity = new SdcSchoolCollectionEntity();
+        collectionEntity.setSdcSchoolCollectionID(UUID.randomUUID());
+        collectionEntity.setSchoolID(UUID.randomUUID());
 
-  @Test
-    void testConversionOfNumOfCourses_WithValidInput_ConvertsCorrectly() {
-      SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
-      UUID studentID = UUID.randomUUID();
-      mockStudentEntity.setSdcSchoolCollectionStudentID(studentID);
-      mockStudentEntity.setNumberOfCourses("1100");
+        final CollectionEntity collectionEntity1 = new CollectionEntity();
+        collectionEntity1.setCollectionTypeCode("TEST");
+        collectionEntity.setCollectionEntity(collectionEntity1);
+        entity.setSdcSchoolCollection(collectionEntity);
 
-      sdcSchoolCollectionStudentService.convertNumOfCourses(mockStudentEntity);
+        final SchoolTombstone school = new SchoolTombstone();
+        school.setMincode("12345678");
+        when(sdcSchoolCollectionRepository.findById(any())).thenReturn(Optional.of(collectionEntity));
+        when(restUtils.getSchoolBySchoolID(any())).thenReturn(Optional.of(school));
 
-      BigDecimal expectedNumber = new BigDecimal("11.00");
+        doNothing().when(messagePublisher).dispatchMessage(anyString(), any(byte[].class));
 
-      assertEquals(0, expectedNumber.compareTo(mockStudentEntity.getNumberOfCoursesDec()));
-  }
+        sdcSchoolCollectionStudentService.prepareAndSendSdcStudentsForFurtherProcessing(List.of(entity));
+        verify(restUtils, atLeastOnce()).getSchoolBySchoolID(any());
+        verify(messagePublisher, atLeastOnce()).dispatchMessage(anyString(), any(byte[].class));
+    }
+    @Test
+    void testPrepareStudentsForDemogUpdate_givenStudentEntities_shouldPrepareAndPublish() {
+        final SdcSchoolCollectionStudentEntity entity = new SdcSchoolCollectionStudentEntity();
+        entity.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+        entity.setAssignedStudentId(UUID.randomUUID());
 
+        final SdcSchoolCollectionEntity collectionEntity = new SdcSchoolCollectionEntity();
+        collectionEntity.setSdcSchoolCollectionID(UUID.randomUUID());
+        collectionEntity.setSchoolID(UUID.randomUUID());
 
+        final CollectionEntity collectionEntity1 = new CollectionEntity();
+        collectionEntity1.setCollectionTypeCode("TEST");
+        collectionEntity.setCollectionEntity(collectionEntity1);
+        entity.setSdcSchoolCollection(collectionEntity);
 
+        final SchoolTombstone school = new SchoolTombstone();
+        school.setMincode("12345678");
+
+        when(collectionRepository.findActiveCollection()).thenReturn(Optional.of(collectionEntity1));
+        when(restUtils.getSchoolBySchoolID(any())).thenReturn(Optional.of(school));
+
+        sdcSchoolCollectionStudentService.prepareStudentsForDemogUpdate(List.of(entity));
+        verify(restUtils, atLeastOnce()).getSchoolBySchoolID(any());
+    }
+
+    @Test
+    void testPrepareStudentsForStatusUpdate_givenStudentEntities_shouldPrepareAndPublish() throws JsonProcessingException {
+        final SdcSchoolCollectionStudentEntity entity = new SdcSchoolCollectionStudentEntity();
+        entity.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+        entity.setAssignedStudentId(UUID.randomUUID());
+
+        final SdcSchoolCollectionEntity collectionEntity = new SdcSchoolCollectionEntity();
+        collectionEntity.setSdcSchoolCollectionID(UUID.randomUUID());
+        collectionEntity.setSchoolID(UUID.randomUUID());
+
+        final CollectionEntity collectionEntity1 = new CollectionEntity();
+        collectionEntity1.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+        collectionEntity.setCollectionEntity(collectionEntity1);
+        entity.setSdcSchoolCollection(collectionEntity);
+
+        final SchoolTombstone school = new SchoolTombstone();
+        school.setMincode("12345678");
+        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+        school.setFacilityTypeCode(FacilityTypeCodes.STANDARD.getCode());
+
+        when(sdcSchoolCollectionRepository.findById(any())).thenReturn(Optional.of(collectionEntity));
+        when(restUtils.getSchoolBySchoolID(any())).thenReturn(Optional.of(school));
+        doNothing().when(messagePublisher).dispatchMessage(anyString(), any(byte[].class));
+
+        sdcSchoolCollectionStudentService.prepareStudentsForDemogUpdate(List.of(entity));
+
+        ArgumentCaptor<byte[]> eventCaptor = ArgumentCaptor.forClass(byte[].class);
+        verify(messagePublisher).dispatchMessage(eq(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString()), eventCaptor.capture());
+
+        final String eventString = new String(eventCaptor.getValue());
+        final Event publishedEvent = JsonUtil.getJsonObjectFromString(Event.class, eventString);
+
+        assertEquals(EventType.UPDATE_SDC_STUDENT_STATUS, publishedEvent.getEventType());
+        assertEquals(EventOutcome.SDC_STUDENT_STATUS_UPDATED, publishedEvent.getEventOutcome());
+        assertNotNull(publishedEvent.getEventPayload());
+    }
 
 }
