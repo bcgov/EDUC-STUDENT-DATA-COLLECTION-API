@@ -130,7 +130,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
 
                 if(currStudentSchool.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.STANDARD.getCode()) && !otherSchoolsIncludeStandard){
                     return true;
-                } else if (!currStudentSchoolTombstone.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.STANDARD.getCode()) && otherSchoolsIncludeStandard){
+                } else if (currStudentSchool.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.STANDARD.getCode()) && otherSchoolsIncludeStandard){
                     return false;
                 } else {
                     otherStudentSchoolTombstones.removeIf(sch -> !Objects.equals(sch.get().getFacilityTypeCode(), FacilityTypeCodes.STANDARD.getCode()));
@@ -139,7 +139,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
                             .toList();
 
                     Integer minOtherSchoolsMincodes = Collections.min(otherSchoolsMincodes);
-                    Integer currSchoolMincode = extractRelevantMincode(currStudentSchoolTombstone.get());
+                    Integer currSchoolMincode = extractRelevantMincode(currStudentSchool);
 
                     return currSchoolMincode < minOtherSchoolsMincodes;
                 }
