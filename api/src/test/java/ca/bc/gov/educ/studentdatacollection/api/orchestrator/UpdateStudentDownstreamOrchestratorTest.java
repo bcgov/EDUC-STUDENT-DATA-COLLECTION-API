@@ -421,6 +421,15 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
         SchoolTombstone otherSchool = createSchoolTombstoneWithCategoryAndFacilityCode(SchoolCategoryCodes.PUBLIC.getCode(), "STANDARD");
         when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(otherSchool));
 
+        District currentDistrict = createMockDistrict();
+        currentDistrict.setDistrictNumber("987");
+        when(restUtils.getDistrictByDistrictID(currentSchool.getDistrictId())).thenReturn(Optional.of(currentDistrict));
+
+        District otherDistrict = createMockDistrict();
+        otherDistrict.setDistrictNumber("654");
+        when(restUtils.getDistrictByDistrictID(otherSchool.getDistrictId())).thenReturn(Optional.of(otherDistrict));
+
+
         boolean result = updateStudentDownstreamOrchestrator.isStudentAttendingSchoolOfRecord(currStudent, otherStudents);
         assertFalse(result);
     }
