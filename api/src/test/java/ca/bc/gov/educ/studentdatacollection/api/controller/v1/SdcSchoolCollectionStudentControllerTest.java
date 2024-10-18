@@ -24,7 +24,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,9 +59,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     private MockMvc mockMvc;
 
     @Autowired
-    SdcSchoolCollectionController sdcSchoolCollectionController;
-
-    @Autowired
     CollectionRepository collectionRepository;
 
     @Autowired
@@ -95,6 +91,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
     @AfterEach
     void cleanup(){
+        sdcDuplicateRepository.deleteAll();
         sdcSchoolCollectionStudentValidationIssueRepository.deleteAll();
         sdcSchoolCollectionStudentRepository.deleteAll();
         sdcSchoolCollectionRepository.deleteAll();
@@ -1096,34 +1093,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
-    void testDeleteSdcSchoolCollectionStudent_WithValidPayload_ShouldReturnOkay() throws Exception {
-        final GrantedAuthority grantedAuthority = () -> "SCOPE_DELETE_SDC_SCHOOL_COLLECTION_STUDENT";
-        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
-                grantedAuthority);
-
-        var collection = collectionRepository.save(createMockCollectionEntity());
-        var school = this.createMockSchool();
-        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
-        sdcMockSchool.setUploadDate(null);
-        sdcMockSchool.setUploadFileName(null);
-        var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
-        var savedSdcSchoolCollectionStudent = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(sdcSchoolCollection));
-
-        this.mockMvc.perform(
-                delete(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID()).contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .with(mockAuthority))
-                .andDo(print()).andExpect(status().isOk()).andExpect(
-                        jsonPath("$.sdcSchoolCollectionStudentStatusCode", equalTo(SdcSchoolStudentStatus.DELETED.toString()))
-                );
-
-        var deletedSdcSchoolCollectionStudent = sdcSchoolCollectionStudentRepository.findById(savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID());
-        assertThat(deletedSdcSchoolCollectionStudent).isPresent();
-        assertThat(deletedSdcSchoolCollectionStudent.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.DELETED.toString());
-    }
-
-    @Test
     void testDeleteMultiSdcSchoolCollectionStudent_WithValidPayload_ShouldReturnOkay() throws Exception {
         final GrantedAuthority grantedAuthority = () -> "SCOPE_DELETE_SDC_SCHOOL_COLLECTION_STUDENT";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
@@ -1139,7 +1108,11 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var savedSdcSchoolCollectionStudent = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(sdcSchoolCollection));
         var savedSdcSchoolCollectionStudent2 = sdcSchoolCollectionStudentRepository.save(createMockSchoolStudentEntity(sdcSchoolCollection));
 
-        String payload = asJsonString(Arrays.asList(savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID(), savedSdcSchoolCollectionStudent2.getSdcSchoolCollectionStudentID()));
+        SoftDeleteRecordSet softDeleteRecordSet = new SoftDeleteRecordSet();
+        softDeleteRecordSet.setSoftDeleteStudentIDs(Arrays.asList(savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID(), savedSdcSchoolCollectionStudent2.getSdcSchoolCollectionStudentID()));
+        softDeleteRecordSet.setUpdateUser("ABC");
+
+        String payload = asJsonString(softDeleteRecordSet);
         this.mockMvc.perform(
                         post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/soft-delete-students")
                                 .contentType(APPLICATION_JSON)
@@ -2527,90 +2500,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var studentEntity = curStudentEntity.get();
         assertThat(studentEntity.getAssignedStudentId()).isNull();
         assertThat(studentEntity.getAssignedPen()).isNull();
+        assertThat(studentEntity.getUnderReviewAssignedPen()).isEqualTo(entity.getAssignedPen());
+        assertThat(studentEntity.getUnderReviewAssignedStudentId()).isEqualTo(entity.getAssignedStudentId());
         assertThat(studentEntity.getPenMatchResult()).isEqualTo("INREVIEW");
-    }
-
-    @Test
-    void testMarkPENForReview_withWarning_ShouldRemovedAssignedPENAndSaveToDatabaseAndRemoveDuplicates_ReturnStatusOk() throws Exception {
-        final GrantedAuthority grantedAuthority = () -> "SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT";
-        final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
-                grantedAuthority);
-
-        var school = this.createMockSchool();
-        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().build());
-        when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
-
-        var collection = collectionRepository.save(createMockCollectionEntity());
-        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
-
-        var studentID = UUID.randomUUID();
-        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-        entity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-        entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-        entity.setUpdateDate(null);
-        entity.setCreateDate(null);
-        entity.setNumberOfCourses("0400");
-        entity.setAssignedPen("123456789");
-        entity.setAssignedStudentId(studentID);
-        var savedStudent1 = this.sdcSchoolCollectionStudentRepository.save(entity);
-
-        val entity2 = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
-        entity2.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-        entity2.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-        entity2.setUpdateDate(null);
-        entity2.setCreateDate(null);
-        entity2.setNumberOfCourses("0400");
-        entity2.setAssignedPen("123456789");
-        entity2.setAssignedStudentId(studentID);
-        var savedStudent2 = this.sdcSchoolCollectionStudentRepository.save(entity2);
-
-        SdcDuplicateEntity dup = new SdcDuplicateEntity();
-        dup.setDuplicateErrorDescriptionCode(DuplicateErrorDescriptionCode.K_TO_7_DUP.getCode());
-        dup.setDuplicateLevelCode(DuplicateLevelCode.IN_DIST.getCode());
-        dup.setDuplicateTypeCode(DuplicateTypeCode.ENROLLMENT.getCode());
-        dup.setDuplicateSeverityCode(DuplicateSeverityCode.ALLOWABLE.getCode());
-
-        SdcDuplicateStudentEntity stud1 = new SdcDuplicateStudentEntity();
-        stud1.setSdcSchoolCollectionID(UUID.randomUUID());
-        stud1.setSdcDuplicateEntity(dup);
-        stud1.setSdcSchoolCollectionStudentEntity(savedStudent1);
-        stud1.setCreateUser("ABC");
-        stud1.setCreateDate(LocalDateTime.now());
-        stud1.setUpdateUser("ABC");
-        stud1.setUpdateDate(LocalDateTime.now());
-
-        SdcDuplicateStudentEntity stud2 = new SdcDuplicateStudentEntity();
-        stud2.setSdcSchoolCollectionID(stud1.getSdcSchoolCollectionID());
-        stud2.setSdcDuplicateEntity(dup);
-        stud2.setSdcSchoolCollectionStudentEntity(savedStudent2);
-        stud2.setCreateUser("ABC");
-        stud2.setCreateDate(LocalDateTime.now());
-        stud2.setUpdateUser("ABC");
-        stud2.setUpdateDate(LocalDateTime.now());
-
-        dup.getSdcDuplicateStudentEntities().add(stud1);
-        dup.getSdcDuplicateStudentEntities().add(stud2);
-
-        sdcDuplicateRepository.save(dup);
-
-        this.mockMvc.perform(
-                        post(URL.BASE_URL_DUPLICATE +"/mark-for-review")
-                                .contentType(APPLICATION_JSON)
-                                .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
-                                .with(mockAuthority))
-                .andDo(print())
-                .andExpect(status().isOk());
-
-        val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
-        assertThat(curStudentEntity).isPresent();
-        var studentEntity = curStudentEntity.get();
-        assertThat(studentEntity.getAssignedStudentId()).isNull();
-        assertThat(studentEntity.getAssignedPen()).isNull();
-        assertThat(studentEntity.getPenMatchResult()).isEqualTo("INREVIEW");
-
-        var dupes = sdcDuplicateRepository.findAll();
-        assertThat(dupes).isEmpty();
     }
 
     @Test
@@ -4455,9 +4347,14 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 grantedAuthority);
 
         var school = this.createMockSchool();
+
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
+
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
 
+        val assignedStudentId = UUID.randomUUID();
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setPenMatchResult("INREVIEW");
         entity.setCreateDate(LocalDateTime.now().minusMinutes(14));
@@ -4466,6 +4363,8 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
+        entity.setAssignedStudentId(assignedStudentId);
+        entity.setAssignedPen("123456789");
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
@@ -4479,8 +4378,8 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         assertThat(curStudentEntity).isPresent();
         var studentEntity = curStudentEntity.get();
         assertThat(studentEntity.getPenMatchResult()).isEqualTo("NEW");
-        assertThat(studentEntity.getAssignedPen()).isNull();
-        assertThat(studentEntity.getAssignedStudentId()).isNull();
+        assertThat(studentEntity.getAssignedPen()).isEqualTo("123456789");
+        assertThat(studentEntity.getAssignedStudentId()).isEqualTo(assignedStudentId);
     }
 
     @Test
@@ -4490,6 +4389,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 grantedAuthority);
 
         var school = this.createMockSchool();
+
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
+
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
         var assignedPenUUID = UUID.randomUUID();
@@ -4535,6 +4438,11 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         when(restUtils.getStudentByPEN(any(), any())).thenReturn(toStudent);
 
         SdcSchoolCollectionStudentEntity studentEntity = new SdcSchoolCollectionStudentEntity();
+        var collection = createMockCollectionEntity();
+        collectionRepository.save(collection);
+        var sdcSchoolCollection = createMockSdcSchoolCollectionEntity(collection,UUID.randomUUID());
+        sdcSchoolCollectionRepository.save(sdcSchoolCollection);
+        studentEntity.setSdcSchoolCollection(sdcSchoolCollection);
         studentEntity.setAssignedStudentId(UUID.randomUUID()); // some existing ID
         studentEntity.setAssignedPen(fromPen);
         studentEntity = sdcSchoolCollectionStudentRepository.save(studentEntity);

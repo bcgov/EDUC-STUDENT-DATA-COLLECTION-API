@@ -5,7 +5,9 @@ import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcDuplicateEndpoint
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDuplicateMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicateResolutionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicate;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcDuplicatesByInstituteID;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
@@ -25,26 +27,28 @@ import java.util.UUID;
 @RestController
 public class SdcDuplicateController implements SdcDuplicateEndpoint {
   private final SdcDuplicatesService sdcDuplicatesService;
+  private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
+  private final SdcDuplicateResolutionService sdcDuplicateResolutionService;
   private static final SdcSchoolCollectionStudentMapper studentMapper = SdcSchoolCollectionStudentMapper.mapper;
   private static final SdcDuplicateMapper duplicateMapper = SdcDuplicateMapper.mapper;
   private final SdcSchoolCollectionStudentValidator schoolCollectionStudentValidator;
   public static final String INDY_SCHOOLS = "school";
   public static final String DISTRICTS = "district";
 
-  public SdcDuplicateController(SdcDuplicatesService sdcDuplicatesService, SdcSchoolCollectionStudentValidator schoolCollectionStudentValidator) {
-      this.sdcDuplicatesService = sdcDuplicatesService;
-      this.schoolCollectionStudentValidator = schoolCollectionStudentValidator;
+  public SdcDuplicateController(SdcDuplicatesService sdcDuplicatesService, SdcSchoolCollectionStudentValidator schoolCollectionStudentValidator, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcDuplicateResolutionService sdcDuplicateResolutionService) {
+    this.sdcDuplicatesService = sdcDuplicatesService;
+    this.schoolCollectionStudentValidator = schoolCollectionStudentValidator;
+    this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
+    this.sdcDuplicateResolutionService = sdcDuplicateResolutionService;
   }
 
   @Override
-  public SdcDuplicate updateStudentAndResolveDuplicates(String duplicateTypeResolutionCode, UUID sdcDuplicateID, List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent) {
-    sdcSchoolCollectionStudent.forEach(student -> ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(student)));
+  public SdcDuplicate updateStudentAndResolveDuplicates(String duplicateTypeResolutionCode, List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudents) {
+    sdcSchoolCollectionStudents.forEach(student -> ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(student)));
     if (DuplicateTypeResolutionCode.PROGRAM.getCode().equalsIgnoreCase(duplicateTypeResolutionCode)) {
-      return duplicateMapper.toSdcDuplicate(sdcDuplicatesService.updateStudentAndResolveProgramDuplicates(sdcDuplicateID, sdcSchoolCollectionStudent));
-    } else if (DuplicateTypeResolutionCode.DELETE_ENROLLMENT_DUPLICATE.getCode().equalsIgnoreCase(duplicateTypeResolutionCode) && sdcSchoolCollectionStudent.size() == 1) {
-      return duplicateMapper.toSdcDuplicate(sdcDuplicatesService.softDeleteEnrollmentDuplicate(sdcDuplicateID, sdcSchoolCollectionStudent.get(0)));
-    } else if (DuplicateTypeResolutionCode.CHANGE_GRADE.getCode().equalsIgnoreCase(duplicateTypeResolutionCode) && sdcSchoolCollectionStudent.size() == 1) {
-      return duplicateMapper.toSdcDuplicate(sdcDuplicatesService.changeGrade(sdcDuplicateID, sdcSchoolCollectionStudent.get(0)));
+      sdcDuplicateResolutionService.updateStudentAndResolveProgramDuplicates(sdcSchoolCollectionStudents);
+    } else if (DuplicateTypeResolutionCode.CHANGE_GRADE.getCode().equalsIgnoreCase(duplicateTypeResolutionCode) && sdcSchoolCollectionStudents.size() == 1) {
+      sdcDuplicateResolutionService.changeGrade(studentMapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudents.get(0)));
     }
     return null;
   }
@@ -53,7 +57,7 @@ public class SdcDuplicateController implements SdcDuplicateEndpoint {
   public ResponseEntity<Void> markPENForReview(SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
     ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
     RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
-    sdcDuplicatesService.markPENForReview(studentMapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent));
+    sdcSchoolCollectionStudentService.markPENForReview(studentMapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent));
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
