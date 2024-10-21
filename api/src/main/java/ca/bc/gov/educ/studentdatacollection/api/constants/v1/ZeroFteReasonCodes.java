@@ -16,7 +16,7 @@ public enum ZeroFteReasonCodes {
   GRADUATED_ADULT_IND_AUTH("INDYADULT", "The student is graduated adult reported by an independent school."),
   DISTRICT_DUPLICATE_FUNDING("DISTDUP", "The district has already received funding for the student this year."),
   NO_ONLINE_LEARNING("NOONLINE", "None of student's educational program was delivered through online learning this year."),
-  NOT_REPORTED("NOTREPORTED", "Student was not reported in Grade 8 or 9 outside of district this school year."),
+  NOT_REPORTED("NOREPORT", "Student was not reported in Grade 8 or 9 outside of district this school year."),
   ;
 
   @Getter
