@@ -271,8 +271,8 @@ public class FteCalculatorUtils {
         return false;
     }
 
-    public boolean reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(StudentRuleData studentRuleData) {
-        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), "3");
+    public boolean reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(StudentRuleData studentRuleData) {
+        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistricts(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), "3");
 
         for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
             if (SchoolGradeCodes.getGrades8and9().contains(studentEntity.getEnrolledGradeCode()) && !studentEntity.getFte().equals(BigDecimal.ZERO)) {

@@ -71,7 +71,7 @@ class CollectionAndFacilityTypeCalculatorTest extends BaseStudentDataCollectionA
         when(fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(studentData)).thenReturn(true);
         when(fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData)).thenReturn(false);
         when(fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentData)).thenReturn(true);
-        when(fteCalculatorUtils.reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData)).thenReturn(true);
+        when(fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData)).thenReturn(true);
 
         // When
         FteCalculationResult result = collectionAndFacilityTypeCalculator.calculateFte(studentData);
@@ -114,7 +114,7 @@ class CollectionAndFacilityTypeCalculatorTest extends BaseStudentDataCollectionA
         when(fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(studentData)).thenReturn(false);
         when(fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData)).thenReturn(true);
         when(fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentData)).thenReturn(true);
-        when(fteCalculatorUtils.reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData)).thenReturn(true);
+        when(fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData)).thenReturn(true);
 
         // When
         FteCalculationResult result = collectionAndFacilityTypeCalculator.calculateFte(studentData);
@@ -156,7 +156,7 @@ class CollectionAndFacilityTypeCalculatorTest extends BaseStudentDataCollectionA
         when(fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(studentData)).thenReturn(false);
         when(fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData)).thenReturn(false);
         when(fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentData)).thenReturn(false);
-        when(fteCalculatorUtils.reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData)).thenReturn(true);
+        when(fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData)).thenReturn(true);
 
         // When
         FteCalculationResult result = collectionAndFacilityTypeCalculator.calculateFte(studentData);
@@ -198,7 +198,7 @@ class CollectionAndFacilityTypeCalculatorTest extends BaseStudentDataCollectionA
         when(fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(studentData)).thenReturn(false);
         when(fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData)).thenReturn(false);
         when(fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentData)).thenReturn(false);
-        when(fteCalculatorUtils.reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData)).thenReturn(false);
+        when(fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData)).thenReturn(false);
 
         // When
         FteCalculationResult result = collectionAndFacilityTypeCalculator.calculateFte(studentData);

@@ -1648,7 +1648,7 @@ class FteCalculatorUtilsTest {
     }
 
     @Test
-    void testReportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte_Grade8Or9_NonZeroFte_ReturnsTrue() {
+    void testReportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte_Grade8Or9_NonZeroFte_ReturnsTrue() {
         // Given
         StudentRuleData studentRuleData = new StudentRuleData();
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
@@ -1659,19 +1659,23 @@ class FteCalculatorUtilsTest {
         previousStudentEntity.setFte(BigDecimal.TEN);
         previousStudentEntity.setAssignedStudentId(student.getAssignedStudentId());
 
-        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(any(UUID.class), any(String.class))).thenReturn(Collections.singletonList(previousStudentEntity));
+        SchoolTombstone school = new SchoolTombstone();
+        school.setDistrictId(UUID.randomUUID().toString());
+        studentRuleData.setSchool(school);
+
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistricts(any(UUID.class), any(UUID.class), any(String.class))).thenReturn(Collections.singletonList(previousStudentEntity));
 
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
-        var result = fteCalculatorUtils.reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentRuleData);
+        var result = fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentRuleData);
 
         // Then
         assertTrue(result);
     }
 
     @Test
-    void testReportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte_Grade8Or9_ZeroFte_ReturnsFalse() {
+    void testReportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte_Grade8Or9_ZeroFte_ReturnsFalse() {
         // Given
         StudentRuleData studentRuleData = new StudentRuleData();
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
@@ -1682,19 +1686,23 @@ class FteCalculatorUtilsTest {
         previousStudentEntity.setFte(BigDecimal.ZERO);
         previousStudentEntity.setAssignedStudentId(student.getAssignedStudentId());
 
-        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(any(UUID.class), any(String.class))).thenReturn(Collections.singletonList(previousStudentEntity));
+        SchoolTombstone school = new SchoolTombstone();
+        school.setDistrictId(UUID.randomUUID().toString());
+        studentRuleData.setSchool(school);
+
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistricts(any(UUID.class), any(UUID.class), any(String.class))).thenReturn(Collections.singletonList(previousStudentEntity));
 
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
-        var result = fteCalculatorUtils.reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentRuleData);
+        var result = fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentRuleData);
 
         // Then
         assertFalse(result);
     }
 
     @Test
-    void testReportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte_NotGrade8Or9_NonZeroFte_ReturnsFalse() {
+    void testReportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte_NotGrade8Or9_NonZeroFte_ReturnsFalse() {
         // Given
         StudentRuleData studentRuleData = new StudentRuleData();
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
@@ -1705,30 +1713,39 @@ class FteCalculatorUtilsTest {
         previousStudentEntity.setFte(BigDecimal.TEN);
         previousStudentEntity.setAssignedStudentId(student.getAssignedStudentId());
 
-        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(any(UUID.class), any(String.class))).thenReturn(Collections.singletonList(previousStudentEntity));
+        SchoolTombstone school = new SchoolTombstone();
+        school.setDistrictId(UUID.randomUUID().toString());
+        studentRuleData.setSchool(school);
+
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistricts(any(UUID.class), any(UUID.class), any(String.class)))
+                .thenReturn(Collections.singletonList(previousStudentEntity));
 
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
-        var result = fteCalculatorUtils.reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentRuleData);
+        var result = fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentRuleData);
 
         // Then
         assertFalse(result);
     }
 
     @Test
-    void testReportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte_NoPreviousCollections_ReturnsFalse() {
+    void testReportedInAnyPreviousCollectionThisSchoolYearInOtherDistrictsInGrade8Or9WithNonZeroFte_NoPreviousCollections_ReturnsFalse() {
         // Given
         StudentRuleData studentRuleData = new StudentRuleData();
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         student.setAssignedStudentId(UUID.randomUUID());
 
-        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(any(UUID.class), any(String.class))).thenReturn(Collections.emptyList());
+        SchoolTombstone school = new SchoolTombstone();
+        school.setDistrictId(UUID.randomUUID().toString());
+        studentRuleData.setSchool(school);
+
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistricts(any(UUID.class), any(UUID.class), any(String.class))).thenReturn(Collections.emptyList());
 
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
 
         // When
-        var result = fteCalculatorUtils.reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentRuleData);
+        var result = fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentRuleData);
 
         // Then
         assertFalse(result);
