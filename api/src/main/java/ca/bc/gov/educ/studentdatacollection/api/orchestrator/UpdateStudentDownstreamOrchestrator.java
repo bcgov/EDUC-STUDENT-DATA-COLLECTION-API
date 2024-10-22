@@ -1,15 +1,23 @@
 package ca.bc.gov.educ.studentdatacollection.api.orchestrator;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.BaseOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.CloseCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.UpdateStudentSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.studentapi.v1.Student;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,10 +27,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.*;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.SDC_STUDENT_STATUS_UPDATED;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.STUDENT_UPDATED;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.NO_STUDENT_UPDATE_NEEDED;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.UPDATE_SDC_STUDENT_STATUS;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.UPDATE_STUDENT;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum.UPDATE_STUDENT_DOWNSTREAM_SAGA;
@@ -35,11 +44,13 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.UPDA
 public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<UpdateStudentSagaData> {
 
     private final CloseCollectionService closeCollectionService;
+    private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final RestUtils restUtils;
 
-    protected UpdateStudentDownstreamOrchestrator(SagaService sagaService, MessagePublisher messagePublisher, CloseCollectionService closeCollectionService, RestUtils restUtils) {
+    protected UpdateStudentDownstreamOrchestrator(SagaService sagaService, MessagePublisher messagePublisher, CloseCollectionService closeCollectionService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils) {
         super(sagaService, messagePublisher, UpdateStudentSagaData.class, UPDATE_STUDENT_DOWNSTREAM_SAGA.toString(), UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC.toString());
         this.closeCollectionService = closeCollectionService;
+        this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
         this.restUtils = restUtils;
     }
 
@@ -48,6 +59,8 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         this.stepBuilder()
                 .begin(UPDATE_STUDENT, this::updateStudent)
                 .step(UPDATE_STUDENT, STUDENT_UPDATED, UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
+                .step(UPDATE_STUDENT, NO_STUDENT_UPDATE_NEEDED, UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
+                .begin(UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
                 .end(UPDATE_SDC_STUDENT_STATUS, SDC_STUDENT_STATUS_UPDATED);
     }
 
@@ -58,22 +71,106 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
         final Student studentDataFromEventResponse = this.restUtils.getStudentByPEN(UUID.randomUUID(), updateStudentSagaData.getAssignedPEN());
-        studentDataFromEventResponse.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
-        studentDataFromEventResponse.setMincode(updateStudentSagaData.getMincode());
-        studentDataFromEventResponse.setLocalID(updateStudentSagaData.getLocalID());
-        studentDataFromEventResponse.setGradeCode(updateStudentSagaData.getGradeCode());
-        updateGradeYear(studentDataFromEventResponse, updateStudentSagaData);
-        updateUsualNameFields(studentDataFromEventResponse, updateStudentSagaData);
-        studentDataFromEventResponse.setPostalCode(updateStudentSagaData.getPostalCode());
-        studentDataFromEventResponse.setHistoryActivityCode("REQMATCH");
+        final List<SdcSchoolCollectionStudentEntity> otherStudentsWithSameAssignedID = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(updateStudentSagaData.getCollectionID(), Collections.singletonList(updateStudentSagaData.getAssignedStudentID()));
 
-        final Event nextEvent = Event.builder().sagaId(saga.getSagaId())
-                .eventType(UPDATE_STUDENT)
-                .replyTo(this.getTopicToSubscribe())
-                .eventPayload(JsonUtil.getJsonStringFromObject(studentDataFromEventResponse))
-                .build();
-        this.postMessageToTopic(STUDENT_API_TOPIC.toString(), nextEvent);
-        log.debug("message sent to STUDENT_API_TOPIC for UPDATE_STUDENT Event.");
+        if (otherStudentsWithSameAssignedID.isEmpty() || isStudentAttendingSchoolOfRecord(updateStudentSagaData, otherStudentsWithSameAssignedID)){
+
+            studentDataFromEventResponse.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+            studentDataFromEventResponse.setMincode(updateStudentSagaData.getMincode());
+            studentDataFromEventResponse.setLocalID(updateStudentSagaData.getLocalID());
+            studentDataFromEventResponse.setGradeCode(updateStudentSagaData.getGradeCode());
+            updateGradeYear(studentDataFromEventResponse, updateStudentSagaData);
+            updateUsualNameFields(studentDataFromEventResponse, updateStudentSagaData);
+            studentDataFromEventResponse.setPostalCode(updateStudentSagaData.getPostalCode());
+            studentDataFromEventResponse.setHistoryActivityCode("SLD");
+
+            final Event nextEvent = Event.builder().sagaId(saga.getSagaId())
+                    .eventType(UPDATE_STUDENT)
+                    .replyTo(this.getTopicToSubscribe())
+                    .eventPayload(JsonUtil.getJsonStringFromObject(studentDataFromEventResponse))
+                    .build();
+            this.postMessageToTopic(STUDENT_API_TOPIC.toString(), nextEvent);
+            log.debug("message sent to STUDENT_API_TOPIC for UPDATE_STUDENT Event.");
+
+        } else {
+            final Event nextEvent = Event.builder().sagaId(saga.getSagaId())
+                    .eventType(UPDATE_STUDENT)
+                    .eventOutcome(NO_STUDENT_UPDATE_NEEDED)
+                    .eventPayload(JsonUtil.getJsonStringFromObject(updateStudentSagaData))
+                    .build();
+            this.postMessageToTopic(this.getTopicToSubscribe(), nextEvent);
+            log.debug("message sent to UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC for NO_STUDENT_UPDATE_NEEDED Event.");
+        }
+    }
+
+    public boolean isStudentAttendingSchoolOfRecord(UpdateStudentSagaData currStudent, List<SdcSchoolCollectionStudentEntity> otherStudents){
+        Float maxCourseNumberFromOtherStudents = getMaxCourseNumber(otherStudents);
+
+        if(currStudent.getNumberOfCourses() != null && Float.parseFloat(currStudent.getNumberOfCourses()) > maxCourseNumberFromOtherStudents){
+            return true;
+        } else if((currStudent.getNumberOfCourses() == null && maxCourseNumberFromOtherStudents > 0) ||
+                (currStudent.getNumberOfCourses() != null && Float.parseFloat(currStudent.getNumberOfCourses()) < maxCourseNumberFromOtherStudents)){
+            return false;
+        } else {
+            Optional<SchoolTombstone> currStudentSchoolTombstone = restUtils.getSchoolByMincode(currStudent.getMincode());
+            SchoolTombstone currStudentSchool = currStudentSchoolTombstone.orElseThrow(() ->
+                new EntityNotFoundException(SchoolTombstone.class, "SchoolTombstone", currStudent.getMincode()));
+
+            List<Optional<SchoolTombstone>> otherStudentSchoolTombstones = retrieveSchoolTombstones(maxCourseNumberFromOtherStudents, otherStudents);
+
+            boolean otherSchoolsIncludePublic = otherStudentSchoolTombstones.stream().flatMap(Optional::stream).anyMatch(tombstone -> SchoolCategoryCodes.PUBLIC.getCode().equals(tombstone.getSchoolCategoryCode()));
+
+            if(currStudentSchool.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode()) && !otherSchoolsIncludePublic){
+                return true;
+            } else if (!currStudentSchool.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode()) && otherSchoolsIncludePublic) {
+                return false;
+            } else {
+                otherStudentSchoolTombstones.removeIf(sch -> !Objects.equals(sch.get().getSchoolCategoryCode(), SchoolCategoryCodes.PUBLIC.getCode()));
+                boolean otherSchoolsIncludeStandard = otherStudentSchoolTombstones.stream().flatMap(Optional::stream).anyMatch(tombstone -> FacilityTypeCodes.STANDARD.getCode().equals(tombstone.getFacilityTypeCode()));
+
+                if(currStudentSchool.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.STANDARD.getCode()) && !otherSchoolsIncludeStandard){
+                    return true;
+                } else if (currStudentSchool.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.STANDARD.getCode()) && otherSchoolsIncludeStandard){
+                    return false;
+                } else {
+                    otherStudentSchoolTombstones.removeIf(sch -> !Objects.equals(sch.get().getFacilityTypeCode(), FacilityTypeCodes.STANDARD.getCode()));
+                    List<Integer> otherSchoolsMincodes = otherStudentSchoolTombstones.stream()
+                            .map(sch -> extractRelevantMincode(sch.get()))
+                            .toList();
+
+                    Integer minOtherSchoolsMincodes = Collections.min(otherSchoolsMincodes);
+                    Integer currSchoolMincode = extractRelevantMincode(currStudentSchool);
+
+                    return currSchoolMincode < minOtherSchoolsMincodes;
+                }
+            }
+        }
+    }
+
+    public Float getMaxCourseNumber(List<SdcSchoolCollectionStudentEntity> otherStudents) {
+        return otherStudents.stream()
+                .map(SdcSchoolCollectionStudentEntity::getNumberOfCourses)
+                .filter(Objects::nonNull)
+                .map(Float::valueOf)
+                .max(Comparator.naturalOrder())
+                .orElse(0f);
+    }
+
+    public List<Optional<SchoolTombstone>> retrieveSchoolTombstones(Float maxCourseNumberFromOtherStudents, List<SdcSchoolCollectionStudentEntity> otherStudents){
+        if (maxCourseNumberFromOtherStudents > 0) {
+            return new ArrayList<>(otherStudents.stream().filter(std -> std.getNumberOfCourses() != null && Float.valueOf(std.getNumberOfCourses()).equals(maxCourseNumberFromOtherStudents)).map(std -> restUtils.getSchoolBySchoolID(String.valueOf(std.getSdcSchoolCollection().getSchoolID()))).toList());
+        } else {
+            return new ArrayList<>(otherStudents.stream().map(std -> restUtils.getSchoolBySchoolID(String.valueOf(std.getSdcSchoolCollection().getSchoolID()))).toList());
+        }
+    }
+
+    public Integer extractRelevantMincode(SchoolTombstone school){
+        if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
+            return Integer.parseInt(school.getMincode());
+        } else {
+            Optional<District> district = restUtils.getDistrictByDistrictID(school.getDistrictId());
+            return Integer.parseInt(Objects.requireNonNull(district.map(District::getDistrictNumber).orElse(null)));
+        }
     }
 
     public void updateSdcStudentStatus(final Event event, final SdcSagaEntity saga, final UpdateStudentSagaData updateStudentSagaData) throws JsonProcessingException {
