@@ -15,7 +15,7 @@ public enum StudentValidationIssueTypeCode {
   /**
    * Gender invalid student validation issue type code.
    */
-  GENDER_INVALID("GENDERINVALID", "Gender must be M or F", ERROR),
+  GENDER_INVALID("GENDERINVALID", "Gender must be M, F, X or U", ERROR),
 
   /**
    * Blank local id student validation issue type code.
