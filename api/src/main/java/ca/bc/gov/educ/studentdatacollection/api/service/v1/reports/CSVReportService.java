@@ -844,9 +844,10 @@ public class CSVReportService {
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
             for (EnrolmentHeadcountFteResult result : results) {
-                var schoolOpt = restUtils.getSchoolBySchoolID(result.getSchoolID());
-                if(schoolOpt.isPresent()) {
-                    List<String> csvRowData = prepareEnrolmentFteDataForCsv(result, schoolOpt.get());
+                var school = restUtils.getSchoolBySchoolID(result.getSchoolID()).orElseThrow(() -> new EntityNotFoundException(SchoolTombstone.class, "schoolID", result.getSchoolID()));
+
+                if(shouldIncludeSchoolForEnrolledHeadcountsAndFteReport(school)) {
+                    List<String> csvRowData = prepareEnrolmentFteDataForCsv(result, school);
                     csvPrinter.printRecord(csvRowData);
                 }
             }
@@ -860,6 +861,14 @@ public class CSVReportService {
         } catch (IOException e) {
             throw new StudentDataCollectionAPIRuntimeException(e);
         }
+    }
+
+    private boolean shouldIncludeSchoolForEnrolledHeadcountsAndFteReport(SchoolTombstone school){
+        var invalidSchoolCategories = new String[]{SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode(), SchoolCategoryCodes.FED_BAND.getCode(), SchoolCategoryCodes.OFFSHORE.getCode()};
+        var invalidFacilityTypes = new String[]{FacilityTypeCodes.LONG_PRP.getCode(), FacilityTypeCodes.SHORT_PRP.getCode(), FacilityTypeCodes.YOUTH.getCode()};
+        var categoryCode = school.getSchoolCategoryCode();
+        var facilityType = school.getFacilityTypeCode();
+        return Arrays.stream(invalidSchoolCategories).anyMatch(categoryCode::equals) || Arrays.stream(invalidFacilityTypes).anyMatch(facilityType::equals);
     }
 
     public DownloadableReportResponse generateEnrolmentHeadcountsAndFteReportForCEAndOLSchools(UUID collectionID) {
