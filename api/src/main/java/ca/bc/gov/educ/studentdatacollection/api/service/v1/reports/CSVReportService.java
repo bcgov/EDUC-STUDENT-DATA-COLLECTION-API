@@ -289,8 +289,8 @@ public class CSVReportService {
         List<SdcSchoolCollectionStudentEntity> students =
                 sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(collectionID, grades);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(
-                FsaFebRegistrationHeader.STUDENT_PEN.getCode(), FsaFebRegistrationHeader.DISTRICT_NUMBER.getCode(), FsaFebRegistrationHeader.SCHOOL_NUMBER.getCode(),
-                FsaFebRegistrationHeader.NEXT_YEAR_GRADE.getCode(), FsaFebRegistrationHeader.LOCAL_ID.getCode(), FsaFebRegistrationHeader.LEGAL_FIRST_NAME.getCode(),
+                FsaFebRegistrationHeader.MINCODE.getCode(), FsaFebRegistrationHeader.STUDENT_PEN.getCode(),
+                FsaFebRegistrationHeader.NEXT_YEAR_GRADE.getCode(), FsaFebRegistrationHeader.LEGAL_FIRST_NAME.getCode(),
                 FsaFebRegistrationHeader.LEGAL_LAST_NAME.getCode()
         ).build();
 
@@ -324,8 +324,8 @@ public class CSVReportService {
         List<SdcSchoolCollectionStudentEntity> students =
                 sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(collectionID, grades);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(
-                FsaSeptRegistrationHeader.STUDENT_PEN.getCode(), FsaSeptRegistrationHeader.DISTRICT_NUMBER.getCode(), FsaSeptRegistrationHeader.SCHOOL_NUMBER.getCode(),
-                FsaSeptRegistrationHeader.ENROLLED_GRADE.getCode(), FsaSeptRegistrationHeader.LOCAL_ID.getCode(), FsaSeptRegistrationHeader.LEGAL_FIRST_NAME.getCode(),
+                FsaSeptRegistrationHeader.MINCODE.getCode(), FsaSeptRegistrationHeader.STUDENT_PEN.getCode(),
+                FsaSeptRegistrationHeader.ENROLLED_GRADE.getCode(), FsaSeptRegistrationHeader.LEGAL_FIRST_NAME.getCode(),
                 FsaSeptRegistrationHeader.LEGAL_LAST_NAME.getCode()
         ).build();
 
@@ -803,11 +803,9 @@ public class CSVReportService {
 
         List<String> csvRowData = new ArrayList<>();
         csvRowData.addAll(Arrays.asList(
+                school.getMincode(),
                 student.getAssignedPen(),
-                school.getMincode().substring(0,3),
-                school.getSchoolNumber(),
                 studentGrade,
-                student.getLocalID(),
                 student.getLegalFirstName(),
                 student.getLegalLastName()
             ));
