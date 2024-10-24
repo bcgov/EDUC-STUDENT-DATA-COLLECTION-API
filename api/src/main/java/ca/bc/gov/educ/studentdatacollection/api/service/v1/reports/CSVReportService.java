@@ -986,6 +986,7 @@ public class CSVReportService {
                 school.getDisplayName(),
                 facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
                 headcountResult.getKhTotalCount(),
+                headcountResult.getKfTotalCount(),
                 headcountResult.getGradeOneTotalCount(),
                 headcountResult.getGradeTwoTotalCount(),
                 headcountResult.getGradeThreeTotalCount(),
@@ -1005,6 +1006,7 @@ public class CSVReportService {
                 headcountResult.getNonGradAdultCount(),
 
                 headcountResult.getKhTotalFte(),
+                headcountResult.getKfTotalFte(),
                 headcountResult.getGradeOneTotalFte(),
                 headcountResult.getGradeTwoTotalFte(),
                 headcountResult.getGradeThreeTotalFte(),
@@ -1029,6 +1031,14 @@ public class CSVReportService {
                 headcountResult.getKhIndigenousCount(),
                 headcountResult.getKhCoreFrenchCount(),
                 headcountResult.getKhEarlyFrenchCount(),
+
+                headcountResult.getKfLevelOneCount(),
+                headcountResult.getKfLevelTwoCount(),
+                headcountResult.getKfLevelThreeCount(),
+                headcountResult.getKfEllCount(),
+                headcountResult.getKfIndigenousCount(),
+                headcountResult.getKfCoreFrenchCount(),
+                headcountResult.getKfEarlyFrenchCount(),
 
                 headcountResult.getGradeOneLevelOneCount(),
                 headcountResult.getGradeOneLevelTwoCount(),

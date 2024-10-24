@@ -1189,6 +1189,14 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KH' AND ep.enrolledProgramCode IN ('29', '33', '36') AND sscs.indigenousSupportProgramNonEligReasonCode IS NULL AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) AS khIndigenousCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KH' AND ep.enrolledProgramCode = '08' AND sscs.frenchProgramNonEligReasonCode IS NULL AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) AS khCoreFrenchCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KH' AND ep.enrolledProgramCode = '11' AND sscs.frenchProgramNonEligReasonCode IS NULL AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) AS khEarlyFrenchCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KF' AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) as kfTotalCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KF' AND sscs.specialEducationCategoryCode in ('A', 'B') AND sscs.specialEducationNonEligReasonCode IS NULL AND sscs.fte > 0 THEN 1 END) as kfLevelOneCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KF' AND sscs.specialEducationCategoryCode in ('C', 'D', 'E', 'F', 'G') AND sscs.specialEducationNonEligReasonCode IS NULL AND sscs.fte > 0 THEN 1 END) as kfLevelTwoCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KF' AND sscs.specialEducationCategoryCode in ('H') AND sscs.specialEducationNonEligReasonCode IS NULL AND sscs.fte > 0 THEN 1 END) as kfLevelThreeCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KF' AND ep.enrolledProgramCode = '17' AND sscs.ellNonEligReasonCode IS NULL AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) AS kfEllCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KF' AND ep.enrolledProgramCode IN ('29', '33', '36') AND sscs.indigenousSupportProgramNonEligReasonCode IS NULL AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) AS kfIndigenousCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KF' AND ep.enrolledProgramCode = '08' AND sscs.frenchProgramNonEligReasonCode IS NULL AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) AS kfCoreFrenchCount,
+          COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = 'KF' AND ep.enrolledProgramCode = '11' AND sscs.frenchProgramNonEligReasonCode IS NULL AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) AS kfEarlyFrenchCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) as gradeOneTotalCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.specialEducationCategoryCode in ('A', 'B') AND sscs.specialEducationNonEligReasonCode IS NULL AND sscs.fte > 0 THEN 1 END) as gradeOneLevelOneCount,
           COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.specialEducationCategoryCode in ('C', 'D', 'E', 'F', 'G') AND sscs.specialEducationNonEligReasonCode IS NULL AND sscs.fte > 0 THEN 1 END) as gradeOneLevelTwoCount,
@@ -1322,6 +1330,11 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
           AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
           AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as khTotalFte,
+          
+          (SELECT SUM(CASE WHEN s.enrolledGradeCode = 'KF' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+          WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+          AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+          AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as kfTotalFte,
           
           (SELECT SUM(CASE WHEN s.enrolledGradeCode = '01' AND s.fte IS NOT NULL THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
           WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
