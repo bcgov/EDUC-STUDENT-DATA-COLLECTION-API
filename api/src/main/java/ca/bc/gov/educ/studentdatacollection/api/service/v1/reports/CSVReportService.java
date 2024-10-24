@@ -868,7 +868,7 @@ public class CSVReportService {
         var invalidFacilityTypes = new String[]{FacilityTypeCodes.LONG_PRP.getCode(), FacilityTypeCodes.SHORT_PRP.getCode(), FacilityTypeCodes.YOUTH.getCode()};
         var categoryCode = school.getSchoolCategoryCode();
         var facilityType = school.getFacilityTypeCode();
-        return Arrays.stream(invalidSchoolCategories).anyMatch(categoryCode::equals) || Arrays.stream(invalidFacilityTypes).anyMatch(facilityType::equals);
+        return Arrays.stream(invalidSchoolCategories).noneMatch(categoryCode::equals) && Arrays.stream(invalidFacilityTypes).noneMatch(facilityType::equals);
     }
 
     public DownloadableReportResponse generateEnrolmentHeadcountsAndFteReportForCEAndOLSchools(UUID collectionID) {
