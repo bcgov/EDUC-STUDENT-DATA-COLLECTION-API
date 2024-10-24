@@ -428,11 +428,11 @@ public class MinistryHeadcountService {
               && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
         var school = schoolOpt.get();
         var rowMap = new HashMap<String, String>();
-        rowMap.put(FsaSeptRegistrationHeader.MINCODE.getCode(), school.getMincode());
-        rowMap.put(FsaSeptRegistrationHeader.STUDENT_PEN.getCode(), student.getAssignedPen());
-        rowMap.put(FsaSeptRegistrationHeader.ENROLLED_GRADE.getCode(), TransformUtil.getProjectedGrade(student));
-        rowMap.put(FsaSeptRegistrationHeader.LEGAL_FIRST_NAME.getCode(), student.getLegalFirstName());
-        rowMap.put(FsaSeptRegistrationHeader.LEGAL_LAST_NAME.getCode(), student.getLegalLastName());
+        rowMap.put(FsaFebRegistrationHeader.MINCODE.getCode(), school.getMincode());
+        rowMap.put(FsaFebRegistrationHeader.STUDENT_PEN.getCode(), student.getAssignedPen());
+        rowMap.put(FsaFebRegistrationHeader.NEXT_YEAR_GRADE.getCode(), TransformUtil.getProjectedGrade(student));
+        rowMap.put(FsaFebRegistrationHeader.LEGAL_FIRST_NAME.getCode(), student.getLegalFirstName());
+        rowMap.put(FsaFebRegistrationHeader.LEGAL_LAST_NAME.getCode(), student.getLegalLastName());
         rows.add(rowMap);
       }
 
