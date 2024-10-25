@@ -38,7 +38,7 @@ import java.util.Optional;
  */
 @Component
 @Slf4j
-@Order(924)
+@Order(926)
 public class SummerStudentOnlineLearningRule implements ValidationBaseRule {
     private final ValidationRulesService validationRulesService;
     private final RestUtils restUtils;
