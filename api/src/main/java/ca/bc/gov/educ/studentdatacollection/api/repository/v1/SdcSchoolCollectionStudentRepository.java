@@ -1064,7 +1064,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             AND C.collectionID IN
                   (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
             """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInOtherDistricts(UUID districtID, UUID assignedStudentID, String noOfCollections);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(UUID districtID, UUID assignedStudentID, String noOfCollections);
 
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(UUID collectionID, List<String> enrolledGradeCode);
 
