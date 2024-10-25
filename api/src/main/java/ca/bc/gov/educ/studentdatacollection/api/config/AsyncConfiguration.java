@@ -64,6 +64,13 @@ public class AsyncConfiguration {
             .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
 
+  @Bean(name = "findModifiedSchoolsAndUpdateSdcSchoolCollectionTaskExecutor")
+  public Executor findModifiedSchoolsAndUpdateSdcSchoolCollectionTaskExecutor() {
+    return new EnhancedQueueExecutor.Builder()
+            .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-find-modified-schools-and-update-sdc-school-collections-%d").get())
+            .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
+  }
+
   @Bean(name = "publisherExecutor")
   public Executor publisherExecutor() {
     return new EnhancedQueueExecutor.Builder()
