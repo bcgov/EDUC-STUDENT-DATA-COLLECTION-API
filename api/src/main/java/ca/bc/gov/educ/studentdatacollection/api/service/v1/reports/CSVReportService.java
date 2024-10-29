@@ -289,8 +289,8 @@ public class CSVReportService {
         List<SdcSchoolCollectionStudentEntity> students =
                 sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(collectionID, grades);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(
-                FsaFebRegistrationHeader.STUDENT_PEN.getCode(), FsaFebRegistrationHeader.DISTRICT_NUMBER.getCode(), FsaFebRegistrationHeader.SCHOOL_NUMBER.getCode(),
-                FsaFebRegistrationHeader.NEXT_YEAR_GRADE.getCode(), FsaFebRegistrationHeader.LOCAL_ID.getCode(), FsaFebRegistrationHeader.LEGAL_FIRST_NAME.getCode(),
+                FsaFebRegistrationHeader.MINCODE.getCode(), FsaFebRegistrationHeader.STUDENT_PEN.getCode(),
+                FsaFebRegistrationHeader.NEXT_YEAR_GRADE.getCode(), FsaFebRegistrationHeader.LEGAL_FIRST_NAME.getCode(),
                 FsaFebRegistrationHeader.LEGAL_LAST_NAME.getCode()
         ).build();
 
@@ -324,8 +324,8 @@ public class CSVReportService {
         List<SdcSchoolCollectionStudentEntity> students =
                 sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(collectionID, grades);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(
-                FsaSeptRegistrationHeader.STUDENT_PEN.getCode(), FsaSeptRegistrationHeader.DISTRICT_NUMBER.getCode(), FsaSeptRegistrationHeader.SCHOOL_NUMBER.getCode(),
-                FsaSeptRegistrationHeader.ENROLLED_GRADE.getCode(), FsaSeptRegistrationHeader.LOCAL_ID.getCode(), FsaSeptRegistrationHeader.LEGAL_FIRST_NAME.getCode(),
+                FsaSeptRegistrationHeader.MINCODE.getCode(), FsaSeptRegistrationHeader.STUDENT_PEN.getCode(),
+                FsaSeptRegistrationHeader.ENROLLED_GRADE.getCode(), FsaSeptRegistrationHeader.LEGAL_FIRST_NAME.getCode(),
                 FsaSeptRegistrationHeader.LEGAL_LAST_NAME.getCode()
         ).build();
 
@@ -803,11 +803,9 @@ public class CSVReportService {
 
         List<String> csvRowData = new ArrayList<>();
         csvRowData.addAll(Arrays.asList(
+                school.getMincode(),
                 student.getAssignedPen(),
-                school.getMincode().substring(0,3),
-                school.getSchoolNumber(),
                 studentGrade,
-                student.getLocalID(),
                 student.getLegalFirstName(),
                 student.getLegalLastName()
             ));
@@ -846,9 +844,10 @@ public class CSVReportService {
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
             for (EnrolmentHeadcountFteResult result : results) {
-                var schoolOpt = restUtils.getSchoolBySchoolID(result.getSchoolID());
-                if(schoolOpt.isPresent()) {
-                    List<String> csvRowData = prepareEnrolmentFteDataForCsv(result, schoolOpt.get());
+                var school = restUtils.getSchoolBySchoolID(result.getSchoolID()).orElseThrow(() -> new EntityNotFoundException(SchoolTombstone.class, "schoolID", result.getSchoolID()));
+
+                if(shouldIncludeSchoolForEnrolledHeadcountsAndFteReport(school)) {
+                    List<String> csvRowData = prepareEnrolmentFteDataForCsv(result, school);
                     csvPrinter.printRecord(csvRowData);
                 }
             }
@@ -862,6 +861,14 @@ public class CSVReportService {
         } catch (IOException e) {
             throw new StudentDataCollectionAPIRuntimeException(e);
         }
+    }
+
+    private boolean shouldIncludeSchoolForEnrolledHeadcountsAndFteReport(SchoolTombstone school){
+        var invalidSchoolCategories = new String[]{SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode(), SchoolCategoryCodes.FED_BAND.getCode(), SchoolCategoryCodes.OFFSHORE.getCode()};
+        var invalidFacilityTypes = new String[]{FacilityTypeCodes.LONG_PRP.getCode(), FacilityTypeCodes.SHORT_PRP.getCode(), FacilityTypeCodes.YOUTH.getCode()};
+        var categoryCode = school.getSchoolCategoryCode();
+        var facilityType = school.getFacilityTypeCode();
+        return Arrays.stream(invalidSchoolCategories).noneMatch(categoryCode::equals) && Arrays.stream(invalidFacilityTypes).noneMatch(facilityType::equals);
     }
 
     public DownloadableReportResponse generateEnrolmentHeadcountsAndFteReportForCEAndOLSchools(UUID collectionID) {
@@ -979,6 +986,7 @@ public class CSVReportService {
                 school.getDisplayName(),
                 facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
                 headcountResult.getKhTotalCount(),
+                headcountResult.getKfTotalCount(),
                 headcountResult.getGradeOneTotalCount(),
                 headcountResult.getGradeTwoTotalCount(),
                 headcountResult.getGradeThreeTotalCount(),
@@ -998,6 +1006,7 @@ public class CSVReportService {
                 headcountResult.getNonGradAdultCount(),
 
                 headcountResult.getKhTotalFte(),
+                headcountResult.getKfTotalFte(),
                 headcountResult.getGradeOneTotalFte(),
                 headcountResult.getGradeTwoTotalFte(),
                 headcountResult.getGradeThreeTotalFte(),
@@ -1022,6 +1031,14 @@ public class CSVReportService {
                 headcountResult.getKhIndigenousCount(),
                 headcountResult.getKhCoreFrenchCount(),
                 headcountResult.getKhEarlyFrenchCount(),
+
+                headcountResult.getKfLevelOneCount(),
+                headcountResult.getKfLevelTwoCount(),
+                headcountResult.getKfLevelThreeCount(),
+                headcountResult.getKfEllCount(),
+                headcountResult.getKfIndigenousCount(),
+                headcountResult.getKfCoreFrenchCount(),
+                headcountResult.getKfEarlyFrenchCount(),
 
                 headcountResult.getGradeOneLevelOneCount(),
                 headcountResult.getGradeOneLevelTwoCount(),

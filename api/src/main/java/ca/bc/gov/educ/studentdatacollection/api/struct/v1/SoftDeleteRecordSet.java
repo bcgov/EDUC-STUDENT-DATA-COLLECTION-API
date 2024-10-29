@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.v1;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Builder
 @SuppressWarnings("squid:S1700")
 public class SoftDeleteRecordSet implements Serializable {

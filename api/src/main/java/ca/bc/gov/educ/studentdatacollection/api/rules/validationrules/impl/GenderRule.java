@@ -5,6 +5,8 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationField
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.CodeTableService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +27,14 @@ import java.util.List;
 @Slf4j
 @Order(20)
 public class GenderRule implements ValidationBaseRule {
-  @Override
+
+  private final CodeTableService codeTableService;
+
+  public GenderRule(CodeTableService codeTableService) {
+      this.codeTableService = codeTableService;
+  }
+
+    @Override
   public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
     log.debug("In shouldExecute of GenderRule-V05: for collectionType {} and sdcSchoolCollectionStudentID :: {}", FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
             studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
@@ -36,7 +45,11 @@ public class GenderRule implements ValidationBaseRule {
   public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
     log.debug("In executeValidation of GenderRule-V05 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
     final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-    if(StringUtils.isEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getGender()) || (!studentRuleData.getSdcSchoolCollectionStudentEntity().getGender().equals("M") && !studentRuleData.getSdcSchoolCollectionStudentEntity().getGender().equals("F"))) {
+
+    var studentGender = studentRuleData.getSdcSchoolCollectionStudentEntity().getGender();
+    var codeTableValues = codeTableService.getAllGenderCodes();
+
+    if(StringUtils.isEmpty(studentGender) || codeTableValues.stream().noneMatch(genderCodeEntity -> genderCodeEntity.getGenderCode().equalsIgnoreCase(studentGender))) {
       log.debug("GenderRule-V05: Invalid Gender value {} for sdcSchoolCollectionStudentID:: {}" , studentRuleData.getSdcSchoolCollectionStudentEntity().getGender(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
       errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.GENDER_CODE, StudentValidationIssueTypeCode.GENDER_INVALID));
     }

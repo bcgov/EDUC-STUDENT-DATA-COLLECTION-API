@@ -9,6 +9,17 @@ public interface EnrolmentHeadcountFteResult extends HeadcountResult{
     String getKhIndigenousCount();
     String getKhCoreFrenchCount();
     String getKhEarlyFrenchCount();
+
+    String getKfTotalCount();
+    String getKfLevelOneCount();
+    String getKfLevelTwoCount();
+    String getKfLevelThreeCount();
+    String getKfEllCount();
+    String getKfIndigenousCount();
+    String getKfCoreFrenchCount();
+    String getKfEarlyFrenchCount();
+
+
     String getGradeOneTotalCount();
     String getGradeOneLevelOneCount();
     String getGradeOneLevelTwoCount();
@@ -146,6 +157,7 @@ public interface EnrolmentHeadcountFteResult extends HeadcountResult{
     String getNonGradAdultLevelThreeCount();
 
     String getKhTotalFte();
+    String getKfTotalFte();
     String getGradeOneTotalFte();
     String getGradeTwoTotalFte();
     String getGradeThreeTotalFte();
@@ -163,6 +175,7 @@ public interface EnrolmentHeadcountFteResult extends HeadcountResult{
     String getGradAdultTotalFte();
     String getNonGradAdultTotalFte();
     String getKhRefugeeCount();
+    String getKfRefugeeCount();
     String getGradeOneRefugeeCount();
     String getGradeTwoRefugeeCount();
     String getGradeThreeRefugeeCount();
@@ -178,6 +191,7 @@ public interface EnrolmentHeadcountFteResult extends HeadcountResult{
     String getGradeEuRefugeeCount();
     String getGradeSuRefugeeCount();
     String getKhRefugeeTotalFte();
+    String getKfRefugeeTotalFte();
     String getGradeOneRefugeeTotalFte();
     String getGradeTwoRefugeeTotalFte();
     String getGradeThreeRefugeeTotalFte();

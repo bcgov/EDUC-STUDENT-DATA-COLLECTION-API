@@ -32,17 +32,10 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.FsaFebRegistrationHeader.NEXT_YEAR_GRADE;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.FsaSeptRegistrationHeader.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.FsaSeptRegistrationHeader.DISTRICT_NUMBER;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.FsaSeptRegistrationHeader.SCHOOL_NUMBER;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.SCHOOL;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolAddressHeaders.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.KIND_FT_COUNT;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.SCHOOL_NAME;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationHeadcountHeader.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -355,13 +348,13 @@ public class MinistryHeadcountService {
         if(schoolAddr.isPresent()) {
           var address = schoolAddr.get();
           var rowMap = new HashMap<String, String>();
-          rowMap.put(MINCODE.getCode(), school.getMincode());
-          rowMap.put(SCHOOL_NAME.getCode(), school.getDisplayName());
-          rowMap.put(ADDRESS_LINE1.getCode(),address.getAddressLine1());
-          rowMap.put(ADDRESS_LINE2.getCode(), address.getAddressLine2());
-          rowMap.put(CITY.getCode(), address.getCity());
-          rowMap.put(PROVINCE.getCode(), address.getProvinceCode());
-          rowMap.put(POSTAL.getCode(), address.getPostal());
+          rowMap.put(SchoolAddressHeaders.MINCODE.getCode(), school.getMincode());
+          rowMap.put(SchoolAddressHeaders.SCHOOL_NAME.getCode(), school.getDisplayName());
+          rowMap.put(SchoolAddressHeaders.ADDRESS_LINE1.getCode(),address.getAddressLine1());
+          rowMap.put(SchoolAddressHeaders.ADDRESS_LINE2.getCode(), address.getAddressLine2());
+          rowMap.put(SchoolAddressHeaders.CITY.getCode(), address.getCity());
+          rowMap.put(SchoolAddressHeaders.PROVINCE.getCode(), address.getProvinceCode());
+          rowMap.put(SchoolAddressHeaders.POSTAL.getCode(), address.getPostal());
           rows.add(rowMap);
         }
       }
@@ -403,13 +396,11 @@ public class MinistryHeadcountService {
       if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
         var school = schoolOpt.get();
         var rowMap = new HashMap<String, String>();
-        rowMap.put(STUDENT_PEN.getCode(), student.getAssignedPen());
-        rowMap.put(DISTRICT_NUMBER.getCode(), school.getMincode().substring(0,3));
-        rowMap.put(SCHOOL_NUMBER.getCode(), school.getSchoolNumber());
-        rowMap.put(ENROLLED_GRADE.getCode(), student.getEnrolledGradeCode());
-        rowMap.put(LOCAL_ID.getCode(), student.getLocalID());
-        rowMap.put(LEGAL_FIRST_NAME.getCode(), student.getLegalFirstName());
-        rowMap.put(LEGAL_LAST_NAME.getCode(), student.getLegalLastName());
+        rowMap.put(FsaSeptRegistrationHeader.MINCODE.getCode(), school.getMincode());
+        rowMap.put(FsaSeptRegistrationHeader.STUDENT_PEN.getCode(), student.getAssignedPen());
+        rowMap.put(FsaSeptRegistrationHeader.ENROLLED_GRADE.getCode(), student.getEnrolledGradeCode());
+        rowMap.put(FsaSeptRegistrationHeader.LEGAL_FIRST_NAME.getCode(), student.getLegalFirstName());
+        rowMap.put(FsaSeptRegistrationHeader.LEGAL_LAST_NAME.getCode(), student.getLegalLastName());
         rows.add(rowMap);
       }
 
@@ -437,13 +428,11 @@ public class MinistryHeadcountService {
               && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
         var school = schoolOpt.get();
         var rowMap = new HashMap<String, String>();
-        rowMap.put(STUDENT_PEN.getCode(), student.getAssignedPen());
-        rowMap.put(DISTRICT_NUMBER.getCode(), school.getMincode().substring(0,3));
-        rowMap.put(SCHOOL_NUMBER.getCode(), school.getSchoolNumber());
-        rowMap.put(NEXT_YEAR_GRADE.getCode(), TransformUtil.getProjectedGrade(student));
-        rowMap.put(LOCAL_ID.getCode(), student.getLocalID());
-        rowMap.put(LEGAL_FIRST_NAME.getCode(), student.getLegalFirstName());
-        rowMap.put(LEGAL_LAST_NAME.getCode(), student.getLegalLastName());
+        rowMap.put(FsaFebRegistrationHeader.MINCODE.getCode(), school.getMincode());
+        rowMap.put(FsaFebRegistrationHeader.STUDENT_PEN.getCode(), student.getAssignedPen());
+        rowMap.put(FsaFebRegistrationHeader.NEXT_YEAR_GRADE.getCode(), TransformUtil.getProjectedGrade(student));
+        rowMap.put(FsaFebRegistrationHeader.LEGAL_FIRST_NAME.getCode(), student.getLegalFirstName());
+        rowMap.put(FsaFebRegistrationHeader.LEGAL_LAST_NAME.getCode(), student.getLegalLastName());
         rows.add(rowMap);
       }
 

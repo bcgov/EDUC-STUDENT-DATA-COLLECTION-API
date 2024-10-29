@@ -20,13 +20,13 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                          | Dependent On |
  *  |-----|----------|-------------------------------------------------------------- |--------------|
- *  | V99 | WARNING    | Student must NOT be reported in Grade 8 or 9                |V92           |
+ *  | V99 | WARNING    | Student must be reported in Grade 8 or 9                   |V92           |
  *                     with FTE>0 in any other districts in previous
- *                     collection this school year.
+ *                     collection this school year to receive funding.
  */
 @Component
 @Slf4j
-@Order(926)
+@Order(924)
 public class SummerStudentReportedInOtherDistrictRule implements ValidationBaseRule {
     private final ValidationRulesService validationRulesService;
 
@@ -50,7 +50,7 @@ public class SummerStudentReportedInOtherDistrictRule implements ValidationBaseR
 
         validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
-            var isStudentReportedInCurrentFiscal = validationRulesService.findStudentInHistoricalCollectionInOtherDistricts(studentRuleData);
+            var isStudentReportedInCurrentFiscal = validationRulesService.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(studentRuleData);
 
             if (isStudentReportedInCurrentFiscal) {
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_NOT_IN_DISTRICT_ERROR));

@@ -10,6 +10,7 @@ public enum EnrolmentAndFteHeader {
     SCHOOL_NAME("School Name"),
     FACILITY_TYPE("Facility Type"),
     KIND_HT_COUNT("Headcount Kind(H/T) Total"),
+    KIND_HF_COUNT("Headcount Kind(F/T) Total"),
     GRADE_01_COUNT("Headcount Grade 1 Total"),
     GRADE_02_COUNT("Headcount Grade 2 Total"),
     GRADE_03_COUNT("Headcount Grade 3 Total"),
@@ -29,6 +30,7 @@ public enum EnrolmentAndFteHeader {
     NON_GRAD_ADULT_COUNT("Headcount Non-Grad Adult Total"),
 
     KIND_HT_FTE_TOTAL("Funded FTE Kind(H/T) Total"),
+    KIND_FT_FTE_TOTAL("Funded FTE Kind(F/T) Total"),
     GRADE_ONE_FTE_TOTAL("Funded FTE Grade 1 Total"),
     GRADE_TWO_FTE_TOTAL("Funded FTE Grade 2 Total"),
     GRADE_THREE_FTE_TOTAL("Funded FTE Grade 3 Total"),
@@ -53,6 +55,14 @@ public enum EnrolmentAndFteHeader {
     KIND_HT_INDIGENOUS_COUNT("Headcount Kind(H/T) Indigenous"),
     KIND_HT_CORE_FRENCH_COUNT("Headcount Kind(H/T) Core French"),
     KIND_HT_EARLY_FRENCH_COUNT("Headcount Kind(H/T) Early French Immersion"),
+
+    KIND_FT_IE_LEVEL_ONE_COUNT("Headcount Kind(F/T) IE Level 1"),
+    KIND_FT_IE_LEVEL_TWO_COUNT("Headcount Kind(F/T) IE Level 2"),
+    KIND_FT_IE_LEVEL_THREE_COUNT("Headcount Kind(F/T) IE Level 3"),
+    KIND_FT_ELL_COUNT("Headcount Kind(F/T) ELL"),
+    KIND_FT_INDIGENOUS_COUNT("Headcount Kind(F/T) Indigenous"),
+    KIND_FT_CORE_FRENCH_COUNT("Headcount Kind(F/T) Core French"),
+    KIND_FT_EARLY_FRENCH_COUNT("Headcount Kind(F/T) Early French Immersion"),
 
     GRADE_01_IE_LEVEL_ONE_COUNT("Headcount Grade 1 IE Level 1"),
     GRADE_01_IE_LEVEL_TWO_COUNT("Headcount Grade 1 IE Level 2"),
