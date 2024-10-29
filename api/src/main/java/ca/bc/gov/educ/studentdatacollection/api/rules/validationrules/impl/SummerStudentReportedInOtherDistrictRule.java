@@ -52,7 +52,7 @@ public class SummerStudentReportedInOtherDistrictRule implements ValidationBaseR
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
             var isStudentReportedInCurrentFiscal = validationRulesService.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(studentRuleData);
 
-            if (!isStudentReportedInCurrentFiscal) {
+            if (isStudentReportedInCurrentFiscal) {
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_NOT_IN_DISTRICT_ERROR));
             }
         }

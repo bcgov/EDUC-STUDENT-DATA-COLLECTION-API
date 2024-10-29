@@ -528,7 +528,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
 
-        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+        createHistoricalCollectionWithStudentInGrade07(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -616,7 +616,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+        createHistoricalCollectionWithStudentInGrade07(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID);
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
         collection.setCloseDate(currentCloseDate);
@@ -704,7 +704,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-        createHistoricalCollectionWithStudentInGrade07(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -792,7 +792,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-        createHistoricalCollectionWithStudentInGrade07(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -835,10 +835,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-        LocalDate mayCloseDate = LocalDate.parse(LocalDate.now().getYear() + "-05-30");
-
-        createHistoricalCollectionWithStudentInGrade07(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID);
-
+        
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
         collection.setCloseDate(currentCloseDate);
@@ -886,7 +883,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
         LocalDate mayCloseDate = LocalDate.parse(LocalDate.now().getYear() + "-05-30");
 
-        createHistoricalCollectionWithStudentInGrade07(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());

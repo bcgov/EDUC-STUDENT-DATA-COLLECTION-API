@@ -165,7 +165,7 @@ class CollectionAndFacilityTypeCalculatorTest extends BaseStudentDataCollectionA
         BigDecimal expectedFte = new BigDecimal("0");
 
         assertEquals(expectedFte, result.getFte());
-        assertEquals(ZeroFteReasonCodes.NO_ONLINE_LEARNING.getCode(), result.getFteZeroReason());
+        assertEquals(ZeroFteReasonCodes.NOT_REPORTED.getCode(), result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
@@ -207,7 +207,7 @@ class CollectionAndFacilityTypeCalculatorTest extends BaseStudentDataCollectionA
         BigDecimal expectedFte = new BigDecimal("0");
 
         assertEquals(expectedFte, result.getFte());
-        assertEquals(ZeroFteReasonCodes.NOT_REPORTED.getCode(), result.getFteZeroReason());
+        assertEquals(ZeroFteReasonCodes.NO_ONLINE_LEARNING.getCode(), result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 }
