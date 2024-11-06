@@ -29,12 +29,6 @@ public class SdcDuplicateEntity {
   @Column(name = "SDC_DUPLICATE_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
   private UUID sdcDuplicateID;
 
-  @ToString.Exclude
-  @EqualsAndHashCode.Exclude
-  @ManyToOne(optional = true, targetEntity = SdcSchoolCollectionStudentLightEntity.class)
-  @JoinColumn(name = "RETAINED_SDC_SCHOOL_COLLECTION_STUDENT_ID", referencedColumnName = "SDC_SCHOOL_COLLECTION_STUDENT_ID")
-  SdcSchoolCollectionStudentLightEntity retainedSdcSchoolCollectionStudentEntity;
-
   @Column(name = "DUPLICATE_SEVERITY_CODE")
   private String duplicateSeverityCode;
 
@@ -49,9 +43,6 @@ public class SdcDuplicateEntity {
 
   @Column(name = "DUPLICATE_ERROR_DESCRIPTION_CODE")
   private String duplicateErrorDescriptionCode;
-
-  @Column(name = "DUPLICATE_RESOLUTION_CODE")
-  private String duplicateResolutionCode;
 
   @Column(name = "CREATE_USER", updatable = false , length = 32)
   private String createUser;

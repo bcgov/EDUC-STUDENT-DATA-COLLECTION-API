@@ -138,10 +138,7 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
-            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
-
-    val duplicate = sdcDuplicateRepository.findBySdcDuplicateID(UUID.fromString(programDupe.get().getSdcDuplicateID()));
-    assertThat(duplicate.get().getDuplicateResolutionCode()).isEqualTo("RESOLVED");
+            .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
   }
 
   @Test
@@ -192,9 +189,6 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(softDeleteRecordSet))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk());
-
-    val duplicate = sdcDuplicateRepository.findBySdcDuplicateID(UUID.fromString(programDupe.get().getSdcDuplicateID()));
-    assertThat(duplicate.get().getDuplicateResolutionCode()).isEqualTo("RELEASED");
   }
 
   @Test
@@ -252,10 +246,7 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
-            .contentType(APPLICATION_JSON)).andExpect(status().isOk());
-
-    val duplicate = sdcDuplicateRepository.findBySdcDuplicateID(UUID.fromString(programDupe.get().getSdcDuplicateID()));
-    assertThat(duplicate.get().getDuplicateResolutionCode()).isEqualTo("GRADE_CHNG");
+            .contentType(APPLICATION_JSON)).andExpect(status().isBadRequest());
   }
 
   @Test
@@ -306,9 +297,6 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk()).andExpect(result -> {});
-
-    val duplicate = sdcDuplicateRepository.findBySdcDuplicateID(UUID.fromString(programDupe.get().getSdcDuplicateID()));
-    assertThat(duplicate.get().getDuplicateResolutionCode()).isNull();
   }
 
   @Test
@@ -365,8 +353,5 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
             .header("correlationID", UUID.randomUUID().toString())
             .content(JsonUtil.getJsonStringFromObject(students))
             .contentType(APPLICATION_JSON)).andExpect(status().isOk()).andExpect(result -> {});
-
-    val duplicate = sdcDuplicateRepository.findBySdcDuplicateID(UUID.fromString(programDupe.get().getSdcDuplicateID()));
-    assertThat(duplicate.get().getDuplicateResolutionCode()).isNull();
   }
 }

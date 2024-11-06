@@ -1,8 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
-import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
@@ -12,11 +10,10 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionReposito
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
-import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorIndySdcSchoolCollection;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorIndySdcSchoolCollectionsResponse;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcDistrictCollection;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -25,7 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CollectionService {
@@ -35,14 +35,12 @@ public class CollectionService {
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
-  private final RestUtils restUtils;
 
   @Autowired
-  public CollectionService(CollectionRepository collectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
+  public CollectionService(CollectionRepository collectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository) {
     this.collectionRepository = collectionRepository;
     this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
-    this.restUtils = restUtils;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
   }
 
@@ -83,24 +81,7 @@ public class CollectionService {
     if (entityOptional.isEmpty()) {
       throw new EntityNotFoundException(CollectionEntity.class, "CollectionID", collectionID.toString());
     }
-    List<MonitorSdcDistrictCollectionQueryResponse> monitorSdcDistrictCollectionsQueryResponses = sdcDistrictCollectionRepository.findAllSdcDistrictCollectionMonitoringByCollectionID(collectionID);
-
-    List<MonitorSdcDistrictCollection> monitorSdcDistrictCollections = new ArrayList<>();
-    monitorSdcDistrictCollectionsQueryResponses.forEach(monitorSdcDistrictCollectionQueryResponse -> {
-      District district = this.restUtils.getDistrictByDistrictID(monitorSdcDistrictCollectionQueryResponse.getDistrictID().toString()).orElseThrow(() -> new StudentDataCollectionAPIRuntimeException("SdcSchoolCollection :: " + monitorSdcDistrictCollectionQueryResponse.getSdcDistrictCollectionID() + " has invalid districtId :: " + monitorSdcDistrictCollectionQueryResponse.getDistrictID()));
-
-      MonitorSdcDistrictCollection monitorSdcDistrictCollection = new MonitorSdcDistrictCollection();
-      monitorSdcDistrictCollection.setDistrictID(UUID.fromString(district.getDistrictId()));
-      monitorSdcDistrictCollection.setDistrictTitle(district.getDistrictNumber() + " - " + district.getDisplayName());
-      monitorSdcDistrictCollection.setSdcDistrictCollectionStatusCode(monitorSdcDistrictCollectionQueryResponse.getSdcDistrictCollectionStatusCode());
-      monitorSdcDistrictCollection.setSdcDistrictCollectionId(monitorSdcDistrictCollectionQueryResponse.getSdcDistrictCollectionID());
-      monitorSdcDistrictCollection.setNumSubmittedSchools(monitorSdcDistrictCollectionQueryResponse.getSubmittedSchools() + "/" + monitorSdcDistrictCollectionQueryResponse.getTotalSchools());
-      monitorSdcDistrictCollection.setUnresolvedProgramDuplicates(monitorSdcDistrictCollectionQueryResponse.getUnresolvedProgramDuplicates());
-      monitorSdcDistrictCollection.setUnresolvedEnrollmentDuplicates(monitorSdcDistrictCollectionQueryResponse.getUnresolvedEnrollmentDuplicates());
-
-      monitorSdcDistrictCollections.add(monitorSdcDistrictCollection);
-    });
-    return monitorSdcDistrictCollections;
+    return new ArrayList<>();
   }
 
   public MonitorIndySdcSchoolCollectionsResponse getMonitorIndySdcSchoolCollectionResponse(UUID collectionID) {
@@ -108,29 +89,8 @@ public class CollectionService {
     if (entityOptional.isEmpty()) {
       throw new EntityNotFoundException(CollectionEntity.class, "CollectionID", collectionID.toString());
     }
-    List<MonitorIndySdcSchoolCollectionQueryResponse> monitorSdcSchoolCollectionQueryResponses = sdcSchoolCollectionRepository.findAllIndySdcSchoolCollectionMonitoringBySdcCollectionId(collectionID);
     List<MonitorIndySdcSchoolCollection> monitorSdcSchoolCollections = new ArrayList<>();
-    monitorSdcSchoolCollectionQueryResponses.forEach(monitorSdcSchoolCollectionQueryResponse -> {
-      SchoolTombstone schoolTombstone = this.restUtils.getSchoolBySchoolID(monitorSdcSchoolCollectionQueryResponse.getSchoolId().toString()).orElseThrow(() -> new StudentDataCollectionAPIRuntimeException("SdcSchoolCollection :: " + monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionId() + " has invalid schoolId :: " + monitorSdcSchoolCollectionQueryResponse.getSchoolId()));
-      MonitorIndySdcSchoolCollection monitorSdcSchoolCollection = new MonitorIndySdcSchoolCollection();
 
-      monitorSdcSchoolCollection.setSchoolTitle(schoolTombstone.getMincode() + " - " + schoolTombstone.getDisplayName());
-      monitorSdcSchoolCollection.setSchoolId(schoolTombstone.getSchoolId());
-      monitorSdcSchoolCollection.setSdcSchoolCollectionId(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionId());
-      monitorSdcSchoolCollection.setUploadDate(monitorSdcSchoolCollectionQueryResponse.getUploadDate());
-      monitorSdcSchoolCollection.setUploadReportDate(monitorSdcSchoolCollectionQueryResponse.getUploadReportDate());
-      monitorSdcSchoolCollection.setHeadcount(monitorSdcSchoolCollectionQueryResponse.getHeadcount());
-      monitorSdcSchoolCollection.setErrors(monitorSdcSchoolCollectionQueryResponse.getErrors());
-      monitorSdcSchoolCollection.setInfoWarnings(monitorSdcSchoolCollectionQueryResponse.getInfoWarnings());
-      monitorSdcSchoolCollection.setFundingWarnings(monitorSdcSchoolCollectionQueryResponse.getFundingWarnings());
-
-      monitorSdcSchoolCollection.setSchoolStatus(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode());
-      monitorSdcSchoolCollection.setSubmittedToDistrict(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode()));
-      monitorSdcSchoolCollection.setUnresolvedProgramDuplicates(monitorSdcSchoolCollectionQueryResponse.getUnresolvedProgramDuplicates());
-      monitorSdcSchoolCollection.setUnresolvedEnrollmentDuplicates(monitorSdcSchoolCollectionQueryResponse.getUnresolvedEnrollmentDuplicates());
-
-      monitorSdcSchoolCollections.add(monitorSdcSchoolCollection);
-    });
     MonitorIndySdcSchoolCollectionsResponse response = new MonitorIndySdcSchoolCollectionsResponse();
     response.setMonitorSdcSchoolCollections(monitorSdcSchoolCollections);
 
@@ -141,10 +101,6 @@ public class CollectionService {
     response.setSchoolsWithData(monitorSdcSchoolCollections.stream().filter(collection -> collection.getUploadDate() != null).count());
     response.setTotalSchools(monitorSdcSchoolCollections.size());
     return response;
-  }
-
-  private boolean isStatusConfirmed(String statusCode, String... confirmedStatuses) {
-    return Arrays.asList(confirmedStatuses).contains(statusCode);
   }
 
   public List<String> findDuplicatesInCollection(UUID collectionID, List<String> matchedAssignedIDs) {

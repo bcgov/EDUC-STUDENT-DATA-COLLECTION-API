@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateResolutionCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.HeadcountReportTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcSchoolCollectionStudentEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
@@ -9,7 +8,6 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionSt
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcDuplicatesService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentHeadcountService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
@@ -25,8 +23,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -97,7 +93,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
          if(StringUtils.isNotBlank(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())) {
              RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
             return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent
-                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent), DuplicateResolutionCode.MIN_UPDT));
+                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
         } else {
              RequestUtil.setAuditColumnsForCreate(sdcSchoolCollectionStudent);
             return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.createSdcSchoolCollectionStudent

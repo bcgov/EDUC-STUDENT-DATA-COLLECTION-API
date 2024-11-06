@@ -25,8 +25,6 @@ public class SdcDuplicate extends BaseRequest implements Serializable {
 
   SdcSchoolCollectionStudent sdcSchoolCollectionStudent2Entity;
 
-  SdcSchoolCollectionStudent retainedSdcSchoolCollectionStudentEntity;
-
   private String duplicateSeverityCode;
 
   private String duplicateTypeCode;
@@ -36,7 +34,5 @@ public class SdcDuplicate extends BaseRequest implements Serializable {
   private String duplicateLevelCode;
 
   private String duplicateErrorDescriptionCode;
-
-  private String duplicateResolutionCode;
 
 }

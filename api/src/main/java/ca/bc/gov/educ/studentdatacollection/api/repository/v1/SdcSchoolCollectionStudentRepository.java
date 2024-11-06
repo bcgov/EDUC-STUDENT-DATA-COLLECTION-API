@@ -116,8 +116,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
                 and sdcSchool.sdcSchoolCollectionID = innerStud.sdcSchoolCollectionEntity.sdcSchoolCollectionID
                 and innerStud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
                 and innerStud.assignedStudentId is not null
-                GROUP BY innerStud.assignedStudentId
-                HAVING COUNT(innerStud.assignedStudentId) > 1)
+                GROUP BY innerStud.assignedStudentId)
     and dist.sdcDistrictCollectionID = :sdcDistrictCollectionID
     and dist.sdcDistrictCollectionID = school.sdcDistrictCollectionID
     and school.sdcSchoolCollectionID = stud.sdcSchoolCollectionEntity.sdcSchoolCollectionID
@@ -125,6 +124,57 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     and stud.assignedStudentId is not null
     """)
   List<SdcSchoolCollectionStudentLightEntity> findAllInDistrictDuplicateStudentsInSdcDistrictCollection(UUID sdcDistrictCollectionID);
+
+  @Query(value = """
+      SELECT student
+      FROM SdcSchoolCollectionStudentLightEntity student, SdcSchoolCollectionEntity schoolCol
+      WHERE student.assignedStudentId IN (  
+        SELECT stud.assignedStudentId
+        FROM SdcSchoolCollectionStudentLightEntity stud, SdcSchoolCollectionEntity school
+        WHERE stud.assignedStudentId IN (SELECT innerStud.assignedStudentId
+                    FROM SdcSchoolCollectionStudentLightEntity innerStud, SdcSchoolCollectionEntity sdcSchool
+                    where sdcSchool.collectionEntity.collectionID = :collectionID
+                    and sdcSchool.sdcSchoolCollectionID = innerStud.sdcSchoolCollectionEntity.sdcSchoolCollectionID
+                    and sdcSchool.sdcSchoolCollectionID = :sdcSchoolCollectionID
+                    and innerStud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+                    and innerStud.assignedStudentId is not null
+                    GROUP BY innerStud.assignedStudentId)
+        and school.sdcSchoolCollectionID = stud.sdcSchoolCollectionEntity.sdcSchoolCollectionID
+        and school.collectionEntity.collectionID = :collectionID
+        and stud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+        and stud.assignedStudentId is not null
+        GROUP BY stud.assignedStudentId
+        HAVING COUNT(stud.assignedStudentId) > 1)
+      and schoolCol.sdcSchoolCollectionID = student.sdcSchoolCollectionID
+      and schoolCol.collectionEntity.collectionID = :collectionID
+    """)
+  List<SdcSchoolCollectionStudentLightEntity> findAllInProvinceDuplicateStudentsInSdcSchoolCollection(UUID collectionID, UUID sdcSchoolCollectionID);
+
+  @Query(value = """  
+      SELECT student
+      FROM SdcSchoolCollectionStudentLightEntity student, SdcSchoolCollectionEntity schoolCol
+      WHERE student.assignedStudentId IN (  
+        SELECT stud.assignedStudentId
+        FROM SdcSchoolCollectionStudentLightEntity stud, SdcSchoolCollectionEntity school
+        WHERE stud.assignedStudentId IN (SELECT innerStud.assignedStudentId
+                    FROM SdcSchoolCollectionStudentLightEntity innerStud, SdcSchoolCollectionEntity sdcSchool, SdcDistrictCollectionEntity sdcDist
+                    where sdcSchool.collectionEntity.collectionID = :collectionID
+                    and sdcDist.sdcDistrictCollectionID = sdcSchool.sdcDistrictCollectionID
+                    and sdcSchool.sdcSchoolCollectionID = innerStud.sdcSchoolCollectionEntity.sdcSchoolCollectionID
+                    and sdcDist.sdcDistrictCollectionID = :sdcDistrictCollectionID
+                    and innerStud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+                    and innerStud.assignedStudentId is not null
+                    GROUP BY innerStud.assignedStudentId)
+        and school.sdcSchoolCollectionID = stud.sdcSchoolCollectionEntity.sdcSchoolCollectionID
+        and school.collectionEntity.collectionID = :collectionID
+        and stud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+        and stud.assignedStudentId is not null
+        GROUP BY stud.assignedStudentId
+        HAVING COUNT(stud.assignedStudentId) > 1)
+      and schoolCol.sdcSchoolCollectionID = student.sdcSchoolCollectionID
+      and schoolCol.collectionEntity.collectionID = :collectionID
+    """)
+  List<SdcSchoolCollectionStudentLightEntity> findAllInProvinceDuplicateStudentsInSdcDistrictCollection(UUID collectionID, UUID sdcDistrictCollectionID);
 
   @Query(value = """  
     SELECT stud
