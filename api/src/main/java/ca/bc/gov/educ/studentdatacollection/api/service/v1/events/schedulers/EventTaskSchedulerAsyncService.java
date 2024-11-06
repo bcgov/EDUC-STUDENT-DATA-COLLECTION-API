@@ -221,7 +221,7 @@ public class EventTaskSchedulerAsyncService {
     return schoolTombstones.stream()
             .filter(tombstone -> !existingSchoolIds.contains(UUID.fromString(tombstone.getSchoolId())))
             .filter(tombstone -> tombstone.getClosedDate() == null
-                    && LocalDateTime.parse(tombstone.getOpenedDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")).isBefore(LocalDateTime.now()))
+                    && LocalDateTime.parse(tombstone.getOpenedDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME).isBefore(LocalDateTime.now()))
             .map(tombstone -> {
               SdcSchoolCollectionEntity newEntity = new SdcSchoolCollectionEntity();
               newEntity.setCollectionEntity(activeCollection);
@@ -239,7 +239,7 @@ public class EventTaskSchedulerAsyncService {
   private List<SdcSchoolCollectionEntity> findClosedSchoolsAndDeleteSdcCollection(List<SchoolTombstone> schoolTombstones, List<SdcSchoolCollectionEntity> activeSchoolCollections) {
     Set<UUID> closedSchoolIds = schoolTombstones.stream()
             .filter(tombstone -> tombstone.getClosedDate() != null
-                    && LocalDateTime.parse(tombstone.getClosedDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")).isBefore(LocalDateTime.now()))
+                    && LocalDateTime.parse(tombstone.getClosedDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME).isBefore(LocalDateTime.now()))
             .map(SchoolTombstone::getSchoolId)
             .map(UUID::fromString).collect(Collectors.toSet());
 
