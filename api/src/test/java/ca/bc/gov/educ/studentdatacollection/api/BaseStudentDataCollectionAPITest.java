@@ -222,7 +222,7 @@ public abstract class BaseStudentDataCollectionAPITest {
             .schoolCategoryCode("PUBLIC")
             .facilityTypeCode("STANDARD")
             .schoolReportingRequirementCode("REGULAR")
-            .openedDate("2018-07-01 00:00:00.000")
+            .openedDate("2022-07-03T00:00:00")
             .closedDate(null)
             .build();
   }

@@ -313,7 +313,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         setMockDataForSchoolCollectionsForSubmissionFn();
 
         SchoolTombstone newSchool = createMockSchoolTombstone();
-        newSchool.setOpenedDate(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(LocalDateTime.now().plusDays(10)));
+        newSchool.setOpenedDate(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().plusDays(10)));
         UUID newSchoolUUID = UUID.randomUUID();
         newSchool.setSchoolId(newSchoolUUID.toString());
         List<SchoolTombstone> mockSchools = List.of(newSchool);
@@ -331,7 +331,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         setMockDataForSchoolCollectionsForSubmissionFn();
 
         SchoolTombstone newSchool = createMockSchoolTombstone();
-        newSchool.setClosedDate(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(LocalDateTime.now().minusDays(10)));
+        newSchool.setClosedDate(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().minusDays(10)));
         UUID newSchoolUUID = UUID.randomUUID();
         newSchool.setSchoolId(newSchoolUUID.toString());
         List<SchoolTombstone> mockSchools = List.of(newSchool);
@@ -375,7 +375,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         school1.setSchoolId(UUID.randomUUID().toString());
         school1.setDisplayName("School1");
         school1.setMincode("0000001");
-        school1.setClosedDate(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(LocalDateTime.now().minusDays(1)));
+        school1.setClosedDate(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().minusDays(1)));
 
         var schoolDetail1 = createMockSchoolDetail();
         schoolDetail1.setSchoolId(school1.getSchoolId());
@@ -409,7 +409,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         school1.setSchoolId(UUID.randomUUID().toString());
         school1.setDisplayName("School1");
         school1.setMincode("0000001");
-        school1.setClosedDate(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(LocalDateTime.now().minusDays(1)));
+        school1.setClosedDate(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().minusDays(1)));
         SchoolTombstone school2 = createMockSchoolTombstone();
         school1.setSchoolId(UUID.randomUUID().toString());
         List<SchoolTombstone> mockSchools = List.of(school1, school2);
@@ -460,7 +460,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         school1.setSchoolId(UUID.randomUUID().toString());
         school1.setDisplayName("School1");
         school1.setMincode("0000001");
-        school1.setClosedDate(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(LocalDateTime.now().minusDays(1)));
+        school1.setClosedDate(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().minusDays(1)));
         SchoolTombstone school2 = createMockSchoolTombstone();
         school1.setSchoolId(UUID.randomUUID().toString());
         List<SchoolTombstone> mockSchools = List.of(school1, school2);
@@ -492,7 +492,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         school1.setSchoolId(UUID.randomUUID().toString());
         school1.setDisplayName("School1");
         school1.setMincode("0000001");
-        school1.setClosedDate(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(LocalDateTime.now().plusDays(20)));
+        school1.setClosedDate(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now().plusDays(20)));
         SchoolTombstone school2 = createMockSchoolTombstone();
         school1.setSchoolId(UUID.randomUUID().toString());
         List<SchoolTombstone> mockSchools = List.of(school1, school2);
