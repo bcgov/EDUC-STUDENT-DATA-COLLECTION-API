@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionQueryResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolCollectionSchoolID;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionsForAutoSubmit;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -150,6 +151,23 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     List<SchoolCollectionSchoolID> findSchoolIDBySdcSchoolCollectionIDIn(List<UUID> sdcSchoolCollectionIDs);
     Optional<SdcSchoolCollectionEntity> findBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
     List<SdcSchoolCollectionEntity> findAllByCollectionEntityCollectionID(UUID collectionID);
+
+    @Query("""
+            SELECT
+                s.sdcSchoolCollectionID as sdcSchoolCollectionId,
+                s.schoolID as schoolId,
+                s.sdcSchoolCollectionStatusCode as sdcSchoolCollectionStatusCode,
+                s.uploadDate as uploadDate,
+                COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'ERROR' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as errors,
+                COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'FUNDING_WARNING' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as fundingWarnings,
+                COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'INFO_WARNING' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as infoWarnings
+            FROM SdcSchoolCollectionEntity s
+                     LEFT JOIN s.sdcSchoolStudentEntities stu
+                     LEFT JOIN stu.sdcStudentValidationIssueEntities i
+            WHERE s.sdcDistrictCollectionID = :sdcDistrictCollectionId
+            GROUP BY s.sdcSchoolCollectionID
+    """)
+    List<MonitorSdcSchoolCollectionQueryResponse> findAllSdcSchoolCollectionMonitoringBySdcDistrictCollectionId(UUID sdcDistrictCollectionId);
 
     List<SdcSchoolCollectionEntity> findAllBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
 
