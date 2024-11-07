@@ -23,6 +23,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -220,7 +221,8 @@ public class EventTaskSchedulerAsyncService {
 
     return schoolTombstones.stream()
             .filter(tombstone -> !existingSchoolIds.contains(UUID.fromString(tombstone.getSchoolId())))
-            .filter(tombstone -> tombstone.getClosedDate() == null
+            .filter(tombstone -> StringUtils.isBlank(tombstone.getClosedDate())
+                    && StringUtils.isNotBlank(tombstone.getOpenedDate())
                     && LocalDateTime.parse(tombstone.getOpenedDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME).isBefore(LocalDateTime.now()))
             .map(tombstone -> {
               SdcSchoolCollectionEntity newEntity = new SdcSchoolCollectionEntity();
@@ -238,7 +240,7 @@ public class EventTaskSchedulerAsyncService {
 
   private List<SdcSchoolCollectionEntity> findClosedSchoolsAndDeleteSdcCollection(List<SchoolTombstone> schoolTombstones, List<SdcSchoolCollectionEntity> activeSchoolCollections) {
     Set<UUID> closedSchoolIds = schoolTombstones.stream()
-            .filter(tombstone -> tombstone.getClosedDate() != null
+            .filter(tombstone -> StringUtils.isNotBlank(tombstone.getClosedDate())
                     && LocalDateTime.parse(tombstone.getClosedDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME).isBefore(LocalDateTime.now()))
             .map(SchoolTombstone::getSchoolId)
             .map(UUID::fromString).collect(Collectors.toSet());
