@@ -49,6 +49,11 @@ public class SdcDuplicateController implements SdcDuplicateEndpoint {
   }
 
   @Override
+  public List<SdcSchoolCollectionStudent> getSchoolCollectionDuplicates(UUID sdcSchoolCollectionID) {
+    return this.sdcDuplicatesService.getAllSchoolCollectionDuplicates(sdcSchoolCollectionID).stream().map(studentMapper::toSdcSchoolStudent).toList();
+  }
+
+  @Override
   public ResponseEntity<Void> markPENForReview(SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
     ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
     RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);

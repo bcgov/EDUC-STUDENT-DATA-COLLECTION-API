@@ -39,6 +39,13 @@ public interface SdcDuplicateEndpoint {
   @Tag(name = "Sdc Duplicate", description = "Endpoints to get school collection duplicate.")
   SdcDuplicate getDuplicateByID(@PathVariable("sdcDuplicateID") UUID sdcDuplicateID);
 
+  @GetMapping("/sdcSchoolCollection/{sdcSchoolCollectionID}/duplicates")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "Sdc School Collection", description = "Endpoints to get school collection duplicates.")
+  List<SdcSchoolCollectionStudent>  getSchoolCollectionDuplicates(@PathVariable("sdcSchoolCollectionID") UUID sdcSchoolCollectionID);
+
   @PostMapping("/mark-for-review")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT')")
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
