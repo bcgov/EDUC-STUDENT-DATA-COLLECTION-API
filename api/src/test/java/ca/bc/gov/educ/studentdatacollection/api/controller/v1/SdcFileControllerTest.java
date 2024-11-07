@@ -11,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionSt
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileUpload;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SoftDeleteRecordSet;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,6 +31,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.FileInputStream;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
@@ -541,7 +543,9 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
       this.schoolStudentRepository.save(sdcSchoolCollectionStudentEntity);
     });
 
-    sdcSchoolCollectionStudentService.markStudentSoftDeletedOnly(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(students.get(0)));
+    SoftDeleteRecordSet set = new SoftDeleteRecordSet();
+    set.setSoftDeleteStudentIDs(Arrays.asList(students.get(0).getSdcSchoolCollectionStudentID()));
+    sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudents(set);
 
     var studentsAfterDelete = this.schoolStudentRepository.findAllBySdcSchoolCollection_SdcSchoolCollectionID(result.get(0).getSdcSchoolCollectionID());
     var deletedStudent = studentsAfterDelete.stream().filter(student -> student.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase("DELETED"));

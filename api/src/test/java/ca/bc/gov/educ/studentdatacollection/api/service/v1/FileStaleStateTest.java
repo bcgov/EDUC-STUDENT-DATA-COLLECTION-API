@@ -58,7 +58,7 @@ class FileStaleStateTest {
     school.setDistrictId(districtID.toString());
     var schoolColl = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
 
-    when(sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(any(UUID.class))).thenReturn(Optional.ofNullable(districtCollection));
+    when(sdcDistrictCollectionRepository.findById(any(UUID.class))).thenReturn(Optional.ofNullable(districtCollection));
     when(sdcSchoolCollectionRepository.findActiveCollectionBySchoolId(any(UUID.class))).thenReturn(Optional.ofNullable(schoolColl));
 
     when(sdcFileService.runDistrictFileLoad(any(SdcFileUpload.class), anyString())).thenThrow(ObjectOptimisticLockingFailureException.class);

@@ -2,8 +2,6 @@ package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorIndySdcSchoolCollectionQueryResponse;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcSchoolCollectionQueryResponse;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolCollectionSchoolID;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionsForAutoSubmit;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -153,47 +151,6 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     Optional<SdcSchoolCollectionEntity> findBySdcSchoolCollectionID(UUID sdcSchoolCollectionID);
     List<SdcSchoolCollectionEntity> findAllByCollectionEntityCollectionID(UUID collectionID);
 
-    @Query("""
-            SELECT
-                s.sdcSchoolCollectionID as sdcSchoolCollectionId,
-                s.schoolID as schoolId,
-                s.sdcSchoolCollectionStatusCode as sdcSchoolCollectionStatusCode,
-                s.uploadDate as uploadDate,
-                COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'ERROR' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as errors,
-                COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'FUNDING_WARNING' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as fundingWarnings,
-                COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'INFO_WARNING' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as infoWarnings
-            FROM SdcSchoolCollectionEntity s
-                     LEFT JOIN s.sdcSchoolStudentEntities stu
-                     LEFT JOIN stu.sdcStudentValidationIssueEntities i
-            WHERE s.sdcDistrictCollectionID = :sdcDistrictCollectionId
-            GROUP BY s.sdcSchoolCollectionID
-    """)
-    List<MonitorSdcSchoolCollectionQueryResponse> findAllSdcSchoolCollectionMonitoringBySdcDistrictCollectionId(UUID sdcDistrictCollectionId);
-
-    @Query("""
-    SELECT
-        s.sdcSchoolCollectionID as sdcSchoolCollectionId,
-        s.schoolID as schoolId,
-        s.sdcSchoolCollectionStatusCode as sdcSchoolCollectionStatusCode,
-        s.uploadDate as uploadDate,
-        s.uploadReportDate as uploadReportDate,
-        COUNT(DISTINCT stu.sdcSchoolCollectionStudentID) as headcount,
-        COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'ERROR' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as errors,
-        COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'FUNDING_WARNING' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as fundingWarnings,
-        COUNT(DISTINCT CASE WHEN i.validationIssueSeverityCode = 'INFO_WARNING' AND (stu.sdcSchoolCollectionStudentStatusCode IS NULL OR stu.sdcSchoolCollectionStudentStatusCode != 'DELETED') THEN i.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID || i.validationIssueCode END) as infoWarnings,
-        COUNT(DISTINCT CASE WHEN de.duplicateResolutionCode IS NULL AND de.duplicateLevelCode = 'PROVINCIAL' AND de.duplicateTypeCode = 'PROGRAM' AND de.duplicateSeverityCode = 'NON_ALLOW' THEN de.sdcDuplicateID END) as unresolvedProgramDuplicates,
-        COUNT(DISTINCT CASE WHEN de.duplicateResolutionCode IS NULL AND de.duplicateLevelCode = 'PROVINCIAL' AND de.duplicateTypeCode = 'ENROLLMENT' AND de.duplicateSeverityCode = 'NON_ALLOW' THEN de.sdcDuplicateID END) as unresolvedEnrollmentDuplicates
-        FROM SdcSchoolCollectionEntity s
-        LEFT JOIN s.sdcSchoolStudentEntities stu
-        LEFT JOIN stu.sdcStudentValidationIssueEntities i
-        LEFT JOIN SdcDuplicateStudentEntity ds ON stu.sdcSchoolCollectionStudentID = ds.sdcSchoolCollectionStudentEntity.sdcSchoolCollectionStudentID
-        LEFT JOIN SdcDuplicateEntity de ON ds.sdcDuplicateEntity.sdcDuplicateID = de.sdcDuplicateID
-    WHERE s.collectionEntity.collectionID = :collectionID
-    AND s.sdcDistrictCollectionID IS NULL
-    GROUP BY s.sdcSchoolCollectionID
-    """)
-    List<MonitorIndySdcSchoolCollectionQueryResponse> findAllIndySdcSchoolCollectionMonitoringBySdcCollectionId(@Param("collectionID") UUID collectionID);
-
     List<SdcSchoolCollectionEntity> findAllBySdcDistrictCollectionID(UUID sdcDistrictCollectionID);
 
     @Query(value="""
@@ -242,7 +199,7 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     SELECT ssc FROM SdcSchoolCollectionEntity ssc
     WHERE ssc.sdcSchoolCollectionID NOT IN (
         SELECT sds.sdcSchoolCollectionID FROM SdcDuplicateStudentEntity sds
-        WHERE sds.sdcDuplicateEntity.duplicateResolutionCode IS NULL AND
+        WHERE 
         sds.sdcDuplicateEntity.collectionID = :collectionID AND 
         sds.sdcDuplicateEntity.duplicateLevelCode = 'PROVINCIAL')
     AND ssc.collectionEntity.collectionID = :collectionID
@@ -253,7 +210,7 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     SELECT ssc FROM SdcSchoolCollectionEntity ssc
     WHERE ssc.sdcSchoolCollectionID IN (
         SELECT sds.sdcSchoolCollectionID FROM SdcDuplicateStudentEntity sds
-        WHERE sds.sdcDuplicateEntity.duplicateResolutionCode IS NULL AND
+        WHERE 
         sds.sdcDuplicateEntity.collectionID = :collectionID AND 
         sds.sdcDuplicateEntity.duplicateLevelCode = 'PROVINCIAL')
     AND ssc.collectionEntity.collectionID = :collectionID
