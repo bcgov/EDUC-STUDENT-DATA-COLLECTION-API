@@ -145,6 +145,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
         and stud.assignedStudentId is not null
         GROUP BY stud.assignedStudentId
         HAVING COUNT(stud.assignedStudentId) > 1)
+      and student.sdcSchoolCollectionStudentStatusCode != 'DELETED'
       and schoolCol.sdcSchoolCollectionID = student.sdcSchoolCollectionID
       and schoolCol.collectionEntity.collectionID = :collectionID
     """)
@@ -153,7 +154,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   @Query(value = """  
       SELECT student
       FROM SdcSchoolCollectionStudentLightEntity student, SdcSchoolCollectionEntity schoolCol
-      WHERE student.assignedStudentId IN (  
+      WHERE student.assignedStudentId IN ( 
         SELECT stud.assignedStudentId
         FROM SdcSchoolCollectionStudentLightEntity stud, SdcSchoolCollectionEntity school
         WHERE stud.assignedStudentId IN (SELECT innerStud.assignedStudentId
@@ -171,6 +172,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
         and stud.assignedStudentId is not null
         GROUP BY stud.assignedStudentId
         HAVING COUNT(stud.assignedStudentId) > 1)
+      and student.sdcSchoolCollectionStudentStatusCode != 'DELETED'
       and schoolCol.sdcSchoolCollectionID = student.sdcSchoolCollectionID
       and schoolCol.collectionEntity.collectionID = :collectionID
     """)
