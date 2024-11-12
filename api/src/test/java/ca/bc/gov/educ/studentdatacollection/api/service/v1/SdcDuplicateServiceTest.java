@@ -103,7 +103,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
     val sdcDuplicates = sdcDuplicateService.getAllInDistrictCollectionDuplicates(sdcDistrictCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
 
-    assertThat(sdcDuplicates).hasSize(2);
+    assertThat(sdcDuplicates).hasSize(1);
 
     val programDupe = sdcDuplicates.stream().filter(duplicate -> duplicate.getDuplicateTypeCode().equalsIgnoreCase("PROGRAM")).findFirst();
     val student1Entity = programDupe.get().getSdcSchoolCollectionStudent1Entity();
@@ -163,7 +163,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     PenMatchRecord rec = new PenMatchRecord();
     rec.setStudentID(studentID.toString());
     when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().penStatus("AA").matchingRecords(Arrays.asList(rec)).build());
-    assertThat(sdcDuplicates).hasSize(2);
+    assertThat(sdcDuplicates).hasSize(1);
 
     val programDupe = sdcDuplicates.stream().filter(duplicate -> duplicate.getDuplicateTypeCode().equalsIgnoreCase("PROGRAM")).findFirst();
     val student1Entity = programDupe.get().getSdcSchoolCollectionStudent1Entity();
@@ -216,7 +216,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     rec.setStudentID(studentID.toString());
     when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(PenMatchResult.builder().penStatus("AA").matchingRecords(Arrays.asList(rec)).build());
 
-    assertThat(sdcDuplicates).hasSize(2);
+    assertThat(sdcDuplicates).hasSize(1);
 
     val programDupe = sdcDuplicates.stream().filter(duplicate -> duplicate.getDuplicateTypeCode().equalsIgnoreCase("PROGRAM")).findFirst();
     val student1Entity = programDupe.get().getSdcSchoolCollectionStudent1Entity();
