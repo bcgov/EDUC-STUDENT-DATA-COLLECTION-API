@@ -228,6 +228,7 @@ public class EventTaskSchedulerAsyncService {
               SdcSchoolCollectionEntity newEntity = new SdcSchoolCollectionEntity();
               newEntity.setCollectionEntity(activeCollection);
               newEntity.setSchoolID(UUID.fromString(tombstone.getSchoolId()));
+              newEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
               newEntity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
               newEntity.setCreateDate(LocalDateTime.now());
               newEntity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
