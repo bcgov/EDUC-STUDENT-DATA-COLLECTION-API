@@ -28,7 +28,6 @@ public class MonitorIndySdcSchoolCollection implements Serializable {
   long fundingWarnings;
   long infoWarnings;
   String schoolStatus;
-  long unresolvedProgramDuplicates;
-  long unresolvedEnrollmentDuplicates;
+  long unresolvedDuplicates;
   boolean submittedToDistrict;
 }

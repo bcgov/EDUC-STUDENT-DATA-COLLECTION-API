@@ -178,14 +178,12 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].districtTitle").value("011 - District1"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sdcDistrictCollectionStatusCode").value("NEW"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].numSubmittedSchools").value("1/2"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].unresolvedProgramDuplicates").value("0"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].unresolvedEnrollmentDuplicates").value("0"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].unresolvedDuplicates").value("0"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sdcDistrictCollectionId").value(mockDistrictCollectionEntity2.getSdcDistrictCollectionID().toString()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].districtTitle").value("012 - District2"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].sdcDistrictCollectionStatusCode").value("NEW"))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].numSubmittedSchools").value("0/2"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].unresolvedProgramDuplicates").value("0"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].unresolvedEnrollmentDuplicates").value("0"));
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].unresolvedDuplicates").value("0"));
   }
   @Test
   void testGetMonitorIndySdcSchoolCollectionResponse_WithInValidId_ReturnsNotFound() throws Exception {

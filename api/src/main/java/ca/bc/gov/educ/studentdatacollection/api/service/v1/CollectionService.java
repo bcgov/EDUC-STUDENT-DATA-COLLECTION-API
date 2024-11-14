@@ -96,7 +96,7 @@ public class CollectionService {
       monitorSdcDistrictCollection.setSdcDistrictCollectionStatusCode(monitorSdcDistrictCollectionQueryResponse.getSdcDistrictCollectionStatusCode());
       monitorSdcDistrictCollection.setSdcDistrictCollectionId(monitorSdcDistrictCollectionQueryResponse.getSdcDistrictCollectionID());
       monitorSdcDistrictCollection.setNumSubmittedSchools(monitorSdcDistrictCollectionQueryResponse.getSubmittedSchools() + "/" + monitorSdcDistrictCollectionQueryResponse.getTotalSchools());
-      monitorSdcDistrictCollection.setUnresolvedEnrollmentDuplicates(getDuplicatesCount(monitorSdcDistrictCollectionQueryResponse.getSdcDistrictCollectionID(), countMap));
+      monitorSdcDistrictCollection.setUnresolvedDuplicates(getDuplicatesCount(monitorSdcDistrictCollectionQueryResponse.getSdcDistrictCollectionID(), countMap));
 
       monitorSdcDistrictCollections.add(monitorSdcDistrictCollection);
     });
@@ -115,11 +115,15 @@ public class CollectionService {
 
     dupes.forEach(sdcDuplicateEntity -> {
       var studs = sdcDuplicateEntity.getSdcDuplicateStudentEntities();
+      var schoolFoundSet = new HashSet<UUID>();
       studs.forEach(sdcDuplicateStudentEntity -> {
-        if(!countMap.containsKey(sdcDuplicateStudentEntity.getSdcSchoolCollectionID())){
-          countMap.put(sdcDuplicateStudentEntity.getSdcSchoolCollectionID(), 1);
-        }else{
-          countMap.replace(sdcDuplicateStudentEntity.getSdcSchoolCollectionID(), countMap.get(sdcDuplicateStudentEntity.getSdcSchoolCollectionID()) + 1);
+        if(!schoolFoundSet.contains(sdcDuplicateStudentEntity.getSdcSchoolCollectionID())) {
+          if (!countMap.containsKey(sdcDuplicateStudentEntity.getSdcSchoolCollectionID())) {
+            countMap.put(sdcDuplicateStudentEntity.getSdcSchoolCollectionID(), 1);
+          } else {
+            countMap.replace(sdcDuplicateStudentEntity.getSdcSchoolCollectionID(), countMap.get(sdcDuplicateStudentEntity.getSdcSchoolCollectionID()) + 1);
+          }
+          schoolFoundSet.add(sdcDuplicateStudentEntity.getSdcSchoolCollectionID());
         }
       });
     });
@@ -131,11 +135,15 @@ public class CollectionService {
 
     dupes.forEach(sdcDuplicateEntity -> {
       var studs = sdcDuplicateEntity.getSdcDuplicateStudentEntities();
+      var districtFoundSet = new HashSet<UUID>();
       studs.forEach(sdcDuplicateStudentEntity -> {
-        if(!countMap.containsKey(sdcDuplicateStudentEntity.getSdcDistrictCollectionID())){
-          countMap.put(sdcDuplicateStudentEntity.getSdcDistrictCollectionID(), 1);
-        }else{
-          countMap.replace(sdcDuplicateStudentEntity.getSdcDistrictCollectionID(), countMap.get(sdcDuplicateStudentEntity.getSdcDistrictCollectionID()) + 1);
+        if(!districtFoundSet.contains(sdcDuplicateStudentEntity.getSdcDistrictCollectionID())) {
+          if (!countMap.containsKey(sdcDuplicateStudentEntity.getSdcDistrictCollectionID())) {
+            countMap.put(sdcDuplicateStudentEntity.getSdcDistrictCollectionID(), 1);
+          } else {
+            countMap.replace(sdcDuplicateStudentEntity.getSdcDistrictCollectionID(), countMap.get(sdcDuplicateStudentEntity.getSdcDistrictCollectionID()) + 1);
+          }
+          districtFoundSet.add(sdcDuplicateStudentEntity.getSdcDistrictCollectionID());
         }
       });
     });
@@ -168,7 +176,7 @@ public class CollectionService {
 
       monitorSdcSchoolCollection.setSchoolStatus(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode());
       monitorSdcSchoolCollection.setSubmittedToDistrict(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode()));
-      monitorSdcSchoolCollection.setUnresolvedEnrollmentDuplicates(getDuplicatesCount(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionId(), countMap));
+      monitorSdcSchoolCollection.setUnresolvedDuplicates(getDuplicatesCount(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionId(), countMap));
 
       monitorSdcSchoolCollections.add(monitorSdcSchoolCollection);
     });
