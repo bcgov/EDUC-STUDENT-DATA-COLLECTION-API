@@ -27,9 +27,10 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
             AND C.collectionID = SSD.collectionEntity.collectionID
             AND SSD.sdcDistrictCollectionID != :currentSdcDistrictCollectionID
             AND C.collectionTypeCode = :collectionTypeCode
+            AND C.snapshotDate < :currentSnapshotDate
             ORDER BY C.snapshotDate desc
             LIMIT 1""")
-  Optional<SdcDistrictCollectionEntity> findLastCollectionByType(UUID districtID, String collectionTypeCode, UUID currentSdcDistrictCollectionID);
+  Optional<SdcDistrictCollectionEntity> findLastCollectionByType(UUID districtID, String collectionTypeCode, UUID currentSdcDistrictCollectionID, LocalDate currentSnapshotDate);
 
   @Query("""
           SELECT
