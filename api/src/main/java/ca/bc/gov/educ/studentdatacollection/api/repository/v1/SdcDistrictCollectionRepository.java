@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.MonitorSdcDistrictCollectionQueryResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -30,6 +31,20 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
             LIMIT 1""")
   Optional<SdcDistrictCollectionEntity> findLastCollectionByType(UUID districtID, String collectionTypeCode, UUID currentSdcDistrictCollectionID);
 
+  @Query("""
+          SELECT
+              s.sdcDistrictCollectionID as sdcDistrictCollectionID,
+              s.districtID as districtID,
+              s.sdcDistrictCollectionStatusCode as sdcDistrictCollectionStatusCode,
+              COUNT(DISTINCT CASE WHEN sc.sdcSchoolCollectionStatusCode = 'SUBMITTED' OR sc.sdcSchoolCollectionStatusCode = 'COMPLETED' THEN sc.sdcSchoolCollectionID END) as submittedSchools,
+              COUNT(DISTINCT sc.sdcSchoolCollectionID) as totalSchools
+          FROM SdcDistrictCollectionEntity s
+               LEFT JOIN SdcSchoolCollectionEntity sc ON s.sdcDistrictCollectionID = sc.sdcDistrictCollectionID
+          WHERE (sc.sdcSchoolCollectionStatusCode IS NULL OR sc.sdcSchoolCollectionStatusCode != 'DELETED')
+            AND s.collectionEntity.collectionID = :collectionID
+          GROUP BY s.sdcDistrictCollectionID
+          """)
+  List<MonitorSdcDistrictCollectionQueryResponse> findAllSdcDistrictCollectionMonitoringByCollectionID(UUID collectionID);
 
   @Query("""
     SELECT sdc FROM SdcDistrictCollectionEntity sdc

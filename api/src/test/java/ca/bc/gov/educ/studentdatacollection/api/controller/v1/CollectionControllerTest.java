@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.controller.v1;
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplication;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramDuplicateTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
@@ -122,6 +123,231 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID()).with(mockAuthority))
         .andDo(print())
         .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void testGetMonitorSdcDistrictCollectionResponse_WithInValidId_ReturnsNotFound() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID() + "/monitorSdcDistrictCollections").with(mockAuthority)).andDo(print()).andExpect(status().isNotFound());
+  }
+
+  @Test
+  void testGetMonitorSdcDistrictCollectionResponse_WithValidPayload_ReturnsCorrectResponse() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    var districtID1 = UUID.randomUUID();
+    var district1 = createMockDistrict();
+    district1.setDisplayName("District1");
+    district1.setDistrictNumber("011");
+    district1.setDistrictId(districtID1.toString());
+    var mockDistrictCollectionEntity1 = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID1));
+
+    var districtID2 = UUID.randomUUID();
+    var district2 = createMockDistrict();
+    district2.setDisplayName("District2");
+    district2.setDistrictNumber("012");
+    district2.setDistrictId(districtID2.toString());
+    var mockDistrictCollectionEntity2 = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID2));
+
+    var sdcSchoolCollection1a = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
+    sdcSchoolCollection1a.setSdcDistrictCollectionID(mockDistrictCollectionEntity1.getSdcDistrictCollectionID());
+    sdcSchoolCollection1a.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
+    var sdcSchoolCollection1b = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
+    sdcSchoolCollection1b.setSdcDistrictCollectionID(mockDistrictCollectionEntity1.getSdcDistrictCollectionID());
+    sdcSchoolCollection1b.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SCH_C_VRFD.getCode());
+
+    var sdcSchoolCollection2a = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
+    sdcSchoolCollection2a.setSdcDistrictCollectionID(mockDistrictCollectionEntity2.getSdcDistrictCollectionID());
+    sdcSchoolCollection2a.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SCH_C_VRFD.getCode());
+    var sdcSchoolCollection2b = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
+    sdcSchoolCollection2b.setSdcDistrictCollectionID(mockDistrictCollectionEntity2.getSdcDistrictCollectionID());
+    sdcSchoolCollection2b.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SCH_C_VRFD.getCode());
+    sdcSchoolCollectionRepository.saveAll(List.of(sdcSchoolCollection1a, sdcSchoolCollection1b, sdcSchoolCollection2a, sdcSchoolCollection2b));
+
+    when(this.restUtils.getDistrictByDistrictID(district1.getDistrictId())).thenReturn(Optional.of(district1));
+    when(this.restUtils.getDistrictByDistrictID(district2.getDistrictId())).thenReturn(Optional.of(district2));
+
+    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/monitorSdcDistrictCollections").with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sdcDistrictCollectionId").value(mockDistrictCollectionEntity1.getSdcDistrictCollectionID().toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].districtTitle").value("011 - District1"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sdcDistrictCollectionStatusCode").value("NEW"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].numSubmittedSchools").value("1/2"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].unresolvedDuplicates").value("0"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sdcDistrictCollectionId").value(mockDistrictCollectionEntity2.getSdcDistrictCollectionID().toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].districtTitle").value("012 - District2"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].sdcDistrictCollectionStatusCode").value("NEW"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].numSubmittedSchools").value("0/2"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].unresolvedDuplicates").value("0"));
+  }
+  @Test
+  void testGetMonitorIndySdcSchoolCollectionResponse_WithInValidId_ReturnsNotFound() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID() + "/monitorIndySdcSchoolCollections").with(mockAuthority)).andDo(print()).andExpect(status().isNotFound());
+  }
+
+  @Test
+  void testGetMonitorIndySdcSchoolCollectionResponse_WithValidPayload_ReturnsCorrectResponse() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    var districtID = UUID.randomUUID();
+    var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+
+    var school1 = createMockSchool();
+    school1.setDisplayName("School1");
+    school1.setMincode("0000001");
+    school1.setDistrictId(districtID.toString());
+    var school2 = createMockSchool();
+    school2.setDisplayName("School2");
+    school2.setMincode("0000002");
+    school2.setDistrictId(districtID.toString());
+    var school3 = createMockSchool();
+    school3.setDisplayName("School3");
+    school3.setMincode("0000003");
+    school3.setDistrictId(districtID.toString());
+
+    var sdcSchoolCollection1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    sdcSchoolCollection1.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+    sdcSchoolCollection1.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
+    sdcSchoolCollection1.setSdcDistrictCollectionID(null);
+    var sdcSchoolCollection2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    sdcSchoolCollection2.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+    sdcSchoolCollection2.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SCH_C_VRFD.getCode());
+    sdcSchoolCollection2.setSdcDistrictCollectionID(null);
+    var sdcSchoolCollection3 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school3.getSchoolId()));
+    sdcSchoolCollection3.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+    sdcSchoolCollection3.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SCH_C_VRFD.getCode());
+    sdcSchoolCollectionRepository.saveAll(List.of(sdcSchoolCollection1, sdcSchoolCollection2, sdcSchoolCollection3));
+
+    var  student = createMockSchoolStudentEntity(sdcSchoolCollection2);
+    var issue1 = createMockSdcSchoolCollectionStudentValidationIssueEntity(student, StudentValidationIssueSeverityCode.ERROR);
+    var issue2 = createMockSdcSchoolCollectionStudentValidationIssueEntity(student, StudentValidationIssueSeverityCode.ERROR);
+    var issue3 = createMockSdcSchoolCollectionStudentValidationIssueEntity(student, StudentValidationIssueSeverityCode.ERROR);
+    issue2.setValidationIssueFieldCode("SOMEOTHERFIELD"); //same code different field, should NOT register as a unique error
+    issue3.setValidationIssueCode("DIFFERENTCODE"); //different code, should register as a unique error
+
+    sdcSchoolCollectionStudentRepository.save(student);
+    sdcSchoolCollectionStudentValidationIssueRepository.saveAll(List.of(issue1, issue2, issue3));
+
+    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+    when(this.restUtils.getSchoolBySchoolID(school3.getSchoolId())).thenReturn(Optional.of(school3));
+
+    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/monitorIndySdcSchoolCollections").with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].sdcSchoolCollectionId").value(sdcSchoolCollection1.getSdcSchoolCollectionID().toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].schoolTitle").value("0000001 - School1"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].errors").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].fundingWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].infoWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].schoolStatus").value("SUBMITTED"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].sdcSchoolCollectionId").value(sdcSchoolCollection2.getSdcSchoolCollectionID().toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].schoolTitle").value("0000002 - School2"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].errors").value(2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].fundingWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].infoWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].schoolStatus").value("SCH_C_VRFD"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsWithData").value(2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalErrors").value(2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalFundingWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalInfoWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsSubmitted").value(1))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalSchools").value(2));
+  }
+
+  @Test
+  void testGetMonitorIndySdcSchoolCollectionResponse_GivenSchoolOnlyHasDeletedOrNoStudents_ReturnsCorrectResponse() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    var districtID = UUID.randomUUID();
+    var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+
+    var school1 = createMockSchool();
+    school1.setDisplayName("School1");
+    school1.setMincode("0000001");
+    school1.setDistrictId(districtID.toString());
+    var school2 = createMockSchool();
+    school2.setDisplayName("School2");
+    school2.setMincode("0000002");
+    school2.setDistrictId(districtID.toString());
+
+    var sdcSchoolCollection1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    sdcSchoolCollection1.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+    sdcSchoolCollection1.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.VERIFIED.getCode());
+    sdcSchoolCollection1.setSdcDistrictCollectionID(null);
+    var sdcSchoolCollection2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    sdcSchoolCollection2.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+    sdcSchoolCollection2.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SCH_C_VRFD.getCode());
+    sdcSchoolCollection2.setSdcDistrictCollectionID(null);
+    sdcSchoolCollectionRepository.saveAll(List.of(sdcSchoolCollection1, sdcSchoolCollection2));
+
+    var  student = createMockSchoolStudentEntity(sdcSchoolCollection2);
+    student.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.DELETED.getCode());
+    var issue1 = createMockSdcSchoolCollectionStudentValidationIssueEntity(student, StudentValidationIssueSeverityCode.ERROR);
+    var issue2 = createMockSdcSchoolCollectionStudentValidationIssueEntity(student, StudentValidationIssueSeverityCode.ERROR);
+    issue2.setValidationIssueCode("DIFFERENTCODE"); //different code, should register as a unique error
+
+    sdcSchoolCollectionStudentRepository.save(student);
+    sdcSchoolCollectionStudentValidationIssueRepository.saveAll(List.of(issue1, issue2));
+
+    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+
+    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/monitorIndySdcSchoolCollections").with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].sdcSchoolCollectionId").value(sdcSchoolCollection1.getSdcSchoolCollectionID().toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].schoolTitle").value("0000001 - School1"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].errors").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].fundingWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].infoWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].schoolStatus").value("VERIFIED"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].sdcSchoolCollectionId").value(sdcSchoolCollection2.getSdcSchoolCollectionID().toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].schoolTitle").value("0000002 - School2"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].errors").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].fundingWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].infoWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[1].schoolStatus").value("SCH_C_VRFD"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsWithData").value(2))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalErrors").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalFundingWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalInfoWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsSubmitted").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalSchools").value(2));
+  }
+
+  @Test
+  void testGetMonitorIndySdcSchoolCollectionResponse_WithValidDistrictCollectionIdNoSchoolCollections_ReturnsCorrectResponse() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, UUID.randomUUID()));
+
+
+    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/monitorIndySdcSchoolCollections").with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections").isArray())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections", hasSize(0)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsWithData").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalErrors").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalFundingWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalInfoWarnings").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.schoolsSubmitted").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalSchools").value(0));
   }
 
   @Test
