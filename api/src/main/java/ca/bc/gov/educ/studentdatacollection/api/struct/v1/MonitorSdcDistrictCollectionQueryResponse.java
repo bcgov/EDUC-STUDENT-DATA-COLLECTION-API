@@ -9,7 +9,5 @@ public interface MonitorSdcDistrictCollectionQueryResponse {
   String getSdcDistrictCollectionStatusCode();
   long getSubmittedSchools();
   long getTotalSchools();
-  long getUnresolvedProgramDuplicates();
-  long getUnresolvedEnrollmentDuplicates();
 }
 

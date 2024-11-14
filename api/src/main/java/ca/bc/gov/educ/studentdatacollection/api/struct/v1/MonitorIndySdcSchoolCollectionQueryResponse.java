@@ -14,8 +14,6 @@ public interface MonitorIndySdcSchoolCollectionQueryResponse {
   long getErrors();
   long getFundingWarnings();
   long getInfoWarnings();
-  long getUnresolvedProgramDuplicates();
-  long getUnresolvedEnrollmentDuplicates();
 }
 
 
