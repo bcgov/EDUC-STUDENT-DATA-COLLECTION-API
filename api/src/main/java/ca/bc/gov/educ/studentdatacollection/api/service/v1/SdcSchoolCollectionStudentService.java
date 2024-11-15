@@ -185,35 +185,36 @@ public class SdcSchoolCollectionStudentService {
   public void prepareStudentsForDemogUpdate(final List<SdcSchoolCollectionStudentEntity> sdcStudentEntities) {
     CollectionEntity collection = sdcStudentEntities.get(0).getSdcSchoolCollection().getCollectionEntity();
 
+    final List<UpdateStudentSagaData> updateStudentSagas = sdcStudentEntities.stream()
+            .map(el -> {
+              val updateStudentSagaData = new UpdateStudentSagaData();
+              var school = this.restUtils.getSchoolBySchoolID(el.getSdcSchoolCollection().getSchoolID().toString());
+
+              updateStudentSagaData.setDob(el.getDob());
+              updateStudentSagaData.setSexCode(el.getGender());
+              updateStudentSagaData.setGenderCode(el.getGender());
+              updateStudentSagaData.setUsualFirstName(el.getUsualFirstName());
+              updateStudentSagaData.setUsualLastName(el.getUsualLastName());
+              updateStudentSagaData.setUsualMiddleNames(el.getUsualMiddleNames());
+              updateStudentSagaData.setPostalCode(el.getPostalCode());
+              updateStudentSagaData.setLocalID(el.getLocalID());
+              updateStudentSagaData.setGradeCode(el.getEnrolledGradeCode());
+              updateStudentSagaData.setMincode(school.get().getMincode());
+              updateStudentSagaData.setSdcSchoolCollectionStudentID(el.getSdcSchoolCollectionStudentID().toString());
+              updateStudentSagaData.setAssignedPEN(el.getAssignedPen());
+              updateStudentSagaData.setAssignedStudentID(el.getAssignedStudentId() != null ? el.getAssignedStudentId().toString() : null);
+              updateStudentSagaData.setNumberOfCourses(el.getNumberOfCourses());
+              updateStudentSagaData.setCollectionID(el.getSdcSchoolCollection().getCollectionEntity().getCollectionID().toString());
+              updateStudentSagaData.setCollectionTypeCode(el.getSdcSchoolCollection().getCollectionEntity().getCollectionTypeCode());
+
+              return updateStudentSagaData;
+
+            }).toList();
+
     if(!Objects.equals(collection.getCollectionTypeCode(), CollectionTypeCodes.JULY.getTypeCode())) {
-      final List<UpdateStudentSagaData> updateStudentSagas = sdcStudentEntities.stream()
-              .map(el -> {
-                val updateStudentSagaData = new UpdateStudentSagaData();
-                var school = this.restUtils.getSchoolBySchoolID(el.getSdcSchoolCollection().getSchoolID().toString());
-
-                updateStudentSagaData.setDob(el.getDob());
-                updateStudentSagaData.setSexCode(el.getGender());
-                updateStudentSagaData.setGenderCode(el.getGender());
-                updateStudentSagaData.setUsualFirstName(el.getUsualFirstName());
-                updateStudentSagaData.setUsualLastName(el.getUsualLastName());
-                updateStudentSagaData.setUsualMiddleNames(el.getUsualMiddleNames());
-                updateStudentSagaData.setPostalCode(el.getPostalCode());
-                updateStudentSagaData.setLocalID(el.getLocalID());
-                updateStudentSagaData.setGradeCode(el.getEnrolledGradeCode());
-                updateStudentSagaData.setMincode(school.get().getMincode());
-                updateStudentSagaData.setSdcSchoolCollectionStudentID(el.getSdcSchoolCollectionStudentID().toString());
-                updateStudentSagaData.setAssignedPEN(el.getAssignedPen());
-                updateStudentSagaData.setAssignedStudentID(el.getAssignedStudentId());
-                updateStudentSagaData.setNumberOfCourses(el.getNumberOfCourses());
-                updateStudentSagaData.setCollectionID(el.getSdcSchoolCollection().getCollectionEntity().getCollectionID());
-                updateStudentSagaData.setCollectionTypeCode(el.getSdcSchoolCollection().getCollectionEntity().getCollectionTypeCode());
-
-                return updateStudentSagaData;
-
-              }).toList();
       publishStudentRecordsForDemogUpdate(updateStudentSagas);
     } else {
-      publishStudentRecordsForStatusUpdate(sdcStudentEntities);
+      publishStudentRecordsForStatusUpdate(updateStudentSagas);
     }
   }
 
@@ -221,7 +222,7 @@ public class SdcSchoolCollectionStudentService {
     updateStudentSagas.forEach(this::sendStudentRecordsForDemogUpdateAsMessageToTopic);
   }
 
-  public void publishStudentRecordsForStatusUpdate(final List<SdcSchoolCollectionStudentEntity> students) {
+  public void publishStudentRecordsForStatusUpdate(final List<UpdateStudentSagaData> students) {
     students.forEach(this::sendStudentRecordsStatusUpdateMessageToTopic);
   }
 
@@ -230,21 +231,21 @@ public class SdcSchoolCollectionStudentService {
       final var eventPayload = JsonUtil.getJsonString(updateStudentSagaData);
       final Event event = Event.builder().eventType(EventType.UPDATE_STUDENTS_DEMOG_DOWNSTREAM).eventOutcome(EventOutcome.STUDENTS_DEMOG_UPDATED).eventPayload(eventPayload).sdcSchoolStudentID(updateStudentSagaData.getSdcSchoolCollectionStudentID()).build();
       final var eventString = JsonUtil.getJsonString(event);
-      this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString(), eventString.getBytes());
+      this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC.toString(), eventString.getBytes());
     }
     catch(JsonProcessingException e){
       log.error(EVENT_EMPTY_MSG, updateStudentSagaData);
     }
   }
 
-  private void sendStudentRecordsStatusUpdateMessageToTopic(final SdcSchoolCollectionStudentEntity student) {
+  private void sendStudentRecordsStatusUpdateMessageToTopic(final UpdateStudentSagaData updateStudentSagaData) {
     try {
-      final var eventPayload = JsonUtil.getJsonString(student);
-      final Event event = Event.builder().eventType(EventType.UPDATE_SDC_STUDENT_STATUS).eventOutcome(EventOutcome.SDC_STUDENT_STATUS_UPDATED).eventPayload(eventPayload).sdcSchoolStudentID(String.valueOf(student.getSdcSchoolCollectionStudentID())).build();
+      final var eventPayload = JsonUtil.getJsonString(updateStudentSagaData);
+      final Event event = Event.builder().eventType(EventType.UPDATE_SDC_STUDENT_STATUS).eventOutcome(EventOutcome.SDC_STUDENT_STATUS_UPDATED).eventPayload(eventPayload).sdcSchoolStudentID(String.valueOf(updateStudentSagaData.getSdcSchoolCollectionStudentID())).build();
       final var eventString = JsonUtil.getJsonString(event);
-        this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString(), eventString.getBytes());
+        this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_STATUS_SAGA_TOPIC.toString(), eventString.getBytes());
     } catch(JsonProcessingException e){
-      log.error(EVENT_EMPTY_MSG, student);
+      log.error(EVENT_EMPTY_MSG, updateStudentSagaData);
     }
   }
 

@@ -315,6 +315,10 @@ class SdcSchoolCollectionStudentServiceTest {
         collectionEntity.setCollectionEntity(collectionEntity1);
         entity.setSdcSchoolCollection(collectionEntity);
 
+        var collection = new CollectionEntity();
+        collection.setCollectionID(UUID.randomUUID());
+        collectionEntity.setCollectionEntity(collection);
+
         final SchoolTombstone school = new SchoolTombstone();
         school.setMincode("12345678");
 
@@ -335,7 +339,9 @@ class SdcSchoolCollectionStudentServiceTest {
         collectionEntity.setSdcSchoolCollectionID(UUID.randomUUID());
         collectionEntity.setSchoolID(UUID.randomUUID());
 
+
         final CollectionEntity collectionEntity1 = new CollectionEntity();
+        collectionEntity1.setCollectionID(UUID.randomUUID());
         collectionEntity1.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
         collectionEntity.setCollectionEntity(collectionEntity1);
         entity.setSdcSchoolCollection(collectionEntity);
@@ -352,7 +358,7 @@ class SdcSchoolCollectionStudentServiceTest {
         sdcSchoolCollectionStudentService.prepareStudentsForDemogUpdate(List.of(entity));
 
         ArgumentCaptor<byte[]> eventCaptor = ArgumentCaptor.forClass(byte[].class);
-        verify(messagePublisher).dispatchMessage(eq(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString()), eventCaptor.capture());
+        verify(messagePublisher).dispatchMessage(eq(TopicsEnum.UPDATE_STUDENT_STATUS_SAGA_TOPIC.toString()), eventCaptor.capture());
 
         final String eventString = new String(eventCaptor.getValue());
         final Event publishedEvent = JsonUtil.getJsonObjectFromString(Event.class, eventString);

@@ -68,7 +68,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
         final Student studentDataFromEventResponse = this.restUtils.getStudentByPEN(UUID.randomUUID(), updateStudentSagaData.getAssignedPEN());
-        final List<SdcSchoolCollectionStudentEntity> otherStudentsWithSameAssignedID = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(updateStudentSagaData.getCollectionID(), Collections.singletonList(updateStudentSagaData.getAssignedStudentID()));
+        final List<SdcSchoolCollectionStudentEntity> otherStudentsWithSameAssignedID = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(UUID.fromString(updateStudentSagaData.getCollectionID()), Collections.singletonList(UUID.fromString(updateStudentSagaData.getAssignedStudentID())));
 
         if (otherStudentsWithSameAssignedID.isEmpty() || isStudentAttendingSchoolOfRecord(updateStudentSagaData, otherStudentsWithSameAssignedID)){
 

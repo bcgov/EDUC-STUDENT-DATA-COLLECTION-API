@@ -151,6 +151,8 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
       return  UpdateStudentSagaData.builder()
               .dob(entity.getDob())
               .assignedPEN(entity.getAssignedPen())
+              .assignedStudentID(UUID.randomUUID().toString())
+              .collectionID(UUID.randomUUID().toString())
               .localID(entity.getLocalID())
               .genderCode(entity.getGender())
               .gradeCode(entity.getEnrolledGradeCode())
