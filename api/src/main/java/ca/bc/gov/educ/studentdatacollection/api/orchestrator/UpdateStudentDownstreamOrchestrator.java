@@ -57,7 +57,6 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
                 .begin(UPDATE_STUDENT, this::updateStudent)
                 .step(UPDATE_STUDENT, STUDENT_UPDATED, UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
                 .step(UPDATE_STUDENT, NO_STUDENT_UPDATE_NEEDED, UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
-                .begin(UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
                 .end(UPDATE_SDC_STUDENT_STATUS, SDC_STUDENT_STATUS_UPDATED);
     }
 
