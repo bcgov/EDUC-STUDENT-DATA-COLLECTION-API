@@ -6,7 +6,6 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.BaseOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -29,9 +28,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.SDC_STUDENT_STATUS_UPDATED;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.STUDENT_UPDATED;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.NO_STUDENT_UPDATE_NEEDED;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.UPDATE_SDC_STUDENT_STATUS;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.UPDATE_STUDENT;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum.UPDATE_STUDENT_DOWNSTREAM_SAGA;
