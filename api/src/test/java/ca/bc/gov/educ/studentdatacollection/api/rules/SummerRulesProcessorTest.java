@@ -320,6 +320,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
         collection.setCloseDate(currentCloseDate);
+        collection.setSnapshotDate(LocalDate.parse(LocalDate.now().getYear() + "-07-30"));
         collectionRepository.save(collection);
 
         SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
@@ -335,7 +336,6 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setAssignedStudentId(assignedStudentID);
         entity.setEnrolledGradeCode("08");
@@ -378,7 +378,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-
+        entity.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setAssignedStudentId(assignedStudentID);
         entity.setEnrolledGradeCode("08");
@@ -839,6 +839,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
         collection.setCloseDate(currentCloseDate);
+        collection.setSnapshotDate(LocalDate.parse(LocalDate.now().getYear() + "-07-30"));
         collectionRepository.save(collection);
 
         SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
@@ -859,7 +860,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         entity.setAssignedStudentId(assignedStudentID);
         entity.setEnrolledGradeCode("08");
         entity.setFte(BigDecimal.valueOf(0));
-
+        entity.setSdcSchoolCollection(createMockSdcSchoolCollectionEntity(createMockCollectionEntity(), null));
         val saga = createMockStudentRuleData(entity, school);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
 
@@ -867,9 +868,9 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationGradRule = rulesProcessor.processRules(saga);
 
         // Then
-        assertThat(validationGradRule.size()).isNotZero();
+        assertThat(validationGradRule.size()).isZero();
         val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ONLINE_LEARNING_ERROR.getCode()));
-        assertThat(error).isTrue();
+        assertThat(error).isFalse();
     }
 
     @Test
@@ -888,6 +889,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
         collection.setCloseDate(currentCloseDate);
+        collection.setSnapshotDate(LocalDate.parse(LocalDate.now().getYear() + "-07-30"));
         collectionRepository.save(collection);
 
         SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
@@ -923,6 +925,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(collectionTypeCode);
         collection.setCloseDate(collectionCloseDate);
+        collection.setSnapshotDate(collectionCloseDate.toLocalDate());
         collection.setCollectionStatusCode("COMPLETED");
         collectionRepository.save(collection);
 
@@ -991,6 +994,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(collectionTypeCode);
         collection.setCloseDate(collectionCloseDate);
+        collection.setSnapshotDate(collectionCloseDate.toLocalDate());
         collection.setCollectionStatusCode("COMPLETED");
         collectionRepository.save(collection);
 

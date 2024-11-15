@@ -64,25 +64,24 @@ public class SummerStudentOnlineLearningRule implements ValidationBaseRule {
         boolean hasPositiveFteInOnlineSchool = false;
 
         validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
-
         if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
-            var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionInAllDistrict(studentRuleData);
-
-            for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {
-                Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
-                if (school.isPresent() && isOnlineSchool(school.get().getFacilityTypeCode())) {
-                    boolean isOnlineSchool = FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode());
-                    BigDecimal fte = studentEntity.getFte();
-
-                    if (isOnlineSchool && fte != null && fte.compareTo(BigDecimal.ZERO) > 0) {
-                        hasPositiveFteInOnlineSchool = true;
-                        break;
+            Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getSchoolID().toString());
+            if (!isOnlineSchool(school.get().getFacilityTypeCode())) {
+                var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionInAllDistrict(studentRuleData);
+                for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {
+                    Optional<SchoolTombstone> studentSchool = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
+                    if (studentSchool.isPresent() && isOnlineSchool(studentSchool.get().getFacilityTypeCode())) {
+                        boolean isOnlineSchool = FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(studentSchool.get().getFacilityTypeCode());
+                        BigDecimal fte = studentEntity.getFte();
+                        if (isOnlineSchool && fte != null && fte.compareTo(BigDecimal.ZERO) > 0) {
+                            hasPositiveFteInOnlineSchool = true;
+                            break;
+                        }
                     }
                 }
+                if (!hasPositiveFteInOnlineSchool)
+                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_ONLINE_LEARNING_ERROR));
             }
-
-            if (!hasPositiveFteInOnlineSchool)
-                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_ONLINE_LEARNING_ERROR));
         }
         return errors;
     }

@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStud
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ICountValidationIssuesBySeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ProgressCountsForDistrict;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -1077,9 +1079,9 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
        AND SSCS.fte > 0
        AND SSCS.sdcSchoolCollectionStudentStatusCode != 'DELETED'
        AND C.collectionID IN
-       (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
+       (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' and CE.snapshotDate < :snapshotDate ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
        """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalWithInSameDistrict(UUID districtID, UUID assignedStudentID, String noOfCollections);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalWithInSameDistrict(UUID districtID, UUID assignedStudentID, String noOfCollections, LocalDate snapshotDate);
 
   @Query(value="""
          SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS
@@ -1099,9 +1101,9 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
           AND SSCS.assignedStudentId = :assignedStudentID
           AND C.collectionID IN
-                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
+                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' and CE.snapshotDate < :snapshotDate ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
          """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInAllDistrict(UUID assignedStudentID, String noOfCollections);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInAllDistrict(UUID assignedStudentID, String noOfCollections, LocalDate snapshotDate);
 
   @Query(value="""
            SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS, SdcDistrictCollectionEntity SDC
@@ -1114,9 +1116,10 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             AND SSCS.enrolledGradeCode NOT IN ('08', '09')
             AND SSCS.fte >= 0
             AND C.collectionID IN
-                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
+                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' and CE.snapshotDate < :snapshotDate ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections
+                  )
             """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(UUID districtID, UUID assignedStudentID, String noOfCollections);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(UUID districtID, UUID assignedStudentID, String noOfCollections, LocalDate snapshotDate);
 
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(UUID collectionID, List<String> enrolledGradeCode);
 
