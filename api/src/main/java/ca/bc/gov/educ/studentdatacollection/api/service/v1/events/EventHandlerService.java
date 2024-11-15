@@ -99,13 +99,13 @@ public class EventHandlerService {
   @Transactional(propagation = REQUIRES_NEW)
   public void handleMigrateStudentEvent(final Event event) throws JsonProcessingException {
     if (event.getEventOutcome() == EventOutcome.STUDENT_MIGRATION_PROCESSED) {
-      final UpdateStudentSagaData updateStudentSagaData = JsonUtil.getJsonObjectFromString(UpdateStudentSagaData.class, event.getEventPayload());
-      final var sagaOptional = this.getSagaService().findBySdcSchoolCollectionStudentIDAndSagaNameAndStatusNot(UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()), SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_MIGRATION_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
+      final SdcStudentSagaData sdcStudentSagaData = JsonUtil.getJsonObjectFromString(SdcStudentSagaData.class, event.getEventPayload());
+      final var sagaOptional = this.getSagaService().findBySdcSchoolCollectionStudentIDAndSagaNameAndStatusNot(UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), SagaEnum.STUDENT_DATA_COLLECTION_STUDENT_MIGRATION_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
       if (sagaOptional.isPresent()) { // possible duplicate message.
         log.trace(EXECUTION_IS_NOT_REQUIRED, event);
         return;
       }
-      val saga = this.sdcStudentMigrationOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
+      val saga = this.sdcStudentMigrationOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
       log.debug("Starting updateStudentDownstreamOrchestrator orchestrator :: {}", saga);
       this.sdcStudentMigrationOrchestrator.startSaga(saga);
     }

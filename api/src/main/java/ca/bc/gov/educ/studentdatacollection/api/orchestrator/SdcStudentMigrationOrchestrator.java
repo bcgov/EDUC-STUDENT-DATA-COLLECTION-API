@@ -18,7 +18,6 @@ import java.util.UUID;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.STUDENT_MIGRATION_PROCESSED;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCESS_SDC_MIGRATION_STUDENT;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.PROCESS_SDC_STUDENT;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum.IN_PROGRESS;
 
 @Component
