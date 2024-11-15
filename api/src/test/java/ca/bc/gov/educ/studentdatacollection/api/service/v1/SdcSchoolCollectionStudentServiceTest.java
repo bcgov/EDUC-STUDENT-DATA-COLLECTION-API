@@ -358,7 +358,7 @@ class SdcSchoolCollectionStudentServiceTest {
         sdcSchoolCollectionStudentService.prepareStudentsForDemogUpdate(List.of(entity));
 
         ArgumentCaptor<byte[]> eventCaptor = ArgumentCaptor.forClass(byte[].class);
-        verify(messagePublisher).dispatchMessage(eq(TopicsEnum.UPDATE_STUDENT_STATUS_SAGA_TOPIC.toString()), eventCaptor.capture());
+        verify(messagePublisher).dispatchMessage(eq(TopicsEnum.UPDATE_STUDENT_STATUS_TOPIC.toString()), eventCaptor.capture());
 
         final String eventString = new String(eventCaptor.getValue());
         final Event publishedEvent = JsonUtil.getJsonObjectFromString(Event.class, eventString);

@@ -97,12 +97,27 @@ public class SdcSchoolCollectionStudentService {
     sdcStudentSagaDatas.forEach(this::sendIndividualStudentAsMessageToTopic);
   }
 
+  public void publishUnprocessedMigratedStudentRecordsForProcessing(final List<SdcStudentSagaData> sdcStudentSagaDatas) {
+    sdcStudentSagaDatas.forEach(this::sendIndividualMigratedStudentAsMessageToTopic);
+  }
+
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void processSagaStudentRecord(final UUID sdcSchoolCollectionStudentID, SchoolTombstone schoolTombstone) {
     var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
     if(currentStudentEntity.isPresent()) {
       sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processStudentRecord(schoolTombstone, currentStudentEntity.get(), true));
+    } else {
+      throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, sdcSchoolCollectionStudentID.toString());
+    }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void processSagaStudentMigrationRecord(final UUID sdcSchoolCollectionStudentID, SchoolTombstone schoolTombstone) {
+    var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
+
+    if(currentStudentEntity.isPresent()) {
+      sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processMigratedStudentRecord(schoolTombstone, currentStudentEntity.get()));
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, sdcSchoolCollectionStudentID.toString());
     }
@@ -119,6 +134,23 @@ public class SdcSchoolCollectionStudentService {
       calculateAdditionalStudentAttributes(studentRuleData);
     }
 
+    return studentRuleData.getSdcSchoolCollectionStudentEntity();
+  }
+
+  public SdcSchoolCollectionStudentEntity processMigratedStudentRecord(SchoolTombstone schoolTombstone, SdcSchoolCollectionStudentEntity incomingStudentEntity) {
+    StudentRuleData studentRuleData = new StudentRuleData();
+    studentRuleData.setSdcSchoolCollectionStudentEntity(incomingStudentEntity);
+    studentRuleData.setSchool(schoolTombstone);
+
+    // Update program eligibility
+    List<ProgramEligibilityIssueCode> programEligibilityErrors = this.programEligibilityRulesProcessor.processRules(studentRuleData);
+    updateProgramEligibilityColumns(programEligibilityErrors, studentRuleData.getSdcSchoolCollectionStudentEntity());
+
+    // Convert number of courses string to decimal
+    if(StringUtils.isNotBlank(incomingStudentEntity.getNumberOfCourses())){
+      convertNumOfCourses(incomingStudentEntity);
+    }
+    studentRuleData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.VERIFIED.getCode());
     return studentRuleData.getSdcSchoolCollectionStudentEntity();
   }
 
@@ -182,6 +214,23 @@ public class SdcSchoolCollectionStudentService {
   }
 
   @Async("publisherExecutor")
+  public void prepareAndSendMigratedSdcStudentsForFurtherProcessing(final List<SdcSchoolCollectionStudentEntity> sdcStudentEntities) {
+    final List<SdcStudentSagaData> sdcStudentSagaDatas = sdcStudentEntities.stream()
+            .map(el -> {
+              val sdcStudentSagaData = new SdcStudentSagaData();
+              Optional<SdcSchoolCollectionEntity> sdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(el.getSdcSchoolCollection().getSdcSchoolCollectionID());
+              if(sdcSchoolCollection.isPresent()) {
+                var school = this.restUtils.getSchoolBySchoolID(sdcSchoolCollection.get().getSchoolID().toString());
+                sdcStudentSagaData.setCollectionTypeCode(sdcSchoolCollection.get().getCollectionEntity().getCollectionTypeCode());
+                sdcStudentSagaData.setSchool(school.get());
+              }
+              sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(el));
+              return sdcStudentSagaData;
+            }).toList();
+    this.publishUnprocessedMigratedStudentRecordsForProcessing(sdcStudentSagaDatas);
+  }
+
+  @Async("publisherExecutor")
   public void prepareStudentsForDemogUpdate(final List<SdcSchoolCollectionStudentEntity> sdcStudentEntities) {
     CollectionEntity collection = sdcStudentEntities.get(0).getSdcSchoolCollection().getCollectionEntity();
 
@@ -231,7 +280,7 @@ public class SdcSchoolCollectionStudentService {
       final var eventPayload = JsonUtil.getJsonString(updateStudentSagaData);
       final Event event = Event.builder().eventType(EventType.UPDATE_STUDENTS_DEMOG_DOWNSTREAM).eventOutcome(EventOutcome.STUDENTS_DEMOG_UPDATED).eventPayload(eventPayload).sdcSchoolStudentID(updateStudentSagaData.getSdcSchoolCollectionStudentID()).build();
       final var eventString = JsonUtil.getJsonString(event);
-      this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC.toString(), eventString.getBytes());
+      this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString(), eventString.getBytes());
     }
     catch(JsonProcessingException e){
       log.error(EVENT_EMPTY_MSG, updateStudentSagaData);
@@ -243,21 +292,29 @@ public class SdcSchoolCollectionStudentService {
       final var eventPayload = JsonUtil.getJsonString(updateStudentSagaData);
       final Event event = Event.builder().eventType(EventType.UPDATE_SDC_STUDENT_STATUS).eventOutcome(EventOutcome.SDC_STUDENT_STATUS_UPDATED).eventPayload(eventPayload).sdcSchoolStudentID(String.valueOf(updateStudentSagaData.getSdcSchoolCollectionStudentID())).build();
       final var eventString = JsonUtil.getJsonString(event);
-        this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_STATUS_SAGA_TOPIC.toString(), eventString.getBytes());
+      this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_STATUS_TOPIC.toString(), eventString.getBytes());
     } catch(JsonProcessingException e){
       log.error(EVENT_EMPTY_MSG, updateStudentSagaData);
     }
   }
 
-  /**
-   * Send individual student as message to topic consumer.
-   */
   private void sendIndividualStudentAsMessageToTopic(final SdcStudentSagaData sdcStudentSagaData) {
     try{
       final var eventPayload = JsonUtil.getJsonString(sdcStudentSagaData);
       final Event event = Event.builder().eventType(EventType.READ_FROM_TOPIC).eventOutcome(EventOutcome.READ_FROM_TOPIC_SUCCESS).eventPayload(eventPayload).sdcSchoolStudentID(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()).build();
       final var eventString = JsonUtil.getJsonString(event);
       this.messagePublisher.dispatchMessage(TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC.toString(), eventString.getBytes());
+    } catch(JsonProcessingException e){
+      log.error(EVENT_EMPTY_MSG, sdcStudentSagaData);
+    }
+  }
+
+  private void sendIndividualMigratedStudentAsMessageToTopic(final SdcStudentSagaData sdcStudentSagaData) {
+    try{
+      final var eventPayload = JsonUtil.getJsonString(sdcStudentSagaData);
+      final Event event = Event.builder().eventType(EventType.PROCESS_SDC_MIGRATION_STUDENT).eventOutcome(EventOutcome.STUDENT_MIGRATION_PROCESSED).eventPayload(eventPayload).sdcSchoolStudentID(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()).build();
+      final var eventString = JsonUtil.getJsonString(event);
+      this.messagePublisher.dispatchMessage(TopicsEnum.MIGRATE_STUDENT_TOPIC.toString(), eventString.getBytes());
     } catch(JsonProcessingException e){
       log.error(EVENT_EMPTY_MSG, sdcStudentSagaData);
     }
