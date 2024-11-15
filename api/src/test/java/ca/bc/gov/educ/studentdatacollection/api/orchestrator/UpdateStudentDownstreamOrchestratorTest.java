@@ -41,13 +41,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.*;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.INITIATE_SUCCESS;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.STUDENT_UPDATED;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.STUDENT_API_TOPIC;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -151,6 +151,8 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
       return  UpdateStudentSagaData.builder()
               .dob(entity.getDob())
               .assignedPEN(entity.getAssignedPen())
+              .assignedStudentID(UUID.randomUUID().toString())
+              .collectionID(UUID.randomUUID().toString())
               .localID(entity.getLocalID())
               .genderCode(entity.getGender())
               .gradeCode(entity.getEnrolledGradeCode())
