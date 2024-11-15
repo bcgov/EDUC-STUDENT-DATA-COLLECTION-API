@@ -276,6 +276,10 @@ SELECT
                  AND months_between(TO_DATE(EXTRACT(YEAR FROM TO_DATE(sld_student.REPORT_DATE,'YYYYMMDD')) || '0630','YYYYMMDD'), TO_DATE(sld_student.BIRTH_DATE,'YYYYMMDD'))/12 < 19  THEN 'true'
         ELSE 'false'
     END as IS_SCHOOL_AGED,
+    CASE
+        WHEN TRIM(sld_student.GRAD) = 'Y' THEN 'true'
+        ELSE 'false'
+    END as IS_GRADUATED,
     TO_NUMBER(TO_CHAR(sld_student.STUDENT_FTE_VALUE / 10000,'99999.9999')) AS FTE,
     (SELECT LISTAGG(stud_prog.ENROLLED_PROGRAM_CODE, '') WITHIN GROUP (ORDER BY 1)
 	 FROM STUDENT_PROGRAMS stud_prog

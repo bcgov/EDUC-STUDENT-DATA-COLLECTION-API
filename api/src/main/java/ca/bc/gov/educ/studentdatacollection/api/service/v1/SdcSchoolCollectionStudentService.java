@@ -31,6 +31,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -53,6 +54,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.isColl
 @RequiredArgsConstructor
 public class SdcSchoolCollectionStudentService {
 
+  public static final String SDC_SCHOOL_COLLECTION_STUDENT_WAS_NOT_SAVED = "SdcSchoolCollectionStudent was not saved to the database because it has errors :: {}";
   private final MessagePublisher messagePublisher;
 
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
@@ -224,31 +226,24 @@ public class SdcSchoolCollectionStudentService {
   }
 
   private void sendStudentRecordsForDemogUpdateAsMessageToTopic(final UpdateStudentSagaData updateStudentSagaData) {
-    final var eventPayload = JsonUtil.getJsonString(updateStudentSagaData);
-    if (eventPayload.isPresent()) {
-      final Event event = Event.builder().eventType(EventType.UPDATE_STUDENTS_DEMOG_DOWNSTREAM).eventOutcome(EventOutcome.STUDENTS_DEMOG_UPDATED).eventPayload(eventPayload.get()).sdcSchoolStudentID(updateStudentSagaData.getSdcSchoolCollectionStudentID()).build();
+    try {
+      final var eventPayload = JsonUtil.getJsonString(updateStudentSagaData);
+      final Event event = Event.builder().eventType(EventType.UPDATE_STUDENTS_DEMOG_DOWNSTREAM).eventOutcome(EventOutcome.STUDENTS_DEMOG_UPDATED).eventPayload(eventPayload).sdcSchoolStudentID(updateStudentSagaData.getSdcSchoolCollectionStudentID()).build();
       final var eventString = JsonUtil.getJsonString(event);
-      if (eventString.isPresent()) {
-        this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString(), eventString.get().getBytes());
-      } else {
-        log.error(EVENT_EMPTY_MSG, updateStudentSagaData);
-      }
-    } else {
+      this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString(), eventString.getBytes());
+    }
+    catch(JsonProcessingException e){
       log.error(EVENT_EMPTY_MSG, updateStudentSagaData);
     }
   }
 
   private void sendStudentRecordsStatusUpdateMessageToTopic(final SdcSchoolCollectionStudentEntity student) {
-    final var eventPayload = JsonUtil.getJsonString(student);
-    if (eventPayload.isPresent()) {
-      final Event event = Event.builder().eventType(EventType.UPDATE_SDC_STUDENT_STATUS).eventOutcome(EventOutcome.SDC_STUDENT_STATUS_UPDATED).eventPayload(eventPayload.get()).sdcSchoolStudentID(String.valueOf(student.getSdcSchoolCollectionStudentID())).build();
+    try {
+      final var eventPayload = JsonUtil.getJsonString(student);
+      final Event event = Event.builder().eventType(EventType.UPDATE_SDC_STUDENT_STATUS).eventOutcome(EventOutcome.SDC_STUDENT_STATUS_UPDATED).eventPayload(eventPayload).sdcSchoolStudentID(String.valueOf(student.getSdcSchoolCollectionStudentID())).build();
       final var eventString = JsonUtil.getJsonString(event);
-      if (eventString.isPresent()) {
-        this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString(), eventString.get().getBytes());
-      } else {
-        log.error(EVENT_EMPTY_MSG, student);
-      }
-    } else {
+        this.messagePublisher.dispatchMessage(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString(), eventString.getBytes());
+    } catch(JsonProcessingException e){
       log.error(EVENT_EMPTY_MSG, student);
     }
   }
@@ -257,16 +252,12 @@ public class SdcSchoolCollectionStudentService {
    * Send individual student as message to topic consumer.
    */
   private void sendIndividualStudentAsMessageToTopic(final SdcStudentSagaData sdcStudentSagaData) {
-    final var eventPayload = JsonUtil.getJsonString(sdcStudentSagaData);
-    if (eventPayload.isPresent()) {
-      final Event event = Event.builder().eventType(EventType.READ_FROM_TOPIC).eventOutcome(EventOutcome.READ_FROM_TOPIC_SUCCESS).eventPayload(eventPayload.get()).sdcSchoolStudentID(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()).build();
+    try{
+      final var eventPayload = JsonUtil.getJsonString(sdcStudentSagaData);
+      final Event event = Event.builder().eventType(EventType.READ_FROM_TOPIC).eventOutcome(EventOutcome.READ_FROM_TOPIC_SUCCESS).eventPayload(eventPayload).sdcSchoolStudentID(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()).build();
       final var eventString = JsonUtil.getJsonString(event);
-      if (eventString.isPresent()) {
-        this.messagePublisher.dispatchMessage(TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC.toString(), eventString.get().getBytes());
-      } else {
-        log.error(EVENT_EMPTY_MSG, sdcStudentSagaData);
-      }
-    } else {
+      this.messagePublisher.dispatchMessage(TopicsEnum.STUDENT_DATA_COLLECTION_API_TOPIC.toString(), eventString.getBytes());
+    } catch(JsonProcessingException e){
       log.error(EVENT_EMPTY_MSG, sdcStudentSagaData);
     }
   }
@@ -393,7 +384,7 @@ public class SdcSchoolCollectionStudentService {
 
     var processedSdcSchoolCollectionStudent = processStudentRecord(studentRuleData.getSchool(), curStudentEntity, false);
     if (processedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
-      log.debug("SdcSchoolCollectionStudent was not saved to the database because it has errors :: {}", processedSdcSchoolCollectionStudent);
+      log.debug(SDC_SCHOOL_COLLECTION_STUDENT_WAS_NOT_SAVED, processedSdcSchoolCollectionStudent);
       processedSdcSchoolCollectionStudent.setUpdateDate(curStudentEntity.getUpdateDate());
       processedSdcSchoolCollectionStudent.setUpdateUser(curStudentEntity.getUpdateUser());
       return processedSdcSchoolCollectionStudent;
@@ -433,7 +424,7 @@ public class SdcSchoolCollectionStudentService {
 
     var processedSdcSchoolCollectionStudent = processStudentRecord(studentRuleData.getSchool(), sdcSchoolCollectionStudentEntity, true);
     if (processedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
-      log.debug("SdcSchoolCollectionStudent was not saved to the database because it has errors :: {}", processedSdcSchoolCollectionStudent);
+      log.debug(SDC_SCHOOL_COLLECTION_STUDENT_WAS_NOT_SAVED, processedSdcSchoolCollectionStudent);
       return processedSdcSchoolCollectionStudent;
     }
 
@@ -491,7 +482,7 @@ public class SdcSchoolCollectionStudentService {
 
     var processedSdcSchoolCollectionStudent = processStudentRecord(studentRuleData.getSchool(), sdcSchoolCollectionStudentEntity, true);
     if (processedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
-      log.debug("SdcSchoolCollectionStudent was not saved to the database because it has errors :: {}", processedSdcSchoolCollectionStudent);
+      log.debug(SDC_SCHOOL_COLLECTION_STUDENT_WAS_NOT_SAVED, processedSdcSchoolCollectionStudent);
       processedSdcSchoolCollectionStudent.setUpdateDate(currentStudentEntity.getUpdateDate());
       processedSdcSchoolCollectionStudent.setUpdateUser(currentStudentEntity.getUpdateUser());
       return processedSdcSchoolCollectionStudent;
