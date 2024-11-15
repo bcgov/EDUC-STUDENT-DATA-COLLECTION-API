@@ -194,14 +194,14 @@
                 </textElement>
                 <text><![CDATA[Eligible Newcomer Refugees per School Report]]></text>
             </staticText>
-            <textField>
+            <textField isStretchWithOverflow="true">
                 <reportElement x="630" y="35" width="120" height="15" uuid="7ff4950d-6279-413e-8200-a450eb831f90"/>
                 <textElement>
                     <font fontName="BCSans" size="8"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{collectionNameAndYear}]]></textFieldExpression>
             </textField>
-            <textField>
+            <textField isStretchWithOverflow="true">
                 <reportElement x="630" y="50" width="120" height="15" uuid="bd23ceca-07d5-4e6a-a266-8dda73c09239"/>
                 <textElement>
                     <font fontName="BCSans" size="8"/>
@@ -215,14 +215,14 @@
                 </textElement>
                 <text><![CDATA[Ministry of Education and Child Care]]></text>
             </staticText>
-            <textField>
+            <textField isStretchWithOverflow="true">
                 <reportElement x="0" y="40" width="280" height="15" uuid="8650a750-21b2-4c0f-8b34-49b5a5815d49"/>
                 <textElement>
                     <font fontName="BCSans" size="8"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{districtNumberAndName}]]></textFieldExpression>
             </textField>
-            <textField>
+            <textField isStretchWithOverflow="true">
                 <reportElement x="0" y="55" width="280" height="15" uuid="5e29d86f-8976-4bf4-8822-22fadb4759de"/>
                 <textElement>
                     <font fontName="BCSans" size="8"/>
@@ -258,7 +258,7 @@
                                 <property name="com.jaspersoft.studio.unit.width" value="pixel"/>
                             </jr:columnHeader>
                             <jr:detailCell style="Table 2_TD" height="20">
-                                <textField>
+                                <textField isStretchWithOverflow="true">
                                     <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="200" height="20" isRemoveLineWhenBlank="true" forecolor="#003366" backcolor="#F5F5F5" uuid="86ca9cc7-3544-4ff8-a609-b60b52968b7b">
                                         <property name="com.jaspersoft.studio.unit.x" value="px"/>
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
@@ -269,7 +269,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{typeOfProgram}]]></textFieldExpression>
                                 </textField>
-                                <textField>
+                                <textField isStretchWithOverflow="true">
                                     <reportElement stretchType="ContainerHeight" mode="Transparent" x="0" y="0" width="200" height="20" isRemoveLineWhenBlank="true" forecolor="#003366" backcolor="#EBEBEB" uuid="ef71c97f-1fcf-4353-bf82-0603e3a9f9f0">
                                         <property name="com.jaspersoft.studio.unit.x" value="px"/>
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
@@ -294,7 +294,7 @@
                                 </staticText>
                             </jr:columnHeader>
                             <jr:detailCell style="Table 2_TD" height="20">
-                                <textField>
+                                <textField isStretchWithOverflow="true">
                                     <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="162" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -303,7 +303,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueHeadcount}]]></textFieldExpression>
                                 </textField>
-                                <textField>
+                                <textField isStretchWithOverflow="true">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="162" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -326,7 +326,7 @@
                                 </staticText>
                             </jr:columnHeader>
                             <jr:detailCell style="Table 2_TD" height="20">
-                                <textField>
+                                <textField isStretchWithOverflow="true">
                                     <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="162" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -335,7 +335,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[new java.text.DecimalFormat("#0.0000").format(Double.valueOf($F{valueFTE}))]]></textFieldExpression>
                                 </textField>
-                                <textField>
+                                <textField isStretchWithOverflow="true">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="162" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -358,7 +358,7 @@
                                 </staticText>
                             </jr:columnHeader>
                             <jr:detailCell style="Table 2_TD" height="20">
-                                <textField>
+                                <textField isStretchWithOverflow="true">
                                     <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="162" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a927f5ef-4966-4259-acca-f50107c8bce8">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -367,7 +367,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueELL}]]></textFieldExpression>
                                 </textField>
-                                <textField>
+                                <textField isStretchWithOverflow="true">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="162" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
