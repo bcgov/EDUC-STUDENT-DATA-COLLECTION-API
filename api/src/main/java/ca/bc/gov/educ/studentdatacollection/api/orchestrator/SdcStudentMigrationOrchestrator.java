@@ -40,7 +40,7 @@ public class SdcStudentMigrationOrchestrator extends BaseOrchestrator<SdcStudent
 
   public void processStudentRecord(final Event event, final SdcSagaEntity saga, final SdcStudentSagaData sdcStudentSagaData) {
     final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
-    saga.setSagaState(PROCESS_SDC_STUDENT.toString());
+    saga.setSagaState(PROCESS_SDC_MIGRATION_STUDENT.toString());
     saga.setStatus(IN_PROGRESS.toString());
     this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 

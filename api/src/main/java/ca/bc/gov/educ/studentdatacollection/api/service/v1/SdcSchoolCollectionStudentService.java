@@ -150,6 +150,7 @@ public class SdcSchoolCollectionStudentService {
     if(StringUtils.isNotBlank(incomingStudentEntity.getNumberOfCourses())){
       convertNumOfCourses(incomingStudentEntity);
     }
+    studentRuleData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.VERIFIED.getCode());
     return studentRuleData.getSdcSchoolCollectionStudentEntity();
   }
 
