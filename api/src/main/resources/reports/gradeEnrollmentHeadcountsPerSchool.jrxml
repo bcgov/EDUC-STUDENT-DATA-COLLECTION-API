@@ -263,7 +263,7 @@
                 </textElement>
                 <text><![CDATA[Grade Enrollment & FTE per School Report]]></text>
             </staticText>
-            <textField isStretchWithOverflow="true">
+            <textField textAdjust="StretchHeight">
                 <reportElement x="630" y="35" width="120" height="15" uuid="7ff4950d-6279-413e-8200-a450eb831f90">
                     <property name="com.jaspersoft.studio.unit.height" value="px"/>
                 </reportElement>
@@ -272,7 +272,7 @@
                 </textElement>
                 <textFieldExpression><![CDATA[$F{collectionNameAndYear}]]></textFieldExpression>
             </textField>
-            <textField isStretchWithOverflow="true">
+            <textField textAdjust="StretchHeight">
                 <reportElement x="630" y="50" width="120" height="15" uuid="bd23ceca-07d5-4e6a-a266-8dda73c09239">
                     <property name="com.jaspersoft.studio.unit.height" value="px"/>
                 </reportElement>
@@ -288,7 +288,7 @@
                 </textElement>
                 <text><![CDATA[Ministry of Education and Child Care]]></text>
             </staticText>
-            <textField isStretchWithOverflow="true">
+            <textField textAdjust="StretchHeight">
                 <reportElement x="0" y="40" width="280" height="15" uuid="8650a750-21b2-4c0f-8b34-49b5a5815d49">
                     <property name="com.jaspersoft.studio.unit.height" value="px"/>
                 </reportElement>
@@ -297,7 +297,7 @@
                 </textElement>
                 <textFieldExpression><![CDATA[$F{districtNumberAndName}]]></textFieldExpression>
             </textField>
-            <textField isStretchWithOverflow="true">
+            <textField textAdjust="StretchHeight">
                 <reportElement x="0" y="55" width="280" height="15" uuid="5e29d86f-8976-4bf4-8822-22fadb4759de">
                     <property name="com.jaspersoft.studio.unit.height" value="px"/>
                 </reportElement>
@@ -381,7 +381,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGradeKH}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -413,7 +413,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGradeKF}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -445,7 +445,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGrade01}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -477,7 +477,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGrade02}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -509,7 +509,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGrade03}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -541,7 +541,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGrade04}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -573,7 +573,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGrade05}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -605,7 +605,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGrade06}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -637,7 +637,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGrade07}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -669,7 +669,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGradeEU}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -701,7 +701,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGrade08}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="227a0e6f-0caa-458b-a28e-0181b8335ddf">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -733,7 +733,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGrade09}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="a501341d-911b-439d-bd10-25e8ca7a01ea">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -765,7 +765,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGrade10}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="675842a3-3a2b-4bbc-80ed-541aebb2a61c">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -800,7 +800,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGrade11}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="58cca7cc-e631-46bb-a456-486437a8de42">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -832,7 +832,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGrade12}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="37ddba21-7492-4dd0-95d3-51a0e71e8527">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -864,7 +864,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGradeSU}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="190f3f92-9f30-45d0-b150-d4d9026289e8">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -896,7 +896,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGradeGA}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="190f3f92-9f30-45d0-b150-d4d9026289e8">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -928,7 +928,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueGradeHS}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="35" height="20" isRemoveLineWhenBlank="true" uuid="190f3f92-9f30-45d0-b150-d4d9026289e8">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
@@ -963,7 +963,7 @@
                                     </textElement>
                                     <textFieldExpression><![CDATA[$F{valueTotal}]]></textFieldExpression>
                                 </textField>
-                                <textField isStretchWithOverflow="true">
+                                <textField textAdjust="StretchHeight">
                                     <reportElement stretchType="ContainerHeight" x="0" y="0" width="39" height="20" isRemoveLineWhenBlank="true" uuid="468d2b36-5cdc-47aa-86f8-b77fdd177180">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
