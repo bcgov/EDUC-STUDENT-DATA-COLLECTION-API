@@ -141,6 +141,7 @@ public class SdcSchoolCollectionStudentService {
     StudentRuleData studentRuleData = new StudentRuleData();
     studentRuleData.setSdcSchoolCollectionStudentEntity(incomingStudentEntity);
     studentRuleData.setSchool(schoolTombstone);
+    studentRuleData.setMigratedStudent(true);
 
     // Update program eligibility
     List<ProgramEligibilityIssueCode> programEligibilityErrors = this.programEligibilityRulesProcessor.processRules(studentRuleData);
