@@ -5,7 +5,6 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStud
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ICountValidationIssuesBySeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ProgressCountsForDistrict;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;

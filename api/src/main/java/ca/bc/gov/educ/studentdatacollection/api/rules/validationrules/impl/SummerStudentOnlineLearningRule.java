@@ -26,15 +26,15 @@ import java.util.Optional;
  * | ID   | Severity | Rule                                                          | Dependent On |
  * |------|----------|-------------------------------------------------------------- |--------------|
  * | V102 | ERROR    | The student is not reported in the Online School in July and  | V92 , V99    |
- *                     was not reported in the online school in any previous
- *                     collections this school year
- *
- *                     (e.g. One of the schools in current school year must be online
- *                     to be eligible in 8/9 cross enrolment)
- *
- *                     This warning to trigger for students that are not enrolled
- *                     with positive FTE in any online schools during the current
- *                     school year (in any of the collections: Sep, Feb, May, or July)
+ * was not reported in the online school in any previous
+ * collections this school year
+ * <p>
+ * (e.g. One of the schools in current school year must be online
+ * to be eligible in 8/9 cross enrolment)
+ * <p>
+ * This warning to trigger for students that are not enrolled
+ * with positive FTE in any online schools during the current
+ * school year (in any of the collections: Sep, Feb, May, or July)
  */
 @Component
 @Slf4j
@@ -61,29 +61,27 @@ public class SummerStudentOnlineLearningRule implements ValidationBaseRule {
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         log.debug("In executeValidation of SummerStudentOnlineLearningRule-V102 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
-        boolean hasPositiveFteInOnlineSchool = false;
 
         validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
-        if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
-            Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getSchoolID().toString());
-            if (school.isPresent() && !isOnlineSchool(school.get().getFacilityTypeCode())) {
-                var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionInAllDistrict(studentRuleData);
-                for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {
-                    Optional<SchoolTombstone> studentSchool = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
-                    if (studentSchool.isPresent() && isOnlineSchool(studentSchool.get().getFacilityTypeCode())) {
-                        boolean isOnlineSchool = FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(studentSchool.get().getFacilityTypeCode());
-                        BigDecimal fte = studentEntity.getFte();
-                        if (isOnlineSchool && fte != null && fte.compareTo(BigDecimal.ZERO) > 0) {
-                            hasPositiveFteInOnlineSchool = true;
-                            break;
-                        }
-                    }
+        if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null && !isRegisteredForOnline(studentRuleData.getSdcSchoolCollectionStudentEntity())) {
+            boolean hasPositiveFteInOnlineSchool = false;
+            var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionInAllDistrict(studentRuleData);
+            for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {
+                BigDecimal fte = studentEntity.getFte();
+                if (isRegisteredForOnline(studentEntity) && fte != null && fte.compareTo(BigDecimal.ZERO) > 0) {
+                    hasPositiveFteInOnlineSchool = true;
+                    break;
                 }
-                if (!hasPositiveFteInOnlineSchool)
-                    errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_ONLINE_LEARNING_ERROR));
             }
+            if (!hasPositiveFteInOnlineSchool)
+                errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_ONLINE_LEARNING_ERROR));
         }
         return errors;
+    }
+
+    private boolean isRegisteredForOnline(SdcSchoolCollectionStudentEntity studentEntity) {
+        Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
+        return school.isPresent() && isOnlineSchool(school.get().getFacilityTypeCode());
     }
 
     private boolean isOnlineSchool(String facilityTypeCode) {
