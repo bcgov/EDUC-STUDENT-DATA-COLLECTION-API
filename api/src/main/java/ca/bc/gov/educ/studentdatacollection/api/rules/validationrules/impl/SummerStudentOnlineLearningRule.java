@@ -66,7 +66,7 @@ public class SummerStudentOnlineLearningRule implements ValidationBaseRule {
         validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
         if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getSchoolID().toString());
-            if (!isOnlineSchool(school.get().getFacilityTypeCode())) {
+            if (school.isPresent() && !isOnlineSchool(school.get().getFacilityTypeCode())) {
                 var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionInAllDistrict(studentRuleData);
                 for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {
                     Optional<SchoolTombstone> studentSchool = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
