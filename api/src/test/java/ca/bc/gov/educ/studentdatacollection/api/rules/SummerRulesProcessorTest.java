@@ -778,7 +778,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
         val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ONLINE_LEARNING_ERROR.getCode()));
-        assertThat(error).isFalse();
+        assertThat(error).isTrue();
     }
 
     @Test

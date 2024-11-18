@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -61,26 +60,25 @@ public class SummerStudentOnlineLearningRule implements ValidationBaseRule {
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
         log.debug("In executeValidation of SummerStudentOnlineLearningRule-V102 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
+        boolean isRegisteredOnline = false;
 
         validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
-        if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null && !isRegisteredForOnline(studentRuleData.getSdcSchoolCollectionStudentEntity())) {
-            boolean hasPositiveFteInOnlineSchool = false;
+
+        if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
             var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionInAllDistrict(studentRuleData);
+
             for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {
-                BigDecimal fte = studentEntity.getFte();
-                if (isRegisteredForOnline(studentEntity) && fte != null && fte.compareTo(BigDecimal.ZERO) > 0) {
-                    hasPositiveFteInOnlineSchool = true;
+                Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
+                if (school.isPresent() && FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode())) {
+                    isRegisteredOnline = true;
                     break;
                 }
             }
-            if (!hasPositiveFteInOnlineSchool)
+
+            if (!isRegisteredOnline)
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_ONLINE_LEARNING_ERROR));
         }
         return errors;
     }
 
-    private boolean isRegisteredForOnline(SdcSchoolCollectionStudentEntity studentEntity) {
-        Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
-        return school.isPresent() && FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode());
-    }
 }
