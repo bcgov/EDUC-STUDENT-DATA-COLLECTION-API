@@ -81,10 +81,6 @@ public class SummerStudentOnlineLearningRule implements ValidationBaseRule {
 
     private boolean isRegisteredForOnline(SdcSchoolCollectionStudentEntity studentEntity) {
         Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
-        return school.isPresent() && isOnlineSchool(school.get().getFacilityTypeCode());
-    }
-
-    private boolean isOnlineSchool(String facilityTypeCode) {
-        return FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(facilityTypeCode);
+        return school.isPresent() && FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode());
     }
 }
