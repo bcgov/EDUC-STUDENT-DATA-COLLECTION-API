@@ -117,7 +117,7 @@ public class SdcSchoolCollectionStudentService {
     var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(sdcSchoolCollectionStudentID);
 
     if(currentStudentEntity.isPresent()) {
-      sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processMigratedStudentRecord(schoolTombstone, currentStudentEntity.get()));
+      this.sdcSchoolCollectionStudentRepository.save(processMigratedStudentRecord(schoolTombstone, currentStudentEntity.get()));
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, sdcSchoolCollectionStudentID.toString());
     }
