@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -70,8 +71,11 @@ public class SummerStudentOnlineLearningRule implements ValidationBaseRule {
             for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {
                 Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
                 if (school.isPresent() && FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode())) {
-                    isRegisteredOnline = true;
-                    break;
+                    BigDecimal fte = studentEntity.getFte();
+                    if (fte != null && fte.compareTo(BigDecimal.ZERO) >= 0) {
+                        isRegisteredOnline = true;
+                        break;
+                    }
                 }
             }
 
