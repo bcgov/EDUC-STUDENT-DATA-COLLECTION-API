@@ -63,6 +63,15 @@ public class EventTaskScheduler {
     log.debug("Scheduler processMigratedStudents complete");
   }
 
+  @Scheduled(cron = "${scheduled.jobs.delete.migrated.sdc.students.cron}")
+  @SchedulerLock(name = "DELETE_MIGRATED_STUDENT_SAGAS", lockAtLeastFor = "${scheduled.jobs.delete.migrated.sdc.students.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.delete.migrated.sdc.students.cron.lockAtMostFor}")
+  public void deleteMigratedStudentSagas() {
+    LockAssert.assertLocked();
+    log.debug("Started deleteMigratedStudentSagas scheduler");
+    this.getTaskSchedulerAsyncService().deleteMigrateStudentSagaRecordsForProcessing();
+    log.debug("Scheduler deleteMigratedStudentSagas complete");
+  }
+
   @Scheduled(cron = "${scheduled.jobs.process.school.collection.for.submission.cron}")
   @SchedulerLock(name = "SUBMIT_SCHOOL_COLLECTION", lockAtLeastFor = "${scheduled.jobs.process.school.collection.for.submission.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.process.school.collection.for.submission.cron.lockAtMostFor}")
   public void submitSchoolCollections() {

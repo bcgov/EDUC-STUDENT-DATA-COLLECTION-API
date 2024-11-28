@@ -34,4 +34,13 @@ public interface SagaRepository extends JpaRepository<SdcSagaEntity, UUID>, JpaS
   @Modifying
   @Query("delete from SdcSagaEntity where createDate <= :createDate")
   void deleteByCreateDateBefore(LocalDateTime createDate);
+
+  @Transactional
+  @Modifying
+  @Query(value = "DELETE FROM SDC_SAGA saga " +
+          "  WHERE saga.STATUS = 'COMPLETED' AND saga.SAGA_NAME = 'STUDENT_DATA_COLLECTION_STUDENT_MIGRATION_SAGA'", nativeQuery = true)
+  List<UUID> deleteCompletedMigrationSagas();
+
+
+
 }

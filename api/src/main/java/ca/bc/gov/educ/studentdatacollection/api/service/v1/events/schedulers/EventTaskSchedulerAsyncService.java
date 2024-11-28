@@ -131,14 +131,23 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
+  @Async("deleteMigrateStudentsTaskExecutor")
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void deleteMigrateStudentSagaRecordsForProcessing() {
+    log.debug("Deleting migrated student SAGAs");
+
+    sagaRepository.deleteCompletedMigrationSagas();
+  }
+
   @Async("processLoadedStudentsTaskExecutor")
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void findAndPublishMigratedStudentRecordsForProcessing() {
     log.debug("Querying for migrated students to process");
-    if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 100) { // at max there will be 100 parallel sagas.
+    if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 400) { // at max there will be 100 parallel sagas.
       log.debug("Saga count is greater than 100, so not processing student records");
       return;
     }
+
     final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTopMigratedStudentForProcessing(Integer.parseInt(numberOfStudentsToProcess));
     log.debug("Found :: {}  records in migrated status", sdcSchoolStudentEntities.size());
     final List<SdcStudentSagaData> sdcStudentSagaDatas = sdcSchoolStudentEntities.stream()
