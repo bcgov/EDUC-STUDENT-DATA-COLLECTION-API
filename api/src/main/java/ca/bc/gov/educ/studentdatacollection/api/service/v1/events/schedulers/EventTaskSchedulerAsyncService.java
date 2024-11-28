@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.LogHelper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -19,6 +20,7 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.ScheduleHandlerServic
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionHistoryService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionsForAutoSubmit;
 import lombok.Getter;
@@ -139,8 +141,17 @@ public class EventTaskSchedulerAsyncService {
     }
     final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTopMigratedStudentForProcessing(Integer.parseInt(numberOfStudentsToProcess));
     log.debug("Found :: {}  records in migrated status", sdcSchoolStudentEntities.size());
+    final List<SdcStudentSagaData> sdcStudentSagaDatas = sdcSchoolStudentEntities.stream()
+            .map(el -> {
+              val sdcStudentSagaData = new SdcStudentSagaData();
+              var school = this.restUtils.getSchoolBySchoolID(el.getSdcSchoolCollection().getSchoolID().toString());
+              sdcStudentSagaData.setCollectionTypeCode(el.getSdcSchoolCollection().getCollectionEntity().getCollectionTypeCode());
+              sdcStudentSagaData.setSchool(school.get());
+              sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(el));
+              return sdcStudentSagaData;
+            }).toList();
     if (!sdcSchoolStudentEntities.isEmpty()) {
-      this.getSdcSchoolCollectionStudentService().prepareAndSendMigratedSdcStudentsForFurtherProcessing(sdcSchoolStudentEntities);
+      this.getSdcSchoolCollectionStudentService().prepareAndSendMigratedSdcStudentsForFurtherProcessing(sdcStudentSagaDatas);
     }
   }
 
