@@ -58,8 +58,8 @@ public class SchoolAgedNoOfCoursesRule implements ValidationBaseRule {
         if (conditionPassed(studentRuleData) && (StringUtils.isEmpty(student.getNumberOfCourses()) || Double.parseDouble(df.format(Double.valueOf(student.getNumberOfCourses()))) == 0)) {
             log.debug("SchoolAgedNoOfCoursesRule-V46: Home school student is not school-aged, DOB {} for sdcSchoolCollectionStudentID:: {}",student.getDob(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.NUMBER_OF_COURSES, StudentValidationIssueTypeCode.SCHOOLAGE_ZERO_COURSES));
-            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.ERROR, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SCHOOLAGE_ZERO_COURSES));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.NUMBER_OF_COURSES, StudentValidationIssueTypeCode.SCHOOLAGE_ZERO_COURSES));
+            errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SCHOOLAGE_ZERO_COURSES));
         }
         return errors;
     }
