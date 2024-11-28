@@ -250,8 +250,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE stud.sdcSchoolCollectionStudentID
     NOT IN (SELECT saga.sdcSchoolCollectionStudentID FROM SdcSagaEntity saga WHERE saga.status != 'COMPLETED'
     AND saga.sdcSchoolCollectionStudentID IS NOT NULL)
-    AND stud.sdcSchoolCollectionStudentStatusCode = 'MIGRATE'
-    order by stud.createDate
+    AND stud.sdcSchoolCollectionStudentStatusCode = 'MIGRATE' 
     LIMIT :numberOfStudentsToProcess""")
   List<SdcSchoolCollectionStudentEntity> findTopMigratedStudentForProcessing(String numberOfStudentsToProcess);
 
