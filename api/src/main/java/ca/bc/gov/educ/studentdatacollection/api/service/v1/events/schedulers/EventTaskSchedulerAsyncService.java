@@ -137,7 +137,7 @@ public class EventTaskSchedulerAsyncService {
       log.debug("Saga count is greater than 100, so not processing student records");
       return;
     }
-    final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTopMigratedStudentForProcessing(numberOfStudentsToProcess);
+    final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTopMigratedStudentForProcessing(Integer.parseInt(numberOfStudentsToProcess));
     log.debug("Found :: {}  records in migrated status", sdcSchoolStudentEntities.size());
     if (!sdcSchoolStudentEntities.isEmpty()) {
       this.getSdcSchoolCollectionStudentService().prepareAndSendMigratedSdcStudentsForFurtherProcessing(sdcSchoolStudentEntities);

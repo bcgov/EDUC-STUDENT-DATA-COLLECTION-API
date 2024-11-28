@@ -252,7 +252,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     AND saga.sdc_school_collection_student_id IS NOT NULL)
     AND stud.sdc_school_collection_student_status_code = 'MIGRATE' 
     LIMIT :numberOfStudentsToProcess""", nativeQuery = true)
-  List<SdcSchoolCollectionStudentEntity> findTopMigratedStudentForProcessing(String numberOfStudentsToProcess);
+  List<SdcSchoolCollectionStudentEntity> findTopMigratedStudentForProcessing(int numberOfStudentsToProcess);
 
   long countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(List<UUID> assignedStudentId, List<UUID> sdcSchoolCollectionID, String numberOfCourses);
 
