@@ -247,7 +247,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<SdcSchoolCollectionStudentEntity> findTopLoadedStudentForProcessing(String numberOfStudentsToProcess);
 
   @Query(value="""
-    SELECT stud FROM sdc_school_collection_student stud WHERE stud.sdc_school_collection_student_id
+    SELECT stud.* FROM sdc_school_collection_student stud WHERE stud.sdc_school_collection_student_id
     NOT IN (SELECT saga.sdc_school_collection_student_id FROM sdc_saga saga WHERE saga.status != 'COMPLETED'
     AND saga.sdc_school_collection_student_id IS NOT NULL)
     AND stud.sdc_school_collection_student_status_code = 'MIGRATE' 
