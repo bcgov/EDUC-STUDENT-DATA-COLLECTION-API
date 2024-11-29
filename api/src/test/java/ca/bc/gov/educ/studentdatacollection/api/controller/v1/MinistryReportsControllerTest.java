@@ -11,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEn
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDuplicateRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
@@ -55,7 +56,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
   @Autowired
   private MockMvc mockMvc;
   @Autowired
-  SdcSchoolCollectionController sdcSchoolCollectionController;
+  SdcDuplicateRepository sdcDuplicateRepository;
 
   @Autowired
   CollectionRepository collectionRepository;
@@ -72,7 +73,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     MockitoAnnotations.openMocks(this);
   }
 
-  protected final static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+  protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
   @Test
   void testGetMinistryReport_WithWrongType_ShouldReturnBadRequest() throws Exception {
@@ -584,11 +585,9 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    var school = this.createMockSchoolDetail();
+    var school = this.createMockSchool();
     school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
-    var fundingGroups = IndependentSchoolFundingGroup.builder().schoolFundingGroupCode("14").schoolGradeCode("GRADE01").build();
-    school.setSchoolFundingGroups(Arrays.asList(fundingGroups));
-    when(this.restUtils.getAllSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
@@ -613,6 +612,8 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
     var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
     sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2));
+
+    sdcDuplicateRepository.save(createMockSdcDuplicateEntity(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2, collection.getCollectionID()));
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/posted-duplicates/download").with(mockAuthority))
