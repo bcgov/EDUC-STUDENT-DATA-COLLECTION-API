@@ -309,10 +309,11 @@ public class SdcDuplicatesService {
     }
     if(entity1.getIsAdult() || entity2.getIsAdult()){
       generateProgramDuplicates(dups,entity1,entity2,level);
+      return dups;
     }
 
     //In which grades are the two records reported - K-9 Check
-    if(dups.isEmpty() && !isTrickle && SchoolGradeCodes.getKToNineGrades().contains(entity1.getEnrolledGradeCode()) && SchoolGradeCodes.getKToNineGrades().contains(entity2.getEnrolledGradeCode())){
+    if(!isTrickle && SchoolGradeCodes.getKToNineGrades().contains(entity1.getEnrolledGradeCode()) && SchoolGradeCodes.getKToNineGrades().contains(entity2.getEnrolledGradeCode())){
       addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.K_TO_9_DUP);
     }
 
