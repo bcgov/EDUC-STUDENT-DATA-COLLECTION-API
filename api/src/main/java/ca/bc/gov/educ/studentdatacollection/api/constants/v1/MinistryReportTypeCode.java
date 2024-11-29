@@ -7,6 +7,7 @@ import java.util.Optional;
 
 @Getter
 public enum MinistryReportTypeCode {
+    POSTED_DUPLICATES("posted-duplicates"),
     SCHOOL_ENROLLMENT_HEADCOUNTS("school-enrollment-headcounts"),
     SCHOOL_ADDRESS_REPORT("school-address-report"),
     INDY_SCHOOL_ENROLLMENT_HEADCOUNTS("indy-school-enrollment-headcounts"),

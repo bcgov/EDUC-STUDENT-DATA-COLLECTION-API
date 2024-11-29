@@ -9,10 +9,9 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDuplicateRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
@@ -55,6 +54,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @Slf4j
 @RequiredArgsConstructor
 public class CSVReportService {
+    private final SdcDuplicateRepository sdcDuplicateRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final CollectionRepository collectionRepository;
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
@@ -138,6 +138,46 @@ public class CSVReportService {
             if (Boolean.TRUE.equals(isOnlineLearning)) downloadableReport.setReportType(ONLINE_INDY_FUNDING_REPORT.getCode());
             else if (Boolean.TRUE.equals(isNonGraduatedAdult)) downloadableReport.setReportType(NON_GRADUATED_ADULT_INDY_FUNDING_REPORT.getCode());
             else downloadableReport.setReportType(INDY_FUNDING_REPORT.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
+    public DownloadableReportResponse generatePostedDuplicatesReport(UUID collectionID) {
+        List<SdcDuplicateEntity> results = sdcDuplicateRepository.findAllByCollectionID(collectionID);
+
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(DuplicatesListHeader.getAllValuesAsStringArray())
+                .build();
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (SdcDuplicateEntity result : results) {
+                for (SdcDuplicateStudentEntity stud : result.getSdcDuplicateStudentEntities()) {
+                    var schoolOpt = restUtils.getSchoolBySchoolID(stud.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionEntity().getSchoolID().toString());
+
+                    if(schoolOpt.isPresent()) {
+                        var school = schoolOpt.get();
+                        District district = null;
+                        if(stud.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionEntity().getSdcDistrictCollectionID() != null){
+                            district = restUtils.getDistrictByDistrictID(school.getDistrictId().toString()).orElseThrow(() -> new EntityNotFoundException(District.class, "districtID", school.getDistrictId()));
+                        }
+
+                        List<String> csvRowData = prepareStudentDupeForCsv(stud, school, district);
+                        csvPrinter.printRecord(csvRowData);
+                    }
+                }
+                csvPrinter.printRecord("");
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(POSTED_DUPLICATES.getCode());
             downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
 
             return downloadableReport;
@@ -731,6 +771,42 @@ public class CSVReportService {
                 result.getGradeHSCount(),
                 TransformUtil.getTotalHeadcount(result)
             ));
+        return csvRowData;
+    }
+
+    private List<String> prepareStudentDupeForCsv(SdcDuplicateStudentEntity dupeStud, SchoolTombstone school, District district) {
+        var student = dupeStud.getSdcSchoolCollectionStudentEntity();
+
+        List<String> csvRowData = new ArrayList<>();
+
+        csvRowData.addAll(Arrays.asList(
+                student.getAssignedPen(),
+                district != null ? district.getDisplayName() : "-",
+                school.getDisplayName(),
+                school.getMincode(),
+                student.getLocalID(),
+                student.getDob(),
+                student.getLegalLastName(),
+                student.getLegalFirstName(),
+                student.getLegalMiddleNames(),
+                student.getUsualLastName(),
+                student.getUsualFirstName(),
+                student.getUsualMiddleNames(),
+                student.getGender(),
+                student.getPostalCode(),
+                student.getIsAdult() != null ? student.getIsAdult().toString() : null,
+                student.getIsGraduated() != null ? student.getIsGraduated().toString() : null,
+                student.getEnrolledGradeCode(),
+                student.getSchoolFundingCode(),
+                student.getOtherCourses(),
+                student.getSupportBlocks(),
+                student.getYearsInEll() != null ? student.getYearsInEll().toString() : null,
+                student.getCareerProgramCode(),
+                student.getNativeAncestryInd(),
+                student.getBandCode(),
+                student.getSpecialEducationCategoryCode(),
+                student.getFte() != null ? student.getFte().toString() : null
+        ));
         return csvRowData;
     }
 

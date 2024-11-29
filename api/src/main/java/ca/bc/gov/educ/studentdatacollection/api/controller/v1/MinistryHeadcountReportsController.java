@@ -72,6 +72,7 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
             case ONLINE_INDY_FUNDING_REPORT -> ministryReportsService.generateIndyFundingReport(collectionID, true, false);
             case NON_GRADUATED_ADULT_INDY_FUNDING_REPORT -> ministryReportsService.generateIndyFundingReport(collectionID, false, true);
             case REFUGEE_ENROLMENT_HEADCOUNTS_AND_FTE_REPORT -> ministryReportsService.generateRefugeeEnrolmentHeadcountsAndFteReport(collectionID);
+            case POSTED_DUPLICATES -> ministryReportsService.generatePostedDuplicatesReport(collectionID);
             default -> new DownloadableReportResponse();
         };
     }
