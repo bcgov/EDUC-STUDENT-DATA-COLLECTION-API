@@ -165,10 +165,10 @@ public class CSVReportService {
                         var school = schoolOpt.get();
                         District district = null;
                         if(stud.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionEntity().getSdcDistrictCollectionID() != null){
-                            district = restUtils.getDistrictByDistrictID(school.getDistrictId().toString()).orElseThrow(() -> new EntityNotFoundException(District.class, "districtID", school.getDistrictId()));
+                            district = restUtils.getDistrictByDistrictID(school.getDistrictId()).orElseThrow(() -> new EntityNotFoundException(District.class, "districtID", school.getDistrictId()));
                         }
 
-                        List<String> csvRowData = prepareStudentDupeForCsv(stud, school, district);
+                        List<String> csvRowData = prepareStudentDupeForCsv(stud, school, district, result.getDuplicateTypeCode());
                         csvPrinter.printRecord(csvRowData);
                     }
                 }
@@ -774,7 +774,7 @@ public class CSVReportService {
         return csvRowData;
     }
 
-    private List<String> prepareStudentDupeForCsv(SdcDuplicateStudentEntity dupeStud, SchoolTombstone school, District district) {
+    private List<String> prepareStudentDupeForCsv(SdcDuplicateStudentEntity dupeStud, SchoolTombstone school, District district, String duplicateType) {
         var student = dupeStud.getSdcSchoolCollectionStudentEntity();
 
         List<String> csvRowData = new ArrayList<>();
@@ -805,7 +805,8 @@ public class CSVReportService {
                 student.getNativeAncestryInd(),
                 student.getBandCode(),
                 student.getSpecialEducationCategoryCode(),
-                student.getFte() != null ? student.getFte().toString() : null
+                student.getFte() != null ? student.getFte().toString() : null,
+                duplicateType
         ));
         return csvRowData;
     }

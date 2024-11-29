@@ -33,7 +33,8 @@ public enum DuplicatesListHeader {
     INDIGENOUS_ANCESTRY("Indigenous Ancestry"),
     BAND_CODE("Band Code"),
     INCLUSIVE_EDUCATION_CATEGORY("Inclusive Education Category"),
-    FTE("FTE");
+    FTE("FTE"),
+    DUPLICATE_TYPE("Duplicate Type");
 
     private final String code;
     DuplicatesListHeader(String code) { this.code = code; }
