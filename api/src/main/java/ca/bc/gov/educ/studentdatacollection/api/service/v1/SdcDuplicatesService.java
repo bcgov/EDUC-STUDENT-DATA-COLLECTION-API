@@ -73,14 +73,36 @@ public class SdcDuplicatesService {
     var districtCollection = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID).orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionEntity", sdcDistrictCollectionID.toString()));
     List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInSdcDistrictCollection(districtCollection.getCollectionEntity().getCollectionID(), sdcDistrictCollectionID);
 
-    return generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL, false);
+    var dupes = generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL, false);
+
+    var finalSet = new HashSet<SdcDuplicateEntity>();
+    dupes.forEach(dupe -> {
+      dupe.getSdcDuplicateStudentEntities().forEach(stud -> {
+        if(stud.getSdcDistrictCollectionID() != null && stud.getSdcDistrictCollectionID().equals(sdcDistrictCollectionID)) {
+          finalSet.add(dupe);
+        }
+      });
+    });
+
+    return finalSet.stream().toList();
   }
 
   public List<SdcDuplicateEntity> getAllProvincialDuplicatesBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
     var schoolCollection = sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID).orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionEntity", sdcSchoolCollectionID.toString()));
     List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInSdcSchoolCollection(schoolCollection.getCollectionEntity().getCollectionID(), sdcSchoolCollectionID);
 
-    return generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL, false);
+    var dupes = generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL, false);
+
+    var finalSet = new HashSet<SdcDuplicateEntity>();
+    dupes.forEach(dupe -> {
+      dupe.getSdcDuplicateStudentEntities().forEach(stud -> {
+        if(stud.getSdcSchoolCollectionID().equals(sdcSchoolCollectionID)) {
+          finalSet.add(dupe);
+        }
+      });
+    });
+
+    return finalSet.stream().toList();
   }
 
   public SdcDuplicateEntity getSdcDuplicate(UUID sdcDuplicateID) {
