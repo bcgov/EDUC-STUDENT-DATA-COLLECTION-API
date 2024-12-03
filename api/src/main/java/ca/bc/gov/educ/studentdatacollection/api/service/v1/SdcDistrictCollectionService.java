@@ -133,7 +133,7 @@ public class SdcDistrictCollectionService {
       monitorSdcSchoolCollection.setFundingWarnings(monitorSdcSchoolCollectionQueryResponse.getFundingWarnings());
 
       monitorSdcSchoolCollection.setSchoolStatus(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode());
-      monitorSdcSchoolCollection.setSubmittedToDistrict(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.P_DUP_POST.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode()));
+      monitorSdcSchoolCollection.setSubmittedToDistrict(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.P_DUP_POST.getCode(), SdcSchoolCollectionStatus.P_DUP_VRFD.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode()));
 
       monitorSdcSchoolCollections.add(monitorSdcSchoolCollection);
     });
