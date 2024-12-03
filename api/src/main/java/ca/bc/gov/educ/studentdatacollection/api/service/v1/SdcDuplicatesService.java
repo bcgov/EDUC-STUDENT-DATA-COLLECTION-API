@@ -73,14 +73,36 @@ public class SdcDuplicatesService {
     var districtCollection = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID).orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionEntity", sdcDistrictCollectionID.toString()));
     List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInSdcDistrictCollection(districtCollection.getCollectionEntity().getCollectionID(), sdcDistrictCollectionID);
 
-    return generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL, false);
+    var dupes = generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL, false);
+
+    var finalSet = new HashSet<SdcDuplicateEntity>();
+    dupes.forEach(dupe -> {
+      dupe.getSdcDuplicateStudentEntities().forEach(stud -> {
+        if(stud.getSdcDistrictCollectionID() != null && stud.getSdcDistrictCollectionID().equals(sdcDistrictCollectionID)) {
+          finalSet.add(dupe);
+        }
+      });
+    });
+
+    return finalSet.stream().toList();
   }
 
   public List<SdcDuplicateEntity> getAllProvincialDuplicatesBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
     var schoolCollection = sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID).orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionEntity", sdcSchoolCollectionID.toString()));
     List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInSdcSchoolCollection(schoolCollection.getCollectionEntity().getCollectionID(), sdcSchoolCollectionID);
 
-    return generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL, false);
+    var dupes = generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL, false);
+
+    var finalSet = new HashSet<SdcDuplicateEntity>();
+    dupes.forEach(dupe -> {
+      dupe.getSdcDuplicateStudentEntities().forEach(stud -> {
+        if(stud.getSdcSchoolCollectionID().equals(sdcSchoolCollectionID)) {
+          finalSet.add(dupe);
+        }
+      });
+    });
+
+    return finalSet.stream().toList();
   }
 
   public SdcDuplicateEntity getSdcDuplicate(UUID sdcDuplicateID) {
@@ -287,10 +309,11 @@ public class SdcDuplicatesService {
     }
     if(entity1.getIsAdult() || entity2.getIsAdult()){
       generateProgramDuplicates(dups,entity1,entity2,level);
+      return dups;
     }
 
     //In which grades are the two records reported - K-9 Check
-    if(dups.isEmpty() && !isTrickle && SchoolGradeCodes.getKToNineGrades().contains(entity1.getEnrolledGradeCode()) && SchoolGradeCodes.getKToNineGrades().contains(entity2.getEnrolledGradeCode())){
+    if(!isTrickle && SchoolGradeCodes.getKToNineGrades().contains(entity1.getEnrolledGradeCode()) && SchoolGradeCodes.getKToNineGrades().contains(entity2.getEnrolledGradeCode())){
       addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.K_TO_9_DUP);
     }
 
@@ -309,9 +332,11 @@ public class SdcDuplicatesService {
       if((facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode()) && isSchool1Independent) ||
               (facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode()) && isSchool2Independent)) {
         generateProgramDuplicates(dups,entity1,entity2,level);
+        return dups;
       }else if(isSchool1Independent || isSchool2Independent) {
         if((facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode())) || (isSchool2Independent && facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode()))) {
           generateProgramDuplicates(dups,entity1,entity2,level);
+          return dups;
         }else if(!isTrickle){
           addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.ALT_DUP);
         }
@@ -320,9 +345,8 @@ public class SdcDuplicatesService {
           addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.ALT_DUP);
         }else{
           generateProgramDuplicates(dups,entity1,entity2,level);
+          return dups;
         }
-      }else if(facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode()) || facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode())){
-        generateProgramDuplicates(dups,entity1,entity2,level);
       }else if (!isTrickle){
         addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.ALT_DUP);
       }
@@ -337,9 +361,7 @@ public class SdcDuplicatesService {
     if(dups.isEmpty() && ((isStudent1Grade8or9 && isStudent2Grade10toSU) || (isStudent2Grade8or9 && isStudent1Grade10toSU))){
       if(facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode()) && facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode())) {
         generateProgramDuplicates(dups,entity1,entity2,level);
-      } else if((isStudent2Grade10toSU && facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode())) ||
-              (isStudent1Grade10toSU && facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode()))){
-        generateProgramDuplicates(dups,entity1,entity2,level);
+        return dups;
       } else if(!isTrickle && level.equals(DuplicateLevelCode.IN_DIST)){
         addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.IN_8_9_DUP);
       } else {

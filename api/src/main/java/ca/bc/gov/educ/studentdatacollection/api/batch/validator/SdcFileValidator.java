@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.batch.validator;
 import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileError;
 import ca.bc.gov.educ.studentdatacollection.api.batch.exception.FileUnProcessableException;
 import ca.bc.gov.educ.studentdatacollection.api.batch.struct.SdcBatchFile;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
@@ -136,7 +137,7 @@ public class SdcFileValidator {
 
     String schoolDistrictID = school.getDistrictId();
 
-    if(StringUtils.compare(schoolDistrictID, districtID) != 0) {
+    if(SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(school.getSchoolCategoryCode()) || StringUtils.compare(schoolDistrictID, districtID) != 0) {
       throw new FileUnProcessableException(
               FileError.SCHOOL_OUTSIDE_OF_DISTRICT,
               guid,

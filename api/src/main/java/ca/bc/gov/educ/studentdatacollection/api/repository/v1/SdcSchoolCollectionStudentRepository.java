@@ -59,20 +59,20 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   @Query("SELECT " +
           " sscs.sdcSchoolCollection.schoolID as schoolID, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' THEN 1 END) as kindHCount, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KF' THEN 1 END) as kindFCount, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '01' THEN 1 END) as grade1Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '02' THEN 1 END) as grade2Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '03' THEN 1 END) as grade3Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '04' THEN 1 END) as grade4Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '05' THEN 1 END) as grade5Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '06' THEN 1 END) as grade6Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '07' THEN 1 END) as grade7Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '08' THEN 1 END) as grade8Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '09' THEN 1 END) as grade9Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '10' THEN 1 END) as grade10Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '11' THEN 1 END) as grade11Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '12' THEN 1 END) as grade12Count " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.isAdult = false AND (sscs.schoolFundingCode != '14' OR sscs.schoolFundingCode is null) THEN 1 END) as kindHCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KF' AND sscs.isAdult = false AND (sscs.schoolFundingCode != '14' OR sscs.schoolFundingCode is null) THEN 1 END) as kindFCount, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.isAdult = false AND (sscs.schoolFundingCode != '14' OR sscs.schoolFundingCode is null) THEN 1 END) as grade1Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.isAdult = false AND (sscs.schoolFundingCode != '14' OR sscs.schoolFundingCode is null) THEN 1 END) as grade2Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.isAdult = false AND (sscs.schoolFundingCode != '14' OR sscs.schoolFundingCode is null) THEN 1 END) as grade3Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.isAdult = false AND (sscs.schoolFundingCode != '14' OR sscs.schoolFundingCode is null) THEN 1 END) as grade4Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.isAdult = false AND (sscs.schoolFundingCode != '14' OR sscs.schoolFundingCode is null) THEN 1 END) as grade5Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.isAdult = false AND (sscs.schoolFundingCode != '14' OR sscs.schoolFundingCode is null) THEN 1 END) as grade6Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.isAdult = false AND (sscs.schoolFundingCode != '14' OR sscs.schoolFundingCode is null) THEN 1 END) as grade7Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.isAdult = false AND (sscs.schoolFundingCode != '14' OR sscs.schoolFundingCode is null) THEN 1 END) as grade8Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.isAdult = false AND (sscs.schoolFundingCode != '14' OR sscs.schoolFundingCode is null) THEN 1 END) as grade9Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.isAdult = false AND (sscs.schoolFundingCode != '14' OR sscs.schoolFundingCode is null) THEN 1 END) as grade10Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.isAdult = false AND (sscs.schoolFundingCode != '14' OR sscs.schoolFundingCode is null) THEN 1 END) as grade11Count, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.isAdult = false AND (sscs.schoolFundingCode != '14' OR sscs.schoolFundingCode is null) THEN 1 END) as grade12Count " +
           " FROM SdcSchoolCollectionStudentEntity sscs " +
           " WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           " AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
@@ -247,13 +247,12 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<SdcSchoolCollectionStudentEntity> findTopLoadedStudentForProcessing(String numberOfStudentsToProcess);
 
   @Query(value="""
-    SELECT stud FROM SdcSchoolCollectionStudentEntity stud WHERE stud.sdcSchoolCollectionStudentID
-    NOT IN (SELECT saga.sdcSchoolCollectionStudentID FROM SdcSagaEntity saga WHERE saga.status != 'COMPLETED'
-    AND saga.sdcSchoolCollectionStudentID IS NOT NULL)
-    AND stud.sdcSchoolCollectionStudentStatusCode = 'MIGRATE'
-    order by stud.createDate
-    LIMIT :numberOfStudentsToProcess""")
-  List<SdcSchoolCollectionStudentEntity> findTopMigratedStudentForProcessing(String numberOfStudentsToProcess);
+    SELECT stud.* FROM sdc_school_collection_student stud WHERE stud.sdc_school_collection_student_id
+    NOT IN (SELECT saga.sdc_school_collection_student_id FROM sdc_saga saga WHERE saga.status != 'COMPLETED'
+    AND saga.sdc_school_collection_student_id IS NOT NULL)
+    AND stud.sdc_school_collection_student_status_code = 'MIGRATE' 
+    LIMIT :numberOfStudentsToProcess""", nativeQuery = true)
+  List<SdcSchoolCollectionStudentEntity> findTopMigratedStudentForProcessing(int numberOfStudentsToProcess);
 
   long countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(List<UUID> assignedStudentId, List<UUID> sdcSchoolCollectionID, String numberOfCourses);
 
@@ -288,27 +287,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
 
   long countAllByAssignedStudentIdInAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(List<UUID> assignedStudentId, String enrolledGradeCode, List<UUID> sdcSchoolCollectionID);
-
-  @Query("""
-       SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
-       WHERE s.assignedStudentId IN :assignedStudentId
-       AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
-       AND s.fte > 0
-       """)
-  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTE(
-          @Param("assignedStudentId") List<UUID> assignedStudentId,
-          @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
-
-  @Query("""
-       SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
-       WHERE s.assignedStudentId IN :assignedStudentId
-       AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
-       AND s.fte > 0
-       AND s.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', '08', '09')
-       """)
-  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDInWithNonZeroFTEAndInGradeKto9(
-          @Param("assignedStudentId") List<UUID> assignedStudentId,
-          @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
 
   @Query("SELECT " +
           "s.enrolledGradeCode AS enrolledGradeCode, " +

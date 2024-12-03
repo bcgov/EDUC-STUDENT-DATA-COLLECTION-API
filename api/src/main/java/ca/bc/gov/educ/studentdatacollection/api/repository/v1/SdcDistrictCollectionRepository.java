@@ -37,7 +37,7 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
               s.sdcDistrictCollectionID as sdcDistrictCollectionID,
               s.districtID as districtID,
               s.sdcDistrictCollectionStatusCode as sdcDistrictCollectionStatusCode,
-              COUNT(DISTINCT CASE WHEN sc.sdcSchoolCollectionStatusCode = 'SUBMITTED' OR sc.sdcSchoolCollectionStatusCode = 'COMPLETED' THEN sc.sdcSchoolCollectionID END) as submittedSchools,
+              COUNT(DISTINCT CASE WHEN sc.sdcSchoolCollectionStatusCode = 'SUBMITTED' OR sc.sdcSchoolCollectionStatusCode = 'P_DUP_POST' OR sc.sdcSchoolCollectionStatusCode = 'COMPLETED' THEN sc.sdcSchoolCollectionID END) as submittedSchools,
               COUNT(DISTINCT sc.sdcSchoolCollectionID) as totalSchools
           FROM SdcDistrictCollectionEntity s
                LEFT JOIN SdcSchoolCollectionEntity sc ON s.sdcDistrictCollectionID = sc.sdcDistrictCollectionID
