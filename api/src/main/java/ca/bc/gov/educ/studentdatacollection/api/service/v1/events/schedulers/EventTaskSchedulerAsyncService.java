@@ -280,13 +280,13 @@ public class EventTaskSchedulerAsyncService {
               newEntity.setSchoolID(UUID.fromString(tombstone.getSchoolId()));
               if(!SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(tombstone.getSchoolCategoryCode())) {
                 newEntity.setSdcDistrictCollectionID(
-                        sdcDistrictCollectionRepository
-                                .findByDistrictIDAndCollectionEntityCollectionID(
-                                        UUID.fromString(tombstone.getDistrictId()),
-                                        activeCollection.getCollectionID()
-                                )
-                                .map(SdcDistrictCollectionEntity::getSdcDistrictCollectionID)
-                                .orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionEntity", tombstone.getDistrictId()))
+                  sdcDistrictCollectionRepository
+                    .findByDistrictIDAndCollectionEntityCollectionID(
+                      UUID.fromString(tombstone.getDistrictId()),
+                      activeCollection.getCollectionID()
+                    )
+                    .map(SdcDistrictCollectionEntity::getSdcDistrictCollectionID)
+                    .orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionEntity", tombstone.getDistrictId()))
                 );
               }
               newEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
