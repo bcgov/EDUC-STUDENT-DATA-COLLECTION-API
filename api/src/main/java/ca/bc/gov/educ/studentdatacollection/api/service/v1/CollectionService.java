@@ -187,7 +187,7 @@ public class CollectionService {
       monitorSdcSchoolCollection.setFundingWarnings(monitorSdcSchoolCollectionQueryResponse.getFundingWarnings());
 
       monitorSdcSchoolCollection.setSchoolStatus(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode());
-      monitorSdcSchoolCollection.setSubmittedToDistrict(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode()));
+      monitorSdcSchoolCollection.setSubmittedToDistrict(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode(), SdcSchoolCollectionStatus.P_DUP_POST.getCode(), SdcSchoolCollectionStatus.P_DUP_VRFD.getCode()));
       monitorSdcSchoolCollection.setUnresolvedDuplicates(getDuplicatesCount(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionId(), countMap));
 
       monitorSdcSchoolCollections.add(monitorSdcSchoolCollection);
