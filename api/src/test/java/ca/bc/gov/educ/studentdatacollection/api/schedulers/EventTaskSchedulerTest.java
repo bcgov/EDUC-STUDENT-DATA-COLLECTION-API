@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.EventType;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -32,6 +33,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
@@ -307,7 +309,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
-    void testFindsNewSchoolAndAddsSdcSchoolCollection_nullSdcDistrictCollection() {
+    void testFindsNewSchoolAndAddsSdcSchoolCollection_nullSdcDistrictCollection_NonIndependOrOffShoreSchool_throwsEntityNotFound() {
         var typeCode = this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntity());
         this.collectionCodeCriteriaRepository.save(this.createMockCollectionCodeCriteriaEntity(typeCode));
         collectionRepository.save(createMockCollectionEntity());
@@ -316,6 +318,24 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         var school = createMockSchool();
         school.setDisplayName("School1");
         school.setMincode("0000001");
+        school.setDistrictId(districtID.toString());
+        when(this.restUtils.getSchoolBySchoolID(school.getSchoolId())).thenReturn(Optional.of(school));
+        when(this.restUtils.getSchoolListGivenCriteria(anyList(), any())).thenReturn(List.of(school));
+
+        assertThrows(EntityNotFoundException.class, () -> {eventTaskSchedulerAsyncService.findModifiedSchoolsAndUpdateSdcSchoolCollection();});
+    }
+
+    @Test
+    void testFindsNewSchoolAndAddsSdcSchoolCollection_nullSdcDistrictCollection_IndependOrOffShoreSchool_doesNotThrow() {
+        var typeCode = this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntity());
+        this.collectionCodeCriteriaRepository.save(this.createMockCollectionCodeCriteriaEntity(typeCode));
+        collectionRepository.save(createMockCollectionEntity());
+        var districtID = UUID.randomUUID();
+
+        var school = createMockSchool();
+        school.setDisplayName("School1");
+        school.setMincode("0000001");
+        school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
         school.setDistrictId(districtID.toString());
         when(this.restUtils.getSchoolBySchoolID(school.getSchoolId())).thenReturn(Optional.of(school));
         when(this.restUtils.getSchoolListGivenCriteria(anyList(), any())).thenReturn(List.of(school));

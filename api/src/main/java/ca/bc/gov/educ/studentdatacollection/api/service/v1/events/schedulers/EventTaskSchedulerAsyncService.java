@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1.events.schedulers;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.LogHelper;
@@ -277,15 +278,17 @@ public class EventTaskSchedulerAsyncService {
               SdcSchoolCollectionEntity newEntity = new SdcSchoolCollectionEntity();
               newEntity.setCollectionEntity(activeCollection);
               newEntity.setSchoolID(UUID.fromString(tombstone.getSchoolId()));
-              newEntity.setSdcDistrictCollectionID(
-                      sdcDistrictCollectionRepository
-                              .findByDistrictIDAndCollectionEntityCollectionID(
-                                      UUID.fromString(tombstone.getDistrictId()),
-                                      activeCollection.getCollectionID()
-                              )
-                              .map(SdcDistrictCollectionEntity::getSdcDistrictCollectionID)
-                              .orElse(null)
-              );
+              if(!SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(tombstone.getSchoolCategoryCode())) {
+                newEntity.setSdcDistrictCollectionID(
+                        sdcDistrictCollectionRepository
+                                .findByDistrictIDAndCollectionEntityCollectionID(
+                                        UUID.fromString(tombstone.getDistrictId()),
+                                        activeCollection.getCollectionID()
+                                )
+                                .map(SdcDistrictCollectionEntity::getSdcDistrictCollectionID)
+                                .orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionEntity", tombstone.getDistrictId()))
+                );
+              }
               newEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
               newEntity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
               newEntity.setCreateDate(LocalDateTime.now());
