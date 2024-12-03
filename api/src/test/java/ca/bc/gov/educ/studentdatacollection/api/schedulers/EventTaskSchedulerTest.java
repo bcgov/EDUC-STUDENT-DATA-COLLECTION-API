@@ -465,8 +465,12 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
     @Test
     void deleteClosedSchoolsSdcCollection_ProvDupeStatus_Closed_StudentExists() {
+        var typeCode = this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntity());
+        this.collectionCodeCriteriaRepository.save(this.createMockCollectionCodeCriteriaEntity(typeCode));
+
         var collection = createMockCollectionEntity();
         collection.setCollectionStatusCode(CollectionStatus.INPROGRESS.getCode());
+        collection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
         CollectionEntity collectionEntity = collectionRepository.save(collection);
 
         SchoolTombstone school1 = createMockSchoolTombstone();
@@ -505,6 +509,8 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchoolCollection, secondSchoolCollection));
 
         assertThat(collectionEntity.getCollectionStatusCode()).isNotEqualTo(CollectionStatus.PROVDUPES.getCode());
+
+        when(this.restUtils.getSchoolListGivenCriteria(anyList(), any())).thenReturn(mockSchools);
 
         eventTaskSchedulerAsyncService.findModifiedSchoolsAndUpdateSdcSchoolCollection();
 

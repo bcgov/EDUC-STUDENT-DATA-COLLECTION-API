@@ -247,14 +247,12 @@ public class EventTaskSchedulerAsyncService {
     Optional<CollectionTypeCodeEntity> optionalCollectionTypeCodeEntity = this.collectionTypeCodeRepository.findByCollectionTypeCode(activeCollection.getCollectionTypeCode());
     CollectionTypeCodeEntity collectionTypeCodeEntity = optionalCollectionTypeCodeEntity.orElseThrow(() -> new EntityNotFoundException(CollectionTypeCodeEntity.class, "collectionTypeCode", activeCollection.getCollectionTypeCode()));
     List<CollectionCodeCriteriaEntity> collectionCodeCriteria = this.collectionCodeCriteriaRepository.findAllByCollectionTypeCodeEntityEquals(collectionTypeCodeEntity);
-    final List<SchoolTombstone> schoolTombstonesFromCollectionCodeCriteria = closeCollectionService.getListOfSchoolIDsFromCriteria(collectionCodeCriteria);
+    final List<SchoolTombstone> schoolTombstones = closeCollectionService.getListOfSchoolIDsFromCriteria(collectionCodeCriteria);
 
-    restUtils.populateSchoolMap();
-    final List<SchoolTombstone> schoolTombstones = restUtils.getSchools();
     final List<SdcSchoolCollectionEntity> activeSchoolCollections = sdcSchoolCollectionRepository.findAllByCollectionEntityCollectionID(activeCollection.getCollectionID());
 
-    List<SdcSchoolCollectionEntity> newSchoolCollections = findAddSchoolsAndUpdateSdcSchoolCollection(schoolTombstonesFromCollectionCodeCriteria, activeCollection, activeSchoolCollections);
-    List<SdcSchoolCollectionEntity> closedSchoolCollections = findClosedSchoolsAndDeleteSdcCollection(schoolTombstones, activeSchoolCollections);
+    List<SdcSchoolCollectionEntity> newSchoolCollections = findAddSchoolsAndUpdateSdcSchoolCollection(schoolTombstones, activeCollection, activeSchoolCollections);
+    List<SdcSchoolCollectionEntity> closedSchoolCollections = findClosedSchoolsAndDeleteSdcSchoolCollection(schoolTombstones, activeSchoolCollections);
 
     if (CollectionUtils.isNotEmpty(newSchoolCollections)) {
       newSchoolCollections.stream().forEach(sdcSchoolCollectionEntity -> sdcSchoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser())));
@@ -300,7 +298,7 @@ public class EventTaskSchedulerAsyncService {
   }
 
 
-  private List<SdcSchoolCollectionEntity> findClosedSchoolsAndDeleteSdcCollection(List<SchoolTombstone> schoolTombstones, List<SdcSchoolCollectionEntity> activeSchoolCollections) {
+  private List<SdcSchoolCollectionEntity> findClosedSchoolsAndDeleteSdcSchoolCollection(List<SchoolTombstone> schoolTombstones, List<SdcSchoolCollectionEntity> activeSchoolCollections) {
     Set<UUID> closedSchoolIds = schoolTombstones.stream()
             .filter(tombstone -> StringUtils.isNotBlank(tombstone.getClosedDate())
                     && LocalDateTime.parse(tombstone.getClosedDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME).isBefore(LocalDateTime.now()))
