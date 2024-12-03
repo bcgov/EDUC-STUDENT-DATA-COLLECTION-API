@@ -20,7 +20,7 @@ public enum DuplicateClassLookup {
             new String[]{SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode()},
             SchoolGradeCodes.getAllSchoolGradesExcludingHS().toArray(new String[0])),
 
-    ENTRY5(new String[]{FacilityTypeCodes.DIST_LEARN.getCode(), FacilityTypeCodes.DIST_LEARN.getCode()},
+    ENTRY5(new String[]{FacilityTypeCodes.DIST_LEARN.getCode(), FacilityTypeCodes.DISTONLINE.getCode()},
             new String[]{SchoolCategoryCodes.PUBLIC.getCode()},
             SchoolGradeCodes.getKToNineGrades().toArray(new String[0])),
 

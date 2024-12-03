@@ -100,6 +100,7 @@ public class SdcDuplicateResolutionService {
         SdcSchoolCollectionStudent studentToRemove = identifyStudentToRemove(student1, student2, dupe1ClassNum, dupe2ClassNum, school1, school2);
         SoftDeleteRecordSet set = new SoftDeleteRecordSet();
         set.setSoftDeleteStudentIDs(Arrays.asList(UUID.fromString(studentToRemove.getSdcSchoolCollectionStudentID())));
+        set.setUpdateUser("STUDENT_DATA_COLLECTION_API");
         sdcSchoolCollectionStudentService.softDeleteSdcSchoolCollectionStudents(set);
       } else {
         throw new EntityNotFoundException(SdcDuplicateEntity.class, SDC_DUPLICATE_ID_KEY, dupe.getSdcDuplicateID().toString());
