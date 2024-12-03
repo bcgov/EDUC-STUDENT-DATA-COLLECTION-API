@@ -77,4 +77,6 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
   List<SdcDistrictCollectionEntity> findAllIncompleteDistrictCollections(UUID collectionID);
 
   List<SdcDistrictCollectionEntity> findAllByCollectionEntityCollectionID(UUID collectionID);
+
+  Optional<SdcDistrictCollectionEntity> findByDistrictIDAndCollectionEntityCollectionID(UUID districtID, UUID collectionID);
 }
