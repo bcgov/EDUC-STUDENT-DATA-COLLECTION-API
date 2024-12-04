@@ -14,6 +14,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolH
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySpecialEdAdultHeadcountResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.beans.Expression;
 import java.beans.Statement;
@@ -272,6 +273,16 @@ public class TransformUtil {
       }
     }
     return "0";
+  }
+
+  public static String getFTEPositiveChange(String septValue, String febValue){
+    if(NumberUtils.isCreatable(septValue) && NumberUtils.isCreatable(febValue)){
+      var change = Double.parseDouble(febValue) - Double.parseDouble(septValue);
+      if(change > 0){
+        return String.format("%.4f", change);
+      }
+    }
+    return "0.0";
   }
 
   public static boolean isCollectionInProvDupes(CollectionEntity collection){

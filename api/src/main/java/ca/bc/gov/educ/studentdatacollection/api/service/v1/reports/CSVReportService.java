@@ -1304,53 +1304,53 @@ public class CSVReportService {
                 TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradAdultCount() : "0", headcountResult.getGradAdultCount()),
                 TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getNonGradAdultCount() : "0", headcountResult.getNonGradAdultCount()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhTotalFte() : "0", headcountResult.getKhTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhRefugeeTotalFte() : "0", headcountResult.getKhRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhTotalFte() : "0", headcountResult.getKhTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhRefugeeTotalFte() : "0", headcountResult.getKhRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneTotalFte() : "0", headcountResult.getGradeOneTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneRefugeeTotalFte() : "0", headcountResult.getGradeOneRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneTotalFte() : "0", headcountResult.getGradeOneTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneRefugeeTotalFte() : "0", headcountResult.getGradeOneRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwoTotalFte() : "0", headcountResult.getGradeTwoTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwoRefugeeTotalFte() : "0", headcountResult.getGradeTwoRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwoTotalFte() : "0", headcountResult.getGradeTwoTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwoRefugeeTotalFte() : "0", headcountResult.getGradeTwoRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeThreeTotalFte() : "0", headcountResult.getGradeThreeTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeThreeRefugeeTotalFte() : "0", headcountResult.getGradeThreeRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeThreeTotalFte() : "0", headcountResult.getGradeThreeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeThreeRefugeeTotalFte() : "0", headcountResult.getGradeThreeRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFourTotalFte() : "0", headcountResult.getGradeFourTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFourRefugeeTotalFte() : "0", headcountResult.getGradeFourRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFourTotalFte() : "0", headcountResult.getGradeFourTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFourRefugeeTotalFte() : "0", headcountResult.getGradeFourRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFiveTotalFte() : "0", headcountResult.getGradeFiveTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFiveRefugeeTotalFte() : "0", headcountResult.getGradeFiveRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFiveTotalFte() : "0", headcountResult.getGradeFiveTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeFiveRefugeeTotalFte() : "0", headcountResult.getGradeFiveRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSixTotalFte() : "0", headcountResult.getGradeSixTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSixRefugeeTotalFte() : "0", headcountResult.getGradeSixRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSixTotalFte() : "0", headcountResult.getGradeSixTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSixRefugeeTotalFte() : "0", headcountResult.getGradeSixRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSevenTotalFte() : "0", headcountResult.getGradeSevenTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSevenRefugeeTotalFte() : "0", headcountResult.getGradeSevenRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSevenTotalFte() : "0", headcountResult.getGradeSevenTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSevenRefugeeTotalFte() : "0", headcountResult.getGradeSevenRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEightTotalFte() : "0", headcountResult.getGradeEightTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEightRefugeeTotalFte() : "0", headcountResult.getGradeEightRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEightTotalFte() : "0", headcountResult.getGradeEightTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEightRefugeeTotalFte() : "0", headcountResult.getGradeEightRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeNineTotalFte() : "0", headcountResult.getGradeNineTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeNineRefugeeTotalFte() : "0", headcountResult.getGradeNineRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeNineTotalFte() : "0", headcountResult.getGradeNineTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeNineRefugeeTotalFte() : "0", headcountResult.getGradeNineRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTenTotalFte() : "0", headcountResult.getGradeTenTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTenRefugeeTotalFte() : "0", headcountResult.getGradeTenRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTenTotalFte() : "0", headcountResult.getGradeTenTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTenRefugeeTotalFte() : "0", headcountResult.getGradeTenRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeElevenTotalFte() : "0", headcountResult.getGradeElevenTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeElevenRefugeeTotalFte() : "0", headcountResult.getGradeElevenRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeElevenTotalFte() : "0", headcountResult.getGradeElevenTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeElevenRefugeeTotalFte() : "0", headcountResult.getGradeElevenRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwelveTotalFte() : "0", headcountResult.getGradeTwelveTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwelveRefugeeTotalFte() : "0", headcountResult.getGradeTwelveRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwelveTotalFte() : "0", headcountResult.getGradeTwelveTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeTwelveRefugeeTotalFte() : "0", headcountResult.getGradeTwelveRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEuTotalFte() : "0", headcountResult.getGradeEuTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEuRefugeeTotalFte() : "0", headcountResult.getGradeEuRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEuTotalFte() : "0", headcountResult.getGradeEuTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeEuRefugeeTotalFte() : "0", headcountResult.getGradeEuRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSuTotalFte() : "0", headcountResult.getGradeSuTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSuRefugeeTotalFte() : "0", headcountResult.getGradeSuRefugeeTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSuTotalFte() : "0", headcountResult.getGradeSuTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeSuRefugeeTotalFte() : "0", headcountResult.getGradeSuRefugeeTotalFte()),
 
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradAdultTotalFte() : "0", headcountResult.getGradAdultTotalFte()),
-                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getNonGradAdultTotalFte() : "0", headcountResult.getNonGradAdultTotalFte())
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradAdultTotalFte() : "0", headcountResult.getGradAdultTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getNonGradAdultTotalFte() : "0", headcountResult.getNonGradAdultTotalFte())
         ));
     }
 
