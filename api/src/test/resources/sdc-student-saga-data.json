@@ -22,6 +22,7 @@
     "enrolledProgramCodes": "PROG001,PROG002",
     "careerProgramCode": "CAREER001",
     "numberOfCourses": "6",
+    "numberOfCoursesDec": 6.00,
     "bandCode": "",
     "postalCode": "V6G 1A1",
     "sdcSchoolCollectionStudentStatusCode": "ACTIVE",
