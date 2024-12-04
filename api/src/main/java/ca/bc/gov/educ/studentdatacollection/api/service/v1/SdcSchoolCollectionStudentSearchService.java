@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStud
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentLightRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentPaginationRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentPaginationRepositoryLight;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
@@ -45,7 +46,7 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
 
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
 
-  private final CustomPaginationService customPaginationService;
+  private final SdcSchoolCollectionStudentPaginationRepositoryLight customSdcSchoolCollectionStudentPaginationRepositoryLight;
 
   private final Executor paginatedQueryExecutor = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
@@ -76,7 +77,7 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
       Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sorts));
       try {
         log.trace("Running paginated query without count: {}", studentSpecs);
-        var results = this.customPaginationService.findAllWithoutCount(studentSpecs, paging).join();
+        Slice<SdcSchoolCollectionStudentPaginationEntity> results = this.customSdcSchoolCollectionStudentPaginationRepositoryLight.findAllWithoutCount(studentSpecs, paging);
         log.trace("Paginated query without count returned with results: {}", results);
         return results;
       } catch (final Throwable ex) {
