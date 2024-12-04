@@ -17,6 +17,7 @@ public enum ZeroFteReasonCodes {
   DISTRICT_DUPLICATE_FUNDING("DISTDUP", "The district has already received funding for the student this year."),
   NO_ONLINE_LEARNING("NOONLINE", "None of student's educational program was delivered through online learning this year."),
   NOT_REPORTED("NOREPORT", "Student was not reported in Grade 8 or 9 outside of district this school year."),
+  ZERO_COURSES("ZERO_COURSES", "The student was reported with zero courses and in a secondary grade or adult grade level."),
   ;
 
   @Getter

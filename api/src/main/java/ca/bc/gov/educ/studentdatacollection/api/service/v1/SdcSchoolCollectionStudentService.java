@@ -187,14 +187,14 @@ public class SdcSchoolCollectionStudentService {
     List<ProgramEligibilityIssueCode> programEligibilityErrors = this.programEligibilityRulesProcessor.processRules(studentRuleData);
     updateProgramEligibilityColumns(programEligibilityErrors, studentRuleData.getSdcSchoolCollectionStudentEntity());
 
-    // Calculate Fte
-    var fteResults = this.fteCalculatorChainProcessor.processFteCalculator(studentRuleData);
-    updateFteColumns(fteResults, sdcSchoolCollectionStudentEntity);
-
     // Convert number of courses string to decimal
     if(StringUtils.isNotBlank(sdcSchoolCollectionStudentEntity.getNumberOfCourses())){
       convertNumOfCourses(sdcSchoolCollectionStudentEntity);
     }
+
+    // Calculate Fte
+    var fteResults = this.fteCalculatorChainProcessor.processFteCalculator(studentRuleData);
+    updateFteColumns(fteResults, sdcSchoolCollectionStudentEntity);
   }
 
   @Async("publisherExecutor")

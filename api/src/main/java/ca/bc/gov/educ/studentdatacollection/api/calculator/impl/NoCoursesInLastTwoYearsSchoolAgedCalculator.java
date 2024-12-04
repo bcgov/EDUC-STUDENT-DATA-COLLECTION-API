@@ -16,7 +16,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReaso
 @Component
 @Slf4j
 @Order(6)
-public class NoCoursesInLastTwoYearsCalculator implements FteCalculator {
+public class NoCoursesInLastTwoYearsSchoolAgedCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Autowired
     FteCalculatorUtils fteCalculatorUtils;
@@ -27,15 +27,15 @@ public class NoCoursesInLastTwoYearsCalculator implements FteCalculator {
     }
     @Override
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
-        log.debug("NoCoursesInLastTwoYearsCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+        log.debug("NoCoursesInLastTwoYearsSchoolAgedCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         if(fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData)) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
             fteCalculationResult.setFteZeroReason(INACTIVE.getCode());
-            log.debug("NoCoursesInLastTwoYearsCalculator: Fte result {} calculated with zero reason '{}' for student :: {}", fteCalculationResult.getFte(), fteCalculationResult.getFteZeroReason(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+            log.debug("NoCoursesInLastTwoYearsSchoolAgedCalculator: Fte result {} calculated with zero reason '{}' for student :: {}", fteCalculationResult.getFte(), fteCalculationResult.getFteZeroReason(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return fteCalculationResult;
         } else {
-            log.debug("NoCoursesInLastTwoYearsCalculator: No FTE result, moving to next calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+            log.debug("NoCoursesInLastTwoYearsSchoolAgedCalculator: No FTE result, moving to next calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return this.nextCalculator.calculateFte(studentData);
         }
     }

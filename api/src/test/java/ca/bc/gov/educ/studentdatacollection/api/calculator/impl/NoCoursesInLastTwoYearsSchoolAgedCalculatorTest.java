@@ -14,10 +14,10 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-class NoCoursesInLastTwoYearsCalculatorTest {
+class NoCoursesInLastTwoYearsSchoolAgedCalculatorTest {
 
     private FteCalculator nextCalculator;
-    private NoCoursesInLastTwoYearsCalculator noCoursesInLastTwoYearsCalculator;
+    private NoCoursesInLastTwoYearsSchoolAgedCalculator noCoursesInLastTwoYearsSchoolAgedCalculator;
     private FteCalculatorUtils fteCalculatorUtils;
 
     @BeforeEach
@@ -25,9 +25,9 @@ class NoCoursesInLastTwoYearsCalculatorTest {
         nextCalculator = mock(FteCalculator.class);
         fteCalculatorUtils = mock(FteCalculatorUtils.class);
 
-        noCoursesInLastTwoYearsCalculator = new NoCoursesInLastTwoYearsCalculator();
-        noCoursesInLastTwoYearsCalculator.setNext(nextCalculator);
-        noCoursesInLastTwoYearsCalculator.fteCalculatorUtils = fteCalculatorUtils;
+        noCoursesInLastTwoYearsSchoolAgedCalculator = new NoCoursesInLastTwoYearsSchoolAgedCalculator();
+        noCoursesInLastTwoYearsSchoolAgedCalculator.setNext(nextCalculator);
+        noCoursesInLastTwoYearsSchoolAgedCalculator.fteCalculatorUtils = fteCalculatorUtils;
     }
 
     @Test
@@ -38,7 +38,7 @@ class NoCoursesInLastTwoYearsCalculatorTest {
         when(fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(any())).thenReturn(true);
 
         // When
-        FteCalculationResult result = noCoursesInLastTwoYearsCalculator.calculateFte(student);
+        FteCalculationResult result = noCoursesInLastTwoYearsSchoolAgedCalculator.calculateFte(student);
 
         // Then
         assertEquals(BigDecimal.ZERO, result.getFte());
@@ -59,7 +59,7 @@ class NoCoursesInLastTwoYearsCalculatorTest {
         expectedResult.setFteZeroReason(null);
 
         when(nextCalculator.calculateFte(any())).thenReturn(expectedResult);
-        FteCalculationResult result = noCoursesInLastTwoYearsCalculator.calculateFte(student);
+        FteCalculationResult result = noCoursesInLastTwoYearsSchoolAgedCalculator.calculateFte(student);
 
         // Then
         assertEquals(expectedResult, result);

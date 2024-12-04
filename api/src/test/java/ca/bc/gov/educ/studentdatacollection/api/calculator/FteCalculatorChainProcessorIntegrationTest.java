@@ -156,7 +156,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     }
 
     @Test
-    void testProcessFteCalculator_NoCoursesInLastTwoYears() {
+    void testProcessFteCalculator_NoCoursesInLastTwoYearsSchoolAged() {
         // Given
         this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0000");
@@ -186,6 +186,117 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
         String expectedFteZeroReason = ZeroFteReasonCodes.INACTIVE.getCode();
+
+        assertEquals(expectedFte, result.getFte());
+        assertEquals(expectedFteZeroReason, result.getFteZeroReason());
+    }
+
+    @Test
+    void testProcessFteCalculator_NoCoursesInLastTwoYearsAdult() {
+        // Given
+        this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0000");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setIsSchoolAged(false);
+        this.studentData.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
+        this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("10");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setCreateDate(LocalDateTime.now());
+
+        CollectionEntity collection = createMockCollectionEntity();
+        SchoolTombstone school = createMockSchool();
+        SdcSchoolCollectionEntity sdcSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        sdcSchoolCollection.setCreateDate(LocalDateTime.now().minusYears(1));
+
+        collectionRepository.save(collection);
+
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollection);
+        this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
+
+        // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        StudentMerge studentMerge = getStudentMergeResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedPen());
+        penMatchResult.getMatchingRecords().get(0).setStudentID(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId().toString());
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
+        when(this.restUtils.getMergedStudentIds(any(), any())).thenReturn(List.of(studentMerge));
+        FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
+
+        // Then
+        BigDecimal expectedFte = BigDecimal.ZERO;
+        String expectedFteZeroReason = ZeroFteReasonCodes.INACTIVE.getCode();
+
+        assertEquals(expectedFte, result.getFte());
+        assertEquals(expectedFteZeroReason, result.getFteZeroReason());
+    }
+
+    @Test
+    void testProcessFteCalculator_NoCoursesZeroAdult() {
+        // Given
+        this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0000");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCoursesDec(new BigDecimal(0.00));
+        this.studentData.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
+        this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("10");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setCreateDate(LocalDateTime.now());
+
+        CollectionEntity collection = createMockCollectionEntity();
+        SchoolTombstone school = createMockSchool();
+        SdcSchoolCollectionEntity sdcSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        sdcSchoolCollection.setCreateDate(LocalDateTime.now().minusYears(1));
+
+        collectionRepository.save(collection);
+
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollection);
+        this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
+
+        // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        StudentMerge studentMerge = getStudentMergeResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedPen());
+        penMatchResult.getMatchingRecords().get(0).setStudentID(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId().toString());
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
+        when(this.restUtils.getMergedStudentIds(any(), any())).thenReturn(List.of(studentMerge));
+        FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
+
+        // Then
+        BigDecimal expectedFte = BigDecimal.ZERO;
+        String expectedFteZeroReason = ZeroFteReasonCodes.ZERO_COURSES.getCode();
+
+        assertEquals(expectedFte, result.getFte());
+        assertEquals(expectedFteZeroReason, result.getFteZeroReason());
+    }
+
+    @Test
+    void testProcessFteCalculator_NoCoursesZeroSchoolAged() {
+        // Given
+        this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0000");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCoursesDec(new BigDecimal(0.00));
+        this.studentData.getSdcSchoolCollectionStudentEntity().setIsSchoolAged(true);
+        this.studentData.getSdcSchoolCollectionStudentEntity().setEnrolledGradeCode("10");
+        this.studentData.getSdcSchoolCollectionStudentEntity().setCreateDate(LocalDateTime.now());
+
+        CollectionEntity collection = createMockCollectionEntity();
+        SchoolTombstone school = createMockSchool();
+        SdcSchoolCollectionEntity sdcSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        sdcSchoolCollection.setCreateDate(LocalDateTime.now().minusYears(1));
+
+        collectionRepository.save(collection);
+
+        this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollection);
+        this.studentData.getSchool().setSchoolId(sdcSchoolCollection.getSchoolID().toString());
+
+        // When
+        PenMatchResult penMatchResult = getPenMatchResult();
+        StudentMerge studentMerge = getStudentMergeResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedPen());
+        penMatchResult.getMatchingRecords().get(0).setStudentID(this.studentData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId().toString());
+        when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
+        when(this.restUtils.getMergedStudentIds(any(), any())).thenReturn(List.of(studentMerge));
+        FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
+
+        // Then
+        BigDecimal expectedFte = BigDecimal.ZERO;
+        String expectedFteZeroReason = ZeroFteReasonCodes.ZERO_COURSES.getCode();
 
         assertEquals(expectedFte, result.getFte());
         assertEquals(expectedFteZeroReason, result.getFteZeroReason());
