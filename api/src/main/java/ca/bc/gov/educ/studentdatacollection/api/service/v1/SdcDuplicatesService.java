@@ -347,7 +347,7 @@ public class SdcDuplicatesService {
           generateProgramDuplicates(dups,entity1,entity2,level);
           return dups;
         }
-      }else if (!isTrickle){
+      }else if ((!facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode()) || !facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode())) && !isTrickle){
         addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.ALT_DUP);
       }
     }
