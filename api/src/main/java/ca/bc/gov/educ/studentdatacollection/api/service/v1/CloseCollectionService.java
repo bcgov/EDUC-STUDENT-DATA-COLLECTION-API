@@ -129,7 +129,10 @@ public class CloseCollectionService {
 
     public void startSDCCollection(List<SchoolTombstone> listOfSchoolTombstones, CollectionEntity collectionEntity) {
         var sdcDistrictEntityList = new HashMap<UUID, SdcDistrictCollectionEntity>();
-        var listOfDistricts = listOfSchoolTombstones.stream().map(SchoolTombstone::getDistrictId).distinct().toList();
+        var listOfDistricts = listOfSchoolTombstones.stream()
+                .filter(tomb -> !SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(tomb.getSchoolCategoryCode()))
+                .map(SchoolTombstone::getDistrictId).distinct().toList();
+
         log.debug("Found {} listOfDistricts to open for next collection", listOfDistricts.size());
         //create and save district collection entities
         listOfDistricts.forEach(districtID -> {
