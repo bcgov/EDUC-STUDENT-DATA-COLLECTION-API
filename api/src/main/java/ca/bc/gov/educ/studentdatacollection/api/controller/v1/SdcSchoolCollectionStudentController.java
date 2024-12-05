@@ -137,10 +137,11 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
-    public SdcSchoolCollectionStudentEntity updatePENStatus(String penCode, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+    public SdcSchoolCollectionStudent updatePENStatus(String penCode, SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
         ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
         RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
-        return sdcSchoolCollectionStudentService.updatePENStatus(penCode, mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent));
+        return mapper.toSdcSchoolCollectionStudentWithValidationIssues(
+                sdcSchoolCollectionStudentService.updatePENStatus(penCode, mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
     }
 
     @Override
