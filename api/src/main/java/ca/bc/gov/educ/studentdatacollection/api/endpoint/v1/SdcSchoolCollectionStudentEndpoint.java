@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -83,7 +82,7 @@ public interface SdcSchoolCollectionStudentEndpoint {
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
   @Transactional
   @Tag(name = "Sdc School Collection Student", description = "Endpoints to update PEN status on student entity.")
-  SdcSchoolCollectionStudentEntity updatePENStatus(@PathVariable("penCode") String penCode, @Validated @RequestBody SdcSchoolCollectionStudent sdcSchoolCollectionStudent);
+  SdcSchoolCollectionStudent updatePENStatus(@PathVariable("penCode") String penCode, @Validated @RequestBody SdcSchoolCollectionStudent sdcSchoolCollectionStudent);
 
   @PostMapping("/move-sld")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_SCHOOL_COLLECTION_STUDENT')")

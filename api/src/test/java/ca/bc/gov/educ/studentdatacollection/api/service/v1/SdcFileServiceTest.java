@@ -59,7 +59,7 @@ class SdcFileServiceTest {
         school.setDistrictId(districtID.toString());
         var schoolColl = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
 
-        when(sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(any(UUID.class))).thenReturn(Optional.of(districtCollection));
+        when(sdcDistrictCollectionRepository.findById(any(UUID.class))).thenReturn(Optional.of(districtCollection));
         when(sdcSchoolCollectionRepository.findActiveCollectionBySchoolId(any(UUID.class))).thenReturn(Optional.of(schoolColl));
 
         when(sdcBatchProcessor.processDistrictSdcBatchFile(any(SdcFileUpload.class), anyString())).thenThrow(ObjectOptimisticLockingFailureException.class);

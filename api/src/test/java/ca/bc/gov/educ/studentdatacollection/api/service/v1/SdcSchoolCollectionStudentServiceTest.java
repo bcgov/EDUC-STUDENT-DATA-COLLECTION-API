@@ -9,7 +9,9 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityRulesProcessor;
@@ -313,6 +315,10 @@ class SdcSchoolCollectionStudentServiceTest {
         collectionEntity.setCollectionEntity(collectionEntity1);
         entity.setSdcSchoolCollection(collectionEntity);
 
+        var collection = new CollectionEntity();
+        collection.setCollectionID(UUID.randomUUID());
+        collectionEntity.setCollectionEntity(collection);
+
         final SchoolTombstone school = new SchoolTombstone();
         school.setMincode("12345678");
 
@@ -333,7 +339,9 @@ class SdcSchoolCollectionStudentServiceTest {
         collectionEntity.setSdcSchoolCollectionID(UUID.randomUUID());
         collectionEntity.setSchoolID(UUID.randomUUID());
 
+
         final CollectionEntity collectionEntity1 = new CollectionEntity();
+        collectionEntity1.setCollectionID(UUID.randomUUID());
         collectionEntity1.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
         collectionEntity.setCollectionEntity(collectionEntity1);
         entity.setSdcSchoolCollection(collectionEntity);
@@ -350,7 +358,7 @@ class SdcSchoolCollectionStudentServiceTest {
         sdcSchoolCollectionStudentService.prepareStudentsForDemogUpdate(List.of(entity));
 
         ArgumentCaptor<byte[]> eventCaptor = ArgumentCaptor.forClass(byte[].class);
-        verify(messagePublisher).dispatchMessage(eq(TopicsEnum.UPDATE_STUDENT_DOWNSTREAM_TOPIC.toString()), eventCaptor.capture());
+        verify(messagePublisher).dispatchMessage(eq(TopicsEnum.UPDATE_STUDENT_STATUS_TOPIC.toString()), eventCaptor.capture());
 
         final String eventString = new String(eventCaptor.getValue());
         final Event publishedEvent = JsonUtil.getJsonObjectFromString(Event.class, eventString);

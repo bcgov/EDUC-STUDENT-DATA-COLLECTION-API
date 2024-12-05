@@ -36,6 +36,13 @@ public class AsyncConfiguration {
             .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
   }
 
+  @Bean(name = "deleteMigrateStudentsTaskExecutor")
+  public Executor processDeleteMigrateStudentsTaskExecutor() {
+    return new EnhancedQueueExecutor.Builder()
+            .setThreadFactory(new ThreadFactoryBuilder().withNameFormat("async-delete-migrate-stud-executor-%d").get())
+            .setCorePoolSize(5).setMaximumPoolSize(10).setKeepAliveTime(Duration.ofSeconds(60)).build();
+  }
+
   @Bean(name = "processLoadedStudentsTaskExecutor")
   public Executor processLoadedStudentsTaskExecutor() {
     return new EnhancedQueueExecutor.Builder()

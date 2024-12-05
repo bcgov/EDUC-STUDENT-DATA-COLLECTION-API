@@ -116,17 +116,6 @@ public class CodeTableAPIController implements CodeTableAPIEndpoint {
     }
 
     @Override
-    public List<DuplicateResolutionCode> getDuplicateResolutionCodes() {
-        return  Arrays.stream(ca.bc.gov.educ.studentdatacollection.api.constants.v1.DuplicateResolutionCode.values()).map(code -> {
-            DuplicateResolutionCode issue = new DuplicateResolutionCode();
-            issue.setDuplicateResolutionCode(code.getCode());
-            issue.setMessage(code.getMessage());
-            return issue;
-        })
-        .toList();
-    }
-
-    @Override
     public List<SdcSchoolCollectionStatusCode> getSdcSchoolCollectionStatusCodes() {
         return codeTableService.getSdcSchoolCollectionStatusCodesList().stream().map(mapper::toStructure).toList();
     }

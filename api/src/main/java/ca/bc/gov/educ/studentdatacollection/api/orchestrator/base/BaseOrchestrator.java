@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.SagaService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.NotificationEvent;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -355,11 +356,11 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
    * @param nextEvent the next event object.
    */
   protected void postMessageToTopic(final String topicName, final Event nextEvent) {
-    final var eventStringOptional = JsonUtil.getJsonString(nextEvent);
-    if (eventStringOptional.isPresent()) {
-      this.getMessagePublisher().dispatchMessage(topicName, eventStringOptional.get().getBytes());
-    } else {
-      log.error("event string is not present for  :: {} :: this should not have happened", nextEvent);
+    try {
+      final var eventString = JsonUtil.getJsonString(nextEvent);
+      this.getMessagePublisher().dispatchMessage(topicName, eventString.getBytes());
+    }catch (JsonProcessingException e) {
+      log.error("Event string is not present for  :: {} :: this should not have happened", nextEvent);
     }
   }
 

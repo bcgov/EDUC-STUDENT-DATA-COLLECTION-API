@@ -796,7 +796,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setUpdateDate(null);
         entity.setCreateDate(null);
         entity.setPostalCode(null);
-        sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
                         post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
@@ -2263,22 +2262,22 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("1")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[1].title", equalTo("B - Deafblind")))
-                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[1].columns.['Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[1].columns.['Eligible'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[2].title", equalTo("C - Moderate to Profound Intellectual Disability")))
-                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Reported'].comparisonValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[2].columns.['Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[2].columns.['Eligible'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[3].title", equalTo("D - Physical Disability or Chronic Health Impairment")))
                 .andExpect(jsonPath("$.headcountHeaders[3].columns.['Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[3].columns.['Eligible'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[4].title", equalTo("E - Visual Impairment")))
-                .andExpect(jsonPath("$.headcountHeaders[4].columns.['Reported'].comparisonValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[4].columns.['Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[4].columns.['Eligible'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[5].title", equalTo("F - Deaf or Hard of Hearing")))
                 .andExpect(jsonPath("$.headcountHeaders[5].columns.['Eligible'].currentValue", equalTo("1")))
                 .andExpect(jsonPath("$.headcountHeaders[5].columns.['Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[6].title", equalTo("G - Autism Spectrum Disorder")))
-                .andExpect(jsonPath("$.headcountHeaders[6].columns.['Reported'].comparisonValue", equalTo("1")))
+                .andExpect(jsonPath("$.headcountHeaders[6].columns.['Reported'].comparisonValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[6].columns.['Eligible'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[7].title", equalTo("H - Intensive Behaviour Interventions or Serious Mental Illness")))
                 .andExpect(jsonPath("$.headcountHeaders[7].columns.['Reported'].comparisonValue", equalTo("0")))
@@ -2452,7 +2451,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setBandCode("0600");
         entity.setIsSchoolAged(true);
         entity.setIsAdult(false);
-        sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
                         post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)

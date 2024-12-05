@@ -118,6 +118,7 @@ public class SdcDistrictCollectionService {
     }
     List<MonitorSdcSchoolCollectionQueryResponse> monitorSdcSchoolCollectionQueryResponses = sdcSchoolCollectionRepository.findAllSdcSchoolCollectionMonitoringBySdcDistrictCollectionId(sdcDistrictCollectionId);
     List<MonitorSdcSchoolCollection> monitorSdcSchoolCollections = new ArrayList<>();
+
     monitorSdcSchoolCollectionQueryResponses.forEach(monitorSdcSchoolCollectionQueryResponse -> {
       SchoolTombstone schoolTombstone = this.restUtils.getSchoolBySchoolID(monitorSdcSchoolCollectionQueryResponse.getSchoolId().toString()).orElseThrow(() -> new StudentDataCollectionAPIRuntimeException("SdcSchoolCollection :: " + monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionId() + " has invalid schoolId :: " + monitorSdcSchoolCollectionQueryResponse.getSchoolId()));
       MonitorSdcSchoolCollection monitorSdcSchoolCollection = new MonitorSdcSchoolCollection();
@@ -132,10 +133,12 @@ public class SdcDistrictCollectionService {
       monitorSdcSchoolCollection.setFundingWarnings(monitorSdcSchoolCollectionQueryResponse.getFundingWarnings());
 
       monitorSdcSchoolCollection.setSchoolStatus(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode());
-      monitorSdcSchoolCollection.setSubmittedToDistrict(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode()));
+      monitorSdcSchoolCollection.setSubmittedToDistrict(isStatusConfirmed(monitorSdcSchoolCollectionQueryResponse.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.SUBMITTED.getCode(), SdcSchoolCollectionStatus.P_DUP_POST.getCode(), SdcSchoolCollectionStatus.P_DUP_VRFD.getCode(), SdcSchoolCollectionStatus.COMPLETED.getCode()));
 
       monitorSdcSchoolCollections.add(monitorSdcSchoolCollection);
     });
+
+
     MonitorSdcSchoolCollectionsResponse response = new MonitorSdcSchoolCollectionsResponse();
     response.setMonitorSdcSchoolCollections(monitorSdcSchoolCollections);
 

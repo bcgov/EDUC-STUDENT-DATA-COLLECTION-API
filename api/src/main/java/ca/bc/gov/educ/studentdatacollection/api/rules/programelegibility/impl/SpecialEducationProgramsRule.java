@@ -46,7 +46,7 @@ public class SpecialEducationProgramsRule implements ProgramEligibilityBaseRule 
     List<String> activeSpecialEdPrograms = validationRulesService.getActiveSpecialEducationCategoryCodes().stream().map(SpecialEducationCategoryCode::getSpecialEducationCategoryCode).toList();
 
     Boolean isSchoolAged = student.getIsSchoolAged();
-    Boolean isGraduated = student.getIsGraduated();
+    boolean isGraduated = student.getIsGraduated() != null && student.getIsGraduated();
     Boolean isAdult = student.getIsAdult();
     Boolean isGA = SchoolGradeCodes.GRADUATED_ADULT.getCode().equals(student.getEnrolledGradeCode());
 

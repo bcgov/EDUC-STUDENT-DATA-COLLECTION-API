@@ -222,7 +222,7 @@ public abstract class BaseStudentDataCollectionAPITest {
             .schoolCategoryCode("PUBLIC")
             .facilityTypeCode("STANDARD")
             .schoolReportingRequirementCode("REGULAR")
-            .openedDate("2018-07-01 00:00:00.000")
+            .openedDate("2022-07-03T00:00:00")
             .closedDate(null)
             .build();
   }
@@ -250,6 +250,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setEnrolledProgramCodes("");
     sdcEntity.setCareerProgramCode("");
     sdcEntity.setNumberOfCourses("0400");
+    sdcEntity.setNumberOfCoursesDec(new BigDecimal((4.00)));
     sdcEntity.setBandCode("0500");
     sdcEntity.setPostalCode("V0V0V0");
     sdcEntity.setSdcSchoolCollectionStudentStatusCode("LOADED");
@@ -324,6 +325,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setEnrolledProgramCodes("PROG001,PROG002");
     sdcEntity.setCareerProgramCode("CAREER001");
     sdcEntity.setNumberOfCourses("6");
+    sdcEntity.setNumberOfCoursesDec(new BigDecimal(6.00));
     sdcEntity.setBandCode("");
     sdcEntity.setPostalCode("V6G 1A1");
     sdcEntity.setSdcSchoolCollectionStudentStatusCode("ACTIVE");

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.Optional;
 
 /**
  * The type Json util.
@@ -75,12 +74,12 @@ public class JsonUtil {
    * @param payload the payload
    * @return the optional
    */
-  public static Optional<String> getJsonString(Object payload){
-    try{
-      return Optional.ofNullable(mapper.writeValueAsString(payload));
-    }catch (final Exception ex){
-      log.error("Exception while converting object to JSON String :: {}", payload);
+  public static String getJsonString(Object payload) throws JsonProcessingException {
+    try {
+      return mapper.writeValueAsString(payload);
+    }catch(JsonProcessingException e){
+      log.error("Error writing JSON as String :: {}", e);
+      throw e;
     }
-    return Optional.empty();
   }
 }

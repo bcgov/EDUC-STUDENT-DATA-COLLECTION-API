@@ -31,28 +31,28 @@ public class SdcSchoolCollectionStudentPaginationRepositoryLightImpl implements 
 
         query.where(spec.toPredicate(root, query, cb));
 
-        if (pageable.getSort().isSorted()) {
-            query.orderBy(pageable.getSort().stream()
-                    .map(order -> {
-                        if (order.getProperty().equals("sdcSchoolCollection")) {
-                            Join<Object, Object> schoolCollectionJoin = root.join("sdcSchoolCollection");
-                            return order.isAscending() ? cb.asc(schoolCollectionJoin.get("sdcSchoolCollectionID"))
-                                    : cb.desc(schoolCollectionJoin.get("sdcSchoolCollectionID"));
-                        } else {
-                            return order.isAscending() ? cb.asc(root.get(order.getProperty()))
-                                    : cb.desc(root.get(order.getProperty()));
-                        }
-                    })
-                    .toList());
-        }
+//        if (pageable.getSort().isSorted()) {
+//            query.orderBy(pageable.getSort().stream()
+//                    .map(order -> {
+//                        if (order.getProperty().equals("sdcSchoolCollection")) {
+//                            Join<Object, Object> schoolCollectionJoin = root.join("sdcSchoolCollection");
+//                            return order.isAscending() ? cb.asc(schoolCollectionJoin.get("sdcSchoolCollectionID"))
+//                                    : cb.desc(schoolCollectionJoin.get("sdcSchoolCollectionID"));
+//                        } else {
+//                            return order.isAscending() ? cb.asc(root.get(order.getProperty()))
+//                                    : cb.desc(root.get(order.getProperty()));
+//                        }
+//                    })
+//                    .toList());
+//        }
 
         TypedQuery<SdcSchoolCollectionStudentPaginationEntity> typedQuery = entityManager.createQuery(query);
-        typedQuery.setFirstResult((int) pageable.getOffset());
-        typedQuery.setMaxResults(pageable.getPageSize());
+        typedQuery.setFirstResult(pageable.getPageNumber() > 0 ? (int) pageable.getOffset() : 0);
+        typedQuery.setMaxResults(pageable.getPageSize() + 1);
 
         List<SdcSchoolCollectionStudentPaginationEntity> content = typedQuery.getResultList();
-        boolean hasNext = content.size() == pageable.getPageSize();
+        boolean hasNext = pageable.isPaged() && content.size() > pageable.getPageSize();
 
-        return new SliceImpl<>(content, pageable, hasNext);
+        return new SliceImpl<>(hasNext ? content.subList(0, pageable.getPageSize()) : content, pageable, hasNext);
     }
 }

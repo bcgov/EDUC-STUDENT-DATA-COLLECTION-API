@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -149,12 +150,14 @@ public class HeadcountHelper<T extends HeadcountResult> {
     return collection.map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).orElse(null);
   }
 
-  // this gets the previous July collection ID if collection type is July, else it gets previous September collection ID
+  // this gets the previous July collection ID if collection type is July, else it gets previous September collection ID,
+  // previous relative to sdcDistrictCollectionEntity snapshot date
   public UUID getPreviousCollectionIDByDistrictCollectionID(SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
     Optional<SdcDistrictCollectionEntity> collection;
     String collectionType = sdcDistrictCollectionEntity.getCollectionEntity().getCollectionTypeCode();
-    if (collectionType.equals(CollectionTypeCodes.JULY.getTypeCode())) collection = sdcDistrictCollectionRepository.findLastCollectionByType(sdcDistrictCollectionEntity.getDistrictID(), collectionType, sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
-    else collection = sdcDistrictCollectionRepository.findLastCollectionByType(sdcDistrictCollectionEntity.getDistrictID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+    LocalDate currentSnapshotDate = sdcDistrictCollectionEntity.getCollectionEntity().getSnapshotDate();
+    if (collectionType.equals(CollectionTypeCodes.JULY.getTypeCode())) collection = sdcDistrictCollectionRepository.findLastCollectionByType(sdcDistrictCollectionEntity.getDistrictID(), collectionType, sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), currentSnapshotDate);
+    else collection = sdcDistrictCollectionRepository.findLastCollectionByType(sdcDistrictCollectionEntity.getDistrictID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), currentSnapshotDate);
     return collection.map(SdcDistrictCollectionEntity::getSdcDistrictCollectionID).orElse(null);
   }
 

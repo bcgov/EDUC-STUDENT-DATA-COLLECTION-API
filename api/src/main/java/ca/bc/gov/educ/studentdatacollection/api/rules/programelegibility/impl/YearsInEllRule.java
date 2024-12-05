@@ -48,8 +48,10 @@ public class YearsInEllRule implements ProgramEligibilityBaseRule {
       errors.add(ProgramEligibilityIssueCode.NOT_ENROLLED_ELL);
     }
 
-    //Ensure that PEN Match has been run for the student.
-    validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
+    if(!studentRuleData.isMigratedStudent()) {
+      //Ensure that PEN Match has been run for the student.
+      validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
+    }
 
     var totalYearsInEll = student.getYearsInEll() != null ? student.getYearsInEll(): 0;
 

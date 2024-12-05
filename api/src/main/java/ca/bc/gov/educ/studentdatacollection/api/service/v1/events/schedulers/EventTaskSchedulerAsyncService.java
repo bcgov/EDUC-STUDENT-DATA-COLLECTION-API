@@ -3,19 +3,19 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1.events.schedulers;
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.LogHelper;
+import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.Orchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.properties.EmailProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.ScheduleHandlerService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionHistoryService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.SdcStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionsForAutoSubmit;
 import lombok.Getter;
@@ -23,6 +23,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,14 @@ public class EventTaskSchedulerAsyncService {
   private final EmailProperties emailProperties;
 
   private final ScheduleHandlerService scheduleHandlerService;
+
+  private final CollectionCodeCriteriaRepository collectionCodeCriteriaRepository;
+
+  private final CollectionTypeCodeRepository collectionTypeCodeRepository;
+
+  private final CloseCollectionService closeCollectionService;
+
+  private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
 
   @Getter(PRIVATE)
   private final SagaRepository sagaRepository;
@@ -82,9 +91,12 @@ public class EventTaskSchedulerAsyncService {
   private final SdcSchoolCollectionLightRepository sdcSchoolCollectionLightRepository;
   private final SdcSchoolCollectionService sdcSchoolCollectionService;
 
-  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, EmailProperties emailProperties, ScheduleHandlerService scheduleHandlerService, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, RestUtils restUtils, CollectionRepository collectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionLightRepository sdcSchoolCollectionLightRepository, SdcSchoolCollectionService sdcSchoolCollectionService) {
+  public EventTaskSchedulerAsyncService(final List<Orchestrator> orchestrators, EmailProperties emailProperties, ScheduleHandlerService scheduleHandlerService, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CloseCollectionService closeCollectionService, final SagaRepository sagaRepository, final SdcSchoolCollectionStudentRepository sdcSchoolStudentRepository, SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, RestUtils restUtils, CollectionRepository collectionRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionLightRepository sdcSchoolCollectionLightRepository, SdcSchoolCollectionService sdcSchoolCollectionService, SdcDistrictCollectionRepository sdcDistrictCollectionRepository) {
     this.emailProperties = emailProperties;
     this.scheduleHandlerService = scheduleHandlerService;
+    this.collectionCodeCriteriaRepository = collectionCodeCriteriaRepository;
+    this.collectionTypeCodeRepository = collectionTypeCodeRepository;
+    this.closeCollectionService = closeCollectionService;
     this.sagaRepository = sagaRepository;
     this.sdcSchoolStudentRepository = sdcSchoolStudentRepository;
     this.sdcSchoolCollectionStudentService = sdcSchoolCollectionStudentService;
@@ -93,6 +105,7 @@ public class EventTaskSchedulerAsyncService {
     this.sdcSchoolCollectionLightRepository = sdcSchoolCollectionLightRepository;
     this.sdcSchoolCollectionService = sdcSchoolCollectionService;
     this.collectionRepository = collectionRepository;
+    this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
     this.restUtils = restUtils;
     orchestrators.forEach(orchestrator -> this.sagaOrchestrators.put(orchestrator.getSagaName(), orchestrator));
   }
@@ -122,6 +135,39 @@ public class EventTaskSchedulerAsyncService {
           log.error("Exception while findAndProcessPendingSagaEvents :: for saga :: {} :: {}", saga, e);
         }
       }
+    }
+  }
+
+  @Async("deleteMigrateStudentsTaskExecutor")
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void deleteMigrateStudentSagaRecordsForProcessing() {
+    log.debug("Deleting migrated student SAGAs");
+
+    sagaRepository.deleteCompletedMigrationSagas();
+  }
+
+  @Async("processLoadedStudentsTaskExecutor")
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void findAndPublishMigratedStudentRecordsForProcessing() {
+    log.debug("Querying for migrated students to process");
+    if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 400) { // at max there will be 100 parallel sagas.
+      log.debug("Saga count is greater than 100, so not processing student records");
+      return;
+    }
+
+    final var sdcSchoolStudentEntities = this.getSdcSchoolStudentRepository().findTopMigratedStudentForProcessing(Integer.parseInt(numberOfStudentsToProcess));
+    log.debug("Found :: {}  records in migrated status", sdcSchoolStudentEntities.size());
+    final List<SdcStudentSagaData> sdcStudentSagaDatas = sdcSchoolStudentEntities.stream()
+            .map(el -> {
+              val sdcStudentSagaData = new SdcStudentSagaData();
+              var school = this.restUtils.getSchoolBySchoolID(el.getSdcSchoolCollection().getSchoolID().toString());
+              sdcStudentSagaData.setCollectionTypeCode(el.getSdcSchoolCollection().getCollectionEntity().getCollectionTypeCode());
+              sdcStudentSagaData.setSchool(school.get());
+              sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(el));
+              return sdcStudentSagaData;
+            }).toList();
+    if (!sdcSchoolStudentEntities.isEmpty()) {
+      this.getSdcSchoolCollectionStudentService().prepareAndSendMigratedSdcStudentsForFurtherProcessing(sdcStudentSagaDatas);
     }
   }
 
@@ -198,12 +244,15 @@ public class EventTaskSchedulerAsyncService {
       return;
     }
 
-    restUtils.populateSchoolMap();
-    final List<SchoolTombstone> schoolTombstones = restUtils.getSchools();
+    Optional<CollectionTypeCodeEntity> optionalCollectionTypeCodeEntity = this.collectionTypeCodeRepository.findByCollectionTypeCode(activeCollection.getCollectionTypeCode());
+    CollectionTypeCodeEntity collectionTypeCodeEntity = optionalCollectionTypeCodeEntity.orElseThrow(() -> new EntityNotFoundException(CollectionTypeCodeEntity.class, "collectionTypeCode", activeCollection.getCollectionTypeCode()));
+    List<CollectionCodeCriteriaEntity> collectionCodeCriteria = this.collectionCodeCriteriaRepository.findAllByCollectionTypeCodeEntityEquals(collectionTypeCodeEntity);
+    final List<SchoolTombstone> schoolTombstones = closeCollectionService.getListOfSchoolIDsFromCriteria(collectionCodeCriteria);
+
     final List<SdcSchoolCollectionEntity> activeSchoolCollections = sdcSchoolCollectionRepository.findAllByCollectionEntityCollectionID(activeCollection.getCollectionID());
 
     List<SdcSchoolCollectionEntity> newSchoolCollections = findAddSchoolsAndUpdateSdcSchoolCollection(schoolTombstones, activeCollection, activeSchoolCollections);
-    List<SdcSchoolCollectionEntity> closedSchoolCollections = findClosedSchoolsAndDeleteSdcCollection(schoolTombstones, activeSchoolCollections);
+    List<SdcSchoolCollectionEntity> closedSchoolCollections = findClosedSchoolsAndDeleteSdcSchoolCollection(schoolTombstones, activeSchoolCollections);
 
     if (CollectionUtils.isNotEmpty(newSchoolCollections)) {
       newSchoolCollections.stream().forEach(sdcSchoolCollectionEntity -> sdcSchoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser())));
@@ -220,12 +269,25 @@ public class EventTaskSchedulerAsyncService {
 
     return schoolTombstones.stream()
             .filter(tombstone -> !existingSchoolIds.contains(UUID.fromString(tombstone.getSchoolId())))
-            .filter(tombstone -> tombstone.getClosedDate() == null
-                    && LocalDateTime.parse(tombstone.getOpenedDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")).isBefore(LocalDateTime.now()))
+            .filter(tombstone -> StringUtils.isBlank(tombstone.getClosedDate())
+                    && StringUtils.isNotBlank(tombstone.getOpenedDate())
+                    && LocalDateTime.parse(tombstone.getOpenedDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME).isBefore(LocalDateTime.now()))
             .map(tombstone -> {
               SdcSchoolCollectionEntity newEntity = new SdcSchoolCollectionEntity();
               newEntity.setCollectionEntity(activeCollection);
               newEntity.setSchoolID(UUID.fromString(tombstone.getSchoolId()));
+              if(!SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(tombstone.getSchoolCategoryCode())) {
+                newEntity.setSdcDistrictCollectionID(
+                  sdcDistrictCollectionRepository
+                    .findByDistrictIDAndCollectionEntityCollectionID(
+                      UUID.fromString(tombstone.getDistrictId()),
+                      activeCollection.getCollectionID()
+                    )
+                    .map(SdcDistrictCollectionEntity::getSdcDistrictCollectionID)
+                    .orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionEntity", tombstone.getDistrictId()))
+                );
+              }
+              newEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
               newEntity.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
               newEntity.setCreateDate(LocalDateTime.now());
               newEntity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
@@ -236,10 +298,10 @@ public class EventTaskSchedulerAsyncService {
   }
 
 
-  private List<SdcSchoolCollectionEntity> findClosedSchoolsAndDeleteSdcCollection(List<SchoolTombstone> schoolTombstones, List<SdcSchoolCollectionEntity> activeSchoolCollections) {
+  private List<SdcSchoolCollectionEntity> findClosedSchoolsAndDeleteSdcSchoolCollection(List<SchoolTombstone> schoolTombstones, List<SdcSchoolCollectionEntity> activeSchoolCollections) {
     Set<UUID> closedSchoolIds = schoolTombstones.stream()
-            .filter(tombstone -> tombstone.getClosedDate() != null
-                    && LocalDateTime.parse(tombstone.getClosedDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")).isBefore(LocalDateTime.now()))
+            .filter(tombstone -> StringUtils.isNotBlank(tombstone.getClosedDate())
+                    && LocalDateTime.parse(tombstone.getClosedDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME).isBefore(LocalDateTime.now()))
             .map(SchoolTombstone::getSchoolId)
             .map(UUID::fromString).collect(Collectors.toSet());
 

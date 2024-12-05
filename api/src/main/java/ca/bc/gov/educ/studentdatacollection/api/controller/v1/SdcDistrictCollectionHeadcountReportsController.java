@@ -22,7 +22,7 @@ public class SdcDistrictCollectionHeadcountReportsController implements SdcDistr
     private final SdcDistrictCollectionHeadcountService sdcDistrictCollectionHeadcountService;
     @Override
     public SdcSchoolCollectionStudentHeadcounts getSdcSchoolCollectionStudentHeadcounts(UUID sdcDistrictCollectionID, String type, boolean compare) {
-        var sdcDistrictCollectionEntity = sdcDistrictCollectionRepository.findBySdcDistrictCollectionID(sdcDistrictCollectionID).orElseThrow(() ->
+        var sdcDistrictCollectionEntity = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID).orElseThrow(() ->
                 new EntityNotFoundException(SdcSchoolCollectionStudent.class, "sdcDistrictCollectionID", sdcDistrictCollectionID.toString()));
         if (HeadcountReportTypeCodes.ENROLLMENT.getCode().equals(type)) {
             return sdcDistrictCollectionHeadcountService.getEnrollmentHeadcounts(sdcDistrictCollectionEntity, compare);

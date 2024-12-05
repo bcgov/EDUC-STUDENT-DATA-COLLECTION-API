@@ -90,7 +90,7 @@ public class CloseCollectionService {
 
         // get next collection type code to open
         Optional<CollectionTypeCodes> optionalCollectionMap = CollectionTypeCodes.findByValue(entity.getCollectionTypeCode());
-        CollectionTypeCodes collectionMap= optionalCollectionMap.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));
+        CollectionTypeCodes collectionMap = optionalCollectionMap.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));
         log.debug("Next collection to open: {}", collectionMap.getNextCollectionToOpen());
 
         // get next collection entity
@@ -129,7 +129,10 @@ public class CloseCollectionService {
 
     public void startSDCCollection(List<SchoolTombstone> listOfSchoolTombstones, CollectionEntity collectionEntity) {
         var sdcDistrictEntityList = new HashMap<UUID, SdcDistrictCollectionEntity>();
-        var listOfDistricts = listOfSchoolTombstones.stream().map(SchoolTombstone::getDistrictId).distinct().toList();
+        var listOfDistricts = listOfSchoolTombstones.stream()
+                .filter(tomb -> !SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(tomb.getSchoolCategoryCode()))
+                .map(SchoolTombstone::getDistrictId).distinct().toList();
+
         log.debug("Found {} listOfDistricts to open for next collection", listOfDistricts.size());
         //create and save district collection entities
         listOfDistricts.forEach(districtID -> {
@@ -185,7 +188,7 @@ public class CloseCollectionService {
         sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(studentEntity);
     }
 
-    private List<SchoolTombstone> getListOfSchoolIDsFromCriteria(List<CollectionCodeCriteriaEntity> collectionCodeCriteria) {
+    public List<SchoolTombstone> getListOfSchoolIDsFromCriteria(List<CollectionCodeCriteriaEntity> collectionCodeCriteria) {
         List<SchoolTombstone> listOfSchoolIDs = new ArrayList<>();
         if(!collectionCodeCriteria.isEmpty()) {
             listOfSchoolIDs = this.restUtils.getSchoolListGivenCriteria(collectionCodeCriteria, UUID.randomUUID());

@@ -6,7 +6,6 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SagaEventStatesEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.base.BaseOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -29,9 +28,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.SDC_STUDENT_STATUS_UPDATED;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.STUDENT_UPDATED;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.NO_STUDENT_UPDATE_NEEDED;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.EventOutcome.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.UPDATE_SDC_STUDENT_STATUS;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.EventType.UPDATE_STUDENT;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum.UPDATE_STUDENT_DOWNSTREAM_SAGA;
@@ -60,7 +57,6 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
                 .begin(UPDATE_STUDENT, this::updateStudent)
                 .step(UPDATE_STUDENT, STUDENT_UPDATED, UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
                 .step(UPDATE_STUDENT, NO_STUDENT_UPDATE_NEEDED, UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
-                .begin(UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
                 .end(UPDATE_SDC_STUDENT_STATUS, SDC_STUDENT_STATUS_UPDATED);
     }
 
@@ -71,7 +67,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
         final Student studentDataFromEventResponse = this.restUtils.getStudentByPEN(UUID.randomUUID(), updateStudentSagaData.getAssignedPEN());
-        final List<SdcSchoolCollectionStudentEntity> otherStudentsWithSameAssignedID = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(updateStudentSagaData.getCollectionID(), Collections.singletonList(updateStudentSagaData.getAssignedStudentID()));
+        final List<SdcSchoolCollectionStudentEntity> otherStudentsWithSameAssignedID = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(UUID.fromString(updateStudentSagaData.getCollectionID()), Collections.singletonList(UUID.fromString(updateStudentSagaData.getAssignedStudentID())));
 
         if (otherStudentsWithSameAssignedID.isEmpty() || isStudentAttendingSchoolOfRecord(updateStudentSagaData, otherStudentsWithSameAssignedID)){
 

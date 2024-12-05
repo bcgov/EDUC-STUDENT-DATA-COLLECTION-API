@@ -22,6 +22,5 @@ public class MonitorSdcDistrictCollection implements Serializable {
   String districtTitle;
   String sdcDistrictCollectionStatusCode;
   String numSubmittedSchools;
-  long unresolvedProgramDuplicates;
-  long unresolvedEnrollmentDuplicates;
+  long unresolvedDuplicates;
 }

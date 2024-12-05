@@ -21,4 +21,5 @@ public class StudentRuleData {
   private SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity;
   private SchoolTombstone school;
   private List<UUID> historicStudentIds;
+  private boolean isMigratedStudent;
 }
