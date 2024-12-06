@@ -352,7 +352,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     assertThat(sdcDuplicates.get(0).getDuplicateLevelCode()).isEqualTo(DuplicateLevelCode.IN_DIST.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateTypeCode()).isEqualTo(DuplicateTypeCode.ENROLLMENT.getCode());
     assertThat(sdcDuplicates.get(0).getDuplicateSeverityCode()).isEqualTo(DuplicateSeverityCode.NON_ALLOWABLE.getCode());
-    assertThat(sdcDuplicates.get(0).getDuplicateErrorDescriptionCode()).isEqualTo(DuplicateErrorDescriptionCode.ALT_DUP.getMessage());
+    assertThat(sdcDuplicates.get(0).getDuplicateErrorDescriptionCode()).isEqualTo(DuplicateErrorDescriptionCode.NON_ALT_DUP.getMessage());
   }
 
   @Test
