@@ -14,7 +14,7 @@ public interface SdcSchoolCollectionHistoryRepository extends JpaRepository<SdcS
 
     @Modifying
     @Query(value = """
-           UPDATE SDC_SCHOOL_COLLECTION
+           UPDATE SDC_SCHOOL_COLLECTION_HISTORY
            SET SDC_SCHOOL_COLLECTION_STATUS_CODE = :schoolStatus, update_user = 'STUDENT_DATA_COLLECTION_API', update_date = CURRENT_TIMESTAMP
            WHERE sdc_school_collection_id IN 
            (:sdcSchoolCollectionID)
