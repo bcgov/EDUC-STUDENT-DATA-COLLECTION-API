@@ -352,7 +352,7 @@ public class SdcDuplicatesService {
         }else{
           generateProgramDuplicates(dups,entity1,entity2,level);
         }
-      } else if ((!facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode()) || !facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode())) && !isTrickle){
+      } else if ((!facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode()) && !facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode())) && !isTrickle){
         addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.ALT_DUP);
       } else {
         generateProgramDuplicates(dups,entity1,entity2,level);
