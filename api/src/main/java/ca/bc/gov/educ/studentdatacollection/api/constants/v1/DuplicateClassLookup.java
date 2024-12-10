@@ -1,7 +1,10 @@
 package ca.bc.gov.educ.studentdatacollection.api.constants.v1;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Arrays;
 
+@Slf4j
 public enum DuplicateClassLookup {
 
     ENTRY1(new String[]{FacilityTypeCodes.ALT_PROGS.getCode()},
@@ -60,6 +63,7 @@ public enum DuplicateClassLookup {
     }
 
     public static DuplicateClassLookup getClassNumber(String facilityTypeCode, String schoolCategoryCode, String gradeCode){
+        log.info("Calling for class value. Facility Type: {}, School Category: {}, Grade: {}", facilityTypeCode, schoolCategoryCode, gradeCode);
         return Arrays.stream(values())
                 .filter(e -> Arrays.asList(e.facilityCodes).contains(facilityTypeCode) && Arrays.asList(e.schoolCategoryCodes).contains(schoolCategoryCode) && Arrays.asList(e.gradeCodes).contains(gradeCode))
                 .findFirst().orElse(null);
