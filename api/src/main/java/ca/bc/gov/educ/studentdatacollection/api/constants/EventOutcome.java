@@ -5,6 +5,7 @@ package ca.bc.gov.educ.studentdatacollection.api.constants;
  */
 public enum EventOutcome {
   STUDENT_PROCESSED,
+  DUPLICATES_POSTED,
   STUDENT_MIGRATION_PROCESSED,
   EMAIL_SENT,
   PEN_MATCH_PROCESSED,
