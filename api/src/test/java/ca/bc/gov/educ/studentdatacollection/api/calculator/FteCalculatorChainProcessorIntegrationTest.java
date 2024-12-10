@@ -231,7 +231,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     @Test
     void testProcessFteCalculator_NoCoursesZeroAdult() {
         // Given
-        this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
+        this.studentData.getSchool().setFacilityTypeCode("STANDARD");
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0000");
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCoursesDec(new BigDecimal(0.00));
         this.studentData.getSdcSchoolCollectionStudentEntity().setIsAdult(true);
@@ -268,7 +268,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
     @Test
     void testProcessFteCalculator_NoCoursesZeroSchoolAged() {
         // Given
-        this.studentData.getSchool().setFacilityTypeCode("DIST_LEARN");
+        this.studentData.getSchool().setFacilityTypeCode("STANDARD");
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("0000");
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCoursesDec(new BigDecimal(0.00));
         this.studentData.getSdcSchoolCollectionStudentEntity().setIsSchoolAged(true);
