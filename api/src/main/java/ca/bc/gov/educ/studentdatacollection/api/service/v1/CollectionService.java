@@ -42,8 +42,8 @@ public class CollectionService {
     this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
-      this.sdcDuplicatesService = sdcDuplicatesService;
-      this.restUtils = restUtils;
+    this.sdcDuplicatesService = sdcDuplicatesService;
+    this.restUtils = restUtils;
   }
 
   public Optional<CollectionEntity> getCollection(UUID collectionID) {
