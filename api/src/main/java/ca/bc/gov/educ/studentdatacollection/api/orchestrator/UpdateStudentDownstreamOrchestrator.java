@@ -102,45 +102,35 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
     public boolean isStudentAttendingSchoolOfRecord(UpdateStudentSagaData currStudent, List<SdcSchoolCollectionStudentEntity> otherStudents){
         Float maxCourseNumberFromOtherStudents = getMaxCourseNumber(otherStudents);
 
-        if(currStudent.getNumberOfCourses() != null && Float.parseFloat(currStudent.getNumberOfCourses()) > maxCourseNumberFromOtherStudents){
-            return true;
-        } else if((currStudent.getNumberOfCourses() == null && maxCourseNumberFromOtherStudents > 0) ||
-                (currStudent.getNumberOfCourses() != null && Float.parseFloat(currStudent.getNumberOfCourses()) < maxCourseNumberFromOtherStudents)){
-            return false;
-        } else {
-            Optional<SchoolTombstone> currStudentSchoolTombstone = restUtils.getSchoolByMincode(currStudent.getMincode());
-            SchoolTombstone currStudentSchool = currStudentSchoolTombstone.orElseThrow(() ->
+        Optional<SchoolTombstone> currStudentSchoolTombstone = restUtils.getSchoolByMincode(currStudent.getMincode());
+        SchoolTombstone currStudentSchool = currStudentSchoolTombstone.orElseThrow(() ->
                 new EntityNotFoundException(SchoolTombstone.class, "SchoolTombstone", currStudent.getMincode()));
 
-            List<Optional<SchoolTombstone>> otherStudentSchoolTombstones = retrieveSchoolTombstones(maxCourseNumberFromOtherStudents, otherStudents);
+        List<Optional<SchoolTombstone>> otherStudentSchoolTombstones = retrieveSchoolTombstones(maxCourseNumberFromOtherStudents, otherStudents);
+        boolean isSameSchoolCategory  = otherStudentSchoolTombstones.stream().flatMap(Optional::stream).allMatch(school -> school.getSchoolCategoryCode().equalsIgnoreCase(currStudentSchool.getSchoolCategoryCode()));
+        boolean isSameFacilityType  = otherStudentSchoolTombstones.stream().flatMap(Optional::stream).allMatch(school -> school.getFacilityTypeCode().equalsIgnoreCase(currStudentSchool.getFacilityTypeCode()));
 
-            boolean otherSchoolsIncludePublic = otherStudentSchoolTombstones.stream().flatMap(Optional::stream).anyMatch(tombstone -> SchoolCategoryCodes.PUBLIC.getCode().equals(tombstone.getSchoolCategoryCode()));
+        boolean otherSchoolsIncludePublic = otherStudentSchoolTombstones.stream().flatMap(Optional::stream).anyMatch(tombstone -> SchoolCategoryCodes.PUBLIC.getCode().equals(tombstone.getSchoolCategoryCode()));
+        boolean otherSchoolsIncludeStandard = otherStudentSchoolTombstones.stream().flatMap(Optional::stream).anyMatch(tombstone -> FacilityTypeCodes.STANDARD.getCode().equals(tombstone.getFacilityTypeCode()));
 
-            if(currStudentSchool.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode()) && !otherSchoolsIncludePublic){
-                return true;
-            } else if (!currStudentSchool.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode()) && otherSchoolsIncludePublic) {
-                return false;
-            } else {
-                otherStudentSchoolTombstones.removeIf(sch -> !Objects.equals(sch.get().getSchoolCategoryCode(), SchoolCategoryCodes.PUBLIC.getCode()));
-                boolean otherSchoolsIncludeStandard = otherStudentSchoolTombstones.stream().flatMap(Optional::stream).anyMatch(tombstone -> FacilityTypeCodes.STANDARD.getCode().equals(tombstone.getFacilityTypeCode()));
+        if(currStudent.getNumberOfCourses() != null && maxCourseNumberFromOtherStudents ==  Float.parseFloat(currStudent.getNumberOfCourses()) &&
+                isSameSchoolCategory && isSameFacilityType) {
+            List<Integer> otherSchoolsMincodes = otherStudentSchoolTombstones.stream()
+                    .map(sch -> extractRelevantMincode(sch.get()))
+                    .toList();
 
-                if(currStudentSchool.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.STANDARD.getCode()) && !otherSchoolsIncludeStandard){
-                    return true;
-                } else if (currStudentSchool.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.STANDARD.getCode()) && otherSchoolsIncludeStandard){
-                    return false;
-                } else {
-                    otherStudentSchoolTombstones.removeIf(sch -> !Objects.equals(sch.get().getFacilityTypeCode(), FacilityTypeCodes.STANDARD.getCode()));
-                    List<Integer> otherSchoolsMincodes = otherStudentSchoolTombstones.stream()
-                            .map(sch -> extractRelevantMincode(sch.get()))
-                            .toList();
+            Integer minOtherSchoolsMincodes = Collections.min(otherSchoolsMincodes);
+            Integer currSchoolMincode = extractRelevantMincode(currStudentSchool);
 
-                    Integer minOtherSchoolsMincodes = Collections.min(otherSchoolsMincodes);
-                    Integer currSchoolMincode = extractRelevantMincode(currStudentSchool);
-
-                    return currSchoolMincode < minOtherSchoolsMincodes;
-                }
-            }
+            return currSchoolMincode < minOtherSchoolsMincodes;
+        } else if(currStudent.getNumberOfCourses() != null && Float.parseFloat(currStudent.getNumberOfCourses()) > maxCourseNumberFromOtherStudents){
+            return true;
+        } else if(currStudent.getNumberOfCourses() != null && Float.parseFloat(currStudent.getNumberOfCourses()) < maxCourseNumberFromOtherStudents
+                && currStudentSchool.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode()) && !otherSchoolsIncludePublic) {
+            return true;
         }
+        else return currStudent.getNumberOfCourses() != null && Float.parseFloat(currStudent.getNumberOfCourses()) < maxCourseNumberFromOtherStudents
+                    && isSameSchoolCategory && currStudentSchool.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.STANDARD.getCode()) && !otherSchoolsIncludeStandard;
     }
 
     public Float getMaxCourseNumber(List<SdcSchoolCollectionStudentEntity> otherStudents) {
@@ -165,7 +155,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
             return Integer.parseInt(school.getMincode());
         } else {
             Optional<District> district = restUtils.getDistrictByDistrictID(school.getDistrictId());
-            return Integer.parseInt(Objects.requireNonNull(district.map(District::getDistrictNumber).orElse(null)));
+            return Integer.parseInt(district.get().getDistrictNumber());
         }
     }
 
