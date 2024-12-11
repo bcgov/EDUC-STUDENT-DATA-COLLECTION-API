@@ -112,8 +112,9 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
 
         boolean otherSchoolsIncludePublic = otherStudentSchoolTombstones.stream().flatMap(Optional::stream).anyMatch(tombstone -> SchoolCategoryCodes.PUBLIC.getCode().equals(tombstone.getSchoolCategoryCode()));
         boolean otherSchoolsIncludeStandard = otherStudentSchoolTombstones.stream().flatMap(Optional::stream).anyMatch(tombstone -> FacilityTypeCodes.STANDARD.getCode().equals(tombstone.getFacilityTypeCode()));
+        boolean hasSameNoOfCourses = currStudent.getNumberOfCourses() != null && maxCourseNumberFromOtherStudents ==  Float.parseFloat(currStudent.getNumberOfCourses());
 
-        if(currStudent.getNumberOfCourses() != null && maxCourseNumberFromOtherStudents ==  Float.parseFloat(currStudent.getNumberOfCourses()) &&
+        if(hasSameNoOfCourses &&
                 isSameSchoolCategory && isSameFacilityType) {
             List<Integer> otherSchoolsMincodes = otherStudentSchoolTombstones.stream()
                     .map(sch -> extractRelevantMincode(sch.get()))
@@ -125,12 +126,10 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
             return currSchoolMincode < minOtherSchoolsMincodes;
         } else if(currStudent.getNumberOfCourses() != null && Float.parseFloat(currStudent.getNumberOfCourses()) > maxCourseNumberFromOtherStudents){
             return true;
-        } else if(currStudent.getNumberOfCourses() != null && Float.parseFloat(currStudent.getNumberOfCourses()) < maxCourseNumberFromOtherStudents
-                && currStudentSchool.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode()) && !otherSchoolsIncludePublic) {
+        } else if(hasSameNoOfCourses && currStudentSchool.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode()) && !otherSchoolsIncludePublic) {
             return true;
         }
-        else return currStudent.getNumberOfCourses() != null && Float.parseFloat(currStudent.getNumberOfCourses()) < maxCourseNumberFromOtherStudents
-                    && isSameSchoolCategory && currStudentSchool.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.STANDARD.getCode()) && !otherSchoolsIncludeStandard;
+        else return hasSameNoOfCourses && isSameSchoolCategory && currStudentSchool.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.STANDARD.getCode()) && !otherSchoolsIncludeStandard;
     }
 
     public Float getMaxCourseNumber(List<SdcSchoolCollectionStudentEntity> otherStudents) {
