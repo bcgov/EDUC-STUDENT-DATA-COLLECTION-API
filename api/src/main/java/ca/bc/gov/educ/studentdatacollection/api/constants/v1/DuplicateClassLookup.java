@@ -19,7 +19,7 @@ public enum DuplicateClassLookup {
             SchoolCategoryCodes.getActiveSchoolCategoryCodes(),
             SchoolGradeCodes.getAllSchoolGradesExcludingHS().toArray(new String[0])),
 
-    ENTRY4(FacilityTypeCodes.getFacilityCodesWithoutOLAndCE(),
+    ENTRY4(FacilityTypeCodes.getFacilityCodesWithoutProvOnline(),
             new String[]{SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode(), SchoolCategoryCodes.FED_BAND.getCode(), SchoolCategoryCodes.OFFSHORE.getCode()},
             SchoolGradeCodes.getAllSchoolGradesExcludingHS().toArray(new String[0])),
 
@@ -27,27 +27,35 @@ public enum DuplicateClassLookup {
             new String[]{SchoolCategoryCodes.PUBLIC.getCode()},
             SchoolGradeCodes.getKToNineGrades().toArray(new String[0])),
 
-    ENTRY6(new String[]{FacilityTypeCodes.DIST_LEARN.getCode(), FacilityTypeCodes.DISTONLINE.getCode()},
+    ENTRY6(new String[]{FacilityTypeCodes.DIST_LEARN.getCode()},
             new String[]{SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode(), SchoolCategoryCodes.FED_BAND.getCode(), SchoolCategoryCodes.OFFSHORE.getCode()},
             SchoolGradeCodes.getKToNineGrades().toArray(new String[0])),
 
-    ENTRY7(FacilityTypeCodes.getFacilityCodesWithoutOLAndCE(),
+    ENTRY7(new String[]{FacilityTypeCodes.DIST_LEARN.getCode(), FacilityTypeCodes.DISTONLINE.getCode()},
+            new String[]{SchoolCategoryCodes.PUBLIC.getCode()},
+            SchoolGradeCodes.getGrades10toSU().toArray(new String[0])),
+
+    ENTRY8(new String[]{FacilityTypeCodes.DIST_LEARN.getCode(), FacilityTypeCodes.DISTONLINE.getCode()},
+            new String[]{SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode(), SchoolCategoryCodes.FED_BAND.getCode(), SchoolCategoryCodes.OFFSHORE.getCode()},
+            SchoolGradeCodes.getGrades10toSU().toArray(new String[0])),
+
+    ENTRY9(FacilityTypeCodes.getFacilityCodesWithoutOLAndCE(),
             new String[]{SchoolCategoryCodes.PUBLIC.getCode()},
             new String[]{SchoolGradeCodes.HOMESCHOOL.getCode()}),
 
-    ENTRY8(new String[]{FacilityTypeCodes.CONT_ED.getCode()},
+    ENTRY10(new String[]{FacilityTypeCodes.CONT_ED.getCode()},
             SchoolCategoryCodes.getActiveSchoolCategoryCodes(),
             new String[]{SchoolGradeCodes.HOMESCHOOL.getCode()}),
 
-    ENTRY9(FacilityTypeCodes.getFacilityCodesWithoutOLAndCE(),
+    ENTRY11(FacilityTypeCodes.getFacilityCodesWithoutProvOnline(),
             new String[]{SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode(), SchoolCategoryCodes.FED_BAND.getCode(), SchoolCategoryCodes.OFFSHORE.getCode()},
             new String[]{SchoolGradeCodes.HOMESCHOOL.getCode()}),
 
-    ENTRY10(new String[]{FacilityTypeCodes.DIST_LEARN.getCode(), FacilityTypeCodes.DISTONLINE.getCode()},
+    ENTRY12(new String[]{FacilityTypeCodes.DIST_LEARN.getCode(), FacilityTypeCodes.DISTONLINE.getCode()},
             new String[]{SchoolCategoryCodes.PUBLIC.getCode()},
             new String[]{SchoolGradeCodes.HOMESCHOOL.getCode()}),
 
-    ENTRY11(new String[]{FacilityTypeCodes.DIST_LEARN.getCode(), FacilityTypeCodes.DISTONLINE.getCode()},
+    ENTRY13(new String[]{FacilityTypeCodes.DIST_LEARN.getCode()},
             new String[]{SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode(), SchoolCategoryCodes.FED_BAND.getCode(), SchoolCategoryCodes.OFFSHORE.getCode()},
             new String[]{SchoolGradeCodes.HOMESCHOOL.getCode()});
 

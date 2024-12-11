@@ -34,6 +34,10 @@ public enum FacilityTypeCodes {
         return new String[]{ALT_PROGS.getCode(), JUSTB4PRO.getCode(), LONG_PRP.getCode(), POST_SEC.getCode(), SHORT_PRP.getCode(), STANDARD.getCode(), STRONG_CEN.getCode(), STRONG_OUT.getCode(), SUMMER.getCode(), YOUTH.getCode()};
     }
 
+    public static String[] getFacilityCodesWithoutProvOnline(){
+        return new String[]{ALT_PROGS.getCode(), JUSTB4PRO.getCode(), LONG_PRP.getCode(), POST_SEC.getCode(), SHORT_PRP.getCode(), STANDARD.getCode(), STRONG_CEN.getCode(), STRONG_OUT.getCode(), SUMMER.getCode(), YOUTH.getCode(), DISTONLINE.getCode(), CONT_ED.getCode()};
+    }
+
     public static List<String> getOnlineFacilityTypeCodes() {
         List<String> codes = new ArrayList<>();
         codes.add(DIST_LEARN.getCode());
