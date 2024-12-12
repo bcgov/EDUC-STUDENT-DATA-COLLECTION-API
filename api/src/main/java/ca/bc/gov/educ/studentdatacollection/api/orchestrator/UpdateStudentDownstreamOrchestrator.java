@@ -165,8 +165,9 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
             return Integer.parseInt(school.getMincode());
         } else {
-            Optional<District> district = restUtils.getDistrictByDistrictID(school.getDistrictId());
-            return Integer.parseInt(district.get().getDistrictNumber());
+            District district = restUtils.getDistrictByDistrictID(school.getDistrictId()).orElseThrow(() ->
+                    new EntityNotFoundException(District.class, "District", school.getDistrictId()));
+            return Integer.parseInt(district.getDistrictNumber());
         }
     }
 
