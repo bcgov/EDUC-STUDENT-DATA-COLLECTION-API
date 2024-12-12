@@ -201,6 +201,7 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
     @Test
     void isStudentAttendingSchoolOfRecord_shouldReturnTrue_whenCurrentStudentHasMostCourses() {
         UpdateStudentSagaData currStudent = createUpdateStudentSagaDataWithCourses("5.0");
+        currStudent.setMincode("1234567");
         CollectionEntity collectionEntity = createMockCollectionEntity();
         SdcSchoolCollectionEntity schoolCollectionEntity = createMockSdcSchoolCollectionEntity(collectionEntity, UUID.randomUUID());
 
@@ -215,6 +216,8 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
         studentEntity2.setAssignedPen("123456789");
 
         List<SdcSchoolCollectionStudentEntity> otherStudents = List.of(studentEntity1, studentEntity2);
+        SchoolTombstone currentSchool = createSchoolTombstoneWithCategoryAndFacilityCode(SchoolCategoryCodes.PUBLIC.getCode(), "STANDARD");
+        when(restUtils.getSchoolByMincode(currStudent.getMincode())).thenReturn(Optional.of(currentSchool));
 
         boolean result = updateStudentDownstreamOrchestrator.isStudentAttendingSchoolOfRecord(currStudent, otherStudents);
         assertTrue(result);
@@ -222,7 +225,9 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
 
     @Test
     void isStudentAttendingSchoolOfRecord_shouldReturnFalse_whenAnotherStudentHasMostCourses() {
+        SchoolTombstone currentSchool = createSchoolTombstoneWithCategoryAndFacilityCode(SchoolCategoryCodes.PUBLIC.getCode(), "STANDARD");
         UpdateStudentSagaData currStudent = createUpdateStudentSagaDataWithCourses("2.0");
+        currStudent.setMincode("1234567");
         CollectionEntity collectionEntity = createMockCollectionEntity();
         SdcSchoolCollectionEntity schoolCollectionEntity = createMockSdcSchoolCollectionEntity(collectionEntity, UUID.randomUUID());
 
@@ -237,7 +242,7 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
         studentEntity1.setAssignedPen("123456789");
 
         List<SdcSchoolCollectionStudentEntity> otherStudents = List.of(studentEntity1, studentEntity2);
-
+        when(restUtils.getSchoolByMincode(currStudent.getMincode())).thenReturn(Optional.of(currentSchool));
         boolean result = updateStudentDownstreamOrchestrator.isStudentAttendingSchoolOfRecord(currStudent, otherStudents);
         assertFalse(result);
     }
@@ -362,7 +367,9 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
 
     @Test
     void isStudentAttendingSchoolOfRecord_shouldReturnFalse_whenCurrentStudentHasNullCourses_andAnotherStudentHasCourses() {
+        SchoolTombstone currentSchool = createSchoolTombstoneWithCategoryAndFacilityCode(SchoolCategoryCodes.PUBLIC.getCode(), "STANDARD");
         UpdateStudentSagaData currStudent = createUpdateStudentSagaDataWithCourses(null);
+        currStudent.setMincode("1234567");
         CollectionEntity collectionEntity = createMockCollectionEntity();
         SdcSchoolCollectionEntity schoolCollectionEntity = createMockSdcSchoolCollectionEntity(collectionEntity, UUID.randomUUID());
 
@@ -370,6 +377,7 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
         studentEntity1.setNumberOfCourses(String.valueOf(3.0));
         studentEntity1.setSdcSchoolCollectionStudentID(UUID.randomUUID());
         studentEntity1.setAssignedPen("123456789");
+        when(restUtils.getSchoolByMincode(currStudent.getMincode())).thenReturn(Optional.of(currentSchool));
 
         List<SdcSchoolCollectionStudentEntity> otherStudents = List.of(studentEntity1);
 
