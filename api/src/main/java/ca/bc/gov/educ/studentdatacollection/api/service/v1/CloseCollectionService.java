@@ -250,6 +250,7 @@ public class CloseCollectionService {
                 .build();
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveIndependentSchoolFundingGroupSnapshot(final CollectionSagaData collectionSagaData) {
         Optional<CollectionEntity> entityOptional = collectionRepository.findById(UUID.fromString(collectionSagaData.getExistingCollectionID()));
         CollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));

@@ -162,7 +162,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
     }
 
     public Integer extractRelevantMincode(SchoolTombstone school){
-        if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
+        if (SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(school.getSchoolCategoryCode())) {
             return Integer.parseInt(school.getMincode());
         } else {
             District district = restUtils.getDistrictByDistrictID(school.getDistrictId()).orElseThrow(() ->
