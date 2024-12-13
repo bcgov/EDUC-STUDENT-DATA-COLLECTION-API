@@ -186,7 +186,7 @@ public class FteCalculatorUtils {
     public boolean noCoursesForSchoolAgedStudentInLastTwoYears(StudentRuleData studentRuleData) {
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         var school = studentRuleData.getSchool();
-        var isEightPlusGradeCode = SchoolGradeCodes.get8PlusGrades().contains(student.getEnrolledGradeCode());
+        var isEightPlusGradeCode = SchoolGradeCodes.get8PlusGradesNoGA().contains(student.getEnrolledGradeCode());
         var reportedByOnlineOrContEdSchool = StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DISTONLINE.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.CONT_ED.getCode());
         var zeroCourses = TransformUtil.parseNumberOfCourses(student.getNumberOfCourses(), student.getSdcSchoolCollection().getSdcSchoolCollectionID()) == 0;
         boolean isSchoolAged = Boolean.TRUE.equals(student.getIsSchoolAged());

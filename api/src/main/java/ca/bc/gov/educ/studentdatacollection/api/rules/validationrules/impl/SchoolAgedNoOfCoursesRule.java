@@ -38,7 +38,7 @@ public class SchoolAgedNoOfCoursesRule implements ValidationBaseRule {
         log.debug("In shouldExecute of SchoolAgedNoOfCoursesRule-V46: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        var onlineAndContinuingFacilityCodes = Arrays.asList(FacilityTypeCodes.CONT_ED.getCode(), FacilityTypeCodes.DISTONLINE.getCode(), FacilityTypeCodes.DIST_LEARN.getCode());
+        var onlineAndContinuingFacilityCodes = Arrays.asList(FacilityTypeCodes.DISTONLINE.getCode(), FacilityTypeCodes.DIST_LEARN.getCode());
 
         var shouldExecute = isValidationDependencyResolved("V46", validationErrorsMap) && !onlineAndContinuingFacilityCodes.contains(studentRuleData.getSchool().getFacilityTypeCode());
 
