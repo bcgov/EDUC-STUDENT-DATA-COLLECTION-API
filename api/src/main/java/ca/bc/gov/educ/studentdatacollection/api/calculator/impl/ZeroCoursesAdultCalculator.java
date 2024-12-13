@@ -31,7 +31,7 @@ public class ZeroCoursesAdultCalculator implements FteCalculator {
         if(!isOnlineSchool(studentData)
                 && Boolean.TRUE.equals(student.getIsAdult())
                 && student.getNumberOfCoursesDec().compareTo(BigDecimal.ZERO) <= 0
-                && SchoolGradeCodes.getAllowedAdultGrades().contains(student.getEnrolledGradeCode())) {
+                && SchoolGradeCodes.get8PlusGrades().contains(student.getEnrolledGradeCode())) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
             fteCalculationResult.setFteZeroReason(ZERO_COURSES.getCode());

@@ -57,7 +57,7 @@ public class AdultStudentCoursesRule implements ValidationBaseRule {
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
         if (!onlineConditionPassed(studentRuleData)
-                && SchoolGradeCodes.getAllowedAdultGrades().contains(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode())
+                && SchoolGradeCodes.get8PlusGrades().contains(studentRuleData.getSdcSchoolCollectionStudentEntity().getEnrolledGradeCode())
                 && (StringUtils.isEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getNumberOfCourses())
                 || Double.parseDouble(df.format(Double.valueOf(studentRuleData.getSdcSchoolCollectionStudentEntity().getNumberOfCourses()))) == 0)) {
             log.debug("AdultStudentCoursesRule-V33: sdcSchoolCollectionStudentID::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
