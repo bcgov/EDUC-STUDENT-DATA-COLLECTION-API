@@ -118,9 +118,13 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
     var student1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
     student1.setIsAdult(true);
     student1.setAssignedStudentId(studentID);
+    student1.setOriginalDemogHash("123");
+    student1.setCurrentDemogHash("123");
     sdcSchoolCollectionStudentRepository.save(student1);
     var student2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
     student2.setAssignedStudentId(studentID);
+    student2.setOriginalDemogHash("456");
+    student2.setCurrentDemogHash("456");
     sdcSchoolCollectionStudentRepository.save(student2);
 
     val sdcDuplicates = sdcDuplicateService.getAllInDistrictCollectionDuplicates(sdcDistrictCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();

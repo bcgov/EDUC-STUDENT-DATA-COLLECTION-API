@@ -502,6 +502,7 @@ public class SdcSchoolCollectionStudentService {
       studentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(studentEntity.getEnrolledProgramCodes()));
       studentEntity.setSdcSchoolCollection(sdcSchoolCollection.get());
       studentEntity.setOriginalDemogHash(Integer.toString(studentEntity.getUniqueObjectHash()));
+      studentEntity.setCurrentDemogHash(Integer.toString(studentEntity.getUniqueObjectHash()));
       sdcDuplicatesService.checkIfDuplicateIsGeneratedAndThrow(studentEntity, isCollectionInProvDupes(studentEntity.getSdcSchoolCollection().getCollectionEntity()));
       return validateAndProcessNewSdcSchoolCollectionStudent(studentEntity);
     } else {
@@ -535,8 +536,8 @@ public class SdcSchoolCollectionStudentService {
       return processedSdcSchoolCollectionStudent;
     }
 
-    sdcDuplicatesService.checkIfDuplicateIsGeneratedAndThrow(sdcSchoolCollectionStudentEntity, isCollectionInProvDupes(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity()));
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
+    sdcDuplicatesService.checkIfDuplicateIsGeneratedAndThrow(processedSdcSchoolCollectionStudent, isCollectionInProvDupes(processedSdcSchoolCollectionStudent.getSdcSchoolCollection().getCollectionEntity()));
     return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
   }
 
