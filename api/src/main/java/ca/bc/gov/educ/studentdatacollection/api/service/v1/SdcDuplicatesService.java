@@ -29,6 +29,7 @@ import org.springframework.validation.FieldError;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.isCollectionInProvDupes;
 
@@ -116,20 +117,20 @@ public class SdcDuplicatesService {
       List<SdcSchoolCollectionStudentEntity> allStudentsWithSameAssignedStudentId = sdcSchoolCollectionStudentRepository
               .findAllDuplicateStudentsByCollectionID(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID(), Collections.singletonList(sdcSchoolCollectionStudentEntity.getAssignedStudentId()));
 
-      List<SdcSchoolCollectionStudentLightEntity> duplicateStudentEntities = new ArrayList<>();
+      //filter out the non-updated entity fetched from db
+      List<SdcSchoolCollectionStudentEntity> filteredStudentsWithSameAssignedStudentId = allStudentsWithSameAssignedStudentId.stream().filter(student -> !student.getSdcSchoolCollectionStudentID().equals(sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID())).toList();
+
       //map to light object
-      duplicateStudentEntities.addAll(allStudentsWithSameAssignedStudentId.stream().map(sdcSchoolCollectionStudentMapper::toSdcSchoolStudentLightEntity).toList());
-      if (sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentID() == null) {
-        duplicateStudentEntities.add(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(sdcSchoolCollectionStudentEntity));
-      }
+      List<SdcSchoolCollectionStudentLightEntity> duplicateStudentEntities = new ArrayList<>(filteredStudentsWithSameAssignedStudentId.stream().map(sdcSchoolCollectionStudentMapper::toSdcSchoolStudentLightEntity).toList());
+      duplicateStudentEntities.add(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentLightEntity(sdcSchoolCollectionStudentEntity));
+
       //Generate new PROV dupes
       List<SdcDuplicateEntity> generatedDuplicates = generateFinalDuplicatesSet(duplicateStudentEntities, DuplicateLevelCode.PROVINCIAL, false);
-      //Check if we have any non-allowable or program dupes created
-      List<SdcDuplicateEntity> nonAllowableOrProgramDupes = generatedDuplicates.stream().filter(duplicate ->
-              (duplicate.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode()) &&
-                      duplicate.getDuplicateTypeCode().equals(DuplicateTypeCode.ENROLLMENT.getCode())) || duplicate.getDuplicateTypeCode().equals(DuplicateTypeCode.PROGRAM.getCode())).toList();
 
-      if (!nonAllowableOrProgramDupes.isEmpty()) {
+      Optional<SdcDuplicateEntity> duplicateWithStudentID = generatedDuplicates.stream().filter(dupe -> dupe.getSdcDuplicateStudentEntities()
+              .stream().anyMatch(stu -> stu.getSdcSchoolCollectionStudentEntity().getCurrentDemogHash().equals(sdcSchoolCollectionStudentEntity.getCurrentDemogHash()))).findFirst();
+
+      if (duplicateWithStudentID.isPresent()) {
         log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate on save :: {}", sdcSchoolCollectionStudentEntity.getAssignedStudentId());
         throw new InvalidPayloadException(createDuplicatesThrow(sdcSchoolCollectionStudentEntity.getAssignedPen()));
       }

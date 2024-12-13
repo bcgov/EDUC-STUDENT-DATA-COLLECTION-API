@@ -373,6 +373,8 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
     SdcSchoolCollectionStudentEntity dupeStudentEntity = createMockSchoolStudentEntity(savedSchoolCollection);
     dupeStudentEntity.setAssignedStudentId(studentEntity.getAssignedStudentId());
+    dupeStudentEntity.setOriginalDemogHash("123");
+    dupeStudentEntity.setCurrentDemogHash("123");
     sdcSchoolCollectionStudentRepository.save(dupeStudentEntity);
 
     when(restUtils.getSchoolBySchoolID(any(String.class))).thenReturn(Optional.of(school));
@@ -407,6 +409,8 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
     SdcSchoolCollectionStudentEntity potentialDupeStudent = createMockSchoolStudentEntity(savedSchoolCollection);
     potentialDupeStudent.setAssignedStudentId(assignedStudentID);
+    potentialDupeStudent.setOriginalDemogHash("123");
+    potentialDupeStudent.setCurrentDemogHash("123");
     sdcSchoolCollectionStudentRepository.save(potentialDupeStudent);
 
     when(restUtils.getSchoolBySchoolID(any(String.class))).thenReturn(Optional.of(school));
