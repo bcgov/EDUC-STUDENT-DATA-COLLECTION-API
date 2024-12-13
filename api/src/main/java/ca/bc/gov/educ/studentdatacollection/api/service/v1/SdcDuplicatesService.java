@@ -129,11 +129,8 @@ public class SdcDuplicatesService {
 
       Optional<SdcDuplicateEntity> duplicateWithStudentID = generatedDuplicates.stream().filter(dupe -> dupe.getSdcDuplicateStudentEntities()
               .stream().anyMatch(stu -> stu.getSdcSchoolCollectionStudentEntity().getCurrentDemogHash().equals(sdcSchoolCollectionStudentEntity.getCurrentDemogHash()))).findFirst();
-      //Check if we have any non-allowable or program dupes created
-      boolean hasNonAllowableOrProgramDupes = (duplicateWithStudentID.isPresent() && duplicateWithStudentID.get().getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode()) &&
-              duplicateWithStudentID.get().getDuplicateTypeCode().equals(DuplicateTypeCode.ENROLLMENT.getCode())) || (duplicateWithStudentID.isPresent() && duplicateWithStudentID.get().getDuplicateTypeCode().equals(DuplicateTypeCode.PROGRAM.getCode()));
 
-      if (hasNonAllowableOrProgramDupes) {
+      if (duplicateWithStudentID.isPresent()) {
         log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate on save :: {}", sdcSchoolCollectionStudentEntity.getAssignedStudentId());
         throw new InvalidPayloadException(createDuplicatesThrow(sdcSchoolCollectionStudentEntity.getAssignedPen()));
       }
