@@ -157,6 +157,29 @@ public class SdcDuplicatesService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public List<SdcSagaEntity> setupRequiredDuplicateEmailSagas(UUID collectionID){
+    Optional<CollectionEntity> activeCollection = collectionRepository.findActiveCollection();
+
+    if(activeCollection.isPresent()){
+      if(!activeCollection.get().getCollectionID().equals(collectionID)) {
+        throw new InvalidParameterException(COLLECTION_ID_NOT_ACTIVE_MSG);
+      }else if(isCollectionInProvDupes(activeCollection.get())){
+        throw new InvalidParameterException(COLLECTION_DUPLICATES_ALREADY_RUN_MSG);
+      }
+    }else{
+      throw new InvalidParameterException(COLLECTION_ID_NOT_ACTIVE_MSG);
+    }
+
+    List<SdcDuplicateEntity> finalDuplicatesSet =  sdcDuplicateRepository.findAllByCollectionID(collectionID);
+
+    return sendEmailNotificationsForProvinceDuplicates(finalDuplicatesSet, formatter.format(activeCollection.get().getDuplicationResolutionDueDate()));
+  }
+
+  public void startCreatedEmailSagas(List<SdcSagaEntity> savedSagas){
+    scheduleHandlerService.startCreatedEmailSagas(savedSagas);
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void generateAllProvincialDuplicates(UUID collectionID){
     Optional<CollectionEntity> activeCollection = collectionRepository.findActiveCollection();
 
@@ -172,8 +195,6 @@ public class SdcDuplicatesService {
 
     List<SdcDuplicateEntity> finalDuplicatesSet =  generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL, false);
     sdcDuplicateRepository.saveAll(finalDuplicatesSet);
-
-    activeCollection.ifPresent(collectionEntity -> sendEmailNotificationsForProvinceDuplicates(finalDuplicatesSet, formatter.format(collectionEntity.getDuplicationResolutionDueDate())));
 
     this.collectionRepository.updateCollectionStatus(collectionID, String.valueOf(CollectionStatus.PROVDUPES));
 
@@ -215,11 +236,12 @@ public class SdcDuplicatesService {
     return finalDuplicatesSet;
   }
 
-  private void sendEmailNotificationsForProvinceDuplicates(List<SdcDuplicateEntity> finalDuplicatesSet, String dueDate){
+  private List<SdcSagaEntity> sendEmailNotificationsForProvinceDuplicates(List<SdcDuplicateEntity> finalDuplicatesSet, String dueDate){
     Map<UUID, SdcSchoolCollection1701Users> emailList = generateEmailListForProvinceDuplicates(finalDuplicatesSet);
     if(!emailList.isEmpty()){
-      scheduleHandlerService.createAndStartProvinceDuplicateEmailSagas(emailList, dueDate);
+      return scheduleHandlerService.createAndStartProvinceDuplicateEmailSagas(emailList, dueDate);
     }
+    return new ArrayList<>();
   }
 
   public Map<UUID, SdcSchoolCollection1701Users> generateEmailListForProvinceDuplicates(List<SdcDuplicateEntity> sdcDuplicateEntities){

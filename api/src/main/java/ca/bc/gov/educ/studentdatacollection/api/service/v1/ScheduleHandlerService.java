@@ -106,7 +106,7 @@ public class ScheduleHandlerService {
   }
 
   @Transactional
-  public void createAndStartProvinceDuplicateEmailSagas(Map<UUID, SdcSchoolCollection1701Users> schoolCollectionEmailMap, String dueDate){
+  public List<SdcSagaEntity> createAndStartProvinceDuplicateEmailSagas(Map<UUID, SdcSchoolCollection1701Users> schoolCollectionEmailMap, String dueDate){
     List<SdcSagaEntity> sagaEntities = new ArrayList<>();
     for(Map.Entry<UUID, SdcSchoolCollection1701Users> entry : schoolCollectionEmailMap.entrySet()){
       var emailFields = new HashMap<String, String>();
@@ -128,10 +128,14 @@ public class ScheduleHandlerService {
       sagaEntities.add(saga);
     }
     if(!sagaEntities.isEmpty()) {
-      var savedSagas = this.provincialDupliatesEmailOrchestrator.createSagas(sagaEntities);
-      log.info("Starting provincialDupliatesEmailOrchestrator saga with the following payloads :: {}", savedSagas);
-      savedSagas.forEach(this.provincialDupliatesEmailOrchestrator::startSaga);
+      return this.provincialDupliatesEmailOrchestrator.createSagas(sagaEntities);
     }
+    return new ArrayList<>();
+  }
+
+  public void startCreatedEmailSagas(List<SdcSagaEntity> savedSagas){
+    log.info("Starting provincialDupliatesEmailOrchestrator saga with the following payloads :: {}", savedSagas);
+    savedSagas.forEach(this.provincialDupliatesEmailOrchestrator::startSaga);
   }
 
   private EmailSagaData createEmailSagaData(String fromEmail, List<String> principals, String subject, String templateName, HashMap<String,String> emailFields){
