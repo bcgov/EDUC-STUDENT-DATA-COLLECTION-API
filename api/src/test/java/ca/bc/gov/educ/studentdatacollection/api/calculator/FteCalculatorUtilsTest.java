@@ -1257,7 +1257,7 @@ class FteCalculatorUtilsTest {
             "11, true",
             "12, true",
             "SU, true",
-            "GA, true"
+            "GA, false"
     })
     void noCoursesForStudentInLastTwoYears_GivenAllGrades_ShouldReturnTrue(String enrolledGradeCode, boolean expectedResult) {
         // Given

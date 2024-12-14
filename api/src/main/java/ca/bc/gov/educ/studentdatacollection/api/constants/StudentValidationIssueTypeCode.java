@@ -78,7 +78,7 @@ public enum StudentValidationIssueTypeCode {
   SPOKEN_LANG_ERR("SPOKENLANGERR", "Primary language spoken in home is invalid.", ERROR),
   HS_NOT_SCHOOL_AGE("HSNOTSCHOOLAGE", "Students registered in home school must be school-aged. Student must be removed from the submission or have their birthdate adjusted.", ERROR),
   ADULT_INCORRECT_GRADE("ADULTINCORRECTGRADE", "Adult students cannot be reported in an elementary grade.", ERROR),
-  CAREER_CODE_PROG_ERR("CAREERCODEPROGERR", "Student must be reported with both a Enroled Career Program and Career Code.", ERROR),
+  CAREER_CODE_PROG_ERR("CAREERCODEPROGERR", "Student must be reported with both an Enroled Career Program and Career Code.", ERROR),
   CAREER_CODE_COUNT_ERR("CAREERCODECOUNTERR", "Students can only be reported with one Career Program.", ERROR),
   CAREER_CODE_GRADE_ERR("CAREERCODEGRADEERR", "Student must be enroled in grade 8-12, SU or GA to be reported in a Career Program.", ERROR),
   SUPPORT_BLOCKS_NOT_COUNT("SUPPORTBLOCKSNOTCOUNT", "Support blocks will only be counted toward funding if the student is taking less than 8 courses.", FUNDING_WARNING),
