@@ -161,14 +161,8 @@ public class SdcDuplicatesService {
   public List<SdcSagaEntity> setupRequiredDuplicateEmailSagas(UUID collectionID){
     Optional<CollectionEntity> activeCollection = collectionRepository.findActiveCollection();
 
-    if(activeCollection.isPresent()){
-      if(!activeCollection.get().getCollectionID().equals(collectionID)) {
+    if(activeCollection.isEmpty() || !activeCollection.get().getCollectionID().equals(collectionID)){
         throw new InvalidParameterException(COLLECTION_ID_NOT_ACTIVE_MSG);
-      }else if(isCollectionInProvDupes(activeCollection.get())){
-        throw new InvalidParameterException(COLLECTION_DUPLICATES_ALREADY_RUN_MSG);
-      }
-    }else{
-      throw new InvalidParameterException(COLLECTION_ID_NOT_ACTIVE_MSG);
     }
 
     List<SdcDuplicateEntity> finalDuplicatesSet =  sdcDuplicateRepository.findAllByCollectionID(collectionID);
