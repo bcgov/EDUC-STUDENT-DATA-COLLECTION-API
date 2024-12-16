@@ -190,6 +190,8 @@ public class SdcSchoolCollectionStudentService {
     // Convert number of courses string to decimal
     if(StringUtils.isNotBlank(sdcSchoolCollectionStudentEntity.getNumberOfCourses())){
       convertNumOfCourses(sdcSchoolCollectionStudentEntity);
+    }else{
+      sdcSchoolCollectionStudentEntity.setNumberOfCoursesDec(new BigDecimal(0));
     }
 
     // Calculate Fte
