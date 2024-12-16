@@ -1437,6 +1437,8 @@ public class CSVReportService {
 
                 headcountResult.getKhRefugeeCount(),
                 headcountResult.getKhEllCount(),
+                headcountResult.getKfRefugeeCount(),
+                headcountResult.getKfEllCount(),
                 headcountResult.getGradeOneRefugeeCount(),
                 headcountResult.getGradeOneEllCount(),
                 headcountResult.getGradeTwoRefugeeCount(),
