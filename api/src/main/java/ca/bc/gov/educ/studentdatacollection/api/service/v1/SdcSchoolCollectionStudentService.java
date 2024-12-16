@@ -192,6 +192,7 @@ public class SdcSchoolCollectionStudentService {
       convertNumOfCourses(sdcSchoolCollectionStudentEntity);
     }else{
       sdcSchoolCollectionStudentEntity.setNumberOfCoursesDec(new BigDecimal(0));
+      sdcSchoolCollectionStudentEntity.setNumberOfCourses("0");
     }
 
     // Calculate Fte
