@@ -207,7 +207,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
                   .orElse(null);
             String headcount = "0";
             if (result != null && result.getEnrolledGradeCode().equals(gradeCode)) {
-              headcount = headcountFunction.apply(result);
+              headcount = headcountFunction.apply(result) != null ? headcountFunction.apply(result) : headcount;
             }
             rowData.put(gradeCode, HeadcountHeaderColumn.builder().currentValue(headcount).build());
             total = total.add(new BigDecimal(headcount));
