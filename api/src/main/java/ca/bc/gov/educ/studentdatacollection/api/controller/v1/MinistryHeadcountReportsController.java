@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeC
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.MinistryHeadcountReports;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.AllReportsService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.CSVReportService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.MinistryHeadcountService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
@@ -25,6 +26,7 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
 
     private final MinistryHeadcountService ministryHeadcountService;
     private final CSVReportService ministryReportsService;
+    private final AllReportsService allReportsService;
 
     @Override
     public SimpleHeadcountResultsTable getMinistryHeadcounts(UUID collectionID, String type) {
@@ -77,5 +79,8 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
         };
     }
 
-
+    @Override
+    public void generateAllDistrictReportsForCollection(UUID sdcDistrictCollectionID) {
+        allReportsService.generateAllDistrictReportsOnDisk(sdcDistrictCollectionID);
+    }
 }

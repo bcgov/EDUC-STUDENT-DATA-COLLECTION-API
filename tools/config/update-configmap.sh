@@ -144,6 +144,13 @@ curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scope
   -H "Authorization: Bearer $TKN" \
   -d "{\"description\": \"Write Student Data Collection School Collection Students\",\"id\": \"WRITE_SDC_SCHOOL_COLLECTION_STUDENT\",\"name\": \"WRITE_SDC_SCHOOL_COLLECTION_STUDENT\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
 
+echo
+echo Writing scope GENERATE_ALL_DISTRICT_REPORTS
+curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TKN" \
+  -d "{\"description\": \"Generate all district reports\",\"id\": \"GENERATE_ALL_DISTRICT_REPORTS\",\"name\": \"GENERATE_ALL_DISTRICT_REPORTS\",\"protocol\": \"openid-connect\",\"attributes\" : {\"include.in.token.scope\" : \"true\",\"display.on.consent.screen\" : \"false\"}}"
+
   echo
   echo Writing scope DELETE_SDC_SCHOOL_COLLECTION_STUDENT
   curl -sX POST "https://$SOAM_KC/auth/admin/realms/$SOAM_KC_REALM_ID/client-scopes" \

@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.UUID;
@@ -27,4 +28,10 @@ public interface MinistryHeadcountReports {
     @Transactional(readOnly = true)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
     DownloadableReportResponse getMinistryDownloadableReport(@PathVariable UUID collectionID, @PathVariable(name = "type") String type);
+
+    @PostMapping("/allReports/{sdcDistrictCollectionID}")
+    @PreAuthorize("hasAuthority('SCOPE_GENERATE_ALL_DISTRICT_REPORTS')")
+    @Transactional(readOnly = true)
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
+    void generateAllDistrictReportsForCollection(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 }
