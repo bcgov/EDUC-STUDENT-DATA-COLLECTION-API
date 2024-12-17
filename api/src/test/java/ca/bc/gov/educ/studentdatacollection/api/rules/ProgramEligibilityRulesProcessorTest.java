@@ -397,10 +397,10 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     UUID studentID = UUID.randomUUID();
     schoolStudentEntity.setAssignedStudentId(studentID);
     SdcStudentEllEntity entity = createMockStudentEllEntity(schoolStudentEntity);
-    entity.setYearsInEll(5);
+    entity.setYearsInEll(6);
     entity = sdcStudentEllRepository.save(entity);
     schoolStudentEntity.setAssignedStudentId(studentID);
-    schoolStudentEntity.setYearsInEll(5);
+    schoolStudentEntity.setYearsInEll(6);
 
     listWithoutEnrollmentError = rulesProcessor.processRules(
       createMockStudentRuleData(
