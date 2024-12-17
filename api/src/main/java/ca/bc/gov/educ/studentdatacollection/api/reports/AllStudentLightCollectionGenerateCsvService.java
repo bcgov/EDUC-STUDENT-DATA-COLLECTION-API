@@ -266,7 +266,7 @@ public class AllStudentLightCollectionGenerateCsvService {
                     ordinarilyResidentOnReserve,
                     student.getBandCode(),
                     student.getHomeLanguageSpokenCode(),
-                    student.getNumberOfCourses(),
+                    student.getNumberOfCoursesDec() != null ? student.getNumberOfCoursesDec() : "",
                     student.getSupportBlocks(),
                     student.getOtherCourses(),
                     enrolledProgramCodesMap.get(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode()),
