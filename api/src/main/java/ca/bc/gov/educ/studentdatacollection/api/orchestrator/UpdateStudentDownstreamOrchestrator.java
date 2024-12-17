@@ -74,7 +74,6 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
             studentDataFromEventResponse.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
             studentDataFromEventResponse.setMincode(updateStudentSagaData.getMincode());
             studentDataFromEventResponse.setLocalID(updateStudentSagaData.getLocalID());
-            studentDataFromEventResponse.setGradeCode(updateStudentSagaData.getGradeCode());
             updateGradeYear(studentDataFromEventResponse, updateStudentSagaData);
             updateUsualNameFields(studentDataFromEventResponse, updateStudentSagaData);
             studentDataFromEventResponse.setPostalCode(updateStudentSagaData.getPostalCode());
