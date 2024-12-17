@@ -69,7 +69,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         final Student studentDataFromEventResponse = this.restUtils.getStudentByPEN(UUID.randomUUID(), updateStudentSagaData.getAssignedPEN());
         final List<SdcSchoolCollectionStudentEntity> otherStudentsWithSameAssignedID = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(UUID.fromString(updateStudentSagaData.getCollectionID()), Collections.singletonList(UUID.fromString(updateStudentSagaData.getAssignedStudentID())));
 
-        if (otherStudentsWithSameAssignedID.isEmpty() || isStudentAttendingSchoolOfRecord(updateStudentSagaData, otherStudentsWithSameAssignedID)){
+        if (otherStudentsWithSameAssignedID.size() == 1 || isStudentAttendingSchoolOfRecord(updateStudentSagaData, otherStudentsWithSameAssignedID)){
 
             studentDataFromEventResponse.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
             studentDataFromEventResponse.setMincode(updateStudentSagaData.getMincode());
