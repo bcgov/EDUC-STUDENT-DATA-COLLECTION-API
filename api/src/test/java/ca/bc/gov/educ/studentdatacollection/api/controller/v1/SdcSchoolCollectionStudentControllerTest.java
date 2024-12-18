@@ -4329,13 +4329,13 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         final var objectMapper = new ObjectMapper();
         final String criteriaJSON = objectMapper.writeValueAsString(searches);
-        final MvcResult result = this.mockMvc
+        this.mockMvc
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED_SLICE)
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
-                .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @Test

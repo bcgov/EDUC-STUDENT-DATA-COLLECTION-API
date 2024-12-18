@@ -5,7 +5,6 @@ import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcSchoolCollectionS
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentHeadcountService;
@@ -73,7 +72,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
-    public CompletableFuture<Slice<SdcSchoolCollectionStudent>> findAllSlice(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
+    public Slice<SdcSchoolCollectionStudent> findAllSlice(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
         final List<Sort.Order> sorts = new ArrayList<>();
         Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs = sdcSchoolCollectionStudentSearchService
                 .setSpecificationAndSortCriteria(
@@ -82,9 +81,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
                         JsonUtil.mapper,
                         sorts
                 );
-        return this.sdcSchoolCollectionStudentSearchService
-                .findAllSlice(studentSpecs, pageNumber, pageSize, sorts)
-                .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.map(mapper::toSdcSchoolCollectionStudentWithValidationIssues));
+        return this.sdcSchoolCollectionStudentSearchService.findAllSlice(studentSpecs, pageNumber, pageSize, sorts).map(mapper::toSdcSchoolCollectionStudentWithValidationIssues);
     }
 
     @Override

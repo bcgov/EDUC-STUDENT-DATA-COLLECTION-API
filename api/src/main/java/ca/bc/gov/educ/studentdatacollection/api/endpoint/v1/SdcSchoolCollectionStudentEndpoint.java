@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -46,7 +45,7 @@ public interface SdcSchoolCollectionStudentEndpoint {
   @PreAuthorize("hasAuthority('SCOPE_READ_SDC_SCHOOL_COLLECTION_STUDENT')")
   @Transactional(readOnly = true)
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
-  CompletableFuture<Slice<SdcSchoolCollectionStudent>> findAllSlice(@RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber,
+  Slice<SdcSchoolCollectionStudent> findAllSlice(@RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber,
                                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                                     @RequestParam(name = "sort", defaultValue = "") String sortCriteriaJson,
                                                                     @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson);
