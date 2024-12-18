@@ -1429,6 +1429,7 @@ public class CSVReportService {
     }
     private List<String> prepareRefugeeEnrolmentFteData(EnrolmentHeadcountFteResult headcountResult, SchoolTombstone school) {
         var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
+
         return new ArrayList<>(Arrays.asList(
                 school.getMincode().substring(0, 3),
                 school.getSchoolNumber(),
@@ -1469,6 +1470,7 @@ public class CSVReportService {
                 headcountResult.getGradeSuEllCount(),
 
                 headcountResult.getKhRefugeeTotalFte(),
+                headcountResult.getKfRefugeeTotalFte(),
                 headcountResult.getGradeOneRefugeeTotalFte(),
                 headcountResult.getGradeTwoRefugeeTotalFte(),
                 headcountResult.getGradeThreeRefugeeTotalFte(),
