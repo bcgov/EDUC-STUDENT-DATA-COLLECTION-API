@@ -182,18 +182,21 @@ public class ValidationRulesService {
     }
 
      public List<SdcSchoolCollectionStudentEntity> getStudentInHistoricalCollectionWithInSameDistrict(StudentRuleData studentRuleData) {
-        String noOfCollectionsForLookup = "3";
-        return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), noOfCollectionsForLookup);
+         setupMergedStudentIdValues(studentRuleData);
+         String noOfCollectionsForLookup = "3";
+        return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
     }
 
     public List<SdcSchoolCollectionStudentEntity> getStudentInHistoricalCollectionInAllDistrict(StudentRuleData studentRuleData) {
+        setupMergedStudentIdValues(studentRuleData);
         String noOfCollectionsForLookup = "3";
-        return sdcSchoolStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), noOfCollectionsForLookup);
+        return sdcSchoolStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
     }
 
     public boolean findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(StudentRuleData studentRuleData) {
+        setupMergedStudentIdValues(studentRuleData);
         String noOfCollectionsForLookup = "3";
-        List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), noOfCollectionsForLookup);
+        List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
         return !entity.isEmpty();
     }
 }
