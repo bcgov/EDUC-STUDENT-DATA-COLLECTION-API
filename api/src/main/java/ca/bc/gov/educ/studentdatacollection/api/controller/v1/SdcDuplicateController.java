@@ -38,12 +38,12 @@ public class SdcDuplicateController implements SdcDuplicateEndpoint {
   }
 
   @Override
-  public SdcDuplicate updateStudentAndResolveDuplicates(String duplicateTypeResolutionCode, List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudents) {
+  public SdcDuplicate updateStudentAndResolveDuplicates(String duplicateTypeResolutionCode, List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudents, boolean isStaffMember) {
     sdcSchoolCollectionStudents.forEach(student -> ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(student)));
     if (DuplicateTypeResolutionCode.PROGRAM.getCode().equalsIgnoreCase(duplicateTypeResolutionCode)) {
-      sdcDuplicateResolutionService.updateStudents(sdcSchoolCollectionStudents);
+      sdcDuplicateResolutionService.updateStudents(sdcSchoolCollectionStudents, isStaffMember);
     } else if (DuplicateTypeResolutionCode.CHANGE_GRADE.getCode().equalsIgnoreCase(duplicateTypeResolutionCode) && sdcSchoolCollectionStudents.size() == 1) {
-      sdcDuplicateResolutionService.changeGrade(studentMapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudents.get(0)));
+      sdcDuplicateResolutionService.changeGrade(studentMapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudents.get(0)), isStaffMember);
     }
     return null;
   }

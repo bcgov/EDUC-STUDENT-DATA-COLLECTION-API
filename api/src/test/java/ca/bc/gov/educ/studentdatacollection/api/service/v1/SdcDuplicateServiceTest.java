@@ -113,7 +113,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     List<SdcSchoolCollectionStudent> students = new ArrayList<>();
     students.add(student1Entity);
     students.add(student2Entity);
-    sdcDuplicateResolutionService.updateStudents(students);
+    sdcDuplicateResolutionService.updateStudents(students, false);
   }
 
   @Test
@@ -173,7 +173,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     List<SdcSchoolCollectionStudent> students = new ArrayList<>();
     students.add(student1Entity);
     students.add(student2Entity);
-    sdcDuplicateResolutionService.updateStudents(students);
+    sdcDuplicateResolutionService.updateStudents(students, false);
   }
 
   @Test
@@ -228,7 +228,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     students.add(student1Entity);
     students.add(student2Entity);
 
-    sdcDuplicateResolutionService.updateStudents(students);
+    sdcDuplicateResolutionService.updateStudents(students, false);
   }
 
   @Test
@@ -389,7 +389,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
     assertThrows(InvalidPayloadException.class, () -> {
-      sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(studentEntity);
+      sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(studentEntity, false);
     }, "SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate.");
   }
 
@@ -425,7 +425,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
     assertThrows(InvalidPayloadException.class, () -> {
-      sdcSchoolCollectionStudentService.createSdcSchoolCollectionStudent(studentEntity);
+      sdcSchoolCollectionStudentService.createSdcSchoolCollectionStudent(studentEntity, false);
     }, "SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate.");
 
   }

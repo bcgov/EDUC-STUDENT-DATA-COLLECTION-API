@@ -671,7 +671,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         MvcResult apiResponse = this.mockMvc.perform(
-                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/false")
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
@@ -713,7 +713,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         MvcResult apiResponse = this.mockMvc.perform(
-                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/false")
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
@@ -764,7 +764,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
-                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/false")
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
@@ -798,7 +798,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setPostalCode(null);
 
         this.mockMvc.perform(
-                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/false")
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
@@ -823,7 +823,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setPostalCode(null);
 
         this.mockMvc.perform(
-                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/false")
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
@@ -855,7 +855,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setNumberOfCourses("0400");
         this.sdcSchoolCollectionStudentRepository.save(entity);
         this.mockMvc.perform(
-                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/false")
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
@@ -893,7 +893,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         this.sdcSchoolCollectionStudentRepository.save(entity);
 
         this.mockMvc.perform(
-                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/false")
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
@@ -933,7 +933,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setDob(dob);
 
         this.mockMvc.perform(
-                post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
+                post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/false")
                     .contentType(APPLICATION_JSON)
                     .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                     .with(mockAuthority))
@@ -982,7 +982,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         savedStudent.setDob(dob);
 
         this.mockMvc.perform(
-                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/false")
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(savedStudent)))
                                 .with(mockAuthority))
@@ -1024,7 +1024,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setPostalCode("");
 
         this.mockMvc.perform(
-                post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT )
+                post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/false")
                     .contentType(APPLICATION_JSON)
                     .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                     .with(mockAuthority))
@@ -2453,7 +2453,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         entity.setIsAdult(false);
 
         this.mockMvc.perform(
-                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT)
+                        post(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/false")
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))

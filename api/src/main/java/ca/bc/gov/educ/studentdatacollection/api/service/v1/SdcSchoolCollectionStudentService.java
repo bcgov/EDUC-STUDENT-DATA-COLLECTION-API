@@ -499,14 +499,14 @@ public class SdcSchoolCollectionStudentService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public SdcSchoolCollectionStudentEntity createSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity) {
+  public SdcSchoolCollectionStudentEntity createSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity, boolean isStaffMember) {
     Optional<SdcSchoolCollectionEntity> sdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID());
     if(sdcSchoolCollection.isPresent()) {
       studentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(studentEntity.getEnrolledProgramCodes()));
       studentEntity.setSdcSchoolCollection(sdcSchoolCollection.get());
       studentEntity.setOriginalDemogHash(Integer.toString(studentEntity.getUniqueObjectHash()));
       studentEntity.setCurrentDemogHash(Integer.toString(studentEntity.getUniqueObjectHash()));
-      sdcDuplicatesService.checkIfDuplicateIsGeneratedAndThrow(studentEntity, isCollectionInProvDupes(studentEntity.getSdcSchoolCollection().getCollectionEntity()));
+      sdcDuplicatesService.checkIfDuplicateIsGeneratedAndThrow(studentEntity, isCollectionInProvDupes(studentEntity.getSdcSchoolCollection().getCollectionEntity()), isStaffMember);
       return validateAndProcessNewSdcSchoolCollectionStudent(studentEntity);
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionEntity.class, "SdcSchoolCollectionEntity", studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID().toString());
@@ -514,7 +514,7 @@ public class SdcSchoolCollectionStudentService {
   }
 
   @Transactional(propagation = Propagation.REQUIRED)
-  public SdcSchoolCollectionStudentEntity updateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity){
+  public SdcSchoolCollectionStudentEntity updateSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity studentEntity, boolean isStaffMember){
     var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
             new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, studentEntity.getSdcSchoolCollectionStudentID().toString()));
     final SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = new SdcSchoolCollectionStudentEntity();
@@ -540,7 +540,7 @@ public class SdcSchoolCollectionStudentService {
     }
 
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
-    sdcDuplicatesService.checkIfDuplicateIsGeneratedAndThrow(processedSdcSchoolCollectionStudent, isCollectionInProvDupes(processedSdcSchoolCollectionStudent.getSdcSchoolCollection().getCollectionEntity()));
+    sdcDuplicatesService.checkIfDuplicateIsGeneratedAndThrow(processedSdcSchoolCollectionStudent, isCollectionInProvDupes(processedSdcSchoolCollectionStudent.getSdcSchoolCollection().getCollectionEntity()), isStaffMember);
     return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
   }
 
