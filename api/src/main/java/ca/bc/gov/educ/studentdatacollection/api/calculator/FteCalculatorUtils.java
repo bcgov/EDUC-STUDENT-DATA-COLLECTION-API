@@ -256,7 +256,7 @@ public class FteCalculatorUtils {
     }
 
     public boolean reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(StudentRuleData studentRuleData) {
-        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), "3");
+        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getHistoricStudentIds(), "3");
 
         for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
             String schoolId = studentEntity.getSdcSchoolCollection().getSchoolID().toString();

@@ -188,8 +188,9 @@ public class ValidationRulesService {
     }
 
     public List<SdcSchoolCollectionStudentEntity> getStudentInHistoricalCollectionInAllDistrict(StudentRuleData studentRuleData) {
+        setupMergedStudentIdValues(studentRuleData);
         String noOfCollectionsForLookup = "3";
-        return sdcSchoolStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), noOfCollectionsForLookup);
+        return sdcSchoolStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
     }
 
     public boolean findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(StudentRuleData studentRuleData) {

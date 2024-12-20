@@ -1084,11 +1084,11 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
          SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS
           WHERE C.collectionID = SSC.collectionEntity.collectionID
           AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
-          AND SSCS.assignedStudentId = :assignedStudentID
+          AND SSCS.assignedStudentId in :assignedStudentID
           AND C.collectionID IN
                   (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
          """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInAllDistrict(UUID assignedStudentID, String noOfCollections);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInAllDistrict(List<UUID> assignedStudentID, String noOfCollections);
 
   @Query(value="""
            SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS, SdcDistrictCollectionEntity SDC
