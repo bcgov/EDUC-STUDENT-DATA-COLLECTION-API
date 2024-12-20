@@ -154,12 +154,14 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollection().getSchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
+            var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
+
             String schoolCode = school.isPresent() ? school.get().getMincode() : "No School Code Found";
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse("No School Name Found");
-            String facilityType = school.isPresent() ? school.get().getFacilityTypeCode() : "No Facility Type Found";
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : "No Facility Type Found";
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
-            csvRowData.add(facilityType);
+            csvRowData.add(finalFacilityType);
         }
         String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
         String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());
@@ -234,12 +236,14 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
+            var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
+
             String schoolCode = school.isPresent() ? school.get().getMincode() : "No School Code Found";
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse("No School Name Found");
-            String facilityType = school.isPresent() ? school.get().getFacilityTypeCode() : "No Facility Type Found";
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : "No Facility Type Found";
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
-            csvRowData.add(facilityType);
+            csvRowData.add(finalFacilityType);
         }
         String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
         String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());

@@ -1356,6 +1356,8 @@ public class CSVReportService {
 
     private List<String> prepareIndyFundingDataForCsv(IndyFundingResult indyFundingResult, School school, District district, IndependentAuthority authority) {
         List<String> csvRowData = new ArrayList<>();
+        var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
+
         csvRowData.addAll(Arrays.asList(
                 district != null ? district.getDistrictNumber() : null,
                 district != null ? district.getDisplayName() : null,
@@ -1363,7 +1365,7 @@ public class CSVReportService {
                 authority != null ? authority.getDisplayName() : null,
                 school.getSchoolNumber(),
                 school.getDisplayName(),
-                school.getFacilityTypeCode(),
+                facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
 
                 TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.KINDHALF.getTypeCode()),
                 TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.KINDFULL.getTypeCode()),
