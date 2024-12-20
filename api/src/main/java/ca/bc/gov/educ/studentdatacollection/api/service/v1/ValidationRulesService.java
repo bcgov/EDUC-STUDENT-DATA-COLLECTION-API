@@ -182,8 +182,9 @@ public class ValidationRulesService {
     }
 
      public List<SdcSchoolCollectionStudentEntity> getStudentInHistoricalCollectionWithInSameDistrict(StudentRuleData studentRuleData) {
-        String noOfCollectionsForLookup = "3";
-        return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), noOfCollectionsForLookup);
+         setupMergedStudentIdValues(studentRuleData);
+         String noOfCollectionsForLookup = "3";
+        return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
     }
 
     public List<SdcSchoolCollectionStudentEntity> getStudentInHistoricalCollectionInAllDistrict(StudentRuleData studentRuleData) {
