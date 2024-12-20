@@ -1060,7 +1060,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
        AND C.collectionID = SSC.collectionEntity.collectionID
        AND SDC.sdcDistrictCollectionID = SSC.sdcDistrictCollectionID
        AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
-       AND SSCS.assignedStudentId in :assignedStudentID
+       AND SSCS.assignedStudentId in :assignedStudentIDs
        AND SSCS.fte > 0
        AND SSCS.sdcSchoolCollectionStudentStatusCode != 'DELETED'
        AND C.collectionID IN
@@ -1084,11 +1084,11 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
          SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS
           WHERE C.collectionID = SSC.collectionEntity.collectionID
           AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
-          AND SSCS.assignedStudentId in :assignedStudentID
+          AND SSCS.assignedStudentId in :assignedStudentIDs
           AND C.collectionID IN
                   (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
          """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInAllDistrict(List<UUID> assignedStudentID, String noOfCollections);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInAllDistrict(List<UUID> assignedStudentIDs, String noOfCollections);
 
   @Query(value="""
            SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS, SdcDistrictCollectionEntity SDC
@@ -1097,13 +1097,13 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             AND C.collectionID = SSC.collectionEntity.collectionID
             AND SDC.sdcDistrictCollectionID = SSC.sdcDistrictCollectionID
             AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
-            AND SSCS.assignedStudentId in :assignedStudentID
+            AND SSCS.assignedStudentId in :assignedStudentIDs
             AND SSCS.enrolledGradeCode NOT IN ('08', '09')
             AND SSCS.fte >= 0
             AND C.collectionID IN
                   (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
             """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(UUID districtID, List<UUID> assignedStudentID, String noOfCollections);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(UUID districtID, List<UUID> assignedStudentIDs, String noOfCollections);
 
   List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(UUID collectionID, List<String> enrolledGradeCode);
 
