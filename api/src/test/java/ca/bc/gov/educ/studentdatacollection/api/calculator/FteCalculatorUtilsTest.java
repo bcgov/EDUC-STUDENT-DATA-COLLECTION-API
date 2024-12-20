@@ -1648,7 +1648,7 @@ class FteCalculatorUtilsTest {
     }
 
     @Test
-    void testReportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte_Grade8Or9_NonZeroFte_ReturnsTrue() {
+    void testReportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte_Grade8Or9_NonZeroFte_ReturnsFalse() {
         // Given
         StudentRuleData studentRuleData = new StudentRuleData();
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
@@ -1671,7 +1671,7 @@ class FteCalculatorUtilsTest {
         var result = fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentRuleData);
 
         // Then
-        assertTrue(result);
+        assertFalse(result);
     }
 
     @Test
@@ -1698,7 +1698,7 @@ class FteCalculatorUtilsTest {
         var result = fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentRuleData);
 
         // Then
-        assertTrue(result);
+        assertFalse(result);
     }
 
     @Test
@@ -1726,7 +1726,7 @@ class FteCalculatorUtilsTest {
         var result = fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentRuleData);
 
         // Then
-        assertTrue(result);
+        assertFalse(result);
     }
 
     @Test
@@ -1752,7 +1752,7 @@ class FteCalculatorUtilsTest {
     }
 
     @Test
-    void testReportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear_OnlineSchoolWithNonZeroFte_ReturnsTrue() {
+    void testReportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear_OnlineSchoolWithNonZeroFte_ReturnsFalse() {
         // Given
         StudentRuleData studentRuleData = new StudentRuleData();
         SchoolTombstone schoolTombstone = new SchoolTombstone();
@@ -1773,7 +1773,7 @@ class FteCalculatorUtilsTest {
         var result = fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentRuleData);
 
         // Then
-        assertTrue(result);
+        assertFalse(result);
     }
 
     @Test

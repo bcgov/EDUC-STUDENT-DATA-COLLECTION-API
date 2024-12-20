@@ -227,6 +227,7 @@ public class FteCalculatorUtils {
 
     public boolean includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(StudentRuleData studentRuleData) {
         // non-zero fte is checked in query
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), "3");
 
         for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
@@ -242,6 +243,7 @@ public class FteCalculatorUtils {
 
     public boolean includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(StudentRuleData studentRuleData) {
         // non-zero fte is checked in query
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), "3");
 
         for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
@@ -256,6 +258,7 @@ public class FteCalculatorUtils {
     }
 
     public boolean reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(StudentRuleData studentRuleData) {
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getHistoricStudentIds(), "3");
 
         for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
@@ -272,6 +275,7 @@ public class FteCalculatorUtils {
     }
 
     public boolean reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(StudentRuleData studentRuleData) {
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         String noOfCollectionsForLookup = "3";
         List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
         return !entity.isEmpty();

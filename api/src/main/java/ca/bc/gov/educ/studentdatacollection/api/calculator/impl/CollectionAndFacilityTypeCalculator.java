@@ -34,7 +34,6 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
         // For July Collection and facility type different than Summer School:
         if (isJulyCollection && !isFacilityTypeSummerSchool) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
-            validationRulesService.setupMergedStudentIdValues(studentData);
 
             // v93
             var includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(studentData);
