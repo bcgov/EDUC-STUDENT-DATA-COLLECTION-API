@@ -85,16 +85,16 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
-    public SdcSchoolCollectionStudent createAndUpdateSdcSchoolCollectionStudent(SdcSchoolCollectionStudent sdcSchoolCollectionStudent) {
+    public SdcSchoolCollectionStudent createAndUpdateSdcSchoolCollectionStudent(SdcSchoolCollectionStudent sdcSchoolCollectionStudent, boolean isStaffMember) {
         ValidationUtil.validatePayload(() -> this.schoolCollectionStudentValidator.validatePayload(sdcSchoolCollectionStudent));
          if(StringUtils.isNotBlank(sdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())) {
              RequestUtil.setAuditColumnsForUpdate(sdcSchoolCollectionStudent);
             return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent
-                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
+                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent), isStaffMember));
         } else {
              RequestUtil.setAuditColumnsForCreate(sdcSchoolCollectionStudent);
             return mapper.toSdcSchoolCollectionStudentWithValidationIssues(sdcSchoolCollectionStudentService.createSdcSchoolCollectionStudent
-                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent)));
+                    (mapper.toSdcSchoolStudentEntity(sdcSchoolCollectionStudent), isStaffMember));
         }
 
     }

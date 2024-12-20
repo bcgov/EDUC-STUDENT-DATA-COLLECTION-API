@@ -112,7 +112,7 @@ public class SdcDuplicatesService {
     return sdcDuplicateEntity.orElseThrow(() -> new EntityNotFoundException(SdcDuplicateEntity.class, SDC_DUPLICATE_ID_KEY, sdcDuplicateID.toString()));
   }
 
-  public void checkIfDuplicateIsGeneratedAndThrow(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity, boolean isCollectionInProvDupes){
+  public void checkIfDuplicateIsGeneratedAndThrow(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity, boolean isCollectionInProvDupes, boolean isStaffMember){
     if(isCollectionInProvDupes) {
       List<SdcSchoolCollectionStudentEntity> allStudentsWithSameAssignedStudentId = sdcSchoolCollectionStudentRepository
               .findAllDuplicateStudentsByCollectionID(sdcSchoolCollectionStudentEntity.getSdcSchoolCollection().getCollectionEntity().getCollectionID(), Collections.singletonList(sdcSchoolCollectionStudentEntity.getAssignedStudentId()));
@@ -127,8 +127,15 @@ public class SdcDuplicatesService {
       //Generate new PROV dupes
       List<SdcDuplicateEntity> generatedDuplicates = generateFinalDuplicatesSet(duplicateStudentEntities, DuplicateLevelCode.PROVINCIAL, false);
 
-      Optional<SdcDuplicateEntity> duplicateWithStudentID = generatedDuplicates.stream().filter(dupe -> dupe.getSdcDuplicateStudentEntities()
-              .stream().anyMatch(stu -> stu.getSdcSchoolCollectionStudentEntity().getCurrentDemogHash().equals(sdcSchoolCollectionStudentEntity.getCurrentDemogHash()))).findFirst();
+      Optional<SdcDuplicateEntity> duplicateWithStudentID;
+      if(!isStaffMember) {
+        duplicateWithStudentID = generatedDuplicates.stream().filter(dupe -> dupe.getSdcDuplicateStudentEntities()
+                .stream().anyMatch(stu -> stu.getSdcSchoolCollectionStudentEntity().getCurrentDemogHash().equals(sdcSchoolCollectionStudentEntity.getCurrentDemogHash()))
+                && dupe.getDuplicateTypeCode().equalsIgnoreCase(DuplicateTypeCode.ENROLLMENT.getCode())).findFirst();
+      }else{
+        duplicateWithStudentID = generatedDuplicates.stream().filter(dupe -> dupe.getSdcDuplicateStudentEntities()
+                .stream().anyMatch(stu -> stu.getSdcSchoolCollectionStudentEntity().getCurrentDemogHash().equals(sdcSchoolCollectionStudentEntity.getCurrentDemogHash()))).findFirst();
+      }
 
       if (duplicateWithStudentID.isPresent()) {
         log.debug("SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate on save :: {}", sdcSchoolCollectionStudentEntity.getAssignedStudentId());

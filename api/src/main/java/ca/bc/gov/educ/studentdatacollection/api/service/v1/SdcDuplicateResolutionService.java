@@ -153,8 +153,8 @@ public class SdcDuplicateResolutionService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void changeGrade(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudent) {
-    sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudent);
+  public void changeGrade(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudent, boolean isStaffMember) {
+    sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudent, isStaffMember);
   }
 
   public SdcSchoolCollectionStudentLightEntity identifyStudentToEdit(SdcSchoolCollectionStudentLightEntity student1, SdcSchoolCollectionStudentLightEntity student2, SchoolTombstone school1, SchoolTombstone school2){
@@ -225,11 +225,11 @@ public class SdcDuplicateResolutionService {
 
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void updateStudents(List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent) {
+  public void updateStudents(List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent, boolean isStaffMember) {
     // update students
     sdcSchoolCollectionStudent.forEach(student -> {
       RequestUtil.setAuditColumnsForUpdate(student);
-      sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentEntity(student));
+      sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentEntity(student), isStaffMember);
     });
   }
 }
