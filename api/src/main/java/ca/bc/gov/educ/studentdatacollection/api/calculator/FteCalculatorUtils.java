@@ -273,7 +273,7 @@ public class FteCalculatorUtils {
 
     public boolean reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(StudentRuleData studentRuleData) {
         String noOfCollectionsForLookup = "3";
-        List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(), noOfCollectionsForLookup);
+        List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
         return !entity.isEmpty();
     }
 

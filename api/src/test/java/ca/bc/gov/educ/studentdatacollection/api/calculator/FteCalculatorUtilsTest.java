@@ -1663,7 +1663,7 @@ class FteCalculatorUtilsTest {
         school.setDistrictId(UUID.randomUUID().toString());
         studentRuleData.setSchool(school);
 
-        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(any(UUID.class), any(UUID.class), any(String.class))).thenReturn(Collections.singletonList(previousStudentEntity));
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(any(UUID.class), anyList(), any(String.class))).thenReturn(Collections.singletonList(previousStudentEntity));
 
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
 
@@ -1690,7 +1690,7 @@ class FteCalculatorUtilsTest {
         school.setDistrictId(UUID.randomUUID().toString());
         studentRuleData.setSchool(school);
 
-        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(any(UUID.class), any(UUID.class), any(String.class))).thenReturn(Collections.singletonList(previousStudentEntity));
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(any(UUID.class), anyList(), any(String.class))).thenReturn(Collections.singletonList(previousStudentEntity));
 
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
 
@@ -1717,7 +1717,7 @@ class FteCalculatorUtilsTest {
         school.setDistrictId(UUID.randomUUID().toString());
         studentRuleData.setSchool(school);
 
-        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(any(UUID.class), any(UUID.class), any(String.class)))
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(any(UUID.class), anyList(), any(String.class)))
                 .thenReturn(Collections.singletonList(previousStudentEntity));
 
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
@@ -1740,7 +1740,7 @@ class FteCalculatorUtilsTest {
         school.setDistrictId(UUID.randomUUID().toString());
         studentRuleData.setSchool(school);
 
-        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(any(UUID.class), any(UUID.class), any(String.class))).thenReturn(Collections.emptyList());
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(any(UUID.class),anyList(), any(String.class))).thenReturn(Collections.emptyList());
 
         studentRuleData.setSdcSchoolCollectionStudentEntity(student);
 
