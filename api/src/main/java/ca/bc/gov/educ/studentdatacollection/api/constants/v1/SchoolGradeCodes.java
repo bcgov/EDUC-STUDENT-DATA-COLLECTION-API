@@ -197,6 +197,14 @@ public enum SchoolGradeCodes {
         return codes;
     }
 
+    public static List<String> getGrades10to12() {
+        List<String> codes = new ArrayList<>();
+        codes.add(GRADE10.getCode());
+        codes.add(GRADE11.getCode());
+        codes.add(GRADE12.getCode());
+        return codes;
+    }
+
     public static List<String> getGrades8and9() {
         List<String> codes = new ArrayList<>();
         codes.add(GRADE08.getCode());
