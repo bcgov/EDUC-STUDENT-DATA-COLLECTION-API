@@ -22,6 +22,7 @@ import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -67,9 +68,10 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
         final Student studentDataFromEventResponse = this.restUtils.getStudentByPEN(UUID.randomUUID(), updateStudentSagaData.getAssignedPEN());
-        final List<SdcSchoolCollectionStudentEntity> otherStudentsWithSameAssignedID = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(UUID.fromString(updateStudentSagaData.getCollectionID()), Collections.singletonList(UUID.fromString(updateStudentSagaData.getAssignedStudentID())));
+        final List<SdcSchoolCollectionStudentEntity> otherStudentsWithSameAssignedID =sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsInCollection(UUID.fromString(updateStudentSagaData.getCollectionID()), UUID.fromString(updateStudentSagaData.getAssignedStudentID()), UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()));
 
-        if (otherStudentsWithSameAssignedID.size() == 1 || isStudentAttendingSchoolOfRecord(updateStudentSagaData, otherStudentsWithSameAssignedID)){
+
+        if (CollectionUtils.isEmpty(otherStudentsWithSameAssignedID) || isStudentAttendingSchoolOfRecord(updateStudentSagaData, otherStudentsWithSameAssignedID)){
 
             studentDataFromEventResponse.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
             studentDataFromEventResponse.setMincode(updateStudentSagaData.getMincode());
@@ -113,7 +115,7 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
 
             Integer minOtherSchoolsMincodes = Collections.min(otherSchoolsMincodes);
             Integer currSchoolMincode = extractRelevantMincode(currStudentSchool);
-            return currSchoolMincode < minOtherSchoolsMincodes;
+            return currSchoolMincode <= minOtherSchoolsMincodes;
         } else if(currStudent.getNumberOfCourses() != null && Float.parseFloat(currStudent.getNumberOfCourses()) > maxCourseNumberFromOtherStudents){
             return true;
         } else if(hasSameNoOfCourses(maxCourseNumberFromOtherStudents, currStudent) && currStudentSchool.getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.PUBLIC.getCode()) && !otherSchoolsIncludePublic(otherStudentSchoolTombstones)) {
