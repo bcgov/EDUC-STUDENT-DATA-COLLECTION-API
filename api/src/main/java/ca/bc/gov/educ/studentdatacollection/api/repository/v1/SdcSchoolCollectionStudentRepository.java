@@ -1005,6 +1005,16 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     """)
   List<SdcSchoolCollectionStudentEntity> findAllDuplicateStudentsByCollectionID(UUID collectionID, List<UUID> matchedAssignedIDs);
 
+  @Query(value = """  
+    SELECT stud
+    FROM SdcSchoolCollectionStudentEntity stud
+    WHERE stud.assignedStudentId = :assignedStudentId
+    and stud.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+    and stud.sdcSchoolCollectionStudentID != :sdcSchoolCollectionStudentID
+    and stud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+    """)
+  List<SdcSchoolCollectionStudentEntity> findAllDuplicatesForStudentInCollection(UUID collectionID, UUID assignedStudentId, UUID sdcSchoolCollectionStudentID);
+
   @Query("SELECT " +
           "COUNT(DISTINCT CASE WHEN s.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = s AND (si.validationIssueCode = 'REFUGEEINPREVCOL' OR si.validationIssueCode = 'REFUGEEISADULT')) THEN s.sdcSchoolCollectionStudentID ELSE NULL END) AS eligibleStudents, " +
           "COUNT(DISTINCT CASE WHEN s.schoolFundingCode = '16' THEN s.sdcSchoolCollectionStudentID ELSE NULL END) AS reportedStudents, " +
