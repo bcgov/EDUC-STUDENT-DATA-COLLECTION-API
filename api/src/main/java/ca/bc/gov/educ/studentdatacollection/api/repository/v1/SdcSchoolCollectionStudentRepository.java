@@ -1013,7 +1013,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     and stud.sdcSchoolCollectionStudentID != :sdcSchoolCollectionStudentID
     and stud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
     """)
-  List<SdcSchoolCollectionStudentEntity> findAllDuplicateStudentsInCollection(UUID collectionID, UUID assignedStudentId, UUID sdcSchoolCollectionStudentID);
+  List<SdcSchoolCollectionStudentEntity> findAllDuplicatesForStudentInCollection(UUID collectionID, UUID assignedStudentId, UUID sdcSchoolCollectionStudentID);
 
   @Query("SELECT " +
           "COUNT(DISTINCT CASE WHEN s.schoolFundingCode = '16' AND NOT EXISTS (SELECT 1 FROM SdcSchoolCollectionStudentValidationIssueEntity si WHERE si.sdcSchoolCollectionStudentEntity = s AND (si.validationIssueCode = 'REFUGEEINPREVCOL' OR si.validationIssueCode = 'REFUGEEISADULT')) THEN s.sdcSchoolCollectionStudentID ELSE NULL END) AS eligibleStudents, " +
