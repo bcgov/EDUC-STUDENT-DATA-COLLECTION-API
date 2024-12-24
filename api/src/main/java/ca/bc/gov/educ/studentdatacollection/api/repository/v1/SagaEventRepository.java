@@ -40,6 +40,7 @@ public interface SagaEventRepository extends JpaRepository<SagaEventStatesEntity
 
   @Transactional
   @Modifying
-  @Query(value = "delete from SDC_SAGA_EVENT_STATES e where exists(select 1 from SDC_SAGA s where s.SAGA_ID = e.SAGA_ID and s.CREATE_DATE <= :createDate)", nativeQuery = true)
-  void deleteBySagaCreateDateBefore(LocalDateTime createDate);
+  @Query(value = "delete from SDC_SAGA_EVENT_STATES e where e.SAGA_ID in (select s.SAGA_ID from SDC_SAGA s where s.STATUS in :cleanupStatus and s.CREATE_DATE <= :createDate and s.SAGA_ID in :sagaIDsToDelete)", nativeQuery = true)
+  void deleteByStatusAndCreateDateBefore(List<String> cleanupStatus, LocalDateTime createDate, List<UUID> sagaIDsToDelete);
+
 }

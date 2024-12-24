@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.repository.v1;
 
 
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSagaEntity;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -30,17 +31,20 @@ public interface SagaRepository extends JpaRepository<SdcSagaEntity, UUID>, JpaS
 
   long countAllByStatusIn(List<String> statuses);
 
+  long countAllByStatusInAndCreateDateBefore(List<String> statuses, LocalDateTime createDate);
+
+  @Query(value = "SELECT s.SAGA_ID FROM SDC_SAGA s WHERE s.STATUS in :cleanupStatus and s.CREATE_DATE <= :createDate LIMIT :batchSize", nativeQuery = true)
+  List<UUID> findByStatusInAndCreateDateBefore(List<String> cleanupStatus, LocalDateTime createDate, int batchSize);
+
   @Transactional
   @Modifying
-  @Query("delete from SdcSagaEntity where createDate <= :createDate")
-  void deleteByCreateDateBefore(LocalDateTime createDate);
+  @Query(value = "DELETE FROM SDC_SAGA saga where saga.STATUS in :cleanupStatus and saga.CREATE_DATE <= :createDate AND saga.SAGA_ID in :sagaIDsToDelete", nativeQuery = true)
+  void deleteByStatusAndCreateDateBefore(List<String> cleanupStatus, LocalDateTime createDate, List<UUID> sagaIDsToDelete);
 
   @Transactional
   @Modifying
   @Query(value = "DELETE FROM SDC_SAGA saga " +
           "  WHERE saga.STATUS = 'COMPLETED' AND saga.SAGA_NAME = 'STUDENT_DATA_COLLECTION_STUDENT_MIGRATION_SAGA'", nativeQuery = true)
   void deleteCompletedMigrationSagas();
-
-
 
 }
