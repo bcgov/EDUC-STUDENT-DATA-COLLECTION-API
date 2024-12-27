@@ -19,6 +19,7 @@ import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,7 @@ public class SdcDuplicatesService {
   private final ValidationRulesService validationRulesService;
   private final ScheduleHandlerService scheduleHandlerService;
   private final SdcSchoolCollectionHistoryRepository sdcSchoolHistoryRepository;
+  private final SdcSchoolCollectionHistoryService sdcSchoolHistoryService;
   private static final SdcSchoolCollectionStudentMapper sdcSchoolCollectionStudentMapper = SdcSchoolCollectionStudentMapper.mapper;
   private final RestUtils restUtils;
   private static final String SDC_DUPLICATE_ID_KEY = "sdcDuplicateID";
@@ -198,20 +200,37 @@ public class SdcDuplicatesService {
     sdcDuplicateRepository.saveAll(finalDuplicatesSet);
 
     this.collectionRepository.updateCollectionStatus(collectionID, String.valueOf(CollectionStatus.PROVDUPES));
+    List<SdcSchoolCollectionEntity> schoolCollectionsWithoutDupes = sdcSchoolCollectionRepository.findAllSchoolCollectionsWithoutProvincialDupes(collectionID);
+    List<SdcSchoolCollectionEntity> schoolCollectionsWithDupes = sdcSchoolCollectionRepository.findAllSchoolCollectionsWithProvincialDupes(collectionID);
 
-    List<UUID> schoolCollectionsWithoutDupes = sdcSchoolCollectionRepository.findAllSchoolCollectionsWithoutProvincialDupes(collectionID)
-            .stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList();
-    List<UUID> schoolCollectionsWithDupes = sdcSchoolCollectionRepository.findAllSchoolCollectionsWithProvincialDupes(collectionID)
-            .stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList();
-
-    //update school collection status
-    sdcSchoolCollectionRepository.updateSchoolCollectionStatus(schoolCollectionsWithoutDupes, SdcSchoolCollectionStatus.COMPLETED.getCode());
-    sdcSchoolCollectionRepository.updateSchoolCollectionStatus(schoolCollectionsWithDupes, SdcSchoolCollectionStatus.P_DUP_POST.getCode());
-
-    //update school collection history
-    sdcSchoolHistoryRepository.updateSchoolCollectionStatus(schoolCollectionsWithoutDupes, SdcSchoolCollectionStatus.COMPLETED.getCode());
-    sdcSchoolHistoryRepository.updateSchoolCollectionStatus(schoolCollectionsWithDupes, SdcSchoolCollectionStatus.P_DUP_POST.getCode());
-
+    if(CollectionUtils.isNotEmpty(schoolCollectionsWithoutDupes)) {
+      List<UUID> schoolCollectionsWithoutDupeIDs = new ArrayList<>();
+      List<SdcSchoolCollectionHistoryEntity> schoolCollectionsWithoutDupeHistory = new ArrayList<>();
+      schoolCollectionsWithoutDupes.stream()
+              .forEach(sdcSchoolCollectionEntity -> {
+                schoolCollectionsWithoutDupeIDs.add(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+                sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.COMPLETED.getCode());
+                schoolCollectionsWithoutDupeHistory.add(sdcSchoolHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser()));
+              });
+      //update school collection status
+      sdcSchoolCollectionRepository.updateSchoolCollectionStatus(schoolCollectionsWithoutDupeIDs, SdcSchoolCollectionStatus.COMPLETED.getCode());
+      //update school collection history
+      sdcSchoolHistoryRepository.saveAll(schoolCollectionsWithoutDupeHistory);
+    }
+    if(CollectionUtils.isNotEmpty(schoolCollectionsWithDupes)) {
+      List<UUID> schoolCollectionsWithDupeIDs = new ArrayList<>();
+      List<SdcSchoolCollectionHistoryEntity> schoolCollectionsWithDupeHistory = new ArrayList<>();
+      schoolCollectionsWithDupes.stream()
+              .forEach(sdcSchoolCollectionEntity -> {
+                schoolCollectionsWithDupeIDs.add(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+                sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.P_DUP_POST.getCode());
+                schoolCollectionsWithDupeHistory.add(sdcSchoolHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser()));
+              });
+      //update school collection status
+      sdcSchoolCollectionRepository.updateSchoolCollectionStatus(schoolCollectionsWithDupeIDs, SdcSchoolCollectionStatus.P_DUP_POST.getCode());
+      //update school collection history
+      sdcSchoolHistoryRepository.saveAll(schoolCollectionsWithDupeHistory);
+    }
     sdcDistrictCollectionRepository.updateAllDistrictCollectionStatus(collectionID, String.valueOf(SdcDistrictCollectionStatus.P_DUP_POST));
   }
 
