@@ -179,7 +179,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
 
-        entity.setDob(LocalDateTime.now().minusYears(6).format(format));
+        entity.setDob(LocalDateTime.now().minusYears(7).format(format));
         val saga = createMockStudentRuleData(entity, school);
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
 
