@@ -327,7 +327,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = createMockSchoolStudentForSagaEntity(sdcSchoolCollectionEntityOrig);
 
         sdcSchoolCollectionStudentEntity.setEnrolledGradeCode("08");
-        sdcSchoolCollectionStudentEntity.setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 5, 0, 0));
+        sdcSchoolCollectionStudentEntity.setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.JANUARY, 1, 0, 0));
         sdcSchoolCollectionStudentRepository.save(sdcSchoolCollectionStudentEntity);
         this.studentData.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentEntity);
 
@@ -386,7 +386,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = createMockSchoolStudentForSagaEntity(sdcSchoolCollectionEntityOrig);
 
         sdcSchoolCollectionStudentEntity.setEnrolledGradeCode("08");
-        sdcSchoolCollectionStudentEntity.setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 5, 0, 0));
+        sdcSchoolCollectionStudentEntity.setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.JANUARY, 1, 0, 0));
         sdcSchoolCollectionStudentRepository.save(sdcSchoolCollectionStudentEntity);
         this.studentData.setSdcSchoolCollectionStudentEntity(sdcSchoolCollectionStudentEntity);
 
@@ -439,7 +439,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
 
         SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = createMockSchoolStudentForSagaEntity(sdcSchoolCollection);
         sdcSchoolCollectionStudentEntity.setEnrolledGradeCode("08");
-        sdcSchoolCollectionStudentEntity.setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 5, 0, 0));
+        sdcSchoolCollectionStudentEntity.setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.JANUARY, 1, 0, 0));
 
         sdcSchoolCollectionStudentRepository.save(sdcSchoolCollectionStudentEntity);
 
@@ -541,7 +541,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
 
         SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = createMockSchoolStudentForSagaEntity(sdcSchoolCollectionEntityOrig);
         sdcSchoolCollectionStudentEntity.setEnrolledGradeCode("KH");
-        sdcSchoolCollectionStudentEntity.setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.FEBRUARY, 5, 0, 0));
+        sdcSchoolCollectionStudentEntity.setCreateDate(LocalDateTime.of(LocalDateTime.now().getYear(), Month.JANUARY, 1, 0, 0));
 
         sdcSchoolCollectionStudentRepository.save(sdcSchoolCollectionStudentEntity);
 
