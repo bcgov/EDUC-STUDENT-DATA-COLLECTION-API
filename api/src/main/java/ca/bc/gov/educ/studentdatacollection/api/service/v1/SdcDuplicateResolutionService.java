@@ -123,7 +123,7 @@ public class SdcDuplicateResolutionService {
         studentToRemove = institute1Number < institute2Number ? student2 : student1;
       }
     } else {
-      studentToRemove = dupe1ClassNum.compareTo(dupe2ClassNum) < 0 ? student1 : student2;
+      studentToRemove = dupe1ClassNum.compareTo(dupe2ClassNum) < 0 ? student2 : student1;
     }
 
     return studentToRemove;

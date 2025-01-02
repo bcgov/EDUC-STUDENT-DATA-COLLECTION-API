@@ -3452,7 +3452,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        collection.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.FEBRUARY, 7, 0, 0));
+        collection.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.JANUARY, 1, 0, 0));
         CollectionEntity collection2 = collectionRepository.save(createMockCollectionEntity());
         collection2.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
         collection2.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
@@ -3472,7 +3472,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         firstSchool.setUploadFileName(null);
         firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
         firstSchool.setCollectionEntity(collection);
-        firstSchool.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.FEBRUARY, 7, 0, 0));
+        firstSchool.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.JANUARY, 1, 0, 0));
         var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
         secondSchool.setUploadDate(null);
         secondSchool.setUploadFileName(null);
@@ -3525,7 +3525,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        collection.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.FEBRUARY, 7, 0, 0));
+        collection.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.JANUARY, 1, 0, 0));
         CollectionEntity collection2 = collectionRepository.save(createMockCollectionEntity());
         collection2.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
         collection2.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
@@ -3545,7 +3545,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         firstSchool.setUploadFileName(null);
         firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
         firstSchool.setCollectionEntity(collection);
-        firstSchool.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.FEBRUARY, 7, 0, 0));
+        firstSchool.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.JANUARY, 1, 0, 0));
         var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
         secondSchool.setUploadDate(null);
         secondSchool.setUploadFileName(null);
