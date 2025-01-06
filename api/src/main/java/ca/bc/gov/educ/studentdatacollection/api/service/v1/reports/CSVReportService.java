@@ -104,31 +104,34 @@ public class CSVReportService {
                 var schoolOpt = restUtils.getAllSchoolBySchoolID(result.getSchoolID());
                 if(schoolOpt.isPresent()) {
                     var school = schoolOpt.get();
-                    var districtOpt = restUtils.getDistrictByDistrictID(school.getDistrictId());
 
-                    District district = null;
-                    if (districtOpt.isPresent()) {
-                        district = districtOpt.get();
-                    }
+                    if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
+                        var districtOpt = restUtils.getDistrictByDistrictID(school.getDistrictId());
 
-                    Optional<IndependentAuthority> authorityOpt = Optional.empty();
-                    if (school.getIndependentAuthorityId() != null) {
-                        authorityOpt = restUtils.getAuthorityByAuthorityID(school.getIndependentAuthorityId());
-                    }
+                        District district = null;
+                        if (districtOpt.isPresent()) {
+                            district = districtOpt.get();
+                        }
 
-                    IndependentAuthority authority = null;
-                    if (authorityOpt.isPresent()) {
-                        authority = authorityOpt.get();
-                    }
+                        Optional<IndependentAuthority> authorityOpt = Optional.empty();
+                        if (school.getIndependentAuthorityId() != null) {
+                            authorityOpt = restUtils.getAuthorityByAuthorityID(school.getIndependentAuthorityId());
+                        }
 
-                    // If it's online learning, only include schools with online facility types
-                    List<String> csvRowData = null;
-                    if (!Boolean.TRUE.equals(isOnlineLearning) || FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.getFacilityTypeCode())) {
-                        csvRowData = prepareIndyFundingDataForCsv(result, school, district, authority);
-                    }
+                        IndependentAuthority authority = null;
+                        if (authorityOpt.isPresent()) {
+                            authority = authorityOpt.get();
+                        }
 
-                    if (csvRowData != null) {
-                        csvPrinter.printRecord(csvRowData);
+                        // If it's online learning, only include schools with online facility types
+                        List<String> csvRowData = null;
+                        if (!Boolean.TRUE.equals(isOnlineLearning) || FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.getFacilityTypeCode())) {
+                            csvRowData = prepareIndyFundingDataForCsv(result, school, district, authority);
+                        }
+
+                        if (csvRowData != null) {
+                            csvPrinter.printRecord(csvRowData);
+                        }
                     }
                 }
             }
