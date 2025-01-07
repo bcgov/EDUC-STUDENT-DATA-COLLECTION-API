@@ -42,7 +42,7 @@ public class SdcDuplicateResolutionService {
   private final RestUtils restUtils;
   private static final String SDC_DUPLICATE_ID_KEY = "sdcDuplicateID";
   private static final String COLLECTION_ID_NOT_ACTIVE_MSG = "Provided collectionID does not match currently active collectionID.";
-  private static final List<String> independentSchoolCategoryCodes = Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode(), SchoolCategoryCodes.FED_BAND.getCode(), SchoolCategoryCodes.OFFSHORE.getCode());
+  private static final List<String> independentSchoolCategoryCodes = Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode(), SchoolCategoryCodes.OFFSHORE.getCode());
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void resolveRemainingDuplicates(UUID collectionID){

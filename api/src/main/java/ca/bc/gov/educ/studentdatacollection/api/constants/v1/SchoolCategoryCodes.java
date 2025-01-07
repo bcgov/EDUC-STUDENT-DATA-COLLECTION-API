@@ -16,7 +16,6 @@ public enum SchoolCategoryCodes {
     MISC("MISC"),
     PUBLIC("PUBLIC"),
     INDEPEND("INDEPEND"),
-    FED_BAND("FED_BAND"),
     OFFSHORE("OFFSHORE"),
     EAR_LEARN("EAR_LEARN"),
     YUKON("YUKON"),
@@ -24,11 +23,11 @@ public enum SchoolCategoryCodes {
     INDP_FNS("INDP_FNS");
 
     private final String code;
-    public static final Set<String> INDEPENDENTS = new HashSet<>(Arrays.asList(INDEPEND.getCode(), INDP_FNS.getCode(), FED_BAND.getCode()));
-    public static final Set<String> INDEPENDENTS_AND_OFFSHORE = new HashSet<>(Arrays.asList(INDEPEND.getCode(), INDP_FNS.getCode(), OFFSHORE.getCode(), FED_BAND.getCode()));
+    public static final Set<String> INDEPENDENTS = new HashSet<>(Arrays.asList(INDEPEND.getCode(), INDP_FNS.getCode()));
+    public static final Set<String> INDEPENDENTS_AND_OFFSHORE = new HashSet<>(Arrays.asList(INDEPEND.getCode(), INDP_FNS.getCode(), OFFSHORE.getCode()));
     SchoolCategoryCodes(String code) { this.code = code; }
 
     public static String[] getActiveSchoolCategoryCodes(){
-        return new String[]{EAR_LEARN.getCode(), FED_BAND.getCode(), INDEPEND.getCode(), INDP_FNS.getCode(), OFFSHORE.getCode(), POST_SEC.getCode(), PUBLIC.getCode(), YUKON.getCode()};
+        return new String[]{EAR_LEARN.getCode(), INDEPEND.getCode(), INDP_FNS.getCode(), OFFSHORE.getCode(), POST_SEC.getCode(), PUBLIC.getCode(), YUKON.getCode()};
     }
 }

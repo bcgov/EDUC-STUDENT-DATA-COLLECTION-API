@@ -70,8 +70,11 @@ public class CSVReportService {
     public DownloadableReportResponse generateIndyFundingReport(UUID collectionID, Boolean isOnlineLearning, Boolean isNonGraduatedAdult) {
         List<IndyFundingResult> results;
         // if it's non-graduated adult report variant use query for non-graduated adults
-        if (Boolean.TRUE.equals(isNonGraduatedAdult)) results = sdcSchoolCollectionStudentRepository.getIndyFundingHeadcountsNonGraduatedAdultByCollectionId(collectionID);
-        else results = sdcSchoolCollectionStudentRepository.getIndyFundingHeadcountsByCollectionId(collectionID);
+        if (Boolean.TRUE.equals(isNonGraduatedAdult)){
+            results = sdcSchoolCollectionStudentRepository.getIndyFundingHeadcountsNonGraduatedAdultByCollectionId(collectionID);
+        } else {
+            results = sdcSchoolCollectionStudentRepository.getIndyFundingHeadcountsByCollectionId(collectionID);
+        }
         var collectionOpt = collectionRepository.findById(collectionID);
         if(collectionOpt.isEmpty()){
             throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
@@ -939,7 +942,7 @@ public class CSVReportService {
     }
 
     private boolean shouldIncludeSchoolForEnrolledHeadcountsAndFteReport(SchoolTombstone school){
-        var invalidSchoolCategories = new String[]{SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode(), SchoolCategoryCodes.FED_BAND.getCode(), SchoolCategoryCodes.OFFSHORE.getCode()};
+        var invalidSchoolCategories = new String[]{SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode(), SchoolCategoryCodes.OFFSHORE.getCode()};
         var invalidFacilityTypes = new String[]{FacilityTypeCodes.LONG_PRP.getCode(), FacilityTypeCodes.SHORT_PRP.getCode(), FacilityTypeCodes.YOUTH.getCode()};
         var categoryCode = school.getSchoolCategoryCode();
         var facilityType = school.getFacilityTypeCode();
