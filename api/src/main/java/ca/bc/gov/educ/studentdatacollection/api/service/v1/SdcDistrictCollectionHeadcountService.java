@@ -31,6 +31,7 @@ public class SdcDistrictCollectionHeadcountService {
   private final RefugeeHeadcountHelper refugeeHeadcountHelper;
   private final ZeroFTEHeadcountHelper zeroFTEHeadcountHelper;
 
+  // All Students By District report
   public SdcSchoolCollectionStudentHeadcounts getEnrollmentHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
     var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
     enrollmentHeadcountHelper.setGradeCodesForDistricts();
@@ -83,6 +84,7 @@ public class SdcDistrictCollectionHeadcountService {
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
   }
 
+  // Eligible Inclusive Education Variance Headcounts report
   public SdcSchoolCollectionStudentHeadcounts getSpecialEdVarianceHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity) {
     specialEdHeadcountHelper.setGradeCodesForDistricts();
     UUID districtID = sdcDistrictCollectionEntity.getDistrictID();

@@ -67,6 +67,7 @@ public class CSVReportService {
     private static final String HEADCOUNTS_INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and MAY collections";
     private static final String REFUGEE_HEADCOUNTS_INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB collection";
 
+    // Independent School Funding Report - Standard Student report AND Independent School Funding Report - Online Learning report AND Independent School Funding Report - Non Graduated Adult report
     public DownloadableReportResponse generateIndyFundingReport(UUID collectionID, Boolean isOnlineLearning, Boolean isNonGraduatedAdult) {
         List<IndyFundingResult> results;
         // if it's non-graduated adult report variant use query for non-graduated adults
@@ -192,6 +193,7 @@ public class CSVReportService {
         }
     }
 
+    // School Enrolment Headcounts report
     public DownloadableReportResponse generateAllSchoolsHeadcounts(UUID collectionID) {
         List<SchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllEnrollmentHeadcountsByCollectionId(collectionID);
         var collectionOpt = collectionRepository.findById(collectionID);
@@ -229,6 +231,7 @@ public class CSVReportService {
         }
     }
 
+    // Independent School Enrolment Headcounts report
     public DownloadableReportResponse generateIndySchoolsHeadcounts(UUID collectionID) {
         List<IndySchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
 
@@ -311,6 +314,7 @@ public class CSVReportService {
         }
     }
 
+    // FSA Registration Report
     public DownloadableReportResponse generateFsaRegistrationCsv(UUID collectionID) {
         Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
         if(entityOptional.isEmpty()) {
@@ -394,6 +398,7 @@ public class CSVReportService {
         }
     }
 
+    // Independent School Inclusive Education Headcounts report
     public DownloadableReportResponse generateIndySpecialEducationHeadcounts(UUID collectionID) {
         List<IndySpecialEdAdultHeadcountResult> results = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
         var collectionOpt = collectionRepository.findById(collectionID);
@@ -449,6 +454,7 @@ public class CSVReportService {
         }
     }
 
+    // Independent School Inclusive Education Funding Headcounts report
     public DownloadableReportResponse generateIndySpecialEducationFundingHeadcounts(UUID collectionID) {
         List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionId(collectionID);
         var mappedSeptData = getLastSeptCollectionSchoolMap(collectionID);
@@ -555,6 +561,7 @@ public class CSVReportService {
         return csvRowData;
     }
 
+    // Offshore School Enrolment Headcounts report
     public DownloadableReportResponse generateOffshoreSchoolsHeadcounts(UUID collectionID) {
         List<IndySchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
         var collectionOpt = collectionRepository.findById(collectionID);
@@ -670,6 +677,7 @@ public class CSVReportService {
         return csvRowData;
     }
 
+    // Offshore Spoken Language Headcounts report
     public DownloadableReportResponse generateOffshoreSpokenLanguageHeadcounts(UUID collectionID) {
         List<SpokenLanguageHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllHomeLanguageSpokenCodesForIndiesAndOffshoreInCollection(collectionID);
 
@@ -904,6 +912,7 @@ public class CSVReportService {
         return csvRowData;
     }
 
+    // Enroled Headcounts and FTEs by School report
     public DownloadableReportResponse generateEnrolledHeadcountsAndFteReport(UUID collectionID) {
         List<EnrolmentHeadcountFteResult> results = sdcSchoolCollectionStudentRepository.getEnrolmentHeadcountsAndFteByCollectionId(collectionID);
         var collectionOpt = collectionRepository.findById(collectionID);
@@ -949,6 +958,7 @@ public class CSVReportService {
         return Arrays.stream(invalidSchoolCategories).noneMatch(categoryCode::equals) && Arrays.stream(invalidFacilityTypes).noneMatch(facilityType::equals);
     }
 
+    // Enroled Headcounts and FTEs For CE and OL Schools report
     public DownloadableReportResponse generateEnrolmentHeadcountsAndFteReportForCEAndOLSchools(UUID collectionID) {
         var collectionOpt = collectionRepository.findById(collectionID);
 
@@ -997,6 +1007,7 @@ public class CSVReportService {
         }
     }
 
+    // Refugee Enroled Headcounts and FTEs report
     public DownloadableReportResponse generateRefugeeEnrolmentHeadcountsAndFteReport(UUID collectionID) {
         var collectionOpt = collectionRepository.findById(collectionID);
 

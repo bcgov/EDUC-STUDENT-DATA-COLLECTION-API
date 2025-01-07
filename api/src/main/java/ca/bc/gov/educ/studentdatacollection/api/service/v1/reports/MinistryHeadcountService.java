@@ -53,6 +53,7 @@ public class MinistryHeadcountService {
   private static final String COLLECTION_ID = "collectionID";
   private static final String SCHOOL_ID = "schoolID";
 
+  // School Enrolment Headcounts report
   public SimpleHeadcountResultsTable getAllSchoolEnrollmentHeadcounts(UUID collectionID) {
     List<SchoolHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getAllEnrollmentHeadcountsByCollectionId(collectionID);
     var collectionOpt = collectionRepository.findById(collectionID);
@@ -102,6 +103,7 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  // Independent School Enrolment Headcounts report
   public SimpleHeadcountResultsTable getIndySchoolsEnrollmentHeadcounts(UUID collectionID) {
     List<IndySchoolHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
@@ -146,6 +148,7 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  // Independent School Inclusive Education Headcounts report
   public SimpleHeadcountResultsTable getSpecialEducationHeadcountsForIndependentsByCollectionID(UUID collectionID) {
     List<IndySpecialEdAdultHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
@@ -199,6 +202,7 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  // Independent School Inclusive Education Funding Headcounts report
   public SimpleHeadcountResultsTable getSpecialEducationFundingHeadcountsForIndependentsByCollectionID(UUID collectionID) {
     List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionId(collectionID);
     var mappedSeptData = getLastSeptCollectionSchoolMap(collectionID);
@@ -321,6 +325,7 @@ public class MinistryHeadcountService {
     return rowMap;
   }
 
+  // School Physical Address Report
   public SimpleHeadcountResultsTable getSchoolAddressReport(UUID collectionID) {
     Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
     if(entityOptional.isEmpty()) {
@@ -364,6 +369,7 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  // FSA Registration Report
   public SimpleHeadcountResultsTable getFsaRegistrationReport(UUID collectionID) {
     Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
     if(entityOptional.isEmpty()) {
@@ -441,6 +447,7 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  // Offshore School Enrolment Headcounts report
   public SimpleHeadcountResultsTable getOffshoreSchoolEnrollmentHeadcounts(UUID collectionID) {
     Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
     if(entityOptional.isEmpty()) {
@@ -488,6 +495,7 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  // Offshore Spoken Language Headcounts report
   public SimpleHeadcountResultsTable getOffshoreSpokenLanguageHeadcounts(UUID collectionID) {
     Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
     if(entityOptional.isEmpty()) {
