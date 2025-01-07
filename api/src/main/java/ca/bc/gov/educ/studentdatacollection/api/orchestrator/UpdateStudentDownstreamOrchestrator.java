@@ -134,6 +134,9 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
     }
 
     public boolean isSameSchoolCategory(List<Optional<SchoolTombstone>> otherStudentSchoolTombstones, SchoolTombstone currStudentSchool) {
+        if(SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(currStudentSchool.getSchoolCategoryCode())) {
+            return otherStudentSchoolTombstones.stream().flatMap(Optional::stream).allMatch(school -> SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode()));
+        }
         return otherStudentSchoolTombstones.stream().flatMap(Optional::stream).allMatch(school -> school.getSchoolCategoryCode().equalsIgnoreCase(currStudentSchool.getSchoolCategoryCode()));
     }
 
