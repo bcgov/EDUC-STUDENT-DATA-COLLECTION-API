@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.schedulers;
 
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaEventRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.events.schedulers.EventTaskSchedulerAsyncService;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +25,14 @@ public class PurgeOldSagaRecordsScheduler {
 
   @Getter(PRIVATE)
   private final SagaEventRepository sagaEventRepository;
+  private final EventTaskSchedulerAsyncService taskSchedulerAsyncService;
 
   private static final int BATCH_SIZE = 10000;
 
-  public PurgeOldSagaRecordsScheduler(final SagaRepository sagaRepository, final SagaEventRepository sagaEventRepository) {
+  public PurgeOldSagaRecordsScheduler(final SagaRepository sagaRepository, final SagaEventRepository sagaEventRepository, EventTaskSchedulerAsyncService taskSchedulerAsyncService) {
     this.sagaRepository = sagaRepository;
     this.sagaEventRepository = sagaEventRepository;
+    this.taskSchedulerAsyncService = taskSchedulerAsyncService;
   }
 
 
@@ -44,8 +47,8 @@ public class PurgeOldSagaRecordsScheduler {
     final List<String> cleanupStatus = Collections.singletonList("COMPLETED");
     final long cleanupRecordsCount = this.sagaRepository.countAllByStatusIn(cleanupStatus);
     for (int i = 0; i < cleanupRecordsCount; i += BATCH_SIZE) {
-        List<UUID> sagaIDsToDelete = this.sagaRepository.findByStatusIn(cleanupStatus, BATCH_SIZE);
-        this.sagaRepository.deleteBySagaIdIn(sagaIDsToDelete);
+      List<UUID> sagaIDsToDelete = this.sagaRepository.findByStatusIn(cleanupStatus, BATCH_SIZE);
+      taskSchedulerAsyncService.deleteCompletedSagas(sagaIDsToDelete);
      }
     log.info("Purged old saga and event records from EDUC-STUDENT-DATA-COLLECTION-SAGA-API");
   }
