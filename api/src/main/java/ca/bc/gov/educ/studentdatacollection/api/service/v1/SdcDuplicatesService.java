@@ -371,9 +371,12 @@ public class SdcDuplicatesService {
     if(dups.isEmpty() && (SchoolGradeCodes.HOMESCHOOL.getCode().equalsIgnoreCase(entity1.getEnrolledGradeCode()) && !(SchoolGradeCodes.getGrades10to12().contains(entity2.getEnrolledGradeCode()) && facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode())) ||
             (SchoolGradeCodes.HOMESCHOOL.getCode().equalsIgnoreCase(entity2.getEnrolledGradeCode()) && !(SchoolGradeCodes.getGrades10to12().contains(entity1.getEnrolledGradeCode()) && facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode()))))) {
         addNonAllowableDuplicate(dups, level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.HS_DUP);
+    } else if(dups.isEmpty() && (SchoolGradeCodes.HOMESCHOOL.getCode().equalsIgnoreCase(entity1.getEnrolledGradeCode()) && (SchoolGradeCodes.getGrades10to12().contains(entity2.getEnrolledGradeCode()) && facilityOnlineCodes.contains(schoolTombstone2.getFacilityTypeCode())) ||
+            (SchoolGradeCodes.HOMESCHOOL.getCode().equalsIgnoreCase(entity2.getEnrolledGradeCode()) && (SchoolGradeCodes.getGrades10to12().contains(entity1.getEnrolledGradeCode()) && facilityOnlineCodes.contains(schoolTombstone1.getFacilityTypeCode())))))  {
+       generateProgramDuplicates(dups,entity1,entity2,level);
     }
 
-    //In which grades are the two records reported - K-7 & 10-12,SU Check
+      //In which grades are the two records reported - K-7 & 10-12,SU Check
     if(dups.isEmpty() && ((SchoolGradeCodes.getKToSevenEuGrades().contains(entity1.getEnrolledGradeCode()) && SchoolGradeCodes.getGrades10toSU().contains(entity2.getEnrolledGradeCode())) ||
             (SchoolGradeCodes.getKToSevenEuGrades().contains(entity2.getEnrolledGradeCode()) && SchoolGradeCodes.getGrades10toSU().contains(entity1.getEnrolledGradeCode())))){
       addNonAllowableDuplicate(dups,level, entity1, entity2, DuplicateTypeCode.ENROLLMENT, null, DuplicateErrorDescriptionCode.K_TO_7_DUP);

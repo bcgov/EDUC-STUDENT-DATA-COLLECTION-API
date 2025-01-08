@@ -842,6 +842,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     sdcSchoolCollectionStudent1.setAssignedStudentId(assignedStudentID);
     sdcSchoolCollectionStudent1.setEnrolledGradeCode(SchoolGradeCodes.HOMESCHOOL.getCode());
     var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+    sdcSchoolCollectionStudent2.setSpecialEducationCategoryCode(null);
     sdcSchoolCollectionStudent2.setAssignedStudentId(assignedStudentID);
     sdcSchoolCollectionStudent2.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
     sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2));
@@ -854,6 +855,54 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
                     .header("correlationID", UUID.randomUUID().toString())
                     .contentType(APPLICATION_JSON)).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(0)));
+  }
+
+  @Test
+  void testGetSchoolCollectionProvincialDuplicatesWithHSAndSpedCodeShouldCreateProgramDupe() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
+    var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
+
+    SdcDistrictCollectionEntity sdcMockDistrict2 = createMockSdcDistrictCollectionEntity(collection, null);
+    var sdcDistrictCollectionID2 = sdcDistrictCollectionRepository.save(sdcMockDistrict2).getSdcDistrictCollectionID();
+
+    SchoolTombstone school1 = createMockSchool();
+    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    school1.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+    SdcSchoolCollectionEntity sdcSchoolCollection1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    sdcSchoolCollection1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+    var sdcSchoolCollectionEntity1 = sdcSchoolCollectionRepository.save(sdcSchoolCollection1);
+
+    SchoolTombstone school2 = createMockSchool();
+    school2.setDistrictId(sdcMockDistrict2.getDistrictID().toString());
+    school2.setFacilityTypeCode(FacilityTypeCodes.DISTONLINE.getCode());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID2);
+    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
+
+    var assignedStudentID = UUID.randomUUID();
+    var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    sdcSchoolCollectionStudent1.setAssignedStudentId(assignedStudentID);
+    sdcSchoolCollectionStudent1.setEnrolledGradeCode(SchoolGradeCodes.HOMESCHOOL.getCode());
+    var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity2);
+    sdcSchoolCollectionStudent2.setAssignedStudentId(assignedStudentID);
+    sdcSchoolCollectionStudent2.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
+    sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2));
+
+    when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
+    when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+
+    this.mockMvc.perform(get(URL.BASE_URL_DUPLICATE + "/sdcSchoolCollection/" + sdcSchoolCollectionEntity1.getSdcSchoolCollectionID() + "/provincial-duplicates")
+                    .with(mockAuthority)
+                    .header("correlationID", UUID.randomUUID().toString())
+                    .contentType(APPLICATION_JSON)).andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(1)));
   }
 
   @Test
