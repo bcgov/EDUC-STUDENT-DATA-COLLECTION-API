@@ -14,6 +14,10 @@ public enum CEAndOLEnrolmentAndFteHeader {
     KIND_HT_REFUGEE_COUNT("Headcount Kind(H/T) Refugees"),
     KIND_HT_ELL_COUNT("Headcount Kind(H/T) ELL"),
 
+    KIND_FT_COUNT("Headcount Kind(F/T) New CE/OL"),
+    KIND_FT_REFUGEE_COUNT("Headcount Kind(F/T) Refugees"),
+    KIND_FT_ELL_COUNT("Headcount Kind(F/T) ELL"),
+
     GRADE_01_COUNT("Headcount Grade 1 New CE/OL"),
     GRADE_01_REFUGEE_COUNT("Headcount Grade 1 Refugees"),
     GRADE_01_ELL_COUNT("Headcount Grade 1 ELL"),
