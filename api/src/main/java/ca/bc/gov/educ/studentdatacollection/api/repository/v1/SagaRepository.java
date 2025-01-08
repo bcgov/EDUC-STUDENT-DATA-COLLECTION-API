@@ -30,15 +30,13 @@ public interface SagaRepository extends JpaRepository<SdcSagaEntity, UUID>, JpaS
 
   long countAllByStatusIn(List<String> statuses);
 
-  long countAllByStatusInAndCreateDateBefore(List<String> statuses, LocalDateTime createDate);
-
-  @Query(value = "SELECT s.SAGA_ID FROM SDC_SAGA s WHERE s.STATUS in :cleanupStatus and s.CREATE_DATE <= :createDate LIMIT :batchSize", nativeQuery = true)
-  List<UUID> findByStatusInAndCreateDateBefore(List<String> cleanupStatus, LocalDateTime createDate, int batchSize);
+  @Query(value = "SELECT s.SAGA_ID FROM SDC_SAGA s WHERE s.STATUS in :cleanupStatus LIMIT :batchSize", nativeQuery = true)
+  List<UUID> findByStatusIn(List<String> cleanupStatus, int batchSize);
 
   @Transactional
   @Modifying
-  @Query(value = "DELETE FROM SDC_SAGA saga where saga.STATUS in :cleanupStatus and saga.CREATE_DATE <= :createDate AND saga.SAGA_ID in :sagaIDsToDelete", nativeQuery = true)
-  void deleteByStatusAndCreateDateBefore(List<String> cleanupStatus, LocalDateTime createDate, List<UUID> sagaIDsToDelete);
+  @Query(value = "DELETE FROM SDC_SAGA saga where saga.SAGA_ID in :sagaIDsToDelete", nativeQuery = true)
+  void deleteBySagaIdIn(List<UUID> sagaIDsToDelete);
 
   @Transactional
   @Modifying
