@@ -65,6 +65,13 @@ public interface CollectionEndpoint {
   @ResponseStatus(NO_CONTENT)
   ResponseEntity<Void> deleteCollection(@PathVariable UUID collectionID);
 
+  @PostMapping("/open-new-collection")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
+  @Schema(name = "Collection", implementation = Collection.class)
+  @ResponseStatus(CREATED)
+  ResponseEntity<Void> openNewCollection() throws JsonProcessingException;
+
   @PostMapping("/{collectionID}/in-province-duplicates")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")
   @Transactional(propagation = Propagation.REQUIRES_NEW)
