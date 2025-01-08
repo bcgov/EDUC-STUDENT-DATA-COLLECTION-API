@@ -262,6 +262,11 @@ public class EventTaskSchedulerAsyncService {
     }
   }
 
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void deleteCompletedSagas(List<UUID> sagaIDsToDelete) {
+    this.sagaRepository.deleteBySagaIdIn(sagaIDsToDelete);
+  }
+
   private List<SdcSchoolCollectionEntity> findAddSchoolsAndUpdateSdcSchoolCollection(List<SchoolTombstone> schoolTombstones, CollectionEntity activeCollection, List<SdcSchoolCollectionEntity> activeSchoolCollections) {
     Set<UUID> existingSchoolIds = activeSchoolCollections.stream()
             .map(SdcSchoolCollectionEntity::getSchoolID).collect(Collectors.toSet());

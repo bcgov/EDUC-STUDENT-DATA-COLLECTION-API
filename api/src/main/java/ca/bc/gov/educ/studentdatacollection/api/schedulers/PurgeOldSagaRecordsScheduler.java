@@ -2,18 +2,15 @@ package ca.bc.gov.educ.studentdatacollection.api.schedulers;
 
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaEventRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.events.schedulers.EventTaskSchedulerAsyncService;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.core.LockAssert;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -28,17 +25,14 @@ public class PurgeOldSagaRecordsScheduler {
 
   @Getter(PRIVATE)
   private final SagaEventRepository sagaEventRepository;
+  private final EventTaskSchedulerAsyncService taskSchedulerAsyncService;
 
-  @Value("${purge.records.saga.after.days}")
-  @Setter
-  @Getter
-  Integer sagaRecordStaleInDays;
+  private static final int BATCH_SIZE = 10000;
 
-  private static final int BATCHSIZE = 10000;
-
-  public PurgeOldSagaRecordsScheduler(final SagaRepository sagaRepository, final SagaEventRepository sagaEventRepository) {
+  public PurgeOldSagaRecordsScheduler(final SagaRepository sagaRepository, final SagaEventRepository sagaEventRepository, EventTaskSchedulerAsyncService taskSchedulerAsyncService) {
     this.sagaRepository = sagaRepository;
     this.sagaEventRepository = sagaEventRepository;
+    this.taskSchedulerAsyncService = taskSchedulerAsyncService;
   }
 
 
@@ -47,24 +41,15 @@ public class PurgeOldSagaRecordsScheduler {
    */
   @Scheduled(cron = "${scheduled.jobs.purge.old.saga.records.cron}")
   @SchedulerLock(name = "PurgeOldSagaRecordsLock", lockAtLeastFor = "${scheduled.jobs.purge.old.saga.records.cron.lockAtLeastFor}", lockAtMostFor = "${scheduled.jobs.purge.old.saga.records.cron.lockAtMostFor}")
-
   @Transactional
   public void pollSagaTableAndPurgeOldRecords() {
     LockAssert.assertLocked();
-    final LocalDateTime createDateToCompare = this.calculateCreateDateBasedOnStaleSagaRecordInDays();
     final List<String> cleanupStatus = Collections.singletonList("COMPLETED");
-    final long cleanupRecordsCount = this.sagaRepository.countAllByStatusInAndCreateDateBefore(cleanupStatus, createDateToCompare);
-    for (int i = 0; i < cleanupRecordsCount; i += BATCHSIZE) {
-        List<UUID> sagaIDsToDelete = this.sagaRepository.findByStatusInAndCreateDateBefore(cleanupStatus, createDateToCompare, BATCHSIZE);
-        if (CollectionUtils.isNotEmpty(sagaIDsToDelete)) {
-          this.sagaEventRepository.deleteByStatusAndCreateDateBefore(cleanupStatus, createDateToCompare, sagaIDsToDelete);
-          this.sagaRepository.deleteByStatusAndCreateDateBefore(cleanupStatus, createDateToCompare, sagaIDsToDelete);
-        }
+    final long cleanupRecordsCount = this.sagaRepository.countAllByStatusIn(cleanupStatus);
+    for (int i = 0; i < cleanupRecordsCount; i += BATCH_SIZE) {
+      List<UUID> sagaIDsToDelete = this.sagaRepository.findByStatusIn(cleanupStatus, BATCH_SIZE);
+      taskSchedulerAsyncService.deleteCompletedSagas(sagaIDsToDelete);
      }
     log.info("Purged old saga and event records from EDUC-STUDENT-DATA-COLLECTION-SAGA-API");
-  }
-
-  private LocalDateTime calculateCreateDateBasedOnStaleSagaRecordInDays() {
-    return LocalDateTime.now().minusDays(this.getSagaRecordStaleInDays());
   }
 }
