@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.reports;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
@@ -8,12 +9,14 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.IndependentSchoolFundingGroupSnapshotEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.IndependentSchoolFundingGroupSnapshotService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentAuthority;
@@ -46,6 +49,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 public class MinistryHeadcountService {
   private final CollectionRepository collectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  private final IndependentSchoolFundingGroupSnapshotService independentSchoolFundingGroupSnapshotService;
   private final RestUtils restUtils;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final ValidationRulesService validationService;
@@ -113,10 +117,17 @@ public class MinistryHeadcountService {
     }
     resultsTable.setHeaders(headerList);
     var rows = new ArrayList<Map<String, String>>();
+    CollectionEntity collectionEntity = collectionRepository.findById(collectionID).orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString()));
+
     collectionRawData.stream().forEach(indySchoolHeadcountResult -> {
       var school = restUtils.getAllSchoolBySchoolID(indySchoolHeadcountResult.getSchoolID()).get();
 
-      var schoolFundingGroupGrades = school.getSchoolFundingGroups().stream().map(IndependentSchoolFundingGroup::getSchoolGradeCode).toList();
+      List<String> schoolFundingGroupGrades;
+      if(collectionEntity.getCollectionStatusCode().equalsIgnoreCase(CollectionStatus.COMPLETED.getCode())) {
+        schoolFundingGroupGrades = independentSchoolFundingGroupSnapshotService.getIndependentSchoolFundingGroupSnapshot(UUID.fromString(school.getSchoolId()), collectionEntity.getCollectionID()).stream().map(IndependentSchoolFundingGroupSnapshotEntity::getSchoolGradeCode).toList();
+      }else{
+        schoolFundingGroupGrades = school.getSchoolFundingGroups().stream().map(IndependentSchoolFundingGroup::getSchoolGradeCode).toList();
+      }
 
       if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
         var rowMap = new HashMap<String, String>();

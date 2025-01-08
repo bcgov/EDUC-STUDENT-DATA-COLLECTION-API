@@ -1,9 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.reports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
@@ -15,7 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDuplicateReposi
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.IndependentSchoolFundingGroupSnapshotService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
@@ -58,7 +55,7 @@ public class CSVReportService {
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final CollectionRepository collectionRepository;
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
-    private final SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService;
+    private final IndependentSchoolFundingGroupSnapshotService independentSchoolFundingGroupSnapshotService;
     private final RestUtils restUtils;
     private final ValidationRulesService validationService;
     private static final String COLLECTION_ID = "collectionID";
@@ -244,6 +241,7 @@ public class CSVReportService {
     // Independent School Enrolment Headcounts report
     public DownloadableReportResponse generateIndySchoolsHeadcounts(UUID collectionID) {
         List<IndySchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
+        CollectionEntity collectionEntity = collectionRepository.findById(collectionID).orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString()));
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                 .setHeader(SCHOOL.getCode(), KIND_HT.getCode(), KIND_FT.getCode(),GRADE_01.getCode(), GRADE_02.getCode(), GRADE_03.getCode(), GRADE_04.getCode(),
@@ -260,7 +258,7 @@ public class CSVReportService {
                 if(schoolOpt.isPresent()) {
                     var school = schoolOpt.get();
                     if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
-                        List<String> csvRowData = prepareIndySchoolDataForCsv(result, school);
+                        List<String> csvRowData = prepareIndySchoolDataForCsv(result, school, collectionEntity);
                         csvPrinter.printRecord(csvRowData);
                     }
                 }
@@ -866,8 +864,14 @@ public class CSVReportService {
         return csvRowData;
     }
 
-    private List<String> prepareIndySchoolDataForCsv(IndySchoolHeadcountResult indySchoolHeadcountResult, School school) {
-        var schoolFundingGroupGrades = school.getSchoolFundingGroups().stream().map(IndependentSchoolFundingGroup::getSchoolGradeCode).toList();
+    private List<String> prepareIndySchoolDataForCsv(IndySchoolHeadcountResult indySchoolHeadcountResult, School school, CollectionEntity collection) {
+        List<String> schoolFundingGroupGrades;
+        if(collection.getCollectionStatusCode().equalsIgnoreCase(CollectionStatus.COMPLETED.getCode())) {
+            schoolFundingGroupGrades = independentSchoolFundingGroupSnapshotService.getIndependentSchoolFundingGroupSnapshot(UUID.fromString(school.getSchoolId()), collection.getCollectionID()).stream().map(IndependentSchoolFundingGroupSnapshotEntity::getSchoolGradeCode).toList();
+        }else{
+            schoolFundingGroupGrades = school.getSchoolFundingGroups().stream().map(IndependentSchoolFundingGroup::getSchoolGradeCode).toList();
+        }
+
         List<String> csvRowData = new ArrayList<>();
         csvRowData.addAll(Arrays.asList(
                 school.getDisplayName(),
