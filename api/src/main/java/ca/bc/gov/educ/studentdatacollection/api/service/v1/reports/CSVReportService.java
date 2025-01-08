@@ -68,10 +68,10 @@ public class CSVReportService {
     private static final String REFUGEE_HEADCOUNTS_INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB collection";
 
     // Independent School Funding Report - Standard Student report AND Independent School Funding Report - Online Learning report AND Independent School Funding Report - Non Graduated Adult report
-    public DownloadableReportResponse generateIndyFundingReport(UUID collectionID, Boolean isOnlineLearning, Boolean isNonGraduatedAdult) {
+    public DownloadableReportResponse generateIndyFundingReport(UUID collectionID, boolean isOnlineLearning, boolean isNonGraduatedAdult, boolean isFundedReport) {
         List<IndyFundingResult> results;
         // if it's non-graduated adult report variant use query for non-graduated adults
-        if (Boolean.TRUE.equals(isNonGraduatedAdult)){
+        if (isNonGraduatedAdult){
             results = sdcSchoolCollectionStudentRepository.getIndyFundingHeadcountsNonGraduatedAdultByCollectionId(collectionID);
         } else {
             results = sdcSchoolCollectionStudentRepository.getIndyFundingHeadcountsByCollectionId(collectionID);
@@ -129,8 +129,12 @@ public class CSVReportService {
 
                         // If it's online learning, only include schools with online facility types
                         List<String> csvRowData = null;
-                        if (!Boolean.TRUE.equals(isOnlineLearning) || FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.getFacilityTypeCode())) {
-                            csvRowData = prepareIndyFundingDataForCsv(result, school, district, authority);
+                        if (!isOnlineLearning || FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.getFacilityTypeCode())) {
+                            if(isFundedReport) {
+                                csvRowData = prepareIndyFundedDataForCsv(result, school, district, authority);
+                            }else{
+                                csvRowData = prepareIndyAllDataForCsv(result, school, district, authority);
+                            }
                         }
 
                         if (csvRowData != null) {
@@ -142,9 +146,15 @@ public class CSVReportService {
             csvPrinter.flush();
 
             var downloadableReport = new DownloadableReportResponse();
-            if (Boolean.TRUE.equals(isOnlineLearning)) downloadableReport.setReportType(ONLINE_INDY_FUNDING_REPORT.getCode());
-            else if (Boolean.TRUE.equals(isNonGraduatedAdult)) downloadableReport.setReportType(NON_GRADUATED_ADULT_INDY_FUNDING_REPORT.getCode());
-            else downloadableReport.setReportType(INDY_FUNDING_REPORT.getCode());
+            if (isOnlineLearning) {
+                downloadableReport.setReportType(ONLINE_INDY_FUNDING_REPORT.getCode());
+            }else if (isNonGraduatedAdult) {
+                downloadableReport.setReportType(NON_GRADUATED_ADULT_INDY_FUNDING_REPORT.getCode());
+            }else if (isFundedReport) {
+                downloadableReport.setReportType(INDY_FUNDING_REPORT_FUNDED.getCode());
+            }else{
+                downloadableReport.setReportType(INDY_FUNDING_REPORT_ALL.getCode());
+            }
             downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
 
             return downloadableReport;
@@ -1371,7 +1381,7 @@ public class CSVReportService {
         ));
     }
 
-    private List<String> prepareIndyFundingDataForCsv(IndyFundingResult indyFundingResult, School school, District district, IndependentAuthority authority) {
+    private List<String> prepareIndyAllDataForCsv(IndyFundingResult indyFundingResult, School school, District district, IndependentAuthority authority) {
         List<String> csvRowData = new ArrayList<>();
         var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
 
@@ -1446,6 +1456,127 @@ public class CSVReportService {
         ));
         return csvRowData;
     }
+
+    private List<String> prepareIndyFundedDataForCsv(IndyFundingResult indyFundingResult, School school, District district, IndependentAuthority authority) {
+        List<String> csvRowData = new ArrayList<>();
+        var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
+
+        var groupKh = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.KINDHALF.getTypeCode());
+        var groupKf = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.KINDFULL.getTypeCode());
+        var group01 = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE01.getTypeCode());
+        var group02 = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE02.getTypeCode());
+        var group03 = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE03.getTypeCode());
+        var group04 = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE04.getTypeCode());
+        var group05 = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE05.getTypeCode());
+        var group06 = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE06.getTypeCode());
+        var group07 = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE07.getTypeCode());
+        var groupEU = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.ELEMUNGR.getTypeCode());
+        var group08 = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE08.getTypeCode());
+        var group09 = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE09.getTypeCode());
+        var group10 = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE10.getTypeCode());
+        var group11 = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE11.getTypeCode());
+        var group12 = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADE12.getTypeCode());
+        var groupSU = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode());
+        var groupGA = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.GRADUATED_ADULT.getTypeCode());
+        var groupHS = TransformUtil.getFundingGroupForGrade(school, SchoolGradeCodes.HOMESCHOOL.getTypeCode());
+
+        var fteKh = TransformUtil.isSchoolFundingGroup1orGroup2(groupKh) ? indyFundingResult.getKindHFTE() : "0";
+        var fteKf = TransformUtil.isSchoolFundingGroup1orGroup2(groupKf) ? indyFundingResult.getKindFFTE() : "0";
+        var fte01 = TransformUtil.isSchoolFundingGroup1orGroup2(group01) ? indyFundingResult.getGrade1FTE() : "0";
+        var fte02 = TransformUtil.isSchoolFundingGroup1orGroup2(group02) ? indyFundingResult.getGrade2FTE() : "0";
+        var fte03 = TransformUtil.isSchoolFundingGroup1orGroup2(group03) ? indyFundingResult.getGrade3FTE() : "0";
+        var fte04 = TransformUtil.isSchoolFundingGroup1orGroup2(group04) ? indyFundingResult.getGrade4FTE() : "0";
+        var fte05 = TransformUtil.isSchoolFundingGroup1orGroup2(group05) ? indyFundingResult.getGrade5FTE() : "0";
+        var fte06 = TransformUtil.isSchoolFundingGroup1orGroup2(group06) ? indyFundingResult.getGrade6FTE() : "0";
+        var fte07 = TransformUtil.isSchoolFundingGroup1orGroup2(group07) ? indyFundingResult.getGrade7FTE() : "0";
+        var fteEU = TransformUtil.isSchoolFundingGroup1orGroup2(groupEU) ? indyFundingResult.getGradeEUFTE() : "0";
+        var fte08 = TransformUtil.isSchoolFundingGroup1orGroup2(group08) ? indyFundingResult.getGrade8FTE() : "0";
+        var fte09 = TransformUtil.isSchoolFundingGroup1orGroup2(group09) ? indyFundingResult.getGrade9FTE() : "0";
+        var fte10 = TransformUtil.isSchoolFundingGroup1orGroup2(group10) ? indyFundingResult.getGrade10FTE() : "0";
+        var fte11 = TransformUtil.isSchoolFundingGroup1orGroup2(group11) ? indyFundingResult.getGrade11FTE() : "0";
+        var fte12 = TransformUtil.isSchoolFundingGroup1orGroup2(group12) ? indyFundingResult.getGrade12FTE() : "0";
+        var fteSU = TransformUtil.isSchoolFundingGroup1orGroup2(groupSU) ? indyFundingResult.getGradeSUFTE() : "0";
+        var fteGA = TransformUtil.isSchoolFundingGroup1orGroup2(groupGA) ? indyFundingResult.getGradeGAFTE() : "0";
+        var fteHS = TransformUtil.isSchoolFundingGroup1orGroup2(groupHS) ? indyFundingResult.getGradeHSFTE() : "0";
+
+        var totalFTE = Double.parseDouble(fteKh) +  Double.parseDouble(fteKf) + Double.parseDouble(fte01) + Double.parseDouble(fte02)
+                + Double.parseDouble(fte03) + Double.parseDouble(fte04) + Double.parseDouble(fte05) + Double.parseDouble(fte06) +
+                Double.parseDouble(fte07) + Double.parseDouble(fteEU) + Double.parseDouble(fte08) + Double.parseDouble(fte09) +
+                Double.parseDouble(fte10) + Double.parseDouble(fte11) + Double.parseDouble(fte12) + Double.parseDouble(fteSU)
+                + Double.parseDouble(fteGA) + Double.parseDouble(fteHS);
+
+                csvRowData.addAll(Arrays.asList(
+                district != null ? district.getDistrictNumber() : null,
+                district != null ? district.getDisplayName() : null,
+                authority != null ? authority.getAuthorityNumber() : null,
+                authority != null ? authority.getDisplayName() : null,
+                school.getSchoolNumber(),
+                school.getDisplayName(),
+                facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
+
+                groupKh,
+                groupKf,
+                group01,
+                group02,
+                group03,
+                group04,
+                group05,
+                group06,
+                group07,
+                groupEU,
+                group08,
+                group09,
+                group10,
+                group11,
+                group12,
+                groupSU,
+                groupGA,
+                groupHS,
+
+                indyFundingResult.getTotalCount(),
+                Double.toString(totalFTE),
+
+                indyFundingResult.getKindHCount(),
+                indyFundingResult.getKindFCount(),
+                indyFundingResult.getGrade1Count(),
+                indyFundingResult.getGrade2Count(),
+                indyFundingResult.getGrade3Count(),
+                indyFundingResult.getGrade4Count(),
+                indyFundingResult.getGrade5Count(),
+                indyFundingResult.getGrade6Count(),
+                indyFundingResult.getGrade7Count(),
+                indyFundingResult.getGradeEUCount(),
+                indyFundingResult.getGrade8Count(),
+                indyFundingResult.getGrade9Count(),
+                indyFundingResult.getGrade10Count(),
+                indyFundingResult.getGrade11Count(),
+                indyFundingResult.getGrade12Count(),
+                indyFundingResult.getGradeSUCount(),
+                indyFundingResult.getGradeGACount(),
+                indyFundingResult.getGradeHSCount(),
+
+                fteKh,
+                fteKf,
+                fte01,
+                fte02,
+                fte03,
+                fte04,
+                fte05,
+                fte06,
+                fte07,
+                fteEU,
+                fte08,
+                fte09,
+                fte10,
+                fte11,
+                fte12,
+                fteSU,
+                fteGA,
+                fteHS
+        ));
+        return csvRowData;
+    }
+
     private List<String> prepareRefugeeEnrolmentFteData(EnrolmentHeadcountFteResult headcountResult, SchoolTombstone school) {
         var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
 

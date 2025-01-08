@@ -32,6 +32,8 @@ import static org.springframework.util.StringUtils.capitalize;
 
 @Slf4j
 public class TransformUtil {
+
+  private static final String [] VALID_SCHOOL_FUNDING_GROUPS = new String[]{"GROUP1", "GROUP2"};
   private TransformUtil() {
   }
 
@@ -203,6 +205,13 @@ public class TransformUtil {
             .map(IndependentSchoolFundingGroup::getSchoolFundingGroupCode)
             .findFirst()
             .orElse(null);
+  }
+
+  public static boolean isSchoolFundingGroup1orGroup2(String schoolFundingGroup) {
+    if(schoolFundingGroup == null){
+      return false;
+    }
+    return Arrays.stream(VALID_SCHOOL_FUNDING_GROUPS).anyMatch(group -> group.equals(schoolFundingGroup));
   }
 
   public static String sanitizeEnrolledProgramString(String enrolledProgramCode) {
