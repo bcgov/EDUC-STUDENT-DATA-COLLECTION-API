@@ -1276,6 +1276,10 @@ public class CSVReportService {
                 TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhRefugeeCount() : "0", headcountResult.getKhRefugeeCount()),
                 TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhEllCount() : "0", headcountResult.getKhEllCount()),
 
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKfTotalCount() : "0", headcountResult.getKfTotalCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKfRefugeeCount() : "0", headcountResult.getKfRefugeeCount()),
+                TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKfEllCount() : "0", headcountResult.getKfEllCount()),
+
                 TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneTotalCount() : "0", headcountResult.getGradeOneTotalCount()),
                 TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneRefugeeCount() : "0", headcountResult.getGradeOneRefugeeCount()),
                 TransformUtil.getPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneEllCount() : "0", headcountResult.getGradeOneEllCount()),
@@ -1337,6 +1341,9 @@ public class CSVReportService {
 
                 TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhTotalFte() : "0", headcountResult.getKhTotalFte()),
                 TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKhRefugeeTotalFte() : "0", headcountResult.getKhRefugeeTotalFte()),
+
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKfTotalFte() : "0", headcountResult.getKfTotalFte()),
+                TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getKfRefugeeTotalFte() : "0", headcountResult.getKfRefugeeTotalFte()),
 
                 TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneTotalFte() : "0", headcountResult.getGradeOneTotalFte()),
                 TransformUtil.getFTEPositiveChange(septHeadcountResult != null ? septHeadcountResult.getGradeOneRefugeeTotalFte() : "0", headcountResult.getGradeOneRefugeeTotalFte()),
