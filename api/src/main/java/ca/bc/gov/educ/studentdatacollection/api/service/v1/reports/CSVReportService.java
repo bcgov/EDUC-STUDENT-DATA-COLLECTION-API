@@ -1389,11 +1389,65 @@ public class CSVReportService {
         List<String> csvRowData = new ArrayList<>();
         var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
 
-        List<String> schoolFundingGroupGrades;
+        String groupKh;
+        String groupKf;
+        String group01;
+        String group02;
+        String group03;
+        String group04;
+        String group05;
+        String group06;
+        String group07;
+        String groupEU;
+        String group08;
+        String group09;
+        String group10;
+        String group11;
+        String group12;
+        String groupSU;
+        String groupGA;
+        String groupHS;
+
         if(collection.getCollectionStatusCode().equalsIgnoreCase(CollectionStatus.COMPLETED.getCode())) {
-            schoolFundingGroupGrades = independentSchoolFundingGroupSnapshotService.getIndependentSchoolFundingGroupSnapshot(UUID.fromString(school.getSchoolId()), collection.getCollectionID()).stream().map(IndependentSchoolFundingGroupSnapshotEntity::getSchoolGradeCode).toList();
+            List<IndependentSchoolFundingGroupSnapshotEntity> schoolFundingGroups = independentSchoolFundingGroupSnapshotService.getIndependentSchoolFundingGroupSnapshot(UUID.fromString(school.getSchoolId()), collection.getCollectionID());
+            groupKh = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.KINDHALF.getTypeCode());
+            groupKf = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.KINDFULL.getTypeCode());
+            group01 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE01.getTypeCode());
+            group02 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE02.getTypeCode());
+            group03 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE03.getTypeCode());
+            group04 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE04.getTypeCode());
+            group05 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE05.getTypeCode());
+            group06 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE06.getTypeCode());
+            group07 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE07.getTypeCode());
+            groupEU = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.ELEMUNGR.getTypeCode());
+            group08 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE08.getTypeCode());
+            group09 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE09.getTypeCode());
+            group10 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE10.getTypeCode());
+            group11 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE11.getTypeCode());
+            group12 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE12.getTypeCode());
+            groupSU = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode());
+            groupGA = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADUATED_ADULT.getTypeCode());
+            groupHS = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.HOMESCHOOL.getTypeCode());
         }else{
-            schoolFundingGroupGrades = school.getSchoolFundingGroups().stream().map(IndependentSchoolFundingGroup::getSchoolGradeCode).toList();
+            List<IndependentSchoolFundingGroup> schoolFundingGroups = school.getSchoolFundingGroups();
+            groupKh = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.KINDHALF.getTypeCode());
+            groupKf = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.KINDFULL.getTypeCode());
+            group01 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE01.getTypeCode());
+            group02 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE02.getTypeCode());
+            group03 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE03.getTypeCode());
+            group04 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE04.getTypeCode());
+            group05 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE05.getTypeCode());
+            group06 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE06.getTypeCode());
+            group07 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE07.getTypeCode());
+            groupEU = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.ELEMUNGR.getTypeCode());
+            group08 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE08.getTypeCode());
+            group09 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE09.getTypeCode());
+            group10 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE10.getTypeCode());
+            group11 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE11.getTypeCode());
+            group12 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE12.getTypeCode());
+            groupSU = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode());
+            groupGA = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADUATED_ADULT.getTypeCode());
+            groupHS = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.HOMESCHOOL.getTypeCode());
         }
 
         csvRowData.addAll(Arrays.asList(
@@ -1405,24 +1459,24 @@ public class CSVReportService {
                 school.getDisplayName(),
                 facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
 
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.KINDHALF.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.KINDFULL.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE01.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE02.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE03.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE04.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE05.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE06.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE07.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.ELEMUNGR.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE08.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE09.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE10.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE11.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE12.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADUATED_ADULT.getTypeCode()),
-                TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.HOMESCHOOL.getTypeCode()),
+                groupKh,
+                groupKf,
+                group01,
+                group02,
+                group03,
+                group04,
+                group05,
+                group06,
+                group07,
+                groupEU,
+                group08,
+                group09,
+                group10,
+                group11,
+                group12,
+                groupSU,
+                groupGA,
+                groupHS,
 
                 indyFundingResult.getTotalCount(),
                 indyFundingResult.getTotalFTE(),
@@ -1471,31 +1525,66 @@ public class CSVReportService {
     private List<String> prepareIndyFundedDataForCsv(IndyFundingResult indyFundingResult, School school, District district, IndependentAuthority authority, CollectionEntity collection) {
         List<String> csvRowData = new ArrayList<>();
         var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
-        List<String> schoolFundingGroupGrades;
-        if(collection.getCollectionStatusCode().equalsIgnoreCase(CollectionStatus.COMPLETED.getCode())) {
-            schoolFundingGroupGrades = independentSchoolFundingGroupSnapshotService.getIndependentSchoolFundingGroupSnapshot(UUID.fromString(school.getSchoolId()), collection.getCollectionID()).stream().map(IndependentSchoolFundingGroupSnapshotEntity::getSchoolGradeCode).toList();
-        }else{
-            schoolFundingGroupGrades = school.getSchoolFundingGroups().stream().map(IndependentSchoolFundingGroup::getSchoolGradeCode).toList();
-        }
+        String groupKh;
+        String groupKf;
+        String group01;
+        String group02;
+        String group03;
+        String group04;
+        String group05;
+        String group06;
+        String group07;
+        String groupEU;
+        String group08;
+        String group09;
+        String group10;
+        String group11;
+        String group12;
+        String groupSU;
+        String groupGA;
+        String groupHS;
 
-        var groupKh = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.KINDHALF.getTypeCode());
-        var groupKf = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.KINDFULL.getTypeCode());
-        var group01 = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE01.getTypeCode());
-        var group02 = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE02.getTypeCode());
-        var group03 = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE03.getTypeCode());
-        var group04 = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE04.getTypeCode());
-        var group05 = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE05.getTypeCode());
-        var group06 = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE06.getTypeCode());
-        var group07 = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE07.getTypeCode());
-        var groupEU = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.ELEMUNGR.getTypeCode());
-        var group08 = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE08.getTypeCode());
-        var group09 = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE09.getTypeCode());
-        var group10 = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE10.getTypeCode());
-        var group11 = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE11.getTypeCode());
-        var group12 = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADE12.getTypeCode());
-        var groupSU = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode());
-        var groupGA = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.GRADUATED_ADULT.getTypeCode());
-        var groupHS = TransformUtil.getFundingGroupForGrade(schoolFundingGroupGrades, SchoolGradeCodes.HOMESCHOOL.getTypeCode());
+        if(collection.getCollectionStatusCode().equalsIgnoreCase(CollectionStatus.COMPLETED.getCode())) {
+            List<IndependentSchoolFundingGroupSnapshotEntity> schoolFundingGroups = independentSchoolFundingGroupSnapshotService.getIndependentSchoolFundingGroupSnapshot(UUID.fromString(school.getSchoolId()), collection.getCollectionID());
+            groupKh = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.KINDHALF.getTypeCode());
+            groupKf = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.KINDFULL.getTypeCode());
+            group01 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE01.getTypeCode());
+            group02 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE02.getTypeCode());
+            group03 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE03.getTypeCode());
+            group04 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE04.getTypeCode());
+            group05 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE05.getTypeCode());
+            group06 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE06.getTypeCode());
+            group07 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE07.getTypeCode());
+            groupEU = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.ELEMUNGR.getTypeCode());
+            group08 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE08.getTypeCode());
+            group09 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE09.getTypeCode());
+            group10 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE10.getTypeCode());
+            group11 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE11.getTypeCode());
+            group12 = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE12.getTypeCode());
+            groupSU = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode());
+            groupGA = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.GRADUATED_ADULT.getTypeCode());
+            groupHS = TransformUtil.getFundingGroupSnapshotForGrade(schoolFundingGroups, SchoolGradeCodes.HOMESCHOOL.getTypeCode());
+        }else{
+            List<IndependentSchoolFundingGroup> schoolFundingGroups = school.getSchoolFundingGroups();
+            groupKh = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.KINDHALF.getTypeCode());
+            groupKf = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.KINDFULL.getTypeCode());
+            group01 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE01.getTypeCode());
+            group02 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE02.getTypeCode());
+            group03 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE03.getTypeCode());
+            group04 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE04.getTypeCode());
+            group05 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE05.getTypeCode());
+            group06 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE06.getTypeCode());
+            group07 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE07.getTypeCode());
+            groupEU = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.ELEMUNGR.getTypeCode());
+            group08 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE08.getTypeCode());
+            group09 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE09.getTypeCode());
+            group10 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE10.getTypeCode());
+            group11 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE11.getTypeCode());
+            group12 = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADE12.getTypeCode());
+            groupSU = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode());
+            groupGA = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.GRADUATED_ADULT.getTypeCode());
+            groupHS = TransformUtil.getFundingGroupForGrade(schoolFundingGroups, SchoolGradeCodes.HOMESCHOOL.getTypeCode());
+        }
 
         var fteKh = TransformUtil.isSchoolFundingGroup1orGroup2(groupKh) ? indyFundingResult.getKindHFTE() : "0";
         var fteKf = TransformUtil.isSchoolFundingGroup1orGroup2(groupKf) ? indyFundingResult.getKindFFTE() : "0";

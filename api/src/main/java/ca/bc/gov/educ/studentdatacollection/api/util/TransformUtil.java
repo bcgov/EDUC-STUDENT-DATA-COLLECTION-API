@@ -199,10 +199,20 @@ public class TransformUtil {
     return value + "*";
   }
 
-  public static String getFundingGroupForGrade(List<String> fundingGroups, String gradeCode) {
-    return fundingGroups
+  public static String getFundingGroupForGrade(List<IndependentSchoolFundingGroup> schoolFundingGroups, String gradeCode) {
+    return schoolFundingGroups
             .stream()
-            .filter(gradeCode::equalsIgnoreCase)
+            .filter(group -> gradeCode.equals(group.getSchoolGradeCode()))
+            .map(IndependentSchoolFundingGroup::getSchoolFundingGroupCode)
+            .findFirst()
+            .orElse(null);
+  }
+
+  public static String getFundingGroupSnapshotForGrade(List<IndependentSchoolFundingGroupSnapshotEntity> schoolFundingGroups, String gradeCode) {
+    return schoolFundingGroups
+            .stream()
+            .filter(group -> gradeCode.equals(group.getSchoolGradeCode()))
+            .map(IndependentSchoolFundingGroupSnapshotEntity::getSchoolFundingGroupCode)
             .findFirst()
             .orElse(null);
   }
