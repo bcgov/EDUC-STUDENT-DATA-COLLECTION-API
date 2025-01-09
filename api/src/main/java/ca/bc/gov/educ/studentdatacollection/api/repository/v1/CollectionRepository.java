@@ -22,4 +22,10 @@ public interface CollectionRepository extends JpaRepository<CollectionEntity, UU
     @Modifying
     @Query(value = "UPDATE CollectionEntity C SET C.collectionStatusCode = :collectionStatusCode WHERE C.collectionID = :collectionID")
     void updateCollectionStatus(UUID collectionID, String collectionStatusCode);
+
+    @Query(value="""
+            SELECT C FROM CollectionEntity C 
+            ORDER BY C.snapshotDate desc
+            LIMIT 1""")
+    Optional<CollectionEntity> findLastCollection();
 }
