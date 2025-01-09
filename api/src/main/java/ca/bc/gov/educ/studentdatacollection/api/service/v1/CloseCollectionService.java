@@ -97,10 +97,10 @@ public class CloseCollectionService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void openNewCollection() {
-        Optional<CollectionEntity> entityOptional = collectionRepository.findActiveCollection();
-        CollectionEntity currentCollectionEntity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, entityOptional.toString()));
+        Optional<CollectionEntity> entityOptional = collectionRepository.findLastCollection();
+        CollectionEntity lastCollectionEntity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, entityOptional.toString()));
 
-        String closingCollectionType = currentCollectionEntity.getCollectionTypeCode();
+        String closingCollectionType = lastCollectionEntity.getCollectionTypeCode();
 
         String newCollectionType = CollectionTypeCodes.findByValue(closingCollectionType)
                 .map(CollectionTypeCodes::getNextCollectionToOpen)
@@ -121,19 +121,19 @@ public class CloseCollectionService {
         LocalDate signOffDueDate = submissionDate.plusWeeks(3);
 
         CollectionSagaData collectionSagaData = CollectionSagaData.builder()
-                .existingCollectionID(currentCollectionEntity.getCollectionID().toString())
+                .existingCollectionID(lastCollectionEntity.getCollectionID().toString())
                 .newCollectionSnapshotDate(snapshotDate.toString())
                 .newCollectionSubmissionDueDate(submissionDate.toString())
                 .newCollectionDuplicationResolutionDueDate(duplicationResolutionDueDate.toString())
                 .newCollectionSignOffDueDate(signOffDueDate.toString())
                 .build();
 
-        startSDCCollection(collectionSagaData, currentCollectionEntity);
+        startSDCCollection(collectionSagaData, lastCollectionEntity);
     }
 
-    private void startSDCCollection(final CollectionSagaData collectionSagaData, CollectionEntity currentCollectionEntity) {
+    private void startSDCCollection(final CollectionSagaData collectionSagaData, CollectionEntity lastCollectionEntity) {
         // get next collection type code to open
-        Optional<CollectionTypeCodes> optionalCollectionMap = CollectionTypeCodes.findByValue(currentCollectionEntity.getCollectionTypeCode());
+        Optional<CollectionTypeCodes> optionalCollectionMap = CollectionTypeCodes.findByValue(lastCollectionEntity.getCollectionTypeCode());
         CollectionTypeCodes collectionMap = optionalCollectionMap.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));
         log.debug("Next collection to open: {}", collectionMap.getNextCollectionToOpen());
 
