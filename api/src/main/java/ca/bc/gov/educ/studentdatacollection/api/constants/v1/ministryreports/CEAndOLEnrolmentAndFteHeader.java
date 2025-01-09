@@ -80,6 +80,9 @@ public enum CEAndOLEnrolmentAndFteHeader {
     KIND_HT_FTE_TOTAL("Funded FTE Kind(H/T) New CE/OL"),
     KIND_HT_FTE_REFUGEE_TOTAL("Funded FTE Kind(H/T) Refugees"),
 
+    KIND_FT_FTE_TOTAL("Funded FTE Kind(F/T) New CE/OL"),
+    KIND_FT_FTE_REFUGEE_TOTAL("Funded FTE Kind(F/T) Refugees"),
+
     GRADE_ONE_FTE_TOTAL("Funded FTE Grade 1 New CE/OL"),
     GRADE_ONE_FTE_REFUGEE_TOTAL("Funded FTE Grade 1 Refugees"),
 
