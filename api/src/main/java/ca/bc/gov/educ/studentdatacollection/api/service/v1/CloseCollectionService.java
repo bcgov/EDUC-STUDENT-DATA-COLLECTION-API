@@ -114,8 +114,10 @@ public class CloseCollectionService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "No CollectionTypeCodeEntity found for type: " + newCollectionType));
 
-        LocalDate snapshotDate = newCollectionTypeEntity.getSnapshotDate();
-        snapshotDate = snapshotDate.withYear(2025);
+        LocalDate incomingSnapshotDate = newCollectionTypeEntity.getSnapshotDate();
+        incomingSnapshotDate = incomingSnapshotDate.withYear(LocalDate.now().getYear());
+
+        LocalDate snapshotDate = incomingSnapshotDate.isBefore(LocalDate.now()) ? incomingSnapshotDate.plusYears(1) : incomingSnapshotDate;
         LocalDate submissionDate = snapshotDate.plusWeeks(1).with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY));
         LocalDate duplicationResolutionDueDate = submissionDate.plusWeeks(2);
         LocalDate signOffDueDate = submissionDate.plusWeeks(3);
