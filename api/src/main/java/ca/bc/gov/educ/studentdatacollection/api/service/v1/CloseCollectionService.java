@@ -38,6 +38,7 @@ public class CloseCollectionService {
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService;
     private final SdcSchoolCollectionService sdcSchoolCollectionService;
+    private final CodeTableService codeTableService;
     private final RestUtils restUtils;
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
@@ -47,7 +48,7 @@ public class CloseCollectionService {
     private static final String SDC_COLLECTION_ID_KEY = "collectionID";
     private final IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository;
 
-    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService, SdcSchoolCollectionService sdcSchoolCollectionService, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties, IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository) {
+    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService, SdcSchoolCollectionService sdcSchoolCollectionService, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties, IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository, CodeTableService codeTableService) {
         this.collectionRepository = collectionRepository;
         this.collectionTypeCodeRepository = collectionTypeCodeRepository;
         this.collectionCodeCriteriaRepository = collectionCodeCriteriaRepository;
@@ -63,6 +64,7 @@ public class CloseCollectionService {
         this.emailService = emailService;
         this.emailProperties = emailProperties;
         this.independentSchoolFundingGroupSnapshotRepository = independentSchoolFundingGroupSnapshotRepository;
+        this.codeTableService = codeTableService;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -98,8 +100,24 @@ public class CloseCollectionService {
         Optional<CollectionEntity> entityOptional = collectionRepository.findActiveCollection();
         CollectionEntity currentCollectionEntity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, entityOptional.toString()));
 
-        LocalDate snapshotDate = currentCollectionEntity.getSnapshotDate();
-        snapshotDate = snapshotDate.isBefore(LocalDate.now()) ? snapshotDate.plusYears(1) : snapshotDate;
+        String closingCollectionType = currentCollectionEntity.getCollectionTypeCode();
+
+        String newCollectionType = CollectionTypeCodes.findByValue(closingCollectionType)
+                .map(CollectionTypeCodes::getNextCollectionToOpen)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No 'nextCollectionToOpen' mapping found for collection type: " + closingCollectionType));
+
+        CollectionTypeCodeEntity newCollectionTypeEntity = codeTableService.getCollectionCodeList()
+                .stream()
+                .filter(collectionTypeCodeEntity -> newCollectionType.equalsIgnoreCase(collectionTypeCodeEntity.getCollectionTypeCode()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No CollectionTypeCodeEntity found for type: " + newCollectionType));
+
+        LocalDate snapshotDate = newCollectionTypeEntity.getSnapshotDate();
+        if (snapshotDate.isBefore(LocalDate.now())) {
+            snapshotDate = snapshotDate.plusYears(1);
+        }
         LocalDate submissionDate = snapshotDate.plusWeeks(1).with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY));
         LocalDate duplicationResolutionDueDate = submissionDate.plusWeeks(2);
         LocalDate signOffDueDate = submissionDate.plusWeeks(3);
