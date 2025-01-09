@@ -15,6 +15,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.Ind
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.IndependentSchoolFundingGroupSnapshot;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,12 +95,13 @@ public class CloseCollectionService {
 
         startSDCCollection(collectionSagaData, currentCollectionEntity);
     }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Async
     public void openNewCollection() {
         Optional<CollectionEntity> entityOptional = collectionRepository.findLastCollection();
         CollectionEntity lastCollectionEntity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, entityOptional.toString()));
 
+        log.info("Last collectionType {} with snapshotDate {}", lastCollectionEntity.getCollectionTypeCode(), lastCollectionEntity.getSnapshotDate());
         String closingCollectionType = lastCollectionEntity.getCollectionTypeCode();
 
         String newCollectionType = CollectionTypeCodes.findByValue(closingCollectionType)
@@ -127,7 +129,8 @@ public class CloseCollectionService {
                 .newCollectionDuplicationResolutionDueDate(duplicationResolutionDueDate.toString())
                 .newCollectionSignOffDueDate(signOffDueDate.toString())
                 .build();
-
+        log.info("New calculated: Snapshot date {}, submissionDate {}, duplicationResolutionDueDate {}, signOffDueDate {}",
+                snapshotDate, submissionDate, duplicationResolutionDueDate, signOffDueDate);
         startSDCCollection(collectionSagaData, lastCollectionEntity);
     }
 
@@ -135,7 +138,7 @@ public class CloseCollectionService {
         // get next collection type code to open
         Optional<CollectionTypeCodes> optionalCollectionMap = CollectionTypeCodes.findByValue(lastCollectionEntity.getCollectionTypeCode());
         CollectionTypeCodes collectionMap = optionalCollectionMap.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));
-        log.debug("Next collection to open: {}", collectionMap.getNextCollectionToOpen());
+        log.info("Next collection to open: {}", collectionMap.getNextCollectionToOpen());
 
         // get next collection entity
         Optional<CollectionTypeCodeEntity> optionalCollectionToOpen = this.collectionTypeCodeRepository.findByCollectionTypeCode(collectionMap.getNextCollectionToOpen());
@@ -143,10 +146,10 @@ public class CloseCollectionService {
 
         // get next collection code criteria to populate schools and district
         List<CollectionCodeCriteriaEntity> collectionCodeCriteria = this.collectionCodeCriteriaRepository.findAllByCollectionTypeCodeEntityEquals(collectionToOpen);
-        log.debug("Found {} collectionCodeCriteria", collectionCodeCriteria.size());
+        log.info("Found {} collectionCodeCriteria", collectionCodeCriteria.size());
 
         final List<SchoolTombstone> listOfSchoolTombstones = this.getListOfSchoolIDsFromCriteria(collectionCodeCriteria);
-        log.debug("Found {} listOfSchoolIDs to open for next collection", listOfSchoolTombstones.size());
+        log.info("Found {} listOfSchoolIDs to open for next collection", listOfSchoolTombstones.size());
         if (!listOfSchoolTombstones.isEmpty()) {
 
             // create new collection
