@@ -19,9 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 @Service
@@ -36,6 +38,7 @@ public class CloseCollectionService {
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService;
     private final SdcSchoolCollectionService sdcSchoolCollectionService;
+    private final CodeTableService codeTableService;
     private final RestUtils restUtils;
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
@@ -45,7 +48,7 @@ public class CloseCollectionService {
     private static final String SDC_COLLECTION_ID_KEY = "collectionID";
     private final IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository;
 
-    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService, SdcSchoolCollectionService sdcSchoolCollectionService, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties, IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository) {
+    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService, SdcSchoolCollectionService sdcSchoolCollectionService, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties, IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository, CodeTableService codeTableService) {
         this.collectionRepository = collectionRepository;
         this.collectionTypeCodeRepository = collectionTypeCodeRepository;
         this.collectionCodeCriteriaRepository = collectionCodeCriteriaRepository;
@@ -61,35 +64,76 @@ public class CloseCollectionService {
         this.emailService = emailService;
         this.emailProperties = emailProperties;
         this.independentSchoolFundingGroupSnapshotRepository = independentSchoolFundingGroupSnapshotRepository;
+        this.codeTableService = codeTableService;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void closeCurrentCollAndOpenNewCollection(final CollectionSagaData collectionSagaData) {
         Optional<CollectionEntity> entityOptional = collectionRepository.findById(UUID.fromString(collectionSagaData.getExistingCollectionID()));
-        CollectionEntity entity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));
+        CollectionEntity currentCollectionEntity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));
 
         //find school collections that are not COMPLETED
-        List<SdcSchoolCollectionEntity> schoolCollectionEntities = sdcSchoolCollectionRepository.findUncompletedSchoolCollections(entity.getCollectionID());
+        List<SdcSchoolCollectionEntity> schoolCollectionEntities = sdcSchoolCollectionRepository.findUncompletedSchoolCollections(currentCollectionEntity.getCollectionID());
         if(!schoolCollectionEntities.isEmpty()) {
             markSchoolCollectionsAsCompleted(schoolCollectionEntities);
         }
 
         //find district collections that are not COMPLETED
-        List<SdcDistrictCollectionEntity> districtCollectionEntities = sdcDistrictCollectionRepository.findAllIncompleteDistrictCollections(entity.getCollectionID());
+        List<SdcDistrictCollectionEntity> districtCollectionEntities = sdcDistrictCollectionRepository.findAllIncompleteDistrictCollections(currentCollectionEntity.getCollectionID());
         if(!districtCollectionEntities.isEmpty()) {
             markDistrictCollectionsAsCompleted(districtCollectionEntities);
         }
 
         // mark existing collection as COMPLETED
-        entity.setCollectionStatusCode(CollectionStatus.COMPLETED.getCode());
-        entity.setCloseDate(LocalDateTime.now());
-        entity.setUpdateDate(LocalDateTime.now());
-        entity.setUpdateUser(collectionSagaData.getUpdateUser());
-        collectionRepository.save(entity);
-        log.debug("Current collection type {}, id {}, is now closed", entity.getCollectionTypeCode(), entity.getCollectionID());
+        currentCollectionEntity.setCollectionStatusCode(CollectionStatus.COMPLETED.getCode());
+        currentCollectionEntity.setCloseDate(LocalDateTime.now());
+        currentCollectionEntity.setUpdateDate(LocalDateTime.now());
+        currentCollectionEntity.setUpdateUser(collectionSagaData.getUpdateUser());
+        collectionRepository.save(currentCollectionEntity);
+        log.debug("Current collection type {}, id {}, is now closed", currentCollectionEntity.getCollectionTypeCode(), currentCollectionEntity.getCollectionID());
 
+        startSDCCollection(collectionSagaData, currentCollectionEntity);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void openNewCollection() {
+        Optional<CollectionEntity> entityOptional = collectionRepository.findActiveCollection();
+        CollectionEntity currentCollectionEntity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, entityOptional.toString()));
+
+        String closingCollectionType = currentCollectionEntity.getCollectionTypeCode();
+
+        String newCollectionType = CollectionTypeCodes.findByValue(closingCollectionType)
+                .map(CollectionTypeCodes::getNextCollectionToOpen)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No 'nextCollectionToOpen' mapping found for collection type: " + closingCollectionType));
+
+        CollectionTypeCodeEntity newCollectionTypeEntity = codeTableService.getCollectionCodeList()
+                .stream()
+                .filter(collectionTypeCodeEntity -> newCollectionType.equalsIgnoreCase(collectionTypeCodeEntity.getCollectionTypeCode()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No CollectionTypeCodeEntity found for type: " + newCollectionType));
+
+        LocalDate snapshotDate = newCollectionTypeEntity.getSnapshotDate();
+        snapshotDate = snapshotDate.withYear(2025);
+        LocalDate submissionDate = snapshotDate.plusWeeks(1).with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY));
+        LocalDate duplicationResolutionDueDate = submissionDate.plusWeeks(2);
+        LocalDate signOffDueDate = submissionDate.plusWeeks(3);
+
+        CollectionSagaData collectionSagaData = CollectionSagaData.builder()
+                .existingCollectionID(currentCollectionEntity.getCollectionID().toString())
+                .newCollectionSnapshotDate(snapshotDate.toString())
+                .newCollectionSubmissionDueDate(submissionDate.toString())
+                .newCollectionDuplicationResolutionDueDate(duplicationResolutionDueDate.toString())
+                .newCollectionSignOffDueDate(signOffDueDate.toString())
+                .build();
+
+        startSDCCollection(collectionSagaData, currentCollectionEntity);
+    }
+
+    private void startSDCCollection(final CollectionSagaData collectionSagaData, CollectionEntity currentCollectionEntity) {
         // get next collection type code to open
-        Optional<CollectionTypeCodes> optionalCollectionMap = CollectionTypeCodes.findByValue(entity.getCollectionTypeCode());
+        Optional<CollectionTypeCodes> optionalCollectionMap = CollectionTypeCodes.findByValue(currentCollectionEntity.getCollectionTypeCode());
         CollectionTypeCodes collectionMap = optionalCollectionMap.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, SDC_COLLECTION_ID_KEY, collectionSagaData.getExistingCollectionID()));
         log.debug("Next collection to open: {}", collectionMap.getNextCollectionToOpen());
 
@@ -101,9 +145,9 @@ public class CloseCollectionService {
         List<CollectionCodeCriteriaEntity> collectionCodeCriteria = this.collectionCodeCriteriaRepository.findAllByCollectionTypeCodeEntityEquals(collectionToOpen);
         log.debug("Found {} collectionCodeCriteria", collectionCodeCriteria.size());
 
-        final List<SchoolTombstone> listOfSchoolIDs = this.getListOfSchoolIDsFromCriteria(collectionCodeCriteria);
-        log.debug("Found {} listOfSchoolIDs to open for next collection", listOfSchoolIDs.size());
-        if (!listOfSchoolIDs.isEmpty()) {
+        final List<SchoolTombstone> listOfSchoolTombstones = this.getListOfSchoolIDsFromCriteria(collectionCodeCriteria);
+        log.debug("Found {} listOfSchoolIDs to open for next collection", listOfSchoolTombstones.size());
+        if (!listOfSchoolTombstones.isEmpty()) {
 
             // create new collection
             CollectionEntity collectionEntity = CollectionEntity.builder()
@@ -120,62 +164,59 @@ public class CloseCollectionService {
                     .updateDate(LocalDateTime.now()).build();
 
             collectionRepository.save(collectionEntity);
-            startSDCCollection(listOfSchoolIDs, collectionEntity);
 
-            sdcSchoolCollectionStudentRepository.updateAllSdcSchoolCollectionStudentStatus(UUID.fromString(collectionSagaData.getExistingCollectionID()));
-            log.info("New collection for {} is now open", collectionEntity.getCollectionTypeCode());
-        }
-    }
+            var sdcDistrictEntityList = new HashMap<UUID, SdcDistrictCollectionEntity>();
+            var listOfDistricts = listOfSchoolTombstones.stream()
+                    .filter(tomb -> !SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(tomb.getSchoolCategoryCode()))
+                    .map(SchoolTombstone::getDistrictId).distinct().toList();
 
-    public void startSDCCollection(List<SchoolTombstone> listOfSchoolTombstones, CollectionEntity collectionEntity) {
-        var sdcDistrictEntityList = new HashMap<UUID, SdcDistrictCollectionEntity>();
-        var listOfDistricts = listOfSchoolTombstones.stream()
-                .filter(tomb -> !SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(tomb.getSchoolCategoryCode()))
-                .map(SchoolTombstone::getDistrictId).distinct().toList();
+            log.debug("Found {} listOfDistricts to open for next collection", listOfDistricts.size());
+            //create and save district collection entities
+            listOfDistricts.forEach(districtID -> {
+                if(!sdcDistrictEntityList.containsKey(UUID.fromString(districtID))) {
+                    SdcDistrictCollectionEntity sdcDistrictCollectionEntity = SdcDistrictCollectionEntity.builder().collectionEntity(collectionEntity)
+                            .districtID(UUID.fromString(districtID))
+                            .sdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.NEW.getCode())
+                            .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+                            .createDate(LocalDateTime.now())
+                            .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+                            .updateDate(LocalDateTime.now()).build();
+                    sdcDistrictCollectionEntity = sdcDistrictCollectionRepository.save(sdcDistrictCollectionEntity);
+                    sdcDistrictEntityList.put(sdcDistrictCollectionEntity.getDistrictID(), sdcDistrictCollectionEntity);
+                }
+            });
 
-        log.debug("Found {} listOfDistricts to open for next collection", listOfDistricts.size());
-        //create and save district collection entities
-        listOfDistricts.forEach(districtID -> {
-            if(!sdcDistrictEntityList.containsKey(UUID.fromString(districtID))) {
-                SdcDistrictCollectionEntity sdcDistrictCollectionEntity = SdcDistrictCollectionEntity.builder().collectionEntity(collectionEntity)
-                        .districtID(UUID.fromString(districtID))
-                        .sdcDistrictCollectionStatusCode(SdcDistrictCollectionStatus.NEW.getCode())
+            //create school collection entities
+            Set<SdcSchoolCollectionEntity> sdcSchoolEntityList = new HashSet<>();
+            listOfSchoolTombstones.forEach(school -> {
+                UUID sdcDistrictCollectionID = null;
+                if(!SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(school.getSchoolCategoryCode())){
+                    sdcDistrictCollectionID = sdcDistrictEntityList.get(UUID.fromString(school.getDistrictId())).getSdcDistrictCollectionID();
+                }
+                SdcSchoolCollectionEntity sdcSchoolEntity = SdcSchoolCollectionEntity.builder().collectionEntity(collectionEntity)
+                        .schoolID(UUID.fromString(school.getSchoolId()))
+                        .sdcDistrictCollectionID(sdcDistrictCollectionID)
+                        .sdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode())
                         .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
                         .createDate(LocalDateTime.now())
                         .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
                         .updateDate(LocalDateTime.now()).build();
-                sdcDistrictCollectionEntity = sdcDistrictCollectionRepository.save(sdcDistrictCollectionEntity);
-                sdcDistrictEntityList.put(sdcDistrictCollectionEntity.getDistrictID(), sdcDistrictCollectionEntity);
+                sdcSchoolEntityList.add(sdcSchoolEntity);
+            });
+
+            collectionEntity.setSdcSchoolCollectionEntities(sdcSchoolEntityList);
+
+            if(!collectionEntity.getSDCSchoolEntities().isEmpty()) {
+                log.debug("Adding school history records for collection {}", collectionEntity.getCollectionID());
+                collectionEntity.getSDCSchoolEntities().forEach(schoolCollectionEntity -> schoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(this.sdcSchoolHistoryService.createSDCSchoolHistory(schoolCollectionEntity, ApplicationProperties.STUDENT_DATA_COLLECTION_API)));
             }
-        });
 
-        //create school collection entities
-        Set<SdcSchoolCollectionEntity> sdcSchoolEntityList = new HashSet<>();
-        listOfSchoolTombstones.forEach(school -> {
-            UUID sdcDistrictCollectionID = null;
-            if(!SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(school.getSchoolCategoryCode())){
-                sdcDistrictCollectionID = sdcDistrictEntityList.get(UUID.fromString(school.getDistrictId())).getSdcDistrictCollectionID();
-            }
-            SdcSchoolCollectionEntity sdcSchoolEntity = SdcSchoolCollectionEntity.builder().collectionEntity(collectionEntity)
-                    .schoolID(UUID.fromString(school.getSchoolId()))
-                    .sdcDistrictCollectionID(sdcDistrictCollectionID)
-                    .sdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode())
-                    .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
-                    .createDate(LocalDateTime.now())
-                    .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
-                    .updateDate(LocalDateTime.now()).build();
-            sdcSchoolEntityList.add(sdcSchoolEntity);
-        });
+            //save school collection entities to collection
+            this.collectionRepository.save(collectionEntity);
 
-        collectionEntity.setSdcSchoolCollectionEntities(sdcSchoolEntityList);
-
-        if(!collectionEntity.getSDCSchoolEntities().isEmpty()) {
-            log.debug("Adding school history records for collection {}", collectionEntity.getCollectionID());
-            collectionEntity.getSDCSchoolEntities().forEach(schoolCollectionEntity -> schoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(this.sdcSchoolHistoryService.createSDCSchoolHistory(schoolCollectionEntity, ApplicationProperties.STUDENT_DATA_COLLECTION_API)));
+            sdcSchoolCollectionStudentRepository.updateAllSdcSchoolCollectionStudentStatus(UUID.fromString(collectionSagaData.getExistingCollectionID()));
+            log.info("New collection for {} is now open", collectionEntity.getCollectionTypeCode());
         }
-
-        //save school collection entities to collection
-        this.collectionRepository.save(collectionEntity);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
