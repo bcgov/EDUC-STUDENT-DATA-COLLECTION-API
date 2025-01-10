@@ -46,7 +46,7 @@ public class SpecialEducationProgramsRule implements ProgramEligibilityBaseRule 
 
     List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
     var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
-    var onlineAndContinuingFacilityCodes = Arrays.asList(FacilityTypeCodes.DISTONLINE.getCode(), FacilityTypeCodes.DIST_LEARN.getCode());
+    var onlineFacilityCodes = Arrays.asList(FacilityTypeCodes.DISTONLINE.getCode(), FacilityTypeCodes.DIST_LEARN.getCode());
 
     List<String> activeSpecialEdPrograms = validationRulesService.getActiveSpecialEducationCategoryCodes().stream().map(SpecialEducationCategoryCode::getSpecialEducationCategoryCode).toList();
 
@@ -64,8 +64,8 @@ public class SpecialEducationProgramsRule implements ProgramEligibilityBaseRule 
     } else if (Boolean.FALSE.equals(isSchoolAged) && (isGraduated || (isAdult && isGA))) {
       log.debug("ProgramEligibilityBaseRule - SpecialEducationProgramsRule: Is school aged - {}, Is non graduated adult - {}, for sdcSchoolCollectionStudentID :: {}", student.getIsSchoolAged(), student.getIsGraduated(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
       errors.add(ProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION);
-    } else if(collectionType.equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode()) && onlineAndContinuingFacilityCodes.contains(facilityType) &&
-            historicalStudents.stream().anyMatch(stu -> stu.getFte().compareTo(BigDecimal.ZERO) > 0)) {
+    } else if(collectionType.equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode()) && onlineFacilityCodes.contains(facilityType) &&
+            historicalStudents.stream().anyMatch(stu -> stu.getFte().compareTo(BigDecimal.ZERO) > 0 && stu.getSpecialEducationNonEligReasonCode() == null)) {
       log.debug("ProgramEligibilityBaseRule - SpecialEducationProgramsRule: CollectionTypeCodes - {}, facilityType - {}, for sdcSchoolCollectionStudentID :: {}", collectionType, facilityType, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
       errors.add(ProgramEligibilityIssueCode.FEB_ONLINE_WITH_HISTORICAL_FUNDING);
     }
