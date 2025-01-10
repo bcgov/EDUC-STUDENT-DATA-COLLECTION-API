@@ -978,11 +978,18 @@ public class CSVReportService {
 
     // Enroled Headcounts and FTEs by School report
     public DownloadableReportResponse generateEnrolledHeadcountsAndFteReport(UUID collectionID) {
-        List<EnrolmentHeadcountFteResult> results = sdcSchoolCollectionStudentRepository.getEnrolmentHeadcountsAndFteByCollectionId(collectionID);
         var collectionOpt = collectionRepository.findById(collectionID);
 
         if(collectionOpt.isEmpty()){
             throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
+        }
+
+        List<EnrolmentHeadcountFteResult> results;
+
+        if(Objects.equals(collectionOpt.get().getCollectionTypeCode(), CollectionTypeCodes.FEBRUARY.getTypeCode())){
+            results = sdcSchoolCollectionStudentRepository.getEnrolmentHeadcountsAndFteByFebCollectionId(collectionID);
+        } else {
+            results = sdcSchoolCollectionStudentRepository.getEnrolmentHeadcountsAndFteByCollectionId(collectionID);
         }
 
         List<String> headers = Arrays.stream(EnrolmentAndFteHeader.values()).map(EnrolmentAndFteHeader::getCode).toList();
