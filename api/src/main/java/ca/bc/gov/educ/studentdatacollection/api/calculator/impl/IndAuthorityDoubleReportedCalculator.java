@@ -15,7 +15,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReaso
 
 @Component
 @Slf4j
-@Order(9)
+@Order(90)
 public class IndAuthorityDoubleReportedCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Autowired

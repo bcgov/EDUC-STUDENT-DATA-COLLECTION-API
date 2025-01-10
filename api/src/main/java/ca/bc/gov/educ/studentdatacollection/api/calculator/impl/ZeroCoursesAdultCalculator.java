@@ -15,7 +15,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReaso
 
 @Component
 @Slf4j
-@Order(5)
+@Order(50)
 public class ZeroCoursesAdultCalculator implements FteCalculator {
     FteCalculator nextCalculator;
 

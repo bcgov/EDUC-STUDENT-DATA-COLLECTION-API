@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum ZeroFteReasonCodes {
 
   TOO_YOUNG("TOOYOUNG", "The student is too young."),
+  PRP_OR_YOUTH_SCHOOL("PRPYOUTH", "Student is funded outside of the funding allocation system."),
   OUT_OF_PROVINCE("OUTOFPROV", "Out-of-Province/International Students are not eligible for funding."),
   OFFSHORE("OFFSHORE", "Offshore students do not receive funding."),
   INACTIVE("INACTIVE", "The student has not been reported as \"active\" in a new course in the last two years."),

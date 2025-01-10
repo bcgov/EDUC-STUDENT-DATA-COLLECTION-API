@@ -14,7 +14,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReaso
 
 @Component
 @Slf4j
-@Order(3)
+@Order(30)
 public class TooYoungCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Override

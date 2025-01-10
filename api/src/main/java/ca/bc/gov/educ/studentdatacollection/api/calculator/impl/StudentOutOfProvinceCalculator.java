@@ -15,7 +15,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReaso
 
 @Component
 @Slf4j
-@Order(2)
+@Order(20)
 public class StudentOutOfProvinceCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Override
