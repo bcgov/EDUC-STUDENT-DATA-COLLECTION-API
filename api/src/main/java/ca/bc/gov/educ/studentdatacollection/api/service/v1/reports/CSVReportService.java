@@ -94,7 +94,7 @@ public class CSVReportService {
 
                         KIND_HT_FTE_COUNT.getCode(), KIND_FT_FTE_COUNT.getCode(), GRADE_ONE_FTE_COUNT.getCode(), GRADE_TWO_FTE_COUNT.getCode(), GRADE_THREE_FTE_COUNT.getCode(), GRADE_FOUR_FTE_COUNT.getCode(),
                         GRADE_FIVE_FTE_COUNT.getCode(), GRADE_SIX_FTE_COUNT.getCode(),GRADE_SEVEN_FTE_COUNT.getCode(), EU_FTE_COUNT.getCode(), GRADE_EIGHT_FTE_COUNT.getCode(),GRADE_NINE_FTE_COUNT.getCode(),
-                        GRADE_TEN_FTE_COUNT.getCode(), GRADE_ELEVEN_FTE_COUNT.getCode(), GRADE_TWELVE_FTE_COUNT.getCode(), SU_FTE_COUNT.getCode(), GA_FTE_COUNT.getCode(), HS_FTE_COUNT.getCode())
+                        GRADE_TEN_FTE_COUNT.getCode(), GRADE_ELEVEN_FTE_COUNT.getCode(), GRADE_TWELVE_FTE_COUNT.getCode(), SU_FTE_COUNT.getCode(), GA_FTE_COUNT.getCode())
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -1628,8 +1628,7 @@ public class CSVReportService {
                 indyFundingResult.getGrade11FTE(),
                 indyFundingResult.getGrade12FTE(),
                 indyFundingResult.getGradeSUFTE(),
-                indyFundingResult.getGradeGAFTE(),
-                indyFundingResult.getGradeHSFTE()
+                indyFundingResult.getGradeGAFTE()
         ));
         return csvRowData;
     }
@@ -1715,13 +1714,12 @@ public class CSVReportService {
         var fte12 = TransformUtil.isSchoolFundingGroup1orGroup2(group12) ? indyFundingResult.getGrade12FTE() : "0";
         var fteSU = TransformUtil.isSchoolFundingGroup1orGroup2(groupSU) ? indyFundingResult.getGradeSUFTE() : "0";
         var fteGA = TransformUtil.isSchoolFundingGroup1orGroup2(groupGA) ? indyFundingResult.getGradeGAFTE() : "0";
-        var fteHS = TransformUtil.isSchoolFundingGroup1orGroup2(groupHS) ? indyFundingResult.getGradeHSFTE() : "0";
 
         var totalFTE = Double.parseDouble(fteKh) +  Double.parseDouble(fteKf) + Double.parseDouble(fte01) + Double.parseDouble(fte02)
                 + Double.parseDouble(fte03) + Double.parseDouble(fte04) + Double.parseDouble(fte05) + Double.parseDouble(fte06) +
                 Double.parseDouble(fte07) + Double.parseDouble(fteEU) + Double.parseDouble(fte08) + Double.parseDouble(fte09) +
                 Double.parseDouble(fte10) + Double.parseDouble(fte11) + Double.parseDouble(fte12) + Double.parseDouble(fteSU)
-                + Double.parseDouble(fteGA) + Double.parseDouble(fteHS);
+                + Double.parseDouble(fteGA);
 
                 csvRowData.addAll(Arrays.asList(
                 district != null ? district.getDistrictNumber() : null,
@@ -1789,8 +1787,7 @@ public class CSVReportService {
                 fte11,
                 fte12,
                 fteSU,
-                fteGA,
-                fteHS
+                fteGA
         ));
         return csvRowData;
     }

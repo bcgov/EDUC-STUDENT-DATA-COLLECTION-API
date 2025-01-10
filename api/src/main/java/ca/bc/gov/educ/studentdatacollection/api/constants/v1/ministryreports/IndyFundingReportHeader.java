@@ -51,7 +51,6 @@ public enum IndyFundingReportHeader {
     GRADE_TWELVE_FTE_COUNT("FTE Grade 12"),
     SU_FTE_COUNT("FTE SU"),
     GA_FTE_COUNT("FTE GA"),
-    HS_FTE_COUNT("FTE HS"),
 
     KIND_HT_FUNDING_GROUP("Kind(H/T) Funding Group #"),
     KIND_FT_FUNDING_GROUP("Kind(F/T) Funding Group #"),
