@@ -18,6 +18,7 @@ public enum MinistryReportTypeCode {
     OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS("offshore-languages-headcounts"),
     INDY_INCLUSIVE_ED_FUNDING_HEADCOUNTS("indy-inclusive-ed-funding-headcounts"),
     ENROLLED_HEADCOUNTS_AND_FTE_REPORT("enrolled-fte-headcounts"),
+    INCLUSIVE_EDUCATION_VARIANCES_ALL("inclusive-education-variances-all"),
     ENROLMENT_HEADCOUNTS_AND_FTE_REPORT_FOR_OL_AND_CE_SCHOOLS("enrolment-fte-headcounts-for-ce-ol-schools"),
     INDY_FUNDING_REPORT_ALL("indy-funding-report-all"),
     INDY_FUNDING_REPORT_FUNDED("indy-funding-report-funded"),
