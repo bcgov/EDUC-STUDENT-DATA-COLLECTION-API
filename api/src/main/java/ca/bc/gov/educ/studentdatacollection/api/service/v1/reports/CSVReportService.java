@@ -179,7 +179,7 @@ public class CSVReportService {
                         var school = schoolOpt.get();
                         District district = null;
                         if(stud.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionEntity().getSdcDistrictCollectionID() != null){
-                            district = restUtils.getDistrictByDistrictID(school.getDistrictId()).orElseThrow(() -> new EntityNotFoundException(District.class, "districtID", school.getDistrictId()));
+                            district = restUtils.getDistrictByDistrictID(school.getDistrictId()).orElseThrow(() -> new EntityNotFoundException(District.class, DISTRICT_ID, school.getDistrictId()));
                         }
 
                         List<String> csvRowData = prepareStudentDupeForCsv(stud, school, district, result.getDuplicateTypeCode());
@@ -1140,8 +1140,7 @@ public class CSVReportService {
         }
         BigDecimal feb = new BigDecimal(febCount);
         BigDecimal sept = new BigDecimal(septCount);
-        BigDecimal variance = feb.subtract(sept);
-        return variance;
+        return feb.subtract(sept);
     }
 
     private List<String> prepareInclusiveEducationVarianceForCsv(SpecialEdHeadcountResult septResult, SpecialEdHeadcountResult febResult, District district) {
