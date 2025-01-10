@@ -187,7 +187,7 @@ public class FteCalculatorUtils {
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         var school = studentRuleData.getSchool();
         var isEightPlusGradeCode = SchoolGradeCodes.get8PlusGradesNoGA().contains(student.getEnrolledGradeCode());
-        var reportedByOnlineOrContEdSchool = StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DISTONLINE.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.CONT_ED.getCode());
+        var reportedByOnlineOrContEdSchool = StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DISTONLINE.getCode());
         var zeroCourses = TransformUtil.parseNumberOfCourses(student.getNumberOfCourses(), student.getSdcSchoolCollection().getSdcSchoolCollectionID()) == 0;
         boolean isSchoolAged = Boolean.TRUE.equals(student.getIsSchoolAged());
 
@@ -210,11 +210,11 @@ public class FteCalculatorUtils {
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
         var school = studentRuleData.getSchool();
         var isAllowedAdultGradeCode = SchoolGradeCodes.getAllowedAdultGrades().contains(student.getEnrolledGradeCode());
-        var reportedByOnlineOrContEdSchool = StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DISTONLINE.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.CONT_ED.getCode());
+        var reportedByOnlineSchool = StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DISTONLINE.getCode());
         var zeroCourses = TransformUtil.parseNumberOfCourses(student.getNumberOfCourses(), student.getSdcSchoolCollection().getSdcSchoolCollectionID()) == 0;
         boolean isAdult = Boolean.TRUE.equals(student.getIsAdult());
 
-        if (isAdult && isAllowedAdultGradeCode && reportedByOnlineOrContEdSchool && zeroCourses) {
+        if (isAdult && isAllowedAdultGradeCode && reportedByOnlineSchool && zeroCourses) {
             if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
                 return true;
             }
