@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 
 @Component
 @Slf4j
-@Order(13)
+@Order(130)
 public class AlternateProgramsCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Override

@@ -15,7 +15,7 @@ import java.math.RoundingMode;
 
 @Component
 @Slf4j
-@Order(15)
+@Order(150)
 public class SupportBlocksCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Override

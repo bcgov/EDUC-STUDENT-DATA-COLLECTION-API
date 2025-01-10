@@ -15,7 +15,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReaso
 
 @Component
 @Slf4j
-@Order(1)
+@Order(10)
 public class OffshoreStudentCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Override
