@@ -66,7 +66,7 @@ public class SpecialEducationProgramsRule implements ProgramEligibilityBaseRule 
       errors.add(ProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION);
     } else if(collectionType.equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode()) && onlineAndContinuingFacilityCodes.contains(facilityType) &&
             historicalStudents.stream().anyMatch(stu -> stu.getFte().compareTo(BigDecimal.ZERO) > 0)) {
-      log.debug("ProgramEligibilityBaseRule - SpecialEducationProgramsRule: CollectionTypeCodes - {}, schoolCategory - {}, for sdcSchoolCollectionStudentID :: {}", student.getIsSchoolAged(), student.getIsGraduated(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+      log.debug("ProgramEligibilityBaseRule - SpecialEducationProgramsRule: CollectionTypeCodes - {}, facilityType - {}, for sdcSchoolCollectionStudentID :: {}", collectionType, facilityType, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
       errors.add(ProgramEligibilityIssueCode.FEB_ONLINE_WITH_HISTORICAL_FUNDING);
     }
 
