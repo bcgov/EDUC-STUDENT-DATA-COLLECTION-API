@@ -7,10 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDuplicateRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.IndependentSchoolFundingGroupSnapshotService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
@@ -32,6 +29,7 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -55,11 +53,13 @@ public class CSVReportService {
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final CollectionRepository collectionRepository;
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+    private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final IndependentSchoolFundingGroupSnapshotService independentSchoolFundingGroupSnapshotService;
     private final RestUtils restUtils;
     private final ValidationRulesService validationService;
     private static final String COLLECTION_ID = "collectionID";
     private static final String SCHOOL_ID = "schoolID";
+    private static final String DISTRICT_ID = "districtID";
     private static final String INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and SEPT collections";
     private static final String HEADCOUNTS_INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and MAY collections";
     private static final String REFUGEE_HEADCOUNTS_INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB collection";
@@ -926,6 +926,56 @@ public class CSVReportService {
         return csvRowData;
     }
 
+    // Inclusive Ed Variance Report for all
+    public DownloadableReportResponse generateInclusiveEducationVarianceReport(UUID collectionID) {
+        var collectionOpt = collectionRepository.findById(collectionID);
+
+        if(collectionOpt.isEmpty()){
+            throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
+        }
+
+        List<String> headers = Arrays.stream(InclusiveEducationVarianceHeader.values()).map(InclusiveEducationVarianceHeader::getCode).toList();
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(headers.toArray(String[]::new))
+                .build();
+
+        var districtCollections = sdcDistrictCollectionRepository.findAllByCollectionEntityCollectionID(collectionID);
+
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for(SdcDistrictCollectionEntity sdcDistrictCollectionEntity: districtCollections){
+                UUID districtID = sdcDistrictCollectionEntity.getDistrictID();
+                // Get previous February collection relative to given collectionID
+                SdcDistrictCollectionEntity febCollection = sdcDistrictCollectionRepository.findLastOrCurrentSdcDistrictCollectionByCollectionType(CollectionTypeCodes.FEBRUARY.getTypeCode(), districtID, sdcDistrictCollectionEntity.getCollectionEntity().getSnapshotDate())
+                        .orElseThrow(() -> new RuntimeException("No previous or current February sdc district collection found."));
+
+                // Get previous September collection relative to previous February collection
+                SdcDistrictCollectionEntity septCollection = sdcDistrictCollectionRepository.findLastSdcDistrictCollectionByCollectionTypeBefore(CollectionTypeCodes.SEPTEMBER.getTypeCode(), districtID, febCollection.getCollectionEntity().getSnapshotDate())
+                        .orElseThrow(() -> new RuntimeException("No previous September sdc district collection found relative to the February collection."));
+
+                var febCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsSimpleBySdcDistrictCollectionId(febCollection.getSdcDistrictCollectionID());
+                var septCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsSimpleBySdcDistrictCollectionId(septCollection.getSdcDistrictCollectionID());
+
+                var district = restUtils.getDistrictByDistrictID(districtID.toString()).orElseThrow(() -> new EntityNotFoundException(District.class, DISTRICT_ID, districtID.toString()));
+
+                List<String> csvRowData = prepareInclusiveEducationVarianceForCsv(septCollectionRawData, febCollectionRawData, district);
+                csvPrinter.printRecord(csvRowData);
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(INCLUSIVE_EDUCATION_VARIANCES_ALL.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
     // Enroled Headcounts and FTEs by School report
     public DownloadableReportResponse generateEnrolledHeadcountsAndFteReport(UUID collectionID) {
         List<EnrolmentHeadcountFteResult> results = sdcSchoolCollectionStudentRepository.getEnrolmentHeadcountsAndFteByCollectionId(collectionID);
@@ -1079,6 +1129,59 @@ public class CSVReportService {
 
     private ApiError createError(String message) {
         return ApiError.builder().timestamp(LocalDateTime.now()).message(message).status(BAD_REQUEST).build();
+    }
+
+    private BigDecimal calculateVariance(String septCount, String febCount) {
+        if(septCount == null){
+            septCount = "0";
+        }
+        if(febCount == null){
+            febCount = "0";
+        }
+        BigDecimal feb = new BigDecimal(febCount);
+        BigDecimal sept = new BigDecimal(septCount);
+        BigDecimal variance = feb.subtract(sept);
+        return variance;
+    }
+
+    private List<String> prepareInclusiveEducationVarianceForCsv(SpecialEdHeadcountResult septResult, SpecialEdHeadcountResult febResult, District district) {
+        return new ArrayList<>(Arrays.asList(
+                district.getDistrictNumber(),
+                district.getDisplayName(),
+                septResult.getSpecialEdACodes(),
+                septResult.getSpecialEdBCodes(),
+                septResult.getSpecialEdCCodes(),
+                septResult.getSpecialEdDCodes(),
+                septResult.getSpecialEdECodes(),
+                septResult.getSpecialEdFCodes(),
+                septResult.getSpecialEdGCodes(),
+                septResult.getSpecialEdKCodes(),
+                septResult.getSpecialEdPCodes(),
+                septResult.getSpecialEdQCodes(),
+                septResult.getSpecialEdRCodes(),
+                febResult.getSpecialEdACodes(),
+                febResult.getSpecialEdBCodes(),
+                febResult.getSpecialEdCCodes(),
+                febResult.getSpecialEdDCodes(),
+                febResult.getSpecialEdECodes(),
+                febResult.getSpecialEdFCodes(),
+                febResult.getSpecialEdGCodes(),
+                febResult.getSpecialEdKCodes(),
+                febResult.getSpecialEdPCodes(),
+                febResult.getSpecialEdQCodes(),
+                febResult.getSpecialEdRCodes(),
+                calculateVariance(septResult.getSpecialEdACodes(), febResult.getSpecialEdACodes()).toString(),
+                calculateVariance(septResult.getSpecialEdBCodes(), febResult.getSpecialEdBCodes()).toString(),
+                calculateVariance(septResult.getSpecialEdCCodes(), febResult.getSpecialEdCCodes()).toString(),
+                calculateVariance(septResult.getSpecialEdDCodes(), febResult.getSpecialEdDCodes()).toString(),
+                calculateVariance(septResult.getSpecialEdECodes(), febResult.getSpecialEdECodes()).toString(),
+                calculateVariance(septResult.getSpecialEdFCodes(), febResult.getSpecialEdFCodes()).toString(),
+                calculateVariance(septResult.getSpecialEdGCodes(), febResult.getSpecialEdGCodes()).toString(),
+                calculateVariance(septResult.getSpecialEdKCodes(), febResult.getSpecialEdKCodes()).toString(),
+                calculateVariance(septResult.getSpecialEdPCodes(), febResult.getSpecialEdPCodes()).toString(),
+                calculateVariance(septResult.getSpecialEdQCodes(), febResult.getSpecialEdQCodes()).toString(),
+                calculateVariance(septResult.getSpecialEdRCodes(), febResult.getSpecialEdRCodes()).toString()
+        ));
     }
 
     private List<String> prepareEnrolmentFteDataForCsv(EnrolmentHeadcountFteResult headcountResult, SchoolTombstone school) {
