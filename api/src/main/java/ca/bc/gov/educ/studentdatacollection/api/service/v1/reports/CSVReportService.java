@@ -1144,6 +1144,18 @@ public class CSVReportService {
     }
 
     private List<String> prepareInclusiveEducationVarianceForCsv(SpecialEdHeadcountResult septResult, SpecialEdHeadcountResult febResult, District district) {
+                VARIANCE_A("Variance - Level 1 - A - Physically Dependent"),
+                VARIANCE_B("Variance - Level 1 - B - Deafblind"),
+                VARIANCE_C("Variance - Level 2 - C - Moderate to Profound Intellectual Disability"),
+                VARIANCE_D("Variance - Level 2 - D - Physical Disability or Chronic Health Impairment"),
+                VARIANCE_E("Variance - Level 2 - E - Visual Impairment"),
+                VARIANCE_F("Variance - Level 2 - F - Deaf or Hard of Hearing"),
+                VARIANCE_G("Variance - Level 2 - G - Autism Spectrum Disorder"),
+                VARIANCE_H("Variance - Level 3 - H - Intensive Behaviour Interventions or Serious Mental Illness"),
+                VARIANCE_K("Variance - Other - K - Mild Intellectual Disability"),
+                VARIANCE_P("Variance - Other - P - Gifted"),
+                VARIANCE_Q("Variance - Other - Q - Learning Disability"),
+                VARIANCE_R("Variance - Other - R - Moderate Behaviour Support/Mental Illness");
         return new ArrayList<>(Arrays.asList(
                 district.getDistrictNumber(),
                 district.getDisplayName(),
@@ -1154,6 +1166,7 @@ public class CSVReportService {
                 septResult.getSpecialEdECodes(),
                 septResult.getSpecialEdFCodes(),
                 septResult.getSpecialEdGCodes(),
+                septResult.getSpecialEdHCodes(),
                 septResult.getSpecialEdKCodes(),
                 septResult.getSpecialEdPCodes(),
                 septResult.getSpecialEdQCodes(),
@@ -1165,6 +1178,7 @@ public class CSVReportService {
                 febResult.getSpecialEdECodes(),
                 febResult.getSpecialEdFCodes(),
                 febResult.getSpecialEdGCodes(),
+                febResult.getSpecialEdHCodes(),
                 febResult.getSpecialEdKCodes(),
                 febResult.getSpecialEdPCodes(),
                 febResult.getSpecialEdQCodes(),
@@ -1176,6 +1190,7 @@ public class CSVReportService {
                 calculateVariance(septResult.getSpecialEdECodes(), febResult.getSpecialEdECodes()).toString(),
                 calculateVariance(septResult.getSpecialEdFCodes(), febResult.getSpecialEdFCodes()).toString(),
                 calculateVariance(septResult.getSpecialEdGCodes(), febResult.getSpecialEdGCodes()).toString(),
+                calculateVariance(septResult.getSpecialEdHCodes(), febResult.getSpecialEdHCodes()).toString(),
                 calculateVariance(septResult.getSpecialEdKCodes(), febResult.getSpecialEdKCodes()).toString(),
                 calculateVariance(septResult.getSpecialEdPCodes(), febResult.getSpecialEdPCodes()).toString(),
                 calculateVariance(septResult.getSpecialEdQCodes(), febResult.getSpecialEdQCodes()).toString(),
