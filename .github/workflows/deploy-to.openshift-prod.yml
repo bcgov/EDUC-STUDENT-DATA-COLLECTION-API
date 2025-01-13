@@ -118,7 +118,7 @@ jobs:
         oc rollout cancel dc/${{ env.SPRING_BOOT_IMAGE_NAME }} 2> /dev/null \
         || true && echo "No rollout in progress"
         
-        oc tag ${{ env.NAMESPACE }}-dev/${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ steps.get-latest-tag.outputs.tag }} ${{ env.NAMESPACE }}-test/${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ steps.get-latest-tag.outputs.tag }}
+        oc tag ${{ env.NAMESPACE }}-dev/${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ steps.get-latest-tag.outputs.tag }} ${{ env.NAMESPACE }}-prod/${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ steps.get-latest-tag.outputs.tag }}
         
         echo "::add-mask::$(oc -n ${{ env.OPENSHIFT_NAMESPACE }} -o json get secret ${{ env.APP_NAME }}-patroni | sed -n 's/.*"username-appuser": "\(.*\)",/\1/p' | base64 --decode)"
         
