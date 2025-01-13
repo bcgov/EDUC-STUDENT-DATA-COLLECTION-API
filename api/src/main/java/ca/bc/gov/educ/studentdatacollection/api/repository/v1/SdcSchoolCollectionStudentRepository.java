@@ -1183,6 +1183,46 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   @Query("SELECT " +
           "s.sdcSchoolCollection.schoolID AS schoolID, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B') THEN 1 END) AS levelOnes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('C', 'D', 'E', 'F', 'G') THEN 1 END) AS levelTwos, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('H') THEN 1 END) AS levelThrees, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('K', 'P', 'Q', 'R') THEN 1 END) AS otherLevels, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'A' THEN 1 END) AS specialEdACodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'A' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdA, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'B' THEN 1 END) AS specialEdBCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'B' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdB, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'C' THEN 1 END) AS specialEdCCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'C' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdC, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'D' THEN 1 END) AS specialEdDCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'D' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdD, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'E' THEN 1 END) AS specialEdECodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'E' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdE, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'F' THEN 1 END) AS specialEdFCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'F' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdF, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'G' THEN 1 END) AS specialEdGCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'G' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdG, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'H' THEN 1 END) AS specialEdHCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'H' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdH, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'K' THEN 1 END) AS specialEdKCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'K' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdK, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'P' THEN 1 END) AS specialEdPCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'P' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdP, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'Q' THEN 1 END) AS specialEdQCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'Q' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdQ, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'R' THEN 1 END) AS specialEdRCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'R' AND s.isAdult = true THEN 1 END) > 0 AS adultsInSpecialEdR, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'P', 'Q', 'R') THEN 1 END) AS allLevels " +
+          "FROM SdcSchoolCollectionStudentEntity s " +
+          "WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
+          "AND s.sdcSchoolCollection.sdcDistrictCollectionID is null " +
+          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
+          "AND s.specialEducationNonEligReasonCode IS NULL " +
+          "GROUP BY s.sdcSchoolCollection.schoolID " +
+          "ORDER BY s.sdcSchoolCollection.schoolID")
+  List<IndySpecialEdAdultHeadcountResult> getSpecialEdCategoryForIndiesAndOffshoreFebruaryByCollectionId(UUID collectionID);
+
+  @Query("SELECT " +
+          "s.sdcSchoolCollection.schoolID AS schoolID, " +
           "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B') AND s.fte > 0 THEN 1 END) AS levelOnes, " +
           "COUNT(CASE WHEN s.specialEducationCategoryCode = 'A' AND s.fte > 0 THEN 1 END) AS specialEdACodes, " +
           "COUNT(CASE WHEN s.specialEducationCategoryCode = 'B' AND s.fte > 0 THEN 1 END) AS specialEdBCodes, " +
@@ -1208,6 +1248,34 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "GROUP BY s.sdcSchoolCollection.schoolID " +
           "ORDER BY s.sdcSchoolCollection.schoolID")
   List<SpecialEdHeadcountResult> getSpecialEdHeadcountsByCollectionId(@Param("collectionID") UUID collectionID);
+
+  @Query("SELECT " +
+          "s.sdcSchoolCollection.schoolID AS schoolID, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B') THEN 1 END) AS levelOnes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'A' THEN 1 END) AS specialEdACodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'B' THEN 1 END) AS specialEdBCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('C', 'D', 'E', 'F', 'G') THEN 1 END) AS levelTwos, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'C' THEN 1 END) AS specialEdCCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'D' THEN 1 END) AS specialEdDCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'E' THEN 1 END) AS specialEdECodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'F' THEN 1 END) AS specialEdFCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'G' THEN 1 END) AS specialEdGCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('H') THEN 1 END) AS levelThrees, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'H' THEN 1 END) AS specialEdHCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('K', 'P', 'Q', 'R') THEN 1 END) AS otherLevels, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'K' THEN 1 END) AS specialEdKCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'P' THEN 1 END) AS specialEdPCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'Q' THEN 1 END) AS specialEdQCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'R' THEN 1 END) AS specialEdRCodes, " +
+          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'P', 'Q', 'R') THEN 1 END) AS allLevels " +
+          "FROM SdcSchoolCollectionStudentEntity s " +
+          "WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
+          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
+          "AND s.sdcSchoolCollection.sdcDistrictCollectionID is null " +
+          "AND s.specialEducationNonEligReasonCode IS NULL " +
+          "GROUP BY s.sdcSchoolCollection.schoolID " +
+          "ORDER BY s.sdcSchoolCollection.schoolID")
+  List<SpecialEdHeadcountResult> getSpecialEdHeadcountsFebruaryByCollectionId(@Param("collectionID") UUID collectionID);
 
   @Query(value = """
         SELECT sscs.sdcSchoolCollection.schoolID as schoolID,

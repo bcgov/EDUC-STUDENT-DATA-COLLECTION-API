@@ -408,10 +408,17 @@ public class CSVReportService {
 
     // Independent School Inclusive Education Headcounts report
     public DownloadableReportResponse generateIndySpecialEducationHeadcounts(UUID collectionID) {
-        List<IndySpecialEdAdultHeadcountResult> results = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
         var collectionOpt = collectionRepository.findById(collectionID);
         if(collectionOpt.isEmpty()){
             throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
+        }
+
+        List<IndySpecialEdAdultHeadcountResult> results;
+
+        if(Objects.equals(collectionOpt.get().getCollectionTypeCode(), CollectionTypeCodes.FEBRUARY.getTypeCode())){
+            results = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreFebruaryByCollectionId(collectionID);
+        } else {
+            results = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
         }
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
@@ -464,7 +471,7 @@ public class CSVReportService {
 
     // Independent School Inclusive Education Funding Headcounts report
     public DownloadableReportResponse generateIndySpecialEducationFundingHeadcounts(UUID collectionID) {
-        List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionId(collectionID);
+        List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsFebruaryByCollectionId(collectionID);
         var mappedSeptData = getLastSeptCollectionSchoolMap(collectionID);
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
