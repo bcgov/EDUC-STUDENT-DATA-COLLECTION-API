@@ -113,7 +113,7 @@ jobs:
         set -eu
         # Login to OpenShift and select project
         oc login --token=${{ env.OPENSHIFT_TOKEN }} --server=${{ env.OPENSHIFT_SERVER }}
-        oc project ${{ env.OPENSHIFT_NAMESPACE_TEST }}
+        oc project ${{ env.OPENSHIFT_NAMESPACE }}
         # Cancel any rollouts in progress
         oc rollout cancel dc/${{ env.SPRING_BOOT_IMAGE_NAME }} 2> /dev/null \
         || true && echo "No rollout in progress"
