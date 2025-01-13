@@ -161,7 +161,19 @@ public class MinistryHeadcountService {
 
   // Independent School Inclusive Education Headcounts report
   public SimpleHeadcountResultsTable getSpecialEducationHeadcountsForIndependentsByCollectionID(UUID collectionID) {
-    List<IndySpecialEdAdultHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
+    Optional<CollectionEntity> collectionOpt = collectionRepository.findById(collectionID);
+    if(collectionOpt.isEmpty()) {
+      throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+    }
+
+    List<IndySpecialEdAdultHeadcountResult> collectionRawData;
+
+    if(Objects.equals(collectionOpt.get().getCollectionTypeCode(), CollectionTypeCodes.FEBRUARY.getTypeCode())){
+      collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreFebruaryByCollectionId(collectionID);
+    } else {
+      collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
+    }
+
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();
     for (IndySpecialEducationHeadcountHeader header : IndySpecialEducationHeadcountHeader.values()) {
@@ -215,7 +227,7 @@ public class MinistryHeadcountService {
 
   // Independent School Inclusive Education Funding Headcounts report
   public SimpleHeadcountResultsTable getSpecialEducationFundingHeadcountsForIndependentsByCollectionID(UUID collectionID) {
-    List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionId(collectionID);
+    List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsFebruaryByCollectionId(collectionID);
     var mappedSeptData = getLastSeptCollectionSchoolMap(collectionID);
 
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
