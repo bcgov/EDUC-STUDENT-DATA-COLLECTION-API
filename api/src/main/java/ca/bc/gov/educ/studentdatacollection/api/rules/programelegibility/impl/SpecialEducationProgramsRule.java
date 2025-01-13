@@ -1,10 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibility.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -64,6 +61,11 @@ public class SpecialEducationProgramsRule implements ProgramEligibilityBaseRule 
     } else if (Boolean.FALSE.equals(isSchoolAged) && (isGraduated || (isAdult && isGA))) {
       log.debug("ProgramEligibilityBaseRule - SpecialEducationProgramsRule: Is school aged - {}, Is non graduated adult - {}, for sdcSchoolCollectionStudentID :: {}", student.getIsSchoolAged(), student.getIsGraduated(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
       errors.add(ProgramEligibilityIssueCode.NON_ELIG_SPECIAL_EDUCATION);
+    } else if(SchoolCategoryCodes.INDEPENDENTS.contains(studentRuleData.getSchool().getSchoolCategoryCode())
+            && StringUtils.isNotEmpty(student.getSchoolFundingCode())
+            &&  SchoolFundingCodes.STATUS_FIRST_NATION.getCode().equals(student.getSchoolFundingCode())) {
+      log.debug("ProgramEligibilityBaseRule - SpecialEducationProgramsRule: SchoolCategoryCode - {}, SchoolFundingCode - {}, for sdcSchoolCollectionStudentID :: {}", studentRuleData.getSchool().getSchoolCategoryCode(), student.getSchoolFundingCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+      errors.add(ProgramEligibilityIssueCode.INDP_FIRST_NATION_SPED);
     } else if(collectionType.equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode()) && onlineFacilityCodes.contains(facilityType) &&
             historicalStudents.stream().anyMatch(stu -> stu.getFte().compareTo(BigDecimal.ZERO) > 0 && stu.getSpecialEducationNonEligReasonCode() == null)) {
       log.debug("ProgramEligibilityBaseRule - SpecialEducationProgramsRule: CollectionTypeCodes - {}, facilityType - {}, for sdcSchoolCollectionStudentID :: {}", collectionType, facilityType, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
