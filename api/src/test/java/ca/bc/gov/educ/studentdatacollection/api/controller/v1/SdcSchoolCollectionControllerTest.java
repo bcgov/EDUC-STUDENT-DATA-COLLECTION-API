@@ -31,6 +31,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -660,6 +661,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     CollectionEntity oldCollection = createMockCollectionEntity();
     oldCollection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
     oldCollection.setCloseDate(LocalDateTime.now().minusDays(2));
+    oldCollection.setSnapshotDate(LocalDate.now().minusDays(20));
     collectionRepository.save(oldCollection);
 
     District district = createMockDistrict();

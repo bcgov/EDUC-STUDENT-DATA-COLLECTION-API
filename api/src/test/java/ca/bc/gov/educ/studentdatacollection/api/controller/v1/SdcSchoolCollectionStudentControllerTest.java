@@ -1130,13 +1130,18 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
     @Test
     void testGetSdcSchoolCollectionStudentHeadcounts_enrollmentHeadcounts() throws Exception {
-        var collection = collectionRepository.save(createMockCollectionEntity());
+        var collection1 = createMockCollectionEntity();
+        collection1.setSnapshotDate(LocalDate.now().minusWeeks(1));
+        collection1 = collectionRepository.save(collection1);
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var firstSchool = createMockSdcSchoolCollectionEntity(collection1, UUID.fromString(school.getSchoolId()));
         firstSchool.setUploadDate(null);
         firstSchool.setUploadFileName(null);
-        var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var collection2 = createMockCollectionEntity();
+        collection2.setSnapshotDate(LocalDate.now().minusWeeks(10));
+        collection2 = collectionRepository.save(collection2);
+        var secondSchool = createMockSdcSchoolCollectionEntity(collection2, UUID.fromString(school.getSchoolId()));
         secondSchool.setUploadDate(null);
         secondSchool.setUploadFileName(null);
         secondSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
@@ -1416,13 +1421,18 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
     @Test
     void testGetSdcSchoolCollectionStudentHeadcounts_careerHeadcounts() throws Exception {
-        var collection = collectionRepository.save(createMockCollectionEntity());
+        var collection1 = createMockCollectionEntity();
+        collection1.setSnapshotDate(LocalDate.now().minusWeeks(1));
+        collection1 = collectionRepository.save(collection1);
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var firstSchool = createMockSdcSchoolCollectionEntity(collection1, UUID.fromString(school.getSchoolId()));
         firstSchool.setUploadDate(null);
         firstSchool.setUploadFileName(null);
-        var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var collection2 = createMockCollectionEntity();
+        collection2.setSnapshotDate(LocalDate.now().minusWeeks(10));
+        collection2 = collectionRepository.save(collection2);
+        var secondSchool = createMockSdcSchoolCollectionEntity(collection2, UUID.fromString(school.getSchoolId()));
         secondSchool.setUploadDate(null);
         secondSchool.setUploadFileName(null);
         secondSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
@@ -1974,13 +1984,18 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
     @Test
     void testGetSdcSchoolCollectionStudentHeadcounts_indigenousHeadcounts() throws Exception {
-        var collection = collectionRepository.save(createMockCollectionEntity());
+        var collection1 = createMockCollectionEntity();
+        collection1.setSnapshotDate(LocalDate.now().minusWeeks(1));
+        collection1 = collectionRepository.save(collection1);
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var firstSchool = createMockSdcSchoolCollectionEntity(collection1, UUID.fromString(school.getSchoolId()));
         firstSchool.setUploadDate(null);
         firstSchool.setUploadFileName(null);
-        var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var collection2 = createMockCollectionEntity();
+        collection2.setSnapshotDate(LocalDate.now().minusWeeks(10));
+        collection2 = collectionRepository.save(collection2);
+        var secondSchool = createMockSdcSchoolCollectionEntity(collection2, UUID.fromString(school.getSchoolId()));
         secondSchool.setUploadDate(null);
         secondSchool.setUploadFileName(null);
         secondSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
@@ -2121,13 +2136,19 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
     @Test
     void testGetSdcSchoolCollectionStudentHeadcounts_specialEdHeadcounts() throws Exception {
-        var collection = collectionRepository.save(createMockCollectionEntity());
+        var collection1 = createMockCollectionEntity();
+        collection1.setSnapshotDate(LocalDate.now().minusWeeks(1));
+        collection1 = collectionRepository.save(collection1);
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var firstSchool = createMockSdcSchoolCollectionEntity(collection1, UUID.fromString(school.getSchoolId()));
         firstSchool.setUploadDate(null);
         firstSchool.setUploadFileName(null);
-        var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var collection2 = createMockCollectionEntity();
+        collection2.setSnapshotDate(LocalDate.now().minusWeeks(10));
+        collection2 = collectionRepository.save(collection2);
+
+        var secondSchool = createMockSdcSchoolCollectionEntity(collection2, UUID.fromString(school.getSchoolId()));
         secondSchool.setUploadDate(null);
         secondSchool.setUploadFileName(null);
         secondSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
@@ -3450,12 +3471,17 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     @Test
     void testGetSdcSchoolCollectionStudentHeadcounts_bandHeadcounts_WithCompare() throws Exception {
 
-        CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+        var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        collection.setSnapshotDate(LocalDate.now().minusWeeks(1));
         collection.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.JANUARY, 1, 0, 0));
-        CollectionEntity collection2 = collectionRepository.save(createMockCollectionEntity());
+        collection = collectionRepository.save(collection);
+
+        var collection2 = createMockCollectionEntity();
         collection2.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        collection2.setSnapshotDate(LocalDate.now().minusWeeks(10));
         collection2.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+        collection2 = collectionRepository.save(collection2);
 
         var districtID = UUID.randomUUID();
         var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
@@ -3523,15 +3549,20 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     @Test
     void testGetSdcSchoolCollectionStudentHeadcounts_bandHeadcountsManyPrevBands_WithCompare() throws Exception {
 
-        CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+        var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        collection.setSnapshotDate(LocalDate.now().minusWeeks(1));
         collection.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.JANUARY, 1, 0, 0));
-        CollectionEntity collection2 = collectionRepository.save(createMockCollectionEntity());
+        collection = collectionRepository.save(collection);
+        var collection2 = createMockCollectionEntity();
         collection2.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        collection2.setSnapshotDate(LocalDate.now().minusWeeks(10));
         collection2.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
+        collection2 = collectionRepository.save(collection2);
 
         var districtID = UUID.randomUUID();
-        var mockDistrictCollectionEntity = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+        var mockDistrictCollectionEntity1 = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
+        var mockDistrictCollectionEntity2 = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection2, districtID));
 
         var school1 = createMockSchool();
         school1.setDisplayName("School1");
@@ -3543,13 +3574,13 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var firstSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
         firstSchool.setUploadDate(null);
         firstSchool.setUploadFileName(null);
-        firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        firstSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity1.getSdcDistrictCollectionID());
         firstSchool.setCollectionEntity(collection);
         firstSchool.setCreateDate(LocalDateTime.of(Year.now().getValue(), Month.JANUARY, 1, 0, 0));
-        var secondSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+        var secondSchool = createMockSdcSchoolCollectionEntity(collection2, UUID.fromString(school1.getSchoolId()));
         secondSchool.setUploadDate(null);
         secondSchool.setUploadFileName(null);
-        secondSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
+        secondSchool.setSdcDistrictCollectionID(mockDistrictCollectionEntity2.getSdcDistrictCollectionID());
         secondSchool.setCollectionEntity(collection2);
         secondSchool.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
         sdcSchoolCollectionRepository.saveAll(Arrays.asList(firstSchool, secondSchool));

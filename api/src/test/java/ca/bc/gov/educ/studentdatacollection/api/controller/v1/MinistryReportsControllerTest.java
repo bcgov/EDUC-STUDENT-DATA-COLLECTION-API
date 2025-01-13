@@ -521,6 +521,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     CollectionEntity collectionSept = createMockCollectionEntity();
     collectionSept.setCloseDate(LocalDateTime.now().minusDays(20));
+    collectionSept.setSnapshotDate(LocalDate.now().minusWeeks(4));
     collectionSept.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
     var savedSeptColl = collectionRepository.save(collectionSept);
 
@@ -738,6 +739,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     CollectionEntity collectionSept = createMockCollectionEntity();
     collectionSept.setCloseDate(LocalDateTime.now().minusDays(20));
+    collectionSept.setSnapshotDate(LocalDate.now().minusWeeks(4));
     collectionSept.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
     collectionRepository.save(collectionSept);
 
@@ -1163,6 +1165,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     CollectionEntity collectionSept = createMockCollectionEntity();
     collectionSept.setCloseDate(LocalDateTime.now().minusDays(20));
+    collectionSept.setSnapshotDate(LocalDate.now().minusWeeks(4));
     collectionSept.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
     var savedSeptColl = collectionRepository.save(collectionSept);
 
