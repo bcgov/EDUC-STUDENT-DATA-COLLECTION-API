@@ -622,10 +622,10 @@ public class CSVReportService {
         }
     }
 
-    private Map<String, SpecialEdHeadcountResult> getLastSeptCollectionSchoolMap(UUID collectionID){
-        var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collectionID);
+    private Map<String, SpecialEdHeadcountResult> getLastSeptCollectionSchoolMap(CollectionEntity collection){
+        var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collection.getCollectionID(), collection.getSnapshotDate());
         if(lastSeptCollectionOpt.isEmpty()) {
-            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collection.getCollectionID().toString());
         }
         List<SpecialEdHeadcountResult> lastSeptCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionId(lastSeptCollectionOpt.get().getCollectionID());
         return lastSeptCollectionRawData.stream().collect(Collectors.toMap(SpecialEdHeadcountResult::getSchoolID, item -> item));
@@ -1040,55 +1040,6 @@ public class CSVReportService {
         return Arrays.stream(invalidSchoolCategories).noneMatch(categoryCode::equals) && Arrays.stream(invalidFacilityTypes).noneMatch(facilityType::equals);
     }
 
-    // Enroled Headcounts and FTEs For CE and OL Schools report
-    public DownloadableReportResponse generateEnrolmentHeadcountsAndFteReportForCEAndOLSchools(UUID collectionID) {
-        var collectionOpt = collectionRepository.findById(collectionID);
-
-        if(collectionOpt.isEmpty()){
-            throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
-        }
-
-        CollectionEntity collection = collectionOpt.get();
-        if(!collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.MAY.getTypeCode()) && !collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode())) {
-            throw new InvalidPayloadException(createError(HEADCOUNTS_INVALID_COLLECTION_TYPE));
-        }
-
-        List<EnrolmentHeadcountFteResult> results = sdcSchoolCollectionStudentRepository.getEnrolmentHeadcountsAndFteWithRefugeeByCollectionId(collectionID);
-        var mappedSeptData = getEnrolmentHeadcountFteResultForLastSeptCollection(collectionID);
-
-        List<String> headers = Arrays.stream(CEAndOLEnrolmentAndFteHeader.values()).map(CEAndOLEnrolmentAndFteHeader::getCode).toList();
-        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(headers.toArray(String[]::new))
-                .build();
-        try {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
-            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
-
-            for (EnrolmentHeadcountFteResult result : results) {
-                var septCollectionRecord = mappedSeptData.get(result.getSchoolID());
-
-                var schoolOpt = restUtils.getSchoolBySchoolID(result.getSchoolID());
-                if(schoolOpt.isPresent() &&
-                        (schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.CONT_ED.getCode()) ||
-                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DISTONLINE.getCode()) ||
-                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DIST_LEARN.getCode()))) {
-                    List<String> csvRowData = prepareEnrolmentFteDataForCEAndOLSchools(result, septCollectionRecord, schoolOpt.get());
-                    csvPrinter.printRecord(csvRowData);
-                }
-            }
-            csvPrinter.flush();
-
-            var downloadableReport = new DownloadableReportResponse();
-            downloadableReport.setReportType(ENROLMENT_HEADCOUNTS_AND_FTE_REPORT_FOR_OL_AND_CE_SCHOOLS.getCode());
-            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
-
-            return downloadableReport;
-        } catch (IOException e) {
-            throw new StudentDataCollectionAPIRuntimeException(e);
-        }
-    }
-
     // Refugee Enroled Headcounts and FTEs report
     public DownloadableReportResponse generateRefugeeEnrolmentHeadcountsAndFteReport(UUID collectionID) {
         var collectionOpt = collectionRepository.findById(collectionID);
@@ -1134,15 +1085,6 @@ public class CSVReportService {
         } catch (IOException e) {
             throw new StudentDataCollectionAPIRuntimeException(e);
         }
-    }
-
-    private Map<String, EnrolmentHeadcountFteResult> getEnrolmentHeadcountFteResultForLastSeptCollection(UUID collectionID){
-        var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collectionID);
-        if(lastSeptCollectionOpt.isEmpty()) {
-            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
-        }
-        List<EnrolmentHeadcountFteResult> lastSeptCollectionRawData = sdcSchoolCollectionStudentRepository.getEnrolmentHeadcountsAndFteWithRefugeeByCollectionId(lastSeptCollectionOpt.get().getCollectionID());
-        return lastSeptCollectionRawData.stream().collect(Collectors.toMap(EnrolmentHeadcountFteResult::getSchoolID, item -> item));
     }
 
     private ApiError createError(String message) {

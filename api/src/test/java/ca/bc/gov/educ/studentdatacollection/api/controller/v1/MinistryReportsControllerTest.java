@@ -737,10 +737,17 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    CollectionEntity collectionSept = createMockCollectionEntity();
-    collectionSept.setCloseDate(LocalDateTime.now().minusDays(20));
-    collectionSept.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
-    collectionRepository.save(collectionSept);
+    CollectionEntity collection1 = createMockCollectionEntity();
+    collection1.setCloseDate(LocalDateTime.now().minusDays(2));
+    collection1.setSnapshotDate(LocalDate.now().minusMonths(3));
+    collection1.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+    collection1 = collectionRepository.save(collection1);
+
+    CollectionEntity collection2 = createMockCollectionEntity();
+    collection2.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection2.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+    collection2.setSnapshotDate(LocalDate.now().plusDays(2));
+    collection2 = collectionRepository.save(collection2);
 
     var district = this.createMockDistrict();
     var authority = this.createMockAuthority();
@@ -752,23 +759,19 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     when(this.restUtils.getDistrictByDistrictID(any())).thenReturn(Optional.of(district));
     when(this.restUtils.getAuthorityByAuthorityID(any())).thenReturn(Optional.of(authority));
 
-    CollectionEntity collection = createMockCollectionEntity();
-    collection.setCloseDate(LocalDateTime.now().plusDays(2));
-    collection = collectionRepository.save(collection);
-
-    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection1, null);
     sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
 
-    SdcDistrictCollectionEntity sdcMockDistrict2 = createMockSdcDistrictCollectionEntity(collection, null);
+    SdcDistrictCollectionEntity sdcMockDistrict2 = createMockSdcDistrictCollectionEntity(collection2, null);
     sdcDistrictCollectionRepository.save(sdcMockDistrict2).getSdcDistrictCollectionID();
 
     SchoolTombstone school1 = createMockSchool();
     school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection1, UUID.fromString(school1.getSchoolId()));
 
     SchoolTombstone school2 = createMockSchool();
     school2.setDistrictId(sdcMockDistrict2.getDistrictID().toString());
-    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school2.getSchoolId()));
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity2 = createMockSdcSchoolCollectionEntity(collection2, UUID.fromString(school2.getSchoolId()));
 
     sdcSchoolCollectionRepository.saveAll(List.of(sdcSchoolCollectionEntity1, sdcSchoolCollectionEntity2));
 
@@ -777,7 +780,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     sdcSchoolCollectionStudentRepository.saveAll(List.of(sdcSchoolCollectionStudent1, sdcSchoolCollectionStudent2));
 
     var resultActions1 = this.mockMvc.perform(
-                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/indy-inclusive-ed-funding-headcounts/download").with(mockAuthority))
+                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection2.getCollectionID() + "/indy-inclusive-ed-funding-headcounts/download").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
