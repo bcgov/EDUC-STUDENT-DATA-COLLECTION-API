@@ -622,10 +622,10 @@ public class CSVReportService {
         }
     }
 
-    private Map<String, SpecialEdHeadcountResult> getLastSeptCollectionSchoolMap(CollectionEntity collection){
-        var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collection.getCollectionID(), collection.getSnapshotDate());
+    private Map<String, SpecialEdHeadcountResult> getLastSeptCollectionSchoolMap(UUID collectionID){
+        var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collectionID);
         if(lastSeptCollectionOpt.isEmpty()) {
-            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collection.getCollectionID().toString());
+            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
         }
         List<SpecialEdHeadcountResult> lastSeptCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionId(lastSeptCollectionOpt.get().getCollectionID());
         return lastSeptCollectionRawData.stream().collect(Collectors.toMap(SpecialEdHeadcountResult::getSchoolID, item -> item));
@@ -967,7 +967,7 @@ public class CSVReportService {
                 SdcDistrictCollectionEntity septCollection = sdcDistrictCollectionRepository.findLastSdcDistrictCollectionByCollectionTypeBefore(CollectionTypeCodes.SEPTEMBER.getTypeCode(), districtID, febCollection.getCollectionEntity().getSnapshotDate())
                         .orElseThrow(() -> new RuntimeException("No previous September sdc district collection found relative to the February collection."));
 
-                var febCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsSimpleFebruaryBySdcDistrictCollectionId(febCollection.getSdcDistrictCollectionID());
+                var febCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsSimpleBySdcDistrictCollectionId(febCollection.getSdcDistrictCollectionID());
                 var septCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsSimpleBySdcDistrictCollectionId(septCollection.getSdcDistrictCollectionID());
 
                 var district = restUtils.getDistrictByDistrictID(districtID.toString()).orElseThrow(() -> new EntityNotFoundException(District.class, DISTRICT_ID, districtID.toString()));
@@ -1054,7 +1054,7 @@ public class CSVReportService {
         }
 
         List<EnrolmentHeadcountFteResult> results = sdcSchoolCollectionStudentRepository.getEnrolmentHeadcountsAndFteWithRefugeeByCollectionId(collectionID);
-        var mappedSeptData = getEnrolmentHeadcountFteResultForLastSeptCollection(collection);
+        var mappedSeptData = getEnrolmentHeadcountFteResultForLastSeptCollection(collectionID);
 
         List<String> headers = Arrays.stream(CEAndOLEnrolmentAndFteHeader.values()).map(CEAndOLEnrolmentAndFteHeader::getCode).toList();
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
@@ -1136,10 +1136,10 @@ public class CSVReportService {
         }
     }
 
-    private Map<String, EnrolmentHeadcountFteResult> getEnrolmentHeadcountFteResultForLastSeptCollection(CollectionEntity collection){
-        var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collection.getCollectionID(), collection.getSnapshotDate());
+    private Map<String, EnrolmentHeadcountFteResult> getEnrolmentHeadcountFteResultForLastSeptCollection(UUID collectionID){
+        var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collectionID);
         if(lastSeptCollectionOpt.isEmpty()) {
-            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collection.getCollectionID().toString());
+            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
         }
         List<EnrolmentHeadcountFteResult> lastSeptCollectionRawData = sdcSchoolCollectionStudentRepository.getEnrolmentHeadcountsAndFteWithRefugeeByCollectionId(lastSeptCollectionOpt.get().getCollectionID());
         return lastSeptCollectionRawData.stream().collect(Collectors.toMap(EnrolmentHeadcountFteResult::getSchoolID, item -> item));

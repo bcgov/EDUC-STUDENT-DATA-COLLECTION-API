@@ -775,6 +775,82 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
   }
 
   @Test
+  void testSpecialEdEligibility_INDPSchools_WithFundingCode20() {
+    UUID assignedStudentID = UUID.randomUUID();
+
+    var mockCollection = createMockCollectionEntity();
+    mockCollection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+    mockCollection.setCloseDate(LocalDateTime.now().plusDays(2));
+    CollectionEntity collection = collectionRepository.save(mockCollection);
+
+    SchoolTombstone school = createMockSchool();
+    school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+    UUID schoolId = UUID.fromString(school.getSchoolId());
+    doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
+
+    var sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, schoolId);
+    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
+
+    val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+    entity.setAssignedStudentId(assignedStudentID);
+    entity.setEnrolledGradeCode("08");
+    entity.setSchoolFundingCode("20");
+
+    PenMatchResult penMatchResult = getPenMatchResult();
+    penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
+    when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+    List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
+            createMockStudentRuleData(
+                    entity,
+                    school
+            )
+    );
+
+    assertThat(listWithoutEnrollmentError.stream().anyMatch(e ->
+            e.equals(ProgramEligibilityIssueCode.INDP_FIRST_NATION_SPED)
+    )).isTrue();
+  }
+
+  @Test
+  void testSpecialEdEligibility_INDPSchools_WithFundingCode16() {
+    UUID assignedStudentID = UUID.randomUUID();
+
+    var mockCollection = createMockCollectionEntity();
+    mockCollection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+    mockCollection.setCloseDate(LocalDateTime.now().plusDays(2));
+    CollectionEntity collection = collectionRepository.save(mockCollection);
+
+    SchoolTombstone school = createMockSchool();
+    school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
+    UUID schoolId = UUID.fromString(school.getSchoolId());
+    doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
+
+    var sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, schoolId);
+    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
+
+    val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+    entity.setAssignedStudentId(assignedStudentID);
+    entity.setEnrolledGradeCode("08");
+    entity.setSchoolFundingCode("16");
+
+    PenMatchResult penMatchResult = getPenMatchResult();
+    penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
+    when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+    List<ProgramEligibilityIssueCode> listWithoutEnrollmentError = rulesProcessor.processRules(
+            createMockStudentRuleData(
+                    entity,
+                    school
+            )
+    );
+
+    assertThat(listWithoutEnrollmentError.stream().anyMatch(e ->
+            e.equals(ProgramEligibilityIssueCode.INDP_FIRST_NATION_SPED)
+    )).isFalse();
+  }
+
+  @Test
   void testSpecialEdEligibilityInFebCollection() {
     UUID assignedStudentID = UUID.randomUUID();
 
