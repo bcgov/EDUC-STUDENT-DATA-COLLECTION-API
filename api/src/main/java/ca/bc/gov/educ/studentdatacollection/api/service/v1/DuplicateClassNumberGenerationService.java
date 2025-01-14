@@ -41,6 +41,8 @@ public class DuplicateClassNumberGenerationService {
         map.put(DuplicateClassLookup.ENTRY9, 9);
         map.put(DuplicateClassLookup.ENTRY10, 10);
         map.put(DuplicateClassLookup.ENTRY11, 11);
+        map.put(DuplicateClassLookup.ENTRY12, 12);
+        map.put(DuplicateClassLookup.ENTRY13, 13);
     }
 
 }

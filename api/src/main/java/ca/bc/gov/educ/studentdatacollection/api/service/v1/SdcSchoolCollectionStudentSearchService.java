@@ -71,20 +71,18 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public CompletableFuture<Slice<SdcSchoolCollectionStudentPaginationEntity>> findAllSlice(Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
+  public Slice<SdcSchoolCollectionStudentPaginationEntity> findAllSlice(Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs, final Integer pageNumber, final Integer pageSize, final List<Sort.Order> sorts) {
     log.trace("In find all slice query: {}", studentSpecs);
-    return CompletableFuture.supplyAsync(() -> {
-      Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sorts));
-      try {
-        log.trace("Running paginated query without count: {}", studentSpecs);
-        Slice<SdcSchoolCollectionStudentPaginationEntity> results = this.customSdcSchoolCollectionStudentPaginationRepositoryLight.findAllWithoutCount(studentSpecs, paging);
-        log.trace("Paginated query without count returned with results: {}", results);
-        return results;
-      } catch (final Throwable ex) {
-        log.error("Failure querying for paginated SDC school students without count: {}", ex.getMessage());
-        throw new CompletionException(ex);
-      }
-    }, paginatedQueryExecutor);
+    Pageable paging = PageRequest.of(pageNumber, pageSize, Sort.by(sorts));
+    try {
+      log.trace("Running paginated query without count: {}", studentSpecs);
+      Slice<SdcSchoolCollectionStudentPaginationEntity> results = this.customSdcSchoolCollectionStudentPaginationRepositoryLight.findAllWithoutCount(studentSpecs, paging);
+      log.trace("Paginated query without count returned with results: {}", results);
+      return results;
+    } catch (final Throwable ex) {
+      log.error("Failure querying for paginated SDC school students without count: {}", ex.getMessage());
+      throw new CompletionException(ex);
+    }
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)

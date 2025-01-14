@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.IndependentSchoolFundingGroupSnapshotEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -32,6 +33,8 @@ import static org.springframework.util.StringUtils.capitalize;
 
 @Slf4j
 public class TransformUtil {
+
+  private static final String [] VALID_SCHOOL_FUNDING_GROUPS = new String[]{"GROUP1", "GROUP2"};
   private TransformUtil() {
   }
 
@@ -196,13 +199,29 @@ public class TransformUtil {
     return value + "*";
   }
 
-  public static String getFundingGroupForGrade(School school, String gradeCode) {
-    return school.getSchoolFundingGroups()
+  public static String getFundingGroupForGrade(List<IndependentSchoolFundingGroup> schoolFundingGroups, String gradeCode) {
+    return schoolFundingGroups
             .stream()
             .filter(group -> gradeCode.equals(group.getSchoolGradeCode()))
             .map(IndependentSchoolFundingGroup::getSchoolFundingGroupCode)
             .findFirst()
             .orElse(null);
+  }
+
+  public static String getFundingGroupSnapshotForGrade(List<IndependentSchoolFundingGroupSnapshotEntity> schoolFundingGroups, String gradeCode) {
+    return schoolFundingGroups
+            .stream()
+            .filter(group -> gradeCode.equals(group.getSchoolGradeCode()))
+            .map(IndependentSchoolFundingGroupSnapshotEntity::getSchoolFundingGroupCode)
+            .findFirst()
+            .orElse(null);
+  }
+
+  public static boolean isSchoolFundingGroup1orGroup2(String schoolFundingGroup) {
+    if(schoolFundingGroup == null){
+      return false;
+    }
+    return Arrays.stream(VALID_SCHOOL_FUNDING_GROUPS).anyMatch(group -> group.equals(schoolFundingGroup));
   }
 
   public static String sanitizeEnrolledProgramString(String enrolledProgramCode) {

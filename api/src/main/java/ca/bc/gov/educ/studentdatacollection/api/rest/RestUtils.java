@@ -40,6 +40,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -72,7 +73,7 @@ public class RestUtils {
   private final Map<String, FacilityTypeCode> facilityTypeCodesMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
-  public static final String PAGE_SIZE_VALUE = "2500";
+  public static final String PAGE_SIZE_VALUE = "1500";
   public static final String PAGE_NUMBER = "pageNumber";
   private final WebClient webClient;
   private final WebClient chesWebClient;
@@ -581,8 +582,11 @@ public class RestUtils {
       writeLock.lock();
       List<School> pageOneOfSchools = this.getAllSchoolList(UUID.randomUUID(),"0");
       List<School> pageTwoOfSchools = this.getAllSchoolList(UUID.randomUUID(), "1");
+      List<School> pageThreeOfSchools = this.getAllSchoolList(UUID.randomUUID(), "2");
+      List<School> pageFourOfSchools = this.getAllSchoolList(UUID.randomUUID(), "3");
 
-      List<School> allSchools = Stream.concat(pageOneOfSchools.stream(), pageTwoOfSchools.stream()).toList();
+      List<School> allSchools = Stream.of(pageOneOfSchools, pageTwoOfSchools, pageThreeOfSchools, pageFourOfSchools)
+              .flatMap(Collection::stream).toList();
 
       for (val school : allSchools) {
         this.allSchoolMap.put(school.getSchoolId(), school);
@@ -625,7 +629,7 @@ public class RestUtils {
   @Retryable(retryFor = {Exception.class}, noRetryFor = {StudentDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public List<School> getAllSchoolList(UUID correlationID, String pageNumber) {
     try {
-      log.info("Calling Institute api to load all schools to memory");
+      log.info("Calling Institute API to load all schools to memory, current page " + (Integer.parseInt(pageNumber) + 1) + " of 4");
       final TypeReference<List<School>> ref = new TypeReference<>() {
       };
       val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(PAGE_SIZE.concat("=").concat(PAGE_SIZE_VALUE)

@@ -38,7 +38,7 @@ public class SchoolAgedNoOfCoursesRule implements ValidationBaseRule {
         log.debug("In shouldExecute of SchoolAgedNoOfCoursesRule-V46: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        var onlineAndContinuingFacilityCodes = Arrays.asList(FacilityTypeCodes.CONT_ED.getCode(), FacilityTypeCodes.DISTONLINE.getCode(), FacilityTypeCodes.DIST_LEARN.getCode());
+        var onlineAndContinuingFacilityCodes = Arrays.asList(FacilityTypeCodes.DISTONLINE.getCode(), FacilityTypeCodes.DIST_LEARN.getCode());
 
         var shouldExecute = isValidationDependencyResolved("V46", validationErrorsMap) && !onlineAndContinuingFacilityCodes.contains(studentRuleData.getSchool().getFacilityTypeCode());
 
@@ -66,9 +66,7 @@ public class SchoolAgedNoOfCoursesRule implements ValidationBaseRule {
 
     private boolean conditionPassed(StudentRuleData studentRuleData) {
         var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
-        return DOBUtil.isSchoolAged(student.getDob()) && SchoolGradeCodes.get8PlusGradesNoGA().contains(student.getEnrolledGradeCode()) &&
-                (!studentRuleData.getSchool().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DISTONLINE.getCode())
-                        && !studentRuleData.getSchool().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DIST_LEARN.getCode()));
+        return DOBUtil.isSchoolAged(student.getDob()) && SchoolGradeCodes.get8PlusGradesNoGA().contains(student.getEnrolledGradeCode());
     }
 
 }

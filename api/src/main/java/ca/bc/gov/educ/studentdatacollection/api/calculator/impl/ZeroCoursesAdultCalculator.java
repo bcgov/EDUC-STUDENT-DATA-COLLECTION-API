@@ -1,6 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +15,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReaso
 
 @Component
 @Slf4j
-@Order(5)
+@Order(50)
 public class ZeroCoursesAdultCalculator implements FteCalculator {
     FteCalculator nextCalculator;
 
@@ -25,7 +27,11 @@ public class ZeroCoursesAdultCalculator implements FteCalculator {
     public FteCalculationResult calculateFte(StudentRuleData studentData) {
         log.debug("ZeroCoursesAdultCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         var student = studentData.getSdcSchoolCollectionStudentEntity();
-        if(Boolean.TRUE.equals(student.getIsAdult()) && student.getNumberOfCoursesDec().compareTo(BigDecimal.ZERO) <= 0) {
+
+        if(!isOnlineSchool(studentData)
+                && Boolean.TRUE.equals(student.getIsAdult())
+                && student.getNumberOfCoursesDec().compareTo(BigDecimal.ZERO) <= 0
+                && SchoolGradeCodes.get8PlusGrades().contains(student.getEnrolledGradeCode())) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(BigDecimal.ZERO);
             fteCalculationResult.setFteZeroReason(ZERO_COURSES.getCode());
@@ -35,5 +41,9 @@ public class ZeroCoursesAdultCalculator implements FteCalculator {
             log.debug("ZeroCoursesAdultCalculator: No FTE result, moving to next calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return this.nextCalculator.calculateFte(studentData);
         }
+    }
+
+    private boolean isOnlineSchool(StudentRuleData studentRuleData) {
+        return studentRuleData.getSchool().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DISTONLINE.getCode()) ||  studentRuleData.getSchool().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DIST_LEARN.getCode());
     }
 }

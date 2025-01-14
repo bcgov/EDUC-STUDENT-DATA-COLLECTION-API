@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.CollectionEndpoint;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
+import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.CollectionMapper;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcDistrictCollectionMapper;
@@ -14,9 +15,11 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.CloseCollectionOrchestrator;
+import ca.bc.gov.educ.studentdatacollection.api.orchestrator.PostCollectionDuplicatesOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.CollectionSagaData;
+import ca.bc.gov.educ.studentdatacollection.api.struct.DuplicatePostingSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
@@ -56,19 +59,23 @@ public class CollectionController implements CollectionEndpoint {
   private final CollectionService collectionService;
   private final SdcDuplicatesService sdcDuplicatesService;
   private final SdcDuplicateResolutionService sdcDuplicateResolutionService;
+  private final PostCollectionDuplicatesOrchestrator postCollectionDuplicatesOrchestrator;
   private final CloseCollectionOrchestrator closeCollectionOrchestrator;
   private final SagaService sagaService;
   private final CollectionSearchService collectionSearchService;
+  private final CloseCollectionService closeCollectionService;
 
   @Autowired
-  public CollectionController(final CollectionService collectionService, final CollectionPayloadValidator collectionPayloadValidator, final SdcDuplicatesService sdcDuplicatesService, SdcDuplicateResolutionService sdcDuplicateResolutionService, CloseCollectionOrchestrator closeCollectionOrchestrator, SagaService sagaService, CollectionSearchService collectionSearchService) {
+  public CollectionController(final CollectionService collectionService, final CollectionPayloadValidator collectionPayloadValidator, final SdcDuplicatesService sdcDuplicatesService, SdcDuplicateResolutionService sdcDuplicateResolutionService, PostCollectionDuplicatesOrchestrator postCollectionDuplicatesOrchestrator, CloseCollectionOrchestrator closeCollectionOrchestrator, SagaService sagaService, CollectionSearchService collectionSearchService, CloseCollectionService closeCollectionService) {
     this.collectionService = collectionService;
     this.sdcDuplicatesService = sdcDuplicatesService;
     this.collectionPayloadValidator = collectionPayloadValidator;
     this.sdcDuplicateResolutionService = sdcDuplicateResolutionService;
+    this.postCollectionDuplicatesOrchestrator = postCollectionDuplicatesOrchestrator;
     this.closeCollectionOrchestrator = closeCollectionOrchestrator;
     this.sagaService = sagaService;
     this.collectionSearchService = collectionSearchService;
+    this.closeCollectionService = closeCollectionService;
   }
 
   @Override
@@ -115,6 +122,12 @@ public class CollectionController implements CollectionEndpoint {
   }
 
   @Override
+  public ResponseEntity<Void> openNewCollection() {
+    closeCollectionService.openNewCollection();
+    return ResponseEntity.status(HttpStatus.CREATED).build();
+  }
+
+  @Override
   public List<MonitorSdcDistrictCollection> getMonitorSdcDistrictCollectionResponse(UUID collectionId) {
     return this.collectionService.getMonitorSdcDistrictCollectionResponse(collectionId);
   }
@@ -140,7 +153,14 @@ public class CollectionController implements CollectionEndpoint {
 
   @Override
   public ResponseEntity<Void> generateProvinceDuplicates(UUID collectionID) {
-    this.sdcDuplicatesService.generateAllProvincialDuplicates(collectionID);
+    try {
+      DuplicatePostingSagaData sagaData = new DuplicatePostingSagaData();
+      sagaData.setCollectionID(collectionID);
+      var savedSaga = this.postCollectionDuplicatesOrchestrator.createSaga(JsonUtil.getJsonStringFromObject(sagaData), null, null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
+      this.postCollectionDuplicatesOrchestrator.startSaga(savedSaga);
+    } catch (JsonProcessingException e) {
+      throw new StudentDataCollectionAPIRuntimeException("Error occurred parsing collection ID saga data: " + e);
+    }
     return ResponseEntity.ok().build();
   }
 

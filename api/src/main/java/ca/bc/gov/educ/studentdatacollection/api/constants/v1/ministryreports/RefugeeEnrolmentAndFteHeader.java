@@ -13,6 +13,9 @@ public enum RefugeeEnrolmentAndFteHeader {
     KIND_HT_REFUGEE_COUNT("Headcount Kind(H/T) Refugees"),
     KIND_HT_ELL_COUNT("Headcount Kind(H/T) ELL"),
 
+    KIND_FT_REFUGEE_COUNT("Headcount Kind(F/T) Refugees"),
+    KIND_FT_ELL_COUNT("Headcount Kind(F/T) ELL"),
+
     GRADE_01_REFUGEE_COUNT("Headcount Grade 1 Refugees"),
     GRADE_01_ELL_COUNT("Headcount Grade 1 ELL"),
 
@@ -56,6 +59,8 @@ public enum RefugeeEnrolmentAndFteHeader {
     GRADE_SU_ELL_COUNT("Headcount Grade SU ELL"),
 
     KIND_HT_FTE_REFUGEE_TOTAL("Funded FTE Kind(H/T) Refugees"),
+
+    KIND_FT_FTE_REFUGEE_TOTAL("Funded FTE Kind(F/T) Refugees"),
 
     GRADE_ONE_FTE_REFUGEE_TOTAL("Funded FTE Grade 1 Refugees"),
 

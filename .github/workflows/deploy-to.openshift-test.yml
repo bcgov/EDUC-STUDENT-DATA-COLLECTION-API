@@ -1,4 +1,4 @@
-name: Deploy to PROD
+name: Deploy to TEST
 
 env:
   # 🖊️ EDIT your repository secrets to log into your OpenShift cluster and set up the context.
@@ -7,7 +7,7 @@ env:
   # Added this comment
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-  OPENSHIFT_NAMESPACE: ${{ secrets.EDX_NAMESPACE_NO_ENV }}-prod
+  OPENSHIFT_NAMESPACE: ${{ secrets.EDX_NAMESPACE_NO_ENV }}-test
 
   DB_JDBC_CONNECT_STRING: ${{ secrets.DB_JDBC_CONNECT_STRING }}
   DB_PWD: ${{ secrets.DB_PWD }}
@@ -33,7 +33,7 @@ env:
   NAMESPACE: ${{ secrets.EDX_NAMESPACE_NO_ENV }}
   COMMON_NAMESPACE: ${{ secrets.COMMON_NAMESPACE_NO_ENV }}
   TAG: "latest"
-  TARGET_ENV: "prod"
+  TARGET_ENV: "test"
   MIN_REPLICAS: "3"
   MAX_REPLICAS: "5"
   MIN_CPU: "250m"
@@ -47,9 +47,9 @@ on:
 
 jobs:
   openshift-ci-cd:
-    name: Deploy to OpenShift PROD
+    name: Deploy to OpenShift TEST
     runs-on: ubuntu-22.04
-    environment: prod
+    environment: test
 
     outputs:
       ROUTE: ${{ steps.deploy-and-expose.outputs.route }}
@@ -110,45 +110,30 @@ jobs:
     - uses: actions/checkout@v2
     - name: Deploy
       run: |
-        set -eu
+        set -eux
         # Login to OpenShift and select project
         oc login --token=${{ env.OPENSHIFT_TOKEN }} --server=${{ env.OPENSHIFT_SERVER }}
         oc project ${{ env.OPENSHIFT_NAMESPACE }}
         # Cancel any rollouts in progress
-        oc rollout cancel deployment/${{ env.SPRING_BOOT_IMAGE_NAME }} 2> /dev/null \
+        oc rollout cancel dc/${{ env.SPRING_BOOT_IMAGE_NAME }} 2> /dev/null \
         || true && echo "No rollout in progress"
         
         oc tag ${{ env.NAMESPACE }}-dev/${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ steps.get-latest-tag.outputs.tag }} ${{ env.NAMESPACE }}-test/${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ steps.get-latest-tag.outputs.tag }}
-        
-        oc process -f tools/openshift/api.deployment.yaml \
-          -p APP_NAME=${{ env.APP_NAME }} \
-          -p REPO_NAME=${{ env.REPO_NAME }} \
-          -p BRANCH=${{ env.BRANCH }} \
-          -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE_TEST }} \
-          -p TAG=${{ env.TAG }} \
-          -p MIN_REPLICAS=${{ env.MIN_REPLICAS_TEST }} \
-          -p MAX_REPLICAS=${{ env.MAX_REPLICAS_TEST }} \
-          -p MIN_CPU=${{ env.MIN_CPU }} \
-          -p MAX_CPU=${{ env.MAX_CPU }} \
-          -p MIN_MEM=${{ env.MIN_MEM }} \
-          -p MAX_MEM=${{ env.MAX_MEM }} \
-        | oc apply -f -
         
         echo "::add-mask::$(oc -n ${{ env.OPENSHIFT_NAMESPACE }} -o json get secret ${{ env.APP_NAME }}-patroni | sed -n 's/.*"username-appuser": "\(.*\)",/\1/p' | base64 --decode)"
         
         DB_USERNAME=$(oc -n ${{ env.OPENSHIFT_NAMESPACE }} -o json get secret ${{ env.APP_NAME }}-patroni | sed -n 's/.*"username-appuser": "\(.*\)",/\1/p' | base64 --decode) >> /dev/null 2>&1
         DB_PASS=$(oc -n ${{ env.OPENSHIFT_NAMESPACE }} -o json get secret ${{ env.APP_NAME }}-patroni | sed -n 's/.*"password-appuser": "\(.*\)",/\1/p' | base64 --decode) >> /dev/null 2>&1
-        oc tag ${{ env.NAMESPACE }}-dev/${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ env.TAG }} ${{ env.NAMESPACE }}-prod/${{ env.REPO_NAME }}-${{ env.BRANCH }}:${{ env.TAG }}
         
         # Process and apply deployment template
-        oc process -f tools/openshift/api.dc.yaml -p APP_NAME=${{ env.APP_NAME }} -p REPO_NAME=${{ env.REPO_NAME }} -p BRANCH=${{ env.BRANCH }} -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE }} -p TAG=${{ env.TAG }} -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} -p MAX_REPLICAS=${{ env.MAX_REPLICAS }} -p MIN_CPU=${{ env.MIN_CPU }} -p MAX_CPU=${{ env.MAX_CPU }} -p MIN_MEM=${{ env.MIN_MEM }} -p MAX_MEM=${{ env.MAX_MEM }} \
+        oc process -f tools/openshift/api.dc.yaml -p APP_NAME=${{ env.APP_NAME }} -p REPO_NAME=${{ env.REPO_NAME }} -p BRANCH=${{ env.BRANCH }} -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE }} -p TAG=${{ steps.get-latest-tag.outputs.tag }} -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} -p MAX_REPLICAS=${{ env.MAX_REPLICAS }} -p MIN_CPU=${{ env.MIN_CPU }} -p MAX_CPU=${{ env.MAX_CPU }} -p MIN_MEM=${{ env.MIN_MEM }} -p MAX_MEM=${{ env.MAX_MEM }} \
         | oc apply -f -
         
-        # Update ConfigMap
-        curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/master/tools/config/update-configmap.sh | bash /dev/stdin prod ${{ env.APP_NAME }} ${{ env.NAMESPACE }} ${{ env.COMMON_NAMESPACE }} "${{ env.DB_JDBC_CONNECT_STRING }}" "${{ env.DB_PWD }}" ${{ env.DB_USER }} ${{ env.SPLUNK_TOKEN }} ${{ env.CHES_CLIENT_ID }} ${{ env.CHES_CLIENT_SECRET }} ${{ env.CHES_TOKEN_URL }} ${{ env.CHES_ENDPOINT_URL }}
+        curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/${{ steps.get-latest-tag.outputs.tag }}/tools/config/update-configmap.sh | bash /dev/stdin ${{ env.TARGET_ENV }} ${{ env.APP_NAME }} ${{ env.NAMESPACE }} ${{ env.COMMON_NAMESPACE }} ${{ env.DB_JDBC_CONNECT_STRING }} ${{ env.DB_PWD }} ${{ env.DB_USER }} ${{ env.SPLUNK_TOKEN }} ${{ env.CHES_CLIENT_ID }} ${{ env.CHES_CLIENT_SECRET }} ${{ env.CHES_TOKEN_URL }} ${{ env.CHES_ENDPOINT_URL }}
         
-        # Restart the deployment to recreate pods
-        oc rollout restart deployment/${{ env.SPRING_BOOT_IMAGE_NAME }}
-        
+        # Start rollout (if necessary) and follow it
+        oc rollout latest dc/${{ env.SPRING_BOOT_IMAGE_NAME }} 2> /dev/null \
+        || true && echo "Rollout in progress"
+        oc logs -f dc/${{ env.SPRING_BOOT_IMAGE_NAME }}
         # Get status, returns 0 if rollout is successful
-        oc rollout status deployment/${{ env.SPRING_BOOT_IMAGE_NAME }}
+        oc rollout status dc/${{ env.SPRING_BOOT_IMAGE_NAME }}

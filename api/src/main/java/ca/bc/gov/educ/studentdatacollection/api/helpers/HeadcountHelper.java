@@ -145,8 +145,11 @@ public class HeadcountHelper<T extends HeadcountResult> {
   public UUID getPreviousCollectionID(SdcSchoolCollectionEntity sdcSchoolCollectionEntity) {
     Optional<SdcSchoolCollectionEntity> collection;
     String collectionType = sdcSchoolCollectionEntity.getCollectionEntity().getCollectionTypeCode();
-    if (collectionType.equals(CollectionTypeCodes.JULY.getTypeCode())) collection = sdcSchoolCollectionRepository.findLastCollectionBySchoolIDAndType(sdcSchoolCollectionEntity.getSchoolID(), collectionType, sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
-    else collection = sdcSchoolCollectionRepository.findLastCollectionBySchoolIDAndType(sdcSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+    if (collectionType.equals(CollectionTypeCodes.JULY.getTypeCode())) {
+      collection = sdcSchoolCollectionRepository.findLastCollectionBySchoolIDAndType(sdcSchoolCollectionEntity.getSchoolID(), collectionType, sdcSchoolCollectionEntity.getSdcSchoolCollectionID(), sdcSchoolCollectionEntity.getCollectionEntity().getSnapshotDate());
+    } else {
+      collection = sdcSchoolCollectionRepository.findLastCollectionBySchoolIDAndType(sdcSchoolCollectionEntity.getSchoolID(), CollectionTypeCodes.SEPTEMBER.getTypeCode(), sdcSchoolCollectionEntity.getSdcSchoolCollectionID(), sdcSchoolCollectionEntity.getCollectionEntity().getSnapshotDate());
+    }
     return collection.map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).orElse(null);
   }
 
@@ -207,7 +210,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
                   .orElse(null);
             String headcount = "0";
             if (result != null && result.getEnrolledGradeCode().equals(gradeCode)) {
-              headcount = headcountFunction.apply(result);
+              headcount = headcountFunction.apply(result) != null ? headcountFunction.apply(result) : headcount;
             }
             rowData.put(gradeCode, HeadcountHeaderColumn.builder().currentValue(headcount).build());
             total = total.add(new BigDecimal(headcount));

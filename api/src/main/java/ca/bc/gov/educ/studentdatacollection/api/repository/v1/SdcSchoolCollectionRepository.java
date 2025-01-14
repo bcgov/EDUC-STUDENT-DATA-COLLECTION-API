@@ -8,6 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SchoolCollectionSchool
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionsForAutoSubmit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -150,18 +151,20 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             WHERE SSC.schoolID=:schoolID 
             AND C.collectionID = SSC.collectionEntity.collectionID
             AND SSC.sdcSchoolCollectionID != :currentSdcCollectionID
+            AND C.snapshotDate < :snapshotDate
             AND C.collectionTypeCode = :collectionTypeCode
             ORDER BY C.snapshotDate desc
             LIMIT 1""")
-    Optional<SdcSchoolCollectionEntity> findLastCollectionBySchoolIDAndType(UUID schoolID, String collectionTypeCode, UUID currentSdcCollectionID);
+    Optional<SdcSchoolCollectionEntity> findLastCollectionBySchoolIDAndType(UUID schoolID, String collectionTypeCode, UUID currentSdcCollectionID, LocalDate snapshotDate);
 
     @Query(value="""
             SELECT C FROM CollectionEntity C 
             WHERE C.collectionID != :currentCollectionID
             AND C.collectionTypeCode = :collectionTypeCode
+            AND C.snapshotDate < :snapshotDate
             ORDER BY C.snapshotDate desc
             LIMIT 1""")
-    Optional<CollectionEntity> findLastCollectionByType(String collectionTypeCode, UUID currentCollectionID);
+    Optional<CollectionEntity> findLastCollectionByType(String collectionTypeCode, UUID currentCollectionID, LocalDate snapshotDate);
 
     List<SdcSchoolCollectionEntity> findAllBySchoolID(UUID schoolID);
 
@@ -262,4 +265,12 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
     @Query("SELECT s FROM SdcSchoolCollectionEntity s WHERE s.collectionEntity.collectionID = :collectionID AND s.sdcDistrictCollectionID IS NULL AND s.sdcSchoolCollectionStatusCode = 'COMPLETED'")
     List<SdcSchoolCollectionEntity> findSchoolsInCollectionWithStatus(UUID collectionID);
 
+    @Modifying
+    @Query(value = """
+           UPDATE SDC_SCHOOL_COLLECTION
+           SET SDC_SCHOOL_COLLECTION_STATUS_CODE = :schoolStatus, update_user = 'STUDENT_DATA_COLLECTION_API', update_date = CURRENT_TIMESTAMP
+           WHERE sdc_school_collection_id IN 
+           (:sdcSchoolCollectionID)
+           """, nativeQuery = true)
+    void updateSchoolCollectionStatus(List<UUID> sdcSchoolCollectionID, String schoolStatus);
 }

@@ -248,12 +248,11 @@ public class EventTaskSchedulerAsyncService {
     CollectionTypeCodeEntity collectionTypeCodeEntity = optionalCollectionTypeCodeEntity.orElseThrow(() -> new EntityNotFoundException(CollectionTypeCodeEntity.class, "collectionTypeCode", activeCollection.getCollectionTypeCode()));
     List<CollectionCodeCriteriaEntity> collectionCodeCriteria = this.collectionCodeCriteriaRepository.findAllByCollectionTypeCodeEntityEquals(collectionTypeCodeEntity);
     final List<SchoolTombstone> schoolTombstones = closeCollectionService.getListOfSchoolIDsFromCriteria(collectionCodeCriteria);
-
+    final List<SchoolTombstone> allSchoolTombstones = restUtils.getSchools();
     final List<SdcSchoolCollectionEntity> activeSchoolCollections = sdcSchoolCollectionRepository.findAllByCollectionEntityCollectionID(activeCollection.getCollectionID());
 
     List<SdcSchoolCollectionEntity> newSchoolCollections = findAddSchoolsAndUpdateSdcSchoolCollection(schoolTombstones, activeCollection, activeSchoolCollections);
-    List<SdcSchoolCollectionEntity> closedSchoolCollections = findClosedSchoolsAndDeleteSdcSchoolCollection(schoolTombstones, activeSchoolCollections);
-
+    List<SdcSchoolCollectionEntity> closedSchoolCollections = findClosedSchoolsAndDeleteSdcSchoolCollection(allSchoolTombstones, activeSchoolCollections);
     if (CollectionUtils.isNotEmpty(newSchoolCollections)) {
       newSchoolCollections.stream().forEach(sdcSchoolCollectionEntity -> sdcSchoolCollectionEntity.getSdcSchoolCollectionHistoryEntities().add(sdcSchoolCollectionHistoryService.createSDCSchoolHistory(sdcSchoolCollectionEntity, sdcSchoolCollectionEntity.getUpdateUser())));
       sdcSchoolCollectionRepository.saveAll(newSchoolCollections);
@@ -261,6 +260,11 @@ public class EventTaskSchedulerAsyncService {
     if (CollectionUtils.isNotEmpty(closedSchoolCollections)) {
       closedSchoolCollections.stream().forEach(sdcSchoolCollectionEntity -> sdcSchoolCollectionService.deleteSdcCollection(sdcSchoolCollectionEntity.getSdcSchoolCollectionID()));
     }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void deleteCompletedSagas(List<UUID> sagaIDsToDelete) {
+    this.sagaRepository.deleteBySagaIdIn(sagaIDsToDelete);
   }
 
   private List<SdcSchoolCollectionEntity> findAddSchoolsAndUpdateSdcSchoolCollection(List<SchoolTombstone> schoolTombstones, CollectionEntity activeCollection, List<SdcSchoolCollectionEntity> activeSchoolCollections) {

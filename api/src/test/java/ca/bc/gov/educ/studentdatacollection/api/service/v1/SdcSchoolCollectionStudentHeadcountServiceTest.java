@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
@@ -42,14 +43,19 @@ class SdcSchoolCollectionStudentHeadcountServiceTest extends BaseStudentDataColl
 
     @BeforeEach
     void setUp() throws IOException {
-        var collection = collectionRepository.save(createMockCollectionEntity());
+        var collection1 = createMockCollectionEntity();
+        collection1.setSnapshotDate(LocalDate.now().minusWeeks(10));
+        collection1 = collectionRepository.save(collection1);
         var school = this.createMockSchool();
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
-        firstSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        firstSchoolCollection = createMockSdcSchoolCollectionEntity(collection1, UUID.fromString(school.getSchoolId()));
         firstSchoolCollection.setUploadDate(null);
         firstSchoolCollection.setUploadFileName(null);
 
-        secondSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        var collection2 = createMockCollectionEntity();
+        collection2.setSnapshotDate(LocalDate.now().minusWeeks(1));
+        collection2 = collectionRepository.save(collection2);
+        secondSchoolCollection = createMockSdcSchoolCollectionEntity(collection2, UUID.fromString(school.getSchoolId()));
         secondSchoolCollection.setUploadDate(null);
         secondSchoolCollection.setUploadFileName(null);
         secondSchoolCollection.setCreateDate(LocalDateTime.of(Year.now().getValue() - 1, Month.SEPTEMBER, 7, 0, 0));
@@ -84,15 +90,15 @@ class SdcSchoolCollectionStudentHeadcountServiceTest extends BaseStudentDataColl
 
     @Test
     void testGetEnrollmentReportValues_WhenCompareIsTrue(){
-        var resultsTableWithoutCompare = service.getEnrollmentHeadcounts(firstSchoolCollection, false);
+        var resultsTableWithoutCompare = service.getEnrollmentHeadcounts(secondSchoolCollection, false);
         var allStudentsSection =   resultsTableWithoutCompare.getHeadcountResultsTable().getRows().stream().filter(val -> val.get("section").getCurrentValue().equals("All Students") && val.get("title").getCurrentValue().equals("FTE Total")).findAny();
-        assertEquals("2.46", allStudentsSection.get().get("Total").getCurrentValue());
+        assertEquals("2.72", allStudentsSection.get().get("Total").getCurrentValue());
         assertNull(allStudentsSection.get().get("Total").getComparisonValue());
 
-        var resultsTableWithCompare = service.getEnrollmentHeadcounts(firstSchoolCollection, true);
+        var resultsTableWithCompare = service.getEnrollmentHeadcounts(secondSchoolCollection, true);
         var allStudentsWithCompareSection =   resultsTableWithCompare.getHeadcountResultsTable().getRows().stream().filter(val -> val.get("section").getCurrentValue().equals("All Students") && val.get("title").getCurrentValue().equals("FTE Total")).findAny();
-        assertEquals("2.46", allStudentsWithCompareSection.get().get("Total").getCurrentValue());
-        assertEquals("2.72", allStudentsWithCompareSection.get().get("Total").getComparisonValue());
+        assertEquals("2.72", allStudentsWithCompareSection.get().get("Total").getCurrentValue());
+        assertEquals("2.46", allStudentsWithCompareSection.get().get("Total").getComparisonValue());
     }
 
     @Test
@@ -113,15 +119,15 @@ class SdcSchoolCollectionStudentHeadcountServiceTest extends BaseStudentDataColl
 
         sdcSchoolCollectionStudentEnrolledProgramRepository.saveAll(enrolledPrograms);
 
-        var resultsTableWithoutCompare = service.getCareerHeadcounts(firstSchoolCollection, false);
+        var resultsTableWithoutCompare = service.getCareerHeadcounts(secondSchoolCollection, false);
         var allStudentsSection =   resultsTableWithoutCompare.getHeadcountResultsTable().getRows().stream().filter(val -> val.get("section").getCurrentValue().equals("Career Preparation") && val.get("title").getCurrentValue().equals("Career Preparation")).findAny();
-        assertEquals("1", allStudentsSection.get().get("Total").getCurrentValue());
+        assertEquals("2", allStudentsSection.get().get("Total").getCurrentValue());
         assertNull(allStudentsSection.get().get("Total").getComparisonValue());
 
-        var resultsTableWithCompare = service.getCareerHeadcounts(firstSchoolCollection, true);
+        var resultsTableWithCompare = service.getCareerHeadcounts(secondSchoolCollection, true);
         var allStudentsWithCompareSection =   resultsTableWithCompare.getHeadcountResultsTable().getRows().stream().filter(val -> val.get("section").getCurrentValue().equals("Career Preparation") && val.get("title").getCurrentValue().equals("Career Preparation")).findAny();
-        assertEquals("1", allStudentsWithCompareSection.get().get("Total").getCurrentValue());
-        assertEquals("2", allStudentsWithCompareSection.get().get("Total").getComparisonValue());
+        assertEquals("2", allStudentsWithCompareSection.get().get("Total").getCurrentValue());
+        assertEquals("1", allStudentsWithCompareSection.get().get("Total").getComparisonValue());
     }
 
     @Test
@@ -142,31 +148,31 @@ class SdcSchoolCollectionStudentHeadcountServiceTest extends BaseStudentDataColl
 
         sdcSchoolCollectionStudentEnrolledProgramRepository.saveAll(enrolledPrograms);
 
-        var resultsTableWithoutCompare = service.getIndigenousHeadcounts(firstSchoolCollection, false);
+        var resultsTableWithoutCompare = service.getIndigenousHeadcounts(secondSchoolCollection, false);
         var allStudentsSection =   resultsTableWithoutCompare.getHeadcountResultsTable().getRows().stream().filter(val -> val.get("section").getCurrentValue().equals("All Indigenous Support Programs") && val.get("title").getCurrentValue().equals("All Indigenous Support Programs")).findAny();
-        assertEquals("2", allStudentsSection.get().get("Total").getCurrentValue());
+        assertEquals("4", allStudentsSection.get().get("Total").getCurrentValue());
         assertNull(allStudentsSection.get().get("Total").getComparisonValue());
 
-        var resultsTableWithCompare = service.getIndigenousHeadcounts(firstSchoolCollection, true);
+        var resultsTableWithCompare = service.getIndigenousHeadcounts(secondSchoolCollection, true);
         var allStudentsWithCompareSection =   resultsTableWithCompare.getHeadcountResultsTable().getRows().stream().filter(val -> val.get("section").getCurrentValue().equals("All Indigenous Support Programs") && val.get("title").getCurrentValue().equals("All Indigenous Support Programs")).findAny();
-        assertEquals("2", allStudentsWithCompareSection.get().get("Total").getCurrentValue());
-        assertEquals("4", allStudentsWithCompareSection.get().get("Total").getComparisonValue());
+        assertEquals("4", allStudentsWithCompareSection.get().get("Total").getCurrentValue());
+        assertEquals("2", allStudentsWithCompareSection.get().get("Total").getComparisonValue());
     }
 
     @Test
     void testGetBandOfResidenceValues_WhenCompareIsTrue(){
-        var resultsTableWithoutCompare = service.getBandResidenceHeadcounts(firstSchoolCollection, false);
-        assertEquals(3, resultsTableWithoutCompare.getHeadcountResultsTable().getRows().size());
+        var resultsTableWithoutCompare = service.getBandResidenceHeadcounts(secondSchoolCollection, false);
+        assertEquals(2, resultsTableWithoutCompare.getHeadcountResultsTable().getRows().size());
         var allStudentsWithoutCompareRow = resultsTableWithoutCompare.getHeadcountResultsTable().getRows().stream().filter(val -> val.get("title").getCurrentValue().equals("All Bands & Students")).findAny();
-        assertEquals("2.46", allStudentsWithoutCompareRow.get().get("FTE").getCurrentValue());
+        assertEquals("1.14", allStudentsWithoutCompareRow.get().get("FTE").getCurrentValue());
         assertEquals("2", allStudentsWithoutCompareRow.get().get("Headcount").getCurrentValue());
 
-        var resultsTableWithCompare = service.getBandResidenceHeadcounts(firstSchoolCollection, true);
+        var resultsTableWithCompare = service.getBandResidenceHeadcounts(secondSchoolCollection, true);
         var allStudentsWithCompareRow = resultsTableWithCompare.getHeadcountResultsTable().getRows().stream().filter(val -> val.get("title").getCurrentValue().equals("All Bands & Students")).findAny();
         assertEquals(4, resultsTableWithCompare.getHeadcountResultsTable().getRows().size());
-        assertEquals("2.46", allStudentsWithCompareRow.get().get("FTE").getCurrentValue());
+        assertEquals("1.14", allStudentsWithCompareRow.get().get("FTE").getCurrentValue());
         assertEquals("2", allStudentsWithCompareRow.get().get("Headcount").getCurrentValue());
-        assertEquals("1.14", allStudentsWithCompareRow.get().get("FTE").getComparisonValue());
+        assertEquals("2.46", allStudentsWithCompareRow.get().get("FTE").getComparisonValue());
         assertEquals("2", allStudentsWithCompareRow.get().get("Headcount").getComparisonValue());
     }
 

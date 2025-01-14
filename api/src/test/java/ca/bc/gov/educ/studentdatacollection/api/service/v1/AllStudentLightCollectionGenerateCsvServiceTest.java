@@ -4,6 +4,8 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.reports.AllStudentLightCollectionGenerateCsvService;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.FacilityTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,7 +65,11 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         mockEntities.add(createMockStudent());  // A method to create mock student data
 
         when(mockSearchService.findAllStudentsLightByDistrictCollectionId(districtCollectionId)).thenReturn(mockEntities);
-
+        FacilityTypeCode code = new FacilityTypeCode();
+        code.setFacilityTypeCode("01");
+        code.setLabel("ABC");
+        when(mockRestUtils.getFacilityTypeCode(any())).thenReturn(Optional.of(code));
+        when(mockRestUtils.getSchoolBySchoolID(any())).thenReturn(Optional.of(new SchoolTombstone()));
         // Execution
         DownloadableReportResponse response = service.generateFromSdcDistrictCollectionID(districtCollectionId);
 

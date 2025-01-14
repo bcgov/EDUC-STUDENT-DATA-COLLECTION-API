@@ -16,7 +16,7 @@ import java.math.RoundingMode;
 
 @Component
 @Slf4j
-@Order(14)
+@Order(140)
 public class StudentGradeCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Override

@@ -469,6 +469,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     schoolTombstone.setDistrictId(UUID.randomUUID().toString());
     schoolTombstone.setDisplayName("Marco's school");
     schoolTombstone.setMincode("03636018");
+    schoolTombstone.setSchoolNumber("36018");
     schoolTombstone.setOpenedDate("1964-09-01T00:00:00");
     schoolTombstone.setSchoolCategoryCode("PUBLIC");
     schoolTombstone.setSchoolReportingRequirementCode("REGULAR");

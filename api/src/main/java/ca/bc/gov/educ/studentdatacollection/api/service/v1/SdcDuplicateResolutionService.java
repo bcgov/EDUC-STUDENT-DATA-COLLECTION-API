@@ -42,7 +42,7 @@ public class SdcDuplicateResolutionService {
   private final RestUtils restUtils;
   private static final String SDC_DUPLICATE_ID_KEY = "sdcDuplicateID";
   private static final String COLLECTION_ID_NOT_ACTIVE_MSG = "Provided collectionID does not match currently active collectionID.";
-  private static final List<String> independentSchoolCategoryCodes = Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode());
+  private static final List<String> independentSchoolCategoryCodes = Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode(), SchoolCategoryCodes.OFFSHORE.getCode());
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void resolveRemainingDuplicates(UUID collectionID){
@@ -59,7 +59,7 @@ public class SdcDuplicateResolutionService {
     }
 
     List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInCollection(collectionID);
-    List<SdcDuplicateEntity> finalDuplicatesSet = sdcDuplicatesService.generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL, false);
+    List<SdcDuplicateEntity> finalDuplicatesSet = sdcDuplicatesService.generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
 
     List<SdcDuplicateEntity> nonAllowableDupes = finalDuplicatesSet.stream().filter(duplicate ->
             (duplicate.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode()) &&
@@ -123,7 +123,7 @@ public class SdcDuplicateResolutionService {
         studentToRemove = institute1Number < institute2Number ? student2 : student1;
       }
     } else {
-      studentToRemove = dupe1ClassNum.compareTo(dupe2ClassNum) < 0 ? student1 : student2;
+      studentToRemove = dupe1ClassNum.compareTo(dupe2ClassNum) < 0 ? student2 : student1;
     }
 
     return studentToRemove;
@@ -153,8 +153,8 @@ public class SdcDuplicateResolutionService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void changeGrade(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudent) {
-    sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudent);
+  public void changeGrade(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudent, boolean isStaffMember) {
+    sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudent, isStaffMember);
   }
 
   public SdcSchoolCollectionStudentLightEntity identifyStudentToEdit(SdcSchoolCollectionStudentLightEntity student1, SdcSchoolCollectionStudentLightEntity student2, SchoolTombstone school1, SchoolTombstone school2){
@@ -210,7 +210,7 @@ public class SdcDuplicateResolutionService {
   public Integer getInstituteNumber(SchoolTombstone school){
     Integer instituteNumber = null;
     if(independentSchoolCategoryCodes.contains(school.getSchoolCategoryCode())){
-      instituteNumber = Integer.parseInt(school.getMincode());
+      instituteNumber = Integer.parseInt(school.getSchoolNumber());
     } else {
       Optional<District> district = restUtils.getDistrictByDistrictID(school.getDistrictId());
 
@@ -225,11 +225,11 @@ public class SdcDuplicateResolutionService {
 
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void updateStudents(List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent) {
+  public void updateStudents(List<SdcSchoolCollectionStudent> sdcSchoolCollectionStudent, boolean isStaffMember) {
     // update students
     sdcSchoolCollectionStudent.forEach(student -> {
       RequestUtil.setAuditColumnsForUpdate(student);
-      sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentEntity(student));
+      sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudentEntity(student), isStaffMember);
     });
   }
 }

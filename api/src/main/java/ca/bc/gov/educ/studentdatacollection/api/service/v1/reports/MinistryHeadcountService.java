@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.reports;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
@@ -8,12 +9,14 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.IndependentSchoolFundingGroupSnapshotEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.IndependentSchoolFundingGroupSnapshotService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentAuthority;
@@ -46,6 +49,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 public class MinistryHeadcountService {
   private final CollectionRepository collectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  private final IndependentSchoolFundingGroupSnapshotService independentSchoolFundingGroupSnapshotService;
   private final RestUtils restUtils;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final ValidationRulesService validationService;
@@ -53,6 +57,7 @@ public class MinistryHeadcountService {
   private static final String COLLECTION_ID = "collectionID";
   private static final String SCHOOL_ID = "schoolID";
 
+  // School Enrolment Headcounts report
   public SimpleHeadcountResultsTable getAllSchoolEnrollmentHeadcounts(UUID collectionID) {
     List<SchoolHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getAllEnrollmentHeadcountsByCollectionId(collectionID);
     var collectionOpt = collectionRepository.findById(collectionID);
@@ -102,6 +107,7 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  // Independent School Enrolment Headcounts report
   public SimpleHeadcountResultsTable getIndySchoolsEnrollmentHeadcounts(UUID collectionID) {
     List<IndySchoolHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
@@ -111,10 +117,17 @@ public class MinistryHeadcountService {
     }
     resultsTable.setHeaders(headerList);
     var rows = new ArrayList<Map<String, String>>();
+    CollectionEntity collectionEntity = collectionRepository.findById(collectionID).orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString()));
+
     collectionRawData.stream().forEach(indySchoolHeadcountResult -> {
       var school = restUtils.getAllSchoolBySchoolID(indySchoolHeadcountResult.getSchoolID()).get();
 
-      var schoolFundingGroupGrades = school.getSchoolFundingGroups().stream().map(IndependentSchoolFundingGroup::getSchoolGradeCode).toList();
+      List<String> schoolFundingGroupGrades;
+      if(collectionEntity.getCollectionStatusCode().equalsIgnoreCase(CollectionStatus.COMPLETED.getCode())) {
+        schoolFundingGroupGrades = independentSchoolFundingGroupSnapshotService.getIndependentSchoolFundingGroupSnapshot(UUID.fromString(school.getSchoolId()), collectionEntity.getCollectionID()).stream().map(IndependentSchoolFundingGroupSnapshotEntity::getSchoolGradeCode).toList();
+      }else{
+        schoolFundingGroupGrades = school.getSchoolFundingGroups().stream().map(IndependentSchoolFundingGroup::getSchoolGradeCode).toList();
+      }
 
       if(SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
         var rowMap = new HashMap<String, String>();
@@ -146,8 +159,21 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  // Independent School Inclusive Education Headcounts report
   public SimpleHeadcountResultsTable getSpecialEducationHeadcountsForIndependentsByCollectionID(UUID collectionID) {
-    List<IndySpecialEdAdultHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
+    Optional<CollectionEntity> collectionOpt = collectionRepository.findById(collectionID);
+    if(collectionOpt.isEmpty()) {
+      throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+    }
+
+    List<IndySpecialEdAdultHeadcountResult> collectionRawData;
+
+    if(Objects.equals(collectionOpt.get().getCollectionTypeCode(), CollectionTypeCodes.FEBRUARY.getTypeCode())){
+      collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreFebruaryByCollectionId(collectionID);
+    } else {
+      collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdCategoryForIndiesAndOffshoreByCollectionId(collectionID);
+    }
+
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();
     for (IndySpecialEducationHeadcountHeader header : IndySpecialEducationHeadcountHeader.values()) {
@@ -199,9 +225,12 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  // Independent School Inclusive Education Funding Headcounts report
   public SimpleHeadcountResultsTable getSpecialEducationFundingHeadcountsForIndependentsByCollectionID(UUID collectionID) {
-    List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionId(collectionID);
-    var mappedSeptData = getLastSeptCollectionSchoolMap(collectionID);
+    List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsFebruaryByCollectionId(collectionID);
+    var collection = collectionRepository.findById(collectionID).orElseThrow(() ->
+            new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString()));
+    var mappedSeptData = getLastSeptCollectionSchoolMap(collection);
 
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();
@@ -289,10 +318,10 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
-  private Map<String, SpecialEdHeadcountResult> getLastSeptCollectionSchoolMap(UUID collectionID){
-    var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collectionID);
+  private Map<String, SpecialEdHeadcountResult> getLastSeptCollectionSchoolMap(CollectionEntity collection){
+    var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collection.getCollectionID(), collection.getSnapshotDate());
     if(lastSeptCollectionOpt.isEmpty()) {
-      throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+      throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collection.getCollectionID().toString());
     }
     List<SpecialEdHeadcountResult> lastSeptCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionId(lastSeptCollectionOpt.get().getCollectionID());
     return lastSeptCollectionRawData.stream().collect(Collectors.toMap(SpecialEdHeadcountResult::getSchoolID, item -> item));
@@ -321,6 +350,7 @@ public class MinistryHeadcountService {
     return rowMap;
   }
 
+  // School Physical Address Report
   public SimpleHeadcountResultsTable getSchoolAddressReport(UUID collectionID) {
     Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
     if(entityOptional.isEmpty()) {
@@ -364,6 +394,7 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  // FSA Registration Report
   public SimpleHeadcountResultsTable getFsaRegistrationReport(UUID collectionID) {
     Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
     if(entityOptional.isEmpty()) {
@@ -441,6 +472,7 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  // Offshore School Enrolment Headcounts report
   public SimpleHeadcountResultsTable getOffshoreSchoolEnrollmentHeadcounts(UUID collectionID) {
     Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
     if(entityOptional.isEmpty()) {
@@ -488,6 +520,7 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  // Offshore Spoken Language Headcounts report
   public SimpleHeadcountResultsTable getOffshoreSpokenLanguageHeadcounts(UUID collectionID) {
     Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
     if(entityOptional.isEmpty()) {

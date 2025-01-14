@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeC
 import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.MinistryHeadcountReports;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.AllReportsService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.CSVReportService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.MinistryHeadcountService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
@@ -25,6 +26,7 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
 
     private final MinistryHeadcountService ministryHeadcountService;
     private final CSVReportService ministryReportsService;
+    private final AllReportsService allReportsService;
 
     @Override
     public SimpleHeadcountResultsTable getMinistryHeadcounts(UUID collectionID, String type) {
@@ -67,15 +69,19 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
             case OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS -> ministryReportsService.generateOffshoreSpokenLanguageHeadcounts(collectionID);
             case INDY_INCLUSIVE_ED_FUNDING_HEADCOUNTS -> ministryReportsService.generateIndySpecialEducationFundingHeadcounts(collectionID);
             case ENROLLED_HEADCOUNTS_AND_FTE_REPORT -> ministryReportsService.generateEnrolledHeadcountsAndFteReport(collectionID);
-            case ENROLMENT_HEADCOUNTS_AND_FTE_REPORT_FOR_OL_AND_CE_SCHOOLS -> ministryReportsService.generateEnrolmentHeadcountsAndFteReportForCEAndOLSchools(collectionID);
-            case INDY_FUNDING_REPORT -> ministryReportsService.generateIndyFundingReport(collectionID, false, false);
-            case ONLINE_INDY_FUNDING_REPORT -> ministryReportsService.generateIndyFundingReport(collectionID, true, false);
-            case NON_GRADUATED_ADULT_INDY_FUNDING_REPORT -> ministryReportsService.generateIndyFundingReport(collectionID, false, true);
+            case INCLUSIVE_EDUCATION_VARIANCES_ALL -> ministryReportsService.generateInclusiveEducationVarianceReport(collectionID);
+            case INDY_FUNDING_REPORT_ALL -> ministryReportsService.generateIndyFundingReport(collectionID, false, false, false);
+            case INDY_FUNDING_REPORT_FUNDED -> ministryReportsService.generateIndyFundingReport(collectionID, false, false, true);
+            case ONLINE_INDY_FUNDING_REPORT -> ministryReportsService.generateIndyFundingReport(collectionID, true, false, false);
+            case NON_GRADUATED_ADULT_INDY_FUNDING_REPORT -> ministryReportsService.generateIndyFundingReport(collectionID, false, true, false);
             case REFUGEE_ENROLMENT_HEADCOUNTS_AND_FTE_REPORT -> ministryReportsService.generateRefugeeEnrolmentHeadcountsAndFteReport(collectionID);
             case POSTED_DUPLICATES -> ministryReportsService.generatePostedDuplicatesReport(collectionID);
             default -> new DownloadableReportResponse();
         };
     }
 
-
+    @Override
+    public void generateAllDistrictReportsForCollection(UUID sdcDistrictCollectionID) {
+        allReportsService.generateAllDistrictReportsOnDisk(sdcDistrictCollectionID);
+    }
 }

@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.FteCalculationResult;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +17,13 @@ import java.math.BigDecimal;
 
 @Component
 @Slf4j
-@Order(8)
+@Order(80)
 public class CollectionAndFacilityTypeCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Autowired
     FteCalculatorUtils fteCalculatorUtils;
+    @Autowired
+    ValidationRulesService validationRulesService;
     @Override
     public void setNext(FteCalculator nextCalculator) { this.nextCalculator = nextCalculator; }
     @Override

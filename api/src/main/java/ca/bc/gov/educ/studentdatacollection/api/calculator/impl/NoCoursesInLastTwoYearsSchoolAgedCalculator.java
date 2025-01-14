@@ -15,7 +15,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReaso
 
 @Component
 @Slf4j
-@Order(6)
+@Order(60)
 public class NoCoursesInLastTwoYearsSchoolAgedCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Autowired

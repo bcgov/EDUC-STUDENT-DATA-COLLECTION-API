@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -64,8 +65,16 @@ public interface CollectionEndpoint {
   @ResponseStatus(NO_CONTENT)
   ResponseEntity<Void> deleteCollection(@PathVariable UUID collectionID);
 
+  @PostMapping("/open-new-collection")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "CREATED"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
+  @Schema(name = "Collection", implementation = Collection.class)
+  @ResponseStatus(CREATED)
+  ResponseEntity<Void> openNewCollection() throws JsonProcessingException;
+
   @PostMapping("/{collectionID}/in-province-duplicates")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_COLLECTION')")
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
   @Tag(name = "Collection Entity", description = "Endpoints for collection entity.")
   ResponseEntity<Void> generateProvinceDuplicates(@PathVariable("collectionID") UUID collectionID);

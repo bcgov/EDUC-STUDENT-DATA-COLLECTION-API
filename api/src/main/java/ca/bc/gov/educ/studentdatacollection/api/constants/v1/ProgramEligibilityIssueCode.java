@@ -15,6 +15,8 @@ public enum ProgramEligibilityIssueCode {
   NOT_ENROLLED_INDIGENOUS("NTENRINDIG", "The student is not enrolled in indigenous programs."),
   NOT_ENROLLED_SPECIAL_ED("NTENRSPED", "The student was not reported in any inclusive education programs."),
   NON_ELIG_SPECIAL_EDUCATION("NELISPED", "Student must be school-aged or a non-graduated adult reported in a grade other than GA."),
+  FEB_ONLINE_WITH_HISTORICAL_FUNDING("FEBSPEDERR", "Student has already been funded in September collection."),
+  INDP_FIRST_NATION_SPED("FUND20SPED", "Students reported by Independent School with Funding code 20 are not eligible for Inclusive Education funding."),
   INDIGENOUS_ADULT("ISADULTAGE", "Student must be school-aged and self-identify as having Indigenous Ancestry to be eligible for funding for Indigenous Support Programs."),
   YEARS_IN_ELL("ELL5ORLESS", "Student must be school-aged and have been reported in ELL for 5 years or less."),
   NOT_ENROLLED_ELL("NTENRELL", "The student is not enrolled in the ELL program."),

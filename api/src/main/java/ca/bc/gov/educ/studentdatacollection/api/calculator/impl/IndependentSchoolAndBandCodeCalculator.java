@@ -16,7 +16,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReaso
 
 @Component
 @Slf4j
-@Order(5)
+@Order(50)
 public class IndependentSchoolAndBandCodeCalculator implements FteCalculator {
     FteCalculator nextCalculator;
     @Override
