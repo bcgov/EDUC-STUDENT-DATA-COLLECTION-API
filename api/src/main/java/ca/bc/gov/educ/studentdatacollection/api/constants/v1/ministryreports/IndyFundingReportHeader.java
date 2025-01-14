@@ -73,6 +73,9 @@ public enum IndyFundingReportHeader {
     SU_FTE_COUNT_NO_ADULTS("FTE SU No Adults"),
     GA_FTE_COUNT_NO_ADULTS("FTE GA No Adults"),
 
+    TOTAL_HEADCOUNT_ADULTS("Total Headcount Adults"),
+    TOTAL_FTE_ADULTS("Total FTE Adults"),
+
     KIND_HT_HEADCOUNT_ADULTS("Headcount Kind(H/T) Adults"),
     KIND_FT_HEADCOUNT_ADULTS("Headcount Kind(F/T) Adults"),
     GRADE_01_HEADCOUNT_ADULTS("Headcount Grade 1 Adults"),
