@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.*;
@@ -91,6 +92,7 @@ class HeadcountHelperTest {
     LocalDateTime createDate = LocalDateTime.of(2023, month, day, 12, 0);
     CollectionEntity collectionEntity = new CollectionEntity();
     collectionEntity.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+    collectionEntity.setSnapshotDate(LocalDate.now().minusWeeks(2));
     SdcSchoolCollectionEntity schoolCollectionEntity = new SdcSchoolCollectionEntity();
     schoolCollectionEntity.setSdcSchoolCollectionID(schoolCollectionId);
     schoolCollectionEntity.setSchoolID(schoolId);
@@ -99,7 +101,7 @@ class HeadcountHelperTest {
 
     Optional<SdcSchoolCollectionEntity> septemberCollections = Optional.of(schoolCollectionEntity);
 
-    when(schoolCollectionRepository.findLastCollectionBySchoolIDAndType(eq(schoolId), any(), any()))
+    when(schoolCollectionRepository.findLastCollectionBySchoolIDAndType(eq(schoolId), any(), any(), any()))
             .thenReturn(septemberCollections);
 
     // When
@@ -110,7 +112,7 @@ class HeadcountHelperTest {
     verify(schoolCollectionRepository).findLastCollectionBySchoolIDAndType(
             schoolId,
             CollectionTypeCodes.SEPTEMBER.getTypeCode(),
-            schoolCollectionEntity.getSdcSchoolCollectionID());
+            schoolCollectionEntity.getSdcSchoolCollectionID(), collectionEntity.getSnapshotDate());
   }
 
   @ParameterizedTest
@@ -132,6 +134,7 @@ class HeadcountHelperTest {
     LocalDateTime createDate = LocalDateTime.of(2023, month, day, 12, 0);
     CollectionEntity collectionEntity = new CollectionEntity();
     collectionEntity.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+    collectionEntity.setSnapshotDate(LocalDate.now().minusWeeks(2));
     SdcSchoolCollectionEntity schoolCollectionEntity = new SdcSchoolCollectionEntity();
     schoolCollectionEntity.setSdcSchoolCollectionID(schoolCollectionId);
     schoolCollectionEntity.setSchoolID(schoolId);
@@ -140,7 +143,7 @@ class HeadcountHelperTest {
 
     Optional<SdcSchoolCollectionEntity> septemberCollections = Optional.of(schoolCollectionEntity);
 
-    when(schoolCollectionRepository.findLastCollectionBySchoolIDAndType(eq(schoolId), any(), any()))
+    when(schoolCollectionRepository.findLastCollectionBySchoolIDAndType(eq(schoolId), any(), any(), any()))
             .thenReturn(septemberCollections);
 
     // When
@@ -151,7 +154,7 @@ class HeadcountHelperTest {
     verify(schoolCollectionRepository).findLastCollectionBySchoolIDAndType(
             schoolId,
             CollectionTypeCodes.JULY.getTypeCode(),
-            schoolCollectionEntity.getSdcSchoolCollectionID());
+            schoolCollectionEntity.getSdcSchoolCollectionID(), collectionEntity.getSnapshotDate());
   }
 
   @Test

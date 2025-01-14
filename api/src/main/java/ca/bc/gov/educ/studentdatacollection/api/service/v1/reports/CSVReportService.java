@@ -472,7 +472,11 @@ public class CSVReportService {
     // Independent School Inclusive Education Funding Headcounts report
     public DownloadableReportResponse generateIndySpecialEducationFundingHeadcounts(UUID collectionID) {
         List<SpecialEdHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsFebruaryByCollectionId(collectionID);
-        var mappedSeptData = getLastSeptCollectionSchoolMap(collectionID);
+
+        var collection = collectionRepository.findById(collectionID).orElseThrow(() ->
+                new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString()));
+
+        var mappedSeptData = getLastSeptCollectionSchoolMap(collection);
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                 .setHeader(DISTRICT_NUMBER.getCode(), IndySpecialEducationFundingHeadcountHeader.DISTRICT_NAME.getCode(), IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NUMBER.getCode(), IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NAME.getCode(), MINCODE.getCode(), SCHOOL_NAME.getCode(),
@@ -618,10 +622,10 @@ public class CSVReportService {
         }
     }
 
-    private Map<String, SpecialEdHeadcountResult> getLastSeptCollectionSchoolMap(UUID collectionID){
-        var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collectionID);
+    private Map<String, SpecialEdHeadcountResult> getLastSeptCollectionSchoolMap(CollectionEntity collection){
+        var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collection.getCollectionID(), collection.getSnapshotDate());
         if(lastSeptCollectionOpt.isEmpty()) {
-            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collection.getCollectionID().toString());
         }
         List<SpecialEdHeadcountResult> lastSeptCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsByCollectionId(lastSeptCollectionOpt.get().getCollectionID());
         return lastSeptCollectionRawData.stream().collect(Collectors.toMap(SpecialEdHeadcountResult::getSchoolID, item -> item));
