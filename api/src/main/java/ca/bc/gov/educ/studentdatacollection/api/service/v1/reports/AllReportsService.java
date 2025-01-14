@@ -1,51 +1,18 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.reports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.*;
-import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
-import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
-import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
-import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.reports.*;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionHistoryService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Collection;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.HomeLanguageSpokenCode;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.SpedFundingReportTotals;
-import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
-import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeCode.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndyFundingReportHeader.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.DISTRICT_NUMBER;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.SCHOOL_NAME;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
-import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Base64;
+import java.util.UUID;
 
 
 @Service
