@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculator;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
@@ -155,7 +156,7 @@ class SupportBlocksCalculatorTest {
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
         assertEquals(expectedFte, result.getFte());
-        assertNull(result.getFteZeroReason());
+        assertEquals(ZeroFteReasonCodes.NUM_COURSES.getCode(), result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 
@@ -175,7 +176,7 @@ class SupportBlocksCalculatorTest {
         // Then
         BigDecimal expectedFte = BigDecimal.ZERO;
         assertEquals(expectedFte, result.getFte());
-        assertNull(result.getFteZeroReason());
+        assertEquals(ZeroFteReasonCodes.NUM_COURSES.getCode(), result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
 

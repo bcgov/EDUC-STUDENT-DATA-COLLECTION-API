@@ -11,6 +11,7 @@ public enum ZeroFteReasonCodes {
   PRP_OR_YOUTH_SCHOOL("PRPYOUTH", "Student is funded outside of the funding allocation system."),
   OUT_OF_PROVINCE("OUTOFPROV", "Out-of-Province/International Students are not eligible for funding."),
   OFFSHORE("OFFSHORE", "Offshore students do not receive funding."),
+  NUM_COURSES("NUMCOURSE", "Student does not have any courses reported."),
   INACTIVE("INACTIVE", "The student has not been reported as \"active\" in a new course in the last two years."),
   NOMINAL_ROLL_ELIGIBLE("NOMROLL", "The student is Nominal Roll eligible and is federally funded."),
   IND_AUTH_DUPLICATE_FUNDING("AUTHDUP", "The authority has already received funding for the student this year."),
