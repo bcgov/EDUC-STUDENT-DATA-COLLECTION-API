@@ -78,7 +78,8 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
                 return fteCalculationResult;
             }
 
-            return fteCalculationResult;
+            log.debug("CollectionAndFacilityTypeCalculator: No FTE result, moving to next calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+            return this.nextCalculator.calculateFte(studentData);
         } else {
             log.debug("CollectionAndFacilityTypeCalculator: No FTE result, moving to next calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return this.nextCalculator.calculateFte(studentData);

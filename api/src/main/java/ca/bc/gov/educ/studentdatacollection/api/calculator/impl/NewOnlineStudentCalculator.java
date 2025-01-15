@@ -16,8 +16,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.IND_AUTH_DUPLICATE_FUNDING;
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.*;
 
 @Component
 @Slf4j
@@ -60,7 +59,11 @@ public class NewOnlineStudentCalculator implements FteCalculator {
                 log.debug("NewOnlineStudentCalculator: calculating for all other grades with student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 fteCalculationResult.setFte(new BigDecimal("0.9529"));
             }
-            fteCalculationResult.setFteZeroReason(null);
+            if (fteCalculationResult.getFte() != null && fteCalculationResult.getFte().compareTo(BigDecimal.ZERO) > 0) {
+                fteCalculationResult.setFteZeroReason(null);
+            }else{
+                fteCalculationResult.setFteZeroReason(NUM_COURSES.getCode());
+            }
             log.debug("NewOnlineStudentCalculator: Fte result {} calculated for student :: {}", fteCalculationResult.getFte(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return fteCalculationResult;
         } else {

@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.NUM_COURSES;
+
 @Component
 @Slf4j
 @Order(110)
@@ -45,7 +47,11 @@ public class CollectionAndGradeCalculator implements FteCalculator {
                 log.error(errorMessage);
                 throw new StudentDataCollectionAPIRuntimeException(errorMessage);
             }
-            fteCalculationResult.setFteZeroReason(null);
+            if (fteCalculationResult.getFte() != null && fteCalculationResult.getFte().compareTo(BigDecimal.ZERO) > 0) {
+                fteCalculationResult.setFteZeroReason(null);
+            }else{
+                fteCalculationResult.setFteZeroReason(NUM_COURSES.getCode());
+            }
             log.debug("CollectionAndGradeCalculator: Fte result {} calculated for student :: {}", fteCalculationResult.getFte(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return fteCalculationResult;
         } else {
