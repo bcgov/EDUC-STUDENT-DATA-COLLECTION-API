@@ -6,7 +6,6 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
-import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.FacilityTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import lombok.val;
@@ -864,7 +863,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     school.setDistrictId(district.getDistrictId());
     UUID schoolId = UUID.fromString(school.getSchoolId());
     doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-    createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(LocalDate.parse((LocalDate.now().getYear() - 1) + "-09-30"), LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+    createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(LocalDate.parse((LocalDate.now().getYear() - 1) + "-09-30"), LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, new BigDecimal(0));
 
     SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
     sdcDistrictCollectionRepository.save(sdcDistrictCollection);
@@ -876,6 +875,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
     entity.setAssignedStudentId(assignedStudentID);
     entity.setEnrolledGradeCode("08");
+    entity.setFte(BigDecimal.ZERO);
 
     school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
     school.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
@@ -910,8 +910,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     school.setDistrictId(district.getDistrictId());
     UUID schoolId = UUID.fromString(school.getSchoolId());
     doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-    createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(LocalDate.parse((LocalDate.now().getYear() - 1) + "-09-30"), LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
-    createHistoricalCollectionWithStudent(CollectionTypeCodes.FEBRUARY.getTypeCode(), LocalDateTime.of(LocalDate.parse((LocalDate.now().getYear()) + "-03-10"), LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+    createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(LocalDate.parse((LocalDate.now().getYear() - 1) + "-09-30"), LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, null);
+    createHistoricalCollectionWithStudent(CollectionTypeCodes.FEBRUARY.getTypeCode(), LocalDateTime.of(LocalDate.parse((LocalDate.now().getYear()) + "-03-10"), LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, null);
 
     SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
     sdcDistrictCollectionRepository.save(sdcDistrictCollection);
@@ -943,7 +943,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     )).isFalse();
   }
 
-  private void createHistoricalCollectionWithStudent(String collectionTypeCode, LocalDateTime collectionCloseDate, UUID assignedStudentID, UUID districtID, UUID schoolID) {
+  private void createHistoricalCollectionWithStudent(String collectionTypeCode, LocalDateTime collectionCloseDate, UUID assignedStudentID, UUID districtID, UUID schoolID, BigDecimal fteValue) {
     var collection = createMockCollectionEntity();
     collection.setCollectionTypeCode(collectionTypeCode);
     collection.setCloseDate(collectionCloseDate);
@@ -960,7 +960,7 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
     entity.setAssignedStudentId(assignedStudentID);
     entity.setEnrolledGradeCode("08");
-    entity.setFte(BigDecimal.valueOf(1.00));
+    entity.setFte(fteValue != null ? fteValue : BigDecimal.valueOf(1.00));
     sdcSchoolCollectionStudentRepository.save(entity);
   }
 

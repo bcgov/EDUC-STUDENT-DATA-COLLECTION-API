@@ -181,9 +181,10 @@ public class ValidationRulesService {
         }
     }
 
-     public List<SdcSchoolCollectionStudentEntity> getStudentInHistoricalCollectionWithInSameDistrict(StudentRuleData studentRuleData,String noOfCollectionsForLookup) {
+     public List<SdcSchoolCollectionStudentEntity> getStudentInHistoricalCollectionWithInSameDistrict(StudentRuleData studentRuleData, String noOfCollectionsForLookup) {
         setupMergedStudentIdValues(studentRuleData);
-        return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
+        var collection = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity();
+        return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup, collection.getCollectionID(), collection.getSnapshotDate());
     }
 
     public List<SdcSchoolCollectionStudentEntity> getStudentInHistoricalCollectionInAllDistrict(StudentRuleData studentRuleData) {
@@ -192,7 +193,7 @@ public class ValidationRulesService {
         return sdcSchoolStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
     }
 
-    public boolean findStudentInCurrentFiscalInGrade8Or9(StudentRuleData studentRuleData) {
+    public boolean studentExistsInCurrentFiscalInGrade8Or9(StudentRuleData studentRuleData) {
         setupMergedStudentIdValues(studentRuleData);
         String noOfCollectionsForLookup = "3";
         List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInCurrentFiscalInGrade8Or9(studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);

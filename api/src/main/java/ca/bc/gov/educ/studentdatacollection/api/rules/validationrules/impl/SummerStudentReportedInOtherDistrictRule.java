@@ -50,7 +50,7 @@ public class SummerStudentReportedInOtherDistrictRule implements ValidationBaseR
 
         validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
-            var isStudentReportedInCurrentFiscal = validationRulesService.findStudentInCurrentFiscalInGrade8Or9(studentRuleData);
+            var isStudentReportedInCurrentFiscal = validationRulesService.studentExistsInCurrentFiscalInGrade8Or9(studentRuleData);
 
             if (!isStudentReportedInCurrentFiscal) {
                 errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_NOT_IN_DISTRICT_ERROR));

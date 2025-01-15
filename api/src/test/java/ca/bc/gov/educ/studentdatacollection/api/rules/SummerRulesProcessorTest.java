@@ -315,7 +315,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, null);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -343,7 +343,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
-        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_IN_DISTRICT_ERROR.getCode()));
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_ERROR.getCode()));
         assertThat(error).isTrue();
     }
 
@@ -358,7 +358,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, null);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -386,7 +386,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
-        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_IN_DISTRICT_ERROR.getCode()));
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_ERROR.getCode()));
         assertThat(error).isTrue();
     }
 
@@ -400,7 +400,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-        createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, null);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -429,7 +429,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
-        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_IN_DISTRICT_ERROR.getCode()));
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_ERROR.getCode()));
         assertThat(error).isTrue();
     }
 
@@ -444,7 +444,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-        createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, null);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -473,7 +473,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
-        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_IN_DISTRICT_ERROR.getCode()));
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_ERROR.getCode()));
         assertThat(error).isTrue();
     }
 
@@ -514,7 +514,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
-        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_IN_DISTRICT_ERROR.getCode()));
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_ERROR.getCode()));
         assertThat(error).isFalse();
     }
 
@@ -572,7 +572,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, null);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -660,7 +660,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, null);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -704,7 +704,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, null);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -748,7 +748,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-        createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, null);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -792,7 +792,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-        createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, null);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -840,6 +840,8 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
         collection.setCloseDate(currentCloseDate);
         collectionRepository.save(collection);
+        LocalDate mayCloseDate = LocalDate.parse(LocalDate.now().getYear() + "-05-30");
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, new BigDecimal(0));
 
         SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
         sdcDistrictCollectionRepository.save(sdcDistrictCollection);
@@ -883,7 +885,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
         LocalDate mayCloseDate = LocalDate.parse(LocalDate.now().getYear() + "-05-30");
 
-        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, null);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -919,11 +921,12 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
     }
 
 
-    private void createHistoricalCollectionWithStudent(String collectionTypeCode, LocalDateTime collectionCloseDate, UUID assignedStudentID, UUID districtID, UUID schoolID) {
+    private void createHistoricalCollectionWithStudent(String collectionTypeCode, LocalDateTime collectionCloseDate, UUID assignedStudentID, UUID districtID, UUID schoolID, BigDecimal fte) {
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(collectionTypeCode);
         collection.setCloseDate(collectionCloseDate);
         collection.setCollectionStatusCode("COMPLETED");
+        collection.setSnapshotDate(LocalDate.now().minusWeeks(10));
         collectionRepository.save(collection);
 
         SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, districtID);
@@ -935,7 +938,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         entity.setAssignedStudentId(assignedStudentID);
         entity.setEnrolledGradeCode("08");
-        entity.setFte(BigDecimal.valueOf(1.00));
+        entity.setFte(fte != null ? fte : BigDecimal.valueOf(1.00));
         sdcSchoolCollectionStudentRepository.save(entity);
     }
 
@@ -949,7 +952,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
 
-        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, null);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -1017,7 +1020,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         UUID schoolId = UUID.fromString(school.getSchoolId());
         LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
 
-        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId);
+        createHistoricalCollectionWithStudent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, null);
 
         var collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(JULY.getTypeCode());
@@ -1046,7 +1049,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
-        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_REPORTED_IN_DISTRICT_ERROR.getCode()));
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_ERROR.getCode()));
         assertThat(error).isFalse();
     }
 

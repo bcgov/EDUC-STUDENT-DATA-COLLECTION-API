@@ -59,6 +59,13 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
                 Objects.requireNonNull(getClass().getClassLoader().getResource("sdc-student-saga-data.json")).getFile()
         );
         studentData = new ObjectMapper().readValue(file, StudentRuleData.class);
+        CollectionEntity collection = new CollectionEntity();
+        collection.setCollectionID(UUID.randomUUID());
+        collection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        collection.setSnapshotDate(LocalDate.now());
+        SdcSchoolCollectionEntity sdcSchoolCollection = new SdcSchoolCollectionEntity();
+        sdcSchoolCollection.setCollectionEntity(collection);
+        studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollection);
     }
 
     @Test
