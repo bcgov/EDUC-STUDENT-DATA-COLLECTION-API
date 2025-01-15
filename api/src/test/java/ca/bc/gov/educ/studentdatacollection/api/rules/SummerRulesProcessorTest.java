@@ -852,7 +852,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
         school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
-        school.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
+        school.setFacilityTypeCode(FacilityTypeCodes.SUMMER.getCode());
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
         when(this.restUtils.getPenMatchResult(any(), any(), anyString())).thenReturn(penMatchResult);

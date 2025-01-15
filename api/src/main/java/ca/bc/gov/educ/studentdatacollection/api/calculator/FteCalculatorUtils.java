@@ -1,5 +1,8 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationFieldCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
@@ -262,15 +265,12 @@ public class FteCalculatorUtils {
     public boolean reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(StudentRuleData studentRuleData) {
         validationRulesService.setupMergedStudentIdValues(studentRuleData);
         List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getHistoricStudentIds(), "3");
+        historicalCollections.add(studentRuleData.getSdcSchoolCollectionStudentEntity());
 
         for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
-            String schoolId = studentEntity.getSdcSchoolCollection().getSchoolID().toString();
-            Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolId);
+            Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
             if (school.isPresent() && FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode())) {
-                BigDecimal fte = studentEntity.getFte();
-                if (fte != null && fte.compareTo(BigDecimal.ZERO) > 0) {
-                    return true;
-                }
+                return true;
             }
         }
         return false;
@@ -278,9 +278,7 @@ public class FteCalculatorUtils {
 
     public boolean reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(StudentRuleData studentRuleData) {
         validationRulesService.setupMergedStudentIdValues(studentRuleData);
-        String noOfCollectionsForLookup = "3";
-        List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
-        return !entity.isEmpty();
+        return validationRulesService.studentExistsInCurrentFiscalInGrade8Or9(studentRuleData);
     }
 
     private LocalDate getFiscalDateFromCurrentSnapshot(LocalDate currentSnapshotDate){

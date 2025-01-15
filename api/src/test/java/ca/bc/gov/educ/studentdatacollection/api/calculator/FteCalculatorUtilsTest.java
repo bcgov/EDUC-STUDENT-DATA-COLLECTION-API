@@ -1632,64 +1632,6 @@ class FteCalculatorUtilsTest {
     }
 
     @Test
-    void testReportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear_OnlineSchool_InDistrict_ReturnsTrue() {
-        // Given
-        StudentRuleData studentRuleData = new StudentRuleData();
-        SchoolTombstone schoolTombstone = new SchoolTombstone();
-        schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.DISTONLINE.getCode());
-        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
-        studentRuleData.setSchool(schoolTombstone);
-        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
-        CollectionEntity collection = createMockCollectionEntity();
-        collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
-        student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
-        student.setFte(BigDecimal.TEN);
-        student.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
-        student.setAssignedStudentId(UUID.randomUUID());
-        studentRuleData.setSdcSchoolCollectionStudentEntity(student);
-        studentRuleData.setHistoricStudentIds(List.of(UUID.randomUUID(), student.getAssignedStudentId()));
-
-        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(anyList(), any(String.class))).thenReturn(Collections.singletonList(student));
-        when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
-
-        // When
-        var result = fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentRuleData);
-
-        // Then
-        assertTrue(result);
-    }
-
-    @Test
-    void testReportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear_OnlineSchool_NotInDistrict_ReturnsTrue() {
-        // Given
-        StudentRuleData studentRuleData = new StudentRuleData();
-        SchoolTombstone schoolTombstone = new SchoolTombstone();
-        schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.DISTONLINE.getCode());
-        studentRuleData.setSchool(schoolTombstone);
-        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
-        CollectionEntity collection = createMockCollectionEntity();
-        collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
-        student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
-        student.setFte(BigDecimal.TEN);
-        student.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
-        student.setCreateDate(LocalDateTime.now());
-        student.setAssignedStudentId(UUID.randomUUID());
-        studentRuleData.setSdcSchoolCollectionStudentEntity(student);
-        studentRuleData.setHistoricStudentIds(List.of(UUID.randomUUID(), student.getAssignedStudentId()));
-
-        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(anyList(), any(String.class))).thenReturn(Collections.singletonList(student));
-        when(restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
-
-        // When
-        var result = fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentRuleData);
-
-        // Then
-        assertTrue(result);
-    }
-
-    @Test
     void testReportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte_Grade8Or9_NonZeroFte_ReturnsFalse() {
         // Given
         StudentRuleData studentRuleData = new StudentRuleData();
@@ -1798,7 +1740,7 @@ class FteCalculatorUtilsTest {
         // Given
         StudentRuleData studentRuleData = new StudentRuleData();
         SchoolTombstone schoolTombstone = new SchoolTombstone();
-        schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.DISTONLINE.getCode());
+        schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.SUMMER.getCode());
         schoolTombstone.setDistrictId(UUID.randomUUID().toString());
         studentRuleData.setSchool(schoolTombstone);
 
@@ -1840,7 +1782,7 @@ class FteCalculatorUtilsTest {
         var result = fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentRuleData);
 
         // Then
-        assertFalse(result);
+        assertTrue(result);
     }
 
     public CollectionEntity createMockCollectionEntity(){

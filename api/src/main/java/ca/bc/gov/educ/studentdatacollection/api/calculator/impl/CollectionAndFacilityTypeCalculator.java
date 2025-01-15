@@ -59,8 +59,8 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
 
             // v99
             // The student was not reported in grade 8 or 9 with FTE>0 in any other districts in any previous collections this school year.
-            var reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte = fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData);
-            if (reportedInAnyPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte) {
+            var studentExistsInCurrentFiscalInGrade8Or9 = fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData);
+            if (!studentExistsInCurrentFiscalInGrade8Or9) {
                 log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; Student was not reported in Grade 8 or 9 outside of district this school year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 fteCalculationResult.setFte(BigDecimal.ZERO);
                 fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.NOT_REPORTED.getCode());
