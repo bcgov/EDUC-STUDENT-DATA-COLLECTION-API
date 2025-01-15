@@ -976,11 +976,17 @@ class FteCalculatorUtilsTest {
         schoolTombstone.setFacilityTypeCode(facilityTypeCode);
 
         SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
+        var mockCollection1 = createMockCollectionEntity();
+        mockCollection1.setSnapshotDate(LocalDate.now().minusYears(1));
+        schoolCollection1.setCollectionEntity(mockCollection1);
         schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
         schoolCollection1.setSchoolID(schoolId);
         schoolCollection1.setCreateDate(studentCreateDate.minusYears(1)); // One year ago
 
         SdcSchoolCollectionEntity schoolCollection2 = new SdcSchoolCollectionEntity();
+        var mockCollection2 = createMockCollectionEntity();
+        mockCollection2.setSnapshotDate(LocalDate.now().minusYears(2));
+        schoolCollection1.setCollectionEntity(mockCollection2);
         schoolCollection2.setSdcSchoolCollectionID(UUID.randomUUID());
         schoolCollection2.setSchoolID(schoolId);
         schoolCollection2.setCreateDate(studentCreateDate.minusYears(2)); // Two years ago
@@ -1000,7 +1006,7 @@ class FteCalculatorUtilsTest {
         studentData.setSdcSchoolCollectionStudentEntity(student);
         studentData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any(), any()))
                 .thenReturn(lastTwoYearsOfCollections);
         when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(anyList(), anyList(), any(String.class)))
                 .thenReturn(0L);
@@ -1026,11 +1032,17 @@ class FteCalculatorUtilsTest {
         schoolTombstone.setFacilityTypeCode(facilityTypeCode);
 
         SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
+        var mockCollection1 = createMockCollectionEntity();
+        mockCollection1.setSnapshotDate(LocalDate.now().minusYears(1));
+        schoolCollection1.setCollectionEntity(mockCollection1);
         schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
         schoolCollection1.setSchoolID(schoolId);
         schoolCollection1.setCreateDate(studentCreateDate.minusYears(1)); // One year ago
 
         SdcSchoolCollectionEntity schoolCollection2 = new SdcSchoolCollectionEntity();
+        var mockCollection2 = createMockCollectionEntity();
+        mockCollection2.setSnapshotDate(LocalDate.now().minusYears(2));
+        schoolCollection1.setCollectionEntity(mockCollection2);
         schoolCollection2.setSdcSchoolCollectionID(UUID.randomUUID());
         schoolCollection2.setSchoolID(schoolId);
         schoolCollection2.setCreateDate(studentCreateDate.minusYears(2)); // Two years ago
@@ -1050,7 +1062,7 @@ class FteCalculatorUtilsTest {
         student.setSdcSchoolCollection(schoolCollection1);
         studentData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any(), any()))
                 .thenReturn(lastTwoYearsOfCollections);
         when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(anyList(), anyList(), any(String.class)))
                 .thenReturn(0L);
@@ -1076,11 +1088,17 @@ class FteCalculatorUtilsTest {
         schoolTombstone.setFacilityTypeCode(facilityTypeCode);
 
         SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
+        var mockCollection1 = createMockCollectionEntity();
+        mockCollection1.setSnapshotDate(LocalDate.now().minusYears(1));
+        schoolCollection1.setCollectionEntity(mockCollection1);
         schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
         schoolCollection1.setSchoolID(schoolId);
         schoolCollection1.setCreateDate(studentCreateDate.minusYears(1)); // One year ago
 
         SdcSchoolCollectionEntity schoolCollection2 = new SdcSchoolCollectionEntity();
+        var mockCollection2 = createMockCollectionEntity();
+        mockCollection2.setSnapshotDate(LocalDate.now().minusYears(2));
+        schoolCollection1.setCollectionEntity(mockCollection2);
         schoolCollection2.setSdcSchoolCollectionID(UUID.randomUUID());
         schoolCollection2.setSchoolID(schoolId);
         schoolCollection2.setCreateDate(studentCreateDate.minusYears(2)); // Two years ago
@@ -1100,7 +1118,7 @@ class FteCalculatorUtilsTest {
         student.setSdcSchoolCollection(schoolCollection1);
         studentData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any(), any()))
                 .thenReturn(lastTwoYearsOfCollections);
         when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(anyList(), anyList(), any(String.class)))
                 .thenReturn(1L);
@@ -1146,11 +1164,17 @@ class FteCalculatorUtilsTest {
         schoolTombstone.setFacilityTypeCode(facilityTypeCode);
 
         SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
+        var mockCollection1 = createMockCollectionEntity();
+        mockCollection1.setSnapshotDate(LocalDate.now().minusYears(1));
+        schoolCollection1.setCollectionEntity(mockCollection1);
         schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
         schoolCollection1.setSchoolID(schoolId);
         schoolCollection1.setCreateDate(studentCreateDate.minusYears(1)); // One year ago
 
         SdcSchoolCollectionEntity schoolCollection2 = new SdcSchoolCollectionEntity();
+        var mockCollection2 = createMockCollectionEntity();
+        mockCollection2.setSnapshotDate(LocalDate.now().minusYears(2));
+        schoolCollection1.setCollectionEntity(mockCollection2);
         schoolCollection2.setSdcSchoolCollectionID(UUID.randomUUID());
         schoolCollection2.setSchoolID(schoolId);
         schoolCollection2.setCreateDate(studentCreateDate.minusYears(2)); // Two years ago
@@ -1168,7 +1192,7 @@ class FteCalculatorUtilsTest {
         student.setSdcSchoolCollection(schoolCollection1);
         studentData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any(), any()))
                 .thenReturn(List.of());
         when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(anyList(), anyList(), any(String.class)))
                 .thenReturn(1L);
@@ -1202,11 +1226,17 @@ class FteCalculatorUtilsTest {
         schoolTombstone.setFacilityTypeCode(facilityTypeCode);
 
         SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
+        var mockCollection1 = createMockCollectionEntity();
+        mockCollection1.setSnapshotDate(LocalDate.now().minusYears(1));
+        schoolCollection1.setCollectionEntity(mockCollection1);
         schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
         schoolCollection1.setSchoolID(schoolId);
         schoolCollection1.setCreateDate(studentCreateDate.minusYears(1)); // One year ago
 
         SdcSchoolCollectionEntity schoolCollection2 = new SdcSchoolCollectionEntity();
+        var mockCollection2 = createMockCollectionEntity();
+        mockCollection2.setSnapshotDate(LocalDate.now().minusYears(2));
+        schoolCollection1.setCollectionEntity(mockCollection2);
         schoolCollection2.setSdcSchoolCollectionID(UUID.randomUUID());
         schoolCollection2.setSchoolID(schoolId);
         schoolCollection2.setCreateDate(studentCreateDate.minusYears(2)); // Two years ago
@@ -1226,7 +1256,7 @@ class FteCalculatorUtilsTest {
         student.setSdcSchoolCollection(schoolCollection1);
         studentData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any(), any()))
                 .thenReturn(lastTwoYearsOfCollections);
         when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(anyList(), anyList(), any(String.class)))
                 .thenReturn(0L);
@@ -1271,11 +1301,17 @@ class FteCalculatorUtilsTest {
         schoolTombstone.setFacilityTypeCode(facilityTypeCode);
 
         SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
+        var mockCollection1 = createMockCollectionEntity();
+        mockCollection1.setSnapshotDate(LocalDate.now().minusYears(2));
+        schoolCollection1.setCollectionEntity(mockCollection1);
         schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
         schoolCollection1.setSchoolID(schoolId);
         schoolCollection1.setCreateDate(studentCreateDate.minusYears(1)); // One year ago
 
         SdcSchoolCollectionEntity schoolCollection2 = new SdcSchoolCollectionEntity();
+        var mockCollection2 = createMockCollectionEntity();
+        mockCollection2.setSnapshotDate(LocalDate.now().minusYears(2));
+        schoolCollection1.setCollectionEntity(mockCollection2);
         schoolCollection2.setSdcSchoolCollectionID(UUID.randomUUID());
         schoolCollection2.setSchoolID(schoolId);
         schoolCollection2.setCreateDate(studentCreateDate.minusYears(2)); // Two years ago
@@ -1295,7 +1331,7 @@ class FteCalculatorUtilsTest {
         student.setSdcSchoolCollection(schoolCollection1);
         studentData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any(), any()))
                 .thenReturn(lastTwoYearsOfCollections);
         when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(anyList(), anyList(), any(String.class)))
                 .thenReturn(0L);
@@ -1320,11 +1356,17 @@ class FteCalculatorUtilsTest {
         schoolTombstone.setFacilityTypeCode(facilityTypeCode);
 
         SdcSchoolCollectionEntity schoolCollection1 = new SdcSchoolCollectionEntity();
+        var mockCollection1 = createMockCollectionEntity();
+        mockCollection1.setSnapshotDate(LocalDate.now().minusYears(1));
+        schoolCollection1.setCollectionEntity(mockCollection1);
         schoolCollection1.setSdcSchoolCollectionID(UUID.randomUUID());
         schoolCollection1.setSchoolID(schoolId);
         schoolCollection1.setCreateDate(studentCreateDate.minusYears(1)); // One year ago
 
         SdcSchoolCollectionEntity schoolCollection2 = new SdcSchoolCollectionEntity();
+        var mockCollection2 = createMockCollectionEntity();
+        mockCollection2.setSnapshotDate(LocalDate.now().minusYears(2));
+        schoolCollection1.setCollectionEntity(mockCollection2);
         schoolCollection2.setSdcSchoolCollectionID(UUID.randomUUID());
         schoolCollection2.setSchoolID(schoolId);
         schoolCollection2.setCreateDate(studentCreateDate.minusYears(2)); // Two years ago
@@ -1343,7 +1385,7 @@ class FteCalculatorUtilsTest {
         student.setSdcSchoolCollection(schoolCollection1);
         studentData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any()))
+        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any(), any()))
                 .thenReturn(lastTwoYearsOfCollections);
         when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(anyList(), anyList(), any(String.class)))
                 .thenReturn(0L);

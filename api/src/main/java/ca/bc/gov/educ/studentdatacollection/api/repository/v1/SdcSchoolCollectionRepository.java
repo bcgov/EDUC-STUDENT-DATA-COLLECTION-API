@@ -39,9 +39,10 @@ public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCo
             where col.collection_id = ssoc.collection_id
             and ssoc.sdc_school_collection_id = :sdcCollectionID
             )
+            AND C.snapshot_date < :snapshotDate
             AND ssc.sdc_school_collection_id != :sdcCollectionID"""
             , nativeQuery = true)
-    List<SdcSchoolCollectionEntity> findAllCollectionsForSchoolInLastTwoYears(UUID schoolId, UUID sdcCollectionID);
+    List<SdcSchoolCollectionEntity> findAllCollectionsForSchoolInLastTwoYears(UUID schoolId, UUID sdcCollectionID, LocalDate snapshotDate);
 
     @Query("""
     SELECT
