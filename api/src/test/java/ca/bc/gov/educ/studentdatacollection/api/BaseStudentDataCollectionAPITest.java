@@ -556,6 +556,7 @@ public abstract class BaseStudentDataCollectionAPITest {
     LocalDateTime historicalOpenDate = currentCollectionOpenDate.minusYears(yearsAgo);
     CollectionEntity historicalCollectionEntity = createMockCollectionEntity();
     historicalCollectionEntity.setOpenDate(historicalOpenDate);
+    historicalCollectionEntity.setSnapshotDate(LocalDate.from(historicalOpenDate.plusDays(20)));
     collectionRepository.save(historicalCollectionEntity);
 
     SdcSchoolCollectionEntity historicalSdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(historicalCollectionEntity, schoolID);

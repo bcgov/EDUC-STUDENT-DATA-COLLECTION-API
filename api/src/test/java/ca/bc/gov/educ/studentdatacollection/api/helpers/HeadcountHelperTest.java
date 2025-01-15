@@ -171,7 +171,7 @@ class HeadcountHelperTest {
     schoolCollectionEntity.setCreateDate(createDate);
     schoolCollectionEntity.setCollectionEntity(collectionEntity);
 
-    when(schoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(eq(schoolId), any()))
+    when(schoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(eq(schoolId), any(), any()))
             .thenReturn(new ArrayList<>());
 
     // When
@@ -195,7 +195,7 @@ class HeadcountHelperTest {
     schoolCollectionEntity.setCreateDate(createDate);
     schoolCollectionEntity.setCollectionEntity(collectionEntity);
 
-    when(schoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(eq(schoolId), any()))
+    when(schoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(eq(schoolId), any(), any()))
             .thenReturn(new ArrayList<>());
 
     // When
