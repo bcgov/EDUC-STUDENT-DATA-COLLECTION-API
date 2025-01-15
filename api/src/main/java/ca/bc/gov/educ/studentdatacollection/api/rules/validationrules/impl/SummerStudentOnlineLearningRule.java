@@ -73,7 +73,7 @@ public class SummerStudentOnlineLearningRule implements ValidationBaseRule {
                 if (school.isPresent() && FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode())) {
                     BigDecimal fte = studentEntity.getFte();
 
-                    if (fte != null && fte.compareTo(BigDecimal.ZERO) >= 0) {
+                    if (fte != null && fte.compareTo(BigDecimal.ZERO) > 0) {
                         isOnlineRegistered = true;
                         break;
                     }

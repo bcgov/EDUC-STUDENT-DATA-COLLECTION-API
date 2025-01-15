@@ -66,8 +66,8 @@ public class SpecialEducationProgramsRule implements ProgramEligibilityBaseRule 
             &&  SchoolFundingCodes.STATUS_FIRST_NATION.getCode().equals(student.getSchoolFundingCode())) {
       log.debug("ProgramEligibilityBaseRule - SpecialEducationProgramsRule: SchoolCategoryCode - {}, SchoolFundingCode - {}, for sdcSchoolCollectionStudentID :: {}", studentRuleData.getSchool().getSchoolCategoryCode(), student.getSchoolFundingCode(), studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
       errors.add(ProgramEligibilityIssueCode.INDP_FIRST_NATION_SPED);
-    } else if(collectionType.equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode()) && onlineFacilityCodes.contains(facilityType) &&
-            historicalStudents.stream().anyMatch(stu -> stu.getFte().compareTo(BigDecimal.ZERO) > 0 && stu.getSpecialEducationNonEligReasonCode() == null)) {
+    } else if(student.getFte() != null && collectionType.equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode()) && onlineFacilityCodes.contains(facilityType) &&
+            (historicalStudents.isEmpty() || historicalStudents.stream().anyMatch(stu -> stu.getFte().compareTo(BigDecimal.ZERO) == 0)) && student.getFte().compareTo(BigDecimal.ZERO) == 0) {
       log.debug("ProgramEligibilityBaseRule - SpecialEducationProgramsRule: CollectionTypeCodes - {}, facilityType - {}, for sdcSchoolCollectionStudentID :: {}", collectionType, facilityType, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
       errors.add(ProgramEligibilityIssueCode.FEB_ONLINE_WITH_HISTORICAL_FUNDING);
     }

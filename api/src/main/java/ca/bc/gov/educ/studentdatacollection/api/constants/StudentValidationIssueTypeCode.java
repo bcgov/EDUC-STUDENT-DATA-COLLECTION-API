@@ -100,7 +100,7 @@ public enum StudentValidationIssueTypeCode {
   REFUGEE_IN_PREV_COL("REFUGEEINPREVCOL", "School-aged students reported in the previous collection are not eligible for newcomer refugee funding.", FUNDING_WARNING),
   REFUGEE_IS_ADULT("REFUGEEISADULT", "Adults are not eligible for February newcomer refugee funding.", FUNDING_WARNING),
   SUMMER_PUBLIC_SCHOOL_GRADE_ERROR("SUMMERPUBLICSCHOOLGRADEERROR","8/9 cross enrolment students must be in grades 8 or 9", ERROR),
-  SUMMER_STUDENT_REPORTED_IN_DISTRICT_ERROR("SUMMERSTUDENTREPORTEDINDISTRICTERROR","The student has already been reported by the district during the current school year.", ERROR),
+  SUMMER_STUDENT_ALREADY_REPORTED_ERROR("SUMMERSTUDENTREPORTEDINDISTRICTERROR","The student has already been reported during the current school year.", ERROR),
   SUMMER_STUDENT_REPORTED_NOT_IN_DISTRICT_ERROR("SUMMERSTUDENTREPORTEDNOTINDISTRICTERROR","Student was not reported in Grade 8 or 9 this school year and cannot be reported in 8/9 cross enrolment in this collection.", FUNDING_WARNING),
   SUMMER_ADULT_STUDENT_ERROR("SUMMERADULTSTUDENTERROR","Adult students cannot be reported in 8/9 cross enrolment", ERROR),
   SUMMER_FUNDING_CODE_ERROR("SUMMERFUNDINGCODEERROR","Out of Province/International students cannot be reported in Summer collection", ERROR),
