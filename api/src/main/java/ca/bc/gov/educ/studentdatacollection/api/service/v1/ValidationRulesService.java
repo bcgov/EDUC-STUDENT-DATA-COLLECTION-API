@@ -192,10 +192,10 @@ public class ValidationRulesService {
         return sdcSchoolStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
     }
 
-    public boolean findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(StudentRuleData studentRuleData) {
+    public boolean findStudentInCurrentFiscalInGrade8Or9(StudentRuleData studentRuleData) {
         setupMergedStudentIdValues(studentRuleData);
         String noOfCollectionsForLookup = "3";
-        List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
+        List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolStudentRepository.findStudentInCurrentFiscalInGrade8Or9(studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
         return !entity.isEmpty();
     }
 }
