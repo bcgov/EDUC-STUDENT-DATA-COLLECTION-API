@@ -1143,6 +1143,20 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
        """)
   List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalWithInSameDistrict(UUID districtID, List<UUID> assignedStudentIDs, String noOfCollections, UUID collectionID, LocalDate snapshotDate);
 
+  @Query(value="""
+       SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS
+       WHERE C.collectionID = SSC.collectionEntity.collectionID
+       AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
+       AND SSCS.assignedStudentId in :assignedStudentIDs
+       AND C.collectionID != :collectionID
+       AND SSCS.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+       AND SSC.sdcDistrictCollectionID IS null
+       AND C.collectionID IN
+       (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' AND CE.snapshotDate < :snapshotDate ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
+       """)
+  List<SdcSchoolCollectionStudentEntity> findIndyStudentInCurrentFiscal(List<UUID> assignedStudentIDs, String noOfCollections, UUID collectionID, LocalDate snapshotDate);
+
+
 
   @Query(value="""
          SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS

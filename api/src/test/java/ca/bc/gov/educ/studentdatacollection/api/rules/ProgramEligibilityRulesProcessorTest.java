@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -858,12 +859,15 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     mockCollection.setCloseDate(LocalDateTime.now().plusDays(2));
     CollectionEntity collection = collectionRepository.save(mockCollection);
 
+    var mockAuth = createMockAuthority();
     SchoolTombstone school = createMockSchool();
     District district = createMockDistrict();
     school.setDistrictId(district.getDistrictId());
+    school.setIndependentAuthorityId(mockAuth.getIndependentAuthorityId());
     UUID schoolId = UUID.fromString(school.getSchoolId());
     doReturn(Optional.of(school)).when(restUtils).getSchoolBySchoolID(schoolId.toString());
-    createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(LocalDate.parse((LocalDate.now().getYear() - 1) + "-09-30"), LocalTime.MIDNIGHT), assignedStudentID, UUID.fromString(district.getDistrictId()), schoolId, new BigDecimal(0));
+    when(restUtils.getSchoolIDsByIndependentAuthorityID(anyString())).thenReturn(Optional.of(Collections.singletonList(schoolId)));
+    createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(), LocalDateTime.of(LocalDate.parse((LocalDate.now().getYear() - 1) + "-09-30"), LocalTime.MIDNIGHT), assignedStudentID, null, schoolId, new BigDecimal(0));
 
     SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
     sdcDistrictCollectionRepository.save(sdcDistrictCollection);
@@ -876,8 +880,9 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     entity.setAssignedStudentId(assignedStudentID);
     entity.setEnrolledGradeCode("08");
     entity.setFte(BigDecimal.ZERO);
+    entity.setSchoolFundingCode(null);
 
-    school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+    school.setSchoolCategoryCode(SchoolCategoryCodes.INDEPEND.getCode());
     school.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
 
     PenMatchResult penMatchResult = getPenMatchResult();
@@ -950,12 +955,14 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     collection.setSnapshotDate(LocalDate.from(collectionCloseDate.minusDays(10)));
     collection.setCollectionStatusCode("COMPLETED");
     collectionRepository.save(collection);
-
-    SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, districtID);
-    sdcDistrictCollectionRepository.save(sdcDistrictCollection);
+    SdcDistrictCollectionEntity sdcDistrictCollection = null;
+    if(districtID != null) {
+      sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, districtID);
+      sdcDistrictCollectionRepository.save(sdcDistrictCollection);
+    }
 
     var sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, schoolID);
-    sdcSchoolCollectionEntity.setSdcDistrictCollectionID(sdcDistrictCollection.getSdcDistrictCollectionID());
+    sdcSchoolCollectionEntity.setSdcDistrictCollectionID(sdcDistrictCollection != null ? sdcDistrictCollection.getSdcDistrictCollectionID() : null);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
     val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
     entity.setAssignedStudentId(assignedStudentID);
