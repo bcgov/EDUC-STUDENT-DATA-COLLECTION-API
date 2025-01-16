@@ -187,6 +187,18 @@ public class ValidationRulesService {
         return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup, collection.getCollectionID(), collection.getSnapshotDate());
     }
 
+    public List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscal(StudentRuleData studentRuleData, String noOfCollectionsForLookup) {
+        setupMergedStudentIdValues(studentRuleData);
+        var collection = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity();
+        return sdcSchoolStudentRepository.findStudentInCurrentFiscal(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup, collection.getCollectionID(), collection.getSnapshotDate());
+    }
+
+    public List<SdcSchoolCollectionStudentEntity> findIndyStudentInCurrentFiscal(StudentRuleData studentRuleData, String noOfCollectionsForLookup) {
+        setupMergedStudentIdValues(studentRuleData);
+        var collection = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity();
+        return sdcSchoolStudentRepository.findIndyStudentInCurrentFiscal(studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup, collection.getCollectionID(), collection.getSnapshotDate());
+    }
+
     public List<SdcSchoolCollectionStudentEntity> getStudentInHistoricalCollectionInAllDistrict(StudentRuleData studentRuleData) {
         setupMergedStudentIdValues(studentRuleData);
         String noOfCollectionsForLookup = "3";

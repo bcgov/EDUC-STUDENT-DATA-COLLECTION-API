@@ -32,7 +32,8 @@ public class FteCalculatorChainProcessor {
        String collectionType = student.getSdcSchoolCollection().getCollectionEntity().getCollectionTypeCode();
        String facilityType = studentRuleData.getSchool().getFacilityTypeCode();
        var onlineFacilityCodes = Arrays.asList(FacilityTypeCodes.DISTONLINE.getCode(), FacilityTypeCodes.DIST_LEARN.getCode());
-       var historicalStudents = validationRulesService.getStudentInHistoricalCollectionWithInSameDistrict(studentRuleData, "1");
+       var historicalStudentsWithinSameDistrict = validationRulesService.findStudentInCurrentFiscal(studentRuleData, "1");
+       var historicalIndyStudents = validationRulesService.findIndyStudentInCurrentFiscal(studentRuleData, "1");
 
        for (int i = 0; i < fteCalculators.size() - 1; i++) {
            FteCalculator currentCalculator = fteCalculators.get(i);
@@ -41,7 +42,10 @@ public class FteCalculatorChainProcessor {
        }
        var fteResult = fteCalculators.get(0).calculateFte(studentRuleData);
        if(student.getFte() != null && collectionType.equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode()) && onlineFacilityCodes.contains(facilityType) &&
-            (historicalStudents.isEmpty() || historicalStudents.stream().anyMatch(stu -> stu.getFte().compareTo(BigDecimal.ZERO) == 0)) && student.getFte().compareTo(BigDecimal.ZERO) == 0) {
+               (historicalStudentsWithinSameDistrict.isEmpty() || historicalIndyStudents.isEmpty()
+                       || historicalStudentsWithinSameDistrict.stream().anyMatch(stu -> stu.getFte().compareTo(BigDecimal.ZERO) == 0)
+                       || historicalIndyStudents.stream().anyMatch(stu -> stu.getFte().compareTo(BigDecimal.ZERO) == 0))
+               && student.getFte().compareTo(BigDecimal.ZERO) == 0) {
           log.debug("ProgramEligibilityBaseRule - SpecialEducationProgramsRule: CollectionTypeCodes - {}, facilityType - {}, for sdcSchoolCollectionStudentID :: {}", collectionType, facilityType, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
           studentRuleData.getSdcSchoolCollectionStudentEntity().setSpecialEducationNonEligReasonCode(ProgramEligibilityIssueCode.FEB_ONLINE_WITH_HISTORICAL_FUNDING.getCode());
        }
