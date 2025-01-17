@@ -48,15 +48,15 @@ public class HeadcountHelper<T extends HeadcountResult> {
 
   public void setComparisonValues(List<HeadcountHeader> headcountHeaderList, List<HeadcountHeader> previousHeadcountHeaderList) {
     IntStream.range(0, headcountHeaderList.size())
-            .forEach(i -> {
-              HeadcountHeader currentHeader = headcountHeaderList.get(i);
-              HeadcountHeader previousHeader = previousHeadcountHeaderList.get(i);
+      .forEach(i -> {
+        HeadcountHeader currentHeader = headcountHeaderList.get(i);
+        HeadcountHeader previousHeader = previousHeadcountHeaderList.get(i);
 
-              currentHeader.getColumns().forEach((columnName, currentColumn) -> {
-                HeadcountHeaderColumn previousColumn = previousHeader.getColumns().get(columnName);
-                currentColumn.setComparisonValue(previousColumn.getCurrentValue());
-              });
-            });
+        currentHeader.getColumns().forEach((columnName, currentColumn) -> {
+          HeadcountHeaderColumn previousColumn = previousHeader.getColumns().get(columnName);
+          currentColumn.setComparisonValue(previousColumn.getCurrentValue());
+        });
+      });
   }
 
   public void setResultsTableComparisonValues(HeadcountResultsTable collectionData, HeadcountResultsTable previousCollectionData) {
