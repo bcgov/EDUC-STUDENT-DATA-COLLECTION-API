@@ -59,8 +59,8 @@ public class EllHeadcountPerSchoolReportService extends BaseReportGenerationServ
 
     private void compileJasperReports() {
         try {
-            InputStream inputSpecialEdHeadcount = getClass().getResourceAsStream("/reports/specialEdHeadcountsPerSchool.jrxml");
-            ellHeadcountPerSchoolReport = JasperCompileManager.compileReport(inputSpecialEdHeadcount);
+            InputStream inputEllEdHeadcount = getClass().getResourceAsStream("/reports/ellHeadcountsPerSchool.jrxml");
+            ellHeadcountPerSchoolReport = JasperCompileManager.compileReport(inputEllEdHeadcount);
         } catch (JRException e) {
             throw new StudentDataCollectionAPIRuntimeException("Compiling Jasper reports has failed :: " + e.getMessage());
         }
