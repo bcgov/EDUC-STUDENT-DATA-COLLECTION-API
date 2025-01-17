@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -222,8 +223,11 @@ public class EventTaskSchedulerAsyncService {
   public void findAllUnsubmittedIndependentSchoolsInCurrentCollection() {
     final Optional<CollectionEntity> activeCollectionOptional = collectionRepository.findActiveCollection();
     CollectionEntity activeCollection = activeCollectionOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "activeCollection"));
+    LocalDate currentDate = LocalDate.now();
 
-    if (activeCollection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())) {
+    if (activeCollection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
+            || !activeCollection.getCollectionStatusCode().equalsIgnoreCase(CollectionStatus.INPROGRESS.getCode())
+            || currentDate.isBefore(activeCollection.getSnapshotDate())) {
       return;
     }
 

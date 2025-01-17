@@ -65,8 +65,7 @@ public class ScheduleHandlerService {
       var principalEmails = getPrincipalEmailsForSchool(sdcSchoolCollection.getSchoolID());
 
       if(!principalEmails.isEmpty()) {
-        if ((sdcSchoolCollection.getSdcSchoolCollectionStatusCode().equals(SdcSchoolCollectionStatus.NEW.getCode())) &&
-                (sagaRepository.findBySdcSchoolCollectionIDAndSagaNameAndStatusEquals(sdcSchoolCollection.getSdcSchoolCollectionID(), SagaEnum.INDY_SCHOOLS_NO_ACTIVITY_EMAIL_SAGA.name(), SagaStatusEnum.COMPLETED.toString()).isEmpty())) {
+        if (sdcSchoolCollection.getSdcSchoolCollectionStatusCode().equals(SdcSchoolCollectionStatus.NEW.getCode())) {
           var emailSagaData = createEmailSagaData(emailProperties.getSchoolNotificationEmailFrom(), principalEmails, emailProperties.getEmailSubjectIndependentSchoolNoActivity(), "collection.independent.school.no.activity.notification", emailFields);
 
           String payload;
@@ -77,8 +76,7 @@ public class ScheduleHandlerService {
           }
           final var saga = createSagaEntity(sdcSchoolCollection.getSdcSchoolCollectionID(), payload, SagaEnum.INDY_SCHOOLS_NO_ACTIVITY_EMAIL_SAGA);
           sagaEntities.add(saga);
-        } else if ((!sdcSchoolCollection.getSdcSchoolCollectionStatusCode().equals(SdcSchoolCollectionStatus.NEW.getCode())) &&
-                (sagaRepository.findBySdcSchoolCollectionIDAndSagaNameAndStatusEquals(sdcSchoolCollection.getSdcSchoolCollectionID(), SagaEnum.INDY_SCHOOLS_NOT_SUBMITTED_EMAIL_SAGA.name(), SagaStatusEnum.COMPLETED.toString()).isEmpty())) {
+        } else if (!sdcSchoolCollection.getSdcSchoolCollectionStatusCode().equals(SdcSchoolCollectionStatus.NEW.getCode())) {
           var emailSagaData = createEmailSagaData(emailProperties.getSchoolNotificationEmailFrom(), principalEmails, emailProperties.getEmailSubjectIndependentSchoolNotSubmitted(), "collection.independent.school.not.submitted.notification", emailFields);
           String payload;
           try {
