@@ -87,7 +87,7 @@ public class FrenchCombinedHeadcountHelper extends HeadcountHelper<FrenchCombine
         HeadcountResultsTable previousCollectionData = convertHeadcountResultsToSchoolGradeTable(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawDataForHeadcount);
         List<HeadcountHeader> previousHeadcountHeaderList = this.getHeaders(previousCollectionID);
         setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
-        setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
+        setResultsTableComparisonValuesDynamicNested(collectionData, previousCollectionData);
     }
 
     public HeadcountResultsTable convertHeadcountResultsToSchoolGradeTable(UUID sdcDistrictCollectionID, List<FrenchCombinedHeadcountResult> results) throws EntityNotFoundException {

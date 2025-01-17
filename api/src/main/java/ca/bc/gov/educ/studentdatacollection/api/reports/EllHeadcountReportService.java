@@ -101,7 +101,7 @@ public class EllHeadcountReportService extends BaseReportGenerationService<EllHe
   }
 
   private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix, boolean includeKH){
-    nodeMap.put(sectionPrefix + "Heading", new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, includeKH));
+    nodeMap.put(sectionPrefix + "Heading", new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, true, includeKH));
   }
 
   public void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, EllHeadcountResult gradeResult){
