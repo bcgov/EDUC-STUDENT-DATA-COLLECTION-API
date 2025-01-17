@@ -201,6 +201,14 @@
 			<property name="net.sf.jasperreports.json.field.expression" value="valueGradeSU"/>
 			<fieldDescription><![CDATA[programs.valueGradeSU]]></fieldDescription>
 		</field>
+		<field name="valueGradeGA" class="java.lang.String">
+			<property name="net.sf.jasperreports.json.field.expression" value="valueGradeGA"/>
+			<fieldDescription><![CDATA[programs.valueGradeGA]]></fieldDescription>
+		</field>
+		<field name="valueGradeHS" class="java.lang.String">
+			<property name="net.sf.jasperreports.json.field.expression" value="valueGradeHS"/>
+			<fieldDescription><![CDATA[programs.valueGradeHS]]></fieldDescription>
+		</field>
 		<field name="valueTotal" class="java.lang.String">
 			<property name="net.sf.jasperreports.json.field.expression" value="valueTotal"/>
 			<fieldDescription><![CDATA[programs.valueTotal]]></fieldDescription>
@@ -769,7 +777,7 @@
 							</jr:detailCell>
 						</jr:column>
 					</jr:columnGroup>
-					<jr:columnGroup width="75" uuid="dbb8d1e1-6143-427d-b9c7-11396c06f97f">
+					<jr:columnGroup width="125" uuid="dbb8d1e1-6143-427d-b9c7-11396c06f97f">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [3]"/>
 						<jr:column width="25" uuid="191c294b-b787-41cc-a5ed-ec3b7b804ddc">
 							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
@@ -864,6 +872,70 @@
 										<font fontName="BCSans" size="8"/>
 									</textElement>
 									<textFieldExpression><![CDATA[$F{valueGradeSU}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="25" uuid="e942045a-a774-4d2a-9429-b19bc0e9c86e">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+							<jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="25" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="85e5d58a-1d3e-4848-949d-66ec80567d1d"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font fontName="BCSans" size="7"/>
+									</textElement>
+									<text><![CDATA[GA]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table 2_TD" height="20">
+								<textField>
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="25" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="a2b05ab7-64ef-4b34-81b7-b8a1bb8563d8">
+										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
+									</reportElement>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font fontName="BCSans" size="8" isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{valueGradeGA}]]></textFieldExpression>
+								</textField>
+								<textField>
+									<reportElement stretchType="ContainerHeight" x="0" y="0" width="25" height="20" isRemoveLineWhenBlank="true" uuid="bb66c28c-3be0-432c-934e-eacffd7c0c86">
+										<printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
+									</reportElement>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font fontName="BCSans" size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{valueGradeGA}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="25" uuid="c9dc29ce-c38d-403a-99e5-31276cb41cb2">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+							<jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="25" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="2333d2e0-bbd7-4bcb-9edf-7317617a8ae2"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font fontName="BCSans" size="7"/>
+									</textElement>
+									<text><![CDATA[HS]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table 2_TD" height="20">
+								<textField>
+									<reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="25" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="9b6da67f-4d9f-4dd7-a2c8-e622d7744ca5">
+										<printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
+									</reportElement>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font fontName="BCSans" size="8" isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{valueGradeHS}]]></textFieldExpression>
+								</textField>
+								<textField>
+									<reportElement stretchType="ContainerHeight" x="0" y="0" width="25" height="20" isRemoveLineWhenBlank="true" uuid="6e1be87c-6874-4624-8bcd-0d1fbe0067c4">
+										<printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
+									</reportElement>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font fontName="BCSans" size="8"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{valueGradeHS}]]></textFieldExpression>
 								</textField>
 							</jr:detailCell>
 						</jr:column>
