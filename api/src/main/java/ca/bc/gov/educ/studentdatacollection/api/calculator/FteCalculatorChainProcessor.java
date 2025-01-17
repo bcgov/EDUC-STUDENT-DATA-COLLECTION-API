@@ -33,7 +33,7 @@ public class FteCalculatorChainProcessor {
        String collectionType = student.getSdcSchoolCollection().getCollectionEntity().getCollectionTypeCode();
        String facilityType = studentRuleData.getSchool().getFacilityTypeCode();
        var onlineFacilityCodes = Arrays.asList(FacilityTypeCodes.DISTONLINE.getCode(), FacilityTypeCodes.DIST_LEARN.getCode());
-       var historicalIndyStudents = validationRulesService.findIndyStudentInCurrentFiscal(studentRuleData, "8", studentRuleData.getSchool().getIndependentAuthorityId());
+       var historicalStudents = validationRulesService.findStudentInCurrentFiscal(studentRuleData, "1");
 
        for (int i = 0; i < fteCalculators.size() - 1; i++) {
            FteCalculator currentCalculator = fteCalculators.get(i);
@@ -44,8 +44,8 @@ public class FteCalculatorChainProcessor {
        if(SchoolCategoryCodes.INDEPENDENTS.contains(studentRuleData.getSchool().getSchoolCategoryCode())
                && student.getFte() != null
                && collectionType.equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode()) && onlineFacilityCodes.contains(facilityType)
-               && (historicalIndyStudents.isEmpty()
-               || historicalIndyStudents.stream().noneMatch(stu -> stu.getFte().compareTo(BigDecimal.ZERO) > 0))
+               && (historicalStudents.isEmpty()
+               || historicalStudents.stream().noneMatch(stu -> stu.getFte().compareTo(BigDecimal.ZERO) > 0))
                && student.getFte().compareTo(BigDecimal.ZERO) == 0) {
           log.debug("ProgramEligibilityBaseRule - SpecialEducationProgramsRule: CollectionTypeCodes - {}, facilityType - {}, for sdcSchoolCollectionStudentID :: {}", collectionType, facilityType, studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
           studentRuleData.getSdcSchoolCollectionStudentEntity().setSpecialEducationNonEligReasonCode(ProgramEligibilityIssueCode.FEB_ONLINE_WITH_HISTORICAL_FUNDING.getCode());
