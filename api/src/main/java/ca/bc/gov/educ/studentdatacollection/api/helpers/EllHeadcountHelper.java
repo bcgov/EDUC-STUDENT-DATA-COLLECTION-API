@@ -70,9 +70,9 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
 
   public void setGradeCodes(Optional<SchoolTombstone> school) {
     if(school.isPresent() && SchoolCategoryCodes.INDEPENDENTS.contains(school.get().getSchoolCategoryCode())) {
-      gradeCodes = SchoolGradeCodes.getIndependentKtoSUGrades();
+      gradeCodes = SchoolGradeCodes.getIndependentKtoHSGrades();
     } else {
-      gradeCodes = SchoolGradeCodes.getNonIndependentKtoSUGrades();
+      gradeCodes = SchoolGradeCodes.getNonIndependentSchoolGrades();
     }
   }
 
