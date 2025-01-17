@@ -858,7 +858,7 @@
                             </jr:detailCell>
                         </jr:column>
                         <jr:column width="22" uuid="cdcd0041-e1e9-4f8e-983f-87d2a6f8d756">
-                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
                                     <reportElement x="0" y="0" width="22" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="b4346f30-3129-4378-b2c9-5a43d625f708"/>
@@ -870,7 +870,9 @@
                             </jr:columnHeader>
                             <jr:detailCell style="Table 2_TD" height="20">
                                 <textField isBlankWhenNull="true">
-                                    <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="22" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="4b0a2e31-b8a0-4eea-af0e-4419e3495c3e"/>
+                                    <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="22" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="4b0a2e31-b8a0-4eea-af0e-4419e3495c3e">
+                                        <printWhenExpression><![CDATA[$F{isHeading}.equals("true") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
+                                    </reportElement>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
                                         <font fontName="BCSans" size="8" isBold="true"/>
                                     </textElement>
@@ -888,7 +890,7 @@
                             </jr:detailCell>
                         </jr:column>
                         <jr:column width="22" uuid="89e4cfa7-f7c4-4568-96a2-1495a8d25378">
-                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
                                     <reportElement x="0" y="0" width="22" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="cd0ab403-c61c-4dcc-ac73-b138772eae4a"/>
@@ -923,7 +925,7 @@
                     <jr:columnGroup width="39" uuid="3ae8d32d-ac2a-4ab9-88f4-af6bb9c1a637">
                         <property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [1]"/>
                         <jr:column width="39" uuid="c56b98e7-9821-4f33-9123-9dada60a3e25">
-                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+                            <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
                             <jr:columnHeader style="Table 2_CH" height="20" rowSpan="1">
                                 <staticText>
                                     <reportElement x="0" y="0" width="39" height="20" forecolor="rgba(0, 51, 102, 0.8235294)" uuid="abb7c288-25ca-4155-a3bb-9950f52e23bc"/>
@@ -944,7 +946,7 @@
                                     <textFieldExpression><![CDATA[$F{valueTotal}]]></textFieldExpression>
                                 </textField>
                                 <textField isBlankWhenNull="true">
-                                    <reportElement stretchType="ContainerHeight" x="0" y="0" width="39" height="20" isRemoveLineWhenBlank="true" uuid="468d2b36-5cdc-47aa-86f8-b77fdd177180">
+                                    <reportElement stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="39" height="20" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="468d2b36-5cdc-47aa-86f8-b77fdd177180">
                                         <printWhenExpression><![CDATA[$F{isHeading}.equals("false") ? Boolean.TRUE : Boolean.FALSE]]></printWhenExpression>
                                     </reportElement>
                                     <textElement textAlignment="Center" verticalAlignment="Middle">
