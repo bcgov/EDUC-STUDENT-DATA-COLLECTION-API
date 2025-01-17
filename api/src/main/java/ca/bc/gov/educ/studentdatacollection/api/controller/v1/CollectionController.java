@@ -63,10 +63,9 @@ public class CollectionController implements CollectionEndpoint {
   private final CloseCollectionOrchestrator closeCollectionOrchestrator;
   private final SagaService sagaService;
   private final CollectionSearchService collectionSearchService;
-  private final CloseCollectionService closeCollectionService;
 
   @Autowired
-  public CollectionController(final CollectionService collectionService, final CollectionPayloadValidator collectionPayloadValidator, final SdcDuplicatesService sdcDuplicatesService, SdcDuplicateResolutionService sdcDuplicateResolutionService, PostCollectionDuplicatesOrchestrator postCollectionDuplicatesOrchestrator, CloseCollectionOrchestrator closeCollectionOrchestrator, SagaService sagaService, CollectionSearchService collectionSearchService, CloseCollectionService closeCollectionService) {
+  public CollectionController(final CollectionService collectionService, final CollectionPayloadValidator collectionPayloadValidator, final SdcDuplicatesService sdcDuplicatesService, SdcDuplicateResolutionService sdcDuplicateResolutionService, PostCollectionDuplicatesOrchestrator postCollectionDuplicatesOrchestrator, CloseCollectionOrchestrator closeCollectionOrchestrator, SagaService sagaService, CollectionSearchService collectionSearchService) {
     this.collectionService = collectionService;
     this.sdcDuplicatesService = sdcDuplicatesService;
     this.collectionPayloadValidator = collectionPayloadValidator;
@@ -75,7 +74,6 @@ public class CollectionController implements CollectionEndpoint {
     this.closeCollectionOrchestrator = closeCollectionOrchestrator;
     this.sagaService = sagaService;
     this.collectionSearchService = collectionSearchService;
-    this.closeCollectionService = closeCollectionService;
   }
 
   @Override
@@ -119,12 +117,6 @@ public class CollectionController implements CollectionEndpoint {
   public ResponseEntity<Void> deleteCollection(UUID collectionID) {
     this.collectionService.deleteCollection(collectionID);
     return ResponseEntity.noContent().build();
-  }
-
-  @Override
-  public ResponseEntity<Void> openNewCollection() {
-    closeCollectionService.openNewCollection();
-    return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
   @Override
