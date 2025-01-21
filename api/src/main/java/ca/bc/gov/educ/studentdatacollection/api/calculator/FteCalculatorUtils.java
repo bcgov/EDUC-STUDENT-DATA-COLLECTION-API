@@ -193,15 +193,16 @@ public class FteCalculatorUtils {
         var reportedByOnlineOrContEdSchool = StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DISTONLINE.getCode());
         var zeroCourses = TransformUtil.parseNumberOfCourses(student.getNumberOfCourses(), student.getSdcSchoolCollection().getSdcSchoolCollectionID()) == 0;
         boolean isSchoolAged = Boolean.TRUE.equals(student.getIsSchoolAged());
-        LocalDate currentCollectionSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
 
         if (isSchoolAged && isEightPlusGradeCode && reportedByOnlineOrContEdSchool && zeroCourses) {
             if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
                 return true;
             }
             validationRulesService.setupMergedStudentIdValues(studentRuleData);
-            var lastTwoYearsOfCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(UUID.fromString(school.getSchoolId()), student.getSdcSchoolCollection().getSdcSchoolCollectionID(), currentCollectionSnapshotDate);
-            return lastTwoYearsOfCollections.isEmpty() || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(studentRuleData.getHistoricStudentIds(), lastTwoYearsOfCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(), "0") == 0;
+            var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
+            var lastTwoYearsOfStudentRecords = sdcSchoolCollectionStudentRepository.findLastTwoYearsOfStudentRecordsWithinSchool(studentRuleData.getHistoricStudentIds(), UUID.fromString(school.getSchoolId()), currentSnapshotDate);
+
+            return lastTwoYearsOfStudentRecords.isEmpty() || !hasCoursesInLastTwoYears(lastTwoYearsOfStudentRecords);
         }
         return false;
     }
@@ -217,15 +218,29 @@ public class FteCalculatorUtils {
         var reportedByOnlineSchool = StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DIST_LEARN.getCode()) || StringUtils.equals(school.getFacilityTypeCode(), FacilityTypeCodes.DISTONLINE.getCode());
         var zeroCourses = TransformUtil.parseNumberOfCourses(student.getNumberOfCourses(), student.getSdcSchoolCollection().getSdcSchoolCollectionID()) == 0;
         boolean isAdult = Boolean.TRUE.equals(student.getIsAdult());
-        LocalDate currentCollectionSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
 
         if (isAdult && isAllowedAdultGradeCode && reportedByOnlineSchool && zeroCourses) {
             if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
                 return true;
             }
             validationRulesService.setupMergedStudentIdValues(studentRuleData);
-            var lastTwoYearsOfCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(UUID.fromString(school.getSchoolId()), student.getSdcSchoolCollection().getSdcSchoolCollectionID(), currentCollectionSnapshotDate);
-            return lastTwoYearsOfCollections.isEmpty() || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(studentRuleData.getHistoricStudentIds(), lastTwoYearsOfCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(), "0") == 0;
+            var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
+            var lastTwoYearsOfStudentRecords = sdcSchoolCollectionStudentRepository.findLastTwoYearsOfStudentRecordsWithinSchool(studentRuleData.getHistoricStudentIds(), UUID.fromString(school.getSchoolId()), currentSnapshotDate);
+
+            return lastTwoYearsOfStudentRecords.isEmpty() || !hasCoursesInLastTwoYears(lastTwoYearsOfStudentRecords);
+        }
+        return false;
+    }
+
+    private boolean hasCoursesInLastTwoYears(List<SdcSchoolCollectionStudentEntity> lastTwoYearsOfStudentRecords){
+        for(SdcSchoolCollectionStudentEntity studentEntity : lastTwoYearsOfStudentRecords){
+            try {
+                if(Double.parseDouble(studentEntity.getNumberOfCourses()) > 0){
+                    return true;
+                }
+            } catch (NumberFormatException e) {
+                //this is ok
+            }
         }
         return false;
     }

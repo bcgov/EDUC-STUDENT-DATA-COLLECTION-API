@@ -258,6 +258,16 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   long countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(List<UUID> assignedStudentId, List<UUID> sdcSchoolCollectionID, String numberOfCourses);
 
   @Query("""
+    SELECT stud from SdcSchoolCollectionStudentEntity stud 
+    WHERE stud.assignedStudentId IN (:assignedStudentIds)
+    AND stud.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
+    AND stud.sdcSchoolCollection.sdcSchoolCollectionID IN 
+      (SELECT sch.sdcSchoolCollectionID FROM SdcSchoolCollectionEntity sch WHERE sch.schoolID = :schoolID AND sch.collectionEntity.collectionID IN 
+        (SELECT col.collectionID FROM CollectionEntity col WHERE col.snapshotDate < :currSnapshot ORDER BY col.snapshotDate DESC LIMIT 8 ))
+  """)
+   List<SdcSchoolCollectionStudentEntity> findLastTwoYearsOfStudentRecordsWithinSchool(List<UUID> assignedStudentIds, UUID schoolID, LocalDate currSnapshot);
+
+  @Query("""
        SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
        WHERE s.assignedStudentId IN :assignedStudentId
        AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
