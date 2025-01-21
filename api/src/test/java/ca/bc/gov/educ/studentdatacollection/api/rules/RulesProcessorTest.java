@@ -11,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
@@ -37,8 +38,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTy
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes.DISTONLINE;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes.DIST_LEARN;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @Slf4j
@@ -1640,6 +1640,67 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         assertThat(zeroCoursesValidation).isTrue();
         assertThat(errorAdultWithCourses).isFalse();
         assertThat(testDistOnlineWithNoCoursesValidation).isFalse();
+    }
+
+    @Test
+    void testRefugeeFundingRule_PublicStandard_InPreviousCollection() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate currentSnapshotDate = now.toLocalDate();
+
+        CollectionEntity collectionSept = createMockCollectionEntity();
+        collectionSept.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        collectionSept.setSnapshotDate(currentSnapshotDate.minusYears(1).withMonth(9).withDayOfMonth(30));
+        collectionSept.setCollectionStatusCode("COMPLETED");
+        collectionSept.setCloseDate(now.minusDays(5));
+
+        CollectionEntity collectionFeb = createMockCollectionEntity();
+        collectionFeb.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        collectionFeb.setSnapshotDate(currentSnapshotDate);
+        collectionFeb.setCollectionStatusCode("INPROGRESS");
+        collectionFeb.setCloseDate(now.plusDays(2));
+
+        collectionRepository.saveAll(List.of(collectionSept, collectionFeb));
+
+        SchoolTombstone school = createMockSchool();
+        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+        school.setFacilityTypeCode(FacilityTypeCodes.STANDARD.getCode());
+
+        District district = createMockDistrict();
+
+        createMockSdcDistrictCollectionEntity(collectionSept, UUID.fromString(district.getDistrictId()));
+
+        createMockSdcDistrictCollectionEntity(collectionFeb, UUID.fromString(district.getDistrictId()));
+
+        UUID assignedStudentId = UUID.randomUUID();
+
+        SdcSchoolCollectionEntity sdcMockSchoolSept = createMockSdcSchoolCollectionEntity(collectionSept, UUID.fromString(school.getSchoolId()));
+        SdcSchoolCollectionEntity sdcMockSchoolFeb = createMockSdcSchoolCollectionEntity(collectionFeb, UUID.fromString(school.getSchoolId()));
+
+        createMockSdcSchoolCollectionEntity(collectionFeb, UUID.fromString(school.getSchoolId()));
+
+        sdcSchoolCollectionRepository.saveAll(List.of(sdcMockSchoolSept, sdcMockSchoolFeb));
+
+        SdcSchoolCollectionStudentEntity studSept = createMockSchoolStudentEntity(sdcMockSchoolSept);
+        studSept.setAssignedStudentId(assignedStudentId);
+
+        SdcSchoolCollectionStudentEntity studFeb = createMockSchoolStudentEntity(sdcMockSchoolFeb);
+        studFeb.setAssignedStudentId(assignedStudentId);
+        studFeb.setSchoolFundingCode(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+
+        sdcSchoolCollectionStudentRepository.saveAll(List.of(studFeb, studSept));
+
+        PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.getMatchingRecords().get(0).setMatchingPEN("123456789");
+        penMatchResult.getMatchingRecords().get(0).setStudentID(assignedStudentId.toString());
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+
+        StudentRuleData studentRuleData = createMockStudentRuleData(studFeb, school);
+
+        List<SdcSchoolCollectionStudentValidationIssue> validationErrorRefugeeFunding = rulesProcessor.processRules(studentRuleData);
+
+        boolean errorRefugeeFunding = validationErrorRefugeeFunding.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode()));
+
+        assertThat(errorRefugeeFunding).isTrue();
     }
 
     @Test

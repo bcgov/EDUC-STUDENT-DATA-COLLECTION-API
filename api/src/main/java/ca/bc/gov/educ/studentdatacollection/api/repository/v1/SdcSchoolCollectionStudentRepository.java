@@ -261,15 +261,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
        SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
        WHERE s.assignedStudentId IN :assignedStudentId
        AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
-       """)
-  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(
-          @Param("assignedStudentId") List<UUID> assignedStudentId,
-          @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
-
-  @Query("""
-       SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
-       WHERE s.assignedStudentId IN :assignedStudentId
-       AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
        AND s.enrolledGradeCode <> 'HS'
        """)
   long countAllByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInExcludingHomeschool(

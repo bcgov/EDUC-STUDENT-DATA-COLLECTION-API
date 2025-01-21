@@ -8,9 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolFundingCodes;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ValidationBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
@@ -21,7 +19,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,12 +38,10 @@ import java.util.UUID;
 public class RefugeeFundingRule implements ValidationBaseRule {
 
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
-    private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final ValidationRulesService validationRulesService;
 
-    public RefugeeFundingRule(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, ValidationRulesService validationRulesService) {
+    public RefugeeFundingRule(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, ValidationRulesService validationRulesService) {
         this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
-        this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
         this.validationRulesService = validationRulesService;
     }
 
@@ -58,7 +53,7 @@ public class RefugeeFundingRule implements ValidationBaseRule {
         var shouldExecute = FteCalculatorUtils.getCollectionTypeCode(studentRuleData).equals(CollectionTypeCodes.FEBRUARY.getTypeCode()) &&
                 StringUtils.isNotEmpty(studentRuleData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode()) &&
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSchoolFundingCode().equals(SchoolFundingCodes.NEWCOMER_REFUGEE.getCode()) &&
-                Boolean.TRUE.equals(studentRuleData.getSdcSchoolCollectionStudentEntity().getIsSchoolAged());
+                Boolean.TRUE.equals(studentRuleData.getSdcSchoolCollectionStudentEntity().getIsSchoolAged()) &&
                 isValidationDependencyResolved("V90", validationErrorsMap);
 
         log.debug("In shouldExecute of RefugeeFundingRule-V90: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
@@ -74,7 +69,7 @@ public class RefugeeFundingRule implements ValidationBaseRule {
 
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
 
-        List<String> eligibleFacilityTypeCodes = Arrays.asList(
+        List<String> eligibleFacilityTypeCodes = List.of(
             FacilityTypeCodes.STANDARD.getCode(),
             FacilityTypeCodes.ALT_PROGS.getCode(),
             FacilityTypeCodes.YOUTH.getCode(),
@@ -82,10 +77,10 @@ public class RefugeeFundingRule implements ValidationBaseRule {
             FacilityTypeCodes.LONG_PRP.getCode()
         );
 
-        Boolean notEligibleCategoryCode = !SchoolCategoryCodes.PUBLIC.getCode().equals(studentRuleData.getSchool().getSchoolCategoryCode());
-        Boolean notEligibleFacilityTypeCode = !eligibleFacilityTypeCodes.contains(studentRuleData.getSchool().getFacilityTypeCode());
+        Boolean eligibleCategoryCode = SchoolCategoryCodes.PUBLIC.getCode().equals(studentRuleData.getSchool().getSchoolCategoryCode());
+        Boolean eligibleFacilityTypeCode = eligibleFacilityTypeCodes.contains(studentRuleData.getSchool().getFacilityTypeCode());
 
-        if (Boolean.TRUE.equals(notEligibleCategoryCode) || Boolean.TRUE.equals(notEligibleFacilityTypeCode) || Boolean.TRUE.equals(studentInPreviousCollection(studentRuleData))) {
+        if (Boolean.FALSE.equals(eligibleCategoryCode) || Boolean.FALSE.equals(eligibleFacilityTypeCode) || Boolean.TRUE.equals(studentInPreviousCollection(studentRuleData))) {
             log.debug("RefugeeFundingRule-V90: Refugee not reported in September Collection for sdcSchoolCollectionStudentID:: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.SCHOOL_FUNDING_CODE, StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL));
         }
@@ -95,15 +90,15 @@ public class RefugeeFundingRule implements ValidationBaseRule {
 
 
     private Boolean studentInPreviousCollection(StudentRuleData studentRuleData){
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
+
         UUID assignedStudentId = studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId();
         if (assignedStudentId == null) {
             return false;
         }
-        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
         var allPreviousCollections  = sdcSchoolCollectionRepository.findAllPreviousCollectionsForStudent(assignedStudentId, currentSnapshotDate);
-        var previousCollectionCount = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(studentRuleData.getHistoricStudentIds(), allPreviousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList());
 
-        return previousCollectionCount > 0;
+        return !allPreviousCollections.isEmpty();
     }
 }
