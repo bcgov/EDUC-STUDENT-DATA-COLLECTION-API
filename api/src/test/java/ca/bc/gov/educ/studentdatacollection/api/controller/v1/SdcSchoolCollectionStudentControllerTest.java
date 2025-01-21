@@ -123,6 +123,50 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
+    void testFindAllSldHistory_Always_ShouldReturnStatusOk() throws Exception {
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+        sdcMockSchool.setUploadDate(null);
+        sdcMockSchool.setUploadFileName(null);
+        var sdcSchoolCollection = sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+        var student1 = createMockSchoolStudentEntity(sdcSchoolCollection);
+        student1.setAssignedStudentId(UUID.randomUUID());
+        var student2 = createMockSchoolStudentEntity(sdcSchoolCollection);
+        student2.setAssignedStudentId(UUID.randomUUID());
+        sdcSchoolCollectionStudentRepository.save(student1);
+        sdcSchoolCollectionStudentRepository.save(student2);
+
+        final SearchCriteria criteria = SearchCriteria.builder().condition(null).key("assignedStudentId").operation(FilterOperation.EQUAL).value(student1.getAssignedStudentId().toString()).valueType(ValueType.UUID).build();
+
+        final List<SearchCriteria> criteriaList = new ArrayList<>();
+        criteriaList.add(criteria);
+        final List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList).build());
+
+        final var objectMapper = new ObjectMapper();
+        final String criteriaJSON = objectMapper.writeValueAsString(searches);
+        final MvcResult result = this.mockMvc
+                .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED_SLD_HISTORY)
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("searchCriteriaList", criteriaJSON)
+                        .contentType(APPLICATION_JSON))
+                .andDo(print())
+                .andDo(MvcResult::getAsyncResult)
+                .andReturn();
+        String snapshotDate = "$.content[?(@.assignedStudentId=='"
+                + student1.getAssignedStudentId().toString()
+                + "')].snapshotDate";
+        this.mockMvc.perform(asyncDispatch(result))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath(snapshotDate).value((LocalDate.of(LocalDate.now().getYear(), 9, 29)).toString()));
+    }
+
+    @Test
     void testReadSdcSchoolCollectionStudentPaginated_withSdcStudentEll_ShouldReturnStatusOkWithEll() throws Exception {
         var collection = collectionRepository.save(createMockCollectionEntity());
         var school = this.createMockSchool();

@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStud
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionSLDHistoryStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHistory;
 import org.mapstruct.DecoratedWith;
@@ -39,6 +40,18 @@ public interface SdcSchoolCollectionStudentMapper {
   @Mapping(target = "sdcDistrictCollectionID", source = "sdcSchoolCollection.sdcDistrictCollectionID")
   @Mapping(target = "schoolID", source = "sdcSchoolCollection.schoolID")
   SdcSchoolCollectionStudent toSdcSchoolCollectionStudentWithValidationIssues(SdcSchoolCollectionStudentPaginationEntity sdcSchoolStudentEntity);
+
+  @Mapping(target = "sdcSchoolCollectionID", source = "sdcSchoolCollection.sdcSchoolCollectionID")
+  @Mapping(target = "sdcDistrictCollectionID", source = "sdcSchoolCollection.sdcDistrictCollectionID")
+  @Mapping(target = "schoolID", source = "sdcSchoolCollection.schoolID")
+  @Mapping(target = "snapshotDate", source = "sdcSchoolCollection.collectionEntity.snapshotDate")
+  SdcSchoolCollectionSLDHistoryStudent toSLDHistoryStudent(SdcSchoolCollectionStudentPaginationEntity sdcSchoolStudentEntity);
+
+  @Mapping(target = "sdcSchoolCollectionID", source = "sdcSchoolCollection.sdcSchoolCollectionID")
+  @Mapping(target = "sdcDistrictCollectionID", source = "sdcSchoolCollection.sdcDistrictCollectionID")
+  @Mapping(target = "schoolID", source = "sdcSchoolCollection.schoolID")
+  @Mapping(target = "snapshotDate", source = "sdcSchoolCollection.collectionEntity.snapshotDate")
+  SdcSchoolCollectionSLDHistoryStudent toSdcSchoolCollectionSLDHistoryStudent(SdcSchoolCollectionStudentPaginationEntity sdcSchoolStudentEntity);
 
   @Mapping(target = "sdcSchoolCollection.sdcSchoolCollectionID", source = "sdcSchoolCollectionID")
   SdcSchoolCollectionStudentEntity toSdcSchoolStudentEntity(SdcSchoolCollectionStudent sdcSchoolStudent);
