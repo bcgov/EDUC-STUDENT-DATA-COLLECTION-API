@@ -90,11 +90,12 @@ public class RefugeeFundingRule implements ValidationBaseRule {
 
 
     private Boolean studentInPreviousCollection(StudentRuleData studentRuleData){
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
+
         UUID assignedStudentId = studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId();
         if (assignedStudentId == null) {
             return false;
         }
-        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
         var allPreviousCollections  = sdcSchoolCollectionRepository.findAllPreviousCollectionsForStudent(assignedStudentId, currentSnapshotDate);
 
