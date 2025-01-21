@@ -72,6 +72,21 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
+    public CompletableFuture<Page<SdcSchoolCollectionSLDHistoryStudent>> findAllSldHistory(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
+        final List<Sort.Order> sorts = new ArrayList<>();
+        Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs = sdcSchoolCollectionStudentSearchService
+                .setSpecificationAndSortCriteria(
+                        sortCriteriaJson,
+                        searchCriteriaListJson,
+                        JsonUtil.mapper,
+                        sorts
+                );
+        return this.sdcSchoolCollectionStudentSearchService
+                .findAll(studentSpecs, pageNumber, pageSize, sorts)
+                .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.map(mapper::toSdcSchoolCollectionSLDHistoryStudent));
+    }
+
+    @Override
     public Slice<SdcSchoolCollectionStudent> findAllSlice(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
         final List<Sort.Order> sorts = new ArrayList<>();
         Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs = sdcSchoolCollectionStudentSearchService
