@@ -165,10 +165,10 @@ public class AllStudentLightCollectionGenerateCsvService {
         }
         String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
         String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());
-        String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "Y" : "";
-        String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "Y" : "";
-        String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "Y" : "";
-        Map<String, String> enrolledProgramCodesMap = parseEnrolledProgramCodes(student.getEnrolledProgramCodes(), "Y");
+        String feePayer = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("14") ? "1" : "";
+        String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "1" : "";
+        String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "1" : "";
+        Map<String, String> enrolledProgramCodesMap = parseEnrolledProgramCodes(student.getEnrolledProgramCodes(), "1");
 
         csvRowData.addAll(Arrays.asList(
                 getErrorsAndWarningString(student),
@@ -181,11 +181,11 @@ public class AllStudentLightCollectionGenerateCsvService {
                 student.getLocalID(),
                 student.getEnrolledGradeCode(),
                 student.getFte(),
-                Boolean.TRUE.equals(student.getIsAdult()) ? "Y" : "",
-                Boolean.TRUE.equals(student.getIsGraduated()) ? "Y" : "",
+                Boolean.TRUE.equals(student.getIsAdult()) ? "1" : "",
+                Boolean.TRUE.equals(student.getIsGraduated()) ? "1" : "",
                 feePayer,
                 refugee,
-                student.getNativeAncestryInd(),
+                convertToBinary(student.getNativeAncestryInd()),
                 ordinarilyResidentOnReserve,
                 student.getBandCode(),
                 student.getHomeLanguageSpokenCode(),
