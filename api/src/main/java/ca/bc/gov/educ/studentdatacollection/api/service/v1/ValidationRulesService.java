@@ -154,6 +154,8 @@ public class ValidationRulesService {
             log.debug("Student years in ELL found for SDC student {} :: is {}", student.getSdcSchoolCollectionStudentID(), yearsInEll);
             if(yearsInEll.isPresent()){
                 student.setYearsInEll(yearsInEll.get().getYearsInEll());
+            }else{
+                student.setYearsInEll(0);
             }
         }
     }
