@@ -1116,12 +1116,11 @@ class FteCalculatorUtilsTest {
         studentData.setSchool(schoolTombstone);
         studentData.setSdcSchoolCollectionStudentEntity(student);
         student.setSdcSchoolCollection(schoolCollection1);
+        student.setNumberOfCourses("0400");
         studentData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
 
-        when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any(), any()))
-                .thenReturn(lastTwoYearsOfCollections);
-        when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(anyList(), anyList(), any(String.class)))
-                .thenReturn(1L);
+        when(sdcSchoolCollectionStudentRepository.findLastTwoYearsOfStudentRecordsWithinSchool(anyList(), any(), any()))
+                .thenReturn(List.of(student));
 
         // When
         boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData);
