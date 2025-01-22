@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.filter.SdcSchoolCollectionStudentFilterSpecs;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -118,7 +120,8 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
   @Transactional(propagation = Propagation.SUPPORTS)
   public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightByDistrictCollectionId(UUID sdcDistrictCollectionID) {
     try {
-      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionEntity_SdcDistrictCollectionIDAndSdcSchoolCollectionStudentStatusCodeNot(sdcDistrictCollectionID, "DELETED");
+      var status = Arrays.asList(SdcSchoolStudentStatus.DELETED.getCode(), SdcSchoolStudentStatus.ERROR.getCode());
+      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionEntity_SdcDistrictCollectionIDAndSdcSchoolCollectionStudentStatusCodeNotIn(sdcDistrictCollectionID, status);
     } catch (final Exception ex) {
       log.error("Failure querying for light SDC school students by District Collection ID: {}", ex.getMessage());
       throw new CompletionException(ex);
