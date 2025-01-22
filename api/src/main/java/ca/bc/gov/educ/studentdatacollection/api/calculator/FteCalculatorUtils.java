@@ -79,6 +79,7 @@ public class FteCalculatorUtils {
      * 2. was reported in the previous February collection for the same district, not in HS, and received a non zero-FTE
      */
     public boolean studentPreviouslyReportedInDistrict(StudentRuleData studentRuleData) {
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
             return false;
         }
@@ -91,7 +92,6 @@ public class FteCalculatorUtils {
 
         long countAllByAssignedStudentIdAndSdcSchoolCollectionSdcSchoolCollectionIDIn = 0;
         var isSpringCollection = isSpringCollection(studentRuleData);
-        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         log.debug("StudentPreviouslyReportedInDistrict: isSpringCollection: " + isSpringCollection + " :: isPublicOnlineOrContEdSchool: " + isPublicOnlineOrContEdSchool + " :: isStudentInDistrictFundedGrade: " + isStudentInDistrictFundedGrade + " :: districtId: " + StringUtils.isNotBlank(school.getDistrictId()));
         if(isSpringCollection && isPublicOnlineOrContEdSchool && isStudentInDistrictFundedGrade && StringUtils.isNotBlank(school.getDistrictId())) {
             var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
@@ -121,6 +121,7 @@ public class FteCalculatorUtils {
      * 2. was reported in the previous February collection for the same authority, not in HS, and received a non-zero FTE
      */
     public boolean studentPreviouslyReportedInIndependentAuthority(StudentRuleData studentRuleData) {
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
             return false;
         }
@@ -134,7 +135,6 @@ public class FteCalculatorUtils {
         if(isSpringCollection(studentRuleData) && isIndependentOnlineSchool && isStudentInDistrictFundedGrade && (StringUtils.isNotBlank(school.getIndependentAuthorityId()))) {
             var schoolIDs = restUtils.getSchoolIDsByIndependentAuthorityID(school.getIndependentAuthorityId());
             if (schoolIDs.isPresent()) {
-                validationRulesService.setupMergedStudentIdValues(studentRuleData);
                 var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
                 var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
                 //Check both Sep & Feb
@@ -151,6 +151,7 @@ public class FteCalculatorUtils {
      * by an online school and the student was reported as an HS student in the previous collection
      */
     public boolean homeSchoolStudentIsNowOnlineKto9StudentOrHs(StudentRuleData studentRuleData) {
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
             return false;
         }
@@ -173,7 +174,6 @@ public class FteCalculatorUtils {
                 previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(UUID.fromString(studentRuleData.getSchool().getDistrictId()), fiscalSnapshotDate, currentSnapshotDate);
             }
             if (previousCollections != null) {
-                validationRulesService.setupMergedStudentIdValues(studentRuleData);
                 var collectionIds = previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList();
                 var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdInAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(studentRuleData.getHistoricStudentIds(), SchoolGradeCodes.HOMESCHOOL.getCode(), collectionIds);
                 return count > 0;
@@ -195,10 +195,10 @@ public class FteCalculatorUtils {
         boolean isSchoolAged = Boolean.TRUE.equals(student.getIsSchoolAged());
 
         if (isSchoolAged && isEightPlusGradeCode && reportedByOnlineOrContEdSchool && zeroCourses) {
+            validationRulesService.setupMergedStudentIdValues(studentRuleData);
             if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
                 return true;
             }
-            validationRulesService.setupMergedStudentIdValues(studentRuleData);
             var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
             var lastTwoYearsOfStudentRecords = sdcSchoolCollectionStudentRepository.findLastTwoYearsOfStudentRecordsWithinSchool(studentRuleData.getHistoricStudentIds(), UUID.fromString(school.getSchoolId()), currentSnapshotDate);
 
@@ -220,10 +220,10 @@ public class FteCalculatorUtils {
         boolean isAdult = Boolean.TRUE.equals(student.getIsAdult());
 
         if (isAdult && isAllowedAdultGradeCode && reportedByOnlineSchool && zeroCourses) {
+            validationRulesService.setupMergedStudentIdValues(studentRuleData);
             if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
                 return true;
             }
-            validationRulesService.setupMergedStudentIdValues(studentRuleData);
             var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
             var lastTwoYearsOfStudentRecords = sdcSchoolCollectionStudentRepository.findLastTwoYearsOfStudentRecordsWithinSchool(studentRuleData.getHistoricStudentIds(), UUID.fromString(school.getSchoolId()), currentSnapshotDate);
 
