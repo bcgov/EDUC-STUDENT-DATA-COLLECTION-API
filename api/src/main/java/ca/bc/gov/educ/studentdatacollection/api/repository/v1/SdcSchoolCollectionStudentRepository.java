@@ -255,8 +255,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     LIMIT :numberOfStudentsToProcess""", nativeQuery = true)
   List<SdcSchoolCollectionStudentEntity> findTopMigratedStudentForProcessing(int numberOfStudentsToProcess);
 
-  long countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(List<UUID> assignedStudentId, List<UUID> sdcSchoolCollectionID, String numberOfCourses);
-
   @Query("""
     SELECT stud from SdcSchoolCollectionStudentEntity stud 
     WHERE stud.assignedStudentId IN (:assignedStudentIds)

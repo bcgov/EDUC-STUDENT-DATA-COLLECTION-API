@@ -1008,8 +1008,6 @@ class FteCalculatorUtilsTest {
 
         when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any(), any()))
                 .thenReturn(lastTwoYearsOfCollections);
-        when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(anyList(), anyList(), any(String.class)))
-                .thenReturn(0L);
 
         // When
         boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData);
@@ -1064,8 +1062,6 @@ class FteCalculatorUtilsTest {
 
         when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any(), any()))
                 .thenReturn(lastTwoYearsOfCollections);
-        when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(anyList(), anyList(), any(String.class)))
-                .thenReturn(0L);
 
         // When
         boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData);
@@ -1193,8 +1189,6 @@ class FteCalculatorUtilsTest {
 
         when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any(), any()))
                 .thenReturn(List.of());
-        when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(anyList(), anyList(), any(String.class)))
-                .thenReturn(1L);
 
         // When
         boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData);
@@ -1257,8 +1251,6 @@ class FteCalculatorUtilsTest {
 
         when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any(), any()))
                 .thenReturn(lastTwoYearsOfCollections);
-        when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(anyList(), anyList(), any(String.class)))
-                .thenReturn(0L);
 
         // When
         boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData);
@@ -1332,8 +1324,6 @@ class FteCalculatorUtilsTest {
 
         when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any(), any()))
                 .thenReturn(lastTwoYearsOfCollections);
-        when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(anyList(), anyList(), any(String.class)))
-                .thenReturn(0L);
 
         // When
         boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData);
@@ -1386,8 +1376,6 @@ class FteCalculatorUtilsTest {
 
         when(sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(any(UUID.class), any(), any()))
                 .thenReturn(lastTwoYearsOfCollections);
-        when(sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(anyList(), anyList(), any(String.class)))
-                .thenReturn(0L);
 
         // When
         boolean result = fteCalculatorUtils.noCoursesForSchoolAgedStudentInLastTwoYears(studentData);
