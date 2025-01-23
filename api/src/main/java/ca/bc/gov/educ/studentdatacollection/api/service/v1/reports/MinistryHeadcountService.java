@@ -1,9 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1.reports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
@@ -412,7 +409,7 @@ public class MinistryHeadcountService {
   public SimpleHeadcountResultsTable generateSeptFsaCsv(UUID collectionID) {
     List<String> grades = Arrays.asList(SchoolGradeCodes.GRADE04.getCode(), SchoolGradeCodes.GRADE07.getCode());
     List<SdcSchoolCollectionStudentEntity> students =
-            sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(collectionID, grades);
+            sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(collectionID, grades, SdcSchoolStudentStatus.DELETED.getCode());
 
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();
@@ -443,7 +440,7 @@ public class MinistryHeadcountService {
   public SimpleHeadcountResultsTable generateFebFsaCsv(UUID collectionID) {
     List<String> grades = Arrays.asList(SchoolGradeCodes.GRADE03.getCode(), SchoolGradeCodes.GRADE06.getCode());
     List<SdcSchoolCollectionStudentEntity> students =
-            sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(collectionID, grades);
+            sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(collectionID, grades, SdcSchoolStudentStatus.DELETED.getCode());
 
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();

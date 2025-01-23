@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.TopicsEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.helpers.SdcHelper;
@@ -44,9 +45,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode.*;
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.isCollectionInProvDupes;
 
 @Service
@@ -349,30 +352,21 @@ public class SdcSchoolCollectionStudentService {
       student.setCareerProgramNonEligReasonCode(reasonCode);
       student.setSpecialEducationNonEligReasonCode(reasonCode);
     } else {
-      student.setFrenchProgramNonEligReasonCode(getReasonCode(errors, Arrays.asList(NOT_ENROLLED_FRENCH)));
-      student.setEllNonEligReasonCode(getReasonCode(errors, Arrays.asList(NOT_ENROLLED_ELL, YEARS_IN_ELL, ELL_INDY_SCHOOL)));
-      student.setIndigenousSupportProgramNonEligReasonCode(getReasonCode(errors, Arrays.asList(NOT_ENROLLED_INDIGENOUS, INDIGENOUS_ADULT, NO_INDIGENOUS_ANCESTRY, INDIGENOUS_INDY_SCHOOL)));
-      student.setCareerProgramNonEligReasonCode(getReasonCode(errors, Arrays.asList(NOT_ENROLLED_CAREER, ENROLLED_CAREER_INDY_SCHOOL)));
-      student.setSpecialEducationNonEligReasonCode(getReasonCode(errors, Arrays.asList(NOT_ENROLLED_SPECIAL_ED, NON_ELIG_SPECIAL_EDUCATION)));
+      student.setFrenchProgramNonEligReasonCode(getReasonCode(errors, ProgramEligibilityTypeCode.FRENCH));
+      student.setEllNonEligReasonCode(getReasonCode(errors, ProgramEligibilityTypeCode.ELL));
+      student.setIndigenousSupportProgramNonEligReasonCode(getReasonCode(errors, ProgramEligibilityTypeCode.IND_SUPPORT));
+      student.setCareerProgramNonEligReasonCode(getReasonCode(errors, ProgramEligibilityTypeCode.CAREER_PROGRAMS));
+      student.setSpecialEducationNonEligReasonCode(getReasonCode(errors, ProgramEligibilityTypeCode.SPED));
     }
   }
 
-  private String getReasonCode(List<ProgramEligibilityIssueCode> errors, List<ProgramEligibilityIssueCode> codes){
-    var first = errors.stream().filter(codes::contains).findFirst();
+  private String getReasonCode(List<ProgramEligibilityIssueCode> errors, ProgramEligibilityTypeCode typeCode){
+    var first = errors.stream().filter(programEligibilityIssueCode -> programEligibilityIssueCode.getProgramEligibilityTypeCode().getCode().equalsIgnoreCase(typeCode.getCode())).findFirst();
     return first.isPresent() ? first.get().getCode() : null;
   }
 
-  public static final Optional<ProgramEligibilityIssueCode> getBaseProgramEligibilityFailure(List<ProgramEligibilityIssueCode> errors) {
-    List<ProgramEligibilityIssueCode> ineligibleCodes = Arrays.asList(
-      HOMESCHOOL,
-      OFFSHORE,
-      OUT_OF_PROVINCE,
-      INACTIVE_ADULT,
-      INACTIVE_SCHOOL_AGE,
-      TOO_YOUNG
-    );
-
-    return errors.stream().filter(ineligibleCodes::contains).findFirst();
+  public static Optional<ProgramEligibilityIssueCode> getBaseProgramEligibilityFailure(List<ProgramEligibilityIssueCode> errors) {
+    return errors.stream().filter(programEligibilityIssueCode -> programEligibilityIssueCode.getProgramEligibilityTypeCode().getCode().equalsIgnoreCase(ProgramEligibilityTypeCode.BASE.getCode())).findFirst();
   }
 
   public void updateFteColumns(FteCalculationResult fteCalculationResult, SdcSchoolCollectionStudentEntity studentEntity) {

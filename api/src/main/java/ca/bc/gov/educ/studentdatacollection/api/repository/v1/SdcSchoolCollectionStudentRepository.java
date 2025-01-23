@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -254,21 +254,21 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     LIMIT :numberOfStudentsToProcess""", nativeQuery = true)
   List<SdcSchoolCollectionStudentEntity> findTopMigratedStudentForProcessing(int numberOfStudentsToProcess);
 
-  long countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(List<UUID> assignedStudentId, List<UUID> sdcSchoolCollectionID, String numberOfCourses);
+  @Query("""
+    SELECT stud from SdcSchoolCollectionStudentEntity stud 
+    WHERE stud.assignedStudentId IN (:assignedStudentIds)
+    AND stud.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
+    AND stud.sdcSchoolCollection.sdcSchoolCollectionID IN 
+      (SELECT sch.sdcSchoolCollectionID FROM SdcSchoolCollectionEntity sch WHERE sch.schoolID = :schoolID AND sch.collectionEntity.collectionID IN 
+        (SELECT col.collectionID FROM CollectionEntity col WHERE col.snapshotDate < :currSnapshot ORDER BY col.snapshotDate DESC LIMIT 8 ))
+  """)
+   List<SdcSchoolCollectionStudentEntity> findLastTwoYearsOfStudentRecordsWithinSchool(List<UUID> assignedStudentIds, UUID schoolID, LocalDate currSnapshot);
 
   @Query("""
        SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
        WHERE s.assignedStudentId IN :assignedStudentId
        AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
-       """)
-  long countAllByAssignedStudentIdAndSdcSchoolCollection_SdcSchoolCollectionIDIn(
-          @Param("assignedStudentId") List<UUID> assignedStudentId,
-          @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
-
-  @Query("""
-       SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
-       WHERE s.assignedStudentId IN :assignedStudentId
-       AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
+       AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
        AND s.enrolledGradeCode <> 'HS'
        """)
   long countAllByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInExcludingHomeschool(
@@ -279,6 +279,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
        SELECT COUNT(s) FROM SdcSchoolCollectionStudentEntity s
        WHERE s.assignedStudentId IN :assignedStudentId
        AND s.sdcSchoolCollection.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs
+       AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
        AND s.enrolledGradeCode <> 'HS'
        AND s.fte > 0
        """)
@@ -286,7 +287,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           @Param("assignedStudentId") List<UUID> assignedStudentId,
           @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs);
 
-  long countAllByAssignedStudentIdInAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(List<UUID> assignedStudentId, String enrolledGradeCode, List<UUID> sdcSchoolCollectionID);
+  long countAllByAssignedStudentIdInAndEnrolledGradeCodeAndSdcSchoolCollectionStudentStatusCodeIsNotAndSdcSchoolCollection_SdcSchoolCollectionIDIn(List<UUID> assignedStudentId, String enrolledGradeCode, String sdcSchoolCollectionStudentStatusCode, List<UUID> sdcSchoolCollectionID);
 
   @Query("SELECT " +
           "s.enrolledGradeCode AS enrolledGradeCode, " +
@@ -424,16 +425,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "WHERE s.sdcSchoolCollection.sdcSchoolCollectionID = :sdcSchoolCollectionId " +
           "AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'")
   EllHeadcountHeaderResult getEllHeadersBySchoolId(@Param("sdcSchoolCollectionId") UUID sdcSchoolCollectionId);
-
-  @Query(value="""
-           SELECT SSCS.numberOfCourses FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS WHERE SSC.schoolID = :schoolID
-            AND C.collectionID = SSC.collectionEntity.collectionID
-            AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
-            AND SSCS.assignedStudentId IN :assignedStudentID
-            AND C.openDate < :currentOpenDate
-            AND C.openDate >= (SELECT C.openDate FROM CollectionEntity C WHERE C.collectionTypeCode = :collectionTypeCode AND EXTRACT(YEAR FROM C.openDate) = :targetYear)
-            """)
-  List<String> getCollectionHistory(UUID schoolID, List<UUID> assignedStudentID, LocalDateTime currentOpenDate, String collectionTypeCode, Integer targetYear);
 
   @Query("SELECT " +
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '08' AND s.frenchProgramNonEligReasonCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS totalCoreFrench, " +
@@ -781,30 +772,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   SpecialEdHeadcountResult getSpecialEdHeadcountsSimpleBySdcDistrictCollectionId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
   @Query("SELECT " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B') THEN 1 END) AS levelOnes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'A' THEN 1 END) AS specialEdACodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'B' THEN 1 END) AS specialEdBCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('C', 'D', 'E', 'F', 'G') THEN 1 END) AS levelTwos, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'C' THEN 1 END) AS specialEdCCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'D' THEN 1 END) AS specialEdDCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'E' THEN 1 END) AS specialEdECodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'F' THEN 1 END) AS specialEdFCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'G' THEN 1 END) AS specialEdGCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('H') THEN 1 END) AS levelThrees, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'H' THEN 1 END) AS specialEdHCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('K', 'P', 'Q', 'R') THEN 1 END) AS otherLevels, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'K' THEN 1 END) AS specialEdKCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'P' THEN 1 END) AS specialEdPCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'Q' THEN 1 END) AS specialEdQCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'R' THEN 1 END) AS specialEdRCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'P', 'Q', 'R') THEN 1 END) AS allLevels " +
-          "FROM SdcSchoolCollectionStudentEntity s " +
-          "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
-          "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
-          "AND s.specialEducationNonEligReasonCode IS NULL ")
-  SpecialEdHeadcountResult getSpecialEdHeadcountsSimpleFebruaryBySdcDistrictCollectionId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
-
-  @Query("SELECT " +
           "COUNT(CASE WHEN s.specialEducationCategoryCode = 'A' AND s.specialEducationNonEligReasonCode IS NULL THEN 1 END) AS totalEligibleA, " +
           "COUNT(CASE WHEN s.specialEducationCategoryCode = 'A' THEN 1 END) AS reportedA, " +
           "COUNT(CASE WHEN s.specialEducationCategoryCode = 'B' AND s.specialEducationNonEligReasonCode IS NULL THEN 1 END) AS totalEligibleB, " +
@@ -1127,22 +1094,39 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalWithInSameDistrict(UUID districtID, List<UUID> assignedStudentIDs, String noOfCollections);
 
   @Query(value="""
-         SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS
-          WHERE C.collectionID = SSC.collectionEntity.collectionID
-          AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
-          AND SSCS.assignedStudentId = :assignedStudentID
-          AND SSCS.fte > 0
-          AND SSCS.sdcSchoolCollectionStudentStatusCode != 'DELETED'
-          AND C.collectionID IN
-                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
-         """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInAllDistrictWithNonZeroFte(UUID assignedStudentID, String noOfCollections);
+       SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS, SdcDistrictCollectionEntity SDC
+       WHERE SDC.districtID = :districtID
+       AND C.collectionID = SDC.collectionEntity.collectionID
+       AND C.collectionID = SSC.collectionEntity.collectionID
+       AND SDC.sdcDistrictCollectionID = SSC.sdcDistrictCollectionID
+       AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
+       AND SSCS.assignedStudentId in :assignedStudentIDs
+       AND C.collectionID != :collectionID
+       AND SSCS.fte > 0
+       AND SSCS.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+       AND C.collectionID IN
+       (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' AND CE.snapshotDate < :snapshotDate ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
+       """)
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalWithInSameDistrict(UUID districtID, List<UUID> assignedStudentIDs, String noOfCollections, UUID collectionID, LocalDate snapshotDate);
+
+  @Query(value="""
+       SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS
+       WHERE C.collectionID = SSC.collectionEntity.collectionID
+       AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
+       AND SSCS.assignedStudentId in :assignedStudentIDs
+       AND C.collectionID != :collectionID
+       AND SSCS.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+       AND C.collectionID IN
+       (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' AND CE.snapshotDate < :snapshotDate ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
+       """)
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscal(List<UUID> assignedStudentIDs, String noOfCollections, UUID collectionID, LocalDate snapshotDate);
 
   @Query(value="""
          SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS
           WHERE C.collectionID = SSC.collectionEntity.collectionID
           AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
           AND SSCS.assignedStudentId in :assignedStudentIDs
+          AND SSCS.sdcSchoolCollectionStudentStatusCode != 'DELETED'
           AND C.collectionID IN
                   (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
          """)
@@ -1156,6 +1140,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             AND SDC.sdcDistrictCollectionID = SSC.sdcDistrictCollectionID
             AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
             AND SSCS.assignedStudentId in :assignedStudentIDs
+            AND SSCS.sdcSchoolCollectionStudentStatusCode != 'DELETED'
             AND SSCS.enrolledGradeCode NOT IN ('08', '09')
             AND SSCS.fte >= 0
             AND C.collectionID IN
@@ -1163,7 +1148,19 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             """)
   List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(UUID districtID, List<UUID> assignedStudentIDs, String noOfCollections);
 
-  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeIn(UUID collectionID, List<String> enrolledGradeCode);
+  @Query(value="""
+           SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS
+            WHERE C.collectionID = SSC.collectionEntity.collectionID
+            AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
+            AND SSCS.assignedStudentId in :assignedStudentIDs
+            AND SSCS.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+            AND SSCS.enrolledGradeCode IN ('08', '09')
+            AND C.collectionID IN
+                  (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
+            """)
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInGrade8Or9(List<UUID> assignedStudentIDs, String noOfCollections);
+
+  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(UUID collectionID, List<String> enrolledGradeCode, String sdcSchoolCollectionStudentStatusCode);
 
   @Query("SELECT " +
           "s.sdcSchoolCollection.schoolID AS schoolID, " +
@@ -1836,51 +1833,97 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   @Query("SELECT " +
           " sscs.sdcSchoolCollection.schoolID as schoolID, " +
 
-          // Headcount for each grade
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' THEN 1 END) as kindHCount, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KF' THEN 1 END) as kindFCount, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '01' THEN 1 END) as grade1Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '02' THEN 1 END) as grade2Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '03' THEN 1 END) as grade3Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '04' THEN 1 END) as grade4Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '05' THEN 1 END) as grade5Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '06' THEN 1 END) as grade6Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '07' THEN 1 END) as grade7Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'EU' THEN 1 END) as gradeEUCount, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '08' THEN 1 END) as grade8Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '09' THEN 1 END) as grade9Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '10' THEN 1 END) as grade10Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '11' THEN 1 END) as grade11Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = '12' THEN 1 END) as grade12Count, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'SU' THEN 1 END) as gradeSUCount, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'GA' THEN 1 END) as gradeGACount, " +
-          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'HS' THEN 1 END) as gradeHSCount, " +
+          // Headcount for each grade with adults only
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.isAdult = true THEN 1 END) as kindHCountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KF' AND sscs.isAdult = true THEN 1 END) as kindFCountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.isAdult = true THEN 1 END) as grade1CountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.isAdult = true THEN 1 END) as grade2CountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.isAdult = true THEN 1 END) as grade3CountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.isAdult = true THEN 1 END) as grade4CountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.isAdult = true THEN 1 END) as grade5CountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.isAdult = true THEN 1 END) as grade6CountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.isAdult = true THEN 1 END) as grade7CountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.isAdult = true THEN 1 END) as gradeEUCountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.isAdult = true THEN 1 END) as grade8CountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.isAdult = true THEN 1 END) as grade9CountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.isAdult = true THEN 1 END) as grade10CountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.isAdult = true THEN 1 END) as grade11CountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.isAdult = true THEN 1 END) as grade12CountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.isAdult = true THEN 1 END) as gradeSUCountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'GA' AND sscs.isAdult = true THEN 1 END) as gradeGACountAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'HS' AND sscs.isAdult = true THEN 1 END) as gradeHSCountAdults, " +
 
-          // Total headcount
-          " SUM(CASE WHEN sscs.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', 'EU', '08', '09', '10', '11', '12', 'SU', 'GA', 'HS') THEN 1 ELSE 0 END) as totalCount, " +
+          // Total headcount with adults only
+          " SUM(CASE WHEN sscs.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', 'EU', '08', '09', '10', '11', '12', 'SU', 'GA', 'HS') AND sscs.isAdult = true THEN 1 ELSE 0 END) as totalCountAdults, " +
 
-          // FTE counts for each grade
-          " SUM(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END ) as kindHFTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = 'KF' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as kindFFTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade1FTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade2FTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade3FTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade4FTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade5FTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade6FTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade7FTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeEUFTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade8FTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade9FTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade10FTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade11FTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade12FTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeSUFTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = 'GA' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeGAFTE, " +
-          " SUM(CASE WHEN sscs.enrolledGradeCode = 'HS' AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeHSFTE, " +
+          // FTE counts for each grade with adults only
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as kindHFTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'KF' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as kindFFTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade1FTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade2FTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade3FTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade4FTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade5FTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade6FTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade7FTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeEUFTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade8FTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade9FTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade10FTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade11FTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade12FTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeSUFTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'GA' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeGAFTEAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'HS' AND sscs.isAdult = true AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeHSFTEAdults, " +
 
-          // Total FTE
-          " SUM(CASE WHEN sscs.fte IS NOT NULL AND sscs.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', 'EU', '08', '09', '10', '11', '12', 'SU', 'GA') THEN sscs.fte ELSE 0 END) as totalFTE " +
+          // Total FTE with adults only
+          " SUM(CASE WHEN sscs.fte IS NOT NULL AND sscs.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', 'EU', '08', '09', '10', '11', '12', 'SU', 'GA') AND sscs.isAdult = true THEN sscs.fte ELSE 0 END) as totalFTEAdults, " +
+
+          // Headcount for each grade with no adults
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.isAdult = false THEN 1 END) as kindHCountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KF' AND sscs.isAdult = false THEN 1 END) as kindFCountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.isAdult = false THEN 1 END) as grade1CountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.isAdult = false THEN 1 END) as grade2CountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.isAdult = false THEN 1 END) as grade3CountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.isAdult = false THEN 1 END) as grade4CountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.isAdult = false THEN 1 END) as grade5CountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.isAdult = false THEN 1 END) as grade6CountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.isAdult = false THEN 1 END) as grade7CountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.isAdult = false THEN 1 END) as gradeEUCountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.isAdult = false THEN 1 END) as grade8CountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.isAdult = false THEN 1 END) as grade9CountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.isAdult = false THEN 1 END) as grade10CountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.isAdult = false THEN 1 END) as grade11CountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.isAdult = false THEN 1 END) as grade12CountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.isAdult = false THEN 1 END) as gradeSUCountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'GA' AND sscs.isAdult = false THEN 1 END) as gradeGACountNoAdults, " +
+          " COUNT(CASE WHEN sscs.enrolledGradeCode = 'HS' AND sscs.isAdult = false THEN 1 END) as gradeHSCountNoAdults, " +
+
+          // Total headcount with no adults
+          " SUM(CASE WHEN sscs.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', 'EU', '08', '09', '10', '11', '12', 'SU', 'GA', 'HS') AND sscs.isAdult = false THEN 1 ELSE 0 END) as totalCountNoAdults, " +
+
+          // FTE counts for each grade with no adults
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'KH' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as kindHFTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'KF' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as kindFFTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '01' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade1FTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '02' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade2FTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '03' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade3FTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '04' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade4FTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '05' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade5FTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '06' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade6FTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '07' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade7FTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'EU' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeEUFTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '08' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade8FTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '09' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade9FTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '10' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade10FTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '11' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade11FTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = '12' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as grade12FTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'SU' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeSUFTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'GA' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeGAFTENoAdults, " +
+          " SUM(CASE WHEN sscs.enrolledGradeCode = 'HS' AND sscs.isAdult = false AND sscs.fte IS NOT NULL THEN sscs.fte ELSE 0 END) as gradeHSFTENoAdults, " +
+
+          // Total FTE with no adults
+          " SUM(CASE WHEN sscs.fte IS NOT NULL AND sscs.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', 'EU', '08', '09', '10', '11', '12', 'SU', 'GA') AND sscs.isAdult = false THEN sscs.fte ELSE 0 END) as totalFTENoAdults " +
 
           " FROM SdcSchoolCollectionStudentEntity sscs " +
           " WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
@@ -1943,7 +1986,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           " AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
           " AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is null " +
           " GROUP BY sscs.sdcSchoolCollection.schoolID ")
-  List<IndyFundingResult> getIndyFundingHeadcountsNonGraduatedAdultByCollectionId(@Param("collectionID") UUID collectionID);
+  List<IndyFundingGraduatedResult> getIndyFundingHeadcountsNonGraduatedAdultByCollectionId(@Param("collectionID") UUID collectionID);
 
   @Query(value = """
           SELECT

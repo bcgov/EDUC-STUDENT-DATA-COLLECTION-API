@@ -39,7 +39,6 @@ public class CloseCollectionService {
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     private final SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService;
     private final SdcSchoolCollectionService sdcSchoolCollectionService;
-    private final CodeTableService codeTableService;
     private final RestUtils restUtils;
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
     private final SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
@@ -49,7 +48,7 @@ public class CloseCollectionService {
     private static final String SDC_COLLECTION_ID_KEY = "collectionID";
     private final IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository;
 
-    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService, SdcSchoolCollectionService sdcSchoolCollectionService, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties, IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository, CodeTableService codeTableService) {
+    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService, SdcSchoolCollectionService sdcSchoolCollectionService, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties, IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository) {
         this.collectionRepository = collectionRepository;
         this.collectionTypeCodeRepository = collectionTypeCodeRepository;
         this.collectionCodeCriteriaRepository = collectionCodeCriteriaRepository;
@@ -65,7 +64,6 @@ public class CloseCollectionService {
         this.emailService = emailService;
         this.emailProperties = emailProperties;
         this.independentSchoolFundingGroupSnapshotRepository = independentSchoolFundingGroupSnapshotRepository;
-        this.codeTableService = codeTableService;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -94,44 +92,6 @@ public class CloseCollectionService {
         log.debug("Current collection type {}, id {}, is now closed", currentCollectionEntity.getCollectionTypeCode(), currentCollectionEntity.getCollectionID());
 
         startSDCCollection(collectionSagaData, currentCollectionEntity);
-    }
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @Async
-    public void openNewCollection() {
-        Optional<CollectionEntity> entityOptional = collectionRepository.findLastCollection();
-        CollectionEntity lastCollectionEntity = entityOptional.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, entityOptional.toString()));
-
-        log.info("Last collectionType {} with snapshotDate {}", lastCollectionEntity.getCollectionTypeCode(), lastCollectionEntity.getSnapshotDate());
-        String closingCollectionType = lastCollectionEntity.getCollectionTypeCode();
-
-        String newCollectionType = CollectionTypeCodes.findByValue(closingCollectionType)
-                .map(CollectionTypeCodes::getNextCollectionToOpen)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "No 'nextCollectionToOpen' mapping found for collection type: " + closingCollectionType));
-
-        CollectionTypeCodeEntity newCollectionTypeEntity = codeTableService.getCollectionCodeList()
-                .stream()
-                .filter(collectionTypeCodeEntity -> newCollectionType.equalsIgnoreCase(collectionTypeCodeEntity.getCollectionTypeCode()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "No CollectionTypeCodeEntity found for type: " + newCollectionType));
-
-        LocalDate snapshotDate = newCollectionTypeEntity.getSnapshotDate();
-        snapshotDate = snapshotDate.withYear(2025);
-        LocalDate submissionDate = snapshotDate.plusWeeks(1).with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY));
-        LocalDate duplicationResolutionDueDate = submissionDate.plusWeeks(2);
-        LocalDate signOffDueDate = submissionDate.plusWeeks(3);
-
-        CollectionSagaData collectionSagaData = CollectionSagaData.builder()
-                .existingCollectionID(lastCollectionEntity.getCollectionID().toString())
-                .newCollectionSnapshotDate(snapshotDate.toString())
-                .newCollectionSubmissionDueDate(submissionDate.toString())
-                .newCollectionDuplicationResolutionDueDate(duplicationResolutionDueDate.toString())
-                .newCollectionSignOffDueDate(signOffDueDate.toString())
-                .build();
-        log.info("New calculated: Snapshot date {}, submissionDate {}, duplicationResolutionDueDate {}, signOffDueDate {}",
-                snapshotDate, submissionDate, duplicationResolutionDueDate, signOffDueDate);
-        startSDCCollection(collectionSagaData, lastCollectionEntity);
     }
 
     private void startSDCCollection(final CollectionSagaData collectionSagaData, CollectionEntity lastCollectionEntity) {

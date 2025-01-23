@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ZeroFteReasonCodes.NUM_COURSES;
+
 @Component
 @Slf4j
 @Order(100)
@@ -32,7 +34,11 @@ public class AdultStudentCalculator implements FteCalculator {
             BigDecimal numCourses = StringUtils.isBlank(sdcSchoolStudent.getNumberOfCourses()) ? BigDecimal.ZERO : BigDecimal.valueOf(TransformUtil.parseNumberOfCourses(sdcSchoolStudent.getNumberOfCourses(), sdcSchoolStudent.getSdcSchoolCollectionStudentID()));
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
             fteCalculationResult.setFte(numCourses.multiply(fteMultiplier).setScale(4, RoundingMode.HALF_UP).stripTrailingZeros());
-            fteCalculationResult.setFteZeroReason(null);
+            if (fteCalculationResult.getFte() != null && fteCalculationResult.getFte().compareTo(BigDecimal.ZERO) > 0) {
+                fteCalculationResult.setFteZeroReason(null);
+            }else{
+                fteCalculationResult.setFteZeroReason(NUM_COURSES.getCode());
+            }
             log.debug("AdultStudentCalculator: Fte result {} calculated for student :: {}", fteCalculationResult.getFte(), studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return fteCalculationResult;
         } else {

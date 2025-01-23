@@ -28,8 +28,7 @@ public class ZeroCoursesAdultCalculator implements FteCalculator {
         log.debug("ZeroCoursesAdultCalculator: Starting calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         var student = studentData.getSdcSchoolCollectionStudentEntity();
 
-        if(!isOnlineSchool(studentData)
-                && Boolean.TRUE.equals(student.getIsAdult())
+        if(Boolean.TRUE.equals(student.getIsAdult())
                 && student.getNumberOfCoursesDec().compareTo(BigDecimal.ZERO) <= 0
                 && SchoolGradeCodes.get8PlusGrades().contains(student.getEnrolledGradeCode())) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();

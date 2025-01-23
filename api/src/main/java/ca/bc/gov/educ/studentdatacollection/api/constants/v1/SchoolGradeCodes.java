@@ -278,6 +278,7 @@ public enum SchoolGradeCodes {
         codes.add(HOMESCHOOL.getCode());
         return codes;
     }
+
     public static List<String> getNonIndependentKtoSUGrades() {
         List<String> codes = new ArrayList<>();
         codes.add(KINDFULL.getCode());
@@ -314,6 +315,12 @@ public enum SchoolGradeCodes {
         List<String> codes = new ArrayList<>();
         codes.add(KINDHALF.getCode());
         codes.addAll(getNonIndependentKtoGAGrades());
+        return codes;
+    }
+
+    public static List<String> getIndependentKtoHSGrades() {
+        List<String> codes = new ArrayList<>(getIndependentKtoGAGrades());
+        codes.add(HOMESCHOOL.getCode());
         return codes;
     }
 }

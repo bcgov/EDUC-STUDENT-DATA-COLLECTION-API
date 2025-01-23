@@ -1,9 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -18,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -76,6 +72,7 @@ public class FteCalculatorUtils {
      * 2. was reported in the previous February collection for the same district, not in HS, and received a non zero-FTE
      */
     public boolean studentPreviouslyReportedInDistrict(StudentRuleData studentRuleData) {
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
             return false;
         }
@@ -88,7 +85,6 @@ public class FteCalculatorUtils {
 
         long countAllByAssignedStudentIdAndSdcSchoolCollectionSdcSchoolCollectionIDIn = 0;
         var isSpringCollection = isSpringCollection(studentRuleData);
-        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         log.debug("StudentPreviouslyReportedInDistrict: isSpringCollection: " + isSpringCollection + " :: isPublicOnlineOrContEdSchool: " + isPublicOnlineOrContEdSchool + " :: isStudentInDistrictFundedGrade: " + isStudentInDistrictFundedGrade + " :: districtId: " + StringUtils.isNotBlank(school.getDistrictId()));
         if(isSpringCollection && isPublicOnlineOrContEdSchool && isStudentInDistrictFundedGrade && StringUtils.isNotBlank(school.getDistrictId())) {
             var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
@@ -118,6 +114,7 @@ public class FteCalculatorUtils {
      * 2. was reported in the previous February collection for the same authority, not in HS, and received a non-zero FTE
      */
     public boolean studentPreviouslyReportedInIndependentAuthority(StudentRuleData studentRuleData) {
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
             return false;
         }
@@ -131,7 +128,6 @@ public class FteCalculatorUtils {
         if(isSpringCollection(studentRuleData) && isIndependentOnlineSchool && isStudentInDistrictFundedGrade && (StringUtils.isNotBlank(school.getIndependentAuthorityId()))) {
             var schoolIDs = restUtils.getSchoolIDsByIndependentAuthorityID(school.getIndependentAuthorityId());
             if (schoolIDs.isPresent()) {
-                validationRulesService.setupMergedStudentIdValues(studentRuleData);
                 var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
                 var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
                 //Check both Sep & Feb
@@ -148,6 +144,7 @@ public class FteCalculatorUtils {
      * by an online school and the student was reported as an HS student in the previous collection
      */
     public boolean homeSchoolStudentIsNowOnlineKto9StudentOrHs(StudentRuleData studentRuleData) {
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
         if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
             return false;
         }
@@ -170,9 +167,8 @@ public class FteCalculatorUtils {
                 previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(UUID.fromString(studentRuleData.getSchool().getDistrictId()), fiscalSnapshotDate, currentSnapshotDate);
             }
             if (previousCollections != null) {
-                validationRulesService.setupMergedStudentIdValues(studentRuleData);
                 var collectionIds = previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList();
-                var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdInAndEnrolledGradeCodeAndSdcSchoolCollection_SdcSchoolCollectionIDIn(studentRuleData.getHistoricStudentIds(), SchoolGradeCodes.HOMESCHOOL.getCode(), collectionIds);
+                var count = sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdInAndEnrolledGradeCodeAndSdcSchoolCollectionStudentStatusCodeIsNotAndSdcSchoolCollection_SdcSchoolCollectionIDIn(studentRuleData.getHistoricStudentIds(), SchoolGradeCodes.HOMESCHOOL.getCode(), SdcSchoolStudentStatus.DELETED.getCode(), collectionIds);
                 return count > 0;
             }
         }
@@ -192,12 +188,14 @@ public class FteCalculatorUtils {
         boolean isSchoolAged = Boolean.TRUE.equals(student.getIsSchoolAged());
 
         if (isSchoolAged && isEightPlusGradeCode && reportedByOnlineOrContEdSchool && zeroCourses) {
+            validationRulesService.setupMergedStudentIdValues(studentRuleData);
             if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
                 return true;
             }
-            validationRulesService.setupMergedStudentIdValues(studentRuleData);
-            var lastTwoYearsOfCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(UUID.fromString(school.getSchoolId()), student.getSdcSchoolCollection().getSdcSchoolCollectionID());
-            return lastTwoYearsOfCollections.isEmpty() || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(studentRuleData.getHistoricStudentIds(), lastTwoYearsOfCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(), "0") == 0;
+            var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
+            var lastTwoYearsOfStudentRecords = sdcSchoolCollectionStudentRepository.findLastTwoYearsOfStudentRecordsWithinSchool(studentRuleData.getHistoricStudentIds(), UUID.fromString(school.getSchoolId()), currentSnapshotDate);
+
+            return lastTwoYearsOfStudentRecords.isEmpty() || !hasCoursesInLastTwoYears(lastTwoYearsOfStudentRecords);
         }
         return false;
     }
@@ -215,12 +213,28 @@ public class FteCalculatorUtils {
         boolean isAdult = Boolean.TRUE.equals(student.getIsAdult());
 
         if (isAdult && isAllowedAdultGradeCode && reportedByOnlineSchool && zeroCourses) {
+            validationRulesService.setupMergedStudentIdValues(studentRuleData);
             if(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() == null) {
                 return true;
             }
-            validationRulesService.setupMergedStudentIdValues(studentRuleData);
-            var lastTwoYearsOfCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolInLastTwoYears(UUID.fromString(school.getSchoolId()), student.getSdcSchoolCollection().getSdcSchoolCollectionID());
-            return lastTwoYearsOfCollections.isEmpty() || sdcSchoolCollectionStudentRepository.countByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInAndNumberOfCoursesGreaterThan(studentRuleData.getHistoricStudentIds(), lastTwoYearsOfCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList(), "0") == 0;
+            var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
+            var lastTwoYearsOfStudentRecords = sdcSchoolCollectionStudentRepository.findLastTwoYearsOfStudentRecordsWithinSchool(studentRuleData.getHistoricStudentIds(), UUID.fromString(school.getSchoolId()), currentSnapshotDate);
+
+            return lastTwoYearsOfStudentRecords.isEmpty() || !hasCoursesInLastTwoYears(lastTwoYearsOfStudentRecords);
+        }
+        return false;
+    }
+
+    private boolean hasCoursesInLastTwoYears(List<SdcSchoolCollectionStudentEntity> lastTwoYearsOfStudentRecords){
+        for(SdcSchoolCollectionStudentEntity studentEntity : lastTwoYearsOfStudentRecords){
+            try {
+                var noOfCourses = Double.parseDouble(studentEntity.getNumberOfCourses()) / 100;
+                if(noOfCourses > 0){
+                    return true;
+                }
+            } catch (NumberFormatException e) {
+                //this is ok
+            }
         }
         return false;
     }
@@ -260,15 +274,12 @@ public class FteCalculatorUtils {
     public boolean reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(StudentRuleData studentRuleData) {
         validationRulesService.setupMergedStudentIdValues(studentRuleData);
         List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getHistoricStudentIds(), "3");
+        historicalCollections.add(studentRuleData.getSdcSchoolCollectionStudentEntity());
 
         for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
-            String schoolId = studentEntity.getSdcSchoolCollection().getSchoolID().toString();
-            Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolId);
+            Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
             if (school.isPresent() && FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode())) {
-                BigDecimal fte = studentEntity.getFte();
-                if (fte != null && fte.compareTo(BigDecimal.ZERO) > 0) {
-                    return true;
-                }
+                return true;
             }
         }
         return false;
@@ -276,9 +287,7 @@ public class FteCalculatorUtils {
 
     public boolean reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(StudentRuleData studentRuleData) {
         validationRulesService.setupMergedStudentIdValues(studentRuleData);
-        String noOfCollectionsForLookup = "3";
-        List<SdcSchoolCollectionStudentEntity> entity = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInOtherDistrictsNotInGrade8Or9WithNonZeroFte(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
-        return !entity.isEmpty();
+        return validationRulesService.studentExistsInCurrentFiscalInGrade8Or9(studentRuleData);
     }
 
     private LocalDate getFiscalDateFromCurrentSnapshot(LocalDate currentSnapshotDate){

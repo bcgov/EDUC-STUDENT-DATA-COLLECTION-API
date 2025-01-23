@@ -70,10 +70,10 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
             case INDY_INCLUSIVE_ED_FUNDING_HEADCOUNTS -> ministryReportsService.generateIndySpecialEducationFundingHeadcounts(collectionID);
             case ENROLLED_HEADCOUNTS_AND_FTE_REPORT -> ministryReportsService.generateEnrolledHeadcountsAndFteReport(collectionID);
             case INCLUSIVE_EDUCATION_VARIANCES_ALL -> ministryReportsService.generateInclusiveEducationVarianceReport(collectionID);
-            case INDY_FUNDING_REPORT_ALL -> ministryReportsService.generateIndyFundingReport(collectionID, false, false, false);
-            case INDY_FUNDING_REPORT_FUNDED -> ministryReportsService.generateIndyFundingReport(collectionID, false, false, true);
-            case ONLINE_INDY_FUNDING_REPORT -> ministryReportsService.generateIndyFundingReport(collectionID, true, false, false);
-            case NON_GRADUATED_ADULT_INDY_FUNDING_REPORT -> ministryReportsService.generateIndyFundingReport(collectionID, false, true, false);
+            case INDY_FUNDING_REPORT_ALL -> ministryReportsService.generateIndyFundingReport(collectionID, false,  false);
+            case INDY_FUNDING_REPORT_FUNDED -> ministryReportsService.generateIndyFundingReport(collectionID, false,  true);
+            case ONLINE_INDY_FUNDING_REPORT -> ministryReportsService.generateIndyFundingReport(collectionID, true,  false);
+            case NON_GRADUATED_ADULT_INDY_FUNDING_REPORT -> ministryReportsService.generateIndyFundingGraduateReport(collectionID);
             case REFUGEE_ENROLMENT_HEADCOUNTS_AND_FTE_REPORT -> ministryReportsService.generateRefugeeEnrolmentHeadcountsAndFteReport(collectionID);
             case POSTED_DUPLICATES -> ministryReportsService.generatePostedDuplicatesReport(collectionID);
             default -> new DownloadableReportResponse();

@@ -59,8 +59,8 @@ public class EllHeadcountPerSchoolReportService extends BaseReportGenerationServ
 
     private void compileJasperReports() {
         try {
-            InputStream inputSpecialEdHeadcount = getClass().getResourceAsStream("/reports/specialEdHeadcountsPerSchool.jrxml");
-            ellHeadcountPerSchoolReport = JasperCompileManager.compileReport(inputSpecialEdHeadcount);
+            InputStream inputEllEdHeadcount = getClass().getResourceAsStream("/reports/ellHeadcountsPerSchool.jrxml");
+            ellHeadcountPerSchoolReport = JasperCompileManager.compileReport(inputEllEdHeadcount);
         } catch (JRException e) {
             throw new StudentDataCollectionAPIRuntimeException("Compiling Jasper reports has failed :: " + e.getMessage());
         }
@@ -114,12 +114,12 @@ public class EllHeadcountPerSchoolReportService extends BaseReportGenerationServ
 
     private void addValuesForSectionToMap(HashMap<String, HeadcountChildNode> nodeMap, String sectionPrefix, String sectionTitle, String sequencePrefix) {
         if (Objects.equals(sectionPrefix, ALLELL)) {
-            nodeMap.put(sectionPrefix, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, false));
+            nodeMap.put(sectionPrefix, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, true, false));
         } else {
-            nodeMap.put(sectionPrefix + HEADING, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, false, false, false));
-            nodeMap.put(sectionPrefix + "all", new GradeHeadcountChildNode("All English Language Learners", FALSE, sequencePrefix + "1", false, false, false, false));
-            nodeMap.put(sectionPrefix + ELIGIBLE, new GradeHeadcountChildNode("Eligible English Language Learners", FALSE, sequencePrefix + "2", false, false, false, false));
-            nodeMap.put(sectionPrefix + INELIGIBLE, new GradeHeadcountChildNode("Ineligible English Language Learners", FALSE, sequencePrefix + "3", false, false, false, false));
+            nodeMap.put(sectionPrefix + HEADING, new GradeHeadcountChildNode(sectionTitle, "true", sequencePrefix + "0", false, true, true, false));
+            nodeMap.put(sectionPrefix + "all", new GradeHeadcountChildNode("All English Language Learners", FALSE, sequencePrefix + "1", false, true, true, false));
+            nodeMap.put(sectionPrefix + ELIGIBLE, new GradeHeadcountChildNode("Eligible English Language Learners", FALSE, sequencePrefix + "2", false, true, true, false));
+            nodeMap.put(sectionPrefix + INELIGIBLE, new GradeHeadcountChildNode("Ineligible English Language Learners", FALSE, sequencePrefix + "3", false, true, true, false));
         }
     }
 

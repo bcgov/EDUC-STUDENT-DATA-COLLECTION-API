@@ -20,7 +20,7 @@ public enum IndySpecialEducationHeadcountHeader {
     G("G - Autism Spectrum Disorder (Level 2)"),
     LEVEL_3("Level 3 Total"),
     H("H - Intensive Behaviour Interventions or Serious Mental Illness  (Level 3)"),
-    LEVEL_OTHER("Other Levels Total"),
+    LEVEL_OTHER("SES Home School"),
     K("K - Mild Intellectual Disability (Other Level)"),
     P("P - Gifted (Other Level)"),
     Q("Q - Learning Disability (Other Level)"),

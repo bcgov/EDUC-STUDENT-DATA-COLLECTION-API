@@ -70,14 +70,14 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
 
   public void setGradeCodes(Optional<SchoolTombstone> school) {
     if(school.isPresent() && SchoolCategoryCodes.INDEPENDENTS.contains(school.get().getSchoolCategoryCode())) {
-      gradeCodes = SchoolGradeCodes.getIndependentKtoSUGrades();
+      gradeCodes = SchoolGradeCodes.getIndependentKtoHSGrades();
     } else {
-      gradeCodes = SchoolGradeCodes.getNonIndependentKtoSUGrades();
+      gradeCodes = SchoolGradeCodes.getNonIndependentSchoolGrades();
     }
   }
 
   public void setGradeCodesForDistricts() {
-    gradeCodes = SchoolGradeCodes.getNonIndependentKtoSUGrades();
+    gradeCodes = SchoolGradeCodes.getNonIndependentSchoolGrades();
   }
 
   public void setComparisonValues(
@@ -110,7 +110,7 @@ public class EllHeadcountHelper extends HeadcountHelper<EllHeadcountResult> {
     List<HeadcountHeader> previousHeadcountHeaderList = getHeaders(previousCollectionID, true);
     List<EllHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getEllHeadcountsByBySchoolIdAndSdcDistrictCollectionId(previousCollectionID);
     HeadcountResultsTable previousCollectionData = convertEllBySchoolHeadcountResults(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawData);
-    setResultsTableComparisonValuesDynamic(collectionData, previousCollectionData);
+    setResultsTableComparisonValuesDynamicNested(collectionData, previousCollectionData);
     setComparisonValues(headcountHeaderList, previousHeadcountHeaderList);
   }
 
