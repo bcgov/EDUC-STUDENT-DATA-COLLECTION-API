@@ -228,7 +228,8 @@ public class FteCalculatorUtils {
     private boolean hasCoursesInLastTwoYears(List<SdcSchoolCollectionStudentEntity> lastTwoYearsOfStudentRecords){
         for(SdcSchoolCollectionStudentEntity studentEntity : lastTwoYearsOfStudentRecords){
             try {
-                if(Double.parseDouble(studentEntity.getNumberOfCourses()) > 0){
+                var noOfCourses = Double.parseDouble(studentEntity.getNumberOfCourses()) / 100;
+                if(noOfCourses > 0){
                     return true;
                 }
             } catch (NumberFormatException e) {
