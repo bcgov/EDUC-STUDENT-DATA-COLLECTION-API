@@ -130,9 +130,10 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
 
                     Join<E, ?> childJoin = subRoot.join(splits[0], JoinType.LEFT);
                     Predicate childPredicate = childJoin.get(splits[1]).in(filterCriteria.getConvertedValues());
+                    var sdcSchoolCollectionIDVal = root.get("sdcSchoolCollection").get("sdcSchoolCollectionID");
 
                     subquery.select(subRoot.get("sdcSchoolCollectionStudentID"))
-                            .where(childPredicate);
+                            .where(criteriaBuilder.and(criteriaBuilder.equal(subRoot.get("sdcSchoolCollection").get("sdcSchoolCollectionID"), sdcSchoolCollectionIDVal), childPredicate));
                     return criteriaBuilder.not(root.get("sdcSchoolCollectionStudentID").in(subquery));
                 } else {
                     return criteriaBuilder.or(criteriaBuilder.not(root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues())), criteriaBuilder.isNull(root.get(filterCriteria.getFieldName())));
