@@ -101,6 +101,7 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
     @Test
     void testGenderRule() {
+        logger.info("genderCodeRepository contents {}", genderCodeRepository.findAll());
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
