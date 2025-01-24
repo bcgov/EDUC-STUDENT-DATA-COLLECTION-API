@@ -41,8 +41,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Slf4j
 class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
+
+    private static final Logger logger = LoggerFactory.getLogger(RulesProcessorTest.class);
 
     @Autowired
     private RulesProcessor rulesProcessor;
@@ -105,10 +110,12 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationErrorM = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        logger.info("validationErrorM>>>>>>>> ", validationErrorM);
         assertThat(validationErrorM.size()).isZero();
 
         entity.setGender("F");
         val validationErrorF = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
+        logger.info("validationErrorF>>>>>>L> ", validationErrorF);
         assertThat(validationErrorF.size()).isZero();
 
         entity.setGender("R");

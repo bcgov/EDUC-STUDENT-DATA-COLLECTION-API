@@ -1105,10 +1105,7 @@ public class CSVReportService {
                 var schoolOpt = restUtils.getSchoolBySchoolID(result.getSchoolID());
                 if(schoolOpt.isPresent() &&
                         (schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.STANDARD.getCode()) ||
-                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.ALT_PROGS.getCode()) ||
-                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.YOUTH.getCode()) ||
-                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.SHORT_PRP.getCode()) ||
-                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.LONG_PRP.getCode()))) {
+                                schoolOpt.get().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.ALT_PROGS.getCode()))) {
                     List<String> csvRowData = prepareRefugeeEnrolmentFteData(result, schoolOpt.get());
                     csvPrinter.printRecord(csvRowData);
                 }
