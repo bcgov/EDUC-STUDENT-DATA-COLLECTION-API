@@ -41,13 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @Slf4j
 class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
-
-    private static final Logger logger = LoggerFactory.getLogger(RulesProcessorTest.class);
 
     @Autowired
     private RulesProcessor rulesProcessor;
@@ -75,9 +70,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         gender.setEffectiveDate(LocalDateTime.now().minusYears(1));
         gender.setExpiryDate(LocalDateTime.now().plusDays(1));
         gender.setCreateUser("ABC");
-        gender.setCreateDate(LocalDateTime.now().minusMinutes(5));
+        gender.setCreateDate(LocalDateTime.now());
         gender.setUpdateUser("ABC");
-        gender.setUpdateDate(LocalDateTime.now().minusMinutes(5));
+        gender.setUpdateDate(LocalDateTime.now());
         genderCodeRepository.save(gender);
 
         GenderCodeEntity gender2 = new GenderCodeEntity();
@@ -88,9 +83,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         gender2.setEffectiveDate(LocalDateTime.now().minusYears(1));
         gender2.setExpiryDate(LocalDateTime.now().plusDays(1));
         gender2.setCreateUser("ABC");
-        gender2.setCreateDate(LocalDateTime.now().minusMinutes(5));
+        gender2.setCreateDate(LocalDateTime.now());
         gender2.setUpdateUser("ABC");
-        gender2.setUpdateDate(LocalDateTime.now().minusMinutes(5));
+        gender2.setUpdateDate(LocalDateTime.now());
         genderCodeRepository.save(gender2);
     }
 
@@ -101,7 +96,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
     @Test
     void testGenderRule() {
-        logger.info("genderCodeRepository contents {}", genderCodeRepository.findAll());
         var collection = collectionRepository.save(createMockCollectionEntity());
         var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
         val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
@@ -115,8 +109,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         entity.setGender("F");
         val validationErrorF = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
-        logger.info("validationErrorF>>>>>> {}", validationErrorF);
-        logger.info("validationErrorF.size()>>>>>> {}", validationErrorF.size());
         assertThat(validationErrorF.size()).isZero();
 
         entity.setGender("R");
