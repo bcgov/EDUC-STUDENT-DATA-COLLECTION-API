@@ -18,9 +18,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenM
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +58,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     RestUtils restUtils;
     private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT);
 
-    @BeforeEach
-    void runBefore() {
+    @BeforeAll
+    static void setup(@Autowired GenderCodeRepository genderCodeRepository) {
         GenderCodeEntity gender = new GenderCodeEntity();
         gender.setGenderCode("M");
         gender.setLabel("Male");
@@ -89,8 +87,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         genderCodeRepository.save(gender2);
     }
 
-    @AfterEach
-    void purgeData() {
+    @AfterAll
+    static void tearDown(@Autowired GenderCodeRepository genderCodeRepository) {
         genderCodeRepository.deleteAll();
     }
 
