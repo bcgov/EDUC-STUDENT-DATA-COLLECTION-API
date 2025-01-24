@@ -11,13 +11,16 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepos
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -128,22 +131,45 @@ public class ValidationRulesService {
         var multiPenMatchResults = Arrays.asList("BM", "CM", "DM");
 
         if (StringUtils.isNotEmpty(penMatchResultCode) && validPenMatchResults.contains(penMatchResultCode)) {
-            if (penMatchResult.getMatchingRecords() == null || penMatchResult.getMatchingRecords().isEmpty()) {
-                log.error("PEN Match records list is null or empty - this should not have happened :: {}", penMatchResult);
-                throw new StudentDataCollectionAPIRuntimeException("PEN Match records list is null or empty - this should not have happened");
-            }
-            final var penMatchRecordOptional = penMatchResult.getMatchingRecords().stream().findFirst();
-            if (penMatchRecordOptional.isPresent()) {
-                var assignedPEN = penMatchRecordOptional.get().getMatchingPEN();
-                var assignedStudentID = penMatchRecordOptional.get().getStudentID();
-                student.setPenMatchResult("MATCH");
-                student.setAssignedStudentId(UUID.fromString(assignedStudentID));
-                student.setAssignedPen(assignedPEN);
-            }
+            setPositivePENMatch(penMatchResult, student);
         } else if (StringUtils.isNotEmpty(penMatchResultCode) && multiPenMatchResults.contains(penMatchResultCode)) {
             student.setPenMatchResult("MULTI");
         } else {
             student.setPenMatchResult("CONFLICT");
+            if(StringUtils.isNotEmpty(penMatchResultCode) && penMatchResultCode.equalsIgnoreCase("F1")){
+                if(!StringUtils.isNotBlank(student.getLegalLastName()) && StringUtils.countMatches(student.getLegalLastName(), " ") == 1){
+                    //Split the first name and try again
+                    try {
+                        var clonedStudent = new SdcSchoolCollectionStudentEntity();
+                        BeanUtils.copyProperties(clonedStudent, student);
+                        String[] parts = clonedStudent.getLegalLastName().split(" ");
+                        clonedStudent.setLegalFirstName(parts[0]);
+                        clonedStudent.setLegalLastName(parts[1]);
+
+                        var penMatchResultF1 = this.restUtils.getPenMatchResult(UUID.randomUUID(), clonedStudent, mincode);
+                        if (StringUtils.isNotEmpty(penMatchResultF1.getPenStatus()) && validPenMatchResults.contains(penMatchResultF1.getPenStatus())) {
+                            setPositivePENMatch(penMatchResultF1, student);
+                        }
+                    } catch (Exception e) {
+                        //Keep the F1
+                    }
+                }
+            }
+        }
+    }
+
+    private void setPositivePENMatch(PenMatchResult penMatchResult, SdcSchoolCollectionStudentEntity student){
+        if (penMatchResult.getMatchingRecords() == null || penMatchResult.getMatchingRecords().isEmpty()) {
+            log.error("PEN Match records list is null or empty - this should not have happened :: {}", penMatchResult);
+            throw new StudentDataCollectionAPIRuntimeException("PEN Match records list is null or empty - this should not have happened");
+        }
+        final var penMatchRecordOptional = penMatchResult.getMatchingRecords().stream().findFirst();
+        if (penMatchRecordOptional.isPresent()) {
+            var assignedPEN = penMatchRecordOptional.get().getMatchingPEN();
+            var assignedStudentID = penMatchRecordOptional.get().getStudentID();
+            student.setPenMatchResult("MATCH");
+            student.setAssignedStudentId(UUID.fromString(assignedStudentID));
+            student.setAssignedPen(assignedPEN);
         }
     }
 
