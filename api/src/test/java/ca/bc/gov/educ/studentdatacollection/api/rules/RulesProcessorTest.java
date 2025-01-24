@@ -18,7 +18,9 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenM
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentValidationIssue;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,8 +60,8 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     RestUtils restUtils;
     private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT);
 
-    @BeforeAll
-    static void setup(@Autowired GenderCodeRepository genderCodeRepository) {
+    @BeforeEach
+    void runBefore() {
         GenderCodeEntity gender = new GenderCodeEntity();
         gender.setGenderCode("M");
         gender.setLabel("Male");
@@ -68,9 +70,9 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         gender.setEffectiveDate(LocalDateTime.now().minusYears(1));
         gender.setExpiryDate(LocalDateTime.now().plusDays(1));
         gender.setCreateUser("ABC");
-        gender.setCreateDate(LocalDateTime.now());
+        gender.setCreateDate(LocalDateTime.now().minusMinutes(5));
         gender.setUpdateUser("ABC");
-        gender.setUpdateDate(LocalDateTime.now());
+        gender.setUpdateDate(LocalDateTime.now().minusMinutes(5));
         genderCodeRepository.save(gender);
 
         GenderCodeEntity gender2 = new GenderCodeEntity();
@@ -81,14 +83,14 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         gender2.setEffectiveDate(LocalDateTime.now().minusYears(1));
         gender2.setExpiryDate(LocalDateTime.now().plusDays(1));
         gender2.setCreateUser("ABC");
-        gender2.setCreateDate(LocalDateTime.now());
+        gender2.setCreateDate(LocalDateTime.now().minusMinutes(5));
         gender2.setUpdateUser("ABC");
-        gender2.setUpdateDate(LocalDateTime.now());
+        gender2.setUpdateDate(LocalDateTime.now().minusMinutes(5));
         genderCodeRepository.save(gender2);
     }
 
-    @AfterAll
-    static void tearDown(@Autowired GenderCodeRepository genderCodeRepository) {
+    @AfterEach
+    void purgeData() {
         genderCodeRepository.deleteAll();
     }
 
