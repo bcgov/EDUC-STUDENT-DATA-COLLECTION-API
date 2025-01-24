@@ -110,12 +110,12 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         val validationErrorM = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
-        logger.info("validationErrorM.size()>>>>>>>> ", validationErrorM.size());
         assertThat(validationErrorM.size()).isZero();
 
         entity.setGender("F");
         val validationErrorF = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
-        logger.info("validationErrorF.size()>>>>>>", validationErrorF.size());
+        logger.info("validationErrorF>>>>>> {}", validationErrorF);
+        logger.info("validationErrorF.size()>>>>>> {}", validationErrorF.size());
         assertThat(validationErrorF.size()).isZero();
 
         entity.setGender("R");
