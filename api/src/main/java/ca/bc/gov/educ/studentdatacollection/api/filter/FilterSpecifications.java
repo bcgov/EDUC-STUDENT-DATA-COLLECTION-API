@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumMap;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
@@ -139,6 +140,29 @@ public class FilterSpecifications<E, T extends Comparable<T>> {
                     return criteriaBuilder.or(criteriaBuilder.not(root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues())), criteriaBuilder.isNull(root.get(filterCriteria.getFieldName())));
                 }
             });
+
+        map.put(FilterOperation.NONE_IN_DISTRICT,
+                filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
+                    if (filterCriteria.getFieldName().contains(".")) {
+                        String[] splits = filterCriteria.getFieldName().split("\\.");
+
+                        Subquery<String> subquery = criteriaQuery.subquery(String.class);
+                        Root<E> subRoot = subquery.from(root.getModel().getJavaType());
+
+                        Join<E, ?> childJoin = subRoot.join(splits[0], JoinType.LEFT);
+                        Predicate childPredicate = childJoin.get(splits[1]).in(filterCriteria.getConvertedValues());
+
+                        var districtJoin = subRoot.get("sdcSchoolCollection");
+                        var districtCriteria = criteriaBuilder.equal(districtJoin.get("sdcDistrictCollectionID"), UUID.fromString(filterCriteria.getDistrictCollectionID()));
+                       subquery.select(subRoot.get("sdcSchoolCollectionStudentID"))
+                                .where(criteriaBuilder.and(districtCriteria , childPredicate));
+
+                        return criteriaBuilder.not(root.get("sdcSchoolCollectionStudentID").in(subquery));
+                    } else {
+                        return criteriaBuilder.or(criteriaBuilder.not(root.get(filterCriteria.getFieldName()).in(filterCriteria.getConvertedValues())), criteriaBuilder.isNull(root.get(filterCriteria.getFieldName())));
+                    }
+                });
+
         map.put(FilterOperation.BETWEEN,
                 filterCriteria -> (root, criteriaQuery, criteriaBuilder) -> {
                     if (filterCriteria.getFieldName().contains(".")) {

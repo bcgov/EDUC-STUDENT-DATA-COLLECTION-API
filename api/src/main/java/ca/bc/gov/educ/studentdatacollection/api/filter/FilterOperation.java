@@ -42,6 +42,7 @@ public enum FilterOperation {
    * Filter to return when none of the child records includes the values
    */
   NONE_IN("none_in"),
+  NONE_IN_DISTRICT("none_in_district"),
   /**
    * Not in filter operation.
    */

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.chrono.ChronoLocalDate;
 import java.time.chrono.ChronoLocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -35,7 +36,7 @@ public abstract class BaseFilterSpecs<R> {
    * @return the date type specification
    */
   public Specification<R> getDateTypeSpecification(String fieldName, String filterValue, FilterOperation filterOperation) {
-    return getSpecification(fieldName, filterValue, filterOperation, converters.getFunction(ChronoLocalDate.class), dateFilterSpecifications);
+    return getSpecification(fieldName, filterValue, filterOperation, converters.getFunction(ChronoLocalDate.class), dateFilterSpecifications, null);
   }
 
   /**
@@ -47,7 +48,7 @@ public abstract class BaseFilterSpecs<R> {
    * @return the date time type specification
    */
   public Specification<R> getDateTimeTypeSpecification(String fieldName, String filterValue, FilterOperation filterOperation) {
-    return getSpecification(fieldName, filterValue, filterOperation, converters.getFunction(ChronoLocalDateTime.class), dateTimeFilterSpecifications);
+    return getSpecification(fieldName, filterValue, filterOperation, converters.getFunction(ChronoLocalDateTime.class), dateTimeFilterSpecifications, null);
   }
 
   /**
@@ -59,7 +60,7 @@ public abstract class BaseFilterSpecs<R> {
    * @return the integer type specification
    */
   public Specification<R> getIntegerTypeSpecification(String fieldName, String filterValue, FilterOperation filterOperation) {
-    return getSpecification(fieldName, filterValue, filterOperation, converters.getFunction(Integer.class), integerFilterSpecifications);
+    return getSpecification(fieldName, filterValue, filterOperation, converters.getFunction(Integer.class), integerFilterSpecifications, null);
   }
 
   /**
@@ -71,7 +72,7 @@ public abstract class BaseFilterSpecs<R> {
    * @return the long type specification
    */
   public Specification<R> getLongTypeSpecification(String fieldName, String filterValue, FilterOperation filterOperation) {
-    return getSpecification(fieldName, filterValue, filterOperation, converters.getFunction(Long.class), longFilterSpecifications);
+    return getSpecification(fieldName, filterValue, filterOperation, converters.getFunction(Long.class), longFilterSpecifications, null);
   }
 
   /**
@@ -82,8 +83,8 @@ public abstract class BaseFilterSpecs<R> {
    * @param filterOperation the filter operation
    * @return the string type specification
    */
-  public Specification<R> getStringTypeSpecification(String fieldName, String filterValue, FilterOperation filterOperation) {
-    return getSpecification(fieldName, filterValue, filterOperation, converters.getFunction(String.class), stringFilterSpecifications);
+  public Specification<R> getStringTypeSpecification(String fieldName, String filterValue, FilterOperation filterOperation, String districtCollectionID) {
+    return getSpecification(fieldName, filterValue, filterOperation, converters.getFunction(String.class), stringFilterSpecifications, districtCollectionID);
   }
 
   /**
@@ -95,7 +96,7 @@ public abstract class BaseFilterSpecs<R> {
    * @return the string type specification
    */
   public Specification<R> getBooleanTypeSpecification(String fieldName, String filterValue, FilterOperation filterOperation) {
-    return getSpecification(fieldName, filterValue, filterOperation, converters.getFunction(Boolean.class), booleanFilterSpecifications);
+    return getSpecification(fieldName, filterValue, filterOperation, converters.getFunction(Boolean.class), booleanFilterSpecifications, null);
   }
 
   /**
@@ -107,15 +108,16 @@ public abstract class BaseFilterSpecs<R> {
    * @return the uuid type specification
    */
   public Specification<R> getUUIDTypeSpecification(String fieldName, String filterValue, FilterOperation filterOperation) {
-    return getSpecification(fieldName, filterValue, filterOperation, converters.getFunction(UUID.class), uuidFilterSpecifications);
+    return getSpecification(fieldName, filterValue, filterOperation, converters.getFunction(UUID.class), uuidFilterSpecifications, null);
   }
 
   private <T extends Comparable<T>> Specification<R> getSpecification(String fieldName,
                                                                       String filterValue,
                                                                       FilterOperation filterOperation,
                                                                       Function<String, T> converter,
-                                                                      FilterSpecifications<R, T> specifications) {
-    FilterCriteria<T> criteria = new FilterCriteria<>(fieldName, filterValue, filterOperation, converter);
+                                                                      FilterSpecifications<R, T> specifications,
+                                                                      String districtCollectionID) {
+    FilterCriteria<T> criteria = new FilterCriteria<>(fieldName, filterValue, filterOperation, converter, districtCollectionID);
     return specifications.getSpecification(criteria.getOperation()).apply(criteria);
   }
 }
