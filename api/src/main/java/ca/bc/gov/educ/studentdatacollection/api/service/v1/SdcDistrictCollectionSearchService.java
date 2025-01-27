@@ -61,7 +61,7 @@ public class SdcDistrictCollectionSearchService extends BaseSearchService {
         });
         int i = 0;
         for (var search : searches) {
-          districtSpecs = getSpecifications(districtSpecs, i, search, this.getSdcDistrictCollectionFilterSpecs());
+          districtSpecs = getSpecifications(districtSpecs, i, search, this.getSdcDistrictCollectionFilterSpecs(), searches);
           i++;
         }
       }

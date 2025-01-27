@@ -137,7 +137,7 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
         });
         int i = 0;
         for (var search : searches) {
-          schoolSpecs = getSpecifications(schoolSpecs, i, search, getSdcSchoolCollectionStudentFilterSpecs());
+          schoolSpecs = getSpecifications(schoolSpecs, i, search, getSdcSchoolCollectionStudentFilterSpecs(), searches);
           i++;
         }
       }
