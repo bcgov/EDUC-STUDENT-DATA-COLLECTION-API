@@ -67,7 +67,9 @@ class StudentGraduatedCalculatorTest {
 
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSdcSchoolCollectionStudentEntity(student);
-
+        var school = createSchool();
+        school.setSchoolCategoryCode("INDEPEND");
+        studentData.setSchool(school);
         // When
         FteCalculationResult result = studentGraduatedCalculator.calculateFte(studentData);
 
@@ -111,7 +113,9 @@ class StudentGraduatedCalculatorTest {
 
         StudentRuleData studentData = new StudentRuleData();
         studentData.setSdcSchoolCollectionStudentEntity(student);
-
+        var school = createSchool();
+        school.setSchoolCategoryCode("INDEPEND");
+        studentData.setSchool(school);
         // When
         FteCalculationResult result = studentGraduatedCalculator.calculateFte(studentData);
 
