@@ -56,8 +56,8 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
     public void populateStepsToExecuteMap() {
         this.stepBuilder()
                 .begin(UPDATE_STUDENT, this::updateStudent)
-                .step(UPDATE_STUDENT, STUDENT_UPDATED, UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentEllAndStatus)
-                .step(UPDATE_STUDENT, NO_STUDENT_UPDATE_NEEDED, UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentEllAndStatus)
+                .step(UPDATE_STUDENT, STUDENT_UPDATED, UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
+                .step(UPDATE_STUDENT, NO_STUDENT_UPDATE_NEEDED, UPDATE_SDC_STUDENT_STATUS, this::updateSdcStudentStatus)
                 .end(UPDATE_SDC_STUDENT_STATUS, SDC_STUDENT_STATUS_UPDATED);
     }
 
@@ -175,14 +175,14 @@ public class UpdateStudentDownstreamOrchestrator extends BaseOrchestrator<Update
         }
     }
 
-    public void updateSdcStudentEllAndStatus(final Event event, final SdcSagaEntity saga, final UpdateStudentSagaData updateStudentSagaData) throws JsonProcessingException {
+    public void updateSdcStudentStatus(final Event event, final SdcSagaEntity saga, final UpdateStudentSagaData updateStudentSagaData) throws JsonProcessingException {
         final SagaEventStatesEntity eventStates = this.createEventState(saga, event.getEventType(), event.getEventOutcome(), event.getEventPayload());
         saga.setSagaState(UPDATE_SDC_STUDENT_STATUS.toString());
         saga.setStatus(IN_PROGRESS.toString());
         this.getSagaService().updateAttachedSagaWithEvents(saga, eventStates);
 
         //service call
-        closeCollectionService.updateELLAndMarkStudentAsCompleted(updateStudentSagaData);
+        closeCollectionService.markStudentAsCompleted(updateStudentSagaData);
 
         final Event nextEvent = Event.builder()
                 .sagaId(saga.getSagaId())
