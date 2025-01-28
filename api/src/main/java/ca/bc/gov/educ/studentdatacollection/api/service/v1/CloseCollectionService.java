@@ -14,6 +14,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.UpdateStudentSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.IndependentSchoolFundingGroupSnapshot;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcStudentEll;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -47,8 +48,10 @@ public class CloseCollectionService {
     private final EmailProperties emailProperties;
     private static final String SDC_COLLECTION_ID_KEY = "collectionID";
     private final IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository;
+    private final ValidationRulesService validationRulesService;
+    private final SdcStudentEllRepository sdcStudentEllRepository;
 
-    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService, SdcSchoolCollectionService sdcSchoolCollectionService, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties, IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository) {
+    public CloseCollectionService(CollectionRepository collectionRepository, CollectionTypeCodeRepository collectionTypeCodeRepository, CollectionCodeCriteriaRepository collectionCodeCriteriaRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionHistoryService sdcSchoolHistoryService, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService, SdcSchoolCollectionService sdcSchoolCollectionService, RestUtils restUtils, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, EmailService emailService, EmailProperties emailProperties, IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository, ValidationRulesService validationRulesService, SdcStudentEllRepository sdcStudentEllRepository) {
         this.collectionRepository = collectionRepository;
         this.collectionTypeCodeRepository = collectionTypeCodeRepository;
         this.collectionCodeCriteriaRepository = collectionCodeCriteriaRepository;
@@ -64,6 +67,8 @@ public class CloseCollectionService {
         this.emailService = emailService;
         this.emailProperties = emailProperties;
         this.independentSchoolFundingGroupSnapshotRepository = independentSchoolFundingGroupSnapshotRepository;
+        this.validationRulesService = validationRulesService;
+        this.sdcStudentEllRepository = sdcStudentEllRepository;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -183,9 +188,33 @@ public class CloseCollectionService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void markStudentAsCompleted(UpdateStudentSagaData updateStudentSagaData) {
+    public void updateELLAndMarkStudentAsCompleted(UpdateStudentSagaData updateStudentSagaData) {
         Optional<SdcSchoolCollectionStudentEntity> optionalStudentEntity =  sdcSchoolCollectionStudentRepository.findById(UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()));
         SdcSchoolCollectionStudentEntity studentEntity = optionalStudentEntity.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "sdcSchoolCollectionStudentID", updateStudentSagaData.getSdcSchoolCollectionStudentID()));
+        final List<String> enrolledProgramCodes = validationRulesService.splitEnrolledProgramsString(studentEntity.getEnrolledProgramCodes());
+
+        if (EnrolledProgramCodes.getELLCodes().stream().anyMatch(enrolledProgramCodes::contains)) {
+            final var studentInEllOpt = validationRulesService.getStudentYearsInEll(studentEntity.getAssignedStudentId());
+            log.debug("Student years in ELL found for SDC student {} :: is {}", studentEntity.getSdcSchoolCollectionStudentID(), studentInEllOpt);
+            if(studentInEllOpt.isPresent()){
+                var studentInEll = studentInEllOpt.get();
+                studentEntity.setYearsInEll(studentInEll.getYearsInEll() + 1);
+                studentInEll.setYearsInEll(studentInEll.getYearsInEll() + 1);
+                studentInEll.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+                studentInEll.setUpdateDate(LocalDateTime.now());
+                sdcStudentEllRepository.save(studentInEll);
+            } else{
+                studentEntity.setYearsInEll(1);
+                SdcStudentEllEntity studentEll = new SdcStudentEllEntity();
+                studentEll.setStudentID(studentEntity.getAssignedStudentId());
+                studentEll.setYearsInEll(1);
+                studentEll.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+                studentEll.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+                studentEll.setUpdateDate(LocalDateTime.now());
+                studentEll.setCreateDate(LocalDateTime.now());
+                sdcStudentEllRepository.save(studentEll);
+            }
+        }
         studentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.COMPLETED.getCode());
         studentEntity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         studentEntity.setUpdateDate(LocalDateTime.now());
