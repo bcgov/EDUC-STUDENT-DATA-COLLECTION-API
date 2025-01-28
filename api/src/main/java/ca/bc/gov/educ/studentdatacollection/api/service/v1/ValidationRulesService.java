@@ -137,7 +137,7 @@ public class ValidationRulesService {
         } else {
             student.setPenMatchResult("CONFLICT");
             if(StringUtils.isNotEmpty(penMatchResultCode) && penMatchResultCode.equalsIgnoreCase("F1")){
-                if(!StringUtils.isNotBlank(student.getLegalLastName()) && StringUtils.countMatches(student.getLegalLastName(), " ") == 1){
+                if(StringUtils.isNotBlank(student.getLegalLastName()) && StringUtils.countMatches(student.getLegalLastName(), " ") == 1){
                     //Split the first name and try again
                     try {
                         var clonedStudent = new SdcSchoolCollectionStudentEntity();
