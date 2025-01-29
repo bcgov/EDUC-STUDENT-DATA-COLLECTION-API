@@ -80,9 +80,14 @@ public class EventHandlerService {
         log.trace(EXECUTION_IS_NOT_REQUIRED, event);
         return;
       }
-      val saga = this.updateStudentDownstreamOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
-      log.debug("Starting updateStudentDownstreamOrchestrator orchestrator :: {}", saga);
-      this.updateStudentDownstreamOrchestrator.startSaga(saga);
+      try {
+        val saga = this.updateStudentDownstreamOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
+        log.debug("Starting updateStudentDownstreamOrchestrator orchestrator :: {}", saga);
+        this.updateStudentDownstreamOrchestrator.startSaga(saga);
+      }catch(Exception e){
+        //This will happen occasionally when we have multiple messages hitting our pods
+        log.debug("Skipping processing on student {} :: saga already exists :: exception was: {}", updateStudentSagaData.getSdcSchoolCollectionStudentID(), e.getMessage());
+      }
     }
   }
 
@@ -95,9 +100,14 @@ public class EventHandlerService {
         log.trace(EXECUTION_IS_NOT_REQUIRED, event);
         return;
       }
-      val saga = this.updateStudentStatusOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
-      log.debug("Starting updateStudentStatusOrchestrator orchestrator :: {}", saga);
-      this.updateStudentStatusOrchestrator.startSaga(saga);
+      try {
+        val saga = this.updateStudentStatusOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
+        log.debug("Starting updateStudentStatusOrchestrator orchestrator :: {}", saga);
+        this.updateStudentStatusOrchestrator.startSaga(saga);
+      }catch(Exception e){
+        //This will happen occasionally when we have multiple messages hitting our pods
+        log.debug("Skipping processing on student {} :: saga already exists :: exception was: {}", updateStudentSagaData.getSdcSchoolCollectionStudentID(), e.getMessage());
+      }
     }
   }
 
@@ -110,9 +120,14 @@ public class EventHandlerService {
         log.trace(EXECUTION_IS_NOT_REQUIRED, event);
         return;
       }
-      val saga = this.sdcStudentMigrationOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
-      log.debug("Starting updateStudentDownstreamOrchestrator orchestrator :: {}", saga);
-      this.sdcStudentMigrationOrchestrator.startSaga(saga);
+      try {
+        val saga = this.sdcStudentMigrationOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
+        log.debug("Starting updateStudentDownstreamOrchestrator orchestrator :: {}", saga);
+        this.sdcStudentMigrationOrchestrator.startSaga(saga);
+      }catch(Exception e){
+        //This will happen occasionally when we have multiple messages hitting our pods
+        log.debug("Skipping processing on student {} :: saga already exists :: exception was: {}", sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID(), e.getMessage());
+      }
     }
   }
 }
