@@ -52,7 +52,8 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
   void purgeData() {
     collectionRepository.deleteAll();
     sdcSchoolCollectionRepository.deleteAll();
-    sdcSchoolCollectionRepository.deleteAll();
+    sdcSchoolCollectionStudentRepository.deleteAll();
+    sdcDistrictCollectionRepository.deleteAll();
     sdcStudentEllRepository.deleteAll();
   }
 

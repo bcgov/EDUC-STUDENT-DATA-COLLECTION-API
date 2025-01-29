@@ -60,40 +60,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
     RestUtils restUtils;
     private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT);
 
-    @BeforeEach
-    void runBefore() {
-        GenderCodeEntity gender = new GenderCodeEntity();
-        gender.setGenderCode("M");
-        gender.setLabel("Male");
-        gender.setDescription("DESC");
-        gender.setDisplayOrder(1);
-        gender.setEffectiveDate(LocalDateTime.now().minusYears(1));
-        gender.setExpiryDate(LocalDateTime.now().plusDays(1));
-        gender.setCreateUser("ABC");
-        gender.setCreateDate(LocalDateTime.now());
-        gender.setUpdateUser("ABC");
-        gender.setUpdateDate(LocalDateTime.now());
-        genderCodeRepository.save(gender);
-
-        GenderCodeEntity gender2 = new GenderCodeEntity();
-        gender2.setGenderCode("F");
-        gender2.setLabel("Female");
-        gender2.setDescription("DESC");
-        gender2.setDisplayOrder(1);
-        gender2.setEffectiveDate(LocalDateTime.now().minusYears(1));
-        gender2.setExpiryDate(LocalDateTime.now().plusDays(1));
-        gender2.setCreateUser("ABC");
-        gender2.setCreateDate(LocalDateTime.now());
-        gender2.setUpdateUser("ABC");
-        gender2.setUpdateDate(LocalDateTime.now());
-        genderCodeRepository.save(gender2);
-    }
-
-    @AfterEach
-    void purgeData() {
-        genderCodeRepository.deleteAll();
-    }
-
     @Test
     void testGenderRule() {
         var collection = collectionRepository.save(createMockCollectionEntity());
@@ -125,7 +91,6 @@ class RulesProcessorTest extends BaseStudentDataCollectionAPITest {
         val validationErrorEmpty = rulesProcessor.processRules(createMockStudentRuleData(entity, createMockSchool()));
         assertThat(validationErrorEmpty.size()).isNotZero();
         assertThat(validationErrorEmpty.get(0).getValidationIssueFieldCode()).isEqualTo("GENDER_CODE");
-
     }
 
     @Test
