@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -1024,6 +1025,75 @@ public class CSVReportService {
         }
     }
 
+    // ISFS Preliminary report
+    public DownloadableReportResponse generateISFSPrelimReport(UUID collectionID) {
+        var collectionOpt = collectionRepository.findById(collectionID);
+
+        if(collectionOpt.isEmpty()){
+            throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
+        }
+
+        List<ISFSPrelimHeadcountResult> results = sdcSchoolCollectionStudentRepository.getISFSPreliminaryDataByCollectionId(collectionID);
+
+        List<String> headers = Arrays.stream(ISFSPreliminaryHeader.values()).map(ISFSPreliminaryHeader::getCode).toList();
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(headers.toArray(String[]::new))
+                .build();
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (ISFSPrelimHeadcountResult result : results) {
+                var school = restUtils.getSchoolBySchoolID(result.getSchoolID()).orElseThrow(() -> new EntityNotFoundException(SchoolTombstone.class, SCHOOL_ID, result.getSchoolID()));
+
+                 List<String> csvRowData = prepareISFSPrelimDataForCsv(getPrelimFinalResult(result, school), school, collectionOpt.get());
+                 csvPrinter.printRecord(csvRowData);
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(ISFS_PRELIMINARY_REPORT.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
+    private ISFSPrelimHeadcountFinalResult getPrelimFinalResult(ISFSPrelimHeadcountResult queryResult, SchoolTombstone school){
+        ISFSPrelimHeadcountFinalResult finalResult = new ISFSPrelimHeadcountFinalResult();
+
+        finalResult.setSpecialEducationLevel1Count(queryResult.getSpecialEducationLevel1Count());
+        finalResult.setSpecialEducationLevel2Count(queryResult.getSpecialEducationLevel2Count());
+        finalResult.setSpecialEducationLevel3Count(queryResult.getSpecialEducationLevel3Count());
+        finalResult.setSpecialEducationLevelOtherCount(queryResult.getSpecialEducationLevelOtherCount());
+
+        if(school.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DIST_LEARN.getCode()) || school.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DISTONLINE.getCode())) {
+            finalResult.setDLAdultsKto9Fte(queryResult.getAdultsKto9Fte());
+            finalResult.setDLAdults10to12Fte(queryResult.getAdults10to12Fte());
+            finalResult.setDLSchoolAgedKto9Fte(queryResult.getSchoolAgedKto9Fte());
+            finalResult.setDLSchoolAged10to12Fte(queryResult.getSchoolAged10to12Fte());
+        }else{
+            finalResult.setStandardAdultsKto3Fte(queryResult.getAdultsKto3Fte());
+            finalResult.setStandardAdults4to7EUFte(queryResult.getAdults4to7EUFte());
+            finalResult.setStandardAdults8to10SUFte(queryResult.getAdults8to10SUFte());
+            finalResult.setStandardAdults11and12Fte(queryResult.getAdults11and12Fte());
+
+            finalResult.setStandardSchoolAgedKHFte(queryResult.getSchoolAgedKHFte());
+            finalResult.setStandardSchoolAgedKFFte(queryResult.getSchoolAgedKFFte());
+            finalResult.setStandardSchoolAged1to3Fte(queryResult.getSchoolAged1to3Fte());
+            finalResult.setStandardSchoolAged4to7EUFte(queryResult.getSchoolAged4to7EUFte());
+            finalResult.setStandardSchoolAged8to10SUFte(queryResult.getSchoolAged8to10SUFte());
+            finalResult.setStandardSchoolAged11and12Fte(queryResult.getSchoolAged11and12Fte());
+        }
+
+        finalResult.setTotalHomeschoolCount(queryResult.getTotalHomeschoolCount());
+
+        return finalResult;
+    }
+
     // Enroled Headcounts and FTEs by School report
     public DownloadableReportResponse generateEnrolledHeadcountsAndFteReport(UUID collectionID) {
         var collectionOpt = collectionRepository.findById(collectionID);
@@ -1177,6 +1247,40 @@ public class CSVReportService {
                 calculateVariance(septResult.getSpecialEdPCodes(), febResult.getSpecialEdPCodes()).toString(),
                 calculateVariance(septResult.getSpecialEdQCodes(), febResult.getSpecialEdQCodes()).toString(),
                 calculateVariance(septResult.getSpecialEdRCodes(), febResult.getSpecialEdRCodes()).toString()
+        ));
+    }
+
+    private List<String> prepareISFSPrelimDataForCsv(ISFSPrelimHeadcountFinalResult headcountResult, SchoolTombstone school, CollectionEntity collection) {
+        return new ArrayList<>(Arrays.asList(
+                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                school.getMincode().substring(0, 3),
+                school.getSchoolNumber(),
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                headcountResult.getSpecialEducationLevel1Count(),
+                headcountResult.getSpecialEducationLevel2Count(),
+                headcountResult.getSpecialEducationLevel3Count(),
+                headcountResult.getSpecialEducationLevelOtherCount(),
+                headcountResult.getStandardAdultsKto3Fte(),
+                headcountResult.getStandardAdults4to7EUFte(),
+                headcountResult.getStandardAdults8to10SUFte(),
+                headcountResult.getStandardAdults11and12Fte(),
+                headcountResult.getDLAdultsKto9Fte(),
+                headcountResult.getDLAdults10to12Fte(),
+                headcountResult.getStandardSchoolAgedKHFte(),
+                headcountResult.getStandardSchoolAgedKFFte(),
+                headcountResult.getStandardSchoolAged1to3Fte(),
+                headcountResult.getStandardSchoolAged4to7EUFte(),
+                headcountResult.getStandardSchoolAged8to10SUFte(),
+                headcountResult.getStandardSchoolAged11and12Fte(),
+                headcountResult.getDLSchoolAgedKto9Fte(),
+                headcountResult.getDLSchoolAged10to12Fte(),
+                headcountResult.getTotalHomeschoolCount(),
+                "N"
         ));
     }
 

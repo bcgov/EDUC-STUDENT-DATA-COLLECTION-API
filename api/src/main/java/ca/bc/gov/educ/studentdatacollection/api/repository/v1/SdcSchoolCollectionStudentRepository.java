@@ -1830,6 +1830,94 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
         GROUP BY sscs.sdcSchoolCollection.schoolID, sscs.sdcSchoolCollection.sdcSchoolCollectionID """)
   List<EnrolmentHeadcountFteResult> getEnrolmentHeadcountsAndFteByFebCollectionId(@Param("collectionID") UUID collectionID);
 
+  @Query(value = """
+        SELECT
+        sscs.sdcSchoolCollection.schoolID as schoolID,
+
+        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('A','B') AND sscs.specialEducationNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevel1Count,
+        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('C','D','E','F','G') AND sscs.specialEducationNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevel2Count,
+        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('H','J','M','N') AND sscs.specialEducationNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevel4Count,
+        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('K','P','Q','R') AND sscs.specialEducationNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevelOtherCount,
+
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('KH') AND s.fte > 0 and s.isSchoolAged = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as schoolAgedKHFte,
+        
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('KF') AND s.fte > 0 and s.isSchoolAged = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as schoolAgedKFFte,
+        
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('01','02','03') AND s.fte > 0 and s.isSchoolAged = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as schoolAged1to3Fte,
+        
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('KH','KF','01','02','03','04','05','06','07','08','09') AND s.fte > 0 and s.isSchoolAged = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as schoolAgedKto9Fte,
+        
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('04','05','06','07','EU') AND s.fte > 0 and s.isSchoolAged = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as schoolAged4to7EUFte,
+        
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('08','09','10','SU') AND s.fte > 0 and s.isSchoolAged = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as schoolAged8to10SUFte,
+        
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('11','12') AND s.fte > 0 and s.isSchoolAged = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as schoolAged11and12Fte,
+        
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('10','11','12') AND s.fte > 0 and s.isSchoolAged = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as schoolAged10to12Fte,
+        
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('KH','KF','01','02','03') AND s.fte > 0 and s.isAdult = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as adultsKto3Fte,
+        
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('KH','KF','01','02','03','04','05','06','07','08','09') AND s.fte > 0 and s.isAdult = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as adultsKto9Fte,
+        
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('04','05','06','07','EU') AND s.fte > 0 and s.isAdult = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as adults4to7EUFte,
+        
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('08','09','10','SU') AND s.fte > 0 and s.isAdult = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as adults8to10SUFte,
+        
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('11','12') AND s.fte > 0 and s.isAdult = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as adults11and12Fte,
+        
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('10','11','12') AND s.fte > 0 and s.isAdult = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
+        AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as adults10to12Fte,
+
+        COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode in ('HS') THEN sscs.sdcSchoolCollectionStudentID END) as totalHomeschoolCount
+        
+        FROM SdcSchoolCollectionStudentEntity sscs
+        WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
+        AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+        AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is null
+        GROUP BY sscs.sdcSchoolCollection.schoolID, sscs.sdcSchoolCollection.sdcSchoolCollectionID """)
+  List<ISFSPrelimHeadcountResult> getISFSPreliminaryDataByCollectionId(@Param("collectionID") UUID collectionID);
+
   @Query("SELECT " +
           " sscs.sdcSchoolCollection.schoolID as schoolID, " +
 
