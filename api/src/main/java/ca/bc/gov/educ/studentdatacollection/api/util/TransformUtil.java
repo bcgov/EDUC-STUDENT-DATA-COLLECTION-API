@@ -34,7 +34,12 @@ import static org.springframework.util.StringUtils.capitalize;
 @Slf4j
 public class TransformUtil {
 
-  private static final String [] VALID_SCHOOL_FUNDING_GROUPS = new String[]{"GROUP1", "GROUP2"};
+  public static final String GROUP_1 = "GROUP1";
+  public static final String GROUP_2 = "GROUP2";
+  private static final String [] VALID_SCHOOL_FUNDING_GROUPS = new String[]{GROUP_1, GROUP_2};
+  public static final String GROUP_3 = "GROUP3";
+  public static final String GROUP_4 = "GROUP4";
+
   private TransformUtil() {
   }
 
@@ -215,6 +220,57 @@ public class TransformUtil {
             .map(IndependentSchoolFundingGroupSnapshotEntity::getSchoolFundingGroupCode)
             .findFirst()
             .orElse(null);
+  }
+
+  public static String getLowestFundingGroupForGrade(List<IndependentSchoolFundingGroup> schoolFundingGroups, List<String> gradeCodeList) {
+    String currentGroupCode = null;
+    for(String grade: gradeCodeList){
+      var fundingGroup = schoolFundingGroups
+              .stream()
+              .filter(group -> grade.equals(group.getSchoolGradeCode()))
+              .map(IndependentSchoolFundingGroup::getSchoolFundingGroupCode)
+              .findFirst()
+              .orElse(null);
+      currentGroupCode = compareForLowestValue(currentGroupCode, fundingGroup);
+    }
+
+    return currentGroupCode;
+  }
+
+  public static String getLowestFundingGroupSnapshotForGroup(List<IndependentSchoolFundingGroupSnapshotEntity> schoolFundingGroups, List<String> gradeCodeList) {
+    String currentGroupCode = null;
+    for(String grade: gradeCodeList){
+      var fundingGroup = schoolFundingGroups
+              .stream()
+              .filter(group -> grade.equals(group.getSchoolGradeCode()))
+              .map(IndependentSchoolFundingGroupSnapshotEntity::getSchoolFundingGroupCode)
+              .findFirst()
+              .orElse(null);
+      currentGroupCode = compareForLowestValue(currentGroupCode, fundingGroup);
+    }
+
+    return currentGroupCode;
+  }
+
+  private static String compareForLowestValue(String currentGroupCode, String groupCode){
+    if(StringUtils.isEmpty(groupCode)){
+      return currentGroupCode;
+    }else if(StringUtils.isEmpty(currentGroupCode) && StringUtils.isNotBlank(groupCode)){
+      return groupCode;
+    }else if(StringUtils.isEmpty(currentGroupCode) && StringUtils.isEmpty(groupCode)){
+      return currentGroupCode;
+    }
+
+    if(currentGroupCode.equals(GROUP_1) || groupCode.equals(GROUP_1)){
+      return GROUP_1;
+    }else if(currentGroupCode.equals(GROUP_2) || groupCode.equals(GROUP_2)){
+      return GROUP_2;
+    }else if(currentGroupCode.equals(GROUP_3) || groupCode.equals(GROUP_3)){
+      return GROUP_3;
+    }else if(currentGroupCode.equals(GROUP_4) || groupCode.equals(GROUP_4)){
+      return GROUP_4;
+    }
+    return null;
   }
 
   public static boolean isSchoolFundingGroup1orGroup2(String schoolFundingGroup) {

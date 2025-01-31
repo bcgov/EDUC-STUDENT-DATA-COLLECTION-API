@@ -1854,7 +1854,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
         AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
         AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as schoolAged1to3Fte,
         
-        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('KH','KF','01','02','03','04','05','06','07','08','09') AND s.fte > 0 and s.isSchoolAged = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('KH','KF','01','02','03','04','05','06','07','08','09','EU') AND s.fte > 0 and s.isSchoolAged = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
         WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
         AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
         AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as schoolAgedKto9Fte,
@@ -1874,7 +1874,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
         AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
         AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as schoolAged11and12Fte,
         
-        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('10','11','12') AND s.fte > 0 and s.isSchoolAged = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('10','11','12','SU') AND s.fte > 0 and s.isSchoolAged = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
         WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
         AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
         AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as schoolAged10to12Fte,
@@ -1884,7 +1884,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
         AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
         AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as adultsKto3Fte,
         
-        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('KH','KF','01','02','03','04','05','06','07','08','09') AND s.fte > 0 and s.isAdult = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('KH','KF','01','02','03','04','05','06','07','08','09','EU') AND s.fte > 0 and s.isAdult = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
         WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
         AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
         AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as adultsKto9Fte,
@@ -1904,7 +1904,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
         AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
         AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as adults11and12Fte,
         
-        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('10','11','12') AND s.fte > 0 and s.isAdult = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
+        (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('10','11','12','SU') AND s.fte > 0 and s.isAdult = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
         WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
         AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
         AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as adults10to12Fte,
