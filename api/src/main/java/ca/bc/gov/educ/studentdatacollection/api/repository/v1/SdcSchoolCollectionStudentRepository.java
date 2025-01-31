@@ -1836,7 +1836,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
         COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('A','B') AND sscs.specialEducationNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevel1Count,
         COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('C','D','E','F','G') AND sscs.specialEducationNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevel2Count,
-        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('H','J','M','N') AND sscs.specialEducationNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevel4Count,
+        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('H','J','M','N') AND sscs.specialEducationNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevel3Count,
         COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('K','P','Q','R') AND sscs.specialEducationNonEligReasonCode IS NULL THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevelOtherCount,
 
         (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('KH') AND s.fte > 0 and s.isSchoolAged = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
