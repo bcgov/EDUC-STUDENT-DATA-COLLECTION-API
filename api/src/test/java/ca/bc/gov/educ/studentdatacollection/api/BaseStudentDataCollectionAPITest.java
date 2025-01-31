@@ -501,6 +501,13 @@ public abstract class BaseStudentDataCollectionAPITest {
     gradesList.add(grade1);
     school.setGrades(gradesList);
 
+    var schoolFundingGroupCodes = new ArrayList<IndependentSchoolFundingGroup>();
+    IndependentSchoolFundingGroup group1 = new IndependentSchoolFundingGroup();
+    group1.setSchoolFundingGroupCode("GROUP1");
+    group1.setSchoolGradeCode("GRADE01");
+    schoolFundingGroupCodes.add(group1);
+    school.setSchoolFundingGroups(schoolFundingGroupCodes);
+
     return school;
   }
 

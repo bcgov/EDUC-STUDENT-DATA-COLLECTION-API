@@ -1045,7 +1045,7 @@ public class CSVReportService {
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
             for (ISFSPrelimHeadcountResult result : results) {
-                var school = restUtils.getSchoolBySchoolID(result.getSchoolID()).orElseThrow(() -> new EntityNotFoundException(SchoolTombstone.class, SCHOOL_ID, result.getSchoolID()));
+                var school = restUtils.getAllSchoolBySchoolID(result.getSchoolID()).orElseThrow(() -> new EntityNotFoundException(SchoolTombstone.class, SCHOOL_ID, result.getSchoolID()));
 
                  List<String> csvRowData = prepareISFSPrelimDataForCsv(getPrelimFinalResult(result, school), school, collectionOpt.get());
                  csvPrinter.printRecord(csvRowData);
@@ -1062,7 +1062,7 @@ public class CSVReportService {
         }
     }
 
-    private ISFSPrelimHeadcountFinalResult getPrelimFinalResult(ISFSPrelimHeadcountResult queryResult, SchoolTombstone school){
+    private ISFSPrelimHeadcountFinalResult getPrelimFinalResult(ISFSPrelimHeadcountResult queryResult, School school){
         ISFSPrelimHeadcountFinalResult finalResult = new ISFSPrelimHeadcountFinalResult();
 
         finalResult.setSpecialEducationLevel1Count(queryResult.getSpecialEducationLevel1Count());
@@ -1250,17 +1250,81 @@ public class CSVReportService {
         ));
     }
 
-    private List<String> prepareISFSPrelimDataForCsv(ISFSPrelimHeadcountFinalResult headcountResult, SchoolTombstone school, CollectionEntity collection) {
+    private List<String> prepareISFSPrelimDataForCsv(ISFSPrelimHeadcountFinalResult headcountResult, School school, CollectionEntity collection) {
+        String groupStandardPrimary = null;
+        String groupStandardElementary = null;
+        String groupStandardJunior = null;
+        String groupStandardSecondary = null;
+        String groupDLPrimary = null;
+        String groupDLSecondary = null;
+
+        if(collection.getCollectionStatusCode().equalsIgnoreCase(CollectionStatus.COMPLETED.getCode())) {
+            List<IndependentSchoolFundingGroupSnapshotEntity> schoolFundingGroups = independentSchoolFundingGroupSnapshotService.getIndependentSchoolFundingGroupSnapshot(UUID.fromString(school.getSchoolId()), collection.getCollectionID());
+
+            if(school.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DIST_LEARN.getCode()) || school.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DISTONLINE.getCode())) {
+                groupDLPrimary = TransformUtil.getLowestFundingGroupSnapshotForGroup(schoolFundingGroups,
+                        Arrays.asList(SchoolGradeCodes.KINDFULL.getTypeCode(),
+                                SchoolGradeCodes.KINDHALF.getTypeCode(),
+                                SchoolGradeCodes.GRADE01.getTypeCode(),
+                                SchoolGradeCodes.GRADE02.getTypeCode(),
+                                SchoolGradeCodes.GRADE03.getTypeCode(),
+                                SchoolGradeCodes.GRADE04.getTypeCode(),
+                                SchoolGradeCodes.GRADE05.getTypeCode(),
+                                SchoolGradeCodes.GRADE06.getTypeCode(),
+                                SchoolGradeCodes.GRADE07.getTypeCode(),
+                                SchoolGradeCodes.GRADE08.getTypeCode(),
+                                SchoolGradeCodes.GRADE09.getTypeCode(),
+                                SchoolGradeCodes.ELEMUNGR.getTypeCode()));
+                groupDLSecondary = TransformUtil.getLowestFundingGroupSnapshotForGroup(schoolFundingGroups,
+                        Arrays.asList(SchoolGradeCodes.GRADE10.getTypeCode(),
+                                SchoolGradeCodes.GRADE11.getTypeCode(),
+                                SchoolGradeCodes.GRADE12.getTypeCode(),
+                                SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode()));
+            }else{
+                groupStandardPrimary = TransformUtil.getLowestFundingGroupSnapshotForGroup(schoolFundingGroups, Arrays.asList(SchoolGradeCodes.KINDFULL.getTypeCode(), SchoolGradeCodes.KINDHALF.getTypeCode(), SchoolGradeCodes.GRADE01.getTypeCode(), SchoolGradeCodes.GRADE02.getTypeCode(), SchoolGradeCodes.GRADE03.getTypeCode()));
+                groupStandardElementary = TransformUtil.getLowestFundingGroupSnapshotForGroup(schoolFundingGroups, Arrays.asList(SchoolGradeCodes.GRADE04.getTypeCode(), SchoolGradeCodes.GRADE05.getTypeCode(), SchoolGradeCodes.GRADE06.getTypeCode(), SchoolGradeCodes.GRADE07.getTypeCode(), SchoolGradeCodes.ELEMUNGR.getTypeCode()));
+                groupStandardJunior = TransformUtil.getLowestFundingGroupSnapshotForGroup(schoolFundingGroups, Arrays.asList(SchoolGradeCodes.GRADE08.getTypeCode(), SchoolGradeCodes.GRADE09.getTypeCode(), SchoolGradeCodes.GRADE10.getTypeCode(), SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode()));
+                groupStandardSecondary = TransformUtil.getLowestFundingGroupSnapshotForGroup(schoolFundingGroups, Arrays.asList(SchoolGradeCodes.GRADE11.getTypeCode(), SchoolGradeCodes.GRADE12.getTypeCode()));
+            }
+        }else{
+            List<IndependentSchoolFundingGroup> schoolFundingGroups = school.getSchoolFundingGroups();
+            if(school.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DIST_LEARN.getCode()) || school.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DISTONLINE.getCode())) {
+                groupDLPrimary = TransformUtil.getLowestFundingGroupForGrade(schoolFundingGroups,
+                        Arrays.asList(SchoolGradeCodes.KINDFULL.getTypeCode(),
+                                SchoolGradeCodes.KINDHALF.getTypeCode(),
+                                SchoolGradeCodes.GRADE01.getTypeCode(),
+                                SchoolGradeCodes.GRADE02.getTypeCode(),
+                                SchoolGradeCodes.GRADE03.getTypeCode(),
+                                SchoolGradeCodes.GRADE04.getTypeCode(),
+                                SchoolGradeCodes.GRADE05.getTypeCode(),
+                                SchoolGradeCodes.GRADE06.getTypeCode(),
+                                SchoolGradeCodes.GRADE07.getTypeCode(),
+                                SchoolGradeCodes.GRADE08.getTypeCode(),
+                                SchoolGradeCodes.GRADE09.getTypeCode(),
+                                SchoolGradeCodes.ELEMUNGR.getTypeCode()));
+                groupDLSecondary = TransformUtil.getLowestFundingGroupForGrade(schoolFundingGroups,
+                        Arrays.asList(SchoolGradeCodes.GRADE10.getTypeCode(),
+                                SchoolGradeCodes.GRADE11.getTypeCode(),
+                                SchoolGradeCodes.GRADE12.getTypeCode(),
+                                SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode()));
+            }else{
+                groupStandardPrimary = TransformUtil.getLowestFundingGroupForGrade(schoolFundingGroups, Arrays.asList(SchoolGradeCodes.KINDFULL.getTypeCode(), SchoolGradeCodes.KINDHALF.getTypeCode(), SchoolGradeCodes.GRADE01.getTypeCode(), SchoolGradeCodes.GRADE02.getTypeCode(), SchoolGradeCodes.GRADE03.getTypeCode()));
+                groupStandardElementary = TransformUtil.getLowestFundingGroupForGrade(schoolFundingGroups, Arrays.asList(SchoolGradeCodes.GRADE04.getTypeCode(), SchoolGradeCodes.GRADE05.getTypeCode(), SchoolGradeCodes.GRADE06.getTypeCode(), SchoolGradeCodes.GRADE07.getTypeCode(), SchoolGradeCodes.ELEMUNGR.getTypeCode()));
+                groupStandardJunior = TransformUtil.getLowestFundingGroupForGrade(schoolFundingGroups, Arrays.asList(SchoolGradeCodes.GRADE08.getTypeCode(), SchoolGradeCodes.GRADE09.getTypeCode(), SchoolGradeCodes.GRADE10.getTypeCode(), SchoolGradeCodes.SECONDARY_UNGRADED.getTypeCode()));
+                groupStandardSecondary = TransformUtil.getLowestFundingGroupForGrade(schoolFundingGroups, Arrays.asList(SchoolGradeCodes.GRADE11.getTypeCode(), SchoolGradeCodes.GRADE12.getTypeCode()));
+            }
+        }
+
         return new ArrayList<>(Arrays.asList(
                 collection.getSnapshotDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")),
                 school.getMincode().substring(0, 3),
                 school.getSchoolNumber(),
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
+                groupStandardPrimary,
+                groupStandardElementary,
+                groupStandardJunior,
+                groupStandardSecondary,
+                groupDLPrimary,
+                groupDLSecondary,
                 headcountResult.getSpecialEducationLevel1Count(),
                 headcountResult.getSpecialEducationLevel2Count(),
                 headcountResult.getSpecialEducationLevel3Count(),

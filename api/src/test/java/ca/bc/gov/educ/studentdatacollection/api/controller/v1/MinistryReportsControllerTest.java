@@ -1160,9 +1160,9 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    var school = this.createMockSchool();
+    var school = this.createMockSchoolDetail();
     school.setSchoolCategoryCode(SchoolCategoryCodes.OFFSHORE.getCode());
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    when(this.restUtils.getAllSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
