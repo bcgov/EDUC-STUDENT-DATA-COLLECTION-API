@@ -1257,8 +1257,10 @@ public class CSVReportService {
         String groupStandardSecondary = null;
         String groupDLPrimary = null;
         String groupDLSecondary = null;
+        String postedYN = null;
 
         if(collection.getCollectionStatusCode().equalsIgnoreCase(CollectionStatus.COMPLETED.getCode())) {
+            postedYN = "Y";
             List<IndependentSchoolFundingGroupSnapshotEntity> schoolFundingGroups = independentSchoolFundingGroupSnapshotService.getIndependentSchoolFundingGroupSnapshot(UUID.fromString(school.getSchoolId()), collection.getCollectionID());
 
             if(school.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DIST_LEARN.getCode()) || school.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DISTONLINE.getCode())) {
@@ -1287,6 +1289,7 @@ public class CSVReportService {
                 groupStandardSecondary = TransformUtil.getLowestFundingGroupSnapshotForGroup(schoolFundingGroups, Arrays.asList(SchoolGradeCodes.GRADE11.getTypeCode(), SchoolGradeCodes.GRADE12.getTypeCode()));
             }
         }else{
+            postedYN = "N";
             List<IndependentSchoolFundingGroup> schoolFundingGroups = school.getSchoolFundingGroups();
             if(school.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DIST_LEARN.getCode()) || school.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DISTONLINE.getCode())) {
                 groupDLPrimary = TransformUtil.getLowestFundingGroupForGrade(schoolFundingGroups,
@@ -1344,7 +1347,7 @@ public class CSVReportService {
                 headcountResult.getDLSchoolAgedKto9Fte(),
                 headcountResult.getDLSchoolAged10to12Fte(),
                 headcountResult.getTotalHomeschoolCount(),
-                "N"
+                postedYN
         ));
     }
 
