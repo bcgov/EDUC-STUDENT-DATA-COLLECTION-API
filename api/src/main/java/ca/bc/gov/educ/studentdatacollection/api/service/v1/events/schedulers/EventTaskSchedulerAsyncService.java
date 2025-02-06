@@ -176,7 +176,7 @@ public class EventTaskSchedulerAsyncService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void findAndPublishLoadedStudentRecordsForProcessing() {
     log.debug("Querying for loaded students to process");
-    if (this.getSagaRepository().countAllByStatusIn(this.getStatusFilters()) > 100) { // at max there will be 100 parallel sagas.
+    if (this.getSagaRepository().findByStatusIn(this.getStatusFilters(), 101).size() > 100) { // at max there will be 100 parallel sagas.
       log.debug("Saga count is greater than 100, so not processing student records");
       return;
     }

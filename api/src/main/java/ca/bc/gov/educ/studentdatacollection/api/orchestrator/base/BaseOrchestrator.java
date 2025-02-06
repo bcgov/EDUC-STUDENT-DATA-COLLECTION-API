@@ -531,17 +531,6 @@ public abstract class BaseOrchestrator<T> implements EventHandler, Orchestrator 
   }
 
   @Transactional
-  public SdcSagaEntity createSagaForScheduler(@NotNull final String payload, final UUID sdcSchoolStudentID, final UUID sdcSchoolCollectionID, final String userName, final UUID collectionID) {
-    try {
-      return this.sagaService.createSagaRecordInDB(this.sagaName, userName, payload, sdcSchoolStudentID, sdcSchoolCollectionID, collectionID);
-    } catch (Exception e) {
-      //This will happen occasionally when we have multiple messages hitting our pods
-      log.debug("Skipping processing on student {} :: saga already exists :: exception was: {}", sdcSchoolStudentID, e.getMessage());
-    }
-    return null;
-  }
-
-  @Transactional
   public List<SdcSagaEntity> createSagas(final List<SdcSagaEntity> sagaEntities) {
     return this.sagaService.createSagaRecordsInDB(sagaEntities);
   }

@@ -204,14 +204,15 @@ public class SdcSchoolCollectionStudentService {
   }
 
   @Async("publisherExecutor")
+  @Transactional
   public void prepareAndSendSdcStudentsForFurtherProcessing(final List<SdcSchoolCollectionStudentEntity> sdcStudentEntities) {
     final List<SdcStudentSagaData> sdcStudentSagaDatas = sdcStudentEntities.stream()
       .map(el -> {
         val sdcStudentSagaData = new SdcStudentSagaData();
-        Optional<SdcSchoolCollectionEntity> sdcSchoolCollection = this.sdcSchoolCollectionRepository.findById(el.getSdcSchoolCollection().getSdcSchoolCollectionID());
-        if(sdcSchoolCollection.isPresent()) {
-          var school = this.restUtils.getSchoolBySchoolID(sdcSchoolCollection.get().getSchoolID().toString());
-          sdcStudentSagaData.setCollectionTypeCode(sdcSchoolCollection.get().getCollectionEntity().getCollectionTypeCode());
+        if(el.getSdcSchoolCollection() != null) {
+          var sdcSchoolCollection = el.getSdcSchoolCollection();
+          var school = this.restUtils.getSchoolBySchoolID(sdcSchoolCollection.getSchoolID().toString());
+          sdcStudentSagaData.setCollectionTypeCode(sdcSchoolCollection.getCollectionEntity().getCollectionTypeCode());
           sdcStudentSagaData.setSchool(school.get());
         }
         sdcStudentSagaData.setSdcSchoolCollectionStudent(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(el));
