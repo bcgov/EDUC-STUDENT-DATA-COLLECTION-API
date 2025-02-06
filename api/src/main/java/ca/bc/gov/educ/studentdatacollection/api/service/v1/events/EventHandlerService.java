@@ -61,7 +61,7 @@ public class EventHandlerService {
         return;
       }
       try {
-        val saga = this.studentProcessingOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionID()), ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
+        val saga = this.studentProcessingOrchestrator.createSagaForScheduler(event.getEventPayload(), UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), UUID.fromString(sagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionID()), ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
         log.debug("Starting student processing orchestrator :: {}", saga);
         this.studentProcessingOrchestrator.startSaga(saga);
       }catch(Exception e){
@@ -81,7 +81,7 @@ public class EventHandlerService {
         return;
       }
       try {
-        val saga = this.updateStudentDownstreamOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
+        val saga = this.updateStudentDownstreamOrchestrator.createSagaForScheduler(event.getEventPayload(), UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
         log.debug("Starting updateStudentDownstreamOrchestrator orchestrator :: {}", saga);
         this.updateStudentDownstreamOrchestrator.startSaga(saga);
       }catch(Exception e){
@@ -101,7 +101,7 @@ public class EventHandlerService {
         return;
       }
       try {
-        val saga = this.updateStudentStatusOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
+        val saga = this.updateStudentStatusOrchestrator.createSagaForScheduler(event.getEventPayload(), UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
         log.debug("Starting updateStudentStatusOrchestrator orchestrator :: {}", saga);
         this.updateStudentStatusOrchestrator.startSaga(saga);
       }catch(Exception e){
@@ -121,7 +121,7 @@ public class EventHandlerService {
         return;
       }
       try {
-        val saga = this.sdcStudentMigrationOrchestrator.createSaga(event.getEventPayload(), UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
+        val saga = this.sdcStudentMigrationOrchestrator.createSagaForScheduler(event.getEventPayload(), UUID.fromString(sdcStudentSagaData.getSdcSchoolCollectionStudent().getSdcSchoolCollectionStudentID()), null, ApplicationProperties.STUDENT_DATA_COLLECTION_API, null);
         log.debug("Starting updateStudentDownstreamOrchestrator orchestrator :: {}", saga);
         this.sdcStudentMigrationOrchestrator.startSaga(saga);
       }catch(Exception e){

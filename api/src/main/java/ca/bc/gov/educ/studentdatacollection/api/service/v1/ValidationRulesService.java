@@ -20,7 +20,6 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -194,7 +193,9 @@ public class ValidationRulesService {
             if(StringUtils.isNotEmpty(gradResult.getException()) && gradResult.getException().equalsIgnoreCase("error")){
                 log.error("Exception occurred calling grad service for grad status - this should not have happened :: {}", gradResult);
                 throw new StudentDataCollectionAPIRuntimeException("Exception occurred calling grad service for grad status - this should not have happened");
-            }else if(StringUtils.isNotEmpty(gradResult.getProgramCompletionDate())){
+            }else if(StringUtils.isNotEmpty(gradResult.getProgramCompletionDate())
+                    && (StringUtils.isEmpty(gradResult.getProgram())
+                    || !gradResult.getProgram().equalsIgnoreCase("SCCP"))){
                 try{
                     LocalDate programCompletionDate = LocalDate.parse(gradResult.getProgramCompletionDate(), formatter);
                     if(programCompletionDate.isBefore(student.getSdcSchoolCollection().getCollectionEntity().getSnapshotDate()) ||
