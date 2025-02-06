@@ -145,7 +145,7 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         GradStatusResult gradStatusResult = getGradStatusResult();
-        gradStatusResult.setProgramCompletionDate("2011-09-01");
+        gradStatusResult.setProgramCompletionDate("10-10-2011");
         gradStatusResult.setProgram("SCCP");
         when(this.restUtils.getGradStatusResult(any(),any())).thenReturn(gradStatusResult);
         SdcSchoolCollectionEntity schoolCollectionEntity = new SdcSchoolCollectionEntity();
@@ -165,7 +165,7 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
         GradStatusResult gradStatusResult = getGradStatusResult();
-        gradStatusResult.setProgramCompletionDate("10-10-2011");
+        gradStatusResult.setProgramCompletionDate("2011-09-01");
         gradStatusResult.setProgram("ABC");
         when(this.restUtils.getGradStatusResult(any(),any())).thenReturn(gradStatusResult);
         SdcSchoolCollectionEntity schoolCollectionEntity = new SdcSchoolCollectionEntity();
