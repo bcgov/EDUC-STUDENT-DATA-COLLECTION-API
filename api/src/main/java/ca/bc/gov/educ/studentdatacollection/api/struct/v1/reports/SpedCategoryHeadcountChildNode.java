@@ -57,6 +57,7 @@ public class SpedCategoryHeadcountChildNode extends HeadcountChildNode implement
       case "K" -> setValueSpecialEdK(value);
       case "P" -> setValueSpecialEdP(value);
       case "Q" -> setValueSpecialEdQ(value);
+      case "R" -> setValueSpecialEdR(value);
       case "total" -> setValueSpecialEdTotal(value);
       default -> {}
     }
