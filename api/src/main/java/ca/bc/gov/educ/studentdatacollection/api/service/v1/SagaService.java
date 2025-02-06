@@ -174,6 +174,7 @@ public class SagaService {
       .updateDate(LocalDateTime.now())
       .collectionID(collectionID)
       .build();
+    this.createSagaRecord(saga);
     return this.createSagaRecord(saga);
   }
 
