@@ -227,7 +227,7 @@ public class EventTaskSchedulerAsyncService {
 
     if (activeCollection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
             || !activeCollection.getCollectionStatusCode().equalsIgnoreCase(CollectionStatus.INPROGRESS.getCode())
-            || currentDate.isBefore(activeCollection.getSnapshotDate())) {
+            || currentDate.isBefore(activeCollection.getSubmissionDueDate())) {
       return;
     }
 
