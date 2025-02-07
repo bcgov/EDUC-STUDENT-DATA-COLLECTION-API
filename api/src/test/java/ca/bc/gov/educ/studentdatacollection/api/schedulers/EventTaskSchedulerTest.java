@@ -156,7 +156,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
         var collection = createMockCollectionEntity();
         collection.setCollectionStatusCode("INPROGRESS");
-        collection.setSnapshotDate(LocalDate.now().minusDays(2));
+        collection.setSubmissionDueDate(LocalDate.now().minusDays(2));
         collectionRepository.save(collection);
 
         var schoolDetail1 = createMockSchoolDetail();
@@ -192,7 +192,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
 
         var collection = createMockCollectionEntity();
         collection.setCollectionStatusCode("INPROGRESS");
-        collection.setSnapshotDate(LocalDate.now().minusDays(2));
+        collection.setSubmissionDueDate(LocalDate.now().minusDays(2));
         collectionRepository.save(collection);
 
         var schoolDetail1 = createMockSchoolDetail();
