@@ -1046,9 +1046,10 @@ public class CSVReportService {
 
             for (ISFSPrelimHeadcountResult result : results) {
                 var school = restUtils.getAllSchoolBySchoolID(result.getSchoolID()).orElseThrow(() -> new EntityNotFoundException(SchoolTombstone.class, SCHOOL_ID, result.getSchoolID()));
-
-                 List<String> csvRowData = prepareISFSPrelimDataForCsv(getPrelimFinalResult(result, school), school, collectionOpt.get());
-                 csvPrinter.printRecord(csvRowData);
+                if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
+                    List<String> csvRowData = prepareISFSPrelimDataForCsv(getPrelimFinalResult(result, school), school, collectionOpt.get());
+                    csvPrinter.printRecord(csvRowData);
+                }
             }
             csvPrinter.flush();
 
