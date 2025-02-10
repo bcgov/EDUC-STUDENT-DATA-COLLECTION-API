@@ -34,7 +34,6 @@ public class ZeroFTEHeadCountReportService extends BaseReportGenerationService<Z
     private final ZeroFTEHeadcountHelper zeroFTEHeadcountHelper;
     private JasperReport ineligibleFteHeadcountReport;
 
-    private List<ZeroFTEHeadcountResult> fteReasonHeadcounts = new ArrayList<>();
     private Map<String, String> fteReasons = new HashMap<>();
 
     public ZeroFTEHeadCountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, ZeroFTEHeadcountHelper zeroFTEHeadcountHelper) {
@@ -72,7 +71,7 @@ public class ZeroFTEHeadCountReportService extends BaseReportGenerationService<Z
                 Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional = sdcDistrictCollectionRepository.findById(collectionID);
                 SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection ID: " + collectionID));
                 fteReasons = zeroFTEHeadcountHelper.getZeroFTEReasonCodes();
-                fteReasonHeadcounts = sdcSchoolCollectionStudentRepository.getZeroFTEHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+                List<ZeroFTEHeadcountResult> fteReasonHeadcounts = sdcSchoolCollectionStudentRepository.getZeroFTEHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
                 return generateJasperReport(convertToGradeEnrollmentProgramReportJSONStringDistrict(fteReasonHeadcounts, sdcDistrictCollectionEntity), ineligibleFteHeadcountReport, DistrictReportTypeCode.DIS_ZERO_FTE_SUMMARY.getCode());
             } catch (JsonProcessingException e) {
                 log.error("Exception occurred while writing PDF report for district Zero FTE summary :: " + e.getMessage());
