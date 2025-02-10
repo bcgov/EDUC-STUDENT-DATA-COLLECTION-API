@@ -1048,4 +1048,81 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     )).isTrue();
   }
 
+  @Test
+  void testZeroCoursesAdultRule() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+    SdcSchoolCollectionStudentEntity student = createMockSchoolStudentEntity(schoolCollection);
+    student.setIsAdult(true);
+    student.setNumberOfCourses("0");
+    student.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
+
+    List<ProgramEligibilityIssueCode> errors = rulesProcessor.processRules(createMockStudentRuleData(student, createMockSchool()));
+
+    assertThat(errors).isNotEmpty();
+    assertThat(errors).contains(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT);
+
+    student.setNumberOfCourses("1");
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, createMockSchool()));
+    assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT);
+
+    student.setNumberOfCourses("0");
+    student.setIsAdult(false);
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, createMockSchool()));
+    assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT);
+
+    student.setIsAdult(true);
+    student.setEnrolledGradeCode(SchoolGradeCodes.KINDFULL.getCode());
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, createMockSchool()));
+    assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT);
+
+    var school = createMockSchool();
+    school.setFacilityTypeCode("DIST_LEARN");
+    student.setIsAdult(true);
+    student.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, school));
+    assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT);
+  }
+  @Test
+  void testZeroCoursesSchoolAgeRule() {
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+    SdcSchoolCollectionStudentEntity student = createMockSchoolStudentEntity(schoolCollection);
+    student.setIsSchoolAged(true);
+    student.setNumberOfCourses("0");
+    student.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
+
+    List<ProgramEligibilityIssueCode> errors = rulesProcessor.processRules(createMockStudentRuleData(student, createMockSchool()));
+
+    assertThat(errors).isNotEmpty();
+    assertThat(errors).contains(ProgramEligibilityIssueCode.ZERO_COURSES_SCHOOL_AGE);
+
+    student.setNumberOfCourses("1");
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, createMockSchool()));
+    assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_SCHOOL_AGE);
+
+    student.setNumberOfCourses("0");
+    student.setIsSchoolAged(false);
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, createMockSchool()));
+    assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_SCHOOL_AGE);
+
+    student.setIsSchoolAged(true);
+    student.setEnrolledGradeCode(SchoolGradeCodes.KINDFULL.getCode());
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, createMockSchool()));
+    assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_SCHOOL_AGE);
+
+    student.setEnrolledGradeCode(SchoolGradeCodes.GRADUATED_ADULT.getCode());
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, createMockSchool()));
+    assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_SCHOOL_AGE);
+
+    var school = createMockSchool();
+    school.setFacilityTypeCode("DIST_LEARN");
+    student.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, school));
+    assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_SCHOOL_AGE);
+  }
 }

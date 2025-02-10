@@ -22,7 +22,9 @@ public enum ProgramEligibilityIssueCode {
   NOT_ENROLLED_ELL("NTENRELL", "The student is not enrolled in the ELL program.", ProgramEligibilityTypeCode.ELL),
   NO_INDIGENOUS_ANCESTRY("NOANCESTRY", "Student must be school-aged and self-identify as having Indigenous Ancestry to be eligible for funding for Indigenous Support Programs.", ProgramEligibilityTypeCode.IND_SUPPORT),
   ELL_INDY_SCHOOL("ELLINDYERR", "Students reported by Independent Schools are not eligible for English Language Learning funding.", ProgramEligibilityTypeCode.ELL),
-  INDIGENOUS_INDY_SCHOOL("INDYERR", "Students reported by Independent Schools are not eligible for Indigenous Support Program funding.", ProgramEligibilityTypeCode.IND_SUPPORT);
+  INDIGENOUS_INDY_SCHOOL("INDYERR", "Students reported by Independent Schools are not eligible for Indigenous Support Program funding.", ProgramEligibilityTypeCode.IND_SUPPORT),
+  ZERO_COURSES_ADULT("ZEROCOURSESADULT", "Adult students must have more than 0 courses.", ProgramEligibilityTypeCode.BASE),
+  ZERO_COURSES_SCHOOL_AGE("ZEROCOURSESSCHAGE", "Secondary students must be reported with at least one course.", ProgramEligibilityTypeCode.BASE);
 
   @Getter
   private final String code;
