@@ -20,7 +20,7 @@ import java.util.UUID;
 
 @Component
 @Slf4j
-@Order(6)
+@Order
 public class SpecialEducationProgramsRule implements ProgramEligibilityBaseRule {
   private final ValidationRulesService validationRulesService;
 

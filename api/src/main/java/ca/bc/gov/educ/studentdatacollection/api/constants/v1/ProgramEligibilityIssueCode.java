@@ -9,6 +9,8 @@ public enum ProgramEligibilityIssueCode {
   OUT_OF_PROVINCE("OUTOFPROV", "Out of Province/International students are not eligible for program funding.", ProgramEligibilityTypeCode.BASE),
   INACTIVE_ADULT("INACTADULT", "Students who have not been reported as \"active\" in a new course in the last two years are not eligible for program funding.", ProgramEligibilityTypeCode.BASE),
   INACTIVE_SCHOOL_AGE("INACTMINOR", "Students who have not been reported as \"active\" in a new course in the last two years are not eligible for program funding.", ProgramEligibilityTypeCode.BASE),
+  ZERO_COURSES_ADULT("ZEROCOURSESADULT", "Adult students must be reported with at least one course.", ProgramEligibilityTypeCode.BASE),
+  ZERO_COURSES_SCHOOL_AGE("ZEROCOURSESSCHAGE", "Secondary students must be reported with at least one course.", ProgramEligibilityTypeCode.BASE),
   NOT_ENROLLED_FRENCH("NTENRFRENC", "The student is not enrolled in french programs.", ProgramEligibilityTypeCode.FRENCH),
   NOT_ENROLLED_CAREER("NTENRCAREE", "The student is not enrolled in career programs.", ProgramEligibilityTypeCode.CAREER_PROGRAMS),
   ENROLLED_CAREER_INDY_SCHOOL("ENRCARINDY", "Students reported by Independent Schools are not eligible for Career Program funding.", ProgramEligibilityTypeCode.CAREER_PROGRAMS),
@@ -23,6 +25,7 @@ public enum ProgramEligibilityIssueCode {
   NO_INDIGENOUS_ANCESTRY("NOANCESTRY", "Student must be school-aged and self-identify as having Indigenous Ancestry to be eligible for funding for Indigenous Support Programs.", ProgramEligibilityTypeCode.IND_SUPPORT),
   ELL_INDY_SCHOOL("ELLINDYERR", "Students reported by Independent Schools are not eligible for English Language Learning funding.", ProgramEligibilityTypeCode.ELL),
   INDIGENOUS_INDY_SCHOOL("INDYERR", "Students reported by Independent Schools are not eligible for Indigenous Support Program funding.", ProgramEligibilityTypeCode.IND_SUPPORT);
+
 
   @Getter
   private final String code;
