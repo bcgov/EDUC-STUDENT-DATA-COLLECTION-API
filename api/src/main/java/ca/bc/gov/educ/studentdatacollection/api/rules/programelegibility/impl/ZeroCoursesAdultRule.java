@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-@Order(6)
+@Order(7)
 public class ZeroCoursesAdultRule implements ProgramEligibilityBaseRule {
 
   @Override
@@ -21,10 +21,12 @@ public class ZeroCoursesAdultRule implements ProgramEligibilityBaseRule {
     log.debug("In shouldExecute of ProgramEligibilityBaseRule - ZeroCoursesAdultRule: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
             studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
+    var hasNotViolatedBaseRules = hasNotViolatedBaseRules(errors);
+
     log.debug("In shouldExecute of ProgramEligibilityBaseRule - ZeroCoursesAdultRule: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
-            hasNotViolatedBaseRules(errors),
+            hasNotViolatedBaseRules,
             studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-    return hasNotViolatedBaseRules(errors);
+    return hasNotViolatedBaseRules;
   }
 
   @Override
