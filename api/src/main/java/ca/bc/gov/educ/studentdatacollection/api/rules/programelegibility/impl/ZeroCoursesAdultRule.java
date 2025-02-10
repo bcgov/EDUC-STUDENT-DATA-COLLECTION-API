@@ -4,10 +4,13 @@ import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
+import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +19,7 @@ import java.util.List;
 @Order(7)
 public class ZeroCoursesAdultRule implements ProgramEligibilityBaseRule {
 
+  private static final DecimalFormat df = new DecimalFormat("00.00");
   @Override
   public boolean shouldExecute(StudentRuleData studentRuleData, List<ProgramEligibilityIssueCode> errors) {
     log.debug("In shouldExecute of ProgramEligibilityBaseRule - ZeroCoursesAdultRule: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
@@ -36,8 +40,8 @@ public class ZeroCoursesAdultRule implements ProgramEligibilityBaseRule {
     var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
     log.debug("In executeValidation of ProgramEligibilityBaseRule - ZeroCoursesAdultRule for sdcSchoolCollectionStudentID :: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-    boolean isAdult = student.getIsAdult();
-    boolean hasZeroCourses = Integer.parseInt(student.getNumberOfCourses()) <= 0;
+    boolean isAdult = DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
+    boolean hasZeroCourses = StringUtils.isEmpty(student.getNumberOfCourses()) || Double.parseDouble(df.format(Double.valueOf(student.getNumberOfCourses()))) == 0;
     boolean notAttendingOL = !FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(studentRuleData.getSchool().getFacilityTypeCode());
     boolean inGrades8Plus = SchoolGradeCodes.get8PlusGrades().contains(student.getEnrolledGradeCode());
 

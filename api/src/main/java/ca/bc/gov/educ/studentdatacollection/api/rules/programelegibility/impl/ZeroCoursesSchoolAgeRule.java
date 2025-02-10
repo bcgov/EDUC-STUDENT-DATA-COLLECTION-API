@@ -6,10 +6,13 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityI
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.rules.ProgramEligibilityBaseRule;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
+import ca.bc.gov.educ.studentdatacollection.api.util.DOBUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +20,8 @@ import java.util.List;
 @Slf4j
 @Order(8)
 public class ZeroCoursesSchoolAgeRule implements ProgramEligibilityBaseRule {
+
+  private static final DecimalFormat df = new DecimalFormat("00.00");
 
   @Override
   public boolean shouldExecute(StudentRuleData studentRuleData, List<ProgramEligibilityIssueCode> errors) {
@@ -38,8 +43,8 @@ public class ZeroCoursesSchoolAgeRule implements ProgramEligibilityBaseRule {
     var student = studentRuleData.getSdcSchoolCollectionStudentEntity();
     log.debug("In executeValidation of ProgramEligibilityBaseRule - ZeroCoursesSchoolAgeRule for sdcSchoolCollectionStudentID :: {}", studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-    boolean isSchoolAged = student.getIsSchoolAged();
-    boolean hasZeroCourses = Integer.parseInt(student.getNumberOfCourses()) <= 0;
+    boolean isSchoolAged = DOBUtil.isSchoolAged(student.getDob());
+    boolean hasZeroCourses = StringUtils.isEmpty(student.getNumberOfCourses()) || Double.parseDouble(df.format(Double.valueOf(student.getNumberOfCourses()))) == 0;
     boolean notAttendingOL = !FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(studentRuleData.getSchool().getFacilityTypeCode());
     boolean inGrades8PlusMinusGA = SchoolGradeCodes.get8PlusGradesNoGA().contains(student.getEnrolledGradeCode());
 
