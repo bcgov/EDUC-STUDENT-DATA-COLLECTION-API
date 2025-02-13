@@ -180,18 +180,19 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
         when(this.restUtils.getSchoolBySchoolID(any())).thenReturn(Optional.of(school));
 
         var student = setMockDataForSaga();
-        student.setYearsInEll(0);
+        student.setYearsInEll(1);
         student.setEnrolledProgramCodes("17");
         sdcSchoolCollectionStudentRepository.save(student);
+
+        var ellRecord = createMockStudentEllEntity(student);
+        ellRecord.setYearsInEll(1);
+        sdcStudentEllRepository.save(ellRecord);
 
         UpdateStudentSagaData sagaData = createSagaData(student);
         sagaData.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
         val saga = this.createMockUpdateStudentDownstreamSaga(sagaData);
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
-
-        var existingEll = sdcStudentEllRepository.findByStudentID(student.getAssignedStudentId());
-        assertThat(existingEll).isNotPresent();
 
         val event = Event.builder()
                 .sagaId(saga.getSagaId())
@@ -210,13 +211,13 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
 
         val updatedStudent = sdcSchoolCollectionStudentRepository.findById(UUID.fromString(sagaData.getSdcSchoolCollectionStudentID()));
         assertThat(updatedStudent).isPresent();
-        assertThat(updatedStudent.get().getYearsInEll()).isEqualTo(1);
+        assertThat(updatedStudent.get().getYearsInEll()).isEqualTo(2);
         assertThat(updatedStudent.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.COMPLETED.toString());
 
         var updatedEll = sdcStudentEllRepository.findByStudentID(student.getAssignedStudentId());
         assertThat(updatedEll).isPresent();
         assertThat(updatedEll.get().getStudentID()).isEqualTo(updatedStudent.get().getAssignedStudentId());
-        assertThat(updatedEll.get().getYearsInEll()).isEqualTo(1);
+        assertThat(updatedEll.get().getYearsInEll()).isEqualTo(2);
     }
 
     public UpdateStudentSagaData createSagaData(SdcSchoolCollectionStudentEntity entity) {
