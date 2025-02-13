@@ -184,13 +184,55 @@ public class CloseCollectionService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateELLAndMarkStudentAsCompleted(UpdateStudentSagaData updateStudentSagaData) {
+        markStudentAsCompleted(updateStudentSagaData, true);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void markStudentAsCompleted(UpdateStudentSagaData updateStudentSagaData) {
-        Optional<SdcSchoolCollectionStudentEntity> optionalStudentEntity =  sdcSchoolCollectionStudentRepository.findById(UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()));
-        SdcSchoolCollectionStudentEntity studentEntity = optionalStudentEntity.orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "sdcSchoolCollectionStudentID", updateStudentSagaData.getSdcSchoolCollectionStudentID()));
+        markStudentAsCompleted(updateStudentSagaData, false);
+    }
+
+    private void markStudentAsCompleted(UpdateStudentSagaData updateStudentSagaData, boolean updateELL) {
+        Optional<SdcSchoolCollectionStudentEntity> optionalStudentEntity = sdcSchoolCollectionStudentRepository.findById(UUID.fromString(updateStudentSagaData.getSdcSchoolCollectionStudentID()));
+        SdcSchoolCollectionStudentEntity studentEntity = optionalStudentEntity.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, "sdcSchoolCollectionStudentID", updateStudentSagaData.getSdcSchoolCollectionStudentID()));
+
+        if (updateELL) {
+            updateELLYears(studentEntity);
+        }
+
         studentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.COMPLETED.getCode());
         studentEntity.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
         studentEntity.setUpdateDate(LocalDateTime.now());
         sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(studentEntity);
+    }
+
+    private void updateELLYears(SdcSchoolCollectionStudentEntity studentEntity) {
+        final List<String> enrolledProgramCodes = validationRulesService.splitEnrolledProgramsString(studentEntity.getEnrolledProgramCodes());
+
+        if (EnrolledProgramCodes.getELLCodes().stream().anyMatch(enrolledProgramCodes::contains)) {
+            final var studentInEllOpt = validationRulesService.getStudentYearsInEll(studentEntity.getAssignedStudentId());
+            log.debug("Student years in ELL found for SDC student {} :: is {}", studentEntity.getSdcSchoolCollectionStudentID(), studentInEllOpt);
+
+            if (studentInEllOpt.isPresent()) {
+                var studentInEll = studentInEllOpt.get();
+                studentEntity.setYearsInEll(studentInEll.getYearsInEll() + 1);
+                studentInEll.setYearsInEll(studentInEll.getYearsInEll() + 1);
+                studentInEll.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+                studentInEll.setUpdateDate(LocalDateTime.now());
+                sdcStudentEllRepository.save(studentInEll);
+            } else {
+                studentEntity.setYearsInEll(1);
+                SdcStudentEllEntity studentEll = new SdcStudentEllEntity();
+                studentEll.setStudentID(studentEntity.getAssignedStudentId());
+                studentEll.setYearsInEll(1);
+                studentEll.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+                studentEll.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
+                studentEll.setUpdateDate(LocalDateTime.now());
+                studentEll.setCreateDate(LocalDateTime.now());
+                sdcStudentEllRepository.save(studentEll);
+            }
+        }
     }
 
     public List<SchoolTombstone> getListOfSchoolIDsFromCriteria(List<CollectionCodeCriteriaEntity> collectionCodeCriteria) {
