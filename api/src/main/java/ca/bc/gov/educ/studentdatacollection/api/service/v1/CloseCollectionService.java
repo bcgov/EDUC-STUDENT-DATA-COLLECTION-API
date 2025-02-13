@@ -216,13 +216,11 @@ public class CloseCollectionService {
 
             if (studentInEllOpt.isPresent()) {
                 var studentInEll = studentInEllOpt.get();
-                studentEntity.setYearsInEll(studentInEll.getYearsInEll() + 1);
                 studentInEll.setYearsInEll(studentInEll.getYearsInEll() + 1);
                 studentInEll.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
                 studentInEll.setUpdateDate(LocalDateTime.now());
                 sdcStudentEllRepository.save(studentInEll);
             } else {
-                studentEntity.setYearsInEll(1);
                 SdcStudentEllEntity studentEll = new SdcStudentEllEntity();
                 studentEll.setStudentID(studentEntity.getAssignedStudentId());
                 studentEll.setYearsInEll(1);

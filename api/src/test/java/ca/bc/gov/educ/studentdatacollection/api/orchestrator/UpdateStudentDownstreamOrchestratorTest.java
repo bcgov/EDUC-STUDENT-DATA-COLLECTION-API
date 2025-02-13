@@ -207,7 +207,7 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
 
         val updatedStudent = sdcSchoolCollectionStudentRepository.findById(UUID.fromString(sagaData.getSdcSchoolCollectionStudentID()));
         assertThat(updatedStudent).isPresent();
-        assertThat(updatedStudent.get().getYearsInEll()).isEqualTo(1);
+        assertThat(updatedStudent.get().getYearsInEll()).isEqualTo(0);
         assertThat(updatedStudent.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.COMPLETED.toString());
 
         var updatedEll = sdcStudentEllRepository.findByStudentID(student.getAssignedStudentId());
@@ -258,7 +258,7 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
 
         val updatedStudent = sdcSchoolCollectionStudentRepository.findById(UUID.fromString(sagaData.getSdcSchoolCollectionStudentID()));
         assertThat(updatedStudent).isPresent();
-        assertThat(updatedStudent.get().getYearsInEll()).isEqualTo(2);
+        assertThat(updatedStudent.get().getYearsInEll()).isEqualTo(1);
         assertThat(updatedStudent.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.COMPLETED.toString());
 
         var updatedEll = sdcStudentEllRepository.findByStudentID(student.getAssignedStudentId());
