@@ -210,7 +210,7 @@ public class CloseCollectionService {
     private void updateELLYears(SdcSchoolCollectionStudentEntity studentEntity) {
         final List<String> enrolledProgramCodes = validationRulesService.splitEnrolledProgramsString(studentEntity.getEnrolledProgramCodes());
 
-        if (EnrolledProgramCodes.getELLCodes().stream().anyMatch(enrolledProgramCodes::contains)) {
+        if (EnrolledProgramCodes.getELLCodes().stream().anyMatch(enrolledProgramCodes::contains) && studentEntity.getEllNonEligReasonCode() == null) {
             final var studentInEllOpt = validationRulesService.getStudentYearsInEll(studentEntity.getAssignedStudentId());
             log.debug("Student years in ELL found for SDC student {} :: is {}", studentEntity.getSdcSchoolCollectionStudentID(), studentInEllOpt);
 
