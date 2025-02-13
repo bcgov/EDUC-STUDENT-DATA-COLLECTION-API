@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.orchestrator;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
@@ -74,6 +75,8 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
     SagaRepository sagaRepository;
     @Autowired
     MessagePublisher messagePublisher;
+    @Autowired
+    SdcStudentEllRepository sdcStudentEllRepository;
     @Captor
     ArgumentCaptor<byte[]> eventCaptor;
 
@@ -124,7 +127,9 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
 
     @SneakyThrows
     @Test
-    void testHandleEvent_givenEventTypeUPDATE_SDC_STUDENT_STATUS_shouldExecuteUpdateSdcStudentStatus() {
+    void testHandleEvent_givenEventTypeUPDATE_SDC_STUDENT_STATUS_WithNoEllAsEnrolledProgram_shouldExecuteUpdateSdcStudentStatus() {
+        this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntity());
+
         var school = createMockSchool();
         school.setDisplayName("School1");
         school.setMincode("0000001");
@@ -132,6 +137,55 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
 
         var student = setMockDataForSaga();
         UpdateStudentSagaData sagaData = createSagaData(student);
+        sagaData.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        val saga = this.createMockUpdateStudentDownstreamSaga(sagaData);
+        saga.setSagaId(null);
+        this.sagaRepository.save(saga);
+
+        var existingEll = sdcStudentEllRepository.findByStudentID(student.getAssignedStudentId());
+        assertThat(existingEll).isNotPresent();
+
+        val event = Event.builder()
+                .sagaId(saga.getSagaId())
+                .eventType(UPDATE_STUDENT)
+                .eventOutcome(STUDENT_UPDATED)
+                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+        this.updateStudentDownstreamOrchestrator.handleEvent(event);
+
+        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC.toString()), this.eventCaptor.capture());
+        final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
+        assertThat(newEvent.getEventType()).isEqualTo(UPDATE_SDC_STUDENT_STATUS);
+
+        val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+        assertThat(savedSagaInDB).isPresent();
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(UPDATE_SDC_STUDENT_STATUS.toString());
+
+        val updatedStudent = sdcSchoolCollectionStudentRepository.findById(UUID.fromString(sagaData.getSdcSchoolCollectionStudentID()));
+        assertThat(updatedStudent).isPresent();
+        assertThat(updatedStudent.get().getYearsInEll()).isNull();
+        assertThat(updatedStudent.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.COMPLETED.toString());
+
+        var updatedEll = sdcStudentEllRepository.findByStudentID(student.getAssignedStudentId());
+        assertThat(updatedEll).isNotPresent();
+    }
+
+    @SneakyThrows
+    @Test
+    void testHandleEvent_givenEventTypeUPDATE_SDC_STUDENT_STATUS_WithEllAsEnrolledProgram_shouldExecuteUpdateSdcStudentStatus() {
+        this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntity());
+
+        var school = createMockSchool();
+        school.setDisplayName("School1");
+        school.setMincode("0000001");
+        when(this.restUtils.getSchoolBySchoolID(any())).thenReturn(Optional.of(school));
+
+        var student = setMockDataForSaga();
+        student.setYearsInEll(0);
+        student.setEnrolledProgramCodes("17");
+        sdcSchoolCollectionStudentRepository.save(student);
+
+        UpdateStudentSagaData sagaData = createSagaData(student);
+        sagaData.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
         val saga = this.createMockUpdateStudentDownstreamSaga(sagaData);
         saga.setSagaId(null);
         this.sagaRepository.save(saga);
@@ -153,7 +207,64 @@ class UpdateStudentDownstreamOrchestratorTest extends BaseStudentDataCollectionA
 
         val updatedStudent = sdcSchoolCollectionStudentRepository.findById(UUID.fromString(sagaData.getSdcSchoolCollectionStudentID()));
         assertThat(updatedStudent).isPresent();
+        assertThat(updatedStudent.get().getYearsInEll()).isEqualTo(0);
         assertThat(updatedStudent.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.COMPLETED.toString());
+
+        var updatedEll = sdcStudentEllRepository.findByStudentID(student.getAssignedStudentId());
+        assertThat(updatedEll).isPresent();
+        assertThat(updatedEll.get().getStudentID()).isEqualTo(updatedStudent.get().getAssignedStudentId());
+        assertThat(updatedEll.get().getYearsInEll()).isEqualTo(1);
+    }
+
+    @SneakyThrows
+    @Test
+    void testHandleEvent_givenEventTypeUPDATE_SDC_STUDENT_STATUS_WithEllAsEnrolledProgramAndHistoricalELL_shouldExecuteUpdateSdcStudentStatus() {
+        this.collectionTypeCodeRepository.save(this.createMockCollectionCodeEntity());
+
+        var school = createMockSchool();
+        school.setDisplayName("School1");
+        school.setMincode("0000001");
+        when(this.restUtils.getSchoolBySchoolID(any())).thenReturn(Optional.of(school));
+
+        var student = setMockDataForSaga();
+        student.setYearsInEll(1);
+        student.setEnrolledProgramCodes("17");
+        sdcSchoolCollectionStudentRepository.save(student);
+
+        var ellRecord = createMockStudentEllEntity(student);
+        ellRecord.setYearsInEll(1);
+        sdcStudentEllRepository.save(ellRecord);
+
+        UpdateStudentSagaData sagaData = createSagaData(student);
+        sagaData.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+        val saga = this.createMockUpdateStudentDownstreamSaga(sagaData);
+        saga.setSagaId(null);
+        this.sagaRepository.save(saga);
+
+        val event = Event.builder()
+                .sagaId(saga.getSagaId())
+                .eventType(UPDATE_STUDENT)
+                .eventOutcome(STUDENT_UPDATED)
+                .eventPayload(JsonUtil.getJsonStringFromObject(sagaData)).build();
+        this.updateStudentDownstreamOrchestrator.handleEvent(event);
+
+        verify(this.messagePublisher, atMost(2)).dispatchMessage(eq(UPDATE_STUDENT_DOWNSTREAM_SAGA_TOPIC.toString()), this.eventCaptor.capture());
+        final var newEvent = JsonUtil.getJsonObjectFromString(Event.class, new String(this.eventCaptor.getValue()));
+        assertThat(newEvent.getEventType()).isEqualTo(UPDATE_SDC_STUDENT_STATUS);
+
+        val savedSagaInDB = this.sagaRepository.findById(saga.getSagaId());
+        assertThat(savedSagaInDB).isPresent();
+        assertThat(savedSagaInDB.get().getSagaState()).isEqualTo(UPDATE_SDC_STUDENT_STATUS.toString());
+
+        val updatedStudent = sdcSchoolCollectionStudentRepository.findById(UUID.fromString(sagaData.getSdcSchoolCollectionStudentID()));
+        assertThat(updatedStudent).isPresent();
+        assertThat(updatedStudent.get().getYearsInEll()).isEqualTo(1);
+        assertThat(updatedStudent.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.COMPLETED.toString());
+
+        var updatedEll = sdcStudentEllRepository.findByStudentID(student.getAssignedStudentId());
+        assertThat(updatedEll).isPresent();
+        assertThat(updatedEll.get().getStudentID()).isEqualTo(updatedStudent.get().getAssignedStudentId());
+        assertThat(updatedEll.get().getYearsInEll()).isEqualTo(2);
     }
 
     public UpdateStudentSagaData createSagaData(SdcSchoolCollectionStudentEntity entity) {
