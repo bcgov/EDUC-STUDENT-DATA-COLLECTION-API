@@ -1321,35 +1321,35 @@ public class CSVReportService {
         }
 
         return new ArrayList<>(Arrays.asList(
-                wrapStringInQuotes(collection.getSnapshotDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"))),
-                wrapStringInQuotes(school.getMincode().substring(0, 3)),
-                wrapStringInQuotes(school.getSchoolNumber()),
-                wrapStringInQuotes(groupStandardPrimary == null ? " " : groupStandardPrimary),
-                wrapStringInQuotes(groupStandardElementary == null ? " " : groupStandardElementary),
-                wrapStringInQuotes(groupStandardJunior == null ? " " : groupStandardJunior),
-                wrapStringInQuotes(groupStandardSecondary == null ? " " : groupStandardSecondary),
-                wrapStringInQuotes(groupDLPrimary == null ? " " : groupDLPrimary),
-                wrapStringInQuotes(groupDLSecondary == null ? " " : groupDLSecondary),
-                wrapStringInQuotes(headcountResult.getSpecialEducationLevel1Count() == null ? "0" : stripTrailingZeros(headcountResult.getSpecialEducationLevel1Count())),
-                wrapStringInQuotes(headcountResult.getSpecialEducationLevel2Count() == null ? "0" : stripTrailingZeros(headcountResult.getSpecialEducationLevel2Count())),
-                wrapStringInQuotes(headcountResult.getSpecialEducationLevel3Count() == null ? "0" : stripTrailingZeros(headcountResult.getSpecialEducationLevel3Count())),
-                wrapStringInQuotes(headcountResult.getSpecialEducationLevelOtherCount() == null ? "0" : stripTrailingZeros(headcountResult.getSpecialEducationLevelOtherCount())),
-                wrapStringInQuotes(headcountResult.getStandardAdultsKto3Fte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardAdultsKto3Fte())),
-                wrapStringInQuotes(headcountResult.getStandardAdults4to7EUFte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardAdults4to7EUFte())),
-                wrapStringInQuotes(headcountResult.getStandardAdults8to10SUFte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardAdults8to10SUFte())),
-                wrapStringInQuotes(headcountResult.getStandardAdults11and12Fte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardAdults11and12Fte())),
-                wrapStringInQuotes(headcountResult.getDLAdultsKto9Fte() == null ? "0" : stripTrailingZeros(headcountResult.getDLAdultsKto9Fte())),
-                wrapStringInQuotes(headcountResult.getDLAdults10to12Fte() == null ? "0" : stripTrailingZeros(headcountResult.getDLAdults10to12Fte())),
-                wrapStringInQuotes(headcountResult.getStandardSchoolAgedKHFte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardSchoolAgedKHFte())),
-                wrapStringInQuotes(headcountResult.getStandardSchoolAgedKFFte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardSchoolAgedKFFte())),
-                wrapStringInQuotes(headcountResult.getStandardSchoolAged1to3Fte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardSchoolAged1to3Fte())),
-                wrapStringInQuotes(headcountResult.getStandardSchoolAged4to7EUFte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardSchoolAged4to7EUFte())),
-                wrapStringInQuotes(headcountResult.getStandardSchoolAged8to10SUFte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardSchoolAged8to10SUFte())),
-                wrapStringInQuotes(headcountResult.getStandardSchoolAged11and12Fte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardSchoolAged11and12Fte())),
-                wrapStringInQuotes(headcountResult.getDLSchoolAgedKto9Fte() == null ? "0" : stripTrailingZeros(headcountResult.getDLSchoolAgedKto9Fte())),
-                wrapStringInQuotes(headcountResult.getDLSchoolAged10to12Fte() == null ? "0" : stripTrailingZeros(headcountResult.getDLSchoolAged10to12Fte())),
-                wrapStringInQuotes(headcountResult.getTotalHomeschoolCount() == null ? "0" : stripTrailingZeros(headcountResult.getTotalHomeschoolCount())),
-                wrapStringInQuotes(postedYN)
+                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                school.getMincode().substring(0, 3),
+                school.getSchoolNumber(),
+                groupStandardPrimary == null ? " " : groupStandardPrimary,
+                groupStandardElementary == null ? " " : groupStandardElementary,
+                groupStandardJunior == null ? " " : groupStandardJunior,
+                groupStandardSecondary == null ? " " : groupStandardSecondary,
+                groupDLPrimary == null ? " " : groupDLPrimary,
+                groupDLSecondary == null ? " " : groupDLSecondary,
+                headcountResult.getSpecialEducationLevel1Count() == null ? "0" : stripTrailingZeros(headcountResult.getSpecialEducationLevel1Count()),
+                headcountResult.getSpecialEducationLevel2Count() == null ? "0" : stripTrailingZeros(headcountResult.getSpecialEducationLevel2Count()),
+                headcountResult.getSpecialEducationLevel3Count() == null ? "0" : stripTrailingZeros(headcountResult.getSpecialEducationLevel3Count()),
+                headcountResult.getSpecialEducationLevelOtherCount() == null ? "0" : stripTrailingZeros(headcountResult.getSpecialEducationLevelOtherCount()),
+                headcountResult.getStandardAdultsKto3Fte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardAdultsKto3Fte()),
+                headcountResult.getStandardAdults4to7EUFte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardAdults4to7EUFte()),
+                headcountResult.getStandardAdults8to10SUFte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardAdults8to10SUFte()),
+                headcountResult.getStandardAdults11and12Fte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardAdults11and12Fte()),
+                headcountResult.getDLAdultsKto9Fte() == null ? "0" : stripTrailingZeros(headcountResult.getDLAdultsKto9Fte()),
+                headcountResult.getDLAdults10to12Fte() == null ? "0" : stripTrailingZeros(headcountResult.getDLAdults10to12Fte()),
+                headcountResult.getStandardSchoolAgedKHFte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardSchoolAgedKHFte()),
+                headcountResult.getStandardSchoolAgedKFFte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardSchoolAgedKFFte()),
+                headcountResult.getStandardSchoolAged1to3Fte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardSchoolAged1to3Fte()),
+                headcountResult.getStandardSchoolAged4to7EUFte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardSchoolAged4to7EUFte()),
+                headcountResult.getStandardSchoolAged8to10SUFte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardSchoolAged8to10SUFte()),
+                headcountResult.getStandardSchoolAged11and12Fte() == null ? "0" : stripTrailingZeros(headcountResult.getStandardSchoolAged11and12Fte()),
+                headcountResult.getDLSchoolAgedKto9Fte() == null ? "0" : stripTrailingZeros(headcountResult.getDLSchoolAgedKto9Fte()),
+                headcountResult.getDLSchoolAged10to12Fte() == null ? "0" : stripTrailingZeros(headcountResult.getDLSchoolAged10to12Fte()),
+                headcountResult.getTotalHomeschoolCount() == null ? "0" : stripTrailingZeros(headcountResult.getTotalHomeschoolCount()),
+                postedYN
         ));
     }
 
@@ -1358,10 +1358,6 @@ public class CSVReportService {
             return s.contains(".") ? s.replaceAll("0*$", "").replaceAll("\\.$", "") : s;
         }
         return null;
-    }
-
-    private String wrapStringInQuotes(String s){
-        return "\"" + s + "\"";
     }
 
     private List<String> prepareEnrolmentFteDataForCsv(EnrolmentHeadcountFteResult headcountResult, SchoolTombstone school) {
