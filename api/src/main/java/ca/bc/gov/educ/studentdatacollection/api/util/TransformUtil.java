@@ -39,6 +39,10 @@ public class TransformUtil {
   private static final String [] VALID_SCHOOL_FUNDING_GROUPS = new String[]{GROUP_1, GROUP_2};
   public static final String GROUP_3 = "GROUP3";
   public static final String GROUP_4 = "GROUP4";
+  public static final String GROUP_1_LEGACY = "01";
+  public static final String GROUP_2_LEGACY = "02";
+  public static final String GROUP_3_LEGACY = "03";
+  public static final String GROUP_4_LEGACY = "04";
 
   private TransformUtil() {
   }
@@ -234,7 +238,7 @@ public class TransformUtil {
       currentGroupCode = compareForLowestValue(currentGroupCode, fundingGroup);
     }
 
-    return currentGroupCode;
+    return getLegacyCodeFromGroup(currentGroupCode);
   }
 
   public static String getLowestFundingGroupSnapshotForGroup(List<IndependentSchoolFundingGroupSnapshotEntity> schoolFundingGroups, List<String> gradeCodeList) {
@@ -249,7 +253,25 @@ public class TransformUtil {
       currentGroupCode = compareForLowestValue(currentGroupCode, fundingGroup);
     }
 
-    return currentGroupCode;
+    return getLegacyCodeFromGroup(currentGroupCode);
+  }
+
+  private static String getLegacyCodeFromGroup(String groupCode){
+    switch (groupCode){
+      case GROUP_1 -> {
+          return GROUP_1_LEGACY;
+      }
+      case GROUP_2 -> {
+        return GROUP_2_LEGACY;
+      }
+      case GROUP_3 -> {
+        return GROUP_3_LEGACY;
+      }
+      case GROUP_4 -> {
+        return GROUP_4_LEGACY;
+      }
+    }
+    return null;
   }
 
   private static String compareForLowestValue(String currentGroupCode, String groupCode){
