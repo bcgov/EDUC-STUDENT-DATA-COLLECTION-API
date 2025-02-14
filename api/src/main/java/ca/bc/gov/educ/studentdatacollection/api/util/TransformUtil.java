@@ -257,6 +257,9 @@ public class TransformUtil {
   }
 
   private static String getLegacyCodeFromGroup(String groupCode){
+    if(StringUtils.isBlank(groupCode)){
+      return null;
+    }
     switch (groupCode){
       case GROUP_1 -> {
           return GROUP_1_LEGACY;
