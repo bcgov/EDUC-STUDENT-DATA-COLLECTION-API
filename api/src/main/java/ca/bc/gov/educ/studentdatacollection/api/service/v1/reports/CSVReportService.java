@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -1037,8 +1038,9 @@ public class CSVReportService {
         List<ISFSPrelimHeadcountResult> results = sdcSchoolCollectionStudentRepository.getISFSPreliminaryDataByCollectionId(collectionID);
 
         List<String> headers = Arrays.stream(ISFSPreliminaryHeader.values()).map(ISFSPreliminaryHeader::getCode).toList();
-        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+        var csvFormat = CSVFormat.Builder.create()
                 .setHeader(headers.toArray(String[]::new))
+                .setQuoteMode(QuoteMode.ALL)
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
