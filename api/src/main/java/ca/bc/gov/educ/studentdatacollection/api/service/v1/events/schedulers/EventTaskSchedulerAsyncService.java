@@ -226,6 +226,7 @@ public class EventTaskSchedulerAsyncService {
     LocalDate currentDate = LocalDate.now();
 
     if (activeCollection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode())
+            || activeCollection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.MAY.getTypeCode())
             || !activeCollection.getCollectionStatusCode().equalsIgnoreCase(CollectionStatus.INPROGRESS.getCode())
             || currentDate.isBefore(activeCollection.getSubmissionDueDate().plusDays(1))) {
       return;
