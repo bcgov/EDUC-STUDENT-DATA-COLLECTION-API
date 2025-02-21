@@ -312,7 +312,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     GradStatusResult gradStatusResult = new GradStatusResult();
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
-    sdcSchoolCollectionStudentService.validateAndProcessNewSdcSchoolCollectionStudent(newStudentEntity);
+    sdcSchoolCollectionStudentService.validateAndProcessNewSdcSchoolCollectionStudent(newStudentEntity, false);
 
     Optional<SdcSchoolCollectionStudentEntity> savedStudent = sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID());
 
@@ -348,7 +348,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
     assertThrows(IllegalTransactionStateException.class, () -> {
-      sdcSchoolCollectionStudentService.validateAndProcessNewSdcSchoolCollectionStudent(studentEntity);
+      sdcSchoolCollectionStudentService.validateAndProcessNewSdcSchoolCollectionStudent(studentEntity, true);
     }, "SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate.");
   }
 

@@ -463,7 +463,7 @@ public class SdcSchoolCollectionStudentService {
     return sdcSchoolCollectionStudentStorageService.saveAllSDCStudentsWithHistory(sdcSchoolCollectionStudentEntities);
   }
 
-  public SdcSchoolCollectionStudentEntity validateAndProcessNewSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity) {
+  public SdcSchoolCollectionStudentEntity validateAndProcessNewSdcSchoolCollectionStudent(SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity, boolean isStaffMember) {
     TransformUtil.uppercaseFields(sdcSchoolCollectionStudentEntity);
     var studentRuleData = createStudentRuleDataForValidation(sdcSchoolCollectionStudentEntity);
 
@@ -474,6 +474,8 @@ public class SdcSchoolCollectionStudentService {
     }
 
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
+
+    sdcDuplicatesService.checkIfDuplicateIsGeneratedAndThrow(processedSdcSchoolCollectionStudent, isCollectionInProvDupes(processedSdcSchoolCollectionStudent.getSdcSchoolCollection().getCollectionEntity()), isStaffMember);
     return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
   }
 
@@ -501,8 +503,7 @@ public class SdcSchoolCollectionStudentService {
       studentEntity.setSdcSchoolCollection(sdcSchoolCollection.get());
       studentEntity.setOriginalDemogHash(Integer.toString(studentEntity.getUniqueObjectHash()));
       studentEntity.setCurrentDemogHash(Integer.toString(studentEntity.getUniqueObjectHash()));
-      sdcDuplicatesService.checkIfDuplicateIsGeneratedAndThrow(studentEntity, isCollectionInProvDupes(studentEntity.getSdcSchoolCollection().getCollectionEntity()), isStaffMember);
-      return validateAndProcessNewSdcSchoolCollectionStudent(studentEntity);
+      return validateAndProcessNewSdcSchoolCollectionStudent(studentEntity, isStaffMember);
     } else {
       throw new EntityNotFoundException(SdcSchoolCollectionEntity.class, "SdcSchoolCollectionEntity", studentEntity.getSdcSchoolCollection().getSdcSchoolCollectionID().toString());
     }
