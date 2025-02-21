@@ -262,8 +262,10 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setIsSchoolAged(true);
     sdcEntity.setIsAdult(false);
     sdcEntity.setIsGraduated(false);
-    sdcEntity.setOriginalDemogHash(Integer.toString(sdcEntity.getUniqueObjectHash()));
-    sdcEntity.setCurrentDemogHash(Integer.toString(sdcEntity.getUniqueObjectHash()));
+    if(sdcSchoolCollectionEntity != null) {
+      sdcEntity.setOriginalDemogHash(Integer.toString(sdcEntity.getUniqueObjectHash()));
+      sdcEntity.setCurrentDemogHash(Integer.toString(sdcEntity.getUniqueObjectHash()));
+    }
     sdcEntity.setSdcStudentEnrolledProgramEntities(new HashSet<>());
     sdcEntity.setSdcStudentValidationIssueEntities(new HashSet<>());
     return sdcEntity;
