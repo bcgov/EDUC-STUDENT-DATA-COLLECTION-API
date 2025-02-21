@@ -278,11 +278,11 @@ public class SdcDuplicatesService {
         UUID schoolID = schoolCollectionSchoolID.getSchoolID();
         Optional<SchoolTombstone> optionalSchool = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
         var school = optionalSchool.get();
-        UUID districtID = UUID.fromString(school.getDistrictId());
 
         List<EdxUser> schoolEdxUsers = restUtils.getEdxUsersForSchool(schoolID);
         Set<String> emails = pluckEmailAddressesFromSchool(schoolEdxUsers);
         if(!SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(school.getSchoolCategoryCode())) {
+          UUID districtID = UUID.fromString(school.getDistrictId());
           List<EdxUser> districtEdxUsers = restUtils.getEdxUsersForDistrict(districtID);
           emails.addAll(pluckEmailAddressesFromDistrict(districtEdxUsers));
         }
