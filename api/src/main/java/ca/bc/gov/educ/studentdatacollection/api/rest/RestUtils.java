@@ -41,11 +41,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Stream;
 
 /**
  * This class is used for REST calls
@@ -73,8 +73,9 @@ public class RestUtils {
   private final Map<String, FacilityTypeCode> facilityTypeCodesMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
-  public static final String PAGE_SIZE_VALUE = "1500";
+  public static final String PAGE_SIZE_VALUE = "100";
   public static final String PAGE_NUMBER = "pageNumber";
+  public static final Integer PAGE_COUNT_VALUE = 60;
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
@@ -581,22 +582,44 @@ public class RestUtils {
     try {
       writeLock.lock();
       log.info("Populating all school map :: {}", this.allSchoolLock);
-      List<School> pageOneOfSchools = this.getAllSchoolList(UUID.randomUUID(),"0");
-      log.info("Populating all school map page 1 size:: {}", pageOneOfSchools.size());
-      List<School> pageTwoOfSchools = this.getAllSchoolList(UUID.randomUUID(), "1");
-      log.info("Populating all school map page 2 size:: {}", pageTwoOfSchools.size());
-      List<School> pageThreeOfSchools = this.getAllSchoolList(UUID.randomUUID(), "2");
-      log.info("Populating all school map page 3 size:: {}", pageThreeOfSchools.size());
-      List<School> pageFourOfSchools = this.getAllSchoolList(UUID.randomUUID(), "3");
-      log.info("Populating all school map page 4 size:: {}", pageFourOfSchools.size());
+//      List<School> pageOneOfSchools = this.getAllSchoolList(UUID.randomUUID(),"0");
+//      log.info("Populating all school map page 1 size:: {}", pageOneOfSchools.size());
+//      List<School> pageTwoOfSchools = this.getAllSchoolList(UUID.randomUUID(), "1");
+//      log.info("Populating all school map page 2 size:: {}", pageTwoOfSchools.size());
+//      List<School> pageThreeOfSchools = this.getAllSchoolList(UUID.randomUUID(), "2");
+//      log.info("Populating all school map page 3 size:: {}", pageThreeOfSchools.size());
+//      List<School> pageFourOfSchools = this.getAllSchoolList(UUID.randomUUID(), "3");
+//      log.info("Populating all school map page 4 size:: {}", pageFourOfSchools.size());
 
+      List<CompletableFuture<List<School>>> pageFutures = new ArrayList<>();
 
-      List<School> allSchools = Stream.of(pageOneOfSchools, pageTwoOfSchools, pageThreeOfSchools, pageFourOfSchools)
-              .flatMap(Collection::stream).toList();
-
-      for (val school : allSchools) {
-        this.allSchoolMap.put(school.getSchoolId(), school);
+      for (int i = 0; i < PAGE_COUNT_VALUE; i++) {
+        final String pageNumber = String.valueOf(i);
+        CompletableFuture<List<School>> future = CompletableFuture.supplyAsync(() -> getAllSchoolList(UUID.randomUUID(), pageNumber));
+        pageFutures.add(future);
+        log.info("populated all school map - future number  :: {}", pageNumber);
       }
+
+//      List<School> allSchools = Stream.of(pageOneOfSchools, pageTwoOfSchools, pageThreeOfSchools, pageFourOfSchools)
+//              .flatMap(Collection::stream).toList();
+
+
+      log.info("joining all pages");
+      CompletableFuture<Void> allPages = CompletableFuture.allOf(pageFutures.toArray(new CompletableFuture[0]));
+      allPages.join();
+
+      log.info("page futures to all schools");
+      List<School> allSchools = pageFutures.stream()
+              .map(CompletableFuture::join)
+              .flatMap(Collection::stream)
+              .toList();
+
+      log.info("putting all schools into all schools map");
+      allSchools.forEach(school -> this.allSchoolMap.put(school.getSchoolId(), school));
+
+//      for (val school : allSchools) {
+//        this.allSchoolMap.put(school.getSchoolId(), school);
+//      }
     } catch (Exception ex) {
       log.error("Unable to load map cache for allSchool {}", ex);
     } finally {
