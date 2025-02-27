@@ -329,7 +329,7 @@ class RestUtilsTest {
     }
 
     @Test
-    void testGetAllSchoolBySchoolID_ShouldPopulateMapsCorrectly() {
+    void testGetAllSchoolBySchoolID_ShouldPopulateMapsCorrectly() throws Exception {
         // Given
         val school1ID = String.valueOf(UUID.randomUUID());
         val school2ID = String.valueOf(UUID.randomUUID());
