@@ -73,9 +73,9 @@ public class RestUtils {
   private final Map<String, FacilityTypeCode> facilityTypeCodesMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
-  public static final String PAGE_SIZE_VALUE = "100";
+  public static final String PAGE_SIZE_VALUE = "500";
   public static final String PAGE_NUMBER = "pageNumber";
-  public static final Integer PAGE_COUNT_VALUE = 60;
+  public static final Integer PAGE_COUNT_VALUE = 12;
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
@@ -658,7 +658,7 @@ public class RestUtils {
   @Retryable(retryFor = {Exception.class}, noRetryFor = {StudentDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public List<School> getAllSchoolList(UUID correlationID, String pageNumber) {
     try {
-      log.info("Calling Institute API to load all schools to memory, current page " + (Integer.parseInt(pageNumber) + 1) + " of 4");
+      log.info("Calling Institute API to load all schools to memory, current page " + (Integer.parseInt(pageNumber) + 1) + " of 12");
       final TypeReference<List<School>> ref = new TypeReference<>() {
       };
       val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(PAGE_SIZE.concat("=").concat(PAGE_SIZE_VALUE)
