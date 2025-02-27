@@ -1069,10 +1069,10 @@ public class CSVReportService {
     private ISFSPrelimHeadcountFinalResult getPrelimFinalResult(ISFSPrelimHeadcountResult queryResult, School school){
         ISFSPrelimHeadcountFinalResult finalResult = new ISFSPrelimHeadcountFinalResult();
 
-        BigDecimal finalSpedLevel1KHCount = queryResult.getSpecialEducationLevel1CountKH() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel1CountKH()).multiply(BigDecimal.valueOf(0.5));
-        BigDecimal finalSpedLevel2KHCount = queryResult.getSpecialEducationLevel2CountKH() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel2CountKH()).multiply(BigDecimal.valueOf(0.5));
-        BigDecimal finalSpedLevel3KHCount = queryResult.getSpecialEducationLevel3CountKH() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel3CountKH()).multiply(BigDecimal.valueOf(0.5));
-        BigDecimal finalSpedLevelSESKHCount = queryResult.getSpecialEducationLevelOtherCountKH() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevelOtherCountKH()).multiply(BigDecimal.valueOf(0.5));
+        BigDecimal finalSpedLevel1KHCount = queryResult.getSpecialEducationLevel1CountKH() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel1CountKH());
+        BigDecimal finalSpedLevel2KHCount = queryResult.getSpecialEducationLevel2CountKH() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel2CountKH());
+        BigDecimal finalSpedLevel3KHCount = queryResult.getSpecialEducationLevel3CountKH() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel3CountKH());
+        BigDecimal finalSpedLevelSESKHCount = queryResult.getSpecialEducationLevelOtherCountKH() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevelOtherCountKH());
 
         BigDecimal finalSpedLevel1Count = queryResult.getSpecialEducationLevel1Count() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel1Count());
         BigDecimal finalSpedLevel2Count = queryResult.getSpecialEducationLevel2Count() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel2Count());
