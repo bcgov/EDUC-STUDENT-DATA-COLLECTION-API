@@ -636,8 +636,10 @@ public class RestUtils {
               .concat("&").concat(PAGE_NUMBER).concat("=").concat(pageNumber)).build();
       val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 30, TimeUnit.SECONDS).get();
       if (null != responseMessage) {
+        log.info("Response from Institute API is good");
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {
+        log.info("Response from Institute API returned empty list");
         throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
     } catch (final Exception ex) {
