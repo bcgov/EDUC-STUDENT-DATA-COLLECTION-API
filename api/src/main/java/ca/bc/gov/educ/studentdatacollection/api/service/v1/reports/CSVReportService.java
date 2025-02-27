@@ -1069,10 +1069,20 @@ public class CSVReportService {
     private ISFSPrelimHeadcountFinalResult getPrelimFinalResult(ISFSPrelimHeadcountResult queryResult, School school){
         ISFSPrelimHeadcountFinalResult finalResult = new ISFSPrelimHeadcountFinalResult();
 
-        finalResult.setSpecialEducationLevel1Count(queryResult.getSpecialEducationLevel1Count());
-        finalResult.setSpecialEducationLevel2Count(queryResult.getSpecialEducationLevel2Count());
-        finalResult.setSpecialEducationLevel3Count(queryResult.getSpecialEducationLevel3Count());
-        finalResult.setSpecialEducationLevelOtherCount(queryResult.getSpecialEducationLevelOtherCount());
+        BigDecimal finalSpedLevel1KHCount = queryResult.getSpecialEducationLevel1CountKH() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel1CountKH()).multiply(BigDecimal.valueOf(0.5));
+        BigDecimal finalSpedLevel2KHCount = queryResult.getSpecialEducationLevel2CountKH() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel2CountKH()).multiply(BigDecimal.valueOf(0.5));
+        BigDecimal finalSpedLevel3KHCount = queryResult.getSpecialEducationLevel3CountKH() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel3CountKH()).multiply(BigDecimal.valueOf(0.5));
+        BigDecimal finalSpedLevelSESKHCount = queryResult.getSpecialEducationLevelOtherCountKH() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevelOtherCountKH()).multiply(BigDecimal.valueOf(0.5));
+
+        BigDecimal finalSpedLevel1Count = queryResult.getSpecialEducationLevel1Count() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel1Count());
+        BigDecimal finalSpedLevel2Count = queryResult.getSpecialEducationLevel2Count() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel2Count());
+        BigDecimal finalSpedLevel3Count = queryResult.getSpecialEducationLevel3Count() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel3Count());
+        BigDecimal finalSpedLevelSESCount = queryResult.getSpecialEducationLevelOtherCount() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevelOtherCount());
+
+        finalResult.setSpecialEducationLevel1Count(finalSpedLevel1KHCount.add(finalSpedLevel1Count).toString());
+        finalResult.setSpecialEducationLevel2Count(finalSpedLevel2KHCount.add(finalSpedLevel2Count).toString());
+        finalResult.setSpecialEducationLevel3Count(finalSpedLevel3KHCount.add(finalSpedLevel3Count).toString());
+        finalResult.setSpecialEducationLevelOtherCount(finalSpedLevelSESKHCount.add(finalSpedLevelSESCount).toString());
 
         if(school.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DIST_LEARN.getCode()) || school.getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.DISTONLINE.getCode())) {
             finalResult.setDLAdultsKto9Fte(queryResult.getAdultsKto9Fte());

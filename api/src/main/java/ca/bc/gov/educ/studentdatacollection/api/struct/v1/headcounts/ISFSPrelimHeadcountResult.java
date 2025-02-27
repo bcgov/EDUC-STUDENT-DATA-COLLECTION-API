@@ -1,6 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts;
 
 public interface ISFSPrelimHeadcountResult extends HeadcountResult{
+    String getSpecialEducationLevel1CountKH();
+    String getSpecialEducationLevel2CountKH();
+    String getSpecialEducationLevel3CountKH();
+    String getSpecialEducationLevelOtherCountKH();
+
     String getSpecialEducationLevel1Count();
     String getSpecialEducationLevel2Count();
     String getSpecialEducationLevel3Count();
