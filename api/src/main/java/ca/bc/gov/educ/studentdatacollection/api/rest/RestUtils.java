@@ -73,7 +73,7 @@ public class RestUtils {
   private final Map<String, FacilityTypeCode> facilityTypeCodesMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
-  public static final String PAGE_SIZE_VALUE = "1500";
+  public static final String PAGE_SIZE_VALUE = "1000";
   public static final String PAGE_NUMBER = "pageNumber";
   private final WebClient webClient;
   private final WebClient chesWebClient;
@@ -584,8 +584,10 @@ public class RestUtils {
       List<School> pageTwoOfSchools = this.getAllSchoolList(UUID.randomUUID(), "1");
       List<School> pageThreeOfSchools = this.getAllSchoolList(UUID.randomUUID(), "2");
       List<School> pageFourOfSchools = this.getAllSchoolList(UUID.randomUUID(), "3");
+      List<School> pageFiveOfSchools = this.getAllSchoolList(UUID.randomUUID(), "4");
+      List<School> pageSixOfSchools = this.getAllSchoolList(UUID.randomUUID(), "5");
 
-      List<School> allSchools = Stream.of(pageOneOfSchools, pageTwoOfSchools, pageThreeOfSchools, pageFourOfSchools)
+      List<School> allSchools = Stream.of(pageOneOfSchools, pageTwoOfSchools, pageThreeOfSchools, pageFourOfSchools, pageFiveOfSchools, pageSixOfSchools)
               .flatMap(Collection::stream).toList();
 
       for (val school : allSchools) {
@@ -634,14 +636,14 @@ public class RestUtils {
       };
       val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(PAGE_SIZE.concat("=").concat(PAGE_SIZE_VALUE)
               .concat("&").concat(PAGE_NUMBER).concat("=").concat(pageNumber)).build();
-      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
       if (null != responseMessage) {
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {
         throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
     } catch (final Exception ex) {
-//      Thread.currentThread().interrupt();
+      Thread.currentThread().interrupt();
       throw new Exception(NATS_TIMEOUT + correlationID + ex.getMessage());
     }
   }
