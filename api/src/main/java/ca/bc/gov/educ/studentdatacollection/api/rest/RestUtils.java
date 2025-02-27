@@ -73,7 +73,7 @@ public class RestUtils {
   private final Map<String, FacilityTypeCode> facilityTypeCodesMap = new ConcurrentHashMap<>();
   private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
-  public static final String PAGE_SIZE_VALUE = "1000";
+  public static final String PAGE_SIZE_VALUE = "6000";
   public static final String PAGE_NUMBER = "pageNumber";
   private final WebClient webClient;
   private final WebClient chesWebClient;
@@ -581,13 +581,8 @@ public class RestUtils {
     try {
       writeLock.lock();
       List<School> pageOneOfSchools = this.getAllSchoolList(UUID.randomUUID(),"0");
-      List<School> pageTwoOfSchools = this.getAllSchoolList(UUID.randomUUID(), "1");
-      List<School> pageThreeOfSchools = this.getAllSchoolList(UUID.randomUUID(), "2");
-      List<School> pageFourOfSchools = this.getAllSchoolList(UUID.randomUUID(), "3");
-      List<School> pageFiveOfSchools = this.getAllSchoolList(UUID.randomUUID(), "4");
-      List<School> pageSixOfSchools = this.getAllSchoolList(UUID.randomUUID(), "5");
 
-      List<School> allSchools = Stream.of(pageOneOfSchools, pageTwoOfSchools, pageThreeOfSchools, pageFourOfSchools, pageFiveOfSchools, pageSixOfSchools)
+      List<School> allSchools = Stream.of(pageOneOfSchools)
               .flatMap(Collection::stream).toList();
 
       for (val school : allSchools) {
@@ -631,12 +626,12 @@ public class RestUtils {
   @Retryable(retryFor = {Exception.class}, noRetryFor = {StudentDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public List<School> getAllSchoolList(UUID correlationID, String pageNumber) throws Exception {
     try {
-      log.info("Calling Institute API to load all schools to memory, current page " + (Integer.parseInt(pageNumber) + 1) + " of 4");
+      log.info("Calling Institute API to load all schools to memory, current page " + (Integer.parseInt(pageNumber) + 1) + " of 1");
       final TypeReference<List<School>> ref = new TypeReference<>() {
       };
       val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(PAGE_SIZE.concat("=").concat(PAGE_SIZE_VALUE)
               .concat("&").concat(PAGE_NUMBER).concat("=").concat(pageNumber)).build();
-      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 120, TimeUnit.SECONDS).get();
+      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
       if (null != responseMessage) {
         return objectMapper.readValue(responseMessage.getData(), ref);
       } else {
