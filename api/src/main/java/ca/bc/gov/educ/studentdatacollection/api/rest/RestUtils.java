@@ -641,6 +641,7 @@ public class RestUtils {
         throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
       }
     } catch (final Exception ex) {
+      log.error("Error getting all schools list: ", ex);
       Thread.currentThread().interrupt();
       throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex);
     }
