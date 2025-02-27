@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.SchoolListService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.CollectionSagaData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
@@ -48,6 +49,8 @@ class CloseCollectionOrchestratorTest extends BaseStudentDataCollectionAPITest {
 
     @MockBean
     protected RestUtils restUtils;
+    @MockBean
+    protected SchoolListService schoolListService;
     @Autowired
     CollectionRepository collectionRepository;
     @Autowired
@@ -192,7 +195,7 @@ class CloseCollectionOrchestratorTest extends BaseStudentDataCollectionAPITest {
         sagaData.setNewCollectionSnapshotDate(String.valueOf(LocalDate.now()));
         sagaData.setNewCollectionSubmissionDueDate(String.valueOf(LocalDate.now()));
         when(this.restUtils.getSchoolFundingGroupsBySchoolID(school.getSchoolId())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(school.getSchoolId(), "08"), getIndependentSchoolFundingGroup(school.getSchoolId(), "09"), getIndependentSchoolFundingGroup(school.getSchoolId(), "10")));
-        doReturn(List.of(school)).when(restUtils).getAllSchoolList(any(), any());
+        doReturn(List.of(school)).when(schoolListService).getAllSchoolList(any(), any());
 
         val saga = this.createMockCloseCollectionSaga(sagaData);
         saga.setSagaId(null);
