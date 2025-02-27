@@ -41,11 +41,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.Collection;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Stream;
 
 /**
  * This class is used for REST calls
@@ -582,44 +582,21 @@ public class RestUtils {
     try {
       writeLock.lock();
       log.info("Populating all school map :: {}", this.allSchoolLock);
-//      List<School> pageOneOfSchools = this.getAllSchoolList(UUID.randomUUID(),"0");
-//      log.info("Populating all school map page 1 size:: {}", pageOneOfSchools.size());
-//      List<School> pageTwoOfSchools = this.getAllSchoolList(UUID.randomUUID(), "1");
-//      log.info("Populating all school map page 2 size:: {}", pageTwoOfSchools.size());
-//      List<School> pageThreeOfSchools = this.getAllSchoolList(UUID.randomUUID(), "2");
-//      log.info("Populating all school map page 3 size:: {}", pageThreeOfSchools.size());
-//      List<School> pageFourOfSchools = this.getAllSchoolList(UUID.randomUUID(), "3");
-//      log.info("Populating all school map page 4 size:: {}", pageFourOfSchools.size());
+      List<School> pageOneOfSchools = this.getAllSchoolList(UUID.randomUUID(),"0");
+      log.info("Populating all school map page 1 size:: {}", pageOneOfSchools.size());
+      List<School> pageTwoOfSchools = this.getAllSchoolList(UUID.randomUUID(), "1");
+      log.info("Populating all school map page 2 size:: {}", pageTwoOfSchools.size());
+      List<School> pageThreeOfSchools = this.getAllSchoolList(UUID.randomUUID(), "2");
+      log.info("Populating all school map page 3 size:: {}", pageThreeOfSchools.size());
+      List<School> pageFourOfSchools = this.getAllSchoolList(UUID.randomUUID(), "3");
+      log.info("Populating all school map page 4 size:: {}", pageFourOfSchools.size());
 
-      List<CompletableFuture<List<School>>> pageFutures = new ArrayList<>();
+      List<School> allSchools = Stream.of(pageOneOfSchools, pageTwoOfSchools, pageThreeOfSchools, pageFourOfSchools)
+              .flatMap(Collection::stream).toList();
 
-      for (int i = 0; i < PAGE_COUNT_VALUE; i++) {
-        final String pageNumber = String.valueOf(i);
-        CompletableFuture<List<School>> future = CompletableFuture.supplyAsync(() -> getAllSchoolList(UUID.randomUUID(), pageNumber));
-        pageFutures.add(future);
-        log.info("populated all school map - future number  :: {}", pageNumber);
+      for (val school : allSchools) {
+        this.allSchoolMap.put(school.getSchoolId(), school);
       }
-
-//      List<School> allSchools = Stream.of(pageOneOfSchools, pageTwoOfSchools, pageThreeOfSchools, pageFourOfSchools)
-//              .flatMap(Collection::stream).toList();
-
-
-      log.info("joining all pages");
-      CompletableFuture<Void> allPages = CompletableFuture.allOf(pageFutures.toArray(new CompletableFuture[0]));
-      allPages.join();
-
-      log.info("page futures to all schools");
-      List<School> allSchools = pageFutures.stream()
-              .map(CompletableFuture::join)
-              .flatMap(Collection::stream)
-              .toList();
-
-      log.info("putting all schools into all schools map");
-      allSchools.forEach(school -> this.allSchoolMap.put(school.getSchoolId(), school));
-
-//      for (val school : allSchools) {
-//        this.allSchoolMap.put(school.getSchoolId(), school);
-//      }
     } catch (Exception ex) {
       log.error("Unable to load map cache for allSchool {}", ex);
     } finally {
@@ -658,7 +635,7 @@ public class RestUtils {
   @Retryable(retryFor = {Exception.class}, noRetryFor = {StudentDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public List<School> getAllSchoolList(UUID correlationID, String pageNumber) {
     try {
-      log.info("Calling Institute API to load all schools to memory, current page " + (Integer.parseInt(pageNumber) + 1) + " of 12");
+      log.info("Calling Institute API to load all schools to memory, current page " + (Integer.parseInt(pageNumber) + 1) + " of 4");
       final TypeReference<List<School>> ref = new TypeReference<>() {
       };
       val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(PAGE_SIZE.concat("=").concat(PAGE_SIZE_VALUE)
