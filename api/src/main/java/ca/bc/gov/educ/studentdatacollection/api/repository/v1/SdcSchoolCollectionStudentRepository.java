@@ -1834,15 +1834,15 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
         SELECT
         sscs.sdcSchoolCollection.schoolID as schoolID,
 
-        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('A','B') AND s.enrolledGradeCode = 'KH' AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) * 0.5 as specialEducationLevel1CountKH,
-        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('C','D','E','F','G') AND s.enrolledGradeCode = 'KH' AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) * 0.5 as specialEducationLevel2CountKH,
-        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('H','J','M','N') AND s.enrolledGradeCode = 'KH' AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) * 0.5 as specialEducationLevel3CountKH,
-        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('K','P','Q','R') AND s.enrolledGradeCode = 'KH' and sscs.isSchoolAged = true AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) * 0.5 as specialEducationLevelOtherCountKH,
+        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('A','B') AND sscs.enrolledGradeCode = 'KH' AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) * 0.5 as specialEducationLevel1CountKH,
+        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('C','D','E','F','G') AND sscs.enrolledGradeCode = 'KH' AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) * 0.5 as specialEducationLevel2CountKH,
+        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('H','J','M','N') AND sscs.enrolledGradeCode = 'KH' AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) * 0.5 as specialEducationLevel3CountKH,
+        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('K','P','Q','R') AND sscs.enrolledGradeCode = 'KH' and sscs.isSchoolAged = true AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) * 0.5 as specialEducationLevelOtherCountKH,
 
-        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('A','B') AND s.enrolledGradeCode != 'KH' AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevel1Count,
-        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('C','D','E','F','G') AND s.enrolledGradeCode != 'KH' AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevel2Count,
-        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('H','J','M','N') AND s.enrolledGradeCode != 'KH' AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevel3Count,
-        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('K','P','Q','R') AND s.enrolledGradeCode != 'KH' and sscs.isSchoolAged = true AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevelOtherCount,
+        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('A','B') AND sscs.enrolledGradeCode != 'KH' AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevel1Count,
+        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('C','D','E','F','G') AND sscs.enrolledGradeCode != 'KH' AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevel2Count,
+        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('H','J','M','N') AND sscs.enrolledGradeCode != 'KH' AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevel3Count,
+        COUNT(DISTINCT CASE WHEN sscs.specialEducationCategoryCode in ('K','P','Q','R') AND sscs.enrolledGradeCode != 'KH' and sscs.isSchoolAged = true AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) as specialEducationLevelOtherCount,
 
         (SELECT SUM(CASE WHEN s.enrolledGradeCode in ('KH') AND s.fte > 0 and s.isSchoolAged = true THEN s.fte ELSE 0 END ) FROM SdcSchoolCollectionStudentEntity s 
         WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
