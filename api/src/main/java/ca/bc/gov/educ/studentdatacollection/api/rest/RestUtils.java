@@ -580,10 +580,16 @@ public class RestUtils {
     val writeLock = this.allSchoolLock.writeLock();
     try {
       writeLock.lock();
+      log.info("Populating all school map :: {}", this.allSchoolLock);
       List<School> pageOneOfSchools = this.getAllSchoolList(UUID.randomUUID(),"0");
+      log.info("Populating all school map page 1 size:: {}", pageOneOfSchools.size());
       List<School> pageTwoOfSchools = this.getAllSchoolList(UUID.randomUUID(), "1");
+      log.info("Populating all school map page 2 size:: {}", pageTwoOfSchools.size());
       List<School> pageThreeOfSchools = this.getAllSchoolList(UUID.randomUUID(), "2");
+      log.info("Populating all school map page 3 size:: {}", pageThreeOfSchools.size());
       List<School> pageFourOfSchools = this.getAllSchoolList(UUID.randomUUID(), "3");
+      log.info("Populating all school map page 4 size:: {}", pageFourOfSchools.size());
+
 
       List<School> allSchools = Stream.of(pageOneOfSchools, pageTwoOfSchools, pageThreeOfSchools, pageFourOfSchools)
               .flatMap(Collection::stream).toList();
