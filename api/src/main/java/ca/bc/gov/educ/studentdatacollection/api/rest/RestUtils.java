@@ -655,7 +655,7 @@ public class RestUtils {
     return users != null ? users : new ArrayList<>();
   }
 
-  @Retryable(retryFor = {StudentDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+  @Retryable(retryFor = {Exception.class}, noRetryFor = {StudentDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
   public List<School> getAllSchoolList(UUID correlationID, String pageNumber) {
     try {
       log.info("Calling Institute API to load all schools to memory, current page " + (Integer.parseInt(pageNumber) + 1) + " of 12");
@@ -673,6 +673,7 @@ public class RestUtils {
       }
     } catch (final Exception ex) {
       log.error("Error getting all schools list: ", ex);
+      Thread.currentThread().interrupt();
       throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex);
     }
   }
