@@ -44,7 +44,7 @@ public class SchoolListService {
      * @param pageNumber    the page number to fetch
      * @return List of School objects
      */
-    @Retryable(retryFor = {Exception.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
+    @Retryable(retryFor = {Exception.class}, maxAttempts = 6, backoff = @Backoff(multiplier = 2, delay = 2000))
     public List<School> getAllSchoolList(UUID correlationID, String pageNumber) {
         try {
             log.info("Calling Institute API to load all schools to memory, current page {} of 60", (Integer.parseInt(pageNumber) + 1));
