@@ -76,7 +76,7 @@ public class RestUtils {
   public static final String PAGE_SIZE = "pageSize";
   public static final String PAGE_SIZE_VALUE = "1500";
   public static final String PAGE_NUMBER = "pageNumber";
-  public static final Integer PAGE_COUNT_VALUE = 3;
+  public static final Integer PAGE_COUNT_VALUE = 60;
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
