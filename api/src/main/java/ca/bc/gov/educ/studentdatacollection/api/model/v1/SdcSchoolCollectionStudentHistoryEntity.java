@@ -105,6 +105,9 @@ public class SdcSchoolCollectionStudentHistoryEntity extends AbstractPersistable
   @Column(name = "NUMBER_OF_COURSES")
   private String numberOfCourses;
 
+  @Column(name= "NUMBER_OF_COURSES_DEC")
+  private BigDecimal numberOfCoursesDec;
+
   @Column(name = "BAND_CODE")
   private String bandCode;
 
