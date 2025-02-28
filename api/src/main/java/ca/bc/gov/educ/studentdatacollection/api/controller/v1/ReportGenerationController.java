@@ -134,7 +134,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
                     stud -> stud.getSdcSchoolCollectionStudentID(),
                     stud -> stud
             ));
-            return getDifferencesList(currentStudentsMap, historyRecordsMap, studentsWithDiffAndCriteria.getPageable(), studentsWithDiffAndCriteria.getTotalPages());
+            return getDifferencesList(currentStudentsMap, historyRecordsMap, studentsWithDiffAndCriteria.getPageable(), studentsWithDiffAndCriteria.getTotalElements());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new StudentDataCollectionAPIRuntimeException("Error occurred making pagination call: " + e.getMessage());
@@ -143,7 +143,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
         }
     }
 
-    private Page<StudentDifference> getDifferencesList(Map<UUID, SdcSchoolCollectionStudentPaginationEntity> currentStudents, Map<UUID, SdcSchoolCollectionStudentHistoryEntity> originalStudents, Pageable pageable, int total) {
+    private Page<StudentDifference> getDifferencesList(Map<UUID, SdcSchoolCollectionStudentPaginationEntity> currentStudents, Map<UUID, SdcSchoolCollectionStudentHistoryEntity> originalStudents, Pageable pageable, long total) {
         List<StudentDifference> differences = new ArrayList<>();
         originalStudents.values().stream().forEach(stud -> {
             StudentDifference diff = new StudentDifference();
