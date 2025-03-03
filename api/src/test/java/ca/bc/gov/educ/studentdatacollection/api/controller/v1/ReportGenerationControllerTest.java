@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.dto.institute.PaginatedResponse;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
@@ -1618,7 +1619,11 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
             .andDo(print()).andExpect(status().isOk());
 
 
-    val studentDifferences = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List<StudentDifference>>() {});
+    PaginatedResponse<StudentDifference> paginatedResponse = objectMapper.readValue(
+            resultActions1.andReturn().getResponse().getContentAsByteArray(),
+            new TypeReference<PaginatedResponse<StudentDifference>>() {}
+    );
+    val studentDifferences = paginatedResponse.getContent();
 
     assertEquals(1, studentDifferences.size());
     assertEquals("JIM", studentDifferences.get(0).getCurrentStudent().getLegalFirstName());
