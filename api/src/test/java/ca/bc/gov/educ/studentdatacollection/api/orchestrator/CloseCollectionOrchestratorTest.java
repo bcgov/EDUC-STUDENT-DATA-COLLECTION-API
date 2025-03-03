@@ -195,7 +195,7 @@ class CloseCollectionOrchestratorTest extends BaseStudentDataCollectionAPITest {
         sagaData.setNewCollectionSnapshotDate(String.valueOf(LocalDate.now()));
         sagaData.setNewCollectionSubmissionDueDate(String.valueOf(LocalDate.now()));
         when(this.restUtils.getSchoolFundingGroupsBySchoolID(school.getSchoolId())).thenReturn(Arrays.asList(getIndependentSchoolFundingGroup(school.getSchoolId(), "08"), getIndependentSchoolFundingGroup(school.getSchoolId(), "09"), getIndependentSchoolFundingGroup(school.getSchoolId(), "10")));
-        doReturn(List.of(school)).when(schoolListService).getAllSchoolList(any(), any());
+        doReturn(List.of(school)).when(restUtils).getAllSchools();
 
         val saga = this.createMockCloseCollectionSaga(sagaData);
         saga.setSagaId(null);
