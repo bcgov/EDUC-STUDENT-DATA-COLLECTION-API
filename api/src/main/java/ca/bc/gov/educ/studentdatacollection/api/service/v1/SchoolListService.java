@@ -39,6 +39,7 @@ public class SchoolListService {
     /**
      * Calls the Institute API to retrieve a list of schools for the given page.
      * Retries on any Exception (except those that are not retryable).
+     * Used with populateAllSchoolMap in RestUtil
      *
      * @param correlationID a unique identifier for the request
      * @param pageNumber    the page number to fetch

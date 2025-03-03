@@ -575,41 +575,6 @@ public class RestUtils {
     }
   }
 
-//  populate all schools map using messaging in SchoolListService
-//  public void populateAllSchoolMap() {
-//    ReadWriteLock lock = this.allSchoolLock;
-//    val writeLock = lock.writeLock();
-//    try {
-//      writeLock.lock();
-//      log.info("Populating all school map :: {}", lock);
-//
-//      List<CompletableFuture<List<School>>> pageFutures = new ArrayList<>();
-//      for (int i = 0; i < PAGE_COUNT_VALUE; i++) {
-//        final String page = String.valueOf(i);
-//        CompletableFuture<List<School>> future = CompletableFuture.supplyAsync(() -> schoolListService.getAllSchoolList(UUID.randomUUID(), page));
-//        pageFutures.add(future);
-//        log.info("Initiated call for page {}", page);
-//      }
-//
-//      CompletableFuture.allOf(pageFutures.toArray(new CompletableFuture[0])).join();
-//
-//      List<School> allSchools = pageFutures.stream()
-//              .map(CompletableFuture::join)
-//              .flatMap(Collection::stream)
-//              .toList();
-//
-//      for (School school : allSchools) {
-//        this.allSchoolMap.put(school.getSchoolId(), school);
-//      }
-//    } catch (Exception ex) {
-//      log.error("Unable to load map cache for allSchool", ex);
-//      throw ex;
-//    } finally {
-//      writeLock.unlock();
-//    }
-//    log.info("Loaded {} allSchools to memory", this.allSchoolMap.values().size());
-//  }
-
   public void populateAllSchoolMap() {
     ReadWriteLock lock = this.allSchoolLock;
     val writeLock = lock.writeLock();
@@ -693,25 +658,38 @@ public class RestUtils {
     return users != null ? users : new ArrayList<>();
   }
 
-//  @Retryable(retryFor = {Exception.class}, noRetryFor = {StudentDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-//  public List<School> getAllSchoolList(UUID correlationID, String pageNumber) {
+//  Populate all schools map using messaging in SchoolListService
+//  public void populateAllSchoolMap() {
+//    ReadWriteLock lock = this.allSchoolLock;
+//    val writeLock = lock.writeLock();
 //    try {
-//      log.info("Calling Institute API to load all schools to memory, current page " + (Integer.parseInt(pageNumber) + 1) + " of 4");
-//      final TypeReference<List<School>> ref = new TypeReference<>() {
-//      };
-//      val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(PAGE_SIZE.concat("=").concat(PAGE_SIZE_VALUE)
-//              .concat("&").concat(PAGE_NUMBER).concat("=").concat(pageNumber)).build();
-//      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 30, TimeUnit.SECONDS).get();
-//      if (null != responseMessage) {
-//        log.info("Response from Institute API is good");
-//        return objectMapper.readValue(responseMessage.getData(), ref);
-//      } else {
-//        log.info("Response from Institute API returned empty list");
-//        throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
+//      writeLock.lock();
+//      log.info("Populating all school map :: {}", lock);
+//
+//      List<CompletableFuture<List<School>>> pageFutures = new ArrayList<>();
+//      for (int i = 0; i < PAGE_COUNT_VALUE; i++) {
+//        final String page = String.valueOf(i);
+//        CompletableFuture<List<School>> future = CompletableFuture.supplyAsync(() -> schoolListService.getAllSchoolList(UUID.randomUUID(), page));
+//        pageFutures.add(future);
+//        log.info("Initiated call for page {}", page);
 //      }
-//    } catch (final Exception ex) {
-//      log.error("Error getting all schools list: ", ex);
-//      throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex);
+//
+//      CompletableFuture.allOf(pageFutures.toArray(new CompletableFuture[0])).join();
+//
+//      List<School> allSchools = pageFutures.stream()
+//              .map(CompletableFuture::join)
+//              .flatMap(Collection::stream)
+//              .toList();
+//
+//      for (School school : allSchools) {
+//        this.allSchoolMap.put(school.getSchoolId(), school);
+//      }
+//    } catch (Exception ex) {
+//      log.error("Unable to load map cache for allSchool", ex);
+//      throw ex;
+//    } finally {
+//      writeLock.unlock();
 //    }
+//    log.info("Loaded {} allSchools to memory", this.allSchoolMap.values().size());
 //  }
 }
