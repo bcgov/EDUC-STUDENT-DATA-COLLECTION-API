@@ -576,11 +576,10 @@ public class RestUtils {
   }
 
   public void populateAllSchoolMap() {
-    ReadWriteLock lock = this.allSchoolLock;
-    val writeLock = lock.writeLock();
+    val writeLock = this.allSchoolLock.writeLock();
     try {
       writeLock.lock();
-      log.info("Populating all school map using REST :: {}", lock);
+      log.info("Calling Institute api via REST to load schools to memory");
 
       List<School> allSchools = getAllSchools();
 
