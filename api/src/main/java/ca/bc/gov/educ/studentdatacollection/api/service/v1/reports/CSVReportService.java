@@ -1055,13 +1055,13 @@ public class CSVReportService {
                     var district1 = restUtils.getDistrictByDistrictID(school1.getDistrictId()).orElseThrow(() -> new EntityNotFoundException(District.class, DISTRICT_ID, school1.getDistrictId()));
                     var district2 = restUtils.getDistrictByDistrictID(school2.getDistrictId()).orElseThrow(() -> new EntityNotFoundException(District.class, DISTRICT_ID, school2.getDistrictId()));
                     if(Integer.parseInt(district1.getDistrictNumber()) > Integer.parseInt(district2.getDistrictNumber())){
-                        return -1;
+                        return 1;
                     }else if(Integer.parseInt(district1.getDistrictNumber()) < Integer.parseInt(district2.getDistrictNumber())){
-                        return 1;
-                    }else if(Integer.parseInt(school1.getSchoolNumber()) > Integer.parseInt(school2.getSchoolNumber())){
                         return -1;
-                    }else if(Integer.parseInt(school1.getSchoolNumber()) < Integer.parseInt(school2.getSchoolNumber())){
+                    }else if(Integer.parseInt(school1.getSchoolNumber()) > Integer.parseInt(school2.getSchoolNumber())){
                         return 1;
+                    }else if(Integer.parseInt(school1.getSchoolNumber()) < Integer.parseInt(school2.getSchoolNumber())){
+                        return -1;
                     }
                     // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
                     return  0;
