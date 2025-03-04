@@ -1047,6 +1047,27 @@ public class CSVReportService {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
+            Collections.sort(results, new Comparator<ISFSPrelimHeadcountResult>() {
+                @Override
+                public int compare(ISFSPrelimHeadcountResult res1, ISFSPrelimHeadcountResult res2) {
+                    var school1 = restUtils.getSchoolBySchoolID(res1.getSchoolID()).orElseThrow(() -> new EntityNotFoundException(SchoolTombstone.class, SCHOOL_ID, res1.getSchoolID()));
+                    var school2 = restUtils.getSchoolBySchoolID(res2.getSchoolID()).orElseThrow(() -> new EntityNotFoundException(SchoolTombstone.class, SCHOOL_ID, res2.getSchoolID()));
+                    var district1 = restUtils.getDistrictByDistrictID(school1.getDistrictId()).orElseThrow(() -> new EntityNotFoundException(District.class, DISTRICT_ID, school1.getDistrictId()));
+                    var district2 = restUtils.getDistrictByDistrictID(school2.getDistrictId()).orElseThrow(() -> new EntityNotFoundException(District.class, DISTRICT_ID, school2.getDistrictId()));
+                    if(Integer.parseInt(district1.getDistrictNumber()) > Integer.parseInt(district2.getDistrictNumber())){
+                        return -1;
+                    }else if(Integer.parseInt(district1.getDistrictNumber()) < Integer.parseInt(district2.getDistrictNumber())){
+                        return 1;
+                    }else if(Integer.parseInt(school1.getSchoolNumber()) > Integer.parseInt(school2.getSchoolNumber())){
+                        return -1;
+                    }else if(Integer.parseInt(school1.getSchoolNumber()) < Integer.parseInt(school2.getSchoolNumber())){
+                        return 1;
+                    }
+                    // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
+                    return  0;
+                }
+            });
+
             for (ISFSPrelimHeadcountResult result : results) {
                 var school = restUtils.getAllSchoolBySchoolID(result.getSchoolID()).orElseThrow(() -> new EntityNotFoundException(SchoolTombstone.class, SCHOOL_ID, result.getSchoolID()));
                 if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
