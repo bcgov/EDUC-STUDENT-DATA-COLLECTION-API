@@ -43,7 +43,7 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryrepo
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.SCHOOL_NAME;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
-import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.flagCountIfNoSchoolFundingGroup;
+import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 
@@ -1070,9 +1070,12 @@ public class CSVReportService {
 
             for (ISFSPrelimHeadcountResult result : results) {
                 var school = restUtils.getAllSchoolBySchoolID(result.getSchoolID()).orElseThrow(() -> new EntityNotFoundException(SchoolTombstone.class, SCHOOL_ID, result.getSchoolID()));
-                if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
-                    List<String> csvRowData = prepareISFSPrelimDataForCsv(getPrelimFinalResult(result, school), school, collectionOpt.get());
-                    csvPrinter.printRecord(csvRowData);
+                if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode()) && schoolHasValidFundingCodes(school, collectionOpt.get())) {
+                    var prelimRes = getPrelimFinalResult(result, school);
+                    if(schoolHasAnyStudents(prelimRes)) {
+                        List<String> csvRowData = prepareISFSPrelimDataForCsv(prelimRes, school, collectionOpt.get());
+                        csvPrinter.printRecord(csvRowData);
+                    }
                 }
             }
             csvPrinter.flush();
@@ -1085,6 +1088,66 @@ public class CSVReportService {
         } catch (IOException e) {
             throw new StudentDataCollectionAPIRuntimeException(e);
         }
+    }
+
+    private boolean schoolHasAnyStudents(ISFSPrelimHeadcountFinalResult headcountResult){
+        var specialEducationLevel1Count = StringUtils.isBlank(headcountResult.getSpecialEducationLevel1Count()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getSpecialEducationLevel1Count());
+        var specialEducationLevel2Count = StringUtils.isBlank(headcountResult.getSpecialEducationLevel2Count()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getSpecialEducationLevel2Count());
+        var specialEducationLevel3Count = StringUtils.isBlank(headcountResult.getSpecialEducationLevel3Count()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getSpecialEducationLevel3Count());
+        var specialEducationLevelOtherCount = StringUtils.isBlank(headcountResult.getSpecialEducationLevelOtherCount()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getSpecialEducationLevelOtherCount());
+        var standardAdultsKto3Fte = StringUtils.isBlank(headcountResult.getStandardAdultsKto3Fte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getStandardAdultsKto3Fte());
+        var standardAdults4to7EUFte = StringUtils.isBlank(headcountResult.getStandardAdults4to7EUFte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getStandardAdults4to7EUFte());
+        var standardAdults8to10SUFte = StringUtils.isBlank(headcountResult.getStandardAdults8to10SUFte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getStandardAdults8to10SUFte());
+        var standardAdults11and12Fte = StringUtils.isBlank(headcountResult.getStandardAdults11and12Fte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getStandardAdults11and12Fte());
+        var dLAdultsKto9Fte = StringUtils.isBlank(headcountResult.getDLAdultsKto9Fte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getDLAdultsKto9Fte());
+        var dLAdults10to12Fte = StringUtils.isBlank(headcountResult.getDLAdults10to12Fte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getDLAdults10to12Fte());
+        var standardSchoolAgedKHFte = StringUtils.isBlank(headcountResult.getStandardSchoolAgedKHFte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getStandardSchoolAgedKHFte());
+        var standardSchoolAgedKFFte = StringUtils.isBlank(headcountResult.getStandardSchoolAgedKFFte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getStandardSchoolAgedKFFte());
+        var standardSchoolAged1to3Fte = StringUtils.isBlank(headcountResult.getStandardSchoolAged1to3Fte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getStandardSchoolAged1to3Fte());
+        var standardSchoolAged4to7EUFte = StringUtils.isBlank(headcountResult.getStandardSchoolAged4to7EUFte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getStandardSchoolAged4to7EUFte());
+        var standardSchoolAged8to10SUFte = StringUtils.isBlank(headcountResult.getStandardSchoolAged8to10SUFte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getStandardSchoolAged8to10SUFte());
+        var getStandardSchoolAged11and12Fte = StringUtils.isBlank(headcountResult.getStandardSchoolAged11and12Fte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getStandardSchoolAged11and12Fte());
+        var dLSchoolAgedKto9Fte = StringUtils.isBlank(headcountResult.getDLSchoolAgedKto9Fte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getDLSchoolAgedKto9Fte());
+        var dLSchoolAged10to12Fte = StringUtils.isBlank(headcountResult.getDLSchoolAged10to12Fte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getDLSchoolAged10to12Fte());
+        var totalHomeschoolCount = StringUtils.isBlank(headcountResult.getTotalHomeschoolCount()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getTotalHomeschoolCount());
+
+        return specialEducationLevel1Count.compareTo(new BigDecimal(0)) != 0 ||
+                specialEducationLevel2Count.compareTo(new BigDecimal(0)) != 0 ||
+                specialEducationLevel3Count.compareTo(new BigDecimal(0)) != 0 ||
+                specialEducationLevelOtherCount.compareTo(new BigDecimal(0)) != 0 ||
+                standardAdultsKto3Fte.compareTo(new BigDecimal(0)) != 0 ||
+                standardAdults4to7EUFte.compareTo(new BigDecimal(0)) != 0 ||
+                standardAdults8to10SUFte.compareTo(new BigDecimal(0)) != 0 ||
+                standardAdults11and12Fte.compareTo(new BigDecimal(0)) != 0 ||
+                dLAdultsKto9Fte.compareTo(new BigDecimal(0)) != 0 ||
+                dLAdults10to12Fte.compareTo(new BigDecimal(0)) != 0 ||
+                standardSchoolAgedKHFte.compareTo(new BigDecimal(0)) != 0 ||
+                standardSchoolAgedKFFte.compareTo(new BigDecimal(0)) != 0 ||
+                standardSchoolAged1to3Fte.compareTo(new BigDecimal(0)) != 0 ||
+                standardSchoolAged4to7EUFte.compareTo(new BigDecimal(0)) != 0 ||
+                standardSchoolAged8to10SUFte.compareTo(new BigDecimal(0)) != 0 ||
+                getStandardSchoolAged11and12Fte.compareTo(new BigDecimal(0)) != 0 ||
+                dLSchoolAgedKto9Fte.compareTo(new BigDecimal(0)) != 0 ||
+                dLSchoolAged10to12Fte.compareTo(new BigDecimal(0)) != 0 ||
+                totalHomeschoolCount.compareTo(new BigDecimal(0)) != 0;
+    }
+
+    private boolean schoolHasValidFundingCodes(School school, CollectionEntity collection){
+        if(collection.getCollectionStatusCode().equalsIgnoreCase(CollectionStatus.COMPLETED.getCode())) {
+            List<IndependentSchoolFundingGroupSnapshotEntity> schoolFundingGroups = independentSchoolFundingGroupSnapshotService.getIndependentSchoolFundingGroupSnapshot(UUID.fromString(school.getSchoolId()), collection.getCollectionID());
+            for (IndependentSchoolFundingGroupSnapshotEntity fundingGroup : schoolFundingGroups) {
+                if (fundingGroup.getSchoolFundingGroupCode().equalsIgnoreCase(GROUP_1) || fundingGroup.getSchoolFundingGroupCode().equalsIgnoreCase(GROUP_2)) {
+                    return true;
+                }
+            }
+        }else{
+            for (IndependentSchoolFundingGroup fundingGroup : school.getSchoolFundingGroups()) {
+                if (fundingGroup.getSchoolFundingGroupCode().equalsIgnoreCase(GROUP_1) || fundingGroup.getSchoolFundingGroupCode().equalsIgnoreCase(GROUP_2)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private ISFSPrelimHeadcountFinalResult getPrelimFinalResult(ISFSPrelimHeadcountResult queryResult, School school){
