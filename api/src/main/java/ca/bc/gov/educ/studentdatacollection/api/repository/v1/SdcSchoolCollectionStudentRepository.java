@@ -1914,7 +1914,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
         AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
         AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as adults10to12Fte,
 
-        COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode in ('HS') AND s.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) as totalHomeschoolCount
+        COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode in ('HS') AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) as totalHomeschoolCount
         
         FROM SdcSchoolCollectionStudentEntity sscs
         WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
@@ -2007,7 +2007,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
         AND s.sdcSchoolCollection.sdcSchoolCollectionID = sscs.sdcSchoolCollection.sdcSchoolCollectionID
         AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')) as adults10to12Fte,
 
-        COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode in ('HS') AND s.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) as totalHomeschoolCount
+        COUNT(DISTINCT CASE WHEN sscs.enrolledGradeCode in ('HS') AND sscs.fte > 0 THEN sscs.sdcSchoolCollectionStudentID END) as totalHomeschoolCount
         
         FROM SdcSchoolCollectionStudentEntity sscs
         WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
