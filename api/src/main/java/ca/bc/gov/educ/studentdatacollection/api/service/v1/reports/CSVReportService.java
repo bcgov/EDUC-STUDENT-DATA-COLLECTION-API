@@ -1035,7 +1035,13 @@ public class CSVReportService {
             throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
         }
 
-        List<ISFSPrelimHeadcountResult> results = sdcSchoolCollectionStudentRepository.getISFSPreliminaryDataByCollectionId(collectionID);
+        List<ISFSPrelimHeadcountResult> results;
+        if(Objects.equals(collectionOpt.get().getCollectionTypeCode(), CollectionTypeCodes.FEBRUARY.getTypeCode())){
+            results = sdcSchoolCollectionStudentRepository.getISFSPreliminaryDataFebruaryByCollectionId(collectionID);
+        } else {
+            results = sdcSchoolCollectionStudentRepository.getISFSPreliminaryDataByCollectionId(collectionID);
+        }
+
 
         List<String> headers = Arrays.stream(ISFSPreliminaryHeader.values()).map(ISFSPreliminaryHeader::getCode).toList();
         var csvFormat = CSVFormat.Builder.create()
