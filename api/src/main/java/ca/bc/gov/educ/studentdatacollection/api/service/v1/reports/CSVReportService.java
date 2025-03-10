@@ -1078,7 +1078,9 @@ public class CSVReportService {
                 var school = restUtils.getAllSchoolBySchoolID(result.getSchoolID()).orElseThrow(() -> new EntityNotFoundException(SchoolTombstone.class, SCHOOL_ID, result.getSchoolID()));
                 if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode()) && schoolHasValidFundingCodes(school, collectionOpt.get())) {
                     var prelimRes = getPrelimFinalResult(result, school);
-                    if(schoolHasAnyStudents(prelimRes)) {
+                    var hasStudents = schoolHasAnyStudents(prelimRes);
+                    log.info("School " + school.getDisplayName() + " has students: " + hasStudents);
+                    if(hasStudents) {
                         List<String> csvRowData = prepareISFSPrelimDataForCsv(prelimRes, school, collectionOpt.get());
                         csvPrinter.printRecord(csvRowData);
                     }
