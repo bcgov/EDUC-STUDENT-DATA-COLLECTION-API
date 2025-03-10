@@ -1119,6 +1119,26 @@ public class CSVReportService {
         var dLSchoolAged10to12Fte = StringUtils.isBlank(headcountResult.getDLSchoolAged10to12Fte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getDLSchoolAged10to12Fte());
         var totalHomeschoolCount = StringUtils.isBlank(headcountResult.getTotalHomeschoolCount()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getTotalHomeschoolCount());
 
+        log.info("specialEducationLevel1Count " + specialEducationLevel1Count);
+        log.info("specialEducationLevel2Count " + specialEducationLevel2Count);
+        log.info("specialEducationLevel3Count " + specialEducationLevel3Count);
+        log.info("specialEducationLevelOtherCount " + specialEducationLevelOtherCount);
+        log.info("standardAdultsKto3Fte " + standardAdultsKto3Fte);
+        log.info("standardAdults4to7EUFte " + standardAdults4to7EUFte);
+        log.info("standardAdults8to10SUFte " + standardAdults8to10SUFte);
+        log.info("standardAdults11and12Fte " + standardAdults11and12Fte);
+        log.info("dLAdultsKto9Fte " + dLAdultsKto9Fte);
+        log.info("dLAdults10to12Fte " + dLAdults10to12Fte);
+        log.info("standardSchoolAgedKHFte " + standardSchoolAgedKHFte);
+        log.info("standardSchoolAgedKFFte " + standardSchoolAgedKFFte);
+        log.info("standardSchoolAged1to3Fte " + standardSchoolAged1to3Fte);
+        log.info("standardSchoolAged4to7EUFte " + standardSchoolAged4to7EUFte);
+        log.info("standardSchoolAged8to10SUFte " + standardSchoolAged8to10SUFte);
+        log.info("getStandardSchoolAged11and12Fte " + getStandardSchoolAged11and12Fte);
+        log.info("dLSchoolAgedKto9Fte " + dLSchoolAgedKto9Fte);
+        log.info("dLSchoolAged10to12Fte " + dLSchoolAged10to12Fte);
+        log.info("totalHomeschoolCount " + totalHomeschoolCount);
+
         return specialEducationLevel1Count.compareTo(new BigDecimal(0)) != 0 ||
                 specialEducationLevel2Count.compareTo(new BigDecimal(0)) != 0 ||
                 specialEducationLevel3Count.compareTo(new BigDecimal(0)) != 0 ||
