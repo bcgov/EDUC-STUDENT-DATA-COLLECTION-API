@@ -1077,11 +1077,8 @@ public class CSVReportService {
             for (ISFSPrelimHeadcountResult result : results) {
                 var school = restUtils.getAllSchoolBySchoolID(result.getSchoolID()).orElseThrow(() -> new EntityNotFoundException(SchoolTombstone.class, SCHOOL_ID, result.getSchoolID()));
                 if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode()) && schoolHasValidFundingCodes(school, collectionOpt.get())) {
-                    log.info("Queried Value for school " + school.getDisplayName() + " is: " + result);
                     var prelimRes = getPrelimFinalResult(result, school);
-                    log.info("Prelim res for school " + school.getDisplayName() + " is: " + prelimRes);
                     var hasStudents = schoolHasAnyStudents(prelimRes);
-                    log.info("School " + school.getDisplayName() + " has students: " + hasStudents);
                     if(hasStudents) {
                         List<String> csvRowData = prepareISFSPrelimDataForCsv(prelimRes, school, collectionOpt.get());
                         csvPrinter.printRecord(csvRowData);
@@ -1120,26 +1117,6 @@ public class CSVReportService {
         var dLSchoolAgedKto9Fte = StringUtils.isBlank(headcountResult.getDLSchoolAgedKto9Fte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getDLSchoolAgedKto9Fte());
         var dLSchoolAged10to12Fte = StringUtils.isBlank(headcountResult.getDLSchoolAged10to12Fte()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getDLSchoolAged10to12Fte());
         var totalHomeschoolCount = StringUtils.isBlank(headcountResult.getTotalHomeschoolCount()) ? new BigDecimal(0) : new BigDecimal(headcountResult.getTotalHomeschoolCount());
-
-        log.info("specialEducationLevel1Count " + specialEducationLevel1Count);
-        log.info("specialEducationLevel2Count " + specialEducationLevel2Count);
-        log.info("specialEducationLevel3Count " + specialEducationLevel3Count);
-        log.info("specialEducationLevelOtherCount " + specialEducationLevelOtherCount);
-        log.info("standardAdultsKto3Fte " + standardAdultsKto3Fte);
-        log.info("standardAdults4to7EUFte " + standardAdults4to7EUFte);
-        log.info("standardAdults8to10SUFte " + standardAdults8to10SUFte);
-        log.info("standardAdults11and12Fte " + standardAdults11and12Fte);
-        log.info("dLAdultsKto9Fte " + dLAdultsKto9Fte);
-        log.info("dLAdults10to12Fte " + dLAdults10to12Fte);
-        log.info("standardSchoolAgedKHFte " + standardSchoolAgedKHFte);
-        log.info("standardSchoolAgedKFFte " + standardSchoolAgedKFFte);
-        log.info("standardSchoolAged1to3Fte " + standardSchoolAged1to3Fte);
-        log.info("standardSchoolAged4to7EUFte " + standardSchoolAged4to7EUFte);
-        log.info("standardSchoolAged8to10SUFte " + standardSchoolAged8to10SUFte);
-        log.info("getStandardSchoolAged11and12Fte " + standardSchoolAged11and12Fte);
-        log.info("dLSchoolAgedKto9Fte " + dLSchoolAgedKto9Fte);
-        log.info("dLSchoolAged10to12Fte " + dLSchoolAged10to12Fte);
-        log.info("totalHomeschoolCount " + totalHomeschoolCount);
 
         return specialEducationLevel1Count.compareTo(new BigDecimal(0)) != 0 ||
                 specialEducationLevel2Count.compareTo(new BigDecimal(0)) != 0 ||
@@ -1181,22 +1158,6 @@ public class CSVReportService {
     }
 
     private ISFSPrelimHeadcountFinalResult getPrelimFinalResult(ISFSPrelimHeadcountResult queryResult, School school){
-        log.info("Prelim: specialEducationLevel1Count " + queryResult.getSpecialEducationLevel1Count());
-        log.info("Prelim: specialEducationLevel2Count " + queryResult.getSpecialEducationLevel2Count());
-        log.info("Prelim: specialEducationLevel3Count " + queryResult.getSpecialEducationLevel3Count());
-        log.info("Prelim: specialEducationLevelOtherCount " + queryResult.getSpecialEducationLevelOtherCount());
-        log.info("Prelim: standardAdultsKto3Fte " + queryResult.getAdultsKto3Fte());
-        log.info("Prelim: standardAdults4to7EUFte " + queryResult.getAdults4to7EUFte());
-        log.info("Prelim: standardAdults8to10SUFte " + queryResult.getAdults8to10SUFte());
-        log.info("Prelim: standardAdults11and12Fte " + queryResult.getAdults11and12Fte());
-        log.info("Prelim: standardSchoolAgedKHFte " + queryResult.getSchoolAgedKHFte());
-        log.info("Prelim: standardSchoolAgedKFFte " + queryResult.getSchoolAgedKFFte());
-        log.info("Prelim: standardSchoolAged1to3Fte " + queryResult.getSchoolAged1to3Fte());
-        log.info("Prelim: standardSchoolAged4to7EUFte " + queryResult.getSchoolAged4to7EUFte());
-        log.info("Prelim: standardSchoolAged8to10SUFte " + queryResult.getSchoolAged8to10SUFte());
-        log.info("Prelim: getStandardSchoolAged11and12Fte " + queryResult.getSchoolAged11and12Fte());
-        log.info("Prelim: totalHomeschoolCount " + queryResult.getTotalHomeschoolCount());
-
         ISFSPrelimHeadcountFinalResult finalResult = new ISFSPrelimHeadcountFinalResult();
 
         BigDecimal finalSpedLevel1KHCount = queryResult.getSpecialEducationLevel1CountKH() == null ? new BigDecimal(0) : new BigDecimal(queryResult.getSpecialEducationLevel1CountKH());
