@@ -1160,8 +1160,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
             """)
   List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalInGrade8Or9(List<UUID> assignedStudentIDs, String noOfCollections);
 
-  List<SdcSchoolCollectionStudentEntity> findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(UUID collectionID, List<String> enrolledGradeCode, String sdcSchoolCollectionStudentStatusCode);
-
   @Query("SELECT " +
           "s.sdcSchoolCollection.schoolID AS schoolID, " +
           "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B') AND s.fte > 0 THEN 1 END) AS levelOnes, " +

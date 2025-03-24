@@ -5,12 +5,10 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.IndependentSchoolFundingGroupSnapshotEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentFsaReportRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.IndependentSchoolFundingGroupSnapshotService;
@@ -26,6 +24,9 @@ import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -46,6 +47,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 public class MinistryHeadcountService {
   private final CollectionRepository collectionRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  private final SdcSchoolCollectionStudentFsaReportRepository sdcSchoolCollectionStudentFsaReportRepository;
   private final IndependentSchoolFundingGroupSnapshotService independentSchoolFundingGroupSnapshotService;
   private final RestUtils restUtils;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
@@ -394,13 +396,13 @@ public class MinistryHeadcountService {
   // FSA Registration Report
   public SimpleHeadcountResultsTable getFsaRegistrationReport(UUID collectionID) {
     Optional<CollectionEntity> entityOptional = collectionRepository.findById(collectionID);
-    if(entityOptional.isEmpty()) {
+    if (entityOptional.isEmpty()) {
       throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
     }
     CollectionEntity collection = entityOptional.get();
-    if(collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.SEPTEMBER.getTypeCode())) {
+    if (collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.SEPTEMBER.getTypeCode())) {
       return generateSeptFsaCsv(collection.getCollectionID());
-    } else if(collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode())) {
+    } else if (collection.getCollectionTypeCode().equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode())) {
       return generateFebFsaCsv(collection.getCollectionID());
     }
     throw new InvalidPayloadException(createError(INVALID_COLLECTION_TYPE));
@@ -408,9 +410,6 @@ public class MinistryHeadcountService {
 
   public SimpleHeadcountResultsTable generateSeptFsaCsv(UUID collectionID) {
     List<String> grades = Arrays.asList(SchoolGradeCodes.GRADE04.getCode(), SchoolGradeCodes.GRADE07.getCode());
-    List<SdcSchoolCollectionStudentEntity> students =
-            sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(collectionID, grades, SdcSchoolStudentStatus.DELETED.getCode());
-
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();
     for (FsaSeptRegistrationHeader header : FsaSeptRegistrationHeader.values()) {
@@ -418,30 +417,35 @@ public class MinistryHeadcountService {
     }
     resultsTable.setHeaders(headerList);
     var rows = new ArrayList<Map<String, String>>();
-
-    students.forEach(student -> {
-      var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
-      if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
-        var school = schoolOpt.get();
-        var rowMap = new HashMap<String, String>();
-        rowMap.put(FsaSeptRegistrationHeader.MINCODE.getCode(), school.getMincode());
-        rowMap.put(FsaSeptRegistrationHeader.STUDENT_PEN.getCode(), student.getAssignedPen());
-        rowMap.put(FsaSeptRegistrationHeader.ENROLLED_GRADE.getCode(), student.getEnrolledGradeCode());
-        rowMap.put(FsaSeptRegistrationHeader.LEGAL_FIRST_NAME.getCode(), student.getLegalFirstName());
-        rowMap.put(FsaSeptRegistrationHeader.LEGAL_LAST_NAME.getCode(), student.getLegalLastName());
-        rows.add(rowMap);
+    int pageNumber = 0;
+    int pageSize = 10000;
+    Pageable pageable = PageRequest.of(pageNumber, pageSize);
+    Page<SdcSchoolCollectionStudentFsaReportEntity> page;
+    do {
+      page = sdcSchoolCollectionStudentFsaReportRepository
+              .findAllBySdcSchoolCollection_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(
+                      collectionID, grades, SdcSchoolStudentStatus.DELETED.getCode(), pageable);
+      for (SdcSchoolCollectionStudentFsaReportEntity student : page.getContent()) {
+        var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
+        if (schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
+          var school = schoolOpt.get();
+          var rowMap = new HashMap<String, String>();
+          rowMap.put(FsaSeptRegistrationHeader.MINCODE.getCode(), school.getMincode());
+          rowMap.put(FsaSeptRegistrationHeader.STUDENT_PEN.getCode(), student.getAssignedPen());
+          rowMap.put(FsaSeptRegistrationHeader.ENROLLED_GRADE.getCode(), student.getEnrolledGradeCode());
+          rowMap.put(FsaSeptRegistrationHeader.LEGAL_FIRST_NAME.getCode(), student.getLegalFirstName());
+          rowMap.put(FsaSeptRegistrationHeader.LEGAL_LAST_NAME.getCode(), student.getLegalLastName());
+          rows.add(rowMap);
+        }
       }
-
-    });
+      pageable = page.nextPageable();
+    } while (page.hasNext());
     resultsTable.setRows(rows);
     return resultsTable;
   }
 
   public SimpleHeadcountResultsTable generateFebFsaCsv(UUID collectionID) {
     List<String> grades = Arrays.asList(SchoolGradeCodes.GRADE03.getCode(), SchoolGradeCodes.GRADE06.getCode());
-    List<SdcSchoolCollectionStudentEntity> students =
-            sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(collectionID, grades, SdcSchoolStudentStatus.DELETED.getCode());
-
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();
     for (FsaFebRegistrationHeader header : FsaFebRegistrationHeader.values()) {
@@ -449,22 +453,30 @@ public class MinistryHeadcountService {
     }
     resultsTable.setHeaders(headerList);
     var rows = new ArrayList<Map<String, String>>();
-
-    students.forEach(student -> {
-      var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
-      if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())
-              && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
-        var school = schoolOpt.get();
-        var rowMap = new HashMap<String, String>();
-        rowMap.put(FsaFebRegistrationHeader.MINCODE.getCode(), school.getMincode());
-        rowMap.put(FsaFebRegistrationHeader.STUDENT_PEN.getCode(), student.getAssignedPen());
-        rowMap.put(FsaFebRegistrationHeader.NEXT_YEAR_GRADE.getCode(), TransformUtil.getProjectedGrade(student));
-        rowMap.put(FsaFebRegistrationHeader.LEGAL_FIRST_NAME.getCode(), student.getLegalFirstName());
-        rowMap.put(FsaFebRegistrationHeader.LEGAL_LAST_NAME.getCode(), student.getLegalLastName());
-        rows.add(rowMap);
+    int pageNumber = 0;
+    int pageSize = 10000;
+    Pageable pageable = PageRequest.of(pageNumber, pageSize);
+    Page<SdcSchoolCollectionStudentFsaReportEntity> page;
+    do {
+      page = sdcSchoolCollectionStudentFsaReportRepository
+              .findAllBySdcSchoolCollection_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(
+                      collectionID, grades, SdcSchoolStudentStatus.DELETED.getCode(), pageable);
+      for (SdcSchoolCollectionStudentFsaReportEntity student : page.getContent()) {
+        var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
+        if (schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())
+                && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
+          var school = schoolOpt.get();
+          var rowMap = new HashMap<String, String>();
+          rowMap.put(FsaFebRegistrationHeader.MINCODE.getCode(), school.getMincode());
+          rowMap.put(FsaFebRegistrationHeader.STUDENT_PEN.getCode(), student.getAssignedPen());
+          rowMap.put(FsaFebRegistrationHeader.NEXT_YEAR_GRADE.getCode(), TransformUtil.getProjectedGrade(student));
+          rowMap.put(FsaFebRegistrationHeader.LEGAL_FIRST_NAME.getCode(), student.getLegalFirstName());
+          rowMap.put(FsaFebRegistrationHeader.LEGAL_LAST_NAME.getCode(), student.getLegalLastName());
+          rows.add(rowMap);
+        }
       }
-
-    });
+      pageable = page.nextPageable();
+    } while (page.hasNext());
     resultsTable.setRows(rows);
     return resultsTable;
   }
