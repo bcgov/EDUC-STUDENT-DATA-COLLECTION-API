@@ -6,10 +6,8 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentFsaReportRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.dto.sdc.SdcSchoolCollectionIdSchoolId;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.IndependentSchoolFundingGroupSnapshotService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
@@ -43,6 +41,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @RequiredArgsConstructor
 public class MinistryHeadcountService {
   private final CollectionRepository collectionRepository;
+  private final SdcSchoolCollectionLightRepository sdcSchoolCollectionLightRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private final SdcSchoolCollectionStudentFsaReportRepository sdcSchoolCollectionStudentFsaReportRepository;
   private final IndependentSchoolFundingGroupSnapshotService independentSchoolFundingGroupSnapshotService;
@@ -407,8 +406,15 @@ public class MinistryHeadcountService {
 
   public SimpleHeadcountResultsTable generateSeptFsaCsv(UUID collectionID) {
     List<String> grades = Arrays.asList(SchoolGradeCodes.GRADE04.getCode(), SchoolGradeCodes.GRADE07.getCode());
+    List<SdcSchoolCollectionIdSchoolId> sdcSchoolCollectionIdSchoolIds = sdcSchoolCollectionLightRepository.findSdcSchoolCollectionIdSchoolIdByCollectionId(collectionID);
+    List<UUID> sdcSchoolCollectionIDs = sdcSchoolCollectionIdSchoolIds.stream()
+            .map(SdcSchoolCollectionIdSchoolId::getSdcSchoolCollectionID)
+            .toList();
+    Map<UUID, UUID> collectionToSchoolIdMap = sdcSchoolCollectionIdSchoolIds.stream()
+            .collect(Collectors.toMap(SdcSchoolCollectionIdSchoolId::getSdcSchoolCollectionID, SdcSchoolCollectionIdSchoolId::getSchoolID));
     List<SdcSchoolCollectionStudentFsaReportEntity> students =
-            sdcSchoolCollectionStudentFsaReportRepository.findAllBySdcSchoolCollection_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(collectionID, grades, SdcSchoolStudentStatus.DELETED.getCode());
+            sdcSchoolCollectionStudentFsaReportRepository.findAllBySdcSchoolCollectionIDsAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(
+                    sdcSchoolCollectionIDs, grades, SdcSchoolStudentStatus.DELETED.getCode());
 
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();
@@ -419,7 +425,9 @@ public class MinistryHeadcountService {
     var rows = new ArrayList<Map<String, String>>();
 
     students.forEach(student -> {
-      var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
+      UUID sdcSchoolCollectionID = student.getSdcSchoolCollectionID();
+      UUID schoolID = collectionToSchoolIdMap.get(sdcSchoolCollectionID);
+      var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
       if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
         var school = schoolOpt.get();
         var rowMap = new HashMap<String, String>();
@@ -438,8 +446,15 @@ public class MinistryHeadcountService {
 
   public SimpleHeadcountResultsTable generateFebFsaCsv(UUID collectionID) {
     List<String> grades = Arrays.asList(SchoolGradeCodes.GRADE03.getCode(), SchoolGradeCodes.GRADE06.getCode());
+    List<SdcSchoolCollectionIdSchoolId> sdcSchoolCollectionIdSchoolIds = sdcSchoolCollectionLightRepository.findSdcSchoolCollectionIdSchoolIdByCollectionId(collectionID);
+    List<UUID> sdcSchoolCollectionIDs = sdcSchoolCollectionIdSchoolIds.stream()
+            .map(SdcSchoolCollectionIdSchoolId::getSdcSchoolCollectionID)
+            .toList();
+    Map<UUID, UUID> collectionToSchoolIdMap = sdcSchoolCollectionIdSchoolIds.stream()
+            .collect(Collectors.toMap(SdcSchoolCollectionIdSchoolId::getSdcSchoolCollectionID, SdcSchoolCollectionIdSchoolId::getSchoolID));
     List<SdcSchoolCollectionStudentFsaReportEntity> students =
-            sdcSchoolCollectionStudentFsaReportRepository.findAllBySdcSchoolCollection_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(collectionID, grades, SdcSchoolStudentStatus.DELETED.getCode());
+            sdcSchoolCollectionStudentFsaReportRepository.findAllBySdcSchoolCollectionIDsAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(
+                    sdcSchoolCollectionIDs, grades, SdcSchoolStudentStatus.DELETED.getCode());
 
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();
@@ -450,7 +465,9 @@ public class MinistryHeadcountService {
     var rows = new ArrayList<Map<String, String>>();
 
     students.forEach(student -> {
-      var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
+      UUID sdcSchoolCollectionID = student.getSdcSchoolCollectionID();
+      UUID schoolID = collectionToSchoolIdMap.get(sdcSchoolCollectionID);
+      var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
       if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())
               && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
         var school = schoolOpt.get();
