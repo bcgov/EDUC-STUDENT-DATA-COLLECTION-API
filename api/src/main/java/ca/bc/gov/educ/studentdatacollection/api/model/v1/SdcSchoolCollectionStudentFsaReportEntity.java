@@ -25,11 +25,8 @@ public class SdcSchoolCollectionStudentFsaReportEntity {
     @Column(name = "SDC_SCHOOL_COLLECTION_STUDENT_ID", unique = true, updatable = false, columnDefinition = "BINARY(16)")
     UUID sdcSchoolCollectionStudentID;
 
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    @ManyToOne(optional = false, targetEntity = SdcSchoolCollectionLightEntity.class)
-    @JoinColumn(name = "SDC_SCHOOL_COLLECTION_ID", referencedColumnName = "SDC_SCHOOL_COLLECTION_ID", updatable = false)
-    private SdcSchoolCollectionLightEntity  sdcSchoolCollection;
+    @Column(name = "SDC_SCHOOL_COLLECTION_ID")
+    private UUID sdcSchoolCollectionID;
 
     @Column(name = "LEGAL_FIRST_NAME")
     private String legalFirstName;

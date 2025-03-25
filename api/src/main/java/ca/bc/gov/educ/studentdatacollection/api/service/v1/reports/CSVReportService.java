@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.dto.sdc.SdcSchoolCollectionIdSchoolId;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.IndependentSchoolFundingGroupSnapshotService;
@@ -56,6 +57,7 @@ public class CSVReportService {
     private final SdcSchoolCollectionStudentFsaReportRepository sdcSchoolCollectionStudentFsaReportRepository;
     private final CollectionRepository collectionRepository;
     private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+    private final SdcSchoolCollectionLightRepository sdcSchoolCollectionLightRepository;
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final IndependentSchoolFundingGroupSnapshotService independentSchoolFundingGroupSnapshotService;
     private final RestUtils restUtils;
@@ -380,8 +382,16 @@ public class CSVReportService {
 
     private DownloadableReportResponse generateFebFsaCsv(UUID collectionID) {
         List<String> grades = Arrays.asList(SchoolGradeCodes.GRADE03.getCode(), SchoolGradeCodes.GRADE06.getCode());
+        List<SdcSchoolCollectionIdSchoolId> sdcSchoolCollectionIdSchoolIds = sdcSchoolCollectionLightRepository.findSdcSchoolCollectionIdSchoolIdByCollectionId(collectionID);
+        List<UUID> sdcSchoolCollectionIDs = sdcSchoolCollectionIdSchoolIds.stream()
+                .map(SdcSchoolCollectionIdSchoolId::getSdcSchoolCollectionID)
+                .toList();
+        Map<UUID, UUID> collectionToSchoolIdMap = sdcSchoolCollectionIdSchoolIds.stream()
+                .collect(Collectors.toMap(SdcSchoolCollectionIdSchoolId::getSdcSchoolCollectionID, SdcSchoolCollectionIdSchoolId::getSchoolID));
         List<SdcSchoolCollectionStudentFsaReportEntity> students =
-                sdcSchoolCollectionStudentFsaReportRepository.findAllBySdcSchoolCollection_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(collectionID, grades, SdcSchoolStudentStatus.DELETED.getCode());
+                sdcSchoolCollectionStudentFsaReportRepository.findAllBySdcSchoolCollectionIDsAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(
+                        sdcSchoolCollectionIDs, grades, SdcSchoolStudentStatus.DELETED.getCode());
+
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(
                 FsaFebRegistrationHeader.MINCODE.getCode(), FsaFebRegistrationHeader.STUDENT_PEN.getCode(),
                 FsaFebRegistrationHeader.NEXT_YEAR_GRADE.getCode(), FsaFebRegistrationHeader.LEGAL_FIRST_NAME.getCode(),
@@ -394,7 +404,9 @@ public class CSVReportService {
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
             for (SdcSchoolCollectionStudentFsaReportEntity student : students) {
-                var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
+                UUID sdcSchoolCollectionID = student.getSdcSchoolCollectionID();
+                UUID schoolID = collectionToSchoolIdMap.get(sdcSchoolCollectionID);
+                var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
                 if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode()) &&
                                 !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
                     List<String> csvRowData = prepareFsaDataForCsv(student, TransformUtil.getProjectedGrade(student), schoolOpt.get());
@@ -415,8 +427,16 @@ public class CSVReportService {
 
     private DownloadableReportResponse generateSeptFsaCsv(UUID collectionID) {
         List<String> grades = Arrays.asList(SchoolGradeCodes.GRADE04.getCode(), SchoolGradeCodes.GRADE07.getCode());
+        List<SdcSchoolCollectionIdSchoolId> sdcSchoolCollectionIdSchoolId = sdcSchoolCollectionLightRepository.findSdcSchoolCollectionIdSchoolIdByCollectionId(collectionID);
+        List<UUID> sdcSchoolCollectionIDs = sdcSchoolCollectionIdSchoolId.stream()
+                .map(SdcSchoolCollectionIdSchoolId::getSdcSchoolCollectionID)
+                .toList();
+        Map<UUID, UUID> collectionToSchoolIdMap = sdcSchoolCollectionIdSchoolId.stream()
+                .collect(Collectors.toMap(SdcSchoolCollectionIdSchoolId::getSdcSchoolCollectionID, SdcSchoolCollectionIdSchoolId::getSchoolID));
         List<SdcSchoolCollectionStudentFsaReportEntity> students =
-                sdcSchoolCollectionStudentFsaReportRepository.findAllBySdcSchoolCollection_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(collectionID, grades, SdcSchoolStudentStatus.DELETED.getCode());
+                sdcSchoolCollectionStudentFsaReportRepository.findAllBySdcSchoolCollectionIDsAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(
+                        sdcSchoolCollectionIDs, grades, SdcSchoolStudentStatus.DELETED.getCode());
+
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder().setHeader(
                 FsaSeptRegistrationHeader.MINCODE.getCode(), FsaSeptRegistrationHeader.STUDENT_PEN.getCode(),
                 FsaSeptRegistrationHeader.ENROLLED_GRADE.getCode(), FsaSeptRegistrationHeader.LEGAL_FIRST_NAME.getCode(),
@@ -429,7 +449,9 @@ public class CSVReportService {
             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
 
             for (SdcSchoolCollectionStudentFsaReportEntity student : students) {
-                var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
+                UUID sdcSchoolCollectionID = student.getSdcSchoolCollectionID();
+                UUID schoolID = collectionToSchoolIdMap.get(sdcSchoolCollectionID);
+                var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
                 if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
                     List<String> csvRowData = prepareFsaDataForCsv(student, student.getEnrolledGradeCode(), schoolOpt.get());
                     csvPrinter.printRecord(csvRowData);

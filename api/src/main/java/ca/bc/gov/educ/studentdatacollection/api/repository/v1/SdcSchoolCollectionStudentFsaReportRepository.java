@@ -12,15 +12,12 @@ import java.util.UUID;
 
 @Repository
 public interface SdcSchoolCollectionStudentFsaReportRepository extends JpaRepository<SdcSchoolCollectionStudentFsaReportEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionStudentFsaReportEntity> {
-    //List<SdcSchoolCollectionStudentFsaReportEntity> findAllBySdcSchoolCollection_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(UUID collectionID, List<String> enrolledGradeCode, String sdcSchoolCollectionStudentStatusCode);
-
     @Query("SELECT s FROM SdcSchoolCollectionStudentFsaReportEntity s " +
-            "JOIN FETCH s.sdcSchoolCollection sc " +
-            "WHERE sc.collectionID = :collectionID " +
+            "WHERE s.sdcSchoolCollectionID IN :sdcSchoolCollectionIDs " +
             "AND s.enrolledGradeCode IN :enrolledGradeCode " +
             "AND s.sdcSchoolCollectionStudentStatusCode <> :statusCode")
-    List<SdcSchoolCollectionStudentFsaReportEntity> findAllBySdcSchoolCollection_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(
-            @Param("collectionID") UUID collectionID,
+    List<SdcSchoolCollectionStudentFsaReportEntity> findAllBySdcSchoolCollectionIDsAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(
+            @Param("sdcSchoolCollectionIDs") List<UUID> sdcSchoolCollectionIDs,
             @Param("enrolledGradeCode") List<String> enrolledGradeCode,
             @Param("statusCode") String sdcSchoolCollectionStudentStatusCode);
 }
