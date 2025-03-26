@@ -283,6 +283,7 @@ elif [ "$envValue" = "test" ]
 then
   SCHOOL_NOTIFICATION_EMAIL_FROM="test.educationdataexchange@gov.bc.ca"
   EMAIL_CLOSURE_NOTIFICATION_TO="avisha.1.sodhi@gov.bc.ca"
+  SCHEDULED_JOBS_TARDY_INDY_SCHOOLS_CRON="-"
 fi
 
 echo
