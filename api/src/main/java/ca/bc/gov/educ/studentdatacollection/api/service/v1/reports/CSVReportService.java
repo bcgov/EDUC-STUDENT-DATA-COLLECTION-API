@@ -77,8 +77,9 @@ public class CSVReportService {
         if(collectionOpt.isEmpty()){
             throw new EntityNotFoundException(Collection.class, COLLECTION_ID, collectionID.toString());
         }
+        String[] headers = isOnlineLearning ? IndyFundingReportHeader.getAllValuesAndRoundUpAsStringArray() : IndyFundingReportHeader.getAllValuesAsStringArray();
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(IndyFundingReportHeader.getAllValuesAsStringArray())
+                .setHeader(headers)
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -114,7 +115,7 @@ public class CSVReportService {
                             if(isFundedReport) {
                                 csvRowData = prepareIndyFundedDataForCsv(result, school, district, authority, collectionOpt.get());
                             }else{
-                                csvRowData = prepareIndyAllDataForCsv(result, school, district, authority, collectionOpt.get());
+                                csvRowData = prepareIndyAllDataForCsv(result, school, district, authority, collectionOpt.get(), isOnlineLearning);
                             }
                         }
 
@@ -1805,7 +1806,7 @@ public class CSVReportService {
         return csvRowData;
     }
 
-    private List<String> prepareIndyAllDataForCsv(IndyFundingResult indyFundingResult, School school, District district, IndependentAuthority authority, CollectionEntity collection) {
+    private List<String> prepareIndyAllDataForCsv(IndyFundingResult indyFundingResult, School school, District district, IndependentAuthority authority, CollectionEntity collection, boolean isOnlineLearning) {
         List<String> csvRowData = new ArrayList<>();
         var facilityType = restUtils.getFacilityTypeCode(school.getFacilityTypeCode());
 
@@ -1978,6 +1979,14 @@ public class CSVReportService {
                 indyFundingResult.getGradeSUFTEAdults(),
                 indyFundingResult.getGradeGAFTEAdults()
         ));
+
+        if (isOnlineLearning) {
+            csvRowData.addAll(Arrays.asList(
+                    indyFundingResult.getTotalFTEKto9(),
+                    indyFundingResult.getTotalFTE10to12()
+            ));
+        }
+
         return csvRowData;
     }
 

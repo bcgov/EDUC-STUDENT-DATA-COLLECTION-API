@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 @Getter
 public enum IndyFundingReportHeader {
@@ -118,5 +119,12 @@ public enum IndyFundingReportHeader {
 
     public static String[] getAllValuesAsStringArray(){
         return Arrays.stream(IndyFundingReportHeader.values()).map(IndyFundingReportHeader::getCode).toArray(String[]::new);
+    }
+
+    public static String[] getAllValuesAndRoundUpAsStringArray() {
+        return Stream.concat(
+                Arrays.stream(IndyFundingReportHeader.values()).map(IndyFundingReportHeader::getCode),
+                Stream.of("K to 9 FTE Sum", "10 to 12 FTE Sum")
+        ).toArray(String[]::new);
     }
 }
