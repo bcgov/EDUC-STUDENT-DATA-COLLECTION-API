@@ -80,4 +80,7 @@ public interface IndyFundingResult extends HeadcountResult {
     String getGrade12FTEAdults();
     String getGradeSUFTEAdults();
     String getGradeGAFTEAdults();
+
+    String getTotalFTEKto9();
+    String getTotalFTE10to12();
 }
