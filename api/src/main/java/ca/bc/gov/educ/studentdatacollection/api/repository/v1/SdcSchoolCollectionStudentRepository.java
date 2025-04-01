@@ -2113,7 +2113,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           " SUM(CASE WHEN sscs.fte IS NOT NULL AND sscs.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', 'EU', '08', '09') THEN sscs.fte ELSE 0 END) as totalFTEKto9, " +
 
           // FTE sum for 10-12
-          " SUM(CASE WHEN sscs.fte IS NOT NULL AND sscs.enrolledGradeCode IN ('10', '11', '12') THEN sscs.fte ELSE 0 END) as totalFTE10to12 " +
+          " SUM(CASE WHEN sscs.fte IS NOT NULL AND sscs.enrolledGradeCode IN ('10', '11', '12', 'SU') THEN sscs.fte ELSE 0 END) as totalFTE10to12 " +
 
           " FROM SdcSchoolCollectionStudentEntity sscs " +
           " WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
