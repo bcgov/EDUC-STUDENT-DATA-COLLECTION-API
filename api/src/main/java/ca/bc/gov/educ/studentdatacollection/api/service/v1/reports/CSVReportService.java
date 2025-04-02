@@ -1982,8 +1982,8 @@ public class CSVReportService {
 
         if (isOnlineLearning) {
             csvRowData.addAll(Arrays.asList(
-                    indyFundingResult.getTotalFTEKto9(),
-                    indyFundingResult.getTotalFTE10to12()
+                    indyFundingResult.getTotalFTEKto9SA(),
+                    indyFundingResult.getTotalFTE10to12SA()
             ));
         }
 
