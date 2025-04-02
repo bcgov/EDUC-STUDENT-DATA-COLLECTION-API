@@ -2110,10 +2110,10 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           " SUM(CASE WHEN sscs.fte IS NOT NULL AND sscs.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', 'EU', '08', '09', '10', '11', '12', 'SU', 'GA') AND sscs.isAdult = false THEN sscs.fte ELSE 0 END) as totalFTENoAdults, " +
 
           // FTE sum for k-9
-          " SUM(CASE WHEN sscs.fte IS NOT NULL AND sscs.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', 'EU', '08', '09') THEN sscs.fte ELSE 0 END) as totalFTEKto9, " +
+          " SUM(CASE WHEN sscs.fte IS NOT NULL AND sscs.enrolledGradeCode IN ('KH', 'KF', '01', '02', '03', '04', '05', '06', '07', 'EU', '08', '09') AND sscs.isAdult = false THEN sscs.fte ELSE 0 END) as totalFTEKto9SA, " +
 
           // FTE sum for 10-12
-          " SUM(CASE WHEN sscs.fte IS NOT NULL AND sscs.enrolledGradeCode IN ('10', '11', '12', 'SU') THEN sscs.fte ELSE 0 END) as totalFTE10to12 " +
+          " SUM(CASE WHEN sscs.fte IS NOT NULL AND sscs.enrolledGradeCode IN ('10', '11', '12', 'SU') AND sscs.isAdult = false THEN sscs.fte ELSE 0 END) as totalFTE10to12SA " +
 
           " FROM SdcSchoolCollectionStudentEntity sscs " +
           " WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +

@@ -124,7 +124,7 @@ public enum IndyFundingReportHeader {
     public static String[] getAllValuesAndRoundUpAsStringArray() {
         return Stream.concat(
                 Arrays.stream(IndyFundingReportHeader.values()).map(IndyFundingReportHeader::getCode),
-                Stream.of("K to 9 FTE Sum", "10 to 12 FTE Sum")
+                Stream.of("OL SA K-9 FTE", "OL SA 10-12 FTE")
         ).toArray(String[]::new);
     }
 }
