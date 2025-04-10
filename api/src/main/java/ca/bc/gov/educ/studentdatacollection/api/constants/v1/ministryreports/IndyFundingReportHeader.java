@@ -15,6 +15,8 @@ public enum IndyFundingReportHeader {
     SCHOOL_NAME("School Name"),
     FACILITY_TYPE("Facility Type"),
 
+    REPORT_DATE("Report Date"),
+
     KIND_HT_FUNDING_GROUP("Kind(H/T) Funding Group"),
     KIND_FT_FUNDING_GROUP("Kind(F/T) Funding Group"),
     GRADE_01_FUNDING_GROUP("Grade 1 Funding Group"),

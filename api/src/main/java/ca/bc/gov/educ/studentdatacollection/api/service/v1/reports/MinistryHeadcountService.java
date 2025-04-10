@@ -81,7 +81,7 @@ public class MinistryHeadcountService {
       rowMap.put(FACILITY_TYPE.getCode(), facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode());
       rowMap.put(SCHOOL_CATEGORY.getCode(), schoolCategory.isPresent() ? schoolCategory.get().getLabel() : school.getSchoolCategoryCode());
       rowMap.put(GRADE_RANGE.getCode(),  TransformUtil.getGradesOfferedString(school));
-      rowMap.put(REPORT_DATE.getCode(), collection.getSnapshotDate().toString());
+      rowMap.put(SchoolEnrolmentHeader.REPORT_DATE.getCode(), collection.getSnapshotDate().toString());
       rowMap.put(KIND_HT_COUNT.getCode(), schoolHeadcountResult.getKindHCount());
       rowMap.put(KIND_FT_COUNT.getCode(), schoolHeadcountResult.getKindFCount());
       rowMap.put(GRADE_01_COUNT.getCode(), schoolHeadcountResult.getGrade1Count());

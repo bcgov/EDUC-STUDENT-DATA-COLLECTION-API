@@ -9,6 +9,7 @@ public enum IndySpecialEducationHeadcountHeader {
     AUTHORITY_NAME("Authority Name"),
     MIN_CODE("Mincode"),
     SCHOOL("School Name"),
+    REPORT_DATE("Report Date"),
     LEVEL_1("Level 1 Total"),
     A("A - Physically Dependent (Level 1)"),
     B("B - Deafblind (Level 1)"),
