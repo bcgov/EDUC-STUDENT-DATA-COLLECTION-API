@@ -68,6 +68,7 @@ public class CSVReportService {
     private static final String INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and SEPT collections";
     private static final String HEADCOUNTS_INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and MAY collections";
     private static final String REFUGEE_HEADCOUNTS_INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB collection";
+    private static final String REPORT_DATE_FORMAT = "yyyyMMdd";
 
     // Independent School Funding Report - Standard Student report AND Independent School Funding Report - Online Learning report AND Independent School Funding Report - Non Graduated Adult report
     public DownloadableReportResponse generateIndyFundingReport(UUID collectionID, boolean isOnlineLearning, boolean isFundedReport) {
@@ -718,7 +719,7 @@ public class CSVReportService {
                 authority != null ? authority.getDisplayName() : null,
                 school.getMincode(),
                 school.getDisplayName(),
-                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern(REPORT_DATE_FORMAT)),
                 positiveChangeLevel1,
                 positiveChangeLevel2,
                 positiveChangeLevel3,
@@ -743,7 +744,7 @@ public class CSVReportService {
                 authority != null ? authority.getDisplayName() : "",
                 school.getMincode(),
                 school.getDisplayName(),
-                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern(REPORT_DATE_FORMAT)),
                 result.getLevelOnes(),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdACodes(), result.getAdultsInSpecialEdA()),
                 TransformUtil.flagSpecialEdHeadcountIfRequired(result.getSpecialEdBCodes(), result.getAdultsInSpecialEdB()),
@@ -925,7 +926,7 @@ public class CSVReportService {
                 facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
                 schoolCategory.isPresent() ? schoolCategory.get().getLabel() : school.getSchoolCategoryCode(),
                 TransformUtil.getGradesOfferedString(school),
-                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern(REPORT_DATE_FORMAT)),
                 schoolHeadcountResult.getKindHCount(),
                 schoolHeadcountResult.getKindFCount(),
                 schoolHeadcountResult.getGrade1Count(),
@@ -955,7 +956,7 @@ public class CSVReportService {
         List<String> csvRowData = new ArrayList<>();
         csvRowData.addAll(Arrays.asList(
                 school.getDisplayName(),
-                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern(REPORT_DATE_FORMAT)),
                 flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.KINDHALF.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getKindHCount()),
                 flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.KINDFULL.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getKindFCount()),
                 flagCountIfNoSchoolFundingGroup(SchoolGradeCodes.GRADE01.getTypeCode(), schoolFundingGroupGrades, indySchoolHeadcountResult.getGrade1Count()),
@@ -1454,7 +1455,7 @@ public class CSVReportService {
         }
 
         return new ArrayList<>(Arrays.asList(
-                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern(REPORT_DATE_FORMAT)),
                 school.getMincode().substring(0, 3),
                 school.getSchoolNumber(),
                 groupStandardPrimary == null ? " " : groupStandardPrimary,
@@ -1749,7 +1750,7 @@ public class CSVReportService {
                 school.getSchoolNumber(),
                 school.getDisplayName(),
                 facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
-                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern(REPORT_DATE_FORMAT)),
 
                 groupKh,
                 groupKf,
@@ -1886,7 +1887,7 @@ public class CSVReportService {
                 school.getSchoolNumber(),
                 school.getDisplayName(),
                 facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
-                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern(REPORT_DATE_FORMAT)),
 
                 groupKh,
                 groupKf,
@@ -2119,7 +2120,7 @@ public class CSVReportService {
                 school.getSchoolNumber(),
                 school.getDisplayName(),
                 facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode(),
-                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                collection.getSnapshotDate().format(DateTimeFormatter.ofPattern(REPORT_DATE_FORMAT)),
 
                 groupKh,
                 groupKf,
