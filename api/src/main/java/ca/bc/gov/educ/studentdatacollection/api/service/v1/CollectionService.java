@@ -221,4 +221,15 @@ public class CollectionService {
   public List<SdcDistrictCollectionEntity> getDistrictCollectionsInCollection(UUID collectionID){
     return sdcDistrictCollectionRepository.findAllByCollectionEntityCollectionID(collectionID);
   }
+
+  public List<SdcSchoolCollectionStudentGradeEnrolmentCount> getStudentGradeEnrolmentCount(UUID collectionID, String grade, String schoolCategory) {
+    CollectionEntity collection = collectionRepository.findById(collectionID).orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "CollectionID", collectionID.toString()));
+
+    List<UUID> schoolIds = restUtils.getSchools().stream().filter(school ->
+            Boolean.TRUE.equals(school.getCanIssueTranscripts()) && school.getSchoolCategoryCode().equalsIgnoreCase(schoolCategory))
+            .map(SchoolTombstone::getSchoolId).map(UUID::fromString).toList();
+
+    List<StudentGradeEnrolmentCount> results = sdcSchoolCollectionStudentRepository.getEnrolmentCountInCollectionByGrade(collection.getCollectionID(), grade, schoolIds);
+    return results.stream().map(result -> new SdcSchoolCollectionStudentGradeEnrolmentCount(result.getSchoolID(), result.getStudentsEnroledInGradeCount())).toList();
+  }
 }
