@@ -1128,7 +1128,6 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     SchoolTombstone school = this.createMockSchool();
     school.setDistrictId(districtID1.toString());
-    school.setCanIssueTranscripts(Boolean.TRUE);
     var sdcSchoolCollection1a = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcSchoolCollection1a.setSdcDistrictCollectionID(mockDistrictCollectionEntity1.getSdcDistrictCollectionID());
     sdcSchoolCollection1a.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
