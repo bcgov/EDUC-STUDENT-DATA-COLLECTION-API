@@ -1234,23 +1234,27 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   @Query("SELECT " +
           "s.sdcSchoolCollection.schoolID AS schoolID, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B') AND s.fte > 0 THEN 1 END) AS levelOnes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'A' AND s.fte > 0 THEN 1 END) AS specialEdACodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'B' AND s.fte > 0 THEN 1 END) AS specialEdBCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('C', 'D', 'E', 'F', 'G') AND s.fte > 0 THEN 1 END) AS levelTwos, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'C' AND s.fte > 0 THEN 1 END) AS specialEdCCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'D' AND s.fte > 0 THEN 1 END) AS specialEdDCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'E' AND s.fte > 0 THEN 1 END) AS specialEdECodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'F' AND s.fte > 0 THEN 1 END) AS specialEdFCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'G' AND s.fte > 0 THEN 1 END) AS specialEdGCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('H') AND s.fte > 0 THEN 1 END) AS levelThrees, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'H' AND s.fte > 0 THEN 1 END) AS specialEdHCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('K', 'P', 'Q', 'R') AND s.fte > 0 THEN 1 END) AS otherLevels, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'K' AND s.fte > 0 THEN 1 END) AS specialEdKCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'P' AND s.fte > 0 THEN 1 END) AS specialEdPCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'Q' AND s.fte > 0 THEN 1 END) AS specialEdQCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'R' AND s.fte > 0 THEN 1 END) AS specialEdRCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'P', 'Q', 'R') AND s.fte > 0 THEN 1 END) AS allLevels " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B') AND s.fte > 0 THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS levelOnes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'A' AND s.fte > 0 THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdACodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'B' AND s.fte > 0 THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdBCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode IN ('C', 'D', 'E', 'F', 'G') AND s.fte > 0 THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS levelTwos, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'C' AND s.fte > 0 THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdCCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'D' AND s.fte > 0 THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdDCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'E' AND s.fte > 0 THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdECodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'F' AND s.fte > 0 THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdFCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'G' AND s.fte > 0 THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdGCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode IN ('H') AND s.fte > 0 THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS levelThrees, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'H' AND s.fte > 0 THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdHCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode IN ('K', 'P', 'Q', 'R') AND s.fte > 0 AND s.isSchoolAged = true THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS otherLevels, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'K' AND s.fte > 0 AND s.isSchoolAged = true THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdKCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'P' AND s.fte > 0 AND s.isSchoolAged = true THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdPCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'Q' AND s.fte > 0 AND s.isSchoolAged = true THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdQCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'R' AND s.fte > 0 AND s.isSchoolAged = true THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdRCodes, " +
+          "SUM(CASE " +
+          "    WHEN s.specialEducationCategoryCode IN ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H') AND s.fte > 0 THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END " +
+          "    WHEN s.specialEducationCategoryCode IN ('K', 'P', 'Q', 'R') AND s.fte > 0 AND s.isSchoolAged = true THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END " +
+          "    ELSE 0 " +
+          "END) AS allLevels " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
           "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
@@ -1262,23 +1266,27 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   @Query("SELECT " +
           "s.sdcSchoolCollection.schoolID AS schoolID, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B') THEN 1 END) AS levelOnes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'A' THEN 1 END) AS specialEdACodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'B' THEN 1 END) AS specialEdBCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('C', 'D', 'E', 'F', 'G') THEN 1 END) AS levelTwos, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'C' THEN 1 END) AS specialEdCCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'D' THEN 1 END) AS specialEdDCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'E' THEN 1 END) AS specialEdECodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'F' THEN 1 END) AS specialEdFCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'G' THEN 1 END) AS specialEdGCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('H') THEN 1 END) AS levelThrees, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'H' THEN 1 END) AS specialEdHCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('K', 'P', 'Q', 'R') THEN 1 END) AS otherLevels, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'K' THEN 1 END) AS specialEdKCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'P' THEN 1 END) AS specialEdPCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'Q' THEN 1 END) AS specialEdQCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode = 'R' THEN 1 END) AS specialEdRCodes, " +
-          "COUNT(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'P', 'Q', 'R') THEN 1 END) AS allLevels " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode IN ('A', 'B') THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS levelOnes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'A' THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdACodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'B' THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdBCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode IN ('C', 'D', 'E', 'F', 'G') THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS levelTwos, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'C' THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdCCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'D' THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdDCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'E' THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdECodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'F' THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdFCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'G' THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdGCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode IN ('H') THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS levelThrees, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'H' THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdHCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode IN ('K', 'P', 'Q', 'R') AND s.isSchoolAged = true THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS otherLevels, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'K' AND s.isSchoolAged = true THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdKCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'P' AND s.isSchoolAged = true THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdPCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'Q' AND s.isSchoolAged = true THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdQCodes, " +
+          "SUM(CASE WHEN s.specialEducationCategoryCode = 'R' AND s.isSchoolAged = true THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END ELSE 0 END) AS specialEdRCodes, " +
+          "SUM(CASE " +
+          "    WHEN s.specialEducationCategoryCode IN ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H') THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END " +
+          "    WHEN s.specialEducationCategoryCode IN ('K', 'P', 'Q', 'R') AND s.isSchoolAged = true THEN CASE WHEN s.enrolledGradeCode = 'KH' THEN 0.5 ELSE 1.0 END " +
+          "    ELSE 0 " +
+          "END) AS allLevels " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "WHERE s.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
           "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
