@@ -1114,7 +1114,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   }
 
   @Test
-  void testGetEnrolmentCountInCollectionByGradeAndSchoolCategory_WithValidPayload_ReturnsCorrectResponse() throws Exception {
+  void testGetEnrolmentCountInCollectionByGrade_WithValidPayload_ReturnsCorrectResponse() throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
@@ -1147,7 +1147,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     when(this.restUtils.getSchools()).thenReturn(List.of(school));
     String gradeToQuery = "12";
 
-    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/" + school.getSchoolCategoryCode() + "/"+gradeToQuery).with(mockAuthority))
+    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/counts/"+gradeToQuery + "/" + school.getSchoolId()).with(mockAuthority))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolID").value(school.getSchoolId()))
