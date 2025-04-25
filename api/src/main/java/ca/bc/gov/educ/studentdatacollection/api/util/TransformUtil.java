@@ -344,29 +344,70 @@ public class TransformUtil {
     return null;
   }
 
-  public static int addValueIfExists(int totalValue, String actualValue){
-    int value;
-    try{
-      value = Integer.parseInt(actualValue);
-    } catch (Exception e) {
-      value = 0;
+  public static double addValueIfExists(double currentTotal, String valueToAddStr) {
+    if (StringUtils.isNotBlank(valueToAddStr)) {
+      try {
+        double valueToAdd = Double.parseDouble(valueToAddStr);
+        return currentTotal + valueToAdd;
+      } catch (NumberFormatException e) {
+        return currentTotal;
+      }
     }
-    return totalValue + value;
+    return currentTotal;
   }
 
-  public static String getNetChange(String septValue, String febValue){
-    if(StringUtils.isNumeric(septValue) && StringUtils.isNumeric(febValue)){
-      var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
-      return Integer.toString(change);
+  public static String getNetChange(String septValueStr, String febValueStr) {
+    Double septValue = null;
+    Double febValue = null;
+
+    if (StringUtils.isNotBlank(septValueStr)) {
+      try { septValue = Double.parseDouble(septValueStr); }
+      catch (NumberFormatException e) { septValue = 0.0; }
+    }
+    if (StringUtils.isNotBlank(febValueStr)) {
+      try { febValue = Double.parseDouble(febValueStr); }
+      catch (NumberFormatException e) { febValue = 0.0; }
+    }
+
+    if (septValue != null && febValue != null) {
+      double change = febValue - septValue;
+      String changeStr = Double.toString(change);
+      if (changeStr.endsWith(".0")) {
+        return changeStr.substring(0, changeStr.length() - 2);
+      }
+      return changeStr;
     }
     return "0";
   }
 
-  public static String getPositiveChange(String septValue, String febValue){
-    if(StringUtils.isNumeric(septValue) && StringUtils.isNumeric(febValue)){
-      var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
-      if(change > 0){
-        return Integer.toString(change);
+  public static String getPositiveChange(String septValueStr, String febValueStr) {
+    Double septValue = null;
+    Double febValue = null;
+
+    if (StringUtils.isNotBlank(septValueStr)) {
+      try {
+        septValue = Double.parseDouble(septValueStr);
+      } catch (NumberFormatException e) {
+        septValue = 0.0;
+      }
+    }
+
+    if (StringUtils.isNotBlank(febValueStr)) {
+      try {
+        febValue = Double.parseDouble(febValueStr);
+      } catch (NumberFormatException e) {
+        febValue = 0.0;
+      }
+    }
+
+    if (septValue != null && febValue != null) {
+      double change = febValue - septValue;
+      if (change > 0) {
+        String changeStr = Double.toString(change);
+        if (changeStr.endsWith(".0")) {
+          return changeStr.substring(0, changeStr.length() - 2);
+        }
+        return changeStr;
       }
     }
     return "0";

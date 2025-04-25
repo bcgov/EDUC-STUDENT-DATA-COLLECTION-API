@@ -547,9 +547,10 @@ public class CSVReportService {
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                 .setHeader(DISTRICT_NUMBER.getCode(), IndySpecialEducationFundingHeadcountHeader.DISTRICT_NAME.getCode(), IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NUMBER.getCode(), IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NAME.getCode(), MINCODE.getCode(), SCHOOL_NAME.getCode(),
                         REPORT_DATE.getCode(),
-                        POSITIVE_CHANGE_LEVEL_1.getCode(),POSITIVE_CHANGE_LEVEL_2.getCode(),
-                        POSITIVE_CHANGE_LEVEL_3.getCode(), NET_CHANGE_LEVEL_1.getCode(), NET_CHANGE_LEVEL_2.getCode(), NET_CHANGE_LEVEL_3.getCode(),SEPT_LEVEL_1.getCode(), SEPT_LEVEL_2.getCode(),
-                        SEPT_LEVEL_3.getCode(),FEB_LEVEL_1.getCode(),FEB_LEVEL_2.getCode(),FEB_LEVEL_3.getCode())
+                        POSITIVE_CHANGE_LEVEL_1.getCode(),POSITIVE_CHANGE_LEVEL_2.getCode(), POSITIVE_CHANGE_LEVEL_3.getCode(), POSITIVE_CHANGE_SES.getCode(),
+                        NET_CHANGE_LEVEL_1.getCode(), NET_CHANGE_LEVEL_2.getCode(), NET_CHANGE_LEVEL_3.getCode(), NET_CHANGE_SES.getCode(),
+                        SEPT_LEVEL_1.getCode(), SEPT_LEVEL_2.getCode(), SEPT_LEVEL_3.getCode(), SEPT_SES.getCode(),
+                        FEB_LEVEL_1.getCode(), FEB_LEVEL_2.getCode(), FEB_LEVEL_3.getCode(), FEB_SES.getCode())
                 .build();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -585,26 +586,33 @@ public class CSVReportService {
                         var positiveChangeLevel1 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : "0", februaryCollectionRecord.getLevelOnes());
                         var positiveChangeLevel2 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : "0", februaryCollectionRecord.getLevelTwos());
                         var positiveChangeLevel3 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : "0", februaryCollectionRecord.getLevelThrees());
+                        var positiveChangeSES = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getOtherLevels() : "0", februaryCollectionRecord.getOtherLevels());
                         var netChangeLevel1 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : "0", februaryCollectionRecord.getLevelOnes());
                         var netChangeLevel2 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : "0", februaryCollectionRecord.getLevelTwos());
                         var netChangeLevel3 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : "0", februaryCollectionRecord.getLevelThrees());
+                        var netChangeLevelSES = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getOtherLevels() : "0", februaryCollectionRecord.getOtherLevels());
                         List<String> csvRowData = prepareIndyInclusiveEdFundingDataForCsv(septCollectionRecord, februaryCollectionRecord, school,
-                                authority, district, positiveChangeLevel1, positiveChangeLevel2, positiveChangeLevel3, netChangeLevel1, netChangeLevel2, netChangeLevel3, collection);
+                                authority, district, positiveChangeLevel1, positiveChangeLevel2, positiveChangeLevel3, positiveChangeSES,
+                                netChangeLevel1, netChangeLevel2, netChangeLevel3, netChangeLevelSES, collection);
                         csvPrinter.printRecord(csvRowData);
                         if (septCollectionRecord != null) {
                             fundingReportTotals.setTotSeptLevel1s(TransformUtil.addValueIfExists(fundingReportTotals.getTotSeptLevel1s(), septCollectionRecord.getLevelOnes()));
                             fundingReportTotals.setTotSeptLevel2s(TransformUtil.addValueIfExists(fundingReportTotals.getTotSeptLevel2s(), septCollectionRecord.getLevelTwos()));
                             fundingReportTotals.setTotSeptLevel3s(TransformUtil.addValueIfExists(fundingReportTotals.getTotSeptLevel3s(), septCollectionRecord.getLevelThrees()));
+                            fundingReportTotals.setTotSeptSES(TransformUtil.addValueIfExists(fundingReportTotals.getTotSeptSES(), septCollectionRecord.getOtherLevels()));
                         }
                         fundingReportTotals.setTotFebLevel1s(TransformUtil.addValueIfExists(fundingReportTotals.getTotFebLevel1s(), februaryCollectionRecord.getLevelOnes()));
                         fundingReportTotals.setTotFebLevel2s(TransformUtil.addValueIfExists(fundingReportTotals.getTotFebLevel2s(), februaryCollectionRecord.getLevelTwos()));
                         fundingReportTotals.setTotFebLevel3s(TransformUtil.addValueIfExists(fundingReportTotals.getTotFebLevel3s(), februaryCollectionRecord.getLevelThrees()));
+                        fundingReportTotals.setTotFebSES(TransformUtil.addValueIfExists(fundingReportTotals.getTotFebSES(), februaryCollectionRecord.getOtherLevels()));
                         fundingReportTotals.setTotPositiveChangeLevel1s(TransformUtil.addValueIfExists(fundingReportTotals.getTotPositiveChangeLevel1s(), positiveChangeLevel1));
                         fundingReportTotals.setTotPositiveChangeLevel2s(TransformUtil.addValueIfExists(fundingReportTotals.getTotPositiveChangeLevel2s(), positiveChangeLevel2));
                         fundingReportTotals.setTotPositiveChangeLevel3s(TransformUtil.addValueIfExists(fundingReportTotals.getTotPositiveChangeLevel3s(), positiveChangeLevel3));
+                        fundingReportTotals.setTotPositiveChangeSES(TransformUtil.addValueIfExists(fundingReportTotals.getTotPositiveChangeSES(), positiveChangeSES));
                         fundingReportTotals.setTotNetLevel1s(TransformUtil.addValueIfExists(fundingReportTotals.getTotNetLevel1s(), netChangeLevel1));
                         fundingReportTotals.setTotNetLevel2s(TransformUtil.addValueIfExists(fundingReportTotals.getTotNetLevel2s(), netChangeLevel2));
                         fundingReportTotals.setTotNetLevel3s(TransformUtil.addValueIfExists(fundingReportTotals.getTotNetLevel3s(), netChangeLevel3));
+                        fundingReportTotals.setTotNetSES(TransformUtil.addValueIfExists(fundingReportTotals.getTotNetSES(), netChangeLevelSES));
                     }
                 }
             }
@@ -631,18 +639,23 @@ public class CSVReportService {
                 null,
                 null,
                 null,
-                Integer.toString(totals.getTotPositiveChangeLevel1s()),
-                Integer.toString(totals.getTotPositiveChangeLevel2s()),
-                Integer.toString(totals.getTotPositiveChangeLevel3s()),
-                Integer.toString(totals.getTotNetLevel1s()),
-                Integer.toString(totals.getTotNetLevel2s()),
-                Integer.toString(totals.getTotNetLevel3s()),
-                Integer.toString(totals.getTotSeptLevel1s()),
-                Integer.toString(totals.getTotSeptLevel2s()),
-                Integer.toString(totals.getTotSeptLevel3s()),
-                Integer.toString(totals.getTotFebLevel1s()),
-                Integer.toString(totals.getTotFebLevel2s()),
-                Integer.toString(totals.getTotFebLevel3s())
+                null,
+                Double.toString(totals.getTotPositiveChangeLevel1s()),
+                Double.toString(totals.getTotPositiveChangeLevel2s()),
+                Double.toString(totals.getTotPositiveChangeLevel3s()),
+                Double.toString(totals.getTotPositiveChangeSES()),
+                Double.toString(totals.getTotNetLevel1s()),
+                Double.toString(totals.getTotNetLevel2s()),
+                Double.toString(totals.getTotNetLevel3s()),
+                Double.toString(totals.getTotNetSES()),
+                Double.toString(totals.getTotSeptLevel1s()),
+                Double.toString(totals.getTotSeptLevel2s()),
+                Double.toString(totals.getTotSeptLevel3s()),
+                Double.toString(totals.getTotSeptSES()),
+                Double.toString(totals.getTotFebLevel1s()),
+                Double.toString(totals.getTotFebLevel2s()),
+                Double.toString(totals.getTotFebLevel3s()),
+                Double.toString(totals.getTotFebSES())
         ));
         return csvRowData;
     }
@@ -706,9 +719,11 @@ public class CSVReportService {
                                                                  String positiveChangeLevel1,
                                                                  String positiveChangeLevel2,
                                                                  String positiveChangeLevel3,
+                                                                 String positiveChangeSES,
                                                                  String netChangeLevel1,
                                                                  String netChangeLevel2,
                                                                  String netChangeLevel3,
+                                                                 String netChangeSES,
                                                                  CollectionEntity collection) {
         List<String> csvRowData = new ArrayList<>();
 
@@ -723,15 +738,19 @@ public class CSVReportService {
                 positiveChangeLevel1,
                 positiveChangeLevel2,
                 positiveChangeLevel3,
+                positiveChangeSES,
                 netChangeLevel1,
                 netChangeLevel2,
                 netChangeLevel3,
+                netChangeSES,
                 septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : "0",
                 septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : "0",
                 septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : "0",
+                septCollectionRecord != null ? septCollectionRecord.getOtherLevels() : "0",
                 februaryCollectionRecord.getLevelOnes(),
                 februaryCollectionRecord.getLevelTwos(),
-                februaryCollectionRecord.getLevelThrees()
+                februaryCollectionRecord.getLevelThrees(),
+                februaryCollectionRecord.getOtherLevels()
         ));
         return csvRowData;
     }
