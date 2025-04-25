@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStud
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ICountValidationIssuesBySeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ProgressCountsForDistrict;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.StudentGradeEnrolmentCount;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -2317,4 +2318,14 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
         AND sscs.sdcSchoolCollection.sdcDistrictCollectionID is not null
         GROUP BY sscs.sdcSchoolCollection.schoolID""")
   List<EnrolmentHeadcountFteResult> getNewRefugeeEnrolmentHeadcountsAndFteWithByCollectionId(@Param("collectionID") UUID collectionID);
+
+  @Query(value = """ 
+  SELECT sscs.sdcSchoolCollection.schoolID as schoolID,
+  COUNT(CASE WHEN sscs.enrolledGradeCode = :enrolledGrade then 1 end) as studentsEnroledInGradeCount
+  FROM SdcSchoolCollectionStudentEntity sscs
+  WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
+  AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID
+  AND sscs.sdcSchoolCollection.schoolID IN (:schoolIDs)
+  GROUP BY sscs.sdcSchoolCollection.schoolID""")
+  List<StudentGradeEnrolmentCount> getEnrolmentCountInCollectionByGrade(UUID collectionID, String enrolledGrade, List<UUID> schoolIDs);
 }

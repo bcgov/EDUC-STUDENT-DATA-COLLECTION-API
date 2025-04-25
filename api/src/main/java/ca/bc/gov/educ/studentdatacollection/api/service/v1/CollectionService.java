@@ -221,4 +221,10 @@ public class CollectionService {
   public List<SdcDistrictCollectionEntity> getDistrictCollectionsInCollection(UUID collectionID){
     return sdcDistrictCollectionRepository.findAllByCollectionEntityCollectionID(collectionID);
   }
+
+  public List<SdcSchoolCollectionStudentGradeEnrolmentCount> getStudentGradeEnrolmentCount(UUID collectionID, String grade, List<UUID> schoolIDs) {
+    CollectionEntity collection = collectionRepository.findById(collectionID).orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "collectionID", collectionID.toString()));
+    List<StudentGradeEnrolmentCount> results = sdcSchoolCollectionStudentRepository.getEnrolmentCountInCollectionByGrade(collection.getCollectionID(), grade, schoolIDs);
+    return results.stream().map(result -> new SdcSchoolCollectionStudentGradeEnrolmentCount(result.getSchoolID(), result.getStudentsEnroledInGradeCount())).toList();
+  }
 }

@@ -98,6 +98,8 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   SagaRepository sagaRepository;
   @Autowired
   SagaEventRepository sagaEventRepository;
+  @Autowired
+  SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
   @BeforeEach
@@ -1109,5 +1111,45 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     this.mockMvc.perform(
                     get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/sdcDistrictCollections").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(1)));
+  }
+
+  @Test
+  void testGetEnrolmentCountInCollectionByGrade_WithValidPayload_ReturnsCorrectResponse() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+    var districtID1 = UUID.randomUUID();
+    var district1 = createMockDistrict();
+    district1.setDisplayName("District1");
+    district1.setDistrictNumber("011");
+    district1.setDistrictId(districtID1.toString());
+    var mockDistrictCollectionEntity1 = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID1));
+
+    SchoolTombstone school = this.createMockSchool();
+    school.setDistrictId(districtID1.toString());
+    var sdcSchoolCollection1a = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
+    sdcSchoolCollection1a.setSdcDistrictCollectionID(mockDistrictCollectionEntity1.getSdcDistrictCollectionID());
+    sdcSchoolCollection1a.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
+
+    var sdcSchoolCollectionEntity  = sdcSchoolCollectionRepository.save(sdcSchoolCollection1a);
+
+    var student1 = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+    student1.setEnrolledGradeCode("12");
+
+    var student2 = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+    student2.setEnrolledGradeCode("12");
+
+    var student3 = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+    student3.setEnrolledGradeCode("10");
+    this.sdcSchoolCollectionStudentRepository.saveAll(List.of(student1, student2, student3));
+    when(this.restUtils.getSchools()).thenReturn(List.of(school));
+    String gradeToQuery = "12";
+
+    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/counts/"+gradeToQuery + "/" + school.getSchoolId()).with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolID").value(school.getSchoolId()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].gradeEnrolmentCount").value("2"));
   }
 }
