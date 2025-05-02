@@ -1,0 +1,2 @@
+CREATE INDEX idx_sdc_school_collection_student_school_funding_code
+    ON sdc_school_collection_student (school_funding_code);
