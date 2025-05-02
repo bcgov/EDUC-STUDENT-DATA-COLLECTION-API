@@ -1,0 +1,2 @@
+ALTER TABLE sdc_school_collection_student_enrolled_program
+    ADD CONSTRAINT unique_enrolled_program_student UNIQUE (sdc_school_collection_student_id, enrolled_program_code);
