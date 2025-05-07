@@ -1146,10 +1146,13 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     when(this.restUtils.getSchools()).thenReturn(List.of(school));
     String gradeToQuery = "12";
 
-    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/counts/"+gradeToQuery + "/" + school.getSchoolId()).with(mockAuthority))
+    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/counts/"+gradeToQuery )
+                .with(mockAuthority)
+                .param("schoolIDs", school.getSchoolId()))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolID").value(school.getSchoolId()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gradeEnrolmentCount").value("2"));
   }
+
 }
