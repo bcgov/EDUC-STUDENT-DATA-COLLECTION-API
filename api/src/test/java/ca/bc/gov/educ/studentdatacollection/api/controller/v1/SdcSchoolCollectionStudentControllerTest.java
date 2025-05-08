@@ -1136,6 +1136,54 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
     }
 
     @Test
+    void testFindAllShallow_multipleOrCriteriaAndAnAndCriteriaCombined_ShouldReturnStatusOk() throws Exception {
+        final File file = new File(
+                Objects.requireNonNull(this.getClass().getClassLoader().getResource("sdc-school-students-test-data.json")).getFile()
+        );
+        final List<SdcSchoolCollectionStudent> entities = new ObjectMapper().readValue(file, new TypeReference<>() {
+        });
+
+        var school = this.createMockSchool();
+        when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+        var collection = collectionRepository.save(createMockCollectionEntity());
+        var sdcSchoolCollectionEntity = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection,UUID.fromString(school.getSchoolId())));
+
+
+        final var models = entities.stream().map(SdcSchoolCollectionStudentMapper.mapper::toSdcSchoolStudentEntity).toList();
+        models.forEach(entity -> entity.setSdcSchoolCollection(sdcSchoolCollectionEntity));
+        this.sdcSchoolCollectionStudentRepository.saveAll(models);
+        final SearchCriteria criteria = SearchCriteria.builder().key("enrolledGradeCode").operation(FilterOperation.IN).value("01,02").valueType(ValueType.STRING).build();
+        final List<SearchCriteria> criteriaList1 = new ArrayList<>();
+        criteriaList1.add(criteria);
+        final SearchCriteria criteria2 = SearchCriteria.builder().key("legalFirstName").operation(FilterOperation.CONTAINS).value("OLIVIA").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria3 = SearchCriteria.builder().key("usualFirstName").condition(OR).operation(FilterOperation.CONTAINS).value("OLIVIA").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria4 = SearchCriteria.builder().key("legalMiddleNames").condition(OR).operation(FilterOperation.CONTAINS).value("OLIVIA").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria5 = SearchCriteria.builder().key("usualMiddleNames").condition(OR).operation(FilterOperation.CONTAINS).value("OLIVIA").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria6 = SearchCriteria.builder().key("legalLastName").condition(OR).operation(FilterOperation.CONTAINS).value("OLIVIA").valueType(ValueType.STRING).build();
+        final SearchCriteria criteria7 = SearchCriteria.builder().key("usualLastName").condition(OR).operation(FilterOperation.CONTAINS).value("OLIVIA").valueType(ValueType.STRING).build();
+        final List<SearchCriteria> criteriaList2 = new ArrayList<>();
+        criteriaList2.add(criteria2);
+        criteriaList2.add(criteria3);
+        criteriaList2.add(criteria4);
+        criteriaList2.add(criteria5);
+        criteriaList2.add(criteria6);
+        criteriaList2.add(criteria7);
+        final List<Search> searches = new LinkedList<>();
+        searches.add(Search.builder().searchCriteriaList(criteriaList1).build());
+        searches.add(Search.builder().condition(AND).searchCriteriaList(criteriaList2).build());
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final String criteriaJSON = objectMapper.writeValueAsString(searches);
+        final MvcResult result = this.mockMvc
+                .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.PAGINATED_SHALLOW)
+                        .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
+                        .param("searchCriteriaList", criteriaJSON)
+                        .contentType(APPLICATION_JSON))
+                .andReturn();
+        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
+    }
+
+    @Test
     void testDeleteMultiSdcSchoolCollectionStudent_WithValidPayload_ShouldReturnOkay() throws Exception {
         final GrantedAuthority grantedAuthority = () -> "SCOPE_DELETE_SDC_SCHOOL_COLLECTION_STUDENT";
         final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(
