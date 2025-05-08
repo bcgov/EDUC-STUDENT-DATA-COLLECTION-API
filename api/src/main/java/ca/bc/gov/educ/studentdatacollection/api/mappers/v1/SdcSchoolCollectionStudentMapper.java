@@ -2,13 +2,11 @@ package ca.bc.gov.educ.studentdatacollection.api.mappers.v1;
 
 
 import ca.bc.gov.educ.studentdatacollection.api.mappers.UUIDMapper;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionSLDHistoryStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHistory;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentShallow;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -40,6 +38,9 @@ public interface SdcSchoolCollectionStudentMapper {
   @Mapping(target = "sdcDistrictCollectionID", source = "sdcSchoolCollection.sdcDistrictCollectionID")
   @Mapping(target = "schoolID", source = "sdcSchoolCollection.schoolID")
   SdcSchoolCollectionStudent toSdcSchoolCollectionStudentWithValidationIssues(SdcSchoolCollectionStudentPaginationEntity sdcSchoolStudentEntity);
+
+  @Mapping(target = "schoolID", source = "sdcSchoolCollection.schoolID")
+  SdcSchoolCollectionStudentShallow toSdcSchoolCollectionStudentShallow(SdcSchoolCollectionStudentPaginationShallowEntity sdcSchoolStudentEntity);
 
   @Mapping(target = "sdcSchoolCollectionID", source = "sdcSchoolCollection.sdcSchoolCollectionID")
   @Mapping(target = "sdcDistrictCollectionID", source = "sdcSchoolCollection.sdcDistrictCollectionID")
