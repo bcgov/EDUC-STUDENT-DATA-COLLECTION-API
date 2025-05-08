@@ -1146,9 +1146,15 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     when(this.restUtils.getSchools()).thenReturn(List.of(school));
     String gradeToQuery = "12";
 
-    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/counts/"+gradeToQuery )
-                .with(mockAuthority)
-                .param("schoolIDs", school.getSchoolId()))
+    Map<String, List<UUID>> requestBody = new HashMap<>();
+    requestBody.put("schoolIDs", List.of(UUID.fromString(school.getSchoolId())));
+
+    String requestBodyJson = objectMapper.writeValueAsString(requestBody);
+
+    this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/counts/"+gradeToQuery )
+                    .with(mockAuthority)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestBodyJson))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolID").value(school.getSchoolId()))

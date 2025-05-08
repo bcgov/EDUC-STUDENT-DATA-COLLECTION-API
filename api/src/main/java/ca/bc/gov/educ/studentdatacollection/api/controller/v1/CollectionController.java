@@ -218,7 +218,8 @@ public class CollectionController implements CollectionEndpoint {
   }
 
   @Override
-  public List<SdcSchoolCollectionStudentGradeEnrolmentCount> getEnrolmentCountInCollectionByGrade(UUID collectionID, String grade, List<UUID> schoolIDs) {
+  public List<SdcSchoolCollectionStudentGradeEnrolmentCount> getEnrolmentCountInCollectionByGrade(UUID collectionID, String grade, SchoolIDListRequest requestBody) {
+    List<UUID> schoolIDs = requestBody.getSchoolIDs();
     return collectionService.getStudentGradeEnrolmentCount(collectionID, grade, schoolIDs);
   }
 }
