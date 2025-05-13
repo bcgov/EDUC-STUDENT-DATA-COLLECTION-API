@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.rest;
 
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.dto.institute.PaginatedResponse;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -329,7 +331,47 @@ class RestUtilsTest {
     }
 
     @Test
-    void testGetAllSchoolBySchoolID_ShouldPopulateMapsCorrectly() {
+    void testPopulateAllSchoolMap_PopulatesMapCorrectly() throws Exception {
+        // Given
+        String school1ID = UUID.randomUUID().toString();
+        String school2ID = UUID.randomUUID().toString();
+        String school3ID = UUID.randomUUID().toString();
+
+        School school1 = School.builder()
+                .schoolId(school1ID)
+                .displayName("School 1")
+                .independentAuthorityId("Authority 1")
+                .build();
+        School school2 = School.builder()
+                .schoolId(school2ID)
+                .displayName("School 2")
+                .build();
+        School school3 = School.builder()
+                .schoolId(school3ID)
+                .displayName("School 3")
+                .independentAuthorityId("Authority 2")
+                .build();
+
+        PaginatedResponse<School> paginatedResponse = new PaginatedResponse<>(List.of(school1, school2, school3), PageRequest.of(0, 10), 3L);
+
+        RestUtils restUtilsSpy = spy(restUtils);
+        doReturn(paginatedResponse).when(restUtilsSpy).getSchoolsPaginatedFromInstituteApi(0);
+
+        // When
+        restUtilsSpy.populateAllSchoolMap();
+
+        @SuppressWarnings("unchecked")
+        Map<String, School> schoolMap = (Map<String, School>) ReflectionTestUtils.getField(restUtilsSpy, "allSchoolMap");
+        assertNotNull(schoolMap);
+        assertEquals(3, schoolMap.size());
+        assertEquals(school1, schoolMap.get(school1ID));
+        assertEquals(school2, schoolMap.get(school2ID));
+        assertEquals(school3, schoolMap.get(school3ID));
+    }
+
+
+    @Test
+    void testGetAllSchoolBySchoolID_ShouldPopulateMapsCorrectly() throws Exception {
         // Given
         val school1ID = String.valueOf(UUID.randomUUID());
         val school2ID = String.valueOf(UUID.randomUUID());
@@ -349,7 +391,7 @@ class RestUtilsTest {
                 .independentAuthorityId("Authority 2")
                 .build();
 
-        doReturn(List.of(school1, school2, school3)).when(restUtils).getAllSchoolList(any(), any());
+        doReturn(List.of(school1, school2, school3)).when(restUtils).getAllSchools();
 
         // When
         restUtils.populateAllSchoolMap();

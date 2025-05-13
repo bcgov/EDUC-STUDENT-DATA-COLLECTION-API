@@ -134,4 +134,15 @@ public interface CollectionEndpoint {
   @Transactional(readOnly = true)
   @Tag(name = "getDistrictCollectionsInCollection", description = "Endpoint to retrieve all district collections in collection")
   List<SdcDistrictCollection> getDistrictCollectionsInCollection(@PathVariable("collectionID") UUID collectionID);
+
+  @PostMapping("/{collectionID}/counts/{grade}")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "Collection Entity", description = "Endpoint to get count of enrolments in the collection ")
+  @Schema(name = "getEnrolmentCountInCollectionByGrade", description = "Endpoint to get count of enrolments in the collection ")
+  List<SdcSchoolCollectionStudentGradeEnrolmentCount> getEnrolmentCountInCollectionByGrade(
+          @PathVariable("collectionID") UUID collectionID,
+          @PathVariable("grade") String grade,
+          @RequestBody SchoolIDListRequest requestBody);
 }

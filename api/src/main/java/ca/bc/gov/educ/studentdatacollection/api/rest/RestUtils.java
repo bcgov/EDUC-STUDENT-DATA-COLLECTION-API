@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.PenMatchSagaMapper;
 import ca.bc.gov.educ.studentdatacollection.api.messaging.MessagePublisher;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionCodeCriteriaEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.dto.institute.PaginatedResponse;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.struct.CHESEmail;
 import ca.bc.gov.educ.studentdatacollection.api.struct.Event;
@@ -28,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -40,12 +42,10 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Stream;
 
 /**
  * This class is used for REST calls
@@ -74,7 +74,6 @@ public class RestUtils {
   private final Map<String, SchoolCategoryCode> schoolCategoryCodesMap = new ConcurrentHashMap<>();
   public static final String PAGE_SIZE = "pageSize";
   public static final String PAGE_SIZE_VALUE = "1500";
-  public static final String PAGE_NUMBER = "pageNumber";
   private final WebClient webClient;
   private final WebClient chesWebClient;
   private final MessagePublisher messagePublisher;
@@ -580,23 +579,55 @@ public class RestUtils {
     val writeLock = this.allSchoolLock.writeLock();
     try {
       writeLock.lock();
-      List<School> pageOneOfSchools = this.getAllSchoolList(UUID.randomUUID(),"0");
-      List<School> pageTwoOfSchools = this.getAllSchoolList(UUID.randomUUID(), "1");
-      List<School> pageThreeOfSchools = this.getAllSchoolList(UUID.randomUUID(), "2");
-      List<School> pageFourOfSchools = this.getAllSchoolList(UUID.randomUUID(), "3");
+      log.info("Calling Institute api via REST to load schools to memory");
 
-      List<School> allSchools = Stream.of(pageOneOfSchools, pageTwoOfSchools, pageThreeOfSchools, pageFourOfSchools)
-              .flatMap(Collection::stream).toList();
+      List<School> allSchools = getAllSchools();
 
-      for (val school : allSchools) {
+      for (School school : allSchools) {
         this.allSchoolMap.put(school.getSchoolId(), school);
       }
     } catch (Exception ex) {
-      log.error("Unable to load map cache for allSchool {}", ex);
+      log.error("Unable to load map cache for allSchool", ex);
+      throw ex;
     } finally {
       writeLock.unlock();
     }
-    log.info("Loaded  {} allSchools to memory", this.allSchoolMap.values().size());
+    log.info("Loaded {} allSchools to memory", this.allSchoolMap.size());
+  }
+
+  public List<School> getAllSchools() {
+    return getAllSchoolsRecursively(0, new ArrayList<>());
+  }
+
+  public List<School> getAllSchoolsRecursively(int pageNumber, List<School> accumulator) {
+    PaginatedResponse<School> response = getSchoolsPaginatedFromInstituteApi(pageNumber);
+    if (response == null) {
+      return accumulator;
+    }
+    accumulator.addAll(response.getContent());
+    if (response.hasNext()) {
+      return getAllSchoolsRecursively(response.nextPageable().getPageNumber(), accumulator);
+    }
+    return accumulator;
+  }
+
+  PaginatedResponse<School> getSchoolsPaginatedFromInstituteApi(int pageNumber) {
+    int pageSize = Integer.parseInt(PAGE_SIZE_VALUE);
+    try {
+      String fullUrl = this.props.getInstituteApiURL()
+              + "/school/paginated"
+              + "?pageNumber=" + pageNumber
+              + "&pageSize=" + pageSize;
+      return webClient.get()
+              .uri(fullUrl)
+              .header(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+              .retrieve()
+              .bodyToMono(new ParameterizedTypeReference<PaginatedResponse<School>>() {})
+              .block();
+    } catch (Exception ex) {
+      log.error("Error fetching schools on page {}", pageNumber, ex);
+      return null;
+    }
   }
 
   public Optional<School> getAllSchoolBySchoolID(final String schoolID) {
@@ -626,23 +657,38 @@ public class RestUtils {
     return users != null ? users : new ArrayList<>();
   }
 
-  @Retryable(retryFor = {Exception.class}, noRetryFor = {StudentDataCollectionAPIRuntimeException.class}, backoff = @Backoff(multiplier = 2, delay = 2000))
-  public List<School> getAllSchoolList(UUID correlationID, String pageNumber) {
-    try {
-      log.info("Calling Institute API to load all schools to memory, current page " + (Integer.parseInt(pageNumber) + 1) + " of 4");
-      final TypeReference<List<School>> ref = new TypeReference<>() {
-      };
-      val event = Event.builder().sagaId(correlationID).eventType(EventType.GET_PAGINATED_SCHOOLS).eventPayload(PAGE_SIZE.concat("=").concat(PAGE_SIZE_VALUE)
-              .concat("&").concat(PAGE_NUMBER).concat("=").concat(pageNumber)).build();
-      val responseMessage = this.messagePublisher.requestMessage(TopicsEnum.INSTITUTE_API_TOPIC.toString(), JsonUtil.getJsonBytesFromObject(event)).completeOnTimeout(null, 60, TimeUnit.SECONDS).get();
-      if (null != responseMessage) {
-        return objectMapper.readValue(responseMessage.getData(), ref);
-      } else {
-        throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID);
-      }
-    } catch (final Exception ex) {
-      Thread.currentThread().interrupt();
-      throw new StudentDataCollectionAPIRuntimeException(NATS_TIMEOUT + correlationID + ex.getMessage());
-    }
-  }
+//  Populate all schools map using messaging in SchoolListService
+//  public void populateAllSchoolMap() {
+//    ReadWriteLock lock = this.allSchoolLock;
+//    val writeLock = lock.writeLock();
+//    try {
+//      writeLock.lock();
+//      log.info("Populating all school map :: {}", lock);
+//
+//      List<CompletableFuture<List<School>>> pageFutures = new ArrayList<>();
+//      for (int i = 0; i < PAGE_COUNT_VALUE; i++) {
+//        final String page = String.valueOf(i);
+//        CompletableFuture<List<School>> future = CompletableFuture.supplyAsync(() -> schoolListService.getAllSchoolList(UUID.randomUUID(), page));
+//        pageFutures.add(future);
+//        log.info("Initiated call for page {}", page);
+//      }
+//
+//      CompletableFuture.allOf(pageFutures.toArray(new CompletableFuture[0])).join();
+//
+//      List<School> allSchools = pageFutures.stream()
+//              .map(CompletableFuture::join)
+//              .flatMap(Collection::stream)
+//              .toList();
+//
+//      for (School school : allSchools) {
+//        this.allSchoolMap.put(school.getSchoolId(), school);
+//      }
+//    } catch (Exception ex) {
+//      log.error("Unable to load map cache for allSchool", ex);
+//      throw ex;
+//    } finally {
+//      writeLock.unlock();
+//    }
+//    log.info("Loaded {} allSchools to memory", this.allSchoolMap.values().size());
+//  }
 }

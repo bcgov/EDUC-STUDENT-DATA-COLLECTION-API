@@ -111,7 +111,8 @@ public abstract class BaseStudentDataCollectionAPITest {
     enrolledProgramCodeRepository.save(createEnrolledProgramCode41Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode40Data());
     enrolledProgramCodeRepository.save(createEnrolledProgramCode35ExpiredData());
-    genderCodeRepository.save(createGenderCodeData());
+    genderCodeRepository.save(createMaleGenderCodeData());
+    genderCodeRepository.save(createFemaleGenderCodeData());
     schoolGradeCodeRepository.save(createSchoolGradeCodeData());
     schoolFundingGroupCodeRepository.save(createSchoolFundingGroupCodeData());
     collectionTypeCodeRepository.save(createCollectionTypeCodeData());
@@ -261,6 +262,10 @@ public abstract class BaseStudentDataCollectionAPITest {
     sdcEntity.setIsSchoolAged(true);
     sdcEntity.setIsAdult(false);
     sdcEntity.setIsGraduated(false);
+    if(sdcSchoolCollectionEntity != null) {
+      sdcEntity.setOriginalDemogHash(Integer.toString(sdcEntity.getUniqueObjectHash()));
+      sdcEntity.setCurrentDemogHash(Integer.toString(sdcEntity.getUniqueObjectHash()));
+    }
     sdcEntity.setSdcStudentEnrolledProgramEntities(new HashSet<>());
     sdcEntity.setSdcStudentValidationIssueEntities(new HashSet<>());
     return sdcEntity;
@@ -501,6 +506,13 @@ public abstract class BaseStudentDataCollectionAPITest {
     gradesList.add(grade1);
     school.setGrades(gradesList);
 
+    var schoolFundingGroupCodes = new ArrayList<IndependentSchoolFundingGroup>();
+    IndependentSchoolFundingGroup group1 = new IndependentSchoolFundingGroup();
+    group1.setSchoolFundingGroupCode("GROUP1");
+    group1.setSchoolGradeCode("GRADE01");
+    schoolFundingGroupCodes.add(group1);
+    school.setSchoolFundingGroups(schoolFundingGroupCodes);
+
     return school;
   }
 
@@ -740,10 +752,16 @@ public abstract class BaseStudentDataCollectionAPITest {
             .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Business").createDate(LocalDateTime.now())
             .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
-  public GenderCodeEntity createGenderCodeData() {
+  public GenderCodeEntity createMaleGenderCodeData() {
     return GenderCodeEntity.builder().genderCode("M").description("Male")
         .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Male").createDate(LocalDateTime.now())
         .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
+  }
+
+  public GenderCodeEntity createFemaleGenderCodeData() {
+    return GenderCodeEntity.builder().genderCode("F").description("Female")
+            .effectiveDate(LocalDateTime.now()).expiryDate(LocalDateTime.MAX).displayOrder(1).label("Female").createDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now()).createUser("TEST").updateUser("TEST").build();
   }
   public HomeLanguageSpokenCodeEntity homeLanguageSpokenCodeData() {
     return HomeLanguageSpokenCodeEntity.builder().homeLanguageSpokenCode("001").description("Portuguese")

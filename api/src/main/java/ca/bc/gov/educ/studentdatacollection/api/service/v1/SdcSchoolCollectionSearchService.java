@@ -62,7 +62,7 @@ public class SdcSchoolCollectionSearchService extends BaseSearchService {
         });
         int i = 0;
         for (var search : searches) {
-          schoolSpecs = getSpecifications(schoolSpecs, i, search, this.getSdcSchoolCollectionFilterSpecs());
+          schoolSpecs = getSpecifications(schoolSpecs, i, search, this.getSdcSchoolCollectionFilterSpecs(), searches);
           i++;
         }
       }

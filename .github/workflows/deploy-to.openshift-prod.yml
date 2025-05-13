@@ -34,8 +34,8 @@ env:
   COMMON_NAMESPACE: ${{ secrets.COMMON_NAMESPACE_NO_ENV }}
   TAG: "latest"
   TARGET_ENV: "prod"
-  MIN_REPLICAS: "3"
-  MAX_REPLICAS: "5"
+  MIN_REPLICAS: "10"
+  MAX_REPLICAS: "11"
   MIN_CPU: "250m"
   MAX_CPU: "1"
   MIN_MEM: "1024Mi"
@@ -145,7 +145,7 @@ jobs:
         | oc apply -f -
         
         # Update ConfigMap
-        curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/master/tools/config/update-configmap.sh | bash /dev/stdin prod ${{ env.APP_NAME }} ${{ env.NAMESPACE }} ${{ env.COMMON_NAMESPACE }} "${{ env.DB_JDBC_CONNECT_STRING }}" "${{ env.DB_PWD }}" ${{ env.DB_USER }} ${{ env.SPLUNK_TOKEN }} ${{ env.CHES_CLIENT_ID }} ${{ env.CHES_CLIENT_SECRET }} ${{ env.CHES_TOKEN_URL }} ${{ env.CHES_ENDPOINT_URL }}
+        curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/${{ steps.get-latest-tag.outputs.tag }}/tools/config/update-configmap.sh | bash /dev/stdin prod ${{ env.APP_NAME }} ${{ env.NAMESPACE }} ${{ env.COMMON_NAMESPACE }} "${{ env.DB_JDBC_CONNECT_STRING }}" "${{ env.DB_PWD }}" ${{ env.DB_USER }} ${{ env.SPLUNK_TOKEN }} ${{ env.CHES_CLIENT_ID }} ${{ env.CHES_CLIENT_SECRET }} ${{ env.CHES_TOKEN_URL }} ${{ env.CHES_ENDPOINT_URL }}
         
         # Restart the deployment to recreate pods
         oc rollout restart deployment/${{ env.SPRING_BOOT_IMAGE_NAME }}

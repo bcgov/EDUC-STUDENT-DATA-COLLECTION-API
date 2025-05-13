@@ -34,7 +34,6 @@ public class ZeroFTEHeadCountReportService extends BaseReportGenerationService<Z
     private final ZeroFTEHeadcountHelper zeroFTEHeadcountHelper;
     private JasperReport ineligibleFteHeadcountReport;
 
-    private List<ZeroFTEHeadcountResult> fteReasonHeadcounts = new ArrayList<>();
     private Map<String, String> fteReasons = new HashMap<>();
 
     public ZeroFTEHeadCountReportService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, RestUtils restUtils, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, ZeroFTEHeadcountHelper zeroFTEHeadcountHelper) {
@@ -70,10 +69,9 @@ public class ZeroFTEHeadCountReportService extends BaseReportGenerationService<Z
     public DownloadableReportResponse generateZeroFTEHeadcountReport(UUID collectionID){
             try {
                 Optional<SdcDistrictCollectionEntity> sdcDistrictCollectionEntityOptional = sdcDistrictCollectionRepository.findById(collectionID);
-                SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
-                        new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection ID: " + collectionID));
+                SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "Collection ID: " + collectionID));
                 fteReasons = zeroFTEHeadcountHelper.getZeroFTEReasonCodes();
-                fteReasonHeadcounts = sdcSchoolCollectionStudentRepository.getZeroFTEHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+                List<ZeroFTEHeadcountResult> fteReasonHeadcounts = sdcSchoolCollectionStudentRepository.getZeroFTEHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
                 return generateJasperReport(convertToGradeEnrollmentProgramReportJSONStringDistrict(fteReasonHeadcounts, sdcDistrictCollectionEntity), ineligibleFteHeadcountReport, DistrictReportTypeCode.DIS_ZERO_FTE_SUMMARY.getCode());
             } catch (JsonProcessingException e) {
                 log.error("Exception occurred while writing PDF report for district Zero FTE summary :: " + e.getMessage());
@@ -160,15 +158,19 @@ public class ZeroFTEHeadCountReportService extends BaseReportGenerationService<Z
      * @param nodeMap Map of report nodes
      * @param fteHeadCountResult
      */
-    public void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, ZeroFTEHeadcountResult fteHeadCountResult){
-        for (ZeroFTEHeadcountResult fteReasonHeadcount : fteReasonHeadcounts) {
-            ZeroFTEHeadcountChildNode fteNode = (ZeroFTEHeadcountChildNode)nodeMap.getOrDefault(fteReasonHeadcount.getFteZeroReasonCode(), new ZeroFTEHeadcountChildNode());
-            for(String gradeCode: zeroFTEHeadcountHelper.getGradeCodesForDistricts()){
-                fteNode.setValueForGrade(gradeCode, zeroFTEHeadcountHelper.getHeadCountValue(fteHeadCountResult, gradeCode));
-                fteNode.setValueTotal(fteHeadCountResult.getAllLevels());
-            }
-            nodeMap.put(fteReasonHeadcount.getFteZeroReasonCode(), fteNode);
+    public void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, ZeroFTEHeadcountResult fteHeadCountResult) {
+        // Normalize the reason code (trim and use "Other" if null)
+        String key = fteHeadCountResult.getFteZeroReasonCode() != null ? fteHeadCountResult.getFteZeroReasonCode().trim() : "Other";
+
+        // Get the node from the map or create a new one
+        ZeroFTEHeadcountChildNode node = (ZeroFTEHeadcountChildNode) nodeMap.getOrDefault(key, new ZeroFTEHeadcountChildNode());
+
+        // Update each grade value for this node using the values from this specific result
+        for (String gradeCode : zeroFTEHeadcountHelper.getGradeCodesForDistricts()) {
+            node.setValueForGrade(gradeCode, zeroFTEHeadcountHelper.getHeadCountValue(fteHeadCountResult, gradeCode));
         }
+        node.setValueTotal(fteHeadCountResult.getAllLevels());
+        nodeMap.put(key, node);
     }
 
     /**

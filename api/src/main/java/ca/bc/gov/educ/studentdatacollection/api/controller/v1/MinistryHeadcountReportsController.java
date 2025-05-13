@@ -44,8 +44,8 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
             case INDY_SCHOOL_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getIndySchoolsEnrollmentHeadcounts(collectionID);
             case OFFSHORE_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getOffshoreSchoolEnrollmentHeadcounts(collectionID);
             case INDY_INCLUSIVE_ED_ENROLLMENT_HEADCOUNTS -> ministryHeadcountService.getSpecialEducationHeadcountsForIndependentsByCollectionID(collectionID);
-            case OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS -> ministryHeadcountService.getOffshoreSpokenLanguageHeadcounts(collectionID);
             case INDY_INCLUSIVE_ED_FUNDING_HEADCOUNTS -> ministryHeadcountService.getSpecialEducationFundingHeadcountsForIndependentsByCollectionID(collectionID);
+            case OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS -> ministryHeadcountService.getOffshoreSpokenLanguageHeadcounts(collectionID);
             default -> new SimpleHeadcountResultsTable();
         };
     }
@@ -66,8 +66,8 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
             case INDY_SCHOOL_ENROLLMENT_HEADCOUNTS -> ministryReportsService.generateIndySchoolsHeadcounts(collectionID);
             case OFFSHORE_ENROLLMENT_HEADCOUNTS -> ministryReportsService.generateOffshoreSchoolsHeadcounts(collectionID);
             case INDY_INCLUSIVE_ED_ENROLLMENT_HEADCOUNTS -> ministryReportsService.generateIndySpecialEducationHeadcounts(collectionID);
-            case OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS -> ministryReportsService.generateOffshoreSpokenLanguageHeadcounts(collectionID);
             case INDY_INCLUSIVE_ED_FUNDING_HEADCOUNTS -> ministryReportsService.generateIndySpecialEducationFundingHeadcounts(collectionID);
+            case OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS -> ministryReportsService.generateOffshoreSpokenLanguageHeadcounts(collectionID);
             case ENROLLED_HEADCOUNTS_AND_FTE_REPORT -> ministryReportsService.generateEnrolledHeadcountsAndFteReport(collectionID);
             case INCLUSIVE_EDUCATION_VARIANCES_ALL -> ministryReportsService.generateInclusiveEducationVarianceReport(collectionID);
             case INDY_FUNDING_REPORT_ALL -> ministryReportsService.generateIndyFundingReport(collectionID, false,  false);
@@ -76,6 +76,7 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
             case NON_GRADUATED_ADULT_INDY_FUNDING_REPORT -> ministryReportsService.generateIndyFundingGraduateReport(collectionID);
             case REFUGEE_ENROLMENT_HEADCOUNTS_AND_FTE_REPORT -> ministryReportsService.generateRefugeeEnrolmentHeadcountsAndFteReport(collectionID);
             case POSTED_DUPLICATES -> ministryReportsService.generatePostedDuplicatesReport(collectionID);
+            case ISFS_PRELIMINARY_REPORT -> ministryReportsService.generateISFSReport(collectionID);
             default -> new DownloadableReportResponse();
         };
     }

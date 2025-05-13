@@ -41,9 +41,16 @@ public class StudentDataCollectionTestUtils {
   ProgramDuplicateTypeCodeRepository programDuplicateTypeCodeRepository;
   @Autowired
   SdcSchoolCollectionStatusCodeRepository sdcSchoolCollectionStatusCodeRepository;
+  @Autowired
+  SagaRepository sagaRepository;
+  @Autowired
+  SagaEventRepository sagaEventRepository;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void cleanDB() {
+    sagaEventRepository.deleteAll();
+    sagaRepository.deleteAll();
+
     sdcDuplicateRepository.deleteAll();
     sdcSchoolHistoryRepository.deleteAll();
     sdcSchoolRepository.deleteAll();

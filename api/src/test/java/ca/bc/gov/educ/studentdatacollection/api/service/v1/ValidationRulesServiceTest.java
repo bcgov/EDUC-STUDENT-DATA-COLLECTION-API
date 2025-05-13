@@ -140,6 +140,46 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
     }
 
     @Test
+    void testGetGradResultSCCPFoundPENExceptionOccurredParseDate() {
+        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+        GradStatusResult gradStatusResult = getGradStatusResult();
+        gradStatusResult.setProgramCompletionDate("10-10-2011");
+        gradStatusResult.setProgram("SCCP");
+        when(this.restUtils.getGradStatusResult(any(),any())).thenReturn(gradStatusResult);
+        SdcSchoolCollectionEntity schoolCollectionEntity = new SdcSchoolCollectionEntity();
+        CollectionEntity collectionEntity = new CollectionEntity();
+        collectionEntity.setSnapshotDate(LocalDate.now());
+        schoolCollectionEntity.setCollectionEntity(collectionEntity);
+        mockStudentEntity.setSdcSchoolCollection(schoolCollectionEntity);
+        mockStudentEntity.setAssignedStudentId(UUID.randomUUID());
+
+        validationRulesService.setGraduationStatus(mockStudentEntity);
+        assertFalse(mockStudentEntity.getIsGraduated());
+    }
+
+    @Test
+    void testGetGradResultFoundPENExceptionOccurredParseDate() {
+        SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
+        PenMatchResult penMatchResult = getPenMatchResult();
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+        GradStatusResult gradStatusResult = getGradStatusResult();
+        gradStatusResult.setProgramCompletionDate("2011-09-01");
+        gradStatusResult.setProgram("ABC");
+        when(this.restUtils.getGradStatusResult(any(),any())).thenReturn(gradStatusResult);
+        SdcSchoolCollectionEntity schoolCollectionEntity = new SdcSchoolCollectionEntity();
+        CollectionEntity collectionEntity = new CollectionEntity();
+        collectionEntity.setSnapshotDate(LocalDate.now());
+        schoolCollectionEntity.setCollectionEntity(collectionEntity);
+        mockStudentEntity.setSdcSchoolCollection(schoolCollectionEntity);
+        mockStudentEntity.setAssignedStudentId(UUID.randomUUID());
+
+        validationRulesService.setGraduationStatus(mockStudentEntity);
+        assertTrue(mockStudentEntity.getIsGraduated());
+    }
+
+    @Test
     void testGetPenMatchResultFoundPENGradNotFound() {
         SdcSchoolCollectionStudentEntity mockStudentEntity = new SdcSchoolCollectionStudentEntity();
         PenMatchResult penMatchResult = getPenMatchResult();

@@ -142,56 +142,67 @@ public class SpecialEdCategoryHeadcountPerSchoolReportService extends BaseReport
 
                 SpedCategoryHeadcountChildNode node = (SpedCategoryHeadcountChildNode)nodeMap.getOrDefault(schoolKey, new SpedCategoryHeadcountChildNode());
 
+                int aVal = safeParse(headcount.getSpecialEdACodes());
                 String inclEdAHeadcount = headcount.getAdultsInSpecialEdA() ? headcount.getSpecialEdACodes() + "*" : headcount.getSpecialEdACodes();
                 node.setValueForSpecEdCategory("A", inclEdAHeadcount);
-                spedCatCountMap.compute("A", (key, oldValue) -> oldValue + 5);
+                spedCatCountMap.compute("A", (key, oldValue) -> oldValue + aVal);
 
+                int bVal = safeParse(headcount.getSpecialEdBCodes());
                 String inclEdBHeadcount = headcount.getAdultsInSpecialEdB() ? headcount.getSpecialEdBCodes() + "*" : headcount.getSpecialEdBCodes();
                 node.setValueForSpecEdCategory("B", inclEdBHeadcount);
-                spedCatCountMap.compute("B", (key, oldValue) -> oldValue + 5);
+                spedCatCountMap.compute("B", (key, oldValue) -> oldValue + bVal);
 
+                int cVal = safeParse(headcount.getSpecialEdCCodes());
                 String inclEdCHeadcount = headcount.getAdultsInSpecialEdC() ? headcount.getSpecialEdCCodes() + "*" : headcount.getSpecialEdCCodes();
                 node.setValueForSpecEdCategory("C", inclEdCHeadcount);
-                spedCatCountMap.compute("C", (key, oldValue) -> oldValue + 5);
+                spedCatCountMap.compute("C", (key, oldValue) -> oldValue + cVal);
 
+                int dVal = safeParse(headcount.getSpecialEdDCodes());
                 String inclEdDHeadcount = headcount.getAdultsInSpecialEdD() ? headcount.getSpecialEdDCodes() + "*" : headcount.getSpecialEdDCodes();
                 node.setValueForSpecEdCategory("D", inclEdDHeadcount);
-                spedCatCountMap.compute("D", (key, oldValue) -> oldValue + 5);
+                spedCatCountMap.compute("D", (key, oldValue) -> oldValue + dVal);
 
+                int eVal = safeParse(headcount.getSpecialEdECodes());
                 String inclEdEHeadcount = headcount.getAdultsInSpecialEdE() ? headcount.getSpecialEdECodes() + "*" : headcount.getSpecialEdECodes();
                 node.setValueForSpecEdCategory("E", inclEdEHeadcount);
-                spedCatCountMap.compute("E", (key, oldValue) -> oldValue + 5);
+                spedCatCountMap.compute("E", (key, oldValue) -> oldValue + eVal);
 
+                int fVal = safeParse(headcount.getSpecialEdFCodes());
                 String inclEdFHeadcount = headcount.getAdultsInSpecialEdF() ? headcount.getSpecialEdFCodes() + "*" : headcount.getSpecialEdFCodes();
                 node.setValueForSpecEdCategory("F", inclEdFHeadcount);
-                spedCatCountMap.compute("F", (key, oldValue) -> oldValue + 5);
+                spedCatCountMap.compute("F", (key, oldValue) -> oldValue + fVal);
 
+                int gVal = safeParse(headcount.getSpecialEdGCodes());
                 String inclEdGHeadcount = headcount.getAdultsInSpecialEdG() ? headcount.getSpecialEdGCodes() + "*" : headcount.getSpecialEdGCodes();
                 node.setValueForSpecEdCategory("G", inclEdGHeadcount);
-                spedCatCountMap.compute("G", (key, oldValue) -> oldValue + 5);
+                spedCatCountMap.compute("G", (key, oldValue) -> oldValue + gVal);
 
+                int hVal = safeParse(headcount.getSpecialEdHCodes());
                 String inclEdHHeadcount = headcount.getAdultsInSpecialEdH() ? headcount.getSpecialEdHCodes() + "*" : headcount.getSpecialEdHCodes();
                 node.setValueForSpecEdCategory("H", inclEdHHeadcount);
-                spedCatCountMap.compute("H", (key, oldValue) -> oldValue + 5);
+                spedCatCountMap.compute("H", (key, oldValue) -> oldValue + hVal);
 
+                int kVal = safeParse(headcount.getSpecialEdKCodes());
                 String inclEdKHeadcount = headcount.getAdultsInSpecialEdK() ? headcount.getSpecialEdKCodes() + "*" : headcount.getSpecialEdKCodes();
                 node.setValueForSpecEdCategory("K", inclEdKHeadcount);
-                spedCatCountMap.compute("K", (key, oldValue) -> oldValue + 5);
+                spedCatCountMap.compute("K", (key, oldValue) -> oldValue + kVal);
 
+                int pVal = safeParse(headcount.getSpecialEdPCodes());
                 String inclEdPHeadcount = headcount.getAdultsInSpecialEdP() ? headcount.getSpecialEdPCodes() + "*" : headcount.getSpecialEdPCodes();
                 node.setValueForSpecEdCategory("P", inclEdPHeadcount);
-                spedCatCountMap.compute("P", (key, oldValue) -> oldValue + 5);
+                spedCatCountMap.compute("P", (key, oldValue) -> oldValue + pVal);
 
+                int qVal = safeParse(headcount.getSpecialEdQCodes());
                 String inclEdQHeadcount = headcount.getAdultsInSpecialEdQ() ? headcount.getSpecialEdQCodes() + "*" : headcount.getSpecialEdQCodes();
                 node.setValueForSpecEdCategory("Q", inclEdQHeadcount);
-                spedCatCountMap.compute("Q", (key, oldValue) -> oldValue + 5);
+                spedCatCountMap.compute("Q", (key, oldValue) -> oldValue + qVal);
 
+                int rVal = safeParse(headcount.getSpecialEdRCodes());
                 String inclEdRHeadcount = headcount.getAdultsInSpecialEdR() ? headcount.getSpecialEdRCodes() + "*" : headcount.getSpecialEdRCodes();
                 node.setValueForSpecEdCategory("R", inclEdRHeadcount);
-                spedCatCountMap.compute("R", (key, oldValue) -> oldValue + 5);
+                spedCatCountMap.compute("R", (key, oldValue) -> oldValue + rVal);
 
-                String totalHeadcount = headcount.getAllLevels();
-                node.setValueForSpecEdCategory("total", totalHeadcount);
+                node.setValueForSpecEdCategory("total", headcount.getAllLevels());
 
                 nodeMap.put(schoolKey, node);
             }
@@ -206,7 +217,7 @@ public class SpecialEdCategoryHeadcountPerSchoolReportService extends BaseReport
         totalNode.setValueForSpecEdCategory("F", String.valueOf(spedCatCountMap.get("F")));
         totalNode.setValueForSpecEdCategory("G", String.valueOf(spedCatCountMap.get("G")));
         totalNode.setValueForSpecEdCategory("H", String.valueOf(spedCatCountMap.get("H")));
-        totalNode.setValueForSpecEdCategory("K", String.valueOf(spedCatCountMap.get("I")));
+        totalNode.setValueForSpecEdCategory("K", String.valueOf(spedCatCountMap.get("K")));
         totalNode.setValueForSpecEdCategory("P", String.valueOf(spedCatCountMap.get("P")));
         totalNode.setValueForSpecEdCategory("Q", String.valueOf(spedCatCountMap.get("Q")));
         totalNode.setValueForSpecEdCategory("R", String.valueOf(spedCatCountMap.get("R")));
@@ -216,4 +227,15 @@ public class SpecialEdCategoryHeadcountPerSchoolReportService extends BaseReport
         nodeMap.put(ALL_SCHOOLS, totalNode);
     }
 
+    private int safeParse(String numberStr) {
+        if (numberStr == null || numberStr.trim().isEmpty()) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(numberStr.trim());
+        } catch (NumberFormatException ex) {
+            log.warn("Unable to parse '{}' to an integer. Defaulting to 0.", numberStr);
+            return 0;
+        }
+    }
 }

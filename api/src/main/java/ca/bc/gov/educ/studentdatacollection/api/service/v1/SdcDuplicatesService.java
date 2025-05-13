@@ -276,12 +276,16 @@ public class SdcDuplicatesService {
     schoolCollectionSchoolIDS.forEach(schoolCollectionSchoolID -> {
       if (!schoolAndDistrict1701Emails.containsKey(schoolCollectionSchoolID.getSdcSchoolCollectionID())){
         UUID schoolID = schoolCollectionSchoolID.getSchoolID();
-        UUID districtID = getDistrictID(schoolID);
+        Optional<SchoolTombstone> optionalSchool = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
+        var school = optionalSchool.get();
 
         List<EdxUser> schoolEdxUsers = restUtils.getEdxUsersForSchool(schoolID);
-        List<EdxUser> districtEdxUsers = restUtils.getEdxUsersForDistrict(districtID);
         Set<String> emails = pluckEmailAddressesFromSchool(schoolEdxUsers);
-        emails.addAll(pluckEmailAddressesFromDistrict(districtEdxUsers));
+        if(!SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(school.getSchoolCategoryCode())) {
+          UUID districtID = UUID.fromString(school.getDistrictId());
+          List<EdxUser> districtEdxUsers = restUtils.getEdxUsersForDistrict(districtID);
+          emails.addAll(pluckEmailAddressesFromDistrict(districtEdxUsers));
+        }
 
         SdcSchoolCollection1701Users schoolAndDistrictUsers = new SdcSchoolCollection1701Users();
 
@@ -295,17 +299,6 @@ public class SdcDuplicatesService {
     log.info("Found :: {} school collections with provincial duplicates.", schoolAndDistrict1701Emails.size());
 
     return schoolAndDistrict1701Emails;
-  }
-
-  private UUID getDistrictID(UUID schoolID){
-    Optional<SchoolTombstone> optionalSchool = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
-
-    if (optionalSchool.isPresent()) {
-      SchoolTombstone school = optionalSchool.get();
-      return UUID.fromString(school.getDistrictId());
-    }
-
-    return null;
   }
 
   private String getSchoolName(UUID schoolID){

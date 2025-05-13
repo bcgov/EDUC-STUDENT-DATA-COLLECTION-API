@@ -3,9 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.filter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.NonNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -51,6 +49,8 @@ public class FilterCriteria<T extends Comparable<T>> {
    */
   private T maxValue;
 
+  private final String districtCollectionID;
+
   /**
    * Instantiates a new Filter criteria.
    *
@@ -59,14 +59,15 @@ public class FilterCriteria<T extends Comparable<T>> {
    * @param filterOperation   the filter operation
    * @param converterFunction the converter function
    */
-  public FilterCriteria(@NonNull String fieldName, String fieldValue, @NonNull FilterOperation filterOperation, Function<String, T> converterFunction) {
+  public FilterCriteria(@NonNull String fieldName, String fieldValue, @NonNull FilterOperation filterOperation, Function<String, T> converterFunction, String districtCollectionID) {
 
     this.fieldName = fieldName;
     this.converterFunction = converterFunction;
+    this.districtCollectionID = districtCollectionID;
 
-    String[] operationValues;
+      String[] operationValues;
 
-    if (filterOperation == FilterOperation.BETWEEN || filterOperation == FilterOperation.IN || filterOperation == FilterOperation.NOT_IN || filterOperation == FilterOperation.IN_LEFT_JOIN || filterOperation == FilterOperation.NONE_IN || filterOperation == FilterOperation.IN_NOT_DISTINCT) {
+    if (filterOperation == FilterOperation.BETWEEN || filterOperation == FilterOperation.IN || filterOperation == FilterOperation.NOT_IN || filterOperation == FilterOperation.IN_LEFT_JOIN || filterOperation == FilterOperation.NONE_IN || filterOperation == FilterOperation.NONE_IN_DISTRICT || filterOperation == FilterOperation.IN_NOT_DISTINCT) {
       if (fieldValue != null) {
         // Split the fieldValue value as comma separated.
         operationValues = StringUtils.split(fieldValue, ",");
@@ -111,7 +112,7 @@ public class FilterCriteria<T extends Comparable<T>> {
       }
 
       //For 'in' or 'nin' operation
-    } else if (FilterOperation.IN == operation || FilterOperation.NOT_IN == operation || FilterOperation.IN_LEFT_JOIN == operation || FilterOperation.NONE_IN == operation || FilterOperation.IN_NOT_DISTINCT == operation) {
+    } else if (FilterOperation.IN == operation || FilterOperation.NOT_IN == operation || FilterOperation.IN_LEFT_JOIN == operation || FilterOperation.NONE_IN == operation || FilterOperation.NONE_IN_DISTRICT == operation || FilterOperation.IN_NOT_DISTINCT == operation) {
       convertedValues.addAll(originalValues.stream().map(converterFunction).toList());
     } else {
       //All other operation
@@ -191,5 +192,7 @@ public class FilterCriteria<T extends Comparable<T>> {
   public Collection<T> getConvertedValues() {
     return convertedValues;
   }
+
+  public String getDistrictCollectionID() { return districtCollectionID; }
 
 }

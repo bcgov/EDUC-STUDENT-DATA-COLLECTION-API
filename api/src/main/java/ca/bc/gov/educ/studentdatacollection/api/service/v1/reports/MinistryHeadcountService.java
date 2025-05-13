@@ -5,13 +5,9 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.*;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.IndependentSchoolFundingGroupSnapshotEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.dto.sdc.SdcSchoolCollectionIdSchoolId;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.IndependentSchoolFundingGroupSnapshotService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.ValidationRulesService;
@@ -45,7 +41,9 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @RequiredArgsConstructor
 public class MinistryHeadcountService {
   private final CollectionRepository collectionRepository;
+  private final SdcSchoolCollectionLightRepository sdcSchoolCollectionLightRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  private final SdcSchoolCollectionStudentFsaReportRepository sdcSchoolCollectionStudentFsaReportRepository;
   private final IndependentSchoolFundingGroupSnapshotService independentSchoolFundingGroupSnapshotService;
   private final RestUtils restUtils;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
@@ -83,7 +81,7 @@ public class MinistryHeadcountService {
       rowMap.put(FACILITY_TYPE.getCode(), facilityType.isPresent() ? facilityType.get().getLabel() : school.getFacilityTypeCode());
       rowMap.put(SCHOOL_CATEGORY.getCode(), schoolCategory.isPresent() ? schoolCategory.get().getLabel() : school.getSchoolCategoryCode());
       rowMap.put(GRADE_RANGE.getCode(),  TransformUtil.getGradesOfferedString(school));
-      rowMap.put(REPORT_DATE.getCode(), collection.getSnapshotDate().toString());
+      rowMap.put(SchoolEnrolmentHeader.REPORT_DATE.getCode(), collection.getSnapshotDate().toString());
       rowMap.put(KIND_HT_COUNT.getCode(), schoolHeadcountResult.getKindHCount());
       rowMap.put(KIND_FT_COUNT.getCode(), schoolHeadcountResult.getKindFCount());
       rowMap.put(GRADE_01_COUNT.getCode(), schoolHeadcountResult.getGrade1Count());
@@ -266,9 +264,11 @@ public class MinistryHeadcountService {
           var positiveChangeLevel1 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : "0", februaryCollectionRecord.getLevelOnes());
           var positiveChangeLevel2 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : "0", februaryCollectionRecord.getLevelTwos());
           var positiveChangeLevel3 = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : "0", februaryCollectionRecord.getLevelThrees());
+          var positiveChangeSES = TransformUtil.getPositiveChange(septCollectionRecord != null ? septCollectionRecord.getOtherLevels() : "0", februaryCollectionRecord.getOtherLevels());
           var netChangeLevel1 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : "0", februaryCollectionRecord.getLevelOnes());
           var netChangeLevel2 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : "0", februaryCollectionRecord.getLevelTwos());
           var netChangeLevel3 = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : "0", februaryCollectionRecord.getLevelThrees());
+          var netChangeSES = TransformUtil.getNetChange(septCollectionRecord != null ? septCollectionRecord.getOtherLevels() : "0", februaryCollectionRecord.getOtherLevels());
 
           var rowMap = new HashMap<String, String>();
           rowMap.put(IndySpecialEducationFundingHeadcountHeader.DISTRICT_NUMBER.getCode(), district != null ? district.getDistrictNumber() : null);
@@ -280,31 +280,39 @@ public class MinistryHeadcountService {
           rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_1.getCode(), septCollectionRecord != null ? septCollectionRecord.getLevelOnes() : "0");
           rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_2.getCode(), septCollectionRecord != null ? septCollectionRecord.getLevelTwos() : "0");
           rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_3.getCode(), septCollectionRecord != null ? septCollectionRecord.getLevelThrees() : "0");
+          rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_SES.getCode(), septCollectionRecord != null ? septCollectionRecord.getOtherLevels() : "0");
           rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_1.getCode(), februaryCollectionRecord.getLevelOnes());
           rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_2.getCode(), februaryCollectionRecord.getLevelTwos());
           rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_3.getCode(), februaryCollectionRecord.getLevelThrees());
+          rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_SES.getCode(), februaryCollectionRecord.getOtherLevels());
           rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_1.getCode(), positiveChangeLevel1);
           rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_2.getCode(), positiveChangeLevel2);
           rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_3.getCode(), positiveChangeLevel3);
+          rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_SES.getCode(), positiveChangeSES);
           rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_1.getCode(), netChangeLevel1);
           rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_2.getCode(), netChangeLevel2);
           rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_3.getCode(), netChangeLevel3);
+          rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_SES.getCode(), netChangeSES);
           rows.add(rowMap);
 
           if (septCollectionRecord != null) {
             fundingReportTotals.setTotSeptLevel1s(TransformUtil.addValueIfExists(fundingReportTotals.getTotSeptLevel1s(), septCollectionRecord.getLevelOnes()));
             fundingReportTotals.setTotSeptLevel2s(TransformUtil.addValueIfExists(fundingReportTotals.getTotSeptLevel2s(), septCollectionRecord.getLevelTwos()));
             fundingReportTotals.setTotSeptLevel3s(TransformUtil.addValueIfExists(fundingReportTotals.getTotSeptLevel3s(), septCollectionRecord.getLevelThrees()));
+            fundingReportTotals.setTotSeptSES(TransformUtil.addValueIfExists(fundingReportTotals.getTotSeptSES(), septCollectionRecord.getOtherLevels()));
           }
           fundingReportTotals.setTotFebLevel1s(TransformUtil.addValueIfExists(fundingReportTotals.getTotFebLevel1s(), februaryCollectionRecord.getLevelOnes()));
           fundingReportTotals.setTotFebLevel2s(TransformUtil.addValueIfExists(fundingReportTotals.getTotFebLevel2s(), februaryCollectionRecord.getLevelTwos()));
           fundingReportTotals.setTotFebLevel3s(TransformUtil.addValueIfExists(fundingReportTotals.getTotFebLevel3s(), februaryCollectionRecord.getLevelThrees()));
+          fundingReportTotals.setTotFebSES(TransformUtil.addValueIfExists(fundingReportTotals.getTotFebSES(), februaryCollectionRecord.getOtherLevels()));
           fundingReportTotals.setTotPositiveChangeLevel1s(TransformUtil.addValueIfExists(fundingReportTotals.getTotPositiveChangeLevel1s(), positiveChangeLevel1));
           fundingReportTotals.setTotPositiveChangeLevel2s(TransformUtil.addValueIfExists(fundingReportTotals.getTotPositiveChangeLevel2s(), positiveChangeLevel2));
           fundingReportTotals.setTotPositiveChangeLevel3s(TransformUtil.addValueIfExists(fundingReportTotals.getTotPositiveChangeLevel3s(), positiveChangeLevel3));
+          fundingReportTotals.setTotPositiveChangeSES(TransformUtil.addValueIfExists(fundingReportTotals.getTotPositiveChangeSES(), positiveChangeSES));
           fundingReportTotals.setTotNetLevel1s(TransformUtil.addValueIfExists(fundingReportTotals.getTotNetLevel1s(), netChangeLevel1));
           fundingReportTotals.setTotNetLevel2s(TransformUtil.addValueIfExists(fundingReportTotals.getTotNetLevel2s(), netChangeLevel2));
           fundingReportTotals.setTotNetLevel3s(TransformUtil.addValueIfExists(fundingReportTotals.getTotNetLevel3s(), netChangeLevel3));
+          fundingReportTotals.setTotNetSES(TransformUtil.addValueIfExists(fundingReportTotals.getTotNetSES(), netChangeSES));
         }
       }
     }
@@ -332,18 +340,22 @@ public class MinistryHeadcountService {
     rowMap.put(IndySpecialEducationFundingHeadcountHeader.AUTHORITY_NAME.getCode(), null);
     rowMap.put(IndySpecialEducationFundingHeadcountHeader.MINCODE.getCode(), null);
     rowMap.put(IndySpecialEducationFundingHeadcountHeader.SCHOOL_NAME.getCode(), null);
-    rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_1.getCode(), Integer.toString(totals.getTotSeptLevel1s()));
-    rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_2.getCode(), Integer.toString(totals.getTotSeptLevel2s()));
-    rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_3.getCode(), Integer.toString(totals.getTotSeptLevel3s()));
-    rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_1.getCode(), Integer.toString(totals.getTotFebLevel1s()));
-    rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_2.getCode(), Integer.toString(totals.getTotFebLevel2s()));
-    rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_3.getCode(), Integer.toString(totals.getTotFebLevel3s()));
-    rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_1.getCode(), Integer.toString(totals.getTotPositiveChangeLevel1s()));
-    rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_2.getCode(), Integer.toString(totals.getTotPositiveChangeLevel2s()));
-    rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_3.getCode(), Integer.toString(totals.getTotPositiveChangeLevel3s()));
-    rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_1.getCode(), Integer.toString(totals.getTotNetLevel1s()));
-    rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_2.getCode(), Integer.toString(totals.getTotNetLevel2s()));
-    rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_3.getCode(), Integer.toString(totals.getTotNetLevel3s()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_1.getCode(), Double.toString(totals.getTotSeptLevel1s()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_2.getCode(), Double.toString(totals.getTotSeptLevel2s()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_LEVEL_3.getCode(), Double.toString(totals.getTotSeptLevel3s()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.SEPT_SES.getCode(), Double.toString(totals.getTotSeptSES()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_1.getCode(), Double.toString(totals.getTotFebLevel1s()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_2.getCode(), Double.toString(totals.getTotFebLevel2s()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_LEVEL_3.getCode(), Double.toString(totals.getTotFebLevel3s()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.FEB_SES.getCode(), Double.toString(totals.getTotFebSES()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_1.getCode(), Double.toString(totals.getTotPositiveChangeLevel1s()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_2.getCode(), Double.toString(totals.getTotPositiveChangeLevel2s()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_LEVEL_3.getCode(), Double.toString(totals.getTotPositiveChangeLevel3s()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.POSITIVE_CHANGE_SES.getCode(), Double.toString(totals.getTotPositiveChangeSES()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_1.getCode(), Double.toString(totals.getTotNetLevel1s()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_2.getCode(), Double.toString(totals.getTotNetLevel2s()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_LEVEL_3.getCode(), Double.toString(totals.getTotNetLevel3s()));
+    rowMap.put(IndySpecialEducationFundingHeadcountHeader.NET_CHANGE_SES.getCode(), Double.toString(totals.getTotNetSES()));
     return rowMap;
   }
 
@@ -408,8 +420,15 @@ public class MinistryHeadcountService {
 
   public SimpleHeadcountResultsTable generateSeptFsaCsv(UUID collectionID) {
     List<String> grades = Arrays.asList(SchoolGradeCodes.GRADE04.getCode(), SchoolGradeCodes.GRADE07.getCode());
-    List<SdcSchoolCollectionStudentEntity> students =
-            sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(collectionID, grades, SdcSchoolStudentStatus.DELETED.getCode());
+    List<SdcSchoolCollectionIdSchoolId> sdcSchoolCollectionIdSchoolIds = sdcSchoolCollectionLightRepository.findSdcSchoolCollectionIdSchoolIdByCollectionId(collectionID);
+    List<UUID> sdcSchoolCollectionIDs = sdcSchoolCollectionIdSchoolIds.stream()
+            .map(SdcSchoolCollectionIdSchoolId::getSdcSchoolCollectionID)
+            .toList();
+    Map<UUID, UUID> collectionToSchoolIdMap = sdcSchoolCollectionIdSchoolIds.stream()
+            .collect(Collectors.toMap(SdcSchoolCollectionIdSchoolId::getSdcSchoolCollectionID, SdcSchoolCollectionIdSchoolId::getSchoolID));
+    List<SdcSchoolCollectionStudentFsaReportEntity> students =
+            sdcSchoolCollectionStudentFsaReportRepository.findAllBySdcSchoolCollectionIDsAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(
+                    sdcSchoolCollectionIDs, grades, SdcSchoolStudentStatus.DELETED.getCode());
 
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();
@@ -420,7 +439,9 @@ public class MinistryHeadcountService {
     var rows = new ArrayList<Map<String, String>>();
 
     students.forEach(student -> {
-      var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
+      UUID sdcSchoolCollectionID = student.getSdcSchoolCollectionID();
+      UUID schoolID = collectionToSchoolIdMap.get(sdcSchoolCollectionID);
+      var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
       if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
         var school = schoolOpt.get();
         var rowMap = new HashMap<String, String>();
@@ -439,8 +460,15 @@ public class MinistryHeadcountService {
 
   public SimpleHeadcountResultsTable generateFebFsaCsv(UUID collectionID) {
     List<String> grades = Arrays.asList(SchoolGradeCodes.GRADE03.getCode(), SchoolGradeCodes.GRADE06.getCode());
-    List<SdcSchoolCollectionStudentEntity> students =
-            sdcSchoolCollectionStudentRepository.findAllBySdcSchoolCollection_CollectionEntity_CollectionIDAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(collectionID, grades, SdcSchoolStudentStatus.DELETED.getCode());
+    List<SdcSchoolCollectionIdSchoolId> sdcSchoolCollectionIdSchoolIds = sdcSchoolCollectionLightRepository.findSdcSchoolCollectionIdSchoolIdByCollectionId(collectionID);
+    List<UUID> sdcSchoolCollectionIDs = sdcSchoolCollectionIdSchoolIds.stream()
+            .map(SdcSchoolCollectionIdSchoolId::getSdcSchoolCollectionID)
+            .toList();
+    Map<UUID, UUID> collectionToSchoolIdMap = sdcSchoolCollectionIdSchoolIds.stream()
+            .collect(Collectors.toMap(SdcSchoolCollectionIdSchoolId::getSdcSchoolCollectionID, SdcSchoolCollectionIdSchoolId::getSchoolID));
+    List<SdcSchoolCollectionStudentFsaReportEntity> students =
+            sdcSchoolCollectionStudentFsaReportRepository.findAllBySdcSchoolCollectionIDsAndEnrolledGradeCodeInAndSdcSchoolCollectionStudentStatusCodeIsNot(
+                    sdcSchoolCollectionIDs, grades, SdcSchoolStudentStatus.DELETED.getCode());
 
     SimpleHeadcountResultsTable resultsTable = new SimpleHeadcountResultsTable();
     var headerList = new ArrayList<String>();
@@ -451,7 +479,9 @@ public class MinistryHeadcountService {
     var rows = new ArrayList<Map<String, String>>();
 
     students.forEach(student -> {
-      var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(student.getSdcSchoolCollection().getSchoolID()));
+      UUID sdcSchoolCollectionID = student.getSdcSchoolCollectionID();
+      UUID schoolID = collectionToSchoolIdMap.get(sdcSchoolCollectionID);
+      var schoolOpt = restUtils.getSchoolBySchoolID(String.valueOf(schoolID));
       if(schoolOpt.isPresent() && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.OFFSHORE.getCode())
               && !schoolOpt.get().getSchoolCategoryCode().equalsIgnoreCase(SchoolCategoryCodes.YUKON.getCode())) {
         var school = schoolOpt.get();

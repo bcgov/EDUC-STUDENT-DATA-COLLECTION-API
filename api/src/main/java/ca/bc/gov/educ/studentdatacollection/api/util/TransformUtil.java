@@ -3,10 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.util;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.IndependentSchoolFundingGroupSnapshotEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
@@ -34,7 +31,16 @@ import static org.springframework.util.StringUtils.capitalize;
 @Slf4j
 public class TransformUtil {
 
-  private static final String [] VALID_SCHOOL_FUNDING_GROUPS = new String[]{"GROUP1", "GROUP2"};
+  public static final String GROUP_1 = "GROUP1";
+  public static final String GROUP_2 = "GROUP2";
+  private static final String [] VALID_SCHOOL_FUNDING_GROUPS = new String[]{GROUP_1, GROUP_2};
+  public static final String GROUP_3 = "GROUP3";
+  public static final String GROUP_4 = "GROUP4";
+  public static final String GROUP_1_LEGACY = "01";
+  public static final String GROUP_2_LEGACY = "02";
+  public static final String GROUP_3_LEGACY = "03";
+  public static final String GROUP_4_LEGACY = "04";
+
   private TransformUtil() {
   }
 
@@ -217,6 +223,78 @@ public class TransformUtil {
             .orElse(null);
   }
 
+  public static String getLowestFundingGroupForGrade(List<IndependentSchoolFundingGroup> schoolFundingGroups, List<String> gradeCodeList) {
+    String currentGroupCode = null;
+    for(String grade: gradeCodeList){
+      var fundingGroup = schoolFundingGroups
+              .stream()
+              .filter(group -> grade.equals(group.getSchoolGradeCode()))
+              .map(IndependentSchoolFundingGroup::getSchoolFundingGroupCode)
+              .findFirst()
+              .orElse(null);
+      currentGroupCode = compareForLowestValue(currentGroupCode, fundingGroup);
+    }
+
+    return getLegacyCodeFromGroup(currentGroupCode);
+  }
+
+  public static String getLowestFundingGroupSnapshotForGroup(List<IndependentSchoolFundingGroupSnapshotEntity> schoolFundingGroups, List<String> gradeCodeList) {
+    String currentGroupCode = null;
+    for(String grade: gradeCodeList){
+      var fundingGroup = schoolFundingGroups
+              .stream()
+              .filter(group -> grade.equals(group.getSchoolGradeCode()))
+              .map(IndependentSchoolFundingGroupSnapshotEntity::getSchoolFundingGroupCode)
+              .findFirst()
+              .orElse(null);
+      currentGroupCode = compareForLowestValue(currentGroupCode, fundingGroup);
+    }
+
+    return getLegacyCodeFromGroup(currentGroupCode);
+  }
+
+  private static String getLegacyCodeFromGroup(String groupCode){
+    if(StringUtils.isBlank(groupCode)){
+      return null;
+    }
+    switch (groupCode){
+      case GROUP_1 -> {
+          return GROUP_1_LEGACY;
+      }
+      case GROUP_2 -> {
+        return GROUP_2_LEGACY;
+      }
+      case GROUP_3 -> {
+        return GROUP_3_LEGACY;
+      }
+      case GROUP_4 -> {
+        return GROUP_4_LEGACY;
+      }
+    }
+    return null;
+  }
+
+  private static String compareForLowestValue(String currentGroupCode, String groupCode){
+    if(StringUtils.isEmpty(groupCode)){
+      return currentGroupCode;
+    }else if(StringUtils.isEmpty(currentGroupCode) && StringUtils.isNotBlank(groupCode)){
+      return groupCode;
+    }else if(StringUtils.isEmpty(currentGroupCode) && StringUtils.isEmpty(groupCode)){
+      return currentGroupCode;
+    }
+
+    if(currentGroupCode.equals(GROUP_1) || groupCode.equals(GROUP_1)){
+      return GROUP_1;
+    }else if(currentGroupCode.equals(GROUP_2) || groupCode.equals(GROUP_2)){
+      return GROUP_2;
+    }else if(currentGroupCode.equals(GROUP_3) || groupCode.equals(GROUP_3)){
+      return GROUP_3;
+    }else if(currentGroupCode.equals(GROUP_4) || groupCode.equals(GROUP_4)){
+      return GROUP_4;
+    }
+    return null;
+  }
+
   public static boolean isSchoolFundingGroup1orGroup2(String schoolFundingGroup) {
     if(schoolFundingGroup == null){
       return false;
@@ -257,7 +335,7 @@ public class TransformUtil {
     incomingStudentEntity.setFrenchProgramNonEligReasonCode(null);
   }
 
-  public static String getProjectedGrade(SdcSchoolCollectionStudentEntity student) {
+  public static String getProjectedGrade(SdcSchoolCollectionStudentFsaReportEntity student) {
     if(student.getEnrolledGradeCode().equalsIgnoreCase(SchoolGradeCodes.GRADE03.getCode())) {
       return SchoolGradeCodes.GRADE04.getCode();
     } else if(student.getEnrolledGradeCode().equalsIgnoreCase(SchoolGradeCodes.GRADE06.getCode())) {
@@ -266,29 +344,70 @@ public class TransformUtil {
     return null;
   }
 
-  public static int addValueIfExists(int totalValue, String actualValue){
-    int value;
-    try{
-      value = Integer.parseInt(actualValue);
-    } catch (Exception e) {
-      value = 0;
+  public static double addValueIfExists(double currentTotal, String valueToAddStr) {
+    if (StringUtils.isNotBlank(valueToAddStr)) {
+      try {
+        double valueToAdd = Double.parseDouble(valueToAddStr);
+        return currentTotal + valueToAdd;
+      } catch (NumberFormatException e) {
+        return currentTotal;
+      }
     }
-    return totalValue + value;
+    return currentTotal;
   }
 
-  public static String getNetChange(String septValue, String febValue){
-    if(StringUtils.isNumeric(septValue) && StringUtils.isNumeric(febValue)){
-      var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
-      return Integer.toString(change);
+  public static String getNetChange(String septValueStr, String febValueStr) {
+    Double septValue = null;
+    Double febValue = null;
+
+    if (StringUtils.isNotBlank(septValueStr)) {
+      try { septValue = Double.parseDouble(septValueStr); }
+      catch (NumberFormatException e) { septValue = 0.0; }
+    }
+    if (StringUtils.isNotBlank(febValueStr)) {
+      try { febValue = Double.parseDouble(febValueStr); }
+      catch (NumberFormatException e) { febValue = 0.0; }
+    }
+
+    if (septValue != null && febValue != null) {
+      double change = febValue - septValue;
+      String changeStr = Double.toString(change);
+      if (changeStr.endsWith(".0")) {
+        return changeStr.substring(0, changeStr.length() - 2);
+      }
+      return changeStr;
     }
     return "0";
   }
 
-  public static String getPositiveChange(String septValue, String febValue){
-    if(StringUtils.isNumeric(septValue) && StringUtils.isNumeric(febValue)){
-      var change = Integer.parseInt(febValue) - Integer.parseInt(septValue);
-      if(change > 0){
-        return Integer.toString(change);
+  public static String getPositiveChange(String septValueStr, String febValueStr) {
+    Double septValue = null;
+    Double febValue = null;
+
+    if (StringUtils.isNotBlank(septValueStr)) {
+      try {
+        septValue = Double.parseDouble(septValueStr);
+      } catch (NumberFormatException e) {
+        septValue = 0.0;
+      }
+    }
+
+    if (StringUtils.isNotBlank(febValueStr)) {
+      try {
+        febValue = Double.parseDouble(febValueStr);
+      } catch (NumberFormatException e) {
+        febValue = 0.0;
+      }
+    }
+
+    if (septValue != null && febValue != null) {
+      double change = febValue - septValue;
+      if (change > 0) {
+        String changeStr = Double.toString(change);
+        if (changeStr.endsWith(".0")) {
+          return changeStr.substring(0, changeStr.length() - 2);
+        }
+        return changeStr;
       }
     }
     return "0";

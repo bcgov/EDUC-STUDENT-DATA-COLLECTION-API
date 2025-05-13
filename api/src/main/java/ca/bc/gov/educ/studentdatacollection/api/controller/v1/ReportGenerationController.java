@@ -17,6 +17,9 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.summary.StudentDiffere
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.RestController;
@@ -111,7 +114,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     }
 
     @Override
-    public List<StudentDifference> getStudentDifferences(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
+    public Page<StudentDifference> getStudentDifferences(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
         final List<Sort.Order> sorts = new ArrayList<>();
         Specification<SdcSchoolCollectionStudentPaginationEntity> studentSpecs = sdcSchoolCollectionStudentSearchService
                 .setSpecificationAndSortCriteria(
@@ -131,7 +134,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
                     stud -> stud.getSdcSchoolCollectionStudentID(),
                     stud -> stud
             ));
-            return getDifferencesList(currentStudentsMap, historyRecordsMap);
+            return getDifferencesList(currentStudentsMap, historyRecordsMap, studentsWithDiffAndCriteria.getPageable(), studentsWithDiffAndCriteria.getTotalElements());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new StudentDataCollectionAPIRuntimeException("Error occurred making pagination call: " + e.getMessage());
@@ -140,7 +143,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
         }
     }
 
-    private List<StudentDifference> getDifferencesList(Map<UUID, SdcSchoolCollectionStudentPaginationEntity> currentStudents, Map<UUID, SdcSchoolCollectionStudentHistoryEntity> originalStudents){
+    private Page<StudentDifference> getDifferencesList(Map<UUID, SdcSchoolCollectionStudentPaginationEntity> currentStudents, Map<UUID, SdcSchoolCollectionStudentHistoryEntity> originalStudents, Pageable pageable, long total) {
         List<StudentDifference> differences = new ArrayList<>();
         originalStudents.values().stream().forEach(stud -> {
             StudentDifference diff = new StudentDifference();
@@ -148,7 +151,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             diff.setCurrentStudent(sdcSchoolCollectionStudentMapper.toSdcSchoolStudent(currentStudents.get(stud.getSdcSchoolCollectionStudentID())));
             differences.add(diff);
         });
-        return differences;
+        return new PageImpl<>(differences, pageable, total);
     }
 
 }

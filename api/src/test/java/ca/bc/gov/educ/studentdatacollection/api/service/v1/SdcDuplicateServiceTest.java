@@ -312,7 +312,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     GradStatusResult gradStatusResult = new GradStatusResult();
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
-    sdcSchoolCollectionStudentService.validateAndProcessNewSdcSchoolCollectionStudent(newStudentEntity);
+    sdcSchoolCollectionStudentService.validateAndProcessNewSdcSchoolCollectionStudent(newStudentEntity, false);
 
     Optional<SdcSchoolCollectionStudentEntity> savedStudent = sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID());
 
@@ -330,6 +330,8 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     SdcSchoolCollectionEntity savedSchoolCollection = sdcSchoolCollectionRepository.save(schoolCollection);
 
     SdcSchoolCollectionStudentEntity studentEntity = createMockSchoolStudentEntity(savedSchoolCollection);
+    studentEntity.setAssignedStudentId(UUID.randomUUID());
+    studentEntity.setAssignedPen("123456789");
     sdcSchoolCollectionStudentRepository.save(studentEntity);
 
     SdcSchoolCollectionStudentEntity dupeStudentEntity = createMockSchoolStudentEntity(savedSchoolCollection);
@@ -338,7 +340,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
     when(restUtils.getSchoolBySchoolID(any(String.class))).thenReturn(Optional.of(school));
     PenMatchResult penMatchResult = new PenMatchResult();
-    PenMatchRecord penMatchRecord = new PenMatchRecord(UUID.randomUUID().toString(), studentEntity.getSdcSchoolCollectionStudentID().toString());
+    PenMatchRecord penMatchRecord = new PenMatchRecord(studentEntity.getAssignedStudentId().toString(), studentEntity.getAssignedStudentId().toString());
     penMatchResult.setMatchingRecords(List.of(penMatchRecord));
     penMatchResult.setPenStatus("AA");
     penMatchResult.setPenStatusMessage("blah");
@@ -347,8 +349,8 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
     GradStatusResult gradStatusResult = new GradStatusResult();
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
 
-    assertThrows(IllegalTransactionStateException.class, () -> {
-      sdcSchoolCollectionStudentService.validateAndProcessNewSdcSchoolCollectionStudent(studentEntity);
+    assertThrows(InvalidPayloadException.class, () -> {
+      sdcSchoolCollectionStudentService.validateAndProcessNewSdcSchoolCollectionStudent(studentEntity, true);
     }, "SdcSchoolCollectionStudent was not saved to the database because it would create a duplicate.");
   }
 

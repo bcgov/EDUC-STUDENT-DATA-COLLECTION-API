@@ -61,7 +61,7 @@ public class CollectionSearchService extends BaseSearchService {
         });
         int i = 0;
         for (var search : searches) {
-          collectionSpecs = getSpecifications(collectionSpecs, i, search, this.getCollectionFilterSpecs());
+          collectionSpecs = getSpecifications(collectionSpecs, i, search, this.getCollectionFilterSpecs(), searches);
           i++;
         }
       }
