@@ -71,4 +71,6 @@ public class SdcSchoolCollectionStudentShallow implements Serializable {
 
   private String assignedPen;
 
+  private String assignedStudentId;
+
 }
