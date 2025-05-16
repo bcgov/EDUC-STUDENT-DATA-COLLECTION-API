@@ -45,10 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.isCollectionInProvDupes;
 
@@ -514,15 +511,44 @@ public class SdcSchoolCollectionStudentService {
     var currentStudentEntity = this.sdcSchoolCollectionStudentRepository.findById(studentEntity.getSdcSchoolCollectionStudentID()).orElseThrow(() ->
             new EntityNotFoundException(SdcSchoolCollectionStudentEntity.class, SDC_SCHOOL_COLLECTION_STUDENT_STRING, studentEntity.getSdcSchoolCollectionStudentID().toString()));
     final SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = new SdcSchoolCollectionStudentEntity();
-    BeanUtils.copyProperties(studentEntity, sdcSchoolCollectionStudentEntity, "sdcSchoolCollection", "createUser", "createDate", "sdcStudentValidationIssueEntities", "sdcStudentEnrolledProgramEntities");
+    BeanUtils.copyProperties(studentEntity, sdcSchoolCollectionStudentEntity, "sdcSchoolCollection", "createUser", "createDate", "sdcStudentValidationIssueEntities");
 
     sdcSchoolCollectionStudentEntity.setEnrolledProgramCodes(TransformUtil.sanitizeEnrolledProgramString(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes()));
     sdcSchoolCollectionStudentEntity.setSdcSchoolCollection(currentStudentEntity.getSdcSchoolCollection());
     sdcSchoolCollectionStudentEntity.setOriginalDemogHash(currentStudentEntity.getOriginalDemogHash());
     sdcSchoolCollectionStudentEntity.getSDCStudentValidationIssueEntities().clear();
     sdcSchoolCollectionStudentEntity.getSDCStudentValidationIssueEntities().addAll(currentStudentEntity.getSDCStudentValidationIssueEntities());
-    sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
-    sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().addAll(currentStudentEntity.getSdcStudentEnrolledProgramEntities());
+
+    HashSet<String> existingEnrolledProgramCodes = currentStudentEntity.getSdcStudentEnrolledProgramEntities().stream()
+            .map(SdcSchoolCollectionStudentEnrolledProgramEntity::getEnrolledProgramCode)
+            .collect(java.util.stream.Collectors.toCollection(HashSet::new));
+    java.util.HashSet<SdcSchoolCollectionStudentEnrolledProgramEntity> updatedEnrolledPrograms = new HashSet<>();
+    if (StringUtils.isNotBlank(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes())) {
+      List<String> incomingEnrolledProgramCodes = TransformUtil.splitIntoChunks(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes(), 2);
+      for (String programCode : incomingEnrolledProgramCodes) {
+        if (!existingEnrolledProgramCodes.contains(programCode)) {
+          SdcSchoolCollectionStudentEnrolledProgramEntity enrolledProgramEntity = new SdcSchoolCollectionStudentEnrolledProgramEntity();
+          enrolledProgramEntity.setSdcSchoolCollectionStudentEntity(currentStudentEntity);
+          enrolledProgramEntity.setEnrolledProgramCode(programCode);
+          enrolledProgramEntity.setUpdateUser(studentEntity.getUpdateUser());
+          enrolledProgramEntity.setUpdateDate(LocalDateTime.now());
+          enrolledProgramEntity.setCreateUser(studentEntity.getCreateUser());
+          enrolledProgramEntity.setCreateDate(LocalDateTime.now());
+          updatedEnrolledPrograms.add(enrolledProgramEntity);
+        } else {
+          // If the program code already exists, retain the existing entity for update tracking
+          currentStudentEntity.getSdcStudentEnrolledProgramEntities().stream()
+                  .filter(ep -> ep.getEnrolledProgramCode().equals(programCode))
+                  .findFirst()
+                  .ifPresent(updatedEnrolledPrograms::add);
+        }
+      }
+      // Clear existing and add the merged set
+      currentStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
+      currentStudentEntity.getSdcStudentEnrolledProgramEntities().addAll(updatedEnrolledPrograms);
+    } else {
+      currentStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
+    }
 
     TransformUtil.uppercaseFields(sdcSchoolCollectionStudentEntity);
     var studentRuleData = createStudentRuleDataForValidation(sdcSchoolCollectionStudentEntity);
@@ -537,7 +563,7 @@ public class SdcSchoolCollectionStudentService {
 
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
     sdcDuplicatesService.checkIfDuplicateIsGeneratedAndThrow(processedSdcSchoolCollectionStudent, isCollectionInProvDupes(processedSdcSchoolCollectionStudent.getSdcSchoolCollection().getCollectionEntity()), isStaffMember);
-    return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
+    return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(currentStudentEntity);
   }
 
 }
