@@ -46,6 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.isCollectionInProvDupes;
 
@@ -521,8 +522,9 @@ public class SdcSchoolCollectionStudentService {
 
     HashSet<String> existingEnrolledProgramCodes = currentStudentEntity.getSdcStudentEnrolledProgramEntities().stream()
             .map(SdcSchoolCollectionStudentEnrolledProgramEntity::getEnrolledProgramCode)
-            .collect(java.util.stream.Collectors.toCollection(HashSet::new));
-    java.util.HashSet<SdcSchoolCollectionStudentEnrolledProgramEntity> updatedEnrolledPrograms = new HashSet<>();
+            .collect(Collectors.toCollection(HashSet::new));
+    HashSet<SdcSchoolCollectionStudentEnrolledProgramEntity> updatedEnrolledPrograms = new HashSet<>();
+
     if (StringUtils.isNotBlank(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes())) {
       List<String> incomingEnrolledProgramCodes = TransformUtil.splitIntoChunks(sdcSchoolCollectionStudentEntity.getEnrolledProgramCodes(), 2);
       for (String programCode : incomingEnrolledProgramCodes) {
@@ -546,6 +548,7 @@ public class SdcSchoolCollectionStudentService {
       // Clear existing and add the merged set
       currentStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
       currentStudentEntity.getSdcStudentEnrolledProgramEntities().addAll(updatedEnrolledPrograms);
+
     } else {
       currentStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
     }
@@ -554,6 +557,7 @@ public class SdcSchoolCollectionStudentService {
     var studentRuleData = createStudentRuleDataForValidation(sdcSchoolCollectionStudentEntity);
 
     var processedSdcSchoolCollectionStudent = processStudentRecord(studentRuleData.getSchool(), sdcSchoolCollectionStudentEntity, true);
+
     if (processedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentStatusCode().equalsIgnoreCase(StudentValidationIssueSeverityCode.ERROR.toString())) {
       log.debug(SDC_SCHOOL_COLLECTION_STUDENT_WAS_NOT_SAVED, processedSdcSchoolCollectionStudent);
       processedSdcSchoolCollectionStudent.setUpdateDate(currentStudentEntity.getUpdateDate());
@@ -563,7 +567,7 @@ public class SdcSchoolCollectionStudentService {
 
     processedSdcSchoolCollectionStudent.setCurrentDemogHash(Integer.toString(processedSdcSchoolCollectionStudent.getUniqueObjectHash()));
     sdcDuplicatesService.checkIfDuplicateIsGeneratedAndThrow(processedSdcSchoolCollectionStudent, isCollectionInProvDupes(processedSdcSchoolCollectionStudent.getSdcSchoolCollection().getCollectionEntity()), isStaffMember);
-    return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(currentStudentEntity);
+    return sdcSchoolCollectionStudentStorageService.saveSdcStudentWithHistory(processedSdcSchoolCollectionStudent);
   }
 
 }
