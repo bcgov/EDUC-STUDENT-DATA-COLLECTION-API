@@ -546,11 +546,11 @@ public class SdcSchoolCollectionStudentService {
         }
       }
       // Clear existing and add the merged set
-      currentStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
-      currentStudentEntity.getSdcStudentEnrolledProgramEntities().addAll(updatedEnrolledPrograms);
+      sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
+      sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().addAll(updatedEnrolledPrograms);
 
     } else {
-      currentStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
+      sdcSchoolCollectionStudentEntity.getSdcStudentEnrolledProgramEntities().clear();
     }
 
     TransformUtil.uppercaseFields(sdcSchoolCollectionStudentEntity);
