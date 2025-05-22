@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface IndependentSchoolFundingGroupSnapshotRepository extends JpaRepository<IndependentSchoolFundingGroupSnapshotEntity, UUID> {
     List<IndependentSchoolFundingGroupSnapshotEntity> findAllBySchoolIDAndAndCollectionID(UUID schoolID, UUID collectionID);
+
+    List<IndependentSchoolFundingGroupSnapshotEntity> findAllByCollectionID(UUID collectionID);
 }

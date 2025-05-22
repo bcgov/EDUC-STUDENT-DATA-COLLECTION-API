@@ -89,4 +89,34 @@ class IndependentSchoolFundingGroupControllerTest extends BaseStudentDataCollect
     assertThat(summary1).hasSize(2);
   }
 
+  @Test
+  void testGetAllSchoolFundingGroupByCollectionAndSchoolIDs_ShouldReturnCollection() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SCHOOL_FUNDING_GROUP_SNAPSHOT";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    final var independentSchoolFundingGroupEntity = this.independentSchoolFundingGroupSnapshotRepository.save(this.createMockIndependentSchoolFundingGroupSnapshotEntity(UUID.randomUUID(), UUID.randomUUID()));
+
+    var resultActions = this.mockMvc.perform(
+                    get(URL.BASE_URL_SCHOOL_FUNDING + "/" + independentSchoolFundingGroupEntity.getSchoolID() + "/" + independentSchoolFundingGroupEntity.getCollectionID()).with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
+
+    val summary = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List>() {
+    });
+
+    assertThat(summary).hasSize(1);
+
+    var independentSchoolFundingGroupEntity1 = this.createMockIndependentSchoolFundingGroupSnapshotEntity(independentSchoolFundingGroupEntity.getSchoolID(), independentSchoolFundingGroupEntity.getCollectionID());
+    independentSchoolFundingGroupEntity1.setSchoolGradeCode("GRADE02");
+    this.independentSchoolFundingGroupSnapshotRepository.save(independentSchoolFundingGroupEntity1);
+
+    var resultActions1 = this.mockMvc.perform(
+                    get(URL.BASE_URL_SCHOOL_FUNDING + "/all/" + independentSchoolFundingGroupEntity.getCollectionID()).with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
+
+    val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List>() {
+    });
+
+    assertThat(summary1).hasSize(2);
+  }
+
 }
