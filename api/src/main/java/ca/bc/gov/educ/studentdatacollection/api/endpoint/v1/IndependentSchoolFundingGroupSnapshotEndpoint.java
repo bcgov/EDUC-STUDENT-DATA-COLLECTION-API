@@ -26,4 +26,11 @@ public interface IndependentSchoolFundingGroupSnapshotEndpoint {
   @Schema(name = "IndependentSchoolFundingGroupSnapshot", implementation = IndependentSchoolFundingGroupSnapshot.class)
   List<IndependentSchoolFundingGroupSnapshot> getIndependentSchoolFundingGroupSnapshot(@PathVariable("schoolID") UUID schoolID, @PathVariable("collectionID") UUID collectionID);
 
+  @GetMapping("/all/{collectionID}")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SCHOOL_FUNDING_GROUP_SNAPSHOT')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "IndependentSchoolFundingGroupSnapshot Entity", description = "Endpoints for independent school group snapshot funding entity.")
+  @Schema(name = "IndependentSchoolFundingGroupSnapshot", implementation = IndependentSchoolFundingGroupSnapshot.class)
+  List<IndependentSchoolFundingGroupSnapshot> getAllIndependentSchoolFundingGroupSnapshot(@PathVariable("collectionID") UUID collectionID);
 }

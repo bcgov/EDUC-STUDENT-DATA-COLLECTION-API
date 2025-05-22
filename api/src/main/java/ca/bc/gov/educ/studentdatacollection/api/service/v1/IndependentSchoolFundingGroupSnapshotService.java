@@ -25,4 +25,8 @@ public class IndependentSchoolFundingGroupSnapshotService {
     return independentSchoolFundingGroupSnapshotRepository.findAllBySchoolIDAndAndCollectionID(schoolID, collectionID);
   }
 
+  public List<IndependentSchoolFundingGroupSnapshotEntity> getAllIndependentSchoolFundingGroupSnapshot(UUID collectionID) {
+    return independentSchoolFundingGroupSnapshotRepository.findAllByCollectionID(collectionID);
+  }
+
 }
