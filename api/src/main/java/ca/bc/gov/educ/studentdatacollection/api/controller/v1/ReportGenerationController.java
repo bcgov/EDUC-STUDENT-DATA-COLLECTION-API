@@ -107,6 +107,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case ALL_STUDENT_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateFromSdcDistrictCollectionID(sdcDistrictCollectionID);
             case ALL_STUDENT_ERRORS_WARNS_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateErrorWarnInfoReportFromSdcDistrictCollectionID(sdcDistrictCollectionID);
             case ALL_STUDENT_FRENCH_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateFrenchFromSdcDistrictCollectionID(sdcDistrictCollectionID);
+            case ALL_STUDENT_CAREER_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateCareerFromSdcDistrictCollectionID(sdcDistrictCollectionID);
             case DIS_ZERO_FTE_SUMMARY -> zeroFTEHeadCountReportService.generateZeroFTEHeadcountReport(sdcDistrictCollectionID);
             case DIS_BAND_RESIDENCE_HEADCOUNT -> bandOfResidenceHeadcountReportService.generateDistrictBandOfResidenceReport(sdcDistrictCollectionID);
             case DIS_BAND_RESIDENCE_HEADCOUNT_PER_SCHOOL -> bandOfResidenceHeadcountPerSchoolReportService.generateBandOfResidenceHeadcountPerSchoolReport(sdcDistrictCollectionID);
