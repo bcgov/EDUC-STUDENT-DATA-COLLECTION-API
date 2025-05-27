@@ -22,4 +22,18 @@ public interface SdcSchoolCollectionStudentLightWithEnrolledProgramCodesReposito
             @Param("statusCodes") List<String> statusCodes,
             @Param("enrolledProgramCodes") List<String> enrolledProgramCodes
     );
+
+    @Query("SELECT DISTINCT s FROM SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity s " +
+            "JOIN s.sdcSchoolCollectionEntity sc " +
+            "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
+            "WHERE sc.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
+            "AND s.sdcSchoolCollectionStudentStatusCode NOT IN :statusCodes " +
+            "AND (ep.enrolledProgramCode IN :enrolledProgramCodes " +
+            "OR s.bandCode IS NOT NULL " +
+            "OR s.nativeAncestryInd = 'Y') ")
+    List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> findAllLightIndigenous(
+            @Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID,
+            @Param("statusCodes") List<String> statusCodes,
+            @Param("enrolledProgramCodes") List<String> enrolledProgramCodes
+    );
 }
