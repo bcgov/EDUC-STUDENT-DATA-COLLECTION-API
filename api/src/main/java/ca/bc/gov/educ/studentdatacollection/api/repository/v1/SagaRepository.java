@@ -25,6 +25,8 @@ public interface SagaRepository extends JpaRepository<SdcSagaEntity, UUID>, JpaS
 
   Optional<SdcSagaEntity> findByCollectionIDAndSagaNameAndStatusNot(UUID collectionID, String sagaName, String status);
 
+  Optional<SdcSagaEntity> findByCollectionIDAndSagaName(UUID collectionID, String sagaName);
+
   long countAllByStatusIn(List<String> statuses);
 
   @Query(value = "SELECT s.SAGA_ID FROM SDC_SAGA s WHERE s.STATUS in :cleanupStatus LIMIT :batchSize", nativeQuery = true)

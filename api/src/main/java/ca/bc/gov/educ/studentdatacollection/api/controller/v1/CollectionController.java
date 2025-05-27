@@ -222,4 +222,9 @@ public class CollectionController implements CollectionEndpoint {
     List<UUID> schoolIDs = requestBody.getSchoolIDs();
     return collectionService.getStudentGradeEnrolmentCount(collectionID, grade, schoolIDs);
   }
+
+  @Override
+  public boolean getCollectionClosureSagaStatus(UUID collectionID){
+    return sagaService.findByCollectionIDAndSagaName(collectionID, SagaEnum.CLOSE_COLLECTION_SAGA.toString()).isPresent();
+  }
 }

@@ -149,6 +149,10 @@ public class SagaService {
     return this.getSagaRepository().findByCollectionIDAndSagaNameAndStatusNot(collectionID, sagaName, status);
   }
 
+  public Optional<SdcSagaEntity> findByCollectionIDAndSagaName(final UUID collectionID, final String sagaName) {
+    return this.getSagaRepository().findByCollectionIDAndSagaName(collectionID, sagaName);
+  }
+
   /**
    * Create saga record in db saga.
    *
