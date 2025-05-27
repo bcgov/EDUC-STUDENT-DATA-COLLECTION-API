@@ -1180,7 +1180,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     sagaRepository.save(saga);
 
     this.mockMvc.perform(
-                    get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/saga-status").with(mockAuthority))
+                    get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/closure-saga-status").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.content().string("true"));
   }
@@ -1193,7 +1193,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
 
     this.mockMvc.perform(
-                    get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/saga-status").with(mockAuthority))
+                    get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/closure-saga-status").with(mockAuthority))
             .andDo(print()).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.content().string("false"));
   }
