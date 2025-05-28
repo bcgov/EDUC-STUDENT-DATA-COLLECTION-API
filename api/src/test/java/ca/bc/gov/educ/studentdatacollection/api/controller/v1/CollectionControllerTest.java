@@ -1161,4 +1161,41 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gradeEnrolmentCount").value("2"));
   }
 
+  @Test
+  void testGetCollectionClosureSagaStatus_WhenSagaExists_ShouldReturnTrue() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+
+    CollectionSagaData sagaData = new CollectionSagaData();
+    sagaData.setExistingCollectionID(collection.getCollectionID().toString());
+    sagaData.setNewCollectionSignOffDueDate(String.valueOf(LocalDateTime.now()));
+    sagaData.setNewCollectionDuplicationResolutionDueDate(String.valueOf(LocalDateTime.now()));
+    sagaData.setNewCollectionSnapshotDate(String.valueOf(LocalDateTime.now()));
+    sagaData.setNewCollectionSubmissionDueDate(String.valueOf(LocalDateTime.now()));
+
+    var saga = createMockCloseCollectionSaga(sagaData);
+    saga.setCollectionID(collection.getCollectionID());
+    sagaRepository.save(saga);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/closure-saga-status").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.content().string("true"));
+  }
+
+  @Test
+  void testGetCollectionClosureSagaStatus_WhenSagaDoesNotExist_ShouldReturnFalse() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/closure-saga-status").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.content().string("false"));
+  }
+
 }
