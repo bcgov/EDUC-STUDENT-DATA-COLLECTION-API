@@ -173,6 +173,17 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
     }
   }
 
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> findAllEllStudentsLightByDistrictCollectionId(UUID sdcDistrictCollectionID) {
+    try {
+      var status = Arrays.asList(SdcSchoolStudentStatus.DELETED.getCode(), SdcSchoolStudentStatus.ERROR.getCode());
+      return this.sdcSchoolCollectionStudentLightWithEnrolledProgramCodesRepository.findByDistrictCollectionIDAndStatusNotInAndEnrolledProgramCodeIn(sdcDistrictCollectionID, status, EnrolledProgramCodes.getELLCodes());
+    } catch (final Exception ex) {
+      log.error("Failure querying for light ELL SDC school students by District Collection ID: {}", ex.getMessage());
+      throw new CompletionException(ex);
+    }
+  }
+
   public Specification<SdcSchoolCollectionStudentPaginationEntity> setSpecificationAndSortCriteria(String sortCriteriaJson, String searchCriteriaListJson, ObjectMapper objectMapper, List<Sort.Order> sorts) {
     Specification<SdcSchoolCollectionStudentPaginationEntity> schoolSpecs = null;
     try {
