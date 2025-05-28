@@ -119,6 +119,16 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
+  public List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> findAllFrenchStudentsLightBySchoolCollectionID(UUID sdcSchoolCollectionID) {
+    try {
+      return this.sdcSchoolCollectionStudentLightWithEnrolledProgramCodesRepository.findBySchoolCollectionIDAndStatusNotAndEnrolledProgramCodeNotIn(sdcSchoolCollectionID, "DELETED", EnrolledProgramCodes.getFrenchProgramCodes());
+    } catch (final Exception ex) {
+      log.error("Failure querying for french light SDC school students by School Collection ID: {}", ex.getMessage());
+      throw new CompletionException(ex);
+    }
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
   public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightByDistrictCollectionId(UUID sdcDistrictCollectionID) {
     try {
       var status = Arrays.asList(SdcSchoolStudentStatus.DELETED.getCode(), SdcSchoolStudentStatus.ERROR.getCode());

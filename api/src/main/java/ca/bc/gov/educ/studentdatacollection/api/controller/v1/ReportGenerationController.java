@@ -76,6 +76,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case SPECIAL_EDUCATION_HEADCOUNT -> specialEdHeadcountReportService.generateSchoolSpecialEdHeadcountReport(sdcSchoolCollectionID);
             case ALL_STUDENT_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateFromSdcSchoolCollectionID(sdcSchoolCollectionID);
             case ALL_STUDENT_ERRORS_WARNS_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateErrorWarnInfoReportFromSdcSchoolCollectionID(sdcSchoolCollectionID);
+            case ALL_STUDENT_FRENCH_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateFrenchFromSdcSchoolCollectionID(sdcSchoolCollectionID);
             default -> new DownloadableReportResponse();
         };
     }

@@ -25,6 +25,18 @@ public interface SdcSchoolCollectionStudentLightWithEnrolledProgramCodesReposito
 
     @Query("SELECT DISTINCT s FROM SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity s " +
             "JOIN s.sdcSchoolCollectionEntity sc " +
+            "JOIN s.sdcStudentEnrolledProgramEntities ep " +
+            "WHERE sc.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
+            "AND s.sdcSchoolCollectionStudentStatusCode <> :statusCode " +
+            "AND ep.enrolledProgramCode IN :enrolledProgramCodes")
+    List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> findBySchoolCollectionIDAndStatusNotAndEnrolledProgramCodeNotIn(
+            @Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID,
+            @Param("statusCode") String statusCode,
+            @Param("enrolledProgramCodes") List<String> enrolledProgramCodes
+    );
+
+    @Query("SELECT DISTINCT s FROM SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity s " +
+            "JOIN s.sdcSchoolCollectionEntity sc " +
             "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
             "WHERE sc.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
             "AND s.sdcSchoolCollectionStudentStatusCode NOT IN :statusCodes " +
