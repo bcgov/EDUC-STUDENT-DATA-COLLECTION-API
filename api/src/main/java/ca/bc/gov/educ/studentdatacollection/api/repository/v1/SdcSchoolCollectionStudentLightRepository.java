@@ -10,5 +10,7 @@ import java.util.UUID;
 public interface SdcSchoolCollectionStudentLightRepository extends JpaRepository<SdcSchoolCollectionStudentLightEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionStudentLightEntity> {
     List<SdcSchoolCollectionStudentLightEntity> findAllBySdcSchoolCollectionEntity_SdcDistrictCollectionIDAndSdcSchoolCollectionStudentStatusCodeNotIn(UUID sdcDistrictCollectionID, List<String> statusCode);
 
+    List<SdcSchoolCollectionStudentLightEntity> findAllBySdcSchoolCollectionEntity_SdcDistrictCollectionIDAndSdcSchoolCollectionStudentStatusCodeNotInAndSpecialEducationCategoryCodeNotNull(UUID sdcDistrictCollectionID, List<String> statusCode);
+
     List<SdcSchoolCollectionStudentLightEntity> findAllBySdcSchoolCollectionEntity_SdcSchoolCollectionIDAndSdcSchoolCollectionStudentStatusCodeNot(UUID sdcSchoolCollectionID, String statusCode);
 }

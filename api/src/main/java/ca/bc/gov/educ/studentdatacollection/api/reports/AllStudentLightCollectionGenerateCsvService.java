@@ -226,6 +226,31 @@ public class AllStudentLightCollectionGenerateCsvService {
         }
     }
 
+    public DownloadableReportResponse generateInclusiveFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
+        List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllInclusiveEdStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader("School Code", "School Name", "Facility Code", "PEN", "Legal Name", "Usual Name", "FTE", "Program Eligible", "Local ID",  "Adult", "Graduate", "Grade", "Funding Code", "Inclusive Education Category")
+                .build();
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
+
+            for (SdcSchoolCollectionStudentLightEntity student : entities) {
+                List<Object> csvRowData = prepareInclusiveStudentDataForCsv(student, true);
+                csvPrinter.printRecord(csvRowData);
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(DistrictReportTypeCode.ALL_STUDENT_INCLUSIVE_DIS_CSV.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
     private List<Object> prepareStudentDataWithErrorsAndWarningsForCsv(SdcSchoolCollectionStudentEntity student, boolean isDistrict) {
         List<Object> csvRowData = new ArrayList<>();
         if (Boolean.TRUE.equals(isDistrict)) {
@@ -482,6 +507,40 @@ public class AllStudentLightCollectionGenerateCsvService {
                         : Arrays.stream(student.getEnrolledProgramCodes().split("(?<=\\G.{2})"))
                         .filter(code -> EnrolledProgramCodes.getIndigenousProgramCodes().contains(code))
                         .collect(Collectors.joining(","))
+        ));
+        return csvRowData;
+    }
+
+    private List<Object> prepareInclusiveStudentDataForCsv(SdcSchoolCollectionStudentLightEntity student, Boolean isDistrict) {
+        List<Object> csvRowData = new ArrayList<>();
+        if (Boolean.TRUE.equals(isDistrict)) {
+            UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
+            Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
+            var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
+
+            String schoolCode = school.isPresent() ? school.get().getMincode() : "No School Code Found";
+            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse("No School Name Found");
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : "No Facility Type Found";
+
+            csvRowData.add(schoolCode);
+            csvRowData.add(schoolName);
+            csvRowData.add(finalFacilityType);
+        }
+        String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
+        String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());
+
+        csvRowData.addAll(Arrays.asList(
+                student.getStudentPen(),
+                legalFullName,
+                usualFullName,
+                student.getFte(),
+                StringUtils.isBlank(student.getSpecialEducationNonEligReasonCode()) ? "1" : "",
+                student.getLocalID(),
+                Boolean.TRUE.equals(student.getIsAdult()) ? "1" : "",
+                Boolean.TRUE.equals(student.getIsGraduated()) ? "1" : "",
+                student.getEnrolledGradeCode(),
+                StringUtils.isBlank(student.getSchoolFundingCode()) ? "" : student.getSchoolFundingCode().replaceAll("(.{2})(?=.)","$1,"),
+                student.getSpecialEducationCategoryCode()
         ));
         return csvRowData;
     }
