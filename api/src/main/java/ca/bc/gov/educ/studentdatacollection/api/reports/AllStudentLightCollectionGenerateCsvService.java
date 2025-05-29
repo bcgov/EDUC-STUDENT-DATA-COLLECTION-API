@@ -33,10 +33,12 @@ public class AllStudentLightCollectionGenerateCsvService {
     private final SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService;
     private final RestUtils restUtils;
 
+    // SCHOOL COMMON COLUMN HEADERS
     private static final String SCHOOL_CODE = "School Code";
     private static final String SCHOOL_NAME = "School Name";
     private static final String FACILITY_CODE = "Facility Code";
 
+    // ALL STUDENT COMMON COLUMN HEADERS
     private static final String PEN = "PEN";
     private static final String LEGAL_NAME = "Legal Name";
     private static final String USUAL_NAME = "Usual Name";
@@ -48,6 +50,19 @@ public class AllStudentLightCollectionGenerateCsvService {
     private static final String GRADE = "Grade";
     private static final String FUNDING_CODE = "Funding Code";
 
+    // OTHER HEADERS
+    private static final String GENDER = "Gender";
+    private static final String BIRTH_DATE = "Birth Date";
+    private static final String POSTAL_CODE = "Postal Code";
+    private static final String FEE_PAYER = "Fee Payer";
+    private static final String INDIGENOUS_OTHER = "Indigenous Other";
+    private static final String INDIGENOUS_ANCESTRY = "Indigenous Ancestry";
+
+    // WARNING MESSAGES
+    private static final String NO_SCHOOL_CODE_FOUND = "No School Code Found";
+    private static final String NO_SCHOOL_NAME_FOUND = "No School Name Found";
+    private static final String NO_FACILITY_TYPE_FOUND = "No Facility Type Found";
+
     public AllStudentLightCollectionGenerateCsvService(SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService, RestUtils restUtils) {
         this.sdcSchoolCollectionStudentSearchService = sdcSchoolCollectionStudentSearchService;
         this.restUtils = restUtils;
@@ -56,9 +71,9 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateErrorWarnInfoReportFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsWithErrorsWarningInfoBySchoolCollectionID(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("Errors & Warnings", PEN, LEGAL_NAME, USUAL_NAME, "Birth Date", "Gender", "Postal Code", LOCAL_ID, GRADE, "F.T.E.", ADULT, GRADUATE, "Fee Payer",
-                        "Refugee", "Indigenous  Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses",
-                        "Programme Francophone", "Core French", "Early Immersion", "Late Immersion", "ELL", "Years in ELL", "Indigenous Culture/Lang", "Indigenous Support", "Indigenous Other",
+                .setHeader("Errors & Warnings", PEN, LEGAL_NAME, USUAL_NAME, BIRTH_DATE, GENDER, POSTAL_CODE, LOCAL_ID, GRADE, FTE, ADULT, GRADUATE, FEE_PAYER,
+                        "Refugee", INDIGENOUS_ANCESTRY, "Ordinarily Resident on Reserve", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses",
+                        "Programme Francophone", "Core French", "Early Immersion", "Late Immersion", "ELL", "Years in ELL", "Indigenous Culture/Lang", "Indigenous Support", INDIGENOUS_OTHER,
                         "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC - Career Technical C.", "Inclusive Ed Category")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -84,9 +99,9 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightBySchoolCollectionID(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, "Birth Date", "Gender", "Postal Code", LOCAL_ID, GRADE, "F.T.E.", ADULT, GRADUATE, "Fee Payer",
-                        "Refugee", "Indigenous  Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses",
-                        "Programme Francophone", "Core French", "Early Immersion", "Late Immersion", "ELL", "Years in ELL", "Indigenous Culture/Lang", "Indigenous Support", "Indigenous Other",
+                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, BIRTH_DATE, GENDER, POSTAL_CODE, LOCAL_ID, GRADE, FTE, ADULT, GRADUATE, FEE_PAYER,
+                        "Refugee", INDIGENOUS_ANCESTRY, "Ordinarily Resident on Reserve", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses",
+                        "Programme Francophone", "Core French", "Early Immersion", "Late Immersion", "ELL", "Years in ELL", "Indigenous Culture/Lang", "Indigenous Support", INDIGENOUS_OTHER,
                         "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC - Career Technical C.", "Inclusive Ed Category")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -237,9 +252,9 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateErrorWarnInfoReportFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsWithErrorsWarningInfoByDistrictCollectionID(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SCHOOL_CODE, SCHOOL_NAME, "Facility Type","Errors & Warnings", PEN, LEGAL_NAME, USUAL_NAME, "Birth Date", "Gender", "Postal Code", LOCAL_ID, GRADE, "F.T.E.", ADULT, GRADUATE, "Fee Payer",
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, "Facility Type","Errors & Warnings", PEN, LEGAL_NAME, USUAL_NAME, BIRTH_DATE, GENDER, POSTAL_CODE, LOCAL_ID, GRADE, FTE, ADULT, GRADUATE, FEE_PAYER,
                         "Refugee", "Indigenous Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Lang", "# Courses", "# Support Blocks", "# Other Courses",
-                        "Prog Franco", "Core French", "Early Immer", "Late Immer", "ELL", "ELL-yrs", "Indigenous Culture/Lang", "Indigenous Support", "Indigenous Other",
+                        "Prog Franco", "Core French", "Early Immer", "Late Immer", "ELL", "ELL-yrs", "Indigenous Culture/Lang", "Indigenous Support", INDIGENOUS_OTHER,
                         "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC", "Inclusive Ed Category")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -265,9 +280,9 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SCHOOL_CODE, SCHOOL_NAME, "Facility Type", PEN, LEGAL_NAME, USUAL_NAME, "Birth Date", "Gender", "Postal Code", LOCAL_ID, GRADE, "F.T.E.", ADULT, GRADUATE, "Fee Payer",
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, "Facility Type", PEN, LEGAL_NAME, USUAL_NAME, BIRTH_DATE, GENDER, POSTAL_CODE, LOCAL_ID, GRADE, FTE, ADULT, GRADUATE, FEE_PAYER,
                         "Refugee", "Indigenous Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Lang", "# Courses", "# Support Blocks", "# Other Courses",
-                        "Prog Franco", "Core French", "Early Immer", "Late Immer", "ELL", "ELL-yrs", "Indigenous Culture/Lang", "Indigenous Support", "Indigenous Other",
+                        "Prog Franco", "Core French", "Early Immer", "Late Immer", "ELL", "ELL-yrs", "Indigenous Culture/Lang", "Indigenous Support", INDIGENOUS_OTHER,
                         "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC", "Inclusive Ed Category")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -423,9 +438,9 @@ public class AllStudentLightCollectionGenerateCsvService {
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
             var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
 
-            String schoolCode = school.isPresent() ? school.get().getMincode() : "No School Code Found";
-            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse("No School Name Found");
-            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : "No Facility Type Found";
+            String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
+            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
             csvRowData.add(finalFacilityType);
@@ -505,9 +520,9 @@ public class AllStudentLightCollectionGenerateCsvService {
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
             var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
 
-            String schoolCode = school.isPresent() ? school.get().getMincode() : "No School Code Found";
-            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse("No School Name Found");
-            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : "No Facility Type Found";
+            String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
+            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
             csvRowData.add(finalFacilityType);
@@ -566,9 +581,9 @@ public class AllStudentLightCollectionGenerateCsvService {
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
             var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
 
-            String schoolCode = school.isPresent() ? school.get().getMincode() : "No School Code Found";
-            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse("No School Name Found");
-            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : "No Facility Type Found";
+            String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
+            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -604,9 +619,9 @@ public class AllStudentLightCollectionGenerateCsvService {
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
             var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
 
-            String schoolCode = school.isPresent() ? school.get().getMincode() : "No School Code Found";
-            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse("No School Name Found");
-            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : "No Facility Type Found";
+            String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
+            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -643,9 +658,9 @@ public class AllStudentLightCollectionGenerateCsvService {
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
             var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
 
-            String schoolCode = school.isPresent() ? school.get().getMincode() : "No School Code Found";
-            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse("No School Name Found");
-            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : "No Facility Type Found";
+            String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
+            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -683,9 +698,9 @@ public class AllStudentLightCollectionGenerateCsvService {
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
             var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
 
-            String schoolCode = school.isPresent() ? school.get().getMincode() : "No School Code Found";
-            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse("No School Name Found");
-            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : "No Facility Type Found";
+            String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
+            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -717,9 +732,9 @@ public class AllStudentLightCollectionGenerateCsvService {
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
             var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
 
-            String schoolCode = school.isPresent() ? school.get().getMincode() : "No School Code Found";
-            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse("No School Name Found");
-            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : "No Facility Type Found";
+            String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
+            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
