@@ -87,7 +87,14 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
           "INDIGENOUS_HEADCOUNT",
           "BAND_RESIDENCE_HEADCOUNT",
           "ELL_HEADCOUNT",
-          "SPECIAL_EDUCATION_HEADCOUNT"
+          "SPECIAL_EDUCATION_HEADCOUNT",
+          "ALL_STUDENT_SCHOOL_CSV",
+          "ALL_STUDENT_ERRORS_WARNS_SCHOOL_CSV",
+          "ALL_STUDENT_FRENCH_SCHOOL_CSV",
+          "ALL_STUDENT_CAREER_SCHOOL_CSV",
+          "ALL_STUDENT_INDIGENOUS_SCHOOL_CSV",
+          "ALL_STUDENT_INCLUSIVE_SCHOOL_CSV",
+          "ALL_STUDENT_ELL_SCHOOL_CSV"
   })
   void testGetGradeEnrollmentHeadcountReport_ShouldReturnCollection(String reportTypeCode) throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
@@ -123,6 +130,56 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     this.mockMvc.perform(
         get(URL.BASE_URL_REPORT_GENERATION + "/sdcSchoolCollection/" + sdcMockSchool.getSdcSchoolCollectionID() + "/" + reportTypeCode).with(mockAuthority))
       .andDo(print()).andExpect(status().isOk());
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+          "ALL_STUDENT_DIS_CSV",
+          "ALL_STUDENT_ERRORS_WARNS_DIS_CSV",
+          "ALL_STUDENT_FRENCH_DIS_CSV",
+          "ALL_STUDENT_CAREER_DIS_CSV",
+          "ALL_STUDENT_INDIGENOUS_DIS_CSV",
+          "ALL_STUDENT_INCLUSIVE_DIS_CSV",
+          "ALL_STUDENT_ELL_DIS_CSV"
+  })
+  void testAllDistrictCsvReports_ShouldReturnCollection(String reportTypeCode) throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    var district = this.createMockDistrict();
+    when(this.restUtils.getDistrictByDistrictID(anyString())).thenReturn(Optional.of(district));
+    var schoolMock = this.createMockSchool();
+    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolMock));
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, UUID.fromString(district.getDistrictId()));
+    sdcMockDistrict = sdcDistricCollectionRepository.save(sdcMockDistrict);
+
+    SchoolTombstone schoolTombstone = createMockSchool();
+    SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(schoolTombstone.getSchoolId()));
+    sdcMockSchool.setUploadDate(null);
+    sdcMockSchool.setUploadFileName(null);
+    sdcMockSchool.setSdcDistrictCollectionID(sdcMockDistrict.getSdcDistrictCollectionID());
+    sdcMockSchool = sdcSchoolCollectionRepository.save(sdcMockSchool);
+
+    SdcSchoolCollectionStudentEntity student1 = createMockSchoolStudentEntity(sdcMockSchool);
+    student1.setIsSchoolAged(true);
+    student1.setFte(new BigDecimal(1.0));
+    sdcSchoolCollectionStudentRepository.save(student1);
+
+    SdcSchoolCollectionStudentEntity student2 = createMockSchoolStudentEntity(sdcMockSchool);
+    student2.setBandCode("0600");
+    student2.setIsSchoolAged(false);
+    student2.setIsAdult(true);
+    student2.setFte(new BigDecimal(2.0));
+    sdcSchoolCollectionStudentRepository.save(student2);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + reportTypeCode).with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
   }
 
   @Test
