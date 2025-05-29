@@ -129,6 +129,16 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
+  public List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> findAllCareerStudentsLightBySchoolCollectionID(UUID sdcSchoolCollectionID) {
+    try {
+      return this.sdcSchoolCollectionStudentLightWithEnrolledProgramCodesRepository.findBySchoolCollectionIDAndStatusNotAndEnrolledProgramCodeNotIn(sdcSchoolCollectionID, "DELETED", EnrolledProgramCodes.getCareerProgramCodes());
+    } catch (final Exception ex) {
+      log.error("Failure querying for career light SDC school students by School Collection ID: {}", ex.getMessage());
+      throw new CompletionException(ex);
+    }
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
   public List<SdcSchoolCollectionStudentLightEntity> findAllStudentsLightByDistrictCollectionId(UUID sdcDistrictCollectionID) {
     try {
       var status = Arrays.asList(SdcSchoolStudentStatus.DELETED.getCode(), SdcSchoolStudentStatus.ERROR.getCode());
