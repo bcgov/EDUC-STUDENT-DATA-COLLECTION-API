@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStud
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.FacilityTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -436,11 +437,12 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollection().getSchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-            var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
+            Optional<FacilityTypeCode> facilityType = school.map(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode())).orElse(null);
 
             String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
-            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+            String finalFacilityType = facilityType != null && facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
             csvRowData.add(finalFacilityType);
@@ -518,11 +520,12 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-            var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
+            Optional<FacilityTypeCode> facilityType = school.map(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode())).orElse(null);
 
             String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
-            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+            String finalFacilityType = facilityType != null && facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
             csvRowData.add(finalFacilityType);
@@ -579,11 +582,11 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-            var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
+            Optional<FacilityTypeCode> facilityType = school.map(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode())).orElse(null);
 
             String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
-            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+            String finalFacilityType = facilityType != null && facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -617,11 +620,11 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-            var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
+            Optional<FacilityTypeCode> facilityType = school.map(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode())).orElse(null);
 
             String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
-            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+            String finalFacilityType = facilityType != null && facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -656,11 +659,11 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-            var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
+            Optional<FacilityTypeCode> facilityType = school.map(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode())).orElse(null);
 
             String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
-            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+            String finalFacilityType = facilityType != null && facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -696,11 +699,11 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-            var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
+            Optional<FacilityTypeCode> facilityType = school.map(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode())).orElse(null);
 
             String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
-            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+            String finalFacilityType = facilityType != null && facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -730,11 +733,11 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-            var facilityType = restUtils.getFacilityTypeCode(school.get().getFacilityTypeCode());
+            Optional<FacilityTypeCode> facilityType = school.map(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode())).orElse(null);
 
             String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
-            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+            String finalFacilityType = facilityType != null && facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
