@@ -33,6 +33,21 @@ public class AllStudentLightCollectionGenerateCsvService {
     private final SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService;
     private final RestUtils restUtils;
 
+    private static final String SCHOOL_CODE = "School Code";
+    private static final String SCHOOL_NAME = "School Name";
+    private static final String FACILITY_CODE = "Facility Code";
+
+    private static final String PEN = "PEN";
+    private static final String LEGAL_NAME = "Legal Name";
+    private static final String USUAL_NAME = "Usual Name";
+    private static final String FTE = "FTE";
+    private static final String PROGRAM_ELIGIBLE = "Program Eligible";
+    private static final String LOCAL_ID = "Local ID";
+    private static final String ADULT = "Adult";
+    private static final String GRADUATE = "Graduate";
+    private static final String GRADE = "Grade";
+    private static final String FUNDING_CODE = "Funding Code";
+
     public AllStudentLightCollectionGenerateCsvService(SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService, RestUtils restUtils) {
         this.sdcSchoolCollectionStudentSearchService = sdcSchoolCollectionStudentSearchService;
         this.restUtils = restUtils;
@@ -41,7 +56,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateErrorWarnInfoReportFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsWithErrorsWarningInfoBySchoolCollectionID(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("Errors & Warnings", "P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer",
+                .setHeader("Errors & Warnings", PEN, LEGAL_NAME, USUAL_NAME, "Birth Date", "Gender", "Postal Code", LOCAL_ID, GRADE, "F.T.E.", ADULT, GRADUATE, "Fee Payer",
                         "Refugee", "Indigenous  Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses",
                         "Programme Francophone", "Core French", "Early Immersion", "Late Immersion", "ELL", "Years in ELL", "Indigenous Culture/Lang", "Indigenous Support", "Indigenous Other",
                         "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC - Career Technical C.", "Inclusive Ed Category")
@@ -69,7 +84,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightBySchoolCollectionID(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer",
+                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, "Birth Date", "Gender", "Postal Code", LOCAL_ID, GRADE, "F.T.E.", ADULT, GRADUATE, "Fee Payer",
                         "Refugee", "Indigenous  Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Language", "# Courses", "# Support Blocks", "# Other Courses",
                         "Programme Francophone", "Core French", "Early Immersion", "Late Immersion", "ELL", "Years in ELL", "Indigenous Culture/Lang", "Indigenous Support", "Indigenous Other",
                         "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC - Career Technical C.", "Inclusive Ed Category")
@@ -97,7 +112,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateFrenchFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllFrenchStudentsLightBySchoolCollectionID(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("PEN", "Legal Name", "Usual Name", "FTE", "Program Eligible", "Local ID",  "Adult", "Graduate", "Grade", "Funding Code", "French Program")
+                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "French Program")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -122,7 +137,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateCareerFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllCareerStudentsLightBySchoolCollectionID(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("PEN", "Legal Name", "Usual Name", "FTE", "Program Eligible", "Local ID",  "Adult", "Graduate", "Grade", "Funding Code", "Career Program", "Career Code")
+                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "Career Program", "Career Code")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -147,7 +162,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateIndigenousFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllIndigenousStudentsLightBySchoolCollectionID(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("PEN", "Legal Name", "Usual Name", "FTE", "Program Eligible", "Local ID",  "Adult", "Graduate", "Grade", "Funding Code", "Indigenous Ancestry", "Band Code", "Indigenous Support Program")
+                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "Indigenous Ancestry", "Band Code", "Indigenous Support Program")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -172,7 +187,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateInclusiveFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllInclusiveEdStudentsLightBySchoolCollectionId(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("PEN", "Legal Name", "Usual Name", "FTE", "Program Eligible", "Local ID",  "Adult", "Graduate", "Grade", "Funding Code", "Inclusive Education Category")
+                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "Inclusive Education Category")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -197,7 +212,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateEllFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllEllStudentsLightBySchoolCollectionId(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("PEN", "Legal Name", "Usual Name", "FTE", "Program Eligible", "Local ID",  "Adult", "Graduate", "Grade", "Funding Code", "Language Program", "Years in ELL")
+                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "Language Program", "Years in ELL")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -222,7 +237,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateErrorWarnInfoReportFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsWithErrorsWarningInfoByDistrictCollectionID(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("School Code", "School Name", "Facility Type","Errors & Warnings", "P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer",
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, "Facility Type","Errors & Warnings", PEN, LEGAL_NAME, USUAL_NAME, "Birth Date", "Gender", "Postal Code", LOCAL_ID, GRADE, "F.T.E.", ADULT, GRADUATE, "Fee Payer",
                         "Refugee", "Indigenous Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Lang", "# Courses", "# Support Blocks", "# Other Courses",
                         "Prog Franco", "Core French", "Early Immer", "Late Immer", "ELL", "ELL-yrs", "Indigenous Culture/Lang", "Indigenous Support", "Indigenous Other",
                         "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC", "Inclusive Ed Category")
@@ -250,7 +265,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("School Code", "School Name", "Facility Type", "P.E.N.", "Legal Name", "Usual Name", "Birth Date", "Gender", "Postal Code", "Local ID", "Grade", "F.T.E.", "Adult", "Graduate", "Fee Payer",
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, "Facility Type", PEN, LEGAL_NAME, USUAL_NAME, "Birth Date", "Gender", "Postal Code", LOCAL_ID, GRADE, "F.T.E.", ADULT, GRADUATE, "Fee Payer",
                         "Refugee", "Indigenous Ancestry", "Ordinarily Resident on Reserve", "Band Code", "Home Lang", "# Courses", "# Support Blocks", "# Other Courses",
                         "Prog Franco", "Core French", "Early Immer", "Late Immer", "ELL", "ELL-yrs", "Indigenous Culture/Lang", "Indigenous Support", "Indigenous Other",
                         "Career Prog", "Career Prep", "Coop", "Apprentice", "CTC", "Inclusive Ed Category")
@@ -278,7 +293,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateFrenchFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllFrenchStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("School Code", "School Name", "Facility Code", "PEN", "Legal Name", "Usual Name", "FTE", "Program Eligible", "Local ID",  "Adult", "Graduate", "Grade", "Funding Code", "French Program")
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_CODE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "French Program")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -303,7 +318,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateCareerFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllCareerStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("School Code", "School Name", "Facility Code", "PEN", "Legal Name", "Usual Name", "FTE", "Program Eligible", "Local ID",  "Adult", "Graduate", "Grade", "Funding Code", "Career Program", "Career Code")
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_CODE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "Career Program", "Career Code")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -328,7 +343,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateIndigenousFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllIndigenousStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("School Code", "School Name", "Facility Code", "PEN", "Legal Name", "Usual Name", "FTE", "Program Eligible", "Local ID",  "Adult", "Graduate", "Grade", "Funding Code",
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_CODE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE,
                         "Indigenous Ancestry", "Band Code", "Indigenous Support Program")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -354,7 +369,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateInclusiveFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllInclusiveEdStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("School Code", "School Name", "Facility Code", "PEN", "Legal Name", "Usual Name", "FTE", "Program Eligible", "Local ID",  "Adult", "Graduate", "Grade", "Funding Code", "Inclusive Education Category")
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_CODE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "Inclusive Education Category")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -379,7 +394,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateEllFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllEllStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader("School Code", "School Name", "Facility Code", "PEN", "Legal Name", "Usual Name", "FTE", "Program Eligible", "Local ID",  "Adult", "Graduate", "Grade", "Funding Code", "Language Program", "Years in ELL")
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_CODE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "Language Program", "Years in ELL")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
