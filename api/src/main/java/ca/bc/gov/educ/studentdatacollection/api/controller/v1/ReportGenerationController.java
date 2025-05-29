@@ -79,6 +79,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case ALL_STUDENT_FRENCH_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateFrenchFromSdcSchoolCollectionID(sdcSchoolCollectionID);
             case ALL_STUDENT_CAREER_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateCareerFromSdcSchoolCollectionID(sdcSchoolCollectionID);
             case ALL_STUDENT_INDIGENOUS_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateIndigenousFromSdcSchoolCollectionID(sdcSchoolCollectionID);
+            case ALL_STUDENT_INCLUSIVE_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateInclusiveFromSdcSchoolCollectionID(sdcSchoolCollectionID);
             default -> new DownloadableReportResponse();
         };
     }

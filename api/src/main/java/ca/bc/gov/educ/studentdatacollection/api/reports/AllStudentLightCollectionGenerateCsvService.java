@@ -169,6 +169,31 @@ public class AllStudentLightCollectionGenerateCsvService {
         }
     }
 
+    public DownloadableReportResponse generateInclusiveFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
+        List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllInclusiveEdStudentsLightBySchoolCollectionId(sdcSchoolCollectionID);
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader("PEN", "Legal Name", "Usual Name", "FTE", "Program Eligible", "Local ID",  "Adult", "Graduate", "Grade", "Funding Code", "Inclusive Education Category")
+                .build();
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
+
+            for (SdcSchoolCollectionStudentLightEntity student : entities) {
+                List<Object> csvRowData = prepareInclusiveStudentDataForCsv(student, false);
+                csvPrinter.printRecord(csvRowData);
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(SchoolReportTypeCode.ALL_STUDENT_INCLUSIVE_SCHOOL_CSV.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
     public DownloadableReportResponse generateErrorWarnInfoReportFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsWithErrorsWarningInfoByDistrictCollectionID(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
