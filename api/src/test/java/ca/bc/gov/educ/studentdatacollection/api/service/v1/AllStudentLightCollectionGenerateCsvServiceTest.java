@@ -332,7 +332,7 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         assertTrue(decodedData.contains("PEN"));
         assertTrue(decodedData.contains("School Code"));
         assertTrue(decodedData.contains("School Name"));
-        assertTrue(decodedData.contains("Facility Code"));
+        assertTrue(decodedData.contains("Facility Type"));
     }
 
     @Test
@@ -362,7 +362,7 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         assertTrue(decodedData.contains("PEN"));
         assertTrue(decodedData.contains("School Code"));
         assertTrue(decodedData.contains("School Name"));
-        assertTrue(decodedData.contains("Facility Code"));
+        assertTrue(decodedData.contains("Facility Type"));
     }
 
     @Test
@@ -392,7 +392,7 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         assertTrue(decodedData.contains("PEN"));
         assertTrue(decodedData.contains("School Code"));
         assertTrue(decodedData.contains("School Name"));
-        assertTrue(decodedData.contains("Facility Code"));
+        assertTrue(decodedData.contains("Facility Type"));
     }
 
     @Test
@@ -421,7 +421,7 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         assertTrue(decodedData.contains("PEN"));
         assertTrue(decodedData.contains("School Code"));
         assertTrue(decodedData.contains("School Name"));
-        assertTrue(decodedData.contains("Facility Code"));
+        assertTrue(decodedData.contains("Facility Type"));
     }
 
     @Test
@@ -451,7 +451,7 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         assertTrue(decodedData.contains("PEN"));
         assertTrue(decodedData.contains("School Code"));
         assertTrue(decodedData.contains("School Name"));
-        assertTrue(decodedData.contains("Facility Code"));
+        assertTrue(decodedData.contains("Facility Type"));
     }
 
     @Test
@@ -481,7 +481,7 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         assertTrue(decodedData.contains("PEN"));
         assertTrue(decodedData.contains("School Code"));
         assertTrue(decodedData.contains("School Name"));
-        assertTrue(decodedData.contains("Facility Code"));
+        assertTrue(decodedData.contains("Facility Type"));
     }
 
     private SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity createMockFrenchStudent() {
