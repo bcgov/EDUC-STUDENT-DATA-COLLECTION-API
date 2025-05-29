@@ -194,6 +194,31 @@ public class AllStudentLightCollectionGenerateCsvService {
         }
     }
 
+    public DownloadableReportResponse generateEllFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
+        List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllEllStudentsLightBySchoolCollectionId(sdcSchoolCollectionID);
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader("PEN", "Legal Name", "Usual Name", "FTE", "Program Eligible", "Local ID",  "Adult", "Graduate", "Grade", "Funding Code", "Language Program", "Years in ELL")
+                .build();
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
+
+            for (SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity student : entities) {
+                List<Object> csvRowData = prepareEllStudentDataForCsv(student, false);
+                csvPrinter.printRecord(csvRowData);
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(SchoolReportTypeCode.ALL_STUDENT_ELL_SCHOOL_CSV.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
     public DownloadableReportResponse generateErrorWarnInfoReportFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsWithErrorsWarningInfoByDistrictCollectionID(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()

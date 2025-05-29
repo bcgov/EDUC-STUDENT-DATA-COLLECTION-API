@@ -43,9 +43,23 @@ public interface SdcSchoolCollectionStudentLightWithEnrolledProgramCodesReposito
             "AND (ep.enrolledProgramCode IN :enrolledProgramCodes " +
             "OR s.bandCode IS NOT NULL " +
             "OR s.nativeAncestryInd = 'Y') ")
-    List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> findAllLightIndigenous(
+    List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> findAllLightIndigenousDistrict(
             @Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID,
             @Param("statusCodes") List<String> statusCodes,
+            @Param("enrolledProgramCodes") List<String> enrolledProgramCodes
+    );
+
+    @Query("SELECT DISTINCT s FROM SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity s " +
+            "JOIN s.sdcSchoolCollectionEntity sc " +
+            "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
+            "WHERE sc.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
+            "AND s.sdcSchoolCollectionStudentStatusCode <> :statusCode " +
+            "AND (ep.enrolledProgramCode IN :enrolledProgramCodes " +
+            "OR s.bandCode IS NOT NULL " +
+            "OR s.nativeAncestryInd = 'Y') ")
+    List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> findAllLightIndigenousSchool(
+            @Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID,
+            @Param("statusCode") String statusCode,
             @Param("enrolledProgramCodes") List<String> enrolledProgramCodes
     );
 }
