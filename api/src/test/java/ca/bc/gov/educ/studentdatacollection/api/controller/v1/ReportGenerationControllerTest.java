@@ -94,7 +94,8 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
           "ALL_STUDENT_CAREER_SCHOOL_CSV",
           "ALL_STUDENT_INDIGENOUS_SCHOOL_CSV",
           "ALL_STUDENT_INCLUSIVE_SCHOOL_CSV",
-          "ALL_STUDENT_ELL_SCHOOL_CSV"
+          "ALL_STUDENT_ELL_SCHOOL_CSV",
+          "ALL_STUDENT_REFUGEE_SCHOOL_CSV"
   })
   void testGetGradeEnrollmentHeadcountReport_ShouldReturnCollection(String reportTypeCode) throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
@@ -140,7 +141,8 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
           "ALL_STUDENT_CAREER_DIS_CSV",
           "ALL_STUDENT_INDIGENOUS_DIS_CSV",
           "ALL_STUDENT_INCLUSIVE_DIS_CSV",
-          "ALL_STUDENT_ELL_DIS_CSV"
+          "ALL_STUDENT_ELL_DIS_CSV",
+          "ALL_STUDENT_REFUGEE_DIS_CSV"
   })
   void testAllDistrictCsvReports_ShouldReturnCollection(String reportTypeCode) throws Exception {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";

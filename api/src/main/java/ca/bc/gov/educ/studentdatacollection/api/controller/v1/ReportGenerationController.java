@@ -81,6 +81,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case ALL_STUDENT_INDIGENOUS_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateIndigenousFromSdcSchoolCollectionID(sdcSchoolCollectionID);
             case ALL_STUDENT_INCLUSIVE_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateInclusiveFromSdcSchoolCollectionID(sdcSchoolCollectionID);
             case ALL_STUDENT_ELL_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateEllFromSdcSchoolCollectionID(sdcSchoolCollectionID);
+            case ALL_STUDENT_REFUGEE_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateRefugeeFromSdcSchoolCollectionID(sdcSchoolCollectionID);
             default -> new DownloadableReportResponse();
         };
     }
@@ -116,6 +117,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case ALL_STUDENT_INDIGENOUS_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateIndigenousFromSdcDistrictCollectionID(sdcDistrictCollectionID);
             case ALL_STUDENT_INCLUSIVE_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateInclusiveFromSdcDistrictCollectionID(sdcDistrictCollectionID);
             case ALL_STUDENT_ELL_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateEllFromSdcDistrictCollectionID(sdcDistrictCollectionID);
+            case ALL_STUDENT_REFUGEE_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateRefugeeFromSdcDistrictCollectionID(sdcDistrictCollectionID);
             case DIS_ZERO_FTE_SUMMARY -> zeroFTEHeadCountReportService.generateZeroFTEHeadcountReport(sdcDistrictCollectionID);
             case DIS_BAND_RESIDENCE_HEADCOUNT -> bandOfResidenceHeadcountReportService.generateDistrictBandOfResidenceReport(sdcDistrictCollectionID);
             case DIS_BAND_RESIDENCE_HEADCOUNT_PER_SCHOOL -> bandOfResidenceHeadcountPerSchoolReportService.generateBandOfResidenceHeadcountPerSchoolReport(sdcDistrictCollectionID);

@@ -29,7 +29,7 @@ public interface SdcSchoolCollectionStudentLightWithEnrolledProgramCodesReposito
             "WHERE sc.sdcSchoolCollectionID = :sdcSchoolCollectionID " +
             "AND s.sdcSchoolCollectionStudentStatusCode <> :statusCode " +
             "AND ep.enrolledProgramCode IN :enrolledProgramCodes")
-    List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> findBySchoolCollectionIDAndStatusNotAndEnrolledProgramCodeNotIn(
+    List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> findBySchoolCollectionIDAndStatusNotAndEnrolledProgramCodeIn(
             @Param("sdcSchoolCollectionID") UUID sdcSchoolCollectionID,
             @Param("statusCode") String statusCode,
             @Param("enrolledProgramCodes") List<String> enrolledProgramCodes

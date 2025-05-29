@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity;
 import ca.bc.gov.educ.studentdatacollection.api.reports.AllStudentLightCollectionGenerateCsvService;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.FacilityTypeCode;
@@ -286,6 +287,26 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
     }
 
     @Test
+    void testGenerateRefugeeFromSdcSchoolCollectionID() {
+        UUID schoolCollectionId = UUID.randomUUID();
+        List<SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity> mockEntities = new ArrayList<>();
+        mockEntities.add(createMockRefugeeStudent());
+
+        when(mockSearchService.findAllRefugeeStudentsLightBySchoolCollectionId(schoolCollectionId)).thenReturn(mockEntities);
+
+        DownloadableReportResponse response = service.generateRefugeeFromSdcSchoolCollectionID(schoolCollectionId);
+
+        assertNotNull(response);
+        assertFalse(response.getDocumentData().isEmpty());
+        verify(mockSearchService).findAllRefugeeStudentsLightBySchoolCollectionId(schoolCollectionId);
+        String decodedData = new String(Base64.getDecoder().decode(response.getDocumentData()));
+        assertTrue(decodedData.contains("Funding Code"));
+        assertTrue(decodedData.contains("Funding Eligible"));
+        assertTrue(decodedData.contains("Legal Name"));
+        assertTrue(decodedData.contains("PEN"));
+    }
+
+    @Test
     void testGenerateFrenchFromSdcDistrictCollectionID() {
         UUID districtCollectionId = UUID.randomUUID();
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> mockEntities = new ArrayList<>();
@@ -433,6 +454,36 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         assertTrue(decodedData.contains("Facility Code"));
     }
 
+    @Test
+    void testGenerateRefugeeFromSdcDistrictCollectionID() {
+        UUID districtCollectionId = UUID.randomUUID();
+        List<SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity> mockEntities = new ArrayList<>();
+        SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity student = createMockRefugeeStudent();
+        student.setSdcSchoolCollectionEntity(createMockSdcSchoolCollectionEntity());
+        mockEntities.add(student);
+
+        when(mockSearchService.findAllRefugeeStudentsLightByDistrictCollectionId(districtCollectionId)).thenReturn(mockEntities);
+        FacilityTypeCode code = new FacilityTypeCode();
+        code.setFacilityTypeCode("01");
+        code.setLabel("ABC");
+        when(mockRestUtils.getFacilityTypeCode(any())).thenReturn(Optional.of(code));
+        when(mockRestUtils.getSchoolBySchoolID(any())).thenReturn(Optional.of(new SchoolTombstone()));
+
+        DownloadableReportResponse response = service.generateRefugeeFromSdcDistrictCollectionID(districtCollectionId);
+
+        assertNotNull(response);
+        assertFalse(response.getDocumentData().isEmpty());
+        verify(mockSearchService).findAllRefugeeStudentsLightByDistrictCollectionId(districtCollectionId);
+        String decodedData = new String(Base64.getDecoder().decode(response.getDocumentData()));
+        assertTrue(decodedData.contains("Funding Code"));
+        assertTrue(decodedData.contains("Funding Eligible"));
+        assertTrue(decodedData.contains("Legal Name"));
+        assertTrue(decodedData.contains("PEN"));
+        assertTrue(decodedData.contains("School Code"));
+        assertTrue(decodedData.contains("School Name"));
+        assertTrue(decodedData.contains("Facility Code"));
+    }
+
     private SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity createMockFrenchStudent() {
         SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity student = new SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity();
         student.setStudentPen("123456789");
@@ -524,6 +575,25 @@ class AllStudentLightCollectionGenerateCsvServiceTest {
         student.setSchoolFundingCode("14");
         student.setEnrolledProgramCodes("17");
         student.setYearsInEll(2);
+        return student;
+    }
+
+    private SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity createMockRefugeeStudent() {
+        SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity student = new SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity();
+        student.setStudentPen("999888777");
+        student.setLegalFirstName("Anna");
+        student.setLegalLastName("Nguyen");
+        student.setUsualFirstName("Anna");
+        student.setUsualLastName("Nguyen");
+        student.setFte(BigDecimal.valueOf(0.5));
+        student.setFrenchProgramNonEligReasonCode("FR01");
+        student.setLocalID("LID987");
+        student.setIsAdult(true);
+        student.setIsGraduated(false);
+        student.setEnrolledGradeCode("07");
+        student.setSchoolFundingCode("12");
+        student.setEnrolledProgramCodes("19");
+        student.setYearsInEll(3);
         return student;
     }
 

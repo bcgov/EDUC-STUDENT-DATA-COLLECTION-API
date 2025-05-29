@@ -8,6 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionA
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.FacilityTypeCode;
@@ -250,6 +251,31 @@ public class AllStudentLightCollectionGenerateCsvService {
         }
     }
 
+    public DownloadableReportResponse generateRefugeeFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
+        List<SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllRefugeeStudentsLightBySchoolCollectionId(sdcSchoolCollectionID);
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, "Funding Eligible", LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE)
+                .build();
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
+
+            for (SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity student : entities) {
+                List<Object> csvRowData = prepareRefugeeStudentDataForCsv(student, false);
+                csvPrinter.printRecord(csvRowData);
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(SchoolReportTypeCode.ALL_STUDENT_REFUGEE_SCHOOL_CSV.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
     public DownloadableReportResponse generateErrorWarnInfoReportFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsWithErrorsWarningInfoByDistrictCollectionID(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
@@ -432,16 +458,41 @@ public class AllStudentLightCollectionGenerateCsvService {
         }
     }
 
+    public DownloadableReportResponse generateRefugeeFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
+        List<SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllRefugeeStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_CODE, PEN, LEGAL_NAME, USUAL_NAME, FTE, "Funding Eligible", LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE)
+                .build();
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
+
+            for (SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity student : entities) {
+                List<Object> csvRowData = prepareRefugeeStudentDataForCsv(student, true);
+                csvPrinter.printRecord(csvRowData);
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(DistrictReportTypeCode.ALL_STUDENT_REFUGEE_DIS_CSV.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
     private List<Object> prepareStudentDataWithErrorsAndWarningsForCsv(SdcSchoolCollectionStudentEntity student, boolean isDistrict) {
         List<Object> csvRowData = new ArrayList<>();
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollection().getSchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-            Optional<FacilityTypeCode> facilityType = school.map(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode())).orElse(null);
+            Optional<FacilityTypeCode> facilityType = school.flatMap(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode()));
 
             String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
-            String finalFacilityType = facilityType != null && facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -520,11 +571,11 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-            Optional<FacilityTypeCode> facilityType = school.map(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode())).orElse(null);
+            Optional<FacilityTypeCode> facilityType = school.flatMap(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode()));
 
             String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
-            String finalFacilityType = facilityType != null && facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -582,11 +633,11 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-            Optional<FacilityTypeCode> facilityType = school.map(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode())).orElse(null);
+            Optional<FacilityTypeCode> facilityType = school.flatMap(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode()));
 
             String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
-            String finalFacilityType = facilityType != null && facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -605,7 +656,7 @@ public class AllStudentLightCollectionGenerateCsvService {
                 Boolean.TRUE.equals(student.getIsAdult()) ? "1" : "",
                 Boolean.TRUE.equals(student.getIsGraduated()) ? "1" : "",
                 student.getEnrolledGradeCode(),
-                StringUtils.isBlank(student.getSchoolFundingCode()) ? "" : student.getSchoolFundingCode().replaceAll("(.{2})(?=.)","$1,"),
+                student.getSchoolFundingCode(),
                 StringUtils.isBlank(student.getEnrolledProgramCodes())
                         ? ""
                         : Arrays.stream(student.getEnrolledProgramCodes().split("(?<=\\G.{2})"))
@@ -620,11 +671,11 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-            Optional<FacilityTypeCode> facilityType = school.map(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode())).orElse(null);
+            Optional<FacilityTypeCode> facilityType = school.flatMap(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode()));
 
             String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
-            String finalFacilityType = facilityType != null && facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -643,7 +694,7 @@ public class AllStudentLightCollectionGenerateCsvService {
                 Boolean.TRUE.equals(student.getIsAdult()) ? "1" : "",
                 Boolean.TRUE.equals(student.getIsGraduated()) ? "1" : "",
                 student.getEnrolledGradeCode(),
-                StringUtils.isBlank(student.getSchoolFundingCode()) ? "" : student.getSchoolFundingCode().replaceAll("(.{2})(?=.)","$1,"),
+                student.getSchoolFundingCode(),
                 StringUtils.isBlank(student.getEnrolledProgramCodes())
                         ? ""
                         : Arrays.stream(student.getEnrolledProgramCodes().split("(?<=\\G.{2})"))
@@ -659,11 +710,11 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-            Optional<FacilityTypeCode> facilityType = school.map(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode())).orElse(null);
+            Optional<FacilityTypeCode> facilityType = school.flatMap(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode()));
 
             String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
-            String finalFacilityType = facilityType != null && facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -682,7 +733,7 @@ public class AllStudentLightCollectionGenerateCsvService {
                 Boolean.TRUE.equals(student.getIsAdult()) ? "1" : "",
                 Boolean.TRUE.equals(student.getIsGraduated()) ? "1" : "",
                 student.getEnrolledGradeCode(),
-                StringUtils.isBlank(student.getSchoolFundingCode()) ? "" : student.getSchoolFundingCode().replaceAll("(.{2})(?=.)","$1,"),
+                student.getSchoolFundingCode(),
                 student.getNativeAncestryInd(),
                 student.getBandCode(),
                 StringUtils.isBlank(student.getEnrolledProgramCodes())
@@ -699,11 +750,11 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-            Optional<FacilityTypeCode> facilityType = school.map(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode())).orElse(null);
+            Optional<FacilityTypeCode> facilityType = school.flatMap(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode()));
 
             String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
-            String finalFacilityType = facilityType != null && facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -722,7 +773,7 @@ public class AllStudentLightCollectionGenerateCsvService {
                 Boolean.TRUE.equals(student.getIsAdult()) ? "1" : "",
                 Boolean.TRUE.equals(student.getIsGraduated()) ? "1" : "",
                 student.getEnrolledGradeCode(),
-                StringUtils.isBlank(student.getSchoolFundingCode()) ? "" : student.getSchoolFundingCode().replaceAll("(.{2})(?=.)","$1,"),
+                student.getSchoolFundingCode(),
                 student.getSpecialEducationCategoryCode()
         ));
         return csvRowData;
@@ -733,11 +784,11 @@ public class AllStudentLightCollectionGenerateCsvService {
         if (Boolean.TRUE.equals(isDistrict)) {
             UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
             Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
-            Optional<FacilityTypeCode> facilityType = school.map(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode())).orElse(null);
+            Optional<FacilityTypeCode> facilityType = school.flatMap(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode()));
 
             String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
             String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
-            String finalFacilityType = facilityType != null && facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
 
             csvRowData.add(schoolCode);
             csvRowData.add(schoolName);
@@ -756,13 +807,50 @@ public class AllStudentLightCollectionGenerateCsvService {
                 Boolean.TRUE.equals(student.getIsAdult()) ? "1" : "",
                 Boolean.TRUE.equals(student.getIsGraduated()) ? "1" : "",
                 student.getEnrolledGradeCode(),
-                StringUtils.isBlank(student.getSchoolFundingCode()) ? "" : student.getSchoolFundingCode().replaceAll("(.{2})(?=.)","$1,"),
+                student.getSchoolFundingCode(),
                 StringUtils.isBlank(student.getEnrolledProgramCodes())
                         ? ""
                         : Arrays.stream(student.getEnrolledProgramCodes().split("(?<=\\G.{2})"))
                         .filter(code -> EnrolledProgramCodes.getELLCodes().contains(code))
                         .collect(Collectors.joining(",")),
                 student.getYearsInEll()
+        ));
+        return csvRowData;
+    }
+
+    private List<Object> prepareRefugeeStudentDataForCsv(SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity student, Boolean isDistrict) {
+        List<Object> csvRowData = new ArrayList<>();
+        if (Boolean.TRUE.equals(isDistrict)) {
+            UUID schoolID = student.getSdcSchoolCollectionEntitySchoolID();
+            Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolID.toString());
+            Optional<FacilityTypeCode> facilityType = school.flatMap(schoolTombstone -> restUtils.getFacilityTypeCode(schoolTombstone.getFacilityTypeCode()));
+
+            String schoolCode = school.isPresent() ? school.get().getMincode() : NO_SCHOOL_CODE_FOUND;
+            String schoolName = school.map(SchoolTombstone::getDisplayName).orElse(NO_SCHOOL_NAME_FOUND);
+            String finalFacilityType = facilityType.isPresent() ? facilityType.get().getLabel() : NO_FACILITY_TYPE_FOUND;
+
+            csvRowData.add(schoolCode);
+            csvRowData.add(schoolName);
+            csvRowData.add(finalFacilityType);
+        }
+        String legalFullName = formatFullName(student.getLegalFirstName(), student.getLegalMiddleNames(), student.getLegalLastName());
+        String usualFullName = formatFullName(student.getUsualFirstName(), student.getUsualMiddleNames(), student.getUsualLastName());
+        var validationIssues = Arrays.asList(StudentValidationIssueTypeCode.REFUGEE_IN_PREV_COL.getCode(), StudentValidationIssueTypeCode.REFUGEE_IS_ADULT.getCode());
+        boolean refugeeFundingEligible = validationIssues.stream().noneMatch(issue ->
+                Optional.ofNullable(student.getSdcStudentValidationIssueEntities()).stream().flatMap(Collection::stream)
+                        .anyMatch(entity -> entity.getValidationIssueCode().equals(issue)));
+
+        csvRowData.addAll(Arrays.asList(
+                student.getStudentPen(),
+                legalFullName,
+                usualFullName,
+                student.getFte(),
+                refugeeFundingEligible ? "1" : "",
+                student.getLocalID(),
+                Boolean.TRUE.equals(student.getIsAdult()) ? "1" : "",
+                Boolean.TRUE.equals(student.getIsGraduated()) ? "1" : "",
+                student.getEnrolledGradeCode(),
+                student.getSchoolFundingCode()
         ));
         return csvRowData;
     }

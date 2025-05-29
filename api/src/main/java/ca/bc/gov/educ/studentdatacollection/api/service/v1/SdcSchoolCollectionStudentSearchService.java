@@ -1,13 +1,11 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.EnrolledProgramCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolFundingCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.filter.SdcSchoolCollectionStudentFilterSpecs;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.Search;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
@@ -50,6 +48,8 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
   private final SdcSchoolCollectionStudentPaginationRepositoryLight customSdcSchoolCollectionStudentPaginationRepositoryLight;
 
   private final SdcSchoolCollectionStudentLightWithEnrolledProgramCodesRepository sdcSchoolCollectionStudentLightWithEnrolledProgramCodesRepository;
+
+  private final SdcSchoolCollectionStudentLightWithValidationIssueCodesRepository sdcSchoolCollectionStudentLightWithValidationIssueCodesRepository;
 
   private final Executor paginatedQueryExecutor = new EnhancedQueueExecutor.Builder()
     .setThreadFactory(new ThreadFactoryBuilder().setNameFormat("async-pagination-query-executor-%d").build())
@@ -121,7 +121,7 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
   @Transactional(propagation = Propagation.SUPPORTS)
   public List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> findAllFrenchStudentsLightBySchoolCollectionID(UUID sdcSchoolCollectionID) {
     try {
-      return this.sdcSchoolCollectionStudentLightWithEnrolledProgramCodesRepository.findBySchoolCollectionIDAndStatusNotAndEnrolledProgramCodeNotIn(sdcSchoolCollectionID, "DELETED", EnrolledProgramCodes.getFrenchProgramCodes());
+      return this.sdcSchoolCollectionStudentLightWithEnrolledProgramCodesRepository.findBySchoolCollectionIDAndStatusNotAndEnrolledProgramCodeIn(sdcSchoolCollectionID, "DELETED", EnrolledProgramCodes.getFrenchProgramCodes());
     } catch (final Exception ex) {
       log.error("Failure querying for french light SDC school students by School Collection ID: {}", ex.getMessage());
       throw new CompletionException(ex);
@@ -131,7 +131,7 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
   @Transactional(propagation = Propagation.SUPPORTS)
   public List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> findAllCareerStudentsLightBySchoolCollectionID(UUID sdcSchoolCollectionID) {
     try {
-      return this.sdcSchoolCollectionStudentLightWithEnrolledProgramCodesRepository.findBySchoolCollectionIDAndStatusNotAndEnrolledProgramCodeNotIn(sdcSchoolCollectionID, "DELETED", EnrolledProgramCodes.getCareerProgramCodes());
+      return this.sdcSchoolCollectionStudentLightWithEnrolledProgramCodesRepository.findBySchoolCollectionIDAndStatusNotAndEnrolledProgramCodeIn(sdcSchoolCollectionID, "DELETED", EnrolledProgramCodes.getCareerProgramCodes());
     } catch (final Exception ex) {
       log.error("Failure querying for career light SDC school students by School Collection ID: {}", ex.getMessage());
       throw new CompletionException(ex);
@@ -149,9 +149,9 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
   }
 
   @Transactional(propagation = Propagation.SUPPORTS)
-  public List<SdcSchoolCollectionStudentLightEntity> findAllInclusiveEdStudentsLightBySchoolCollectionId(UUID sdcDistrictCollectionID) {
+  public List<SdcSchoolCollectionStudentLightEntity> findAllInclusiveEdStudentsLightBySchoolCollectionId(UUID sdcSchoolCollectionID) {
     try {
-      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionEntity_SdcSchoolCollectionIDAndSdcSchoolCollectionStudentStatusCodeNotAndSpecialEducationCategoryCodeNotNull(sdcDistrictCollectionID, "DELETED");
+      return this.sdcSchoolCollectionStudentLightRepository.findAllBySdcSchoolCollectionEntity_SdcSchoolCollectionIDAndSdcSchoolCollectionStudentStatusCodeNotAndSpecialEducationCategoryCodeNotNull(sdcSchoolCollectionID, "DELETED");
     } catch (final Exception ex) {
       log.error("Failure querying for light SDC school Inclusive Ed students by School Collection ID: {}", ex.getMessage());
       throw new CompletionException(ex);
@@ -161,9 +161,19 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
   @Transactional(propagation = Propagation.SUPPORTS)
   public List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> findAllEllStudentsLightBySchoolCollectionId(UUID sdcSchoolCollectionID) {
     try {
-      return this.sdcSchoolCollectionStudentLightWithEnrolledProgramCodesRepository.findBySchoolCollectionIDAndStatusNotAndEnrolledProgramCodeNotIn(sdcSchoolCollectionID, "DELETED", EnrolledProgramCodes.getELLCodes());
+      return this.sdcSchoolCollectionStudentLightWithEnrolledProgramCodesRepository.findBySchoolCollectionIDAndStatusNotAndEnrolledProgramCodeIn(sdcSchoolCollectionID, "DELETED", EnrolledProgramCodes.getELLCodes());
     } catch (final Exception ex) {
       log.error("Failure querying for light ELL SDC school students by School Collection ID: {}", ex.getMessage());
+      throw new CompletionException(ex);
+    }
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public List<SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity> findAllRefugeeStudentsLightBySchoolCollectionId(UUID sdcSchoolCollectionID) {
+    try {
+      return this.sdcSchoolCollectionStudentLightWithValidationIssueCodesRepository.findBySchoolCollectionIDAndStatusNotAndSchoolFundingCodeEquals(sdcSchoolCollectionID, "DELETED", SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+    } catch (final Exception ex) {
+      log.error("Failure querying for light Refugee SDC school students by School Collection ID: {}", ex.getMessage());
       throw new CompletionException(ex);
     }
   }
@@ -230,6 +240,17 @@ public class SdcSchoolCollectionStudentSearchService extends BaseSearchService {
       return this.sdcSchoolCollectionStudentLightWithEnrolledProgramCodesRepository.findByDistrictCollectionIDAndStatusNotInAndEnrolledProgramCodeIn(sdcDistrictCollectionID, status, EnrolledProgramCodes.getELLCodes());
     } catch (final Exception ex) {
       log.error("Failure querying for light ELL SDC school students by District Collection ID: {}", ex.getMessage());
+      throw new CompletionException(ex);
+    }
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public List<SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity> findAllRefugeeStudentsLightByDistrictCollectionId(UUID sdcDistrictCollectionID) {
+    try {
+      var status = Arrays.asList(SdcSchoolStudentStatus.DELETED.getCode(), SdcSchoolStudentStatus.ERROR.getCode());
+      return this.sdcSchoolCollectionStudentLightWithValidationIssueCodesRepository.findByDistrictCollectionIDAndStatusNotInAndSchoolFundingCodeEquals(sdcDistrictCollectionID, status, SchoolFundingCodes.NEWCOMER_REFUGEE.getCode());
+    } catch (final Exception ex) {
+      log.error("Failure querying for light Refugee SDC school students by District Collection ID: {}", ex.getMessage());
       throw new CompletionException(ex);
     }
   }
