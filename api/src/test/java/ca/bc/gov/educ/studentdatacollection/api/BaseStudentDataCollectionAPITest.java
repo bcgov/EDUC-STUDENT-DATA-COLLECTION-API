@@ -213,6 +213,25 @@ public abstract class BaseStudentDataCollectionAPITest {
     return sdcEntity;
   }
 
+  public SdcSchoolCollectionEntity createMockSdcSchoolCollectionEntityIndependentSchool(CollectionEntity entity, UUID schoolID, UUID authID){
+    SdcSchoolCollectionEntity sdcEntity = new SdcSchoolCollectionEntity();
+    sdcEntity.setCollectionEntity(entity);
+    SchoolTombstone school = createMockIndySchool(schoolID, authID);
+    sdcEntity.setSchoolID(UUID.fromString(school.getSchoolId()));
+    sdcEntity.setUploadDate(LocalDateTime.now());
+    sdcEntity.setUploadFileName("abc.txt");
+    sdcEntity.setUploadReportDate(null);
+    sdcEntity.setSdcSchoolCollectionStatusCode("NEW");
+    sdcEntity.setCreateUser("ABC");
+    sdcEntity.setCreateDate(LocalDateTime.now());
+    sdcEntity.setUpdateUser("ABC");
+    sdcEntity.setUpdateDate(LocalDateTime.now());
+    sdcEntity.setSdcSchoolCollectionHistoryEntities(new HashSet<>());
+    sdcEntity.setSdcSchoolStudentEntities(new HashSet<>());
+
+    return sdcEntity;
+  }
+
   public SchoolTombstone createMockSchoolTombstone() {
     return SchoolTombstone.builder()
             .schoolId(UUID.randomUUID().toString())
@@ -477,6 +496,21 @@ public abstract class BaseStudentDataCollectionAPITest {
     schoolTombstone.setSchoolNumber("36018");
     schoolTombstone.setOpenedDate("1964-09-01T00:00:00");
     schoolTombstone.setSchoolCategoryCode("PUBLIC");
+    schoolTombstone.setSchoolReportingRequirementCode("REGULAR");
+    schoolTombstone.setFacilityTypeCode("STANDARD");
+    return schoolTombstone;
+  }
+
+  public SchoolTombstone createMockIndySchool(UUID schoolID, UUID authID) {
+    final SchoolTombstone schoolTombstone = new SchoolTombstone();
+    schoolTombstone.setSchoolId(schoolID != null ? String.valueOf(schoolID) : UUID.randomUUID().toString());
+    schoolTombstone.setIndependentAuthorityId(authID != null ? String.valueOf(authID) : UUID.randomUUID().toString());
+    schoolTombstone.setDistrictId(null);
+    schoolTombstone.setDisplayName("Alex's Independent school");
+    schoolTombstone.setMincode("03636018");
+    schoolTombstone.setSchoolNumber("36018");
+    schoolTombstone.setOpenedDate("1964-09-01T00:00:00");
+    schoolTombstone.setSchoolCategoryCode("INDEPEND");
     schoolTombstone.setSchoolReportingRequirementCode("REGULAR");
     schoolTombstone.setFacilityTypeCode("STANDARD");
     return schoolTombstone;
