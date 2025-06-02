@@ -23,48 +23,48 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * | ID  | Severity | Rule                                                          | Dependent On |
- * |-----|----------|-------------------------------------------------------------- |--------------|
- * | V93 | ERROR    | Student included in any collection in this school year        | V92          |
- *                    for the district with FTE > 0 in any school with type
- *                   different from online
- *                   OR if the student reported in Online school in the district
- *                   in grade K to 9 with FTE >0
+ * | ID   | Severity | Rule                                                          | Dependent On |
+ * |----- |----------|-------------------------------------------------------------- |--------------|
+ * | V103 | ERROR    | Student included in any collection in this school year        | V92          |
+ *                     for the authority with FTE > 0 in any school with type
+ *                     different from online
+ *                     OR if the student reported in Online school in the authority
+ *                     in grade K to 9 with FTE >0
  */
 @Component
 @Slf4j
-@Order(923)
-public class SummerStudentReportedInDistrictRule implements ValidationBaseRule {
+@Order(1030)
+public class SummerStudentReportedInAuthorityRule implements ValidationBaseRule {
     private final ValidationRulesService validationRulesService;
     private final RestUtils restUtils;
 
-    public SummerStudentReportedInDistrictRule(ValidationRulesService validationRulesService, RestUtils restUtils) {
+    public SummerStudentReportedInAuthorityRule(ValidationRulesService validationRulesService, RestUtils restUtils) {
         this.validationRulesService = validationRulesService;
         this.restUtils = restUtils;
     }
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<SdcSchoolCollectionStudentValidationIssue> validationErrorsMap) {
-        log.debug("In shouldExecute of SummerStudentReportedInDistrictRule-V93: for collectionType {} and sdcSchoolCollectionStudentID :: {}", FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
+        log.debug("In shouldExecute of SummerStudentReportedInAuthorityRule-V93: for collectionType {} and sdcSchoolCollectionStudentID :: {}", FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         return !studentRuleData.getSchool().getFacilityTypeCode().equalsIgnoreCase(FacilityTypeCodes.SUMMER.getCode()) &&
                 FteCalculatorUtils.getCollectionTypeCode(studentRuleData).equalsIgnoreCase(CollectionTypeCodes.JULY.getTypeCode()) &&
-                isValidationDependencyResolved("V93", validationErrorsMap);
+                isValidationDependencyResolved("V103", validationErrorsMap);
     }
 
     @Override
     public List<SdcSchoolCollectionStudentValidationIssue> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of SummerStudentReportedInDistrictRule-V93 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+        log.debug("In executeValidation of SummerStudentReportedInAuthorityRule-V93 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
         if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
-            var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionWithInSameDistrict(studentRuleData, "3");
+            var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionWithInSameAuthority(studentRuleData, "3");
             for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {
                 Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
                 if (school.isPresent()) {
                     boolean isOnlineSchool = FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode());
                     if (!isOnlineSchool || SchoolGradeCodes.getKToNineGrades().contains(studentEntity.getEnrolledGradeCode())) {
-                        errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_ERROR));
+                        errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_AUTHORITY_ERROR));
                         break;
                     }
                 }
