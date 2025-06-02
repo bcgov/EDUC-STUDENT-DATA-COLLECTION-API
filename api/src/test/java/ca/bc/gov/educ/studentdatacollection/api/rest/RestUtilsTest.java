@@ -55,21 +55,21 @@ class RestUtilsTest {
     @Test
     void testPopulateSchoolMap_WhenApiCallSucceeds_ShouldPopulateMaps() {
         // Given
-        val school1ID = String.valueOf(UUID.randomUUID());
-        val school2ID = String.valueOf(UUID.randomUUID());
-        val school3ID = String.valueOf(UUID.randomUUID());
+        val school1ID = UUID.randomUUID();
+        val school2ID = UUID.randomUUID();
+        val school3ID = UUID.randomUUID();
         val school1 = SchoolTombstone.builder()
-                .schoolId(school1ID)
+                .schoolId(String.valueOf(school1ID))
                 .displayName("School 1")
                 .independentAuthorityId("Authority 1")
                 .build();
         val school2 = SchoolTombstone.builder()
-                .schoolId(school2ID)
+                .schoolId(String.valueOf(school2ID))
                 .displayName("School 2")
                 .independentAuthorityId("Authority 1")
                 .build();
         val school3 = SchoolTombstone.builder()
-                .schoolId(school3ID)
+                .schoolId(String.valueOf(school3ID))
                 .displayName("School 3")
                 .independentAuthorityId("Authority 2")
                 .build();
@@ -80,18 +80,20 @@ class RestUtilsTest {
         restUtils.populateSchoolMap();
 
         // Then verify the maps are populated
-        Map<String, SchoolTombstone> schoolMap = (Map<String, SchoolTombstone>) ReflectionTestUtils.getField(restUtils, "schoolMap");
-        assertEquals(3, schoolMap.size());
-        assertEquals(school1, schoolMap.get(school1ID));
-        assertEquals(school2, schoolMap.get(school2ID));
-        assertEquals(school3, schoolMap.get(school3ID));
+        List<SchoolTombstone> results = restUtils.getAllSchoolTombstones();
+        assertNotNull(results);
+        assertEquals(3, results.size());
+        assertEquals(school1, results.get(0));
+        assertEquals(school2, results.get(1));
+        assertEquals(school3, results.get(2));
 
-        Map<String, List<UUID>> independentAuthorityToSchoolIDMap = (Map<String, List<UUID>>) ReflectionTestUtils.getField(restUtils, "independentAuthorityToSchoolIDMap");
-        assertEquals(2, independentAuthorityToSchoolIDMap.size());
-        assertTrue(independentAuthorityToSchoolIDMap.containsKey("Authority 1"));
-        assertTrue(independentAuthorityToSchoolIDMap.containsKey("Authority 2"));
-        assertEquals(2, independentAuthorityToSchoolIDMap.get("Authority 1").size());
-        assertEquals(1, independentAuthorityToSchoolIDMap.get("Authority 2").size());
+        doReturn(Optional.of(List.of(school1ID, school2ID))).when(restUtils).getSchoolIDsByIndependentAuthorityID("Authority 1");
+
+        Optional<List<UUID>> result = restUtils.getSchoolIDsByIndependentAuthorityID("Authority 1");
+
+        assertNotNull(result);
+        assertEquals(2, result.get().size());
+        assertTrue(result.get().equals(List.of(school1ID, school2ID)));
     }
 
     @Test
@@ -130,20 +132,20 @@ class RestUtilsTest {
     @Test
     void testPopulateSchoolMap_WhenNoIndependentAuthorityId_ShouldPopulateMapsCorrectly() {
         // Given
-        val school1ID = String.valueOf(UUID.randomUUID());
-        val school2ID = String.valueOf(UUID.randomUUID());
-        val school3ID = String.valueOf(UUID.randomUUID());
+        val school1ID = UUID.randomUUID();
+        val school2ID = UUID.randomUUID();
+        val school3ID = UUID.randomUUID();
         val school1 = SchoolTombstone.builder()
-                .schoolId(school1ID)
+                .schoolId(String.valueOf(school1ID))
                 .displayName("School 1")
                 .independentAuthorityId("Authority 1")
                 .build();
         val school2 = SchoolTombstone.builder()
-                .schoolId(school2ID)
+                .schoolId(String.valueOf(school2ID))
                 .displayName("School 2")
                 .build();
         val school3 = SchoolTombstone.builder()
-                .schoolId(school3ID)
+                .schoolId(String.valueOf(school3ID))
                 .displayName("School 3")
                 .independentAuthorityId("Authority 2")
                 .build();
@@ -151,21 +153,18 @@ class RestUtilsTest {
         doReturn(List.of(school1, school2, school3)).when(restUtils).getAllSchoolTombstones();
 
         // When
-        restUtils.populateSchoolMap();
+        restUtils.getAllSchoolTombstones();
 
         // Then verify the maps are populated
-        Map<String, SchoolTombstone> schoolMap = (Map<String, SchoolTombstone>) ReflectionTestUtils.getField(restUtils, "schoolMap");
-        assertEquals(3, schoolMap.size());
-        assertEquals(school1, schoolMap.get(school1ID));
-        assertEquals(school2, schoolMap.get(school2ID));
-        assertEquals(school3, schoolMap.get(school3ID));
+        List<SchoolTombstone> results = restUtils.getAllSchoolTombstones();
+        assertEquals(3, results.size());
 
-        Map<String, List<UUID>> independentAuthorityToSchoolIDMap = (Map<String, List<UUID>>) ReflectionTestUtils.getField(restUtils, "independentAuthorityToSchoolIDMap");
-        assertEquals(2, independentAuthorityToSchoolIDMap.size());
-        assertTrue(independentAuthorityToSchoolIDMap.containsKey("Authority 1"));
-        assertTrue(independentAuthorityToSchoolIDMap.containsKey("Authority 2"));
-        assertEquals(1, independentAuthorityToSchoolIDMap.get("Authority 1").size());
-        assertEquals(1, independentAuthorityToSchoolIDMap.get("Authority 2").size());
+        doReturn(Optional.of(List.of(school1ID))).when(restUtils).getSchoolIDsByIndependentAuthorityID("Authority 1");
+
+        Optional<List<UUID>> result = restUtils.getSchoolIDsByIndependentAuthorityID("Authority 1");
+
+        assertEquals(1, result.get().size());
+        assertTrue(result.get().equals(List.of(school1ID)));
     }
 
 
@@ -242,19 +241,33 @@ class RestUtilsTest {
         doReturn(List.of(school1, school2, school3)).when(restUtils).getAllSchoolTombstones();
 
         // When
-        restUtils.populateSchoolMincodeMap();
+        List<SchoolTombstone> results = restUtils.getAllSchoolTombstones();
 
         // Then verify the maps are populated
-        Map<String, SchoolTombstone> schoolMincodeMap = (Map<String, SchoolTombstone>) ReflectionTestUtils.getField(restUtils, "schoolMincodeMap");
-        assertEquals(3, schoolMincodeMap.size());
-        assertEquals(school1, schoolMincodeMap.get(school1Mincode));
-        assertEquals(school2, schoolMincodeMap.get(school2Mincode));
-        assertEquals(school3, schoolMincodeMap.get(school3Mincode));
-
+        assertEquals(3, results.size());
     }
 
     @Test
     void testGetSchoolFromMincodeMap_WhenApiCallSucceeds_ShouldReturnSchool() {
+        // Given
+        val school1Mincode = "97083";
+
+        val school1 = SchoolTombstone.builder()
+                .schoolId(String.valueOf(UUID.randomUUID()))
+                .displayName("School 1")
+                .independentAuthorityId("Authority 1")
+                .mincode(school1Mincode)
+                .build();
+
+        doReturn(Optional.of(school1)).when(restUtils).getSchoolByMincode(school1Mincode);
+
+        // When
+        var result = restUtils.getSchoolByMincode(school1Mincode);
+        assertEquals(school1, result.get());
+    }
+
+    @Test
+    void testGetSchoolsFromMincodeMap_WhenApiCallSucceeds_ShouldReturnSchools() {
         // Given
         val school1Mincode = "97083";
         val school2Mincode = "97084";
@@ -279,8 +292,8 @@ class RestUtilsTest {
         doReturn(List.of(school1, school2, school3)).when(restUtils).getAllSchoolTombstones();
 
         // When
-        var result = restUtils.getSchoolByMincode(school1Mincode);
-        assertEquals(school1, result.get());
+        var result = restUtils.getAllSchoolTombstones();
+        assertEquals(List.of(school1, school2, school3), result);
     }
 
     @Test
@@ -436,3 +449,4 @@ class RestUtilsTest {
         );
     }
 }
+
