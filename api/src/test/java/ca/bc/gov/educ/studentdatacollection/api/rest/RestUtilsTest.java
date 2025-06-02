@@ -74,7 +74,7 @@ class RestUtilsTest {
                 .independentAuthorityId("Authority 2")
                 .build();
 
-        doReturn(List.of(school1, school2, school3)).when(restUtils).getSchools();
+        doReturn(List.of(school1, school2, school3)).when(restUtils).getAllSchoolTombstones();
 
         // When
         restUtils.populateSchoolMap();
@@ -148,7 +148,7 @@ class RestUtilsTest {
                 .independentAuthorityId("Authority 2")
                 .build();
 
-        doReturn(List.of(school1, school2, school3)).when(restUtils).getSchools();
+        doReturn(List.of(school1, school2, school3)).when(restUtils).getAllSchoolTombstones();
 
         // When
         restUtils.populateSchoolMap();
@@ -172,7 +172,7 @@ class RestUtilsTest {
     @Test
     void testPopulateSchoolMap_WhenApiCallFails_ShouldHandleException() {
         // Given
-        doThrow(new RuntimeException("API call failed")).when(restUtils).getSchools();
+        doThrow(new RuntimeException("API call failed")).when(restUtils).getAllSchoolTombstones();
 
         // When
         assertDoesNotThrow(() -> restUtils.populateSchoolMap()); //checks exception is handled
@@ -239,7 +239,7 @@ class RestUtilsTest {
                 .mincode(school3Mincode)
                 .build();
 
-        doReturn(List.of(school1, school2, school3)).when(restUtils).getSchools();
+        doReturn(List.of(school1, school2, school3)).when(restUtils).getAllSchoolTombstones();
 
         // When
         restUtils.populateSchoolMincodeMap();
@@ -276,7 +276,7 @@ class RestUtilsTest {
                 .mincode(school3Mincode)
                 .build();
 
-        doReturn(List.of(school1, school2, school3)).when(restUtils).getSchools();
+        doReturn(List.of(school1, school2, school3)).when(restUtils).getAllSchoolTombstones();
 
         // When
         var result = restUtils.getSchoolByMincode(school1Mincode);
@@ -324,7 +324,7 @@ class RestUtilsTest {
         districtUser.setEmail("jane.smith@example.com");
         districtUser.setEdxUserDistricts(List.of(userDistrict));
 
-        doReturn(List.of(schoolUser, districtUser)).when(restUtils).getEdxUsers();
+        doReturn(List.of(schoolUser)).when(restUtils).getEdxUsersForSchool(UUID.fromString(schoolID));
 
         List<EdxUser> returnedSchoolUser = restUtils.getEdxUsersForSchool(UUID.fromString(schoolID));
         assert(returnedSchoolUser.get(0).getEdxUserID()).equals(schoolUser.getEdxUserID());
