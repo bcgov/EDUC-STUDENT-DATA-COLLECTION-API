@@ -546,7 +546,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-        when(restUtils.getSchools()).thenReturn(List.of(school));
+        when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
 
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setAssignedStudentId(assignedStudentID);
@@ -588,7 +588,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-        when(restUtils.getSchools()).thenReturn(List.of(school));
+        when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
 
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setAssignedStudentId(assignedStudentID);
@@ -629,7 +629,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-        when(restUtils.getSchools()).thenReturn(List.of(school));
+        when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
 
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setAssignedStudentId(assignedStudentID);
@@ -673,7 +673,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-        when(restUtils.getSchools()).thenReturn(List.of(school));
+        when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
 
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setAssignedStudentId(assignedStudentID);
@@ -714,7 +714,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-        when(restUtils.getSchools()).thenReturn(List.of(school));
+        when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
 
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setAssignedStudentId(assignedStudentID);
@@ -758,7 +758,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-        when(restUtils.getSchools()).thenReturn(List.of(school, school2));
+        when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(school, school2));
 
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setAssignedStudentId(assignedStudentID);
@@ -804,7 +804,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-        when(restUtils.getSchools()).thenReturn(List.of(school, school2));
+        when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(school, school2));
 
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setAssignedStudentId(assignedStudentID);
@@ -846,7 +846,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-        when(restUtils.getSchools()).thenReturn(List.of(school));
+        when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
 
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setAssignedStudentId(assignedStudentID);
@@ -889,7 +889,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setStudentID(String.valueOf(assignedStudentID));
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-        when(restUtils.getSchools()).thenReturn(List.of(school));
+        when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
 
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setAssignedStudentId(assignedStudentID);
@@ -1482,7 +1482,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.setPenStatus(null);
         when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
-        when(restUtils.getSchools()).thenReturn(List.of(school));
+        when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
 
         entity.setDob(LocalDateTime.now().minusYears(8).format(format));
         entity.setAssignedStudentId(null);
