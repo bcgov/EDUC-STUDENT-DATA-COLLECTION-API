@@ -344,7 +344,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
-        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_ERROR.getCode()));
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_DISTRICT_ERROR.getCode()));
         assertThat(error).isTrue();
     }
 
@@ -387,7 +387,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
         saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
-        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_ERROR.getCode()));
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_DISTRICT_ERROR.getCode()));
         assertThat(error).isTrue();
     }
 
@@ -430,7 +430,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
-        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_ERROR.getCode()));
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_DISTRICT_ERROR.getCode()));
         assertThat(error).isTrue();
     }
 
@@ -474,7 +474,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
-        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_ERROR.getCode()));
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_DISTRICT_ERROR.getCode()));
         assertThat(error).isTrue();
     }
 
@@ -515,7 +515,7 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
-        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_ERROR.getCode()));
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_DISTRICT_ERROR.getCode()));
         assertThat(error).isFalse();
     }
 
@@ -1450,7 +1450,49 @@ class SummerRulesProcessorTest extends BaseStudentDataCollectionAPITest {
 
         val validationGradRule = rulesProcessor.processRules(saga);
         assertThat(validationGradRule.size()).isNotZero();
-        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_ERROR.getCode()));
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_DISTRICT_ERROR.getCode()));
+        assertThat(error).isFalse();
+    }
+
+    @Test
+    void testSummerStudentReportedInAuthRuleIsExecuted_WhenAssignedStudentIDIsNULL_And_StudentIsReportedInMAYCollection() {
+        UUID assignedStudentID = UUID.randomUUID();
+        LocalDate mayCloseDate = LocalDate.parse(LocalDate.now().getYear() + "-05-30");
+        UUID schoolId = UUID.randomUUID();
+        UUID authID = UUID.randomUUID();
+        SchoolTombstone school = createMockIndySchool(schoolId, authID);
+        District district = createMockDistrict();
+        school.setDistrictId(district.getDistrictId());
+        LocalDateTime currentCloseDate = LocalDateTime.now().plusDays(2);
+
+        createHistoricalCollectionWithStudentIndependent(CollectionTypeCodes.MAY.getTypeCode(), LocalDateTime.of(mayCloseDate, LocalTime.MIDNIGHT), assignedStudentID, schoolId, null, authID);
+
+        var collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(JULY.getTypeCode());
+        collection.setCloseDate(currentCloseDate);
+        collectionRepository.save(collection);
+
+
+        var sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, schoolId);
+        sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
+
+        val entity = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+        school.setSchoolCategoryCode(SchoolCategoryCodes.PUBLIC.getCode());
+
+        PenMatchResult penMatchResult = getPenMatchResult();
+        penMatchResult.setPenStatus(null);
+        when(this.restUtils.getPenMatchResult(any(),any(), anyString())).thenReturn(penMatchResult);
+        when(restUtils.getSchools()).thenReturn(List.of(school));
+
+        entity.setDob(LocalDateTime.now().minusYears(8).format(format));
+        entity.setAssignedStudentId(null);
+        entity.setEnrolledGradeCode("08");
+        val saga = createMockStudentRuleData(entity, school);
+        saga.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
+
+        val validationGradRule = rulesProcessor.processRules(saga);
+        assertThat(validationGradRule.size()).isNotZero();
+        val error = validationGradRule.stream().anyMatch(val -> val.getValidationIssueCode().equals(StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_AUTHORITY_ERROR.getCode()));
         assertThat(error).isFalse();
     }
 

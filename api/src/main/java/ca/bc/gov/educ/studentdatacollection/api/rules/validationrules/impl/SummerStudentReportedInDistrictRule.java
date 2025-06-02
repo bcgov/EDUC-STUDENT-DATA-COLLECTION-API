@@ -64,7 +64,7 @@ public class SummerStudentReportedInDistrictRule implements ValidationBaseRule {
                 if (school.isPresent()) {
                     boolean isOnlineSchool = FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode());
                     if (!isOnlineSchool || SchoolGradeCodes.getKToNineGrades().contains(studentEntity.getEnrolledGradeCode())) {
-                        errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_ERROR));
+                        errors.add(createValidationIssue(StudentValidationIssueSeverityCode.FUNDING_WARNING, StudentValidationFieldCode.ENROLLED_GRADE_CODE, StudentValidationIssueTypeCode.SUMMER_STUDENT_ALREADY_REPORTED_DISTRICT_ERROR));
                         break;
                     }
                 }
