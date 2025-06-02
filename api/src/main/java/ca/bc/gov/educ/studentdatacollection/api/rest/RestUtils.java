@@ -469,6 +469,14 @@ public class RestUtils {
     return Optional.ofNullable(this.schoolMap.get(schoolID));
   }
 
+  public List<SchoolTombstone> getAllSchoolTombstones() {
+    if (this.schoolMap.isEmpty()) {
+      log.info("School map is empty reloading schools get all school tombstones");
+      this.populateSchoolMap();
+    }
+    return new ArrayList<>(this.schoolMap.values());
+  }
+
   public Optional<IndependentAuthority> getAuthorityByAuthorityID(final String authorityID) {
     if (this.authorityMap.isEmpty()) {
       log.info("Authority map is empty reloading authorities");
