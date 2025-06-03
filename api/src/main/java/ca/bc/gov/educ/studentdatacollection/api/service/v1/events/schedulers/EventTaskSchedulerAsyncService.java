@@ -253,7 +253,7 @@ public class EventTaskSchedulerAsyncService {
     CollectionTypeCodeEntity collectionTypeCodeEntity = optionalCollectionTypeCodeEntity.orElseThrow(() -> new EntityNotFoundException(CollectionTypeCodeEntity.class, "collectionTypeCode", activeCollection.getCollectionTypeCode()));
     List<CollectionCodeCriteriaEntity> collectionCodeCriteria = this.collectionCodeCriteriaRepository.findAllByCollectionTypeCodeEntityEquals(collectionTypeCodeEntity);
     final List<SchoolTombstone> schoolTombstones = closeCollectionService.getListOfSchoolIDsFromCriteria(collectionCodeCriteria);
-    final List<SchoolTombstone> allSchoolTombstones = restUtils.getSchools();
+    final List<SchoolTombstone> allSchoolTombstones = restUtils.getAllSchoolTombstones();
     final List<SdcSchoolCollectionEntity> activeSchoolCollections = sdcSchoolCollectionRepository.findAllByCollectionEntityCollectionID(activeCollection.getCollectionID());
 
     List<SdcSchoolCollectionEntity> newSchoolCollections = findAddSchoolsAndUpdateSdcSchoolCollection(schoolTombstones, activeCollection, activeSchoolCollections);

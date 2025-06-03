@@ -1143,7 +1143,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     var student3 = this.createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
     student3.setEnrolledGradeCode("10");
     this.sdcSchoolCollectionStudentRepository.saveAll(List.of(student1, student2, student3));
-    when(this.restUtils.getSchools()).thenReturn(List.of(school));
+    when(this.restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
     String gradeToQuery = "12";
 
     Map<String, List<UUID>> requestBody = new HashMap<>();
