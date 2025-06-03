@@ -274,7 +274,6 @@ public class FteCalculatorUtils {
     public boolean includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline(StudentRuleData studentRuleData) {
         // non-zero fte is checked in query
         validationRulesService.setupMergedStudentIdValues(studentRuleData);
-        var collection = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity();
         List<SchoolTombstone> allSchools = this.restUtils.getAllSchoolTombstones();
         List<UUID> independentSchoolIDsWithSameAuthorityID = allSchools.stream()
                 .filter(school -> school.getIndependentAuthorityId() != null && school.getIndependentAuthorityId().equals(studentRuleData.getSchool().getIndependentAuthorityId()))
@@ -296,7 +295,6 @@ public class FteCalculatorUtils {
     public boolean includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(StudentRuleData studentRuleData) {
         // non-zero fte is checked in query
         validationRulesService.setupMergedStudentIdValues(studentRuleData);
-        var collection = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity();
         List<SchoolTombstone> allSchools = this.restUtils.getAllSchoolTombstones();
         List<UUID> independentSchoolIDsWithSameAuthorityID = allSchools.stream()
                 .filter(school -> school.getIndependentAuthorityId() != null && school.getIndependentAuthorityId().equals(studentRuleData.getSchool().getIndependentAuthorityId()))

@@ -219,7 +219,6 @@ public class ValidationRulesService {
 
     public List<SdcSchoolCollectionStudentEntity> getStudentInHistoricalCollectionWithInSameAuthority(StudentRuleData studentRuleData, String noOfCollectionsForLookup) {
         setupMergedStudentIdValues(studentRuleData);
-        var collection = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity();
         List<SchoolTombstone> allSchools = this.restUtils.getAllSchoolTombstones();
         List<UUID> independentSchoolIDsWithSameAuthorityID = allSchools.stream()
                 .filter(school -> school.getIndependentAuthorityId() != null && school.getIndependentAuthorityId().equals(studentRuleData.getSchool().getIndependentAuthorityId()))
