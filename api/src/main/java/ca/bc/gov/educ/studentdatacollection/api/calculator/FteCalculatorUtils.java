@@ -271,6 +271,50 @@ public class FteCalculatorUtils {
         return false;
     }
 
+    public boolean includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline(StudentRuleData studentRuleData) {
+        // non-zero fte is checked in query
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
+        var collection = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity();
+        List<SchoolTombstone> allSchools = this.restUtils.getAllSchoolTombstones();
+        List<UUID> independentSchoolIDsWithSameAuthorityID = allSchools.stream()
+                .filter(school -> school.getIndependentAuthorityId() != null && school.getIndependentAuthorityId().equals(studentRuleData.getSchool().getIndependentAuthorityId()))
+                .map(school -> UUID.fromString(school.getSchoolId()))
+                .toList();
+        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameAuthority(independentSchoolIDsWithSameAuthorityID, studentRuleData.getHistoricStudentIds(), "3", collection.getCollectionID(), collection.getSnapshotDate());
+
+        for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
+            String schoolId = studentEntity.getSdcSchoolCollection().getSchoolID().toString();
+            Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolId);
+            if (school.isPresent() && FacilityTypeCodes.getOnlineFacilityTypeCodes().stream().noneMatch(code -> code.equals(school.get().getFacilityTypeCode()))) {
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+    public boolean includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(StudentRuleData studentRuleData) {
+        // non-zero fte is checked in query
+        validationRulesService.setupMergedStudentIdValues(studentRuleData);
+        var collection = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity();
+        List<SchoolTombstone> allSchools = this.restUtils.getAllSchoolTombstones();
+        List<UUID> independentSchoolIDsWithSameAuthorityID = allSchools.stream()
+                .filter(school -> school.getIndependentAuthorityId() != null && school.getIndependentAuthorityId().equals(studentRuleData.getSchool().getIndependentAuthorityId()))
+                .map(school -> UUID.fromString(school.getSchoolId()))
+                .toList();
+        List<SdcSchoolCollectionStudentEntity> historicalCollections =sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameAuthority(independentSchoolIDsWithSameAuthorityID, studentRuleData.getHistoricStudentIds(), "3", collection.getCollectionID(), collection.getSnapshotDate());
+
+        for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
+            String schoolId = studentEntity.getSdcSchoolCollection().getSchoolID().toString();
+            Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(schoolId);
+            if (school.isPresent() && FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode()) && SchoolGradeCodes.getKToNineGrades().contains(studentEntity.getEnrolledGradeCode())) {
+                return true;
+            }
+
+        }
+        return false;
+    }
+
     public boolean reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(StudentRuleData studentRuleData) {
         validationRulesService.setupMergedStudentIdValues(studentRuleData);
         List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getHistoricStudentIds(), "3");

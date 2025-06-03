@@ -1413,6 +1413,36 @@ class FteCalculatorUtilsTest {
     }
 
     @Test
+    void testIncludedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline_OnlineSchool_ReturnsFalse() {
+        // Given
+        StudentRuleData studentRuleData = new StudentRuleData();
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.DISTONLINE.getCode());
+        schoolTombstone.setIndependentAuthorityId(UUID.randomUUID().toString());
+        studentRuleData.setSchool(schoolTombstone);
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
+        student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
+        student.setFte(BigDecimal.TEN);
+        student.setCreateDate(LocalDateTime.now());
+        student.setAssignedStudentId(UUID.randomUUID());
+        studentRuleData.setSdcSchoolCollectionStudentEntity(student);
+        studentRuleData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
+
+        when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(schoolTombstone));
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameAuthority(anyList(), anyList(), anyString(), any(UUID.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
+
+        // When
+        var result = fteCalculatorUtils.includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline(studentRuleData);
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
     void testIncludedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline_FteZero_ReturnsFalse() {
         // Given
         StudentRuleData studentRuleData = new StudentRuleData();
@@ -1494,6 +1524,38 @@ class FteCalculatorUtilsTest {
 
         // When
         var result = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentRuleData);
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    void testIncludedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnlineInGradeKto9_ZeroFte_ReturnsFalse() {
+        // Given
+        StudentRuleData studentRuleData = new StudentRuleData();
+        SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setFacilityTypeCode(FacilityTypeCodes.DISTONLINE.getCode());
+        schoolTombstone.setIndependentAuthorityId(UUID.randomUUID().toString());
+        schoolTombstone.setSchoolId(UUID.randomUUID().toString());
+        studentRuleData.setSchool(schoolTombstone);
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        CollectionEntity collection = createMockCollectionEntity();
+        collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
+        student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
+        student.setFte(BigDecimal.ZERO);
+        student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
+        student.setCreateDate(LocalDateTime.now());
+        student.setAssignedStudentId(UUID.randomUUID());
+        studentRuleData.setSdcSchoolCollectionStudentEntity(student);
+        studentRuleData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
+
+
+        when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(schoolTombstone));
+        when(sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameAuthority(anyList(), anyList(), anyString(), any(UUID.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
+
+        // When
+        var result = fteCalculatorUtils.includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentRuleData);
 
         // Then
         assertFalse(result);

@@ -78,6 +78,28 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
                 return fteCalculationResult;
             }
 
+            // v103
+            var includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline = fteCalculatorUtils.includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline(studentData);
+            // The student was included in any collection in this school year for the auth with a non-zero FTE
+            // and was reported in any school with a type different than Online.
+            if (includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline) {
+                log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; The authority has already received funding for the student this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+                fteCalculationResult.setFte(BigDecimal.ZERO);
+                fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.AUTHORITY_DUPLICATE_FUNDING.getCode());
+                return fteCalculationResult;
+            }
+
+            // v103
+            var includedInCollectionThisSchoolYearForDAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9 = fteCalculatorUtils.includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData);
+            // The student was included in any collection in this school year for the auth with a non-zero FTE
+            // and was reported in an Online school in grade K to 9.
+            if (includedInCollectionThisSchoolYearForDAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9) {
+                log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; The authority has already received funding for the student this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+                fteCalculationResult.setFte(BigDecimal.ZERO);
+                fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.AUTHORITY_DUPLICATE_FUNDING.getCode());
+                return fteCalculationResult;
+            }
+
             log.debug("CollectionAndFacilityTypeCalculator: No FTE result, moving to next calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return this.nextCalculator.calculateFte(studentData);
         } else {

@@ -210,4 +210,95 @@ class CollectionAndFacilityTypeCalculatorTest extends BaseStudentDataCollectionA
         assertEquals(ZeroFteReasonCodes.NO_ONLINE_LEARNING.getCode(), result.getFteZeroReason());
         verify(nextCalculator, never()).calculateFte(any());
     }
+
+    @Test
+    void testCalculateFte_JulyCollectionAndFacilityTypeDifferentThanSummerSchool_StudentIncludedInAuthThisSchoolYearNonZeroFteAndSchoolNotOnline_ReturnsFteCalculation() {
+        // Given
+        District district = createMockDistrict();
+        SchoolTombstone school = createMockSchool();
+        school.setDistrictId(district.getDistrictId());
+        school.setFacilityTypeCode(FacilityTypeCodes.PROVINCIAL.getCode());
+        school.setIndependentAuthorityId("AUTH_ID");
+
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setAssignedStudentId(UUID.randomUUID());
+        student.setFte(BigDecimal.TEN);
+
+        CollectionEntity collection = createMockCollectionEntity();
+        var newSnapDate = LocalDate.of(LocalDateTime.now().getYear(), Month.JULY, 29);
+        collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+        collection.setSnapshotDate(newSnapDate);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntityNew = createMockSdcSchoolCollectionEntity(collection, null);
+        sdcSchoolCollectionEntityNew.setSdcSchoolStudentEntities(Collections.singleton(student));
+        sdcSchoolCollectionEntityNew.setSchoolID(UUID.fromString(school.getSchoolId()));
+
+        student.setSdcSchoolCollection(sdcSchoolCollectionEntityNew);
+
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSchool(school);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
+
+        when(fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(studentData)).thenReturn(false);
+        when(fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData)).thenReturn(false);
+        when(fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentData)).thenReturn(true);
+        when(fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData)).thenReturn(true);
+        when(fteCalculatorUtils.includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline(studentData)).thenReturn(true);
+        when(fteCalculatorUtils.includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData)).thenReturn(false);
+
+        // When
+        FteCalculationResult result = collectionAndFacilityTypeCalculator.calculateFte(studentData);
+
+        // Then
+        BigDecimal expectedFte = new BigDecimal("0");
+
+        assertEquals(expectedFte, result.getFte());
+        assertEquals(ZeroFteReasonCodes.AUTHORITY_DUPLICATE_FUNDING.getCode(), result.getFteZeroReason());
+        verify(nextCalculator, never()).calculateFte(any());
+    }
+
+    @Test
+    void testCalculateFte_JulyCollectionAndFacilityTypeDifferentThanSummerSchool_StudentIncludedInAuthThisSchoolYearNonZeroFteAndSchoolOnlineKto9_ReturnsFteCalculation() {
+        // Given
+        District district = createMockDistrict();
+        SchoolTombstone school = createMockSchool();
+        school.setDistrictId(district.getDistrictId());
+        school.setFacilityTypeCode(FacilityTypeCodes.DISTONLINE.getCode());
+        school.setIndependentAuthorityId("AUTH_ID");
+
+        SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+        student.setAssignedStudentId(UUID.randomUUID());
+        student.setFte(BigDecimal.TEN);
+        student.setEnrolledGradeCode("08");
+
+        CollectionEntity collection = createMockCollectionEntity();
+        var newSnapDate = LocalDate.of(LocalDateTime.now().getYear(), Month.JULY, 29);
+        collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+        collection.setSnapshotDate(newSnapDate);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntityNew = createMockSdcSchoolCollectionEntity(collection, null);
+        sdcSchoolCollectionEntityNew.setSdcSchoolStudentEntities(Collections.singleton(student));
+        sdcSchoolCollectionEntityNew.setSchoolID(UUID.fromString(school.getSchoolId()));
+
+        student.setSdcSchoolCollection(sdcSchoolCollectionEntityNew);
+
+        StudentRuleData studentData = new StudentRuleData();
+        studentData.setSchool(school);
+        studentData.setSdcSchoolCollectionStudentEntity(student);
+
+        when(fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(studentData)).thenReturn(false);
+        when(fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData)).thenReturn(false);
+        when(fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentData)).thenReturn(true);
+        when(fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData)).thenReturn(true);
+        when(fteCalculatorUtils.includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline(studentData)).thenReturn(false);
+        when(fteCalculatorUtils.includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData)).thenReturn(true);
+
+        // When
+        FteCalculationResult result = collectionAndFacilityTypeCalculator.calculateFte(studentData);
+
+        // Then
+        BigDecimal expectedFte = new BigDecimal("0");
+
+        assertEquals(expectedFte, result.getFte());
+        assertEquals(ZeroFteReasonCodes.AUTHORITY_DUPLICATE_FUNDING.getCode(), result.getFteZeroReason());
+        verify(nextCalculator, never()).calculateFte(any());
+    }
 }
