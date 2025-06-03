@@ -225,7 +225,7 @@ public class ValidationRulesService {
                 .filter(school -> school.getIndependentAuthorityId() != null && school.getIndependentAuthorityId().equals(studentRuleData.getSchool().getIndependentAuthorityId()))
                 .map(school -> UUID.fromString(school.getSchoolId()))
                 .toList();
-        return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameAuthority(independentSchoolIDsWithSameAuthorityID, studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup, collection.getCollectionID(), collection.getSnapshotDate());
+        return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameAuthority(independentSchoolIDsWithSameAuthorityID, studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
     }
 
     public List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscal(StudentRuleData studentRuleData, String noOfCollectionsForLookup) {

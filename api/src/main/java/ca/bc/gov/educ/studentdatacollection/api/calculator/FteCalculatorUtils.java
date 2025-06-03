@@ -280,7 +280,7 @@ public class FteCalculatorUtils {
                 .filter(school -> school.getIndependentAuthorityId() != null && school.getIndependentAuthorityId().equals(studentRuleData.getSchool().getIndependentAuthorityId()))
                 .map(school -> UUID.fromString(school.getSchoolId()))
                 .toList();
-        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameAuthority(independentSchoolIDsWithSameAuthorityID, studentRuleData.getHistoricStudentIds(), "3", collection.getCollectionID(), collection.getSnapshotDate());
+        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameAuthority(independentSchoolIDsWithSameAuthorityID, studentRuleData.getHistoricStudentIds(), "3");
 
         for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
             String schoolId = studentEntity.getSdcSchoolCollection().getSchoolID().toString();
@@ -302,7 +302,7 @@ public class FteCalculatorUtils {
                 .filter(school -> school.getIndependentAuthorityId() != null && school.getIndependentAuthorityId().equals(studentRuleData.getSchool().getIndependentAuthorityId()))
                 .map(school -> UUID.fromString(school.getSchoolId()))
                 .toList();
-        List<SdcSchoolCollectionStudentEntity> historicalCollections =sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameAuthority(independentSchoolIDsWithSameAuthorityID, studentRuleData.getHistoricStudentIds(), "3", collection.getCollectionID(), collection.getSnapshotDate());
+        List<SdcSchoolCollectionStudentEntity> historicalCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentFiscalWithInSameAuthority(independentSchoolIDsWithSameAuthorityID, studentRuleData.getHistoricStudentIds(), "3");
 
         for (SdcSchoolCollectionStudentEntity studentEntity : historicalCollections) {
             String schoolId = studentEntity.getSdcSchoolCollection().getSchoolID().toString();
