@@ -228,6 +228,10 @@ public class ValidationRulesService {
         return sdcSchoolStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
     }
 
+    public List<SdcSchoolCollectionStudentEntity> getStudentInCurrentCollectionInAllDistrict(String studentPEN, UUID collectionID, UUID sdcSchoolCollectionIDToExclude) {
+        return sdcSchoolStudentRepository.findStudentInCurrentCollectionInAllDistrict(studentPEN, collectionID, sdcSchoolCollectionIDToExclude);
+    }
+
     public boolean studentExistsInCurrentFiscalInGrade8Or9(StudentRuleData studentRuleData) {
         setupMergedStudentIdValues(studentRuleData);
         String noOfCollectionsForLookup = "3";
