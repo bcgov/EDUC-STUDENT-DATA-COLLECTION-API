@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +24,7 @@ import java.util.Optional;
 /**
  * | ID   | Severity | Rule                                                          | Dependent On |
  * |------|----------|-------------------------------------------------------------- |--------------|
- * | V102 | ERROR    | The student is not reported in the Online School in July and  | V92 , V99    |
+ * | V102 | WARNING  | The student is not reported in the Online School in July and  | V92 , V99    |
  *                     was not reported in the online school in any previous
  *                     collections this school year
  *
@@ -69,6 +68,12 @@ public class SummerStudentOnlineLearningRule implements ValidationBaseRule {
         if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
             var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionInAllDistrict(studentRuleData);
             historicalStudentCollection.add(studentRuleData.getSdcSchoolCollectionStudentEntity());
+
+            var otherRecordsForStudentInCurrentCollection = validationRulesService.getStudentInCurrentCollectionInAllDistrict(studentRuleData.getSdcSchoolCollectionStudentEntity().getStudentPen(),
+                    studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getCollectionID(),
+                    studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getSdcSchoolCollectionID());
+
+            historicalStudentCollection.addAll(otherRecordsForStudentInCurrentCollection);
 
             for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {
                 Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
