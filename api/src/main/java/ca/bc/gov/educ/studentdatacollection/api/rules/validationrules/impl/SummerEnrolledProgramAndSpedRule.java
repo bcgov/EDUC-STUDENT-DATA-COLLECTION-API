@@ -20,7 +20,9 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                          | Dependent On |
  *  |-----|----------|-------------------------------------------------------------- |--------------|
- *  |V101 | WARNING  | Students reported with any program code or SPED               |              |
+ *  |V101 | WARNING  | Students enrolled in the grade 8/9 cross-enrollment collection|              |
+ *                     are not eligible for funding for inclusive education or
+ *                     additional programs.
  *
  */
 @Component
