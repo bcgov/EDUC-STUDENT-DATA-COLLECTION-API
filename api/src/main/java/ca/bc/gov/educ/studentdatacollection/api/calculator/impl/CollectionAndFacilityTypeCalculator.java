@@ -69,9 +69,10 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
 
             // v102
             var reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear = fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentData);
+            var reportedInOnlineSchoolInCurrentCollection = fteCalculatorUtils.reportedInOnlineSchoolInCurrentCollection(studentData);
             //  The student was not reported in the Online School in July and was not reported in the online school in any previous collections this school year.
             // v102: trigger for students that are not enrolled with positive FTE in any online schools during the current school year (in any of the collections: Sep, Feb, May, or July)
-            if (!reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear) {
+            if (!reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear && !reportedInOnlineSchoolInCurrentCollection) {
                 log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; None of student's educational program was delivered through online learning this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
                 fteCalculationResult.setFte(BigDecimal.ZERO);
                 fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.NO_ONLINE_LEARNING.getCode());

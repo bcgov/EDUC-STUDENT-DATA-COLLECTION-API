@@ -327,6 +327,20 @@ public class FteCalculatorUtils {
         return false;
     }
 
+    public boolean reportedInOnlineSchoolInCurrentCollection(StudentRuleData studentRuleData) {
+        List<SdcSchoolCollectionStudentEntity> currentCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentCollectionInAllDistrict(studentRuleData.getSdcSchoolCollectionStudentEntity().getStudentPen(),
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getCollectionID(),
+                studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getSdcSchoolCollectionID());
+
+        for (SdcSchoolCollectionStudentEntity studentEntity : currentCollections) {
+            Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
+            if (school.isPresent() && FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(school.get().getFacilityTypeCode())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(StudentRuleData studentRuleData) {
         validationRulesService.setupMergedStudentIdValues(studentRuleData);
         return validationRulesService.studentExistsInCurrentFiscalInGrade8Or9(studentRuleData);
