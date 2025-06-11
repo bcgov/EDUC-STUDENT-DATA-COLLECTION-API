@@ -1149,7 +1149,9 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
                     standardSchool
             )
     );
-    assertThat(listWithoutError).doesNotContain(ProgramEligibilityIssueCode.CROSS_ENROLL);
+    assertThat(listWithoutError)
+            .isNotEmpty()
+            .doesNotContain(ProgramEligibilityIssueCode.CROSS_ENROLL);
 
     SchoolTombstone summerSchool = createMockSchool();
     summerSchool.setFacilityTypeCode(FacilityTypeCodes.STANDARD.getCode());
