@@ -1129,4 +1129,37 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     errors = rulesProcessor.processRules(createMockStudentRuleData(student, school));
     assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_SCHOOL_AGE);
   }
+
+  @Test
+  void testCrossEnrollmentRule() {
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+    collectionRepository.save(collection);
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+    SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(), any(), any())).thenReturn(penMatchResult);
+
+    SchoolTombstone standardSchool = createMockSchool();
+    standardSchool.setFacilityTypeCode(FacilityTypeCodes.SUMMER.getCode());
+
+    List<ProgramEligibilityIssueCode> listWithoutError = rulesProcessor.processRules(
+            createMockStudentRuleData(
+                    schoolStudentEntity,
+                    standardSchool
+            )
+    );
+    assertThat(listWithoutError).doesNotContain(ProgramEligibilityIssueCode.CROSS_ENROLL);
+
+    SchoolTombstone summerSchool = createMockSchool();
+    summerSchool.setFacilityTypeCode(FacilityTypeCodes.STANDARD.getCode());
+
+    List<ProgramEligibilityIssueCode> listWithError = rulesProcessor.processRules(
+            createMockStudentRuleData(
+                    schoolStudentEntity,
+                    summerSchool
+            )
+    );
+    assertThat(listWithError).contains(ProgramEligibilityIssueCode.CROSS_ENROLL);
+  }
 }
