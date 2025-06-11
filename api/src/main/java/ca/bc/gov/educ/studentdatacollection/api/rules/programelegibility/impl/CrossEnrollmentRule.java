@@ -35,7 +35,7 @@ public class CrossEnrollmentRule implements ProgramEligibilityBaseRule {
         log.debug("In executeValidation of ProgramEligibilityBaseRule - CrossEnrollmentRule for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
         List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
-        errors.add(ProgramEligibilityIssueCode.CROSS_ENROLL);
+        errors.add(ProgramEligibilityIssueCode.X_ENROLL);
         return errors;
     }
 
