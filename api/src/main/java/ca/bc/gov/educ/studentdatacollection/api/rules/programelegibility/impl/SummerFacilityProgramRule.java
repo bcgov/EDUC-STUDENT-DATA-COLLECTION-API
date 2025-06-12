@@ -15,28 +15,29 @@ import java.util.List;
 
 @Component
 @Slf4j
-@Order(9)
-public class CrossEnrollmentRule implements ProgramEligibilityBaseRule {
+@Order(10)
+public class SummerFacilityProgramRule implements ProgramEligibilityBaseRule {
 
     @Override
     public boolean shouldExecute(StudentRuleData studentRuleData, List<ProgramEligibilityIssueCode> list) {
-        log.debug("In shouldExecute of ProgramEligibilityBaseRule - CrossEnrollmentRule: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
+        log.debug("In shouldExecute of ProgramEligibilityBaseRule - SummerFacilityProgramRule: for collectionType {} and sdcSchoolCollectionStudentID :: {}" , FteCalculatorUtils.getCollectionTypeCode(studentRuleData),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
-        log.debug("In shouldExecute of ProgramEligibilityBaseRule - CrossEnrollmentRule: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
+        log.debug("In shouldExecute of ProgramEligibilityBaseRule - SummerFacilityProgramRule: Condition returned  - {} for sdcSchoolCollectionStudentID :: {}" ,
                 studentRuleData.getSchool().getFacilityTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getCollectionTypeCode(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-        return !studentRuleData.getSchool().getFacilityTypeCode().equals(FacilityTypeCodes.SUMMER.getCode())
+        return studentRuleData.getSchool().getFacilityTypeCode().equals(FacilityTypeCodes.SUMMER.getCode())
                 && studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getCollectionTypeCode().equals(CollectionTypeCodes.JULY.getTypeCode());
     }
 
     @Override
     public List<ProgramEligibilityIssueCode> executeValidation(StudentRuleData studentRuleData) {
-        log.debug("In executeValidation of ProgramEligibilityBaseRule - CrossEnrollmentRule for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+        log.debug("In executeValidation of ProgramEligibilityBaseRule - SummerFacilityProgramRule for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
 
         List<ProgramEligibilityIssueCode> errors = new ArrayList<>();
-        errors.add(ProgramEligibilityIssueCode.X_ENROLL);
+        errors.add(ProgramEligibilityIssueCode.SUMMER_SCHOOL_CAREER);
+        errors.add(ProgramEligibilityIssueCode.SUMMER_SCHOOL_FRENCH);
         return errors;
     }
 
