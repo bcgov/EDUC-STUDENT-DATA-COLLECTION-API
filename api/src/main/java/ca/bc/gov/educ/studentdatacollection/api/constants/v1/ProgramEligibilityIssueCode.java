@@ -25,7 +25,10 @@ public enum ProgramEligibilityIssueCode {
   NO_INDIGENOUS_ANCESTRY("NOANCESTRY", "Student must be school-aged and self-identify as having Indigenous Ancestry to be eligible for funding for Indigenous Support Programs.", ProgramEligibilityTypeCode.IND_SUPPORT),
   ELL_INDY_SCHOOL("ELLINDYERR", "Students reported by Independent Schools are not eligible for English Language Learning funding.", ProgramEligibilityTypeCode.ELL),
   INDIGENOUS_INDY_SCHOOL("INDYERR", "Students reported by Independent Schools are not eligible for Indigenous Support Program funding.", ProgramEligibilityTypeCode.IND_SUPPORT),
-  X_ENROLL("XENROLL", "8/9 Cross-enrollment students are not eligibile for program funding.", ProgramEligibilityTypeCode.BASE);
+  X_ENROLL("XENROLL", "8/9 Cross-enrollment students are not eligible for program funding.", ProgramEligibilityTypeCode.BASE),
+  SUMMER_SCHOOL_FRENCH("SSFRENCH", "Summer School students are not eligible for French Program funding.", ProgramEligibilityTypeCode.FRENCH),
+  SUMMER_SCHOOL_CAREER("SSCAREER", "Summer School students are not eligible for Career Program funding.", ProgramEligibilityTypeCode.CAREER_PROGRAMS),
+  ;
 
   @Getter
   private final String code;
