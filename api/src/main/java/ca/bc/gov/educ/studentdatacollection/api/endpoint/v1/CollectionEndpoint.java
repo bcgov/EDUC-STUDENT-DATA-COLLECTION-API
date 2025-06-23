@@ -145,4 +145,12 @@ public interface CollectionEndpoint {
           @PathVariable("collectionID") UUID collectionID,
           @PathVariable("grade") String grade,
           @RequestBody SchoolIDListRequest requestBody);
+
+  @GetMapping("/{collectionID}/closure-saga-status")
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional(readOnly = true)
+  @Tag(name = "getCollectionClosureSagaStatus", description = "Endpoint to retrieve status of collection closure saga")
+  boolean getCollectionClosureSagaStatus(@PathVariable("collectionID") UUID collectionID);
+
 }

@@ -371,7 +371,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         UUID newSchoolUUID = UUID.randomUUID();
         newSchool.setSchoolId(newSchoolUUID.toString());
         List<SchoolTombstone> mockSchools = List.of(newSchool);
-        when(restUtils.getSchools()).thenReturn(mockSchools);
+        when(restUtils.getAllSchoolTombstones()).thenReturn(mockSchools);
 
         eventTaskSchedulerAsyncService.findModifiedSchoolsAndUpdateSdcSchoolCollection();
 
@@ -389,7 +389,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         UUID newSchoolUUID = UUID.randomUUID();
         newSchool.setSchoolId(newSchoolUUID.toString());
         List<SchoolTombstone> mockSchools = List.of(newSchool);
-        when(restUtils.getSchools()).thenReturn(mockSchools);
+        when(restUtils.getAllSchoolTombstones()).thenReturn(mockSchools);
 
         eventTaskSchedulerAsyncService.findModifiedSchoolsAndUpdateSdcSchoolCollection();
 
@@ -410,7 +410,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         UUID newSchoolUUID = UUID.randomUUID();
         newSchool.setSchoolId(newSchoolUUID.toString());
         List<SchoolTombstone> mockSchools = List.of(newSchool);
-        when(restUtils.getSchools()).thenReturn(mockSchools);
+        when(restUtils.getAllSchoolTombstones()).thenReturn(mockSchools);
 
         eventTaskSchedulerAsyncService.findModifiedSchoolsAndUpdateSdcSchoolCollection();
 
@@ -471,7 +471,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         SchoolTombstone school2 = createMockSchoolTombstone();
         school1.setSchoolId(UUID.randomUUID().toString());
         List<SchoolTombstone> mockSchools = List.of(school1, school2);
-        when(restUtils.getSchools()).thenReturn(mockSchools);
+        when(restUtils.getAllSchoolTombstones()).thenReturn(mockSchools);
 
         var schoolDetail1 = createMockSchoolDetail();
         schoolDetail1.setSchoolId(school1.getSchoolId());
@@ -524,7 +524,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         SchoolTombstone school2 = createMockSchoolTombstone();
         school1.setSchoolId(UUID.randomUUID().toString());
         List<SchoolTombstone> mockSchools = List.of(school1, school2);
-        when(restUtils.getSchools()).thenReturn(mockSchools);
+        when(restUtils.getAllSchoolTombstones()).thenReturn(mockSchools);
 
         var schoolDetail1 = createMockSchoolDetail();
         schoolDetail1.setSchoolId(school1.getSchoolId());
@@ -556,7 +556,7 @@ class EventTaskSchedulerTest extends BaseStudentDataCollectionAPITest {
         SchoolTombstone school2 = createMockSchoolTombstone();
         school1.setSchoolId(UUID.randomUUID().toString());
         List<SchoolTombstone> mockSchools = List.of(school1, school2);
-        when(restUtils.getSchools()).thenReturn(mockSchools);
+        when(restUtils.getAllSchoolTombstones()).thenReturn(mockSchools);
 
         var schoolDetail1 = createMockSchoolDetail();
         schoolDetail1.setSchoolId(school1.getSchoolId());

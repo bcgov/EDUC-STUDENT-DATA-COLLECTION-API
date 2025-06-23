@@ -94,4 +94,7 @@ public class SdcSchoolCollectionStudentPaginationShallowEntity {
   @Column(name = "ASSIGNED_PEN")
   private String assignedPen;
 
+  @Column(name = "ASSIGNED_STUDENT_ID", columnDefinition = "BINARY(16)")
+  private UUID assignedStudentId;
+
 }

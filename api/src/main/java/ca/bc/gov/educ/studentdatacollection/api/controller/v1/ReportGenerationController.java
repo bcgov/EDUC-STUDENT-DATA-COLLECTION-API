@@ -76,6 +76,12 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case SPECIAL_EDUCATION_HEADCOUNT -> specialEdHeadcountReportService.generateSchoolSpecialEdHeadcountReport(sdcSchoolCollectionID);
             case ALL_STUDENT_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateFromSdcSchoolCollectionID(sdcSchoolCollectionID);
             case ALL_STUDENT_ERRORS_WARNS_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateErrorWarnInfoReportFromSdcSchoolCollectionID(sdcSchoolCollectionID);
+            case ALL_STUDENT_FRENCH_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateFrenchFromSdcSchoolCollectionID(sdcSchoolCollectionID);
+            case ALL_STUDENT_CAREER_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateCareerFromSdcSchoolCollectionID(sdcSchoolCollectionID);
+            case ALL_STUDENT_INDIGENOUS_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateIndigenousFromSdcSchoolCollectionID(sdcSchoolCollectionID);
+            case ALL_STUDENT_INCLUSIVE_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateInclusiveFromSdcSchoolCollectionID(sdcSchoolCollectionID);
+            case ALL_STUDENT_ELL_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateEllFromSdcSchoolCollectionID(sdcSchoolCollectionID);
+            case ALL_STUDENT_REFUGEE_SCHOOL_CSV -> allStudentLightCollectionGenerateCsvService.generateRefugeeFromSdcSchoolCollectionID(sdcSchoolCollectionID);
             default -> new DownloadableReportResponse();
         };
     }
@@ -106,6 +112,12 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case DIS_SPECIAL_EDUCATION_HEADCOUNT_CATEGORY_PER_SCHOOL-> inclusiveEdCategoryHeadcountPerSchoolReportService.generateInclusiveEdCategoryHeadcountPerSchoolReport(sdcDistrictCollectionID);
             case ALL_STUDENT_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateFromSdcDistrictCollectionID(sdcDistrictCollectionID);
             case ALL_STUDENT_ERRORS_WARNS_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateErrorWarnInfoReportFromSdcDistrictCollectionID(sdcDistrictCollectionID);
+            case ALL_STUDENT_FRENCH_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateFrenchFromSdcDistrictCollectionID(sdcDistrictCollectionID);
+            case ALL_STUDENT_CAREER_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateCareerFromSdcDistrictCollectionID(sdcDistrictCollectionID);
+            case ALL_STUDENT_INDIGENOUS_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateIndigenousFromSdcDistrictCollectionID(sdcDistrictCollectionID);
+            case ALL_STUDENT_INCLUSIVE_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateInclusiveFromSdcDistrictCollectionID(sdcDistrictCollectionID);
+            case ALL_STUDENT_ELL_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateEllFromSdcDistrictCollectionID(sdcDistrictCollectionID);
+            case ALL_STUDENT_REFUGEE_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateRefugeeFromSdcDistrictCollectionID(sdcDistrictCollectionID);
             case DIS_ZERO_FTE_SUMMARY -> zeroFTEHeadCountReportService.generateZeroFTEHeadcountReport(sdcDistrictCollectionID);
             case DIS_BAND_RESIDENCE_HEADCOUNT -> bandOfResidenceHeadcountReportService.generateDistrictBandOfResidenceReport(sdcDistrictCollectionID);
             case DIS_BAND_RESIDENCE_HEADCOUNT_PER_SCHOOL -> bandOfResidenceHeadcountPerSchoolReportService.generateBandOfResidenceHeadcountPerSchoolReport(sdcDistrictCollectionID);

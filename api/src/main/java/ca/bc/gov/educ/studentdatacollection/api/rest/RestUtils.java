@@ -226,7 +226,7 @@ public class RestUtils {
     log.info("Loaded  {} school mincodes to memory", this.schoolMincodeMap.values().size());
   }
 
-  public List<SchoolTombstone> getSchools() {
+  private List<SchoolTombstone> getSchools() {
     log.info("Calling Institute api to load schools to memory");
     return this.webClient.get()
             .uri(this.props.getInstituteApiURL() + "/school")
@@ -237,7 +237,7 @@ public class RestUtils {
             .block();
   }
 
-  public List<IndependentAuthority> getAuthorities() {
+  private List<IndependentAuthority> getAuthorities() {
     log.info("Calling Institute api to load authority to memory");
     return this.webClient.get()
             .uri(this.props.getInstituteApiURL() + "/authority")
@@ -248,7 +248,7 @@ public class RestUtils {
             .block();
   }
 
-  public List<SchoolCategoryCode> getSchoolCategoryCodes() {
+  private List<SchoolCategoryCode> getSchoolCategoryCodes() {
     log.info("Calling Institute api to load school categories to memory");
     return this.webClient.get()
             .uri(this.props.getInstituteApiURL() + "/category-codes")
@@ -259,7 +259,7 @@ public class RestUtils {
             .block();
   }
 
-  public List<FacilityTypeCode> getFacilityTypeCodes() {
+  private List<FacilityTypeCode> getFacilityTypeCodes() {
     log.info("Calling Institute api to load facility type codes to memory");
     return this.webClient.get()
             .uri(this.props.getInstituteApiURL() + "/facility-codes")
@@ -280,7 +280,7 @@ public class RestUtils {
             .blockFirst();
   }
 
-  public List<EdxUser> getEdxUsers() {
+  private List<EdxUser> getEdxUsers() {
     log.info("Calling Institute api to load EDX users to memory");
     return this.webClient.get()
             .uri(this.props.getEdxApiURL() + "/users")
@@ -467,6 +467,14 @@ public class RestUtils {
       this.populateSchoolMap();
     }
     return Optional.ofNullable(this.schoolMap.get(schoolID));
+  }
+
+  public List<SchoolTombstone> getAllSchoolTombstones() {
+    if (this.schoolMap.isEmpty()) {
+      log.info("School map is empty reloading schools get all school tombstones");
+      this.populateSchoolMap();
+    }
+    return new ArrayList<>(this.schoolMap.values());
   }
 
   public Optional<IndependentAuthority> getAuthorityByAuthorityID(final String authorityID) {

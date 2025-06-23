@@ -11,6 +11,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepos
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.StudentRuleData;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import lombok.Getter;
@@ -216,6 +217,16 @@ public class ValidationRulesService {
         return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup, collection.getCollectionID(), collection.getSnapshotDate());
     }
 
+    public List<SdcSchoolCollectionStudentEntity> getStudentInHistoricalCollectionWithInSameAuthority(StudentRuleData studentRuleData, String noOfCollectionsForLookup) {
+        setupMergedStudentIdValues(studentRuleData);
+        List<SchoolTombstone> allSchools = this.restUtils.getAllSchoolTombstones();
+        List<UUID> independentSchoolIDsWithSameAuthorityID = allSchools.stream()
+                .filter(school -> school.getIndependentAuthorityId() != null && school.getIndependentAuthorityId().equals(studentRuleData.getSchool().getIndependentAuthorityId()))
+                .map(school -> UUID.fromString(school.getSchoolId()))
+                .toList();
+        return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameAuthority(independentSchoolIDsWithSameAuthorityID, studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
+    }
+
     public List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscal(StudentRuleData studentRuleData, String noOfCollectionsForLookup) {
         setupMergedStudentIdValues(studentRuleData);
         var collection = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity();
@@ -226,6 +237,10 @@ public class ValidationRulesService {
         setupMergedStudentIdValues(studentRuleData);
         String noOfCollectionsForLookup = "3";
         return sdcSchoolStudentRepository.findStudentInCurrentFiscalInAllDistrict(studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
+    }
+
+    public List<SdcSchoolCollectionStudentEntity> getStudentInCurrentCollectionInAllDistrict(String studentPEN, UUID collectionID, UUID sdcSchoolCollectionIDToExclude) {
+        return sdcSchoolStudentRepository.findStudentInCurrentCollectionInAllDistrict(studentPEN, collectionID, sdcSchoolCollectionIDToExclude);
     }
 
     public boolean studentExistsInCurrentFiscalInGrade8Or9(StudentRuleData studentRuleData) {

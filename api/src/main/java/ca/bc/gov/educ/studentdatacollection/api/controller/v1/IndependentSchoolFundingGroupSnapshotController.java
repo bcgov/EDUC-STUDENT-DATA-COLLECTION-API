@@ -37,5 +37,17 @@ public class IndependentSchoolFundingGroupSnapshotController implements Independ
     return independentSchoolFundingGroupList;
   }
 
+  @Override
+  public List<IndependentSchoolFundingGroupSnapshot> getAllIndependentSchoolFundingGroupSnapshot(UUID collectionID) {
+    List<IndependentSchoolFundingGroupSnapshotEntity> independentSchoolFundingGroupSnapshot = this.independentSchoolFundingGroupSnapshotService.getAllIndependentSchoolFundingGroupSnapshot(collectionID);
+
+    List<IndependentSchoolFundingGroupSnapshot> independentSchoolFundingGroupList = new ArrayList<>();
+    for(IndependentSchoolFundingGroupSnapshotEntity entity: independentSchoolFundingGroupSnapshot){
+      independentSchoolFundingGroupList.add(independentSchoolFundingGroupMapper.toStructure(entity));
+    }
+
+    return independentSchoolFundingGroupList;
+  }
+
 
 }
