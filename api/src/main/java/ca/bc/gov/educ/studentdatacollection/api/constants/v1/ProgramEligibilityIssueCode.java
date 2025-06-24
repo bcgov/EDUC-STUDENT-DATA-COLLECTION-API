@@ -28,6 +28,7 @@ public enum ProgramEligibilityIssueCode {
   X_ENROLL("XENROLL", "8/9 Cross-enrollment students are not eligible for program funding.", ProgramEligibilityTypeCode.BASE),
   SUMMER_SCHOOL_FRENCH("SSFRENCH", "Summer School students are not eligible for French Program funding.", ProgramEligibilityTypeCode.FRENCH),
   SUMMER_SCHOOL_CAREER("SSCAREER", "Summer School students are not eligible for Career Program funding.", ProgramEligibilityTypeCode.CAREER_PROGRAMS),
+  PRP_YOUTH("PRPYOUTH", "PRP and Youth School students are not eligible for program funding.", ProgramEligibilityTypeCode.BASE),
   ;
 
   @Getter
