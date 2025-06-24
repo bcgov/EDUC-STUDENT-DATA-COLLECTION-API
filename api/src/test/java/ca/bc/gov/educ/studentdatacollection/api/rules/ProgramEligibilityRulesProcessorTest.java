@@ -1210,35 +1210,35 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     PenMatchResult penMatchResult = getPenMatchResult();
     when(this.restUtils.getPenMatchResult(any(), any(), any())).thenReturn(penMatchResult);
 
-    SchoolTombstone ShortPRPSchool = createMockSchool();
-    ShortPRPSchool.setFacilityTypeCode(FacilityTypeCodes.SHORT_PRP.getCode());
+    SchoolTombstone shortPRPSchool = createMockSchool();
+    shortPRPSchool.setFacilityTypeCode(FacilityTypeCodes.SHORT_PRP.getCode());
 
     List<ProgramEligibilityIssueCode> listWithErrorShortPRP = rulesProcessor.processRules(
             createMockStudentRuleData(
                     schoolStudentEntity,
-                    ShortPRPSchool
+                    shortPRPSchool
             )
     );
     assertThat(listWithErrorShortPRP).contains(ProgramEligibilityIssueCode.PRP_YOUTH);
 
-    SchoolTombstone LongPRPSchool = createMockSchool();
-    LongPRPSchool.setFacilityTypeCode(FacilityTypeCodes.LONG_PRP.getCode());
+    SchoolTombstone longPRPSchool = createMockSchool();
+    longPRPSchool.setFacilityTypeCode(FacilityTypeCodes.LONG_PRP.getCode());
 
     List<ProgramEligibilityIssueCode> listWithErrorLongPRP = rulesProcessor.processRules(
             createMockStudentRuleData(
                     schoolStudentEntity,
-                    LongPRPSchool
+                    longPRPSchool
             )
     );
     assertThat(listWithErrorLongPRP).contains(ProgramEligibilityIssueCode.PRP_YOUTH);
 
-    SchoolTombstone YouthSchool = createMockSchool();
-    YouthSchool.setFacilityTypeCode(FacilityTypeCodes.SHORT_PRP.getCode());
+    SchoolTombstone youthSchool = createMockSchool();
+    youthSchool.setFacilityTypeCode(FacilityTypeCodes.SHORT_PRP.getCode());
 
     List<ProgramEligibilityIssueCode> listWithErrorYouth = rulesProcessor.processRules(
             createMockStudentRuleData(
                     schoolStudentEntity,
-                    YouthSchool
+                    youthSchool
             )
     );
     assertThat(listWithErrorYouth).contains(ProgramEligibilityIssueCode.PRP_YOUTH);
