@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -164,7 +165,18 @@ public abstract class BaseReportGenerationService<T> {
 
     return allSchoolCollections.stream()
             .map(schoolCollection -> restUtils.getSchoolBySchoolID(schoolCollection.getSchoolID().toString())
-                    .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollection.class, "SchoolID", schoolCollection.getSchoolID().toString())))
+            .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollection.class, "SchoolID", schoolCollection.getSchoolID().toString())))
+            .toList();
+  }
+
+  public List<SchoolTombstone> getAllSchoolTombstonesYouthPRP(UUID sdcDistrictCollectionID) {
+    List<SdcSchoolCollectionEntity> allSchoolCollections = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
+    var prpAndYouthSchools = Arrays.asList(FacilityTypeCodes.SHORT_PRP.getCode(), FacilityTypeCodes.LONG_PRP.getCode(), FacilityTypeCodes.YOUTH.getCode());
+
+    return allSchoolCollections.stream()
+            .map(schoolCollection -> restUtils.getSchoolBySchoolID(schoolCollection.getSchoolID().toString())
+            .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollection.class, "SchoolID", schoolCollection.getSchoolID().toString())))
+            .filter(school -> prpAndYouthSchools.contains(school.getFacilityTypeCode()))
             .toList();
   }
 }
