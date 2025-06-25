@@ -1142,10 +1142,10 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           WHERE C.collectionID = :collectionID
           AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
           AND SSC.sdcSchoolCollectionID != :sdcSchoolCollectionIDToExclude
-          AND SSCS.studentPen = :studentPEN
+          AND SSCS.assignedStudentId = :assignedStudentID
           AND SSCS.sdcSchoolCollectionStudentStatusCode NOT IN ('DELETED', 'ERROR')
          """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentCollectionInAllDistrict(String studentPEN, UUID collectionID, UUID sdcSchoolCollectionIDToExclude);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentCollectionInAllDistrict(UUID assignedStudentID, UUID collectionID, UUID sdcSchoolCollectionIDToExclude);
 
   @Query(value="""
            SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS, SdcDistrictCollectionEntity SDC

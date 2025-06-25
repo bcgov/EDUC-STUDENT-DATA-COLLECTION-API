@@ -69,7 +69,7 @@ public class SummerStudentOnlineLearningRule implements ValidationBaseRule {
             var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionInAllDistrict(studentRuleData);
             historicalStudentCollection.add(studentRuleData.getSdcSchoolCollectionStudentEntity());
 
-            var otherRecordsForStudentInCurrentCollection = validationRulesService.getStudentInCurrentCollectionInAllDistrict(studentRuleData.getSdcSchoolCollectionStudentEntity().getStudentPen(),
+            var otherRecordsForStudentInCurrentCollection = validationRulesService.getStudentInCurrentCollectionInAllDistrict(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(),
                     studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getCollectionID(),
                     studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getSdcSchoolCollectionID());
 

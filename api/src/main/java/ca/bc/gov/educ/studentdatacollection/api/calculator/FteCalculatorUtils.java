@@ -328,7 +328,7 @@ public class FteCalculatorUtils {
     }
 
     public boolean reportedInOnlineSchoolInCurrentCollection(StudentRuleData studentRuleData) {
-        List<SdcSchoolCollectionStudentEntity> currentCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentCollectionInAllDistrict(studentRuleData.getSdcSchoolCollectionStudentEntity().getStudentPen(),
+        List<SdcSchoolCollectionStudentEntity> currentCollections = sdcSchoolCollectionStudentRepository.findStudentInCurrentCollectionInAllDistrict(studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getCollectionID(),
                 studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getSdcSchoolCollectionID());
 
