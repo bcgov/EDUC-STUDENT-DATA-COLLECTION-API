@@ -36,7 +36,6 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
 
             // v93
-            log.info("CollectionAndFacilityTypeCalculator: FTE Zero; running query for V93. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             var includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(studentData);
             // The student was included in any collection in this school year for the district with a non-zero FTE
             // and was reported in any school with a type different than Online.
@@ -48,7 +47,6 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
             }
 
             // v93
-            log.info("CollectionAndFacilityTypeCalculator: FTE Zero; running second query for V93. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             var includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9 = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData);
             // The student was included in any collection in this school year for the district with a non-zero FTE
             // and was reported in an Online school in grade K to 9.
@@ -60,7 +58,6 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
             }
 
             // v99
-            log.info("CollectionAndFacilityTypeCalculator: FTE Zero; running query for V99. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             // The student was not reported in grade 8 or 9 with FTE>0 in any other districts in any previous collections this school year.
             var studentExistsInCurrentFiscalInGrade8Or9 = fteCalculatorUtils.reportedInOtherDistrictsInPreviousCollectionThisSchoolYearInGrade8Or9WithNonZeroFte(studentData);
             if (!studentExistsInCurrentFiscalInGrade8Or9) {
@@ -71,9 +68,7 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
             }
 
             // v102
-            log.info("CollectionAndFacilityTypeCalculator: FTE Zero; running query for V102. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             var reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear = fteCalculatorUtils.reportedInOnlineSchoolInAnyPreviousCollectionThisSchoolYear(studentData);
-            log.info("CollectionAndFacilityTypeCalculator: FTE Zero; running second query for V102. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             var reportedInOnlineSchoolInCurrentCollection = fteCalculatorUtils.reportedInOnlineSchoolInCurrentCollection(studentData);
             //  The student was not reported in the Online School in July and was not reported in the online school in any previous collections this school year.
             // v102: trigger for students that are not enrolled with positive FTE in any online schools during the current school year (in any of the collections: Sep, Feb, May, or July)
@@ -85,7 +80,6 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
             }
 
             // v103
-            log.info("CollectionAndFacilityTypeCalculator: FTE Zero; running query for V103. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             var includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline = fteCalculatorUtils.includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline(studentData);
             // The student was included in any collection in this school year for the auth with a non-zero FTE
             // and was reported in any school with a type different than Online.
@@ -97,7 +91,6 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
             }
 
             // v103
-            log.info("CollectionAndFacilityTypeCalculator: FTE Zero; running second query for V102. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             var includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9 = fteCalculatorUtils.includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData);
             // The student was included in any collection in this school year for the auth with a non-zero FTE
             // and was reported in an Online school in grade K to 9.
@@ -107,8 +100,6 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
                 fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.IND_AUTH_DUPLICATE_FUNDING.getCode());
                 return fteCalculationResult;
             }
-
-            log.info("CollectionAndFacilityTypeCalculator: done running queries");
 
             log.debug("CollectionAndFacilityTypeCalculator: No FTE result, moving to next calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
             return this.nextCalculator.calculateFte(studentData);
