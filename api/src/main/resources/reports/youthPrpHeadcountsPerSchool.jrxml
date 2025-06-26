@@ -247,7 +247,7 @@
                 <textElement>
                     <font fontName="BCSans"/>
                 </textElement>
-                <text><![CDATA[Youth or PRP Headcount per School Report]]></text>
+                <text><![CDATA[Enrolment for Schools funded outside of the Funding Allocation System]]></text>
             </staticText>
             <textField>
                 <reportElement x="439" y="35" width="120" height="15" uuid="7ff4950d-6279-413e-8200-a450eb831f90">

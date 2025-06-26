@@ -387,6 +387,9 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   @Query("SELECT " +
           "s.enrolledGradeCode AS enrolledGradeCode, " +
           "s.sdcSchoolCollection.schoolID AS schoolID, " +
+          "COUNT(DISTINCT CASE WHEN s.sdcSchoolCollection.schoolID IN :youthSchoolIDs THEN s.sdcSchoolCollectionStudentID END) AS youthTotals, " +
+          "COUNT(DISTINCT CASE WHEN s.sdcSchoolCollection.schoolID IN :shortPRPSchoolIDs THEN s.sdcSchoolCollectionStudentID END) AS shortPRPTotals, " +
+          "COUNT(DISTINCT CASE WHEN s.sdcSchoolCollection.schoolID IN :longPRPSchoolIDs THEN s.sdcSchoolCollectionStudentID END) AS longPRPTotals, " +
           "COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS youthPRPTotals " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
@@ -394,7 +397,9 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
           "GROUP BY s.sdcSchoolCollection.schoolID, s.enrolledGradeCode " +
           "ORDER BY s.sdcSchoolCollection.schoolID, s.enrolledGradeCode")
-  List<PRPorYouthHeadcountResult> getYouthPRPHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID, @Param("youthPRPSchoolIDs") List<UUID> youthPRPSchoolIDs);
+  List<PRPorYouthHeadcountResult> getYouthPRPHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID, @Param("youthPRPSchoolIDs") List<UUID> youthPRPSchoolIDs,
+                                                                                                @Param("youthSchoolIDs") List<UUID> youthSchoolIDs, @Param("shortPRPSchoolIDs") List<UUID> shortPRPSchoolIDs,
+                                                                                                @Param("longPRPSchoolIDs") List<UUID> longPRPSchoolIDs);
 
   @Query("SELECT " +
           "s.enrolledGradeCode AS enrolledGradeCode, " +
@@ -470,6 +475,19 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
           "AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'")
   FrenchCombinedHeadcountHeaderResult getFrenchHeadersByDistrictId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
+
+  @Query("SELECT " +
+          "COUNT(DISTINCT CASE WHEN s.sdcSchoolCollection.schoolID IN :youthSchoolIDs THEN s.sdcSchoolCollectionStudentID END) AS youthTotals, " +
+          "COUNT(DISTINCT CASE WHEN s.sdcSchoolCollection.schoolID IN :shortPRPSchoolIDs THEN s.sdcSchoolCollectionStudentID END) AS shortPRPTotals, " +
+          "COUNT(DISTINCT CASE WHEN s.sdcSchoolCollection.schoolID IN :longPRPSchoolIDs THEN s.sdcSchoolCollectionStudentID END) AS longPRPTotals, " +
+          "COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS youthPRPTotals " +
+          "FROM SdcSchoolCollectionStudentEntity s " +
+          "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
+          "AND s.sdcSchoolCollection.schoolID IN :youthPRPSchoolIDs " +
+          "AND s.sdcSchoolCollectionStudentStatusCode <> 'DELETED'")
+  PRPorYouthHeadcountResult getPRPYouthHeadersByDistrictId(@Param("sdcDistrictCollectionID") UUID sdcDistrictCollectionID, @Param("youthPRPSchoolIDs") List<UUID> youthPRPSchoolIDs,
+                                                           @Param("youthSchoolIDs") List<UUID> youthSchoolIDs, @Param("shortPRPSchoolIDs") List<UUID> shortPRPSchoolIDs,
+                                                           @Param("longPRPSchoolIDs") List<UUID> longPRPSchoolIDs);
 
   @Query("SELECT " +
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '40' AND s.careerProgramNonEligReasonCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS eligCareerPrep, " +

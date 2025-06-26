@@ -168,15 +168,4 @@ public abstract class BaseReportGenerationService<T> {
             .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollection.class, "SchoolID", schoolCollection.getSchoolID().toString())))
             .toList();
   }
-
-  public List<SchoolTombstone> getAllSchoolTombstonesYouthPRP(UUID sdcDistrictCollectionID) {
-    List<SdcSchoolCollectionEntity> allSchoolCollections = sdcSchoolCollectionRepository.findAllBySdcDistrictCollectionID(sdcDistrictCollectionID);
-    var prpAndYouthSchools = Arrays.asList(FacilityTypeCodes.SHORT_PRP.getCode(), FacilityTypeCodes.LONG_PRP.getCode(), FacilityTypeCodes.YOUTH.getCode());
-
-    return allSchoolCollections.stream()
-            .map(schoolCollection -> restUtils.getSchoolBySchoolID(schoolCollection.getSchoolID().toString())
-            .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollection.class, "SchoolID", schoolCollection.getSchoolID().toString())))
-            .filter(school -> prpAndYouthSchools.contains(school.getFacilityTypeCode()))
-            .toList();
-  }
 }

@@ -4,6 +4,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DistrictReportTypeC
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.helpers.PRPorYouthHeadcountHelper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
@@ -31,15 +32,17 @@ public class PRPorYouthHeadcountReportService extends BaseReportGenerationServic
     protected static final String ALLPRPORYOUTH = "allPRPorYouth";
     private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
     private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+    private final PRPorYouthHeadcountHelper prpOrYouthHeadcountHelper;
     private final RestUtils restUtils;
     private List<SchoolTombstone> allSchoolsTombstones;
     private List<PRPorYouthHeadcountResult> prpOrYouthHeadcountList;
     private JasperReport prpOrYouthHeadcountReport;
 
-    public PRPorYouthHeadcountReportService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository , RestUtils restUtils) {
+    public PRPorYouthHeadcountReportService(SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionRepository sdcSchoolCollectionRepository, PRPorYouthHeadcountHelper prpOrYouthHeadcountHelper, RestUtils restUtils) {
         super(restUtils, sdcSchoolCollectionRepository);
         this.sdcDistrictCollectionRepository = sdcDistrictCollectionRepository;
         this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
+        this.prpOrYouthHeadcountHelper = prpOrYouthHeadcountHelper;
         this.restUtils = restUtils;
     }
 
@@ -67,9 +70,15 @@ public class PRPorYouthHeadcountReportService extends BaseReportGenerationServic
             SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
                     new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionID", sdcDistrictCollectionID.toString()));
 
-            this.allSchoolsTombstones = getAllSchoolTombstonesYouthPRP(sdcDistrictCollectionID);
-            List<UUID> youthPRPSchoolIDs = this.allSchoolsTombstones.stream().map(SchoolTombstone::getSchoolId).map(UUID::fromString).toList();
-            var studentList = sdcSchoolCollectionStudentRepository.getYouthPRPHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), youthPRPSchoolIDs);
+            Map<String, List<SchoolTombstone>> schoolTombstoneMap = prpOrYouthHeadcountHelper.getAllPRPAndYouthSchoolTombstones(sdcDistrictCollectionID);
+            this.allSchoolsTombstones = getAllSchoolTombstones(sdcDistrictCollectionID);
+            List<UUID> youthPRPSchoolIDs = schoolTombstoneMap.get("ALLPRPORYOUTH").stream().map(SchoolTombstone::getSchoolId).map(UUID::fromString).toList();
+            List<UUID> youthSchoolIDs = schoolTombstoneMap.get("YOUTH").stream().map(SchoolTombstone::getSchoolId).map(UUID::fromString).toList();
+            List<UUID> shortPRPSchoolIDs = schoolTombstoneMap.get("SHORT_PRP").stream().map(SchoolTombstone::getSchoolId).map(UUID::fromString).toList();
+            List<UUID> longPRPSchoolIDs = schoolTombstoneMap.get("LONG_PRP").stream().map(SchoolTombstone::getSchoolId).map(UUID::fromString).toList();
+
+            var studentList = sdcSchoolCollectionStudentRepository.getYouthPRPHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(),
+                    youthPRPSchoolIDs, youthSchoolIDs, shortPRPSchoolIDs, longPRPSchoolIDs);
             this.prpOrYouthHeadcountList = studentList;
             return generateJasperReport(convertToYouthPRPJSONStringDistrict(studentList, sdcDistrictCollectionEntity), prpOrYouthHeadcountReport, DistrictReportTypeCode.DIS_PRP_OR_YOUTH_SUMMARY.getCode());
         } catch (JsonProcessingException e) {
@@ -95,7 +104,7 @@ public class PRPorYouthHeadcountReportService extends BaseReportGenerationServic
     protected HashMap<String, HeadcountChildNode> generateNodeMap(boolean includeKH) {
         HashMap<String, HeadcountChildNode> nodeMap = new HashMap<>();
         Set<String> includedSchoolIDs = new HashSet<>();
-        addValuesForSectionToMap(nodeMap, ALLPRPORYOUTH, "All Youth Or PRP Students", "00", includeKH);
+        addValuesForSectionToMap(nodeMap, ALLPRPORYOUTH, "All Youth Custody or PRP Students", "00", includeKH);
         int sequencePrefix = 10;
 
         if (prpOrYouthHeadcountList != null) {
