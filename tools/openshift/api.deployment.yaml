@@ -1,0 +1,188 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: "${REPO_NAME}-${BRANCH}-deployment"
+  labels:
+    template: "${REPO_NAME}-template"
+parameters:
+  - name: REPO_NAME
+    description: Application repository name
+    required: true
+  - name: BRANCH
+    description: Job identifier (i.e. 'backend' OR 'frontend')
+    required: true
+  - name: NAMESPACE
+    description: Target namespace reference (i.e. 'k8vopl-dev')
+    required: true
+  - name: APP_NAME
+    description: Application name
+    required: true
+  - name: CONTAINER_PORT
+    description: The port on which the application will be accessible
+    value: "8080"
+    required: false
+  - name: TAG
+    description: The identifying tag for this specific deployment
+    required: true
+  - name: MIN_REPLICAS
+    description: The minimum number of replicas
+    required: true
+  - name: MAX_REPLICAS
+    description: The maximum number of replicas
+    required: true
+  - name: MIN_CPU
+    description: The minimum amount of CPU
+    required: true
+  - name: MAX_CPU
+    description: The maximum amount of CPU
+    required: true
+  - name: MIN_MEM
+    description: The minimum amount of memory
+    required: true
+  - name: MAX_MEM
+    description: The maximum amount of memory
+    required: true
+objects:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: "${APP_NAME}-${BRANCH}"
+      labels:
+        app: "${APP_NAME}-${BRANCH}"
+    spec:
+      replicas: ${{MIN_REPLICAS}}
+      selector:
+        matchLabels:
+          app: "${APP_NAME}-${BRANCH}"
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 25%
+          maxSurge: 25%
+      template:
+        metadata:
+          annotations:
+            openshift.io/generated-by: studentdatacollectionapi
+            prometheus.io/path: /actuator/prometheus
+            prometheus.io/port: '8080'
+            prometheus.io/scrape: 'true'
+          labels:
+            app: "${APP_NAME}-${BRANCH}"
+        spec:
+          imagePullSecrets:
+            - name: artifactory-creds
+          containers:
+            - name: "${APP_NAME}-${BRANCH}"
+              image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}-${BRANCH}:${TAG}
+              imagePullPolicy: Always
+              ports:
+                - containerPort: ${{CONTAINER_PORT}}
+                  protocol: TCP
+              resources:
+                requests:
+                  cpu: "${MIN_CPU}"
+                  memory: "${MIN_MEM}"
+                limits:
+                  cpu: "${MAX_CPU}"
+                  memory: "${MAX_MEM}"
+              readinessProbe:
+                tcpSocket:
+                  port: 8080
+                initialDelaySeconds: 30
+                periodSeconds: 10
+                timeoutSeconds: 5
+                failureThreshold: 20
+                successThreshold: 1
+              livenessProbe:
+                httpGet:
+                  path: /actuator/health
+                  port: 8080
+                initialDelaySeconds: 300
+                periodSeconds: 30
+                timeoutSeconds: 5
+                failureThreshold: 5
+                successThreshold: 1
+              volumeMounts:
+                - name: tls-certs
+                  mountPath: "/etc/tls-certs"
+                  readOnly: true
+                - name: log-storage
+                  mountPath: /logs
+            - name: "${APP_NAME}-${BRANCH}-fluent-bit-sidecar"
+              image: artifacts.developer.gov.bc.ca/docker-remote/fluent/fluent-bit:1.5.7
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 2020
+                  protocol: TCP
+                  name: metrics
+              resources:
+                requests:
+                  cpu: "5m"
+                  memory: "25Mi"
+                limits:
+                  cpu: "10m"
+                  memory: "50Mi"
+              readinessProbe:
+                tcpSocket:
+                  port: 2020
+                initialDelaySeconds: 10
+                periodSeconds: 30
+                timeoutSeconds: 5
+                failureThreshold: 5
+                successThreshold: 1
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 2020
+                initialDelaySeconds: 10
+                periodSeconds: 30
+                timeoutSeconds: 5
+                failureThreshold: 5
+                successThreshold: 1
+              volumeMounts:
+                - name: log-storage
+                  mountPath: /mnt/log
+                - name: flb-sc-config-volume
+                  mountPath: /fluent-bit/etc/
+          volumes:
+            - name: tls-certs
+              secret:
+                secretName: school-api-cert
+            - name: log-storage
+              emptyDir: {}
+            - name: flb-sc-config-volume
+              configMap:
+                name: "${APP_NAME}-flb-sc-config-map"
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: "${APP_NAME}-${BRANCH}"
+      labels:
+        app: "${APP_NAME}-${BRANCH}"
+      annotations:
+        service.alpha.openshift.io/serving-cert-secret-name: "school-api-cert"
+    spec:
+      selector:
+        app: "${APP_NAME}-${BRANCH}"
+      ports:
+        - name: ${CONTAINER_PORT}-tcp
+          port: ${{CONTAINER_PORT}}
+          protocol: TCP
+  - apiVersion: autoscaling/v2
+    kind: HorizontalPodAutoscaler
+    metadata:
+      name: "${APP_NAME}-${BRANCH}-cpu-autoscaler"
+    spec:
+      scaleTargetRef:
+        apiVersion: apps/v1
+        kind: Deployment
+        name: "${APP_NAME}-${BRANCH}"
+      minReplicas: ${{MIN_REPLICAS}}
+      maxReplicas: ${{MAX_REPLICAS}}
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 200
