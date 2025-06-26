@@ -1200,4 +1200,60 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
             .isNotEmpty()
             .doesNotContain(ProgramEligibilityIssueCode.SUMMER_SCHOOL_CAREER, ProgramEligibilityIssueCode.SUMMER_SCHOOL_FRENCH);
   }
+
+  @Test
+  void testPRPorYouthRule() {
+    CollectionEntity collection = createMockCollectionEntity();
+    collectionRepository.save(collection);
+    SdcSchoolCollectionEntity schoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, null));
+    SdcSchoolCollectionStudentEntity schoolStudentEntity = this.createMockSchoolStudentEntity(schoolCollection);
+    PenMatchResult penMatchResult = getPenMatchResult();
+    when(this.restUtils.getPenMatchResult(any(), any(), any())).thenReturn(penMatchResult);
+
+    SchoolTombstone shortPRPSchool = createMockSchool();
+    shortPRPSchool.setFacilityTypeCode(FacilityTypeCodes.SHORT_PRP.getCode());
+
+    List<ProgramEligibilityIssueCode> listWithErrorShortPRP = rulesProcessor.processRules(
+            createMockStudentRuleData(
+                    schoolStudentEntity,
+                    shortPRPSchool
+            )
+    );
+    assertThat(listWithErrorShortPRP).contains(ProgramEligibilityIssueCode.PRP_YOUTH);
+
+    SchoolTombstone longPRPSchool = createMockSchool();
+    longPRPSchool.setFacilityTypeCode(FacilityTypeCodes.LONG_PRP.getCode());
+
+    List<ProgramEligibilityIssueCode> listWithErrorLongPRP = rulesProcessor.processRules(
+            createMockStudentRuleData(
+                    schoolStudentEntity,
+                    longPRPSchool
+            )
+    );
+    assertThat(listWithErrorLongPRP).contains(ProgramEligibilityIssueCode.PRP_YOUTH);
+
+    SchoolTombstone youthSchool = createMockSchool();
+    youthSchool.setFacilityTypeCode(FacilityTypeCodes.SHORT_PRP.getCode());
+
+    List<ProgramEligibilityIssueCode> listWithErrorYouth = rulesProcessor.processRules(
+            createMockStudentRuleData(
+                    schoolStudentEntity,
+                    youthSchool
+            )
+    );
+    assertThat(listWithErrorYouth).contains(ProgramEligibilityIssueCode.PRP_YOUTH);
+
+    SchoolTombstone standardSchool = createMockSchool();
+    standardSchool.setFacilityTypeCode(FacilityTypeCodes.STANDARD.getCode());
+
+    List<ProgramEligibilityIssueCode> listWithoutError = rulesProcessor.processRules(
+            createMockStudentRuleData(
+                    schoolStudentEntity,
+                    standardSchool
+            )
+    );
+    assertThat(listWithoutError)
+            .isNotEmpty()
+            .doesNotContain(ProgramEligibilityIssueCode.PRP_YOUTH);
+  }
 }
