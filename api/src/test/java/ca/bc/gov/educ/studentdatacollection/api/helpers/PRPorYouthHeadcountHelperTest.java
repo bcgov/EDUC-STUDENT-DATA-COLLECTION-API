@@ -7,9 +7,9 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionSt
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentEnrolledProgramRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
+import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.PRPorYouthHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.HeadcountResultsTable;
@@ -29,6 +29,7 @@ import java.time.Year;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = StudentDataCollectionApiApplication.class)
@@ -36,9 +37,6 @@ class PRPorYouthHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
 
     @Autowired
     private SdcSchoolCollectionStudentRepository studentRepository;
-
-    @Autowired
-    private SdcSchoolCollectionStudentEnrolledProgramRepository enrolledProgramRepository;
 
     private PRPorYouthHeadcountHelper helper;
 
@@ -139,5 +137,52 @@ class PRPorYouthHeadcountHelperTest extends BaseStudentDataCollectionAPITest {
         HeadcountResultsTable actualResultsTable = helper.convertHeadcountResultsToSchoolGradeTable(mockDistrictCollectionEntity.getSdcDistrictCollectionID(), result);
         var schoolSection = actualResultsTable.getRows().stream().map(row -> row.get("section")).toList();
         assert(schoolSection.stream().anyMatch(val -> val.getCurrentValue().contains("All Schools")));
+    }
+
+    @Test
+    void testGetPRPAndYouthSchoolUUIDs_ShouldReturnCorrectUUIDs() {
+        helper = new PRPorYouthHeadcountHelper(schoolCollectionRepository, studentRepository, sdcDistrictCollectionRepository, restUtils);
+
+        SchoolTombstone youthSchool = new SchoolTombstone();
+        youthSchool.setSchoolId(UUID.randomUUID().toString());
+        youthSchool.setFacilityTypeCode(FacilityTypeCodes.YOUTH.getCode());
+
+        SchoolTombstone shortPrpSchool = new SchoolTombstone();
+        shortPrpSchool.setSchoolId(UUID.randomUUID().toString());
+        shortPrpSchool.setFacilityTypeCode(FacilityTypeCodes.SHORT_PRP.getCode());
+
+        SchoolTombstone longPrpSchool = new SchoolTombstone();
+        longPrpSchool.setSchoolId(UUID.randomUUID().toString());
+        longPrpSchool.setFacilityTypeCode(FacilityTypeCodes.LONG_PRP.getCode());
+
+        PRPorYouthHeadcountHelper spyHelper = org.mockito.Mockito.spy(helper);
+        Map<String, List<SchoolTombstone>> mockTombstones = new HashMap<>();
+        mockTombstones.put("ALLPRPORYOUTH", Arrays.asList(youthSchool, shortPrpSchool, longPrpSchool));
+        mockTombstones.put("YOUTH", List.of(youthSchool));
+        mockTombstones.put("SHORT_PRP", List.of(shortPrpSchool));
+        mockTombstones.put("LONG_PRP", List.of(longPrpSchool));
+
+        org.mockito.Mockito.doReturn(mockTombstones).when(spyHelper).getAllPRPAndYouthSchoolTombstones(
+                mockDistrictCollectionEntity.getSdcDistrictCollectionID()
+        );
+
+        Map<String, List<UUID>> result = spyHelper.getPRPAndYouthSchoolUUIDs(
+                mockDistrictCollectionEntity.getSdcDistrictCollectionID()
+        );
+
+        assertEquals(4, result.size());
+        assertTrue(result.containsKey("ALLPRPORYOUTH"));
+        assertTrue(result.containsKey("YOUTH"));
+        assertTrue(result.containsKey("SHORT_PRP"));
+        assertTrue(result.containsKey("LONG_PRP"));
+
+        assertEquals(3, result.get("ALLPRPORYOUTH").size());
+        assertEquals(1, result.get("YOUTH").size());
+        assertEquals(1, result.get("SHORT_PRP").size());
+        assertEquals(1, result.get("LONG_PRP").size());
+
+        assertEquals(UUID.fromString(youthSchool.getSchoolId()), result.get("YOUTH").get(0));
+        assertEquals(UUID.fromString(shortPrpSchool.getSchoolId()), result.get("SHORT_PRP").get(0));
+        assertEquals(UUID.fromString(longPrpSchool.getSchoolId()), result.get("LONG_PRP").get(0));
     }
 }
