@@ -58,8 +58,10 @@ public class SdcDistrictCollectionHeadcountReportsController implements SdcDistr
             return sdcDistrictCollectionHeadcountService.getRefugeePerSchoolHeadcounts(sdcDistrictCollectionEntity, compare);
         } else if (HeadcountReportTypeCodes.ZERO_FTE_SUMMARY.getCode().equals(type)) {
             return sdcDistrictCollectionHeadcountService.getZeroFTESummaryHeadcounts(sdcDistrictCollectionEntity, compare);
-        } else if (HeadcountReportTypeCodes.INCLUSIVE_EDUCATION_VARIANCE .getCode().equals(type)) {
+        } else if (HeadcountReportTypeCodes.INCLUSIVE_EDUCATION_VARIANCE.getCode().equals(type)) {
             return sdcDistrictCollectionHeadcountService.getSpecialEdVarianceHeadcounts(sdcDistrictCollectionEntity);
+        } else if (HeadcountReportTypeCodes.PRP_OR_YOUTH_SUMMARY.getCode().equals(type)) {
+            return sdcDistrictCollectionHeadcountService.getYouthPRPHeadcountsPerSchool(sdcDistrictCollectionEntity, compare);
         }
         return null;
     }

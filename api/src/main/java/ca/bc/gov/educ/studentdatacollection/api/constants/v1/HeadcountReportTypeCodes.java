@@ -24,7 +24,9 @@ public enum HeadcountReportTypeCodes {
     ELL_PER_SCHOOL("ell-per-school"),
     REFUGEE_PER_SCHOOL("refugee-per-school"),
     ZERO_FTE_SUMMARY("zero-fte-summary"),
-    INCLUSIVE_EDUCATION_VARIANCE("INCLUSIVE_EDUCATION_VARIANCE");
+    INCLUSIVE_EDUCATION_VARIANCE("INCLUSIVE_EDUCATION_VARIANCE"),
+    PRP_OR_YOUTH_SUMMARY("prp-or-youth-summary"),
+    ;
 
     private final String code;
     HeadcountReportTypeCodes(String code) { this.code = code; }

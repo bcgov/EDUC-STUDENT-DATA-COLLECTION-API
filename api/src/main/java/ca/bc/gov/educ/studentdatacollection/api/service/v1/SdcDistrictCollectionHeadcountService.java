@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -30,6 +31,7 @@ public class SdcDistrictCollectionHeadcountService {
   private final EllHeadcountHelper ellHeadcountHelper;
   private final RefugeeHeadcountHelper refugeeHeadcountHelper;
   private final ZeroFTEHeadcountHelper zeroFTEHeadcountHelper;
+  private final PRPorYouthHeadcountHelper prpOrYouthHeadcountHelper;
 
   // All Students By District report
   public SdcSchoolCollectionStudentHeadcounts getEnrollmentHeadcounts(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
@@ -138,6 +140,31 @@ public class SdcDistrictCollectionHeadcountService {
 
     if (compare) {
       frenchCombinedHeadcountHelper.setComparisonValuesForDistrictBySchool(sdcDistrictCollectionEntity, headcountHeaderList, collectionData);
+    }
+
+    return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();
+  }
+
+  public SdcSchoolCollectionStudentHeadcounts getYouthPRPHeadcountsPerSchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, boolean compare) {
+    var sdcDistrictCollectionID = sdcDistrictCollectionEntity.getSdcDistrictCollectionID();
+    prpOrYouthHeadcountHelper.setGradeCodesForDistricts();
+
+    List<HeadcountHeader> headcountHeaderList;
+    HeadcountResultsTable collectionData;
+    List<PRPorYouthHeadcountResult> collectionRawData;
+    Map<String, List<UUID>> youthPRPSchoolUUIDs = prpOrYouthHeadcountHelper.getPRPAndYouthSchoolUUIDs(sdcDistrictCollectionID);
+    List<UUID> youthPRPSchoolIDs = youthPRPSchoolUUIDs.get("ALLPRPORYOUTH");
+    List<UUID> youthSchoolIDs = youthPRPSchoolUUIDs.get("YOUTH");
+    List<UUID> shortPRPSchoolIDs = youthPRPSchoolUUIDs.get("SHORT_PRP");
+    List<UUID> longPRPSchoolIDs = youthPRPSchoolUUIDs.get("LONG_PRP");
+
+    collectionRawData = sdcSchoolCollectionStudentRepository.getYouthPRPHeadcountsBySdcDistrictCollectionIdGroupBySchoolId(sdcDistrictCollectionID, youthPRPSchoolIDs,
+            youthSchoolIDs, shortPRPSchoolIDs, longPRPSchoolIDs);
+    headcountHeaderList = prpOrYouthHeadcountHelper.getHeaders(sdcDistrictCollectionID, youthPRPSchoolIDs, youthSchoolIDs, shortPRPSchoolIDs, longPRPSchoolIDs);
+    collectionData = prpOrYouthHeadcountHelper.convertHeadcountResultsToSchoolGradeTable(sdcDistrictCollectionEntity.getSdcDistrictCollectionID(), collectionRawData);
+
+    if (compare) {
+      prpOrYouthHeadcountHelper.setComparisonValuesForDistrictBySchool(sdcDistrictCollectionEntity, headcountHeaderList, collectionData);
     }
 
     return SdcSchoolCollectionStudentHeadcounts.builder().headcountHeaders(headcountHeaderList).headcountResultsTable(collectionData).build();

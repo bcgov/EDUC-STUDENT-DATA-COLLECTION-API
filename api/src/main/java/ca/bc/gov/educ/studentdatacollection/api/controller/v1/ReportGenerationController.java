@@ -55,6 +55,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
     private final SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService;
     private final SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService;
     private final ZeroFTEHeadCountReportService zeroFTEHeadCountReportService;
+    private final PRPorYouthHeadcountReportService prpOrYouthHeadcountReportService;
     private static final SdcSchoolCollectionStudentMapper sdcSchoolCollectionStudentMapper = SdcSchoolCollectionStudentMapper.mapper;
 
     @Override
@@ -119,6 +120,7 @@ public class ReportGenerationController implements ReportGenerationEndpoint {
             case ALL_STUDENT_ELL_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateEllFromSdcDistrictCollectionID(sdcDistrictCollectionID);
             case ALL_STUDENT_REFUGEE_DIS_CSV -> allStudentLightCollectionGenerateCsvService.generateRefugeeFromSdcDistrictCollectionID(sdcDistrictCollectionID);
             case DIS_ZERO_FTE_SUMMARY -> zeroFTEHeadCountReportService.generateZeroFTEHeadcountReport(sdcDistrictCollectionID);
+            case DIS_PRP_OR_YOUTH_SUMMARY -> prpOrYouthHeadcountReportService.generatePerSchoolReport(sdcDistrictCollectionID);
             case DIS_BAND_RESIDENCE_HEADCOUNT -> bandOfResidenceHeadcountReportService.generateDistrictBandOfResidenceReport(sdcDistrictCollectionID);
             case DIS_BAND_RESIDENCE_HEADCOUNT_PER_SCHOOL -> bandOfResidenceHeadcountPerSchoolReportService.generateBandOfResidenceHeadcountPerSchoolReport(sdcDistrictCollectionID);
             default -> new DownloadableReportResponse();
