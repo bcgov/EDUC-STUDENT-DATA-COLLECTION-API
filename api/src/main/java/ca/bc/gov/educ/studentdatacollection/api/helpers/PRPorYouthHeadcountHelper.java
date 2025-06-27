@@ -44,7 +44,7 @@ public class PRPorYouthHeadcountHelper extends HeadcountHelper<PRPorYouthHeadcou
     }
 
     public void setGradeCodesForDistricts() {
-        gradeCodes = SchoolGradeCodes.getNonIndependentKtoGAGrades();
+        gradeCodes = SchoolGradeCodes.getAllSchoolGrades();
     }
 
     public void setComparisonValuesForDistrictBySchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
@@ -72,7 +72,8 @@ public class PRPorYouthHeadcountHelper extends HeadcountHelper<PRPorYouthHeadcou
         Map<String, Integer> totalCounts = new HashMap<>();
         Map<String, String> schoolDetails  = new HashMap<>();
 
-        List<SchoolTombstone> allSchools =  getAllSchoolTombstones(sdcDistrictCollectionID);
+        Map<String, List<SchoolTombstone>> youthPRPSchoolTombstones = getAllPRPAndYouthSchoolTombstones(sdcDistrictCollectionID);
+        List<SchoolTombstone> allSchools =  youthPRPSchoolTombstones.get("ALLPRPORYOUTH");
 
         // Collect all grades and initialize school-grade map
         for (PRPorYouthHeadcountResult result : results) {

@@ -71,7 +71,7 @@ public class PRPorYouthHeadcountReportService extends BaseReportGenerationServic
                     new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionID", sdcDistrictCollectionID.toString()));
 
             Map<String, List<SchoolTombstone>> schoolTombstoneMap = prpOrYouthHeadcountHelper.getAllPRPAndYouthSchoolTombstones(sdcDistrictCollectionID);
-            this.allSchoolsTombstones = getAllSchoolTombstones(sdcDistrictCollectionID);
+            this.allSchoolsTombstones = schoolTombstoneMap.get("ALLPRPORYOUTH");
             List<UUID> youthPRPSchoolIDs = schoolTombstoneMap.get("ALLPRPORYOUTH").stream().map(SchoolTombstone::getSchoolId).map(UUID::fromString).toList();
             List<UUID> youthSchoolIDs = schoolTombstoneMap.get("YOUTH").stream().map(SchoolTombstone::getSchoolId).map(UUID::fromString).toList();
             List<UUID> shortPRPSchoolIDs = schoolTombstoneMap.get("SHORT_PRP").stream().map(SchoolTombstone::getSchoolId).map(UUID::fromString).toList();
