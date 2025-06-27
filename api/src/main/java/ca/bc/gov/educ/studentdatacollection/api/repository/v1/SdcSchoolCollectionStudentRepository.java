@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Repository
@@ -79,6 +80,15 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           " AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
           " GROUP BY sscs.sdcSchoolCollection.schoolID ")
   List<SchoolHeadcountResult> getAllEnrollmentHeadcountsByCollectionId(@Param("collectionID") UUID collectionID);
+
+  @Query("SELECT new ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.AllSchoolHeadcountResult(" +
+          "sscs.sdcSchoolCollection.schoolID, COUNT(*)) " +
+          "FROM SdcSchoolCollectionStudentEntity sscs " +
+          "WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED') " +
+          "AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :collectionID " +
+          "GROUP BY sscs.sdcSchoolCollection.schoolID")
+  List<AllSchoolHeadcountResult> getAllSchoolHeadcountsByCollectionId(@Param("collectionID") UUID collectionID);
+
 
   @Query("SELECT " +
           " sscs.sdcSchoolCollection.schoolID as schoolID, " +

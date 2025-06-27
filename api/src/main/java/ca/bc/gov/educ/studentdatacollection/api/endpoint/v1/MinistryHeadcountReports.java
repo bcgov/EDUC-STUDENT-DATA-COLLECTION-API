@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.Map;
 import java.util.UUID;
 
 @RequestMapping(URL.BASE_MINISTRY_HEADCOUNTS)
@@ -22,6 +23,13 @@ public interface MinistryHeadcountReports {
     @Transactional(readOnly = true)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
     SimpleHeadcountResultsTable getMinistryHeadcounts(@PathVariable UUID collectionID, @PathVariable(name = "type") String type);
+
+    @GetMapping("/school/{collectionID}")
+    @PreAuthorize("hasAuthority('SCOPE_READ_SDC_MINISTRY_REPORTS')")
+    @Transactional(readOnly = true)
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
+    Map getAllSchoolHeadcounts(@PathVariable UUID collectionID);
+
 
     @GetMapping("/{collectionID}/{type}/download")
     @PreAuthorize("hasAuthority('SCOPE_READ_SDC_MINISTRY_REPORTS')")

@@ -102,6 +102,10 @@ public class MinistryHeadcountService {
     return resultsTable;
   }
 
+  public List<AllSchoolHeadcountResult> getAllSchoolHeadcounts(UUID collectionID) {
+    return sdcSchoolCollectionStudentRepository.getAllSchoolHeadcountsByCollectionId(collectionID);
+  }
+
   // Independent School Enrolment Headcounts report
   public SimpleHeadcountResultsTable getIndySchoolsEnrollmentHeadcounts(UUID collectionID) {
     List<IndySchoolHeadcountResult> collectionRawData = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
