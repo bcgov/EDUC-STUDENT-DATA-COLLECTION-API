@@ -24,12 +24,11 @@ public interface MinistryHeadcountReports {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
     SimpleHeadcountResultsTable getMinistryHeadcounts(@PathVariable UUID collectionID, @PathVariable(name = "type") String type);
 
-    @GetMapping("/school/{collectionID}")
+    @GetMapping("/allSchoolHeadcounts/{collectionID}")
     @PreAuthorize("hasAuthority('SCOPE_READ_SDC_MINISTRY_REPORTS')")
     @Transactional(readOnly = true)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST")})
-    Map getAllSchoolHeadcounts(@PathVariable UUID collectionID);
-
+    Map<String, Long> getAllSchoolHeadcounts(@PathVariable UUID collectionID);
 
     @GetMapping("/{collectionID}/{type}/download")
     @PreAuthorize("hasAuthority('SCOPE_READ_SDC_MINISTRY_REPORTS')")

@@ -89,7 +89,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "GROUP BY sscs.sdcSchoolCollection.schoolID")
   List<AllSchoolHeadcountResult> getAllSchoolHeadcountsByCollectionId(@Param("collectionID") UUID collectionID);
 
-
   @Query("SELECT " +
           " sscs.sdcSchoolCollection.schoolID as schoolID, " +
           " COUNT(CASE WHEN sscs.enrolledGradeCode = 'KH' THEN 1 END) as kindHCount, " +

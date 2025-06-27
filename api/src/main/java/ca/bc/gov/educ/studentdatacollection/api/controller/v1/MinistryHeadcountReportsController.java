@@ -7,7 +7,6 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.AllReportsService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.CSVReportService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.MinistryHeadcountService;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.AllSchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,11 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -54,17 +51,10 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
         };
     }
 
-    public Map getAllSchoolHeadcounts(UUID collectionID) {
-        List<AllSchoolHeadcountResult> results = ministryHeadcountService.getAllSchoolHeadcounts(collectionID);
-
-        Map<String, Long> map = results.stream()
-                .collect(Collectors.toMap(
-                        r -> r.getSchoolID().toString(), // Convert UUID to String
-                        AllSchoolHeadcountResult::getTotalHeadcount
-                ));
-
-        return map;
+    public Map<String, Long> getAllSchoolHeadcounts(UUID collectionID) {
+        return ministryHeadcountService.getAllSchoolHeadcounts(collectionID);
     }
+
     @Override
     public DownloadableReportResponse getMinistryDownloadableReport(UUID collectionID, String type) {
         Optional<MinistryReportTypeCode> code = MinistryReportTypeCode.findByValue(type);

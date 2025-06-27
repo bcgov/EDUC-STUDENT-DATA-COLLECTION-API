@@ -1,24 +1,17 @@
 package ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.UUID;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class AllSchoolHeadcountResult {
-
-    private final UUID schoolID;
-    private final Long totalHeadcount;
-
-    public AllSchoolHeadcountResult(UUID schoolID, Long totalHeadcount) {
-        this.schoolID = schoolID;
-        this.totalHeadcount = totalHeadcount;
-    }
-
-    public UUID getSchoolID() {
-        return schoolID;
-    }
-
-    public Long getTotalHeadcount() {
-        return totalHeadcount;
-    }
+    UUID schoolID;
+    Long totalHeadcount;
 }
-
-
