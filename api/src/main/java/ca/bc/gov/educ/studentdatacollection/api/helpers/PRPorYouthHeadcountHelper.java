@@ -34,6 +34,7 @@ public class PRPorYouthHeadcountHelper extends HeadcountHelper<PRPorYouthHeadcou
     private static final String SECTION = "section";
     private static final String TITLE = "title";
     private static final String TOTAL = "Total";
+    private static final String ALLPRPORYOUTH = "ALLPRPORYOUTH";
 
     private final RestUtils restUtils;
 
@@ -50,7 +51,7 @@ public class PRPorYouthHeadcountHelper extends HeadcountHelper<PRPorYouthHeadcou
     public void setComparisonValuesForDistrictBySchool(SdcDistrictCollectionEntity sdcDistrictCollectionEntity, List<HeadcountHeader> headcountHeaderList, HeadcountResultsTable collectionData) {
         UUID previousCollectionID = getPreviousCollectionIDByDistrictCollectionID(sdcDistrictCollectionEntity);
         Map<String, List<UUID>> youthPRPSchoolUUIDs = getPRPAndYouthSchoolUUIDs(previousCollectionID);
-        List<UUID> youthPRPSchoolIDs = youthPRPSchoolUUIDs.get("ALLPRPORYOUTH");
+        List<UUID> youthPRPSchoolIDs = youthPRPSchoolUUIDs.get(ALLPRPORYOUTH);
         List<UUID> youthSchoolIDs = youthPRPSchoolUUIDs.get("YOUTH");
         List<UUID> shortPRPSchoolIDs = youthPRPSchoolUUIDs.get("SHORT_PRP");
         List<UUID> longPRPSchoolIDs = youthPRPSchoolUUIDs.get("LONG_PRP");
@@ -73,7 +74,7 @@ public class PRPorYouthHeadcountHelper extends HeadcountHelper<PRPorYouthHeadcou
         Map<String, String> schoolDetails  = new HashMap<>();
 
         Map<String, List<SchoolTombstone>> youthPRPSchoolTombstones = getAllPRPAndYouthSchoolTombstones(sdcDistrictCollectionID);
-        List<SchoolTombstone> allSchools =  youthPRPSchoolTombstones.get("ALLPRPORYOUTH");
+        List<SchoolTombstone> allSchools =  youthPRPSchoolTombstones.get(ALLPRPORYOUTH);
 
         // Collect all grades and initialize school-grade map
         for (PRPorYouthHeadcountResult result : results) {
@@ -205,7 +206,7 @@ public class PRPorYouthHeadcountHelper extends HeadcountHelper<PRPorYouthHeadcou
                         .orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollection.class, "SchoolID", schoolCollection.getSchoolID().toString())))
                 .filter(school -> facilityTypeCodes.containsValue(school.getFacilityTypeCode()))
                 .toList();
-        result.put("ALLPRPORYOUTH", allSchools);
+        result.put(ALLPRPORYOUTH, allSchools);
 
         // Get by type
         facilityTypeCodes.forEach((key, code) -> {
