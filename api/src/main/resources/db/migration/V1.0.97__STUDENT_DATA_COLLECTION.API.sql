@@ -1,0 +1,1 @@
+CREATE INDEX idx_school_id ON sdc_school_collection(school_id);

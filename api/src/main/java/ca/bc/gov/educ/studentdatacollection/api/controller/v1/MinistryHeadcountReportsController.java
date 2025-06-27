@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,6 +49,10 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
             case OFFSHORE_SPOKEN_LANGUAGE_HEADCOUNTS -> ministryHeadcountService.getOffshoreSpokenLanguageHeadcounts(collectionID);
             default -> new SimpleHeadcountResultsTable();
         };
+    }
+
+    public Map<String, Long> getAllSchoolHeadcounts(UUID collectionID) {
+        return ministryHeadcountService.getAllSchoolHeadcounts(collectionID);
     }
 
     @Override
