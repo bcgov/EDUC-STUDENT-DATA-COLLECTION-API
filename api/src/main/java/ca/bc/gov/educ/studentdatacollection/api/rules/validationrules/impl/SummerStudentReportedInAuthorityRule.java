@@ -25,7 +25,7 @@ import java.util.Optional;
 /**
  * | ID   | Severity | Rule                                                          | Dependent On |
  * |----- |----------|-------------------------------------------------------------- |--------------|
- * | V103 | ERROR    | Student included in any collection in this school year        | V92          |
+ * | V103 | ERROR    | Student included in any collection in this school year        | V04, V92          |
  *                     for the authority with FTE > 0 in any school with type
  *                     different from online
  *                     OR if the student reported in Online school in the authority
