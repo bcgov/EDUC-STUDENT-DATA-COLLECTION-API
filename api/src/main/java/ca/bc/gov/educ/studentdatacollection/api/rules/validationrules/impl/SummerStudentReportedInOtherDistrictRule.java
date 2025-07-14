@@ -20,7 +20,7 @@ import java.util.List;
 /**
  *  | ID  | Severity | Rule                                                          | Dependent On |
  *  |-----|----------|-------------------------------------------------------------- |--------------|
- *  | V99 | WARNING    | Student must be reported in Grade 8 or 9                   |V92           |
+ *  | V99 | WARNING    | Student must be reported in Grade 8 or 9                    | V04, V92           |
  *                     with FTE>0 in any other districts in previous
  *                     collection this school year to receive funding.
  */

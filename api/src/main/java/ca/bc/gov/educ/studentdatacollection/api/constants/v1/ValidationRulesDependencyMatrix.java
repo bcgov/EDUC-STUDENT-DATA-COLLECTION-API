@@ -62,14 +62,14 @@ public enum ValidationRulesDependencyMatrix {
     ENTRY54("V78", new String[]{DOB_INVALID_FORMAT.getCode(), ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode()}),
     ENTRY55("V79", new String[]{DOB_INVALID_FORMAT.getCode(), SPED_ERR.getCode()}),
     ENTRY56("V90", new String[]{FUNDING_CODE_INVALID.getCode(), ENROLLED_CODE_PARSE_ERR.getCode(), ENROLLED_CODE_INVALID.getCode()}),
-    ENTRY57("V93", new String[]{SUMMER_PUBLIC_SCHOOL_GRADE_ERROR.getCode()}),
-    ENTRY58("V99", new String[]{SUMMER_PUBLIC_SCHOOL_GRADE_ERROR.getCode()}),
+    ENTRY57("V93", new String[]{DOB_INVALID_FORMAT.getCode(), SUMMER_PUBLIC_SCHOOL_GRADE_ERROR.getCode()}),
+    ENTRY58("V99", new String[]{DOB_INVALID_FORMAT.getCode(), SUMMER_PUBLIC_SCHOOL_GRADE_ERROR.getCode()}),
     ENTRY59("V94", new String[]{DOB_INVALID_FORMAT.getCode()}),
     ENTRY60("V92", new String[]{INVALID_GRADE_CODE.getCode()}),
     ENTRY61("V98", new String[]{DOB_INVALID_FORMAT.getCode()}),
     ENTRY62("V100", new String[]{ENROLLED_CODE_PARSE_ERR.getCode()}),
-    ENTRY63("V102", new String[]{SUMMER_PUBLIC_SCHOOL_GRADE_ERROR.getCode(), SUMMER_STUDENT_REPORTED_NOT_IN_DISTRICT_ERROR.getCode()}),
-    ENTRY64("V103", new String[]{SUMMER_PUBLIC_SCHOOL_GRADE_ERROR.getCode()}),
+    ENTRY63("V102", new String[]{DOB_INVALID_FORMAT.getCode(), SUMMER_PUBLIC_SCHOOL_GRADE_ERROR.getCode(), SUMMER_STUDENT_REPORTED_NOT_IN_DISTRICT_ERROR.getCode()}),
+    ENTRY64("V103", new String[]{DOB_INVALID_FORMAT.getCode(), SUMMER_PUBLIC_SCHOOL_GRADE_ERROR.getCode()}),
     ;
 
     @Getter
