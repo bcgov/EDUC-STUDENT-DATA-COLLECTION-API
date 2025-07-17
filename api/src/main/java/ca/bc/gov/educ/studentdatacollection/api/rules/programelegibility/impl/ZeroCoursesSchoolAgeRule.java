@@ -45,6 +45,9 @@ public class ZeroCoursesSchoolAgeRule implements ProgramEligibilityBaseRule {
 
     boolean isSchoolAged = DOBUtil.isSchoolAged(student.getDob());
     boolean hasZeroCourses = StringUtils.isEmpty(student.getNumberOfCourses()) || Double.parseDouble(df.format(Double.valueOf(student.getNumberOfCourses()))) == 0;
+    // todo
+    // we want to check OL in september
+    // for OL in february we want to skip the base rule - then we need a new non eligibility rule for all but sped in february for OL
     boolean notAttendingOL = !FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(studentRuleData.getSchool().getFacilityTypeCode());
     boolean inGrades8PlusMinusGA = SchoolGradeCodes.get8PlusGradesNoGA().contains(student.getEnrolledGradeCode());
 
