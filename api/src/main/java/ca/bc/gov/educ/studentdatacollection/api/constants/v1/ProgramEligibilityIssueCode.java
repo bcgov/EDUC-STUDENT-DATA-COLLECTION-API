@@ -9,8 +9,19 @@ public enum ProgramEligibilityIssueCode {
   OUT_OF_PROVINCE("OUTOFPROV", "Out of Province/International students are not eligible for program funding.", ProgramEligibilityTypeCode.BASE),
   INACTIVE_ADULT("INACTADULT", "Students who have not been reported as \"active\" in a new course in the last two years are not eligible for program funding.", ProgramEligibilityTypeCode.BASE),
   INACTIVE_SCHOOL_AGE("INACTMINOR", "Students who have not been reported as \"active\" in a new course in the last two years are not eligible for program funding.", ProgramEligibilityTypeCode.BASE),
+
   ZERO_COURSES_ADULT("ZEROCRSADU", "Adult students must be reported with at least one course.", ProgramEligibilityTypeCode.BASE),
+  ZERO_COURSES_ADULT_FRENCH("ZCRSADUF", "Adult students must be reported with at least one course.", ProgramEligibilityTypeCode.FRENCH),
+  ZERO_COURSES_ADULT_CAREER("ZCRSADUC", "Adult students must be reported with at least one course.", ProgramEligibilityTypeCode.CAREER_PROGRAMS),
+  ZERO_COURSES_ADULT_IND("ZCRSADUI", "Adult students must be reported with at least one course.", ProgramEligibilityTypeCode.IND_SUPPORT),
+  ZERO_COURSES_ADULT_ELL("ZCRSADUE", "Adult students must be reported with at least one course.", ProgramEligibilityTypeCode.ELL),
+
   ZERO_COURSES_SCHOOL_AGE("ZEROCRSAGE", "Secondary students must be reported with at least one course.", ProgramEligibilityTypeCode.BASE),
+  ZERO_COURSES_SCHOOL_AGE_FRENCH("ZCRSAGEF", "Secondary students must be reported with at least one course.", ProgramEligibilityTypeCode.FRENCH),
+  ZERO_COURSES_SCHOOL_AGE_CAREER("ZCRSAGEC", "Secondary students must be reported with at least one course.", ProgramEligibilityTypeCode.CAREER_PROGRAMS),
+  ZERO_COURSES_SCHOOL_AGE_IND("ZCRSAGEI", "Secondary students must be reported with at least one course.", ProgramEligibilityTypeCode.IND_SUPPORT),
+  ZERO_COURSES_SCHOOL_AGE_ELL("ZCRSAGEE", "Secondary students must be reported with at least one course.", ProgramEligibilityTypeCode.ELL),
+
   NOT_ENROLLED_FRENCH("NTENRFRENC", "The student is not enrolled in french programs.", ProgramEligibilityTypeCode.FRENCH),
   NOT_ENROLLED_CAREER("NTENRCAREE", "The student is not enrolled in career programs.", ProgramEligibilityTypeCode.CAREER_PROGRAMS),
   ENROLLED_CAREER_INDY_SCHOOL("ENRCARINDY", "Students reported by Independent Schools are not eligible for Career Program funding.", ProgramEligibilityTypeCode.CAREER_PROGRAMS),

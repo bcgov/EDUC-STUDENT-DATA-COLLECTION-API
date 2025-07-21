@@ -42,11 +42,24 @@ public class ZeroCoursesAdultRule implements ProgramEligibilityBaseRule {
 
     boolean isAdult = DOBUtil.isAdult(studentRuleData.getSdcSchoolCollectionStudentEntity().getDob());
     boolean hasZeroCourses = StringUtils.isEmpty(student.getNumberOfCourses()) || Double.parseDouble(df.format(Double.valueOf(student.getNumberOfCourses()))) == 0;
-    boolean notAttendingOL = !FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(studentRuleData.getSchool().getFacilityTypeCode());
+
+    boolean isSeptemberCollection = FteCalculatorUtils.getCollectionTypeCode(studentRuleData).equalsIgnoreCase(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+    boolean isFebruaryCollection = FteCalculatorUtils.getCollectionTypeCode(studentRuleData).equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode());
+    boolean isAttendingOL = FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(studentRuleData.getSchool().getFacilityTypeCode());
+    boolean shouldSkipOLCheckSeptember = !isSeptemberCollection && isAttendingOL;
+    boolean onlineLearningCheckFebruary = isFebruaryCollection && isAttendingOL;
+
     boolean inGrades8Plus = SchoolGradeCodes.get8PlusGrades().contains(student.getEnrolledGradeCode());
 
-    if(isAdult && hasZeroCourses && notAttendingOL && inGrades8Plus){
+    if(isAdult && hasZeroCourses && !shouldSkipOLCheckSeptember && inGrades8Plus){
       errors.add(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT);
+    }
+
+    if(isAdult && hasZeroCourses && onlineLearningCheckFebruary && inGrades8Plus){
+      errors.add(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_FRENCH);
+      errors.add(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_CAREER);
+      errors.add(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_IND);
+      errors.add(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_ELL);
     }
 
     return errors;

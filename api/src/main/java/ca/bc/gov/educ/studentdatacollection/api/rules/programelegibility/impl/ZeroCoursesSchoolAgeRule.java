@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.rules.programelegibility.impl;
 
 import ca.bc.gov.educ.studentdatacollection.api.calculator.FteCalculatorUtils;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
@@ -45,11 +46,24 @@ public class ZeroCoursesSchoolAgeRule implements ProgramEligibilityBaseRule {
 
     boolean isSchoolAged = DOBUtil.isSchoolAged(student.getDob());
     boolean hasZeroCourses = StringUtils.isEmpty(student.getNumberOfCourses()) || Double.parseDouble(df.format(Double.valueOf(student.getNumberOfCourses()))) == 0;
-    boolean notAttendingOL = !FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(studentRuleData.getSchool().getFacilityTypeCode());
+
+    boolean isSeptemberCollection = FteCalculatorUtils.getCollectionTypeCode(studentRuleData).equalsIgnoreCase(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+    boolean isFebruaryCollection = FteCalculatorUtils.getCollectionTypeCode(studentRuleData).equalsIgnoreCase(CollectionTypeCodes.FEBRUARY.getTypeCode());
+    boolean isAttendingOL = FacilityTypeCodes.getOnlineFacilityTypeCodes().contains(studentRuleData.getSchool().getFacilityTypeCode());
+    boolean shouldSkipOLCheckSeptember = !isSeptemberCollection && isAttendingOL;
+    boolean onlineLearningCheckFebruary = isFebruaryCollection && isAttendingOL;
+
     boolean inGrades8PlusMinusGA = SchoolGradeCodes.get8PlusGradesNoGA().contains(student.getEnrolledGradeCode());
 
-    if(isSchoolAged && hasZeroCourses && notAttendingOL && inGrades8PlusMinusGA){
+    if(isSchoolAged && hasZeroCourses && !shouldSkipOLCheckSeptember && inGrades8PlusMinusGA){
       errors.add(ProgramEligibilityIssueCode.ZERO_COURSES_SCHOOL_AGE);
+    }
+
+    if(isSchoolAged && hasZeroCourses && onlineLearningCheckFebruary && inGrades8PlusMinusGA){
+      errors.add(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_FRENCH);
+      errors.add(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_CAREER);
+      errors.add(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_IND);
+      errors.add(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_ELL);
     }
 
     return errors;
