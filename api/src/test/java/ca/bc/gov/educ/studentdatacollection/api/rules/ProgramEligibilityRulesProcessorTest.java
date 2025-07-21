@@ -1078,14 +1078,68 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     errors = rulesProcessor.processRules(createMockStudentRuleData(student, createMockSchool()));
     assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT);
 
-    var school = createMockSchool();
-    school.setFacilityTypeCode("DIST_LEARN");
+    // Test OL in September - should trigger base error
+    CollectionEntity septemberCollection = createMockCollectionEntity();
+    septemberCollection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+    collectionRepository.save(septemberCollection);
+    SdcSchoolCollectionEntity septemberSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(septemberCollection, null));
+    student.setSdcSchoolCollection(septemberSchoolCollection);
     student.setIsAdult(true);
     student.setDob("19830504");
+    student.setNumberOfCourses("0");
     student.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
-    errors = rulesProcessor.processRules(createMockStudentRuleData(student, school));
+
+    var olSchool = createMockSchool();
+    olSchool.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
+
+    UUID assignedStudentID = UUID.randomUUID();
+    student.setAssignedStudentId(assignedStudentID);
+    createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(),
+        LocalDateTime.of(LocalDate.now().minusYears(1), LocalTime.MIDNIGHT),
+        assignedStudentID, null, UUID.fromString(olSchool.getSchoolId()), new BigDecimal("1.00"));
+
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, olSchool));
+    assertThat(errors).contains(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT);
+
+    // Test OL in February - should skip base error and add specific program errors
+    CollectionEntity februaryCollection = createMockCollectionEntity();
+    februaryCollection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+    collectionRepository.save(februaryCollection);
+    SdcSchoolCollectionEntity februarySchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(februaryCollection, null));
+    student.setSdcSchoolCollection(februarySchoolCollection);
+
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, olSchool));
     assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT);
+    assertThat(errors).contains(
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_FRENCH,
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_CAREER,
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_IND,
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_ELL
+    );
+
+    // Test OL in other collections (May) - should skip all errors
+    CollectionEntity mayCollection = createMockCollectionEntity();
+    mayCollection.setCollectionTypeCode(CollectionTypeCodes.MAY.getTypeCode());
+    collectionRepository.save(mayCollection);
+    SdcSchoolCollectionEntity maySchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(mayCollection, null));
+    student.setSdcSchoolCollection(maySchoolCollection);
+
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, olSchool));
+    assertThat(errors).doesNotContain(
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT,
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_FRENCH,
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_CAREER,
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_IND,
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_ELL
+    );
+
+    // Test non-OL school in February - should trigger base error
+    var regularSchool = createMockSchool();
+    regularSchool.setFacilityTypeCode(FacilityTypeCodes.STANDARD.getCode());
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, regularSchool));
+    assertThat(errors).contains(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT);
   }
+
   @Test
   void testZeroCoursesSchoolAgeRule() {
     CollectionEntity collection = collectionRepository.save(createMockCollectionEntity());
@@ -1119,15 +1173,66 @@ class ProgramEligibilityRulesProcessorTest extends BaseStudentDataCollectionAPIT
     errors = rulesProcessor.processRules(createMockStudentRuleData(student, createMockSchool()));
     assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_SCHOOL_AGE);
 
-    student.setEnrolledGradeCode(SchoolGradeCodes.GRADUATED_ADULT.getCode());
-    errors = rulesProcessor.processRules(createMockStudentRuleData(student, createMockSchool()));
-    assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_SCHOOL_AGE);
-
-    var school = createMockSchool();
-    school.setFacilityTypeCode("DIST_LEARN");
+    // Test OL in September - should trigger base error
+    CollectionEntity septemberCollection = createMockCollectionEntity();
+    septemberCollection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+    collectionRepository.save(septemberCollection);
+    SdcSchoolCollectionEntity septemberSchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(septemberCollection, null));
+    student.setSdcSchoolCollection(septemberSchoolCollection);
+    student.setIsSchoolAged(true);
+    student.setDob("20150504");
+    student.setNumberOfCourses("0");
     student.setEnrolledGradeCode(SchoolGradeCodes.GRADE10.getCode());
-    errors = rulesProcessor.processRules(createMockStudentRuleData(student, school));
+
+    var olSchool = createMockSchool();
+    olSchool.setFacilityTypeCode(FacilityTypeCodes.DIST_LEARN.getCode());
+
+    UUID assignedStudentID = UUID.randomUUID();
+    student.setAssignedStudentId(assignedStudentID);
+    createHistoricalCollectionWithStudent(CollectionTypeCodes.SEPTEMBER.getTypeCode(),
+        LocalDateTime.of(LocalDate.now().minusYears(1), LocalTime.MIDNIGHT),
+        assignedStudentID, null, UUID.fromString(olSchool.getSchoolId()), new BigDecimal("1.00"));
+
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, olSchool));
+    assertThat(errors).contains(ProgramEligibilityIssueCode.ZERO_COURSES_SCHOOL_AGE);
+
+    // Test OL in February - should skip base error and add specific program errors
+    CollectionEntity februaryCollection = createMockCollectionEntity();
+    februaryCollection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+    collectionRepository.save(februaryCollection);
+    SdcSchoolCollectionEntity februarySchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(februaryCollection, null));
+    student.setSdcSchoolCollection(februarySchoolCollection);
+
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, olSchool));
     assertThat(errors).doesNotContain(ProgramEligibilityIssueCode.ZERO_COURSES_SCHOOL_AGE);
+    assertThat(errors).contains(
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_FRENCH,
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_CAREER,
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_IND,
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_ELL
+    );
+
+    // Test OL in other collections (July) - should skip all errors
+    CollectionEntity julyCollection = createMockCollectionEntity();
+    julyCollection.setCollectionTypeCode(CollectionTypeCodes.JULY.getTypeCode());
+    collectionRepository.save(julyCollection);
+    SdcSchoolCollectionEntity julySchoolCollection = sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(julyCollection, null));
+    student.setSdcSchoolCollection(julySchoolCollection);
+
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, olSchool));
+    assertThat(errors).doesNotContain(
+        ProgramEligibilityIssueCode.ZERO_COURSES_SCHOOL_AGE,
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_FRENCH,
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_CAREER,
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_IND,
+        ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_ELL
+    );
+
+    // Test non-OL school in February - should trigger base error
+    var regularSchool = createMockSchool();
+    regularSchool.setFacilityTypeCode(FacilityTypeCodes.STANDARD.getCode());
+    errors = rulesProcessor.processRules(createMockStudentRuleData(student, regularSchool));
+    assertThat(errors).contains(ProgramEligibilityIssueCode.ZERO_COURSES_SCHOOL_AGE);
   }
 
   @Test
