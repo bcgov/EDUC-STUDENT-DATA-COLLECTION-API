@@ -14,8 +14,6 @@ import java.util.List;
 @Component
 @Slf4j
 @Order(5)
-//todo
-//rename to follow convention 'schoolAge'
 public class InactiveOnlineMinorStudentsRule implements ProgramEligibilityBaseRule {
   private final FteCalculatorUtils fteCalculatorUtils;
 
