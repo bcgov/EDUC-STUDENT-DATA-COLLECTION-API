@@ -10,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadExceptio
 import ca.bc.gov.educ.studentdatacollection.api.exception.errors.ApiError;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.ReprocessSdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ReportZeroEnrollmentSdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcFileSummary;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitSdcSchoolCollection;
@@ -232,6 +233,39 @@ public class SdcSchoolCollectionService {
     }
     sdcSchoolCollectionEntity.setUpdateDate(LocalDateTime.now());
     sdcSchoolCollectionEntity.setUpdateUser(unsubmitData.getUpdateUser());
+    saveSdcSchoolCollectionWithHistory(sdcSchoolCollectionEntity);
+
+    return sdcSchoolCollectionEntity;
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public SdcSchoolCollectionEntity reprocessSchoolCollection(ReprocessSdcSchoolCollection reprocessData) {
+    Optional<SdcSchoolCollectionEntity> sdcSchoolCollectionOptional = sdcSchoolCollectionRepository.findById(reprocessData.getSdcSchoolCollectionID());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionOptional.orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, SDC_SCHOOL_COLLECTION_ID_KEY, reprocessData.getSdcSchoolCollectionID().toString()));
+
+    if(StringUtils.equals(sdcSchoolCollectionEntity.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.P_DUP_POST.getCode())
+      || StringUtils.equals(sdcSchoolCollectionEntity.getSdcSchoolCollectionStatusCode(), SdcSchoolCollectionStatus.P_DUP_VRFD.getCode())) {
+      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
+      var validationError = ValidationUtil.createFieldError(SDC_SCHOOL_COLLECTION_ID_KEY, reprocessData.getSdcSchoolCollectionID(), "Cannot reprocess SDC School Collection that is in or beyond provincial duplicates.");
+      List<FieldError> fieldErrorList = new ArrayList<>();
+      fieldErrorList.add(validationError);
+      error.addValidationErrors(fieldErrorList);
+      throw new InvalidPayloadException(error);
+    }
+
+    sdcSchoolCollectionEntity.getSDCSchoolStudentEntities().forEach(sdcSchoolCollectionStudentEntity -> {
+      if (!StringUtils.equals(sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentStatusCode(), SdcSchoolStudentStatus.DELETED.getCode())) {
+        TransformUtil.clearCalculatedFields(sdcSchoolCollectionStudentEntity, true);
+        sdcSchoolCollectionStudentEntity.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.getCode());
+        sdcSchoolCollectionStudentEntity.setUpdateDate(LocalDateTime.now());
+        sdcSchoolCollectionStudentEntity.setUpdateUser(reprocessData.getUpdateUser());
+      }
+    });
+
+    sdcSchoolCollectionStudentStorageService.saveAllSDCStudentsWithHistory(sdcSchoolCollectionEntity.getSDCSchoolStudentEntities().stream().toList());
+
+    sdcSchoolCollectionEntity.setUpdateDate(LocalDateTime.now());
+    sdcSchoolCollectionEntity.setUpdateUser(reprocessData.getUpdateUser());
     saveSdcSchoolCollectionWithHistory(sdcSchoolCollectionEntity);
 
     return sdcSchoolCollectionEntity;

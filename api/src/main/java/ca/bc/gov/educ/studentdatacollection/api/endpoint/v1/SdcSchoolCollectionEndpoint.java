@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.endpoint.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL;
+import ca.bc.gov.educ.studentdatacollection.api.struct.ReprocessSdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -80,6 +81,14 @@ public interface SdcSchoolCollectionEndpoint {
   @Tag(name = "Sdc School Collection", description = "Endpoints to unsubmit school collection entity.")
   @Schema(name = "SdcSchoolCollection", implementation = SdcSchoolCollection.class)
   SdcSchoolCollection unsubmitSchoolCollection(@RequestBody UnsubmitSdcSchoolCollection unsubmitData);
+
+  @PostMapping("/reprocess")
+  @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_DISTRICT_COLLECTION')")
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "400", description = "BAD REQUEST"), @ApiResponse(responseCode = "404", description = "NOT FOUND")})
+  @Transactional
+  @Tag(name = "Sdc School Collection", description = "Endpoints to reprocess school collection entity.")
+  @Schema(name = "SdcSchoolCollection", implementation = SdcSchoolCollection.class)
+  SdcSchoolCollection reprocessSchoolCollection(@RequestBody ReprocessSdcSchoolCollection reprocessData);
 
   @PostMapping("/reportZeroEnrollment")
   @PreAuthorize("hasAuthority('SCOPE_WRITE_SDC_SCHOOL_COLLECTION')")
