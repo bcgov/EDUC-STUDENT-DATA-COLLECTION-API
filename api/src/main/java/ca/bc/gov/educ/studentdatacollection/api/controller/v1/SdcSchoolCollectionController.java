@@ -7,6 +7,7 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionSt
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionService;
+import ca.bc.gov.educ.studentdatacollection.api.struct.ReprocessSdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
@@ -95,6 +96,11 @@ public class SdcSchoolCollectionController implements SdcSchoolCollectionEndpoin
   @Override
   public SdcSchoolCollection unsubmitSchoolCollection(UnsubmitSdcSchoolCollection unsubmitData) {
     return mapper.toStructure(sdcSchoolCollectionService.unsubmitSchoolCollection(unsubmitData));
+  }
+
+  @Override
+  public SdcSchoolCollection reprocessSchoolCollection(ReprocessSdcSchoolCollection reprocessData) {
+    return mapper.toStructure(sdcSchoolCollectionService.reprocessSchoolCollection(reprocessData));
   }
 
   @Override

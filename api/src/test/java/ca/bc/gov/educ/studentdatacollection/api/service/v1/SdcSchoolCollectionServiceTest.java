@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcDistrictCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidPayloadException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
@@ -9,6 +10,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionHistoryEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.struct.ReprocessSdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ReportZeroEnrollmentSdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.UnsubmitSdcSchoolCollection;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ValidationIssueTypeCode;
@@ -18,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,6 +53,9 @@ class SdcSchoolCollectionServiceTest {
 
   @Mock
   SdcDuplicateRepository sdcDuplicateRepository;
+
+  @Mock
+  SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService;
 
   @InjectMocks
   private SdcSchoolCollectionService sdcSchoolCollectionService;
@@ -195,9 +201,7 @@ class SdcSchoolCollectionServiceTest {
             .updateUser("USER")
             .build();
 
-    assertThrows(EntityNotFoundException.class, () -> {
-      sdcSchoolCollectionService.reportZeroEnrollment(input);
-    });
+    assertThrows(EntityNotFoundException.class, () -> sdcSchoolCollectionService.reportZeroEnrollment(input));
   }
 
   @Test
@@ -314,5 +318,234 @@ class SdcSchoolCollectionServiceTest {
     List<ValidationIssueTypeCode> result = sdcSchoolCollectionService.getStudentValidationIssueCodes(sdcSchoolCollectionID);
 
     assertEquals(0, result.size());
+  }
+
+  @Test
+  void testReprocessSchoolCollection_sdcSchoolCollectionNotFound() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.empty());
+
+    ReprocessSdcSchoolCollection sdcSchoolCollectionReprocess = ReprocessSdcSchoolCollection.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build();
+
+    assertThrows(EntityNotFoundException.class, () -> sdcSchoolCollectionService.reprocessSchoolCollection(sdcSchoolCollectionReprocess));
+
+    verify(sdcSchoolCollectionRepository, times(1)).findById(sdcSchoolCollectionID);
+    verifyNoMoreInteractions(sdcSchoolCollectionRepository, sdcDistrictCollectionRepository, sdcDistrictCollectionService);
+  }
+
+  @Test
+  void testReprocessSchoolCollection_indySchool() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
+    sdcSchoolCollectionEntity.setSdcSchoolStudentEntities(new HashSet<>());
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    SdcSchoolCollectionEntity result = sdcSchoolCollectionService.reprocessSchoolCollection(ReprocessSdcSchoolCollection.builder().sdcSchoolCollectionID(sdcSchoolCollectionID).updateUser("USER").build());
+
+    assertEquals(sdcSchoolCollectionID, result.getSdcSchoolCollectionID());
+
+    verify(sdcSchoolCollectionRepository, times(1)).findById(sdcSchoolCollectionID);
+    verify(sdcDistrictCollectionRepository, times(0)).findById(any());
+    verify(sdcSchoolCollectionStudentStorageService, times(1)).saveAllSDCStudentsWithHistory(any());
+  }
+
+  @Test
+  void testReprocessSchoolCollection_withStudents_ShouldProcessNonDeletedStudents() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+    String updateUser = "TEST_USER";
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
+
+    SdcSchoolCollectionStudentEntity loadedStudent = new SdcSchoolCollectionStudentEntity();
+    loadedStudent.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+    loadedStudent.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.LOADED.getCode());
+
+    SdcSchoolCollectionStudentEntity errorStudent = new SdcSchoolCollectionStudentEntity();
+    errorStudent.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+    errorStudent.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.getCode());
+
+    SdcSchoolCollectionStudentEntity deletedStudent = new SdcSchoolCollectionStudentEntity();
+    deletedStudent.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+    deletedStudent.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.DELETED.getCode());
+
+    Set<SdcSchoolCollectionStudentEntity> students = new HashSet<>();
+    students.add(loadedStudent);
+    students.add(errorStudent);
+    students.add(deletedStudent);
+    sdcSchoolCollectionEntity.setSdcSchoolStudentEntities(students);
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    sdcSchoolCollectionService.reprocessSchoolCollection(
+        ReprocessSdcSchoolCollection.builder()
+            .sdcSchoolCollectionID(sdcSchoolCollectionID)
+            .updateUser(updateUser)
+            .build()
+    );
+
+    assertEquals(SdcSchoolStudentStatus.LOADED.getCode(), loadedStudent.getSdcSchoolCollectionStudentStatusCode());
+    assertEquals(SdcSchoolStudentStatus.LOADED.getCode(), errorStudent.getSdcSchoolCollectionStudentStatusCode());
+    assertEquals(updateUser, loadedStudent.getUpdateUser());
+    assertEquals(updateUser, errorStudent.getUpdateUser());
+
+    assertEquals(SdcSchoolStudentStatus.DELETED.getCode(), deletedStudent.getSdcSchoolCollectionStudentStatusCode());
+    assertNotEquals(updateUser, deletedStudent.getUpdateUser());
+
+    verify(sdcSchoolCollectionStudentStorageService, times(1)).saveAllSDCStudentsWithHistory(any());
+  }
+
+  @Test
+  void testReprocessSchoolCollection_withOnlyDeletedStudents_ShouldNotProcessAnyStudents() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+    String updateUser = "TEST_USER";
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
+
+    SdcSchoolCollectionStudentEntity deletedStudent1 = new SdcSchoolCollectionStudentEntity();
+    deletedStudent1.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+    deletedStudent1.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.DELETED.getCode());
+
+    SdcSchoolCollectionStudentEntity deletedStudent2 = new SdcSchoolCollectionStudentEntity();
+    deletedStudent2.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+    deletedStudent2.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.DELETED.getCode());
+
+    Set<SdcSchoolCollectionStudentEntity> students = new HashSet<>();
+    students.add(deletedStudent1);
+    students.add(deletedStudent2);
+    sdcSchoolCollectionEntity.setSdcSchoolStudentEntities(students);
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    sdcSchoolCollectionService.reprocessSchoolCollection(
+        ReprocessSdcSchoolCollection.builder()
+            .sdcSchoolCollectionID(sdcSchoolCollectionID)
+            .updateUser(updateUser)
+            .build()
+    );
+
+    assertEquals(SdcSchoolStudentStatus.DELETED.getCode(), deletedStudent1.getSdcSchoolCollectionStudentStatusCode());
+    assertEquals(SdcSchoolStudentStatus.DELETED.getCode(), deletedStudent2.getSdcSchoolCollectionStudentStatusCode());
+    assertNotEquals(updateUser, deletedStudent1.getUpdateUser());
+    assertNotEquals(updateUser, deletedStudent2.getUpdateUser());
+
+    verify(sdcSchoolCollectionStudentStorageService, times(1)).saveAllSDCStudentsWithHistory(any());
+  }
+
+  @Test
+  void testReprocessSchoolCollection_GivenProvincialDuplicatesStatus_ShouldThrowException() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.P_DUP_POST.getCode());
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    ReprocessSdcSchoolCollection sdcSchoolCollectionReprocess = ReprocessSdcSchoolCollection.builder()
+        .sdcSchoolCollectionID(sdcSchoolCollectionID)
+        .updateUser("USER")
+        .build();
+
+    assertThrows(InvalidPayloadException.class, () -> sdcSchoolCollectionService.reprocessSchoolCollection(sdcSchoolCollectionReprocess));
+
+    verify(sdcSchoolCollectionRepository, times(1)).findById(sdcSchoolCollectionID);
+    verifyNoMoreInteractions(sdcSchoolCollectionRepository, sdcDistrictCollectionRepository, sdcDistrictCollectionService);
+  }
+
+  @Test
+  void testReprocessSchoolCollection_GivenProvincialDuplicatesVerifiedStatus_ShouldThrowException() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.P_DUP_VRFD.getCode());
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    ReprocessSdcSchoolCollection sdcSchoolCollectionReprocess = ReprocessSdcSchoolCollection.builder()
+        .sdcSchoolCollectionID(sdcSchoolCollectionID)
+        .updateUser("USER")
+        .build();
+
+    assertThrows(InvalidPayloadException.class, () -> sdcSchoolCollectionService.reprocessSchoolCollection(sdcSchoolCollectionReprocess));
+
+    verify(sdcSchoolCollectionRepository, times(1)).findById(sdcSchoolCollectionID);
+    verifyNoMoreInteractions(sdcSchoolCollectionRepository, sdcDistrictCollectionRepository, sdcDistrictCollectionService);
+  }
+
+  @Test
+  void testReprocessSchoolCollection_ShouldClearCalculatedFields() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+    String updateUser = "TEST_USER";
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
+
+    SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+    student.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+    student.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.VERIFIED.getCode());
+    student.setFte(BigDecimal.ONE);
+    student.setFteZeroReasonCode("REASON");
+
+    Set<SdcSchoolCollectionStudentEntity> students = new HashSet<>();
+    students.add(student);
+    sdcSchoolCollectionEntity.setSdcSchoolStudentEntities(students);
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    sdcSchoolCollectionService.reprocessSchoolCollection(
+        ReprocessSdcSchoolCollection.builder()
+            .sdcSchoolCollectionID(sdcSchoolCollectionID)
+            .updateUser(updateUser)
+            .build()
+    );
+
+    assertEquals(SdcSchoolStudentStatus.LOADED.getCode(), student.getSdcSchoolCollectionStudentStatusCode());
+    assertEquals(updateUser, student.getUpdateUser());
+
+    verify(sdcSchoolCollectionStudentStorageService, times(1)).saveAllSDCStudentsWithHistory(any());
+  }
+
+  @Test
+  void testReprocessSchoolCollection_ShouldUpdateTimestamps() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+    String updateUser = "TEST_USER";
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
+
+    SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
+    student.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+    student.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.getCode());
+
+    Set<SdcSchoolCollectionStudentEntity> students = new HashSet<>();
+    students.add(student);
+    sdcSchoolCollectionEntity.setSdcSchoolStudentEntities(students);
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    SdcSchoolCollectionEntity result = sdcSchoolCollectionService.reprocessSchoolCollection(
+        ReprocessSdcSchoolCollection.builder()
+            .sdcSchoolCollectionID(sdcSchoolCollectionID)
+            .updateUser(updateUser)
+            .build()
+    );
+
+    assertEquals(updateUser, result.getUpdateUser());
+    assertEquals(updateUser, student.getUpdateUser());
+    assertNotNull(student.getUpdateDate());
+
+    verify(sdcSchoolCollectionStudentStorageService, times(1)).saveAllSDCStudentsWithHistory(any());
   }
 }
