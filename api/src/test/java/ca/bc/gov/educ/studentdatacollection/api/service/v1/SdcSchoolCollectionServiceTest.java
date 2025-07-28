@@ -55,6 +55,9 @@ class SdcSchoolCollectionServiceTest {
   SdcDuplicateRepository sdcDuplicateRepository;
 
   @Mock
+  SagaRepository sagaRepository;
+
+  @Mock
   SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService;
 
   @InjectMocks
@@ -355,7 +358,47 @@ class SdcSchoolCollectionServiceTest {
   }
 
   @Test
-  void testReprocessSchoolCollection_withStudents_ShouldProcessNonDeletedStudents() {
+  void testReprocessSchoolCollection_withStudents_notLoadedStudents_ShouldProcessNonDeletedStudents() {
+    UUID sdcSchoolCollectionID = UUID.randomUUID();
+    String updateUser = "TEST_USER";
+
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
+    sdcSchoolCollectionEntity.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.NEW.getCode());
+
+    SdcSchoolCollectionStudentEntity errorStudent = new SdcSchoolCollectionStudentEntity();
+    errorStudent.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+    errorStudent.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.ERROR.getCode());
+
+    SdcSchoolCollectionStudentEntity deletedStudent = new SdcSchoolCollectionStudentEntity();
+    deletedStudent.setSdcSchoolCollectionStudentID(UUID.randomUUID());
+    deletedStudent.setSdcSchoolCollectionStudentStatusCode(SdcSchoolStudentStatus.DELETED.getCode());
+
+    Set<SdcSchoolCollectionStudentEntity> students = new HashSet<>();
+    students.add(errorStudent);
+    students.add(deletedStudent);
+    sdcSchoolCollectionEntity.setSdcSchoolStudentEntities(students);
+
+    when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
+
+    sdcSchoolCollectionService.reprocessSchoolCollection(
+        ReprocessSdcSchoolCollection.builder()
+            .sdcSchoolCollectionID(sdcSchoolCollectionID)
+            .updateUser(updateUser)
+            .build()
+    );
+
+    assertEquals(SdcSchoolStudentStatus.LOADED.getCode(), errorStudent.getSdcSchoolCollectionStudentStatusCode());
+    assertEquals(updateUser, errorStudent.getUpdateUser());
+
+    assertEquals(SdcSchoolStudentStatus.DELETED.getCode(), deletedStudent.getSdcSchoolCollectionStudentStatusCode());
+    assertNotEquals(updateUser, deletedStudent.getUpdateUser());
+
+    verify(sdcSchoolCollectionStudentStorageService, times(1)).saveAllSDCStudentsWithHistory(any());
+  }
+
+  @Test
+  void testReprocessSchoolCollection_withLoadedStudents_ShouldThrowLoadedStudentException() {
     UUID sdcSchoolCollectionID = UUID.randomUUID();
     String updateUser = "TEST_USER";
 
@@ -383,22 +426,12 @@ class SdcSchoolCollectionServiceTest {
 
     when(sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID)).thenReturn(Optional.of(sdcSchoolCollectionEntity));
 
-    sdcSchoolCollectionService.reprocessSchoolCollection(
-        ReprocessSdcSchoolCollection.builder()
+    ReprocessSdcSchoolCollection sdcSchoolCollectionReprocess = ReprocessSdcSchoolCollection.builder()
             .sdcSchoolCollectionID(sdcSchoolCollectionID)
-            .updateUser(updateUser)
-            .build()
-    );
+            .updateUser("USER")
+            .build();
 
-    assertEquals(SdcSchoolStudentStatus.LOADED.getCode(), loadedStudent.getSdcSchoolCollectionStudentStatusCode());
-    assertEquals(SdcSchoolStudentStatus.LOADED.getCode(), errorStudent.getSdcSchoolCollectionStudentStatusCode());
-    assertEquals(updateUser, loadedStudent.getUpdateUser());
-    assertEquals(updateUser, errorStudent.getUpdateUser());
-
-    assertEquals(SdcSchoolStudentStatus.DELETED.getCode(), deletedStudent.getSdcSchoolCollectionStudentStatusCode());
-    assertNotEquals(updateUser, deletedStudent.getUpdateUser());
-
-    verify(sdcSchoolCollectionStudentStorageService, times(1)).saveAllSDCStudentsWithHistory(any());
+    assertThrows(InvalidPayloadException.class, () -> sdcSchoolCollectionService.reprocessSchoolCollection(sdcSchoolCollectionReprocess));
   }
 
   @Test
