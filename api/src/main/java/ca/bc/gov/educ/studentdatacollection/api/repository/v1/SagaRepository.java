@@ -43,4 +43,10 @@ public interface SagaRepository extends JpaRepository<SdcSagaEntity, UUID>, JpaS
           "  WHERE saga.STATUS = 'COMPLETED' AND saga.SAGA_NAME = 'STUDENT_DATA_COLLECTION_STUDENT_MIGRATION_SAGA'", nativeQuery = true)
   void deleteCompletedMigrationSagas();
 
+  @Transactional
+  @Modifying
+  @Query(value = "DELETE FROM SDC_SAGA saga " +
+          "  WHERE saga.STATUS = 'COMPLETED' AND saga.SAGA_NAME = 'STUDENT_DATA_COLLECTION_STUDENT_PROCESSING_SAGA'", nativeQuery = true)
+  void deleteCompletedStudentProcessingSagas();
+
 }
