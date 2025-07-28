@@ -58,13 +58,14 @@ public class SdcSchoolCollectionService {
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private final SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository;
   private final SdcSchoolCollectionLightRepository sdcSchoolCollectionLightRepository;
+  private final SagaRepository sagaRepository;
 
   private static final String INVALID_PAYLOAD_MSG = "Payload contains invalid data.";
   private static final String SDC_SCHOOL_COLLECTION_ID_KEY = "sdcSchoolCollectionID";
   private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   @Autowired
-  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcDistrictCollectionService sdcDistrictCollectionService, SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository, SdcSchoolCollectionLightRepository sdcSchoolCollectionLightRepository) {
+  public SdcSchoolCollectionService(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcSchoolCollectionHistoryService sdcSchoolCollectionHistoryService, SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository, SdcDuplicateRepository sdcDuplicateRepository, SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService, SdcSchoolCollectionStudentHistoryService sdcSchoolCollectionStudentHistoryService, CollectionRepository collectionRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, SdcDistrictCollectionService sdcDistrictCollectionService, SdcSchoolCollectionStudentValidationIssueRepository sdcSchoolCollectionStudentValidationIssueRepository, SdcSchoolCollectionLightRepository sdcSchoolCollectionLightRepository, SagaRepository sagaRepository) {
     this.sdcSchoolCollectionRepository = sdcSchoolCollectionRepository;
     this.sdcSchoolCollectionStudentRepository = sdcSchoolCollectionStudentRepository;
     this.sdcSchoolCollectionHistoryService = sdcSchoolCollectionHistoryService;
@@ -77,6 +78,7 @@ public class SdcSchoolCollectionService {
     this.sdcDistrictCollectionService = sdcDistrictCollectionService;
     this.sdcSchoolCollectionStudentValidationIssueRepository = sdcSchoolCollectionStudentValidationIssueRepository;
     this.sdcSchoolCollectionLightRepository = sdcSchoolCollectionLightRepository;
+    this.sagaRepository = sagaRepository;
   }
 
   @Transactional(propagation = Propagation.MANDATORY)
@@ -252,6 +254,17 @@ public class SdcSchoolCollectionService {
       error.addValidationErrors(fieldErrorList);
       throw new InvalidPayloadException(error);
     }
+
+    if(sdcSchoolCollectionEntity.getSDCSchoolStudentEntities().stream().anyMatch(student -> StringUtils.equals(student.getSdcSchoolCollectionStudentStatusCode(), SdcSchoolStudentStatus.LOADED.getCode()))) {
+      ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_PAYLOAD_MSG).status(BAD_REQUEST).build();
+      var validationError = ValidationUtil.createFieldError(SDC_SCHOOL_COLLECTION_ID_KEY, reprocessData.getSdcSchoolCollectionID(), "Cannot reprocess SDC School Collection that has students in loaded status.");
+      List<FieldError> fieldErrorList = new ArrayList<>();
+      fieldErrorList.add(validationError);
+      error.addValidationErrors(fieldErrorList);
+      throw new InvalidPayloadException(error);
+    }
+
+    sagaRepository.deleteCompletedStudentProcessingSagas();
 
     sdcSchoolCollectionEntity.getSDCSchoolStudentEntities().forEach(sdcSchoolCollectionStudentEntity -> {
       if (!StringUtils.equals(sdcSchoolCollectionStudentEntity.getSdcSchoolCollectionStudentStatusCode(), SdcSchoolStudentStatus.DELETED.getCode())) {
