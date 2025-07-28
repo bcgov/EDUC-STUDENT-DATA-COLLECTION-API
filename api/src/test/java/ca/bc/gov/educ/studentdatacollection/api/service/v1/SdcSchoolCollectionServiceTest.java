@@ -400,7 +400,6 @@ class SdcSchoolCollectionServiceTest {
   @Test
   void testReprocessSchoolCollection_withLoadedStudents_ShouldThrowLoadedStudentException() {
     UUID sdcSchoolCollectionID = UUID.randomUUID();
-    String updateUser = "TEST_USER";
 
     SdcSchoolCollectionEntity sdcSchoolCollectionEntity = new SdcSchoolCollectionEntity();
     sdcSchoolCollectionEntity.setSdcSchoolCollectionID(sdcSchoolCollectionID);
