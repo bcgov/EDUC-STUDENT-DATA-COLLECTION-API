@@ -311,6 +311,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
     GradStatusResult gradStatusResult = new GradStatusResult();
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
+    when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
 
     sdcSchoolCollectionStudentService.validateAndProcessNewSdcSchoolCollectionStudent(newStudentEntity, false);
 
@@ -348,6 +349,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
     GradStatusResult gradStatusResult = new GradStatusResult();
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
+    when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
 
     assertThrows(InvalidPayloadException.class, () -> {
       sdcSchoolCollectionStudentService.validateAndProcessNewSdcSchoolCollectionStudent(studentEntity, true);
@@ -389,6 +391,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
     GradStatusResult gradStatusResult = new GradStatusResult();
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
+    when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
 
     assertThrows(InvalidPayloadException.class, () -> {
       sdcSchoolCollectionStudentService.updateSdcSchoolCollectionStudent(studentEntity, false);
@@ -425,6 +428,7 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
     GradStatusResult gradStatusResult = new GradStatusResult();
     when(restUtils.getGradStatusResult(any(UUID.class), any(SdcSchoolCollectionStudent.class))).thenReturn(gradStatusResult);
+    when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
 
     assertThrows(InvalidPayloadException.class, () -> {
       sdcSchoolCollectionStudentService.createSdcSchoolCollectionStudent(studentEntity, false);
