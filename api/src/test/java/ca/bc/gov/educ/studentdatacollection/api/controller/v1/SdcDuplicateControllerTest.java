@@ -225,6 +225,7 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
     sdcSchoolCollectionEntity2.setSdcDistrictCollectionID(sdcDistrictCollectionID);
     sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity2);
 
+    when(this.restUtils.getAllSchoolTombstones()).thenReturn(List.of(schoolTombstone1, schoolTombstone2));
     when(this.restUtils.getSchoolBySchoolID(schoolTombstone1.getSchoolId())).thenReturn(Optional.of(schoolTombstone1));
     when(this.restUtils.getSchoolBySchoolID(schoolTombstone2.getSchoolId())).thenReturn(Optional.of(schoolTombstone2));
     when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
