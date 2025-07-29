@@ -4470,6 +4470,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var school = this.createMockSchool();
 
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        when(this.restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
         when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
 
         var collection = collectionRepository.save(createMockCollectionEntity());
@@ -4512,6 +4513,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
         var school = this.createMockSchool();
 
         when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+        when(this.restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
         when(this.restUtils.getGradStatusResult(any(), any())).thenReturn(GradStatusResult.builder().build());
 
         var collection = collectionRepository.save(createMockCollectionEntity());
