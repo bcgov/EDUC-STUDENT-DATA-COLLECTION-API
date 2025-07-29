@@ -331,6 +331,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
 
         this.studentData.getSchool().setSchoolId(sdcSchoolCollectionEntityOrig.getSchoolID().toString());
         this.studentData.getSchool().setDistrictId(String.valueOf(districtID));
+        this.studentData.getSchool().setIndependentAuthorityId(null);
         SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = createMockSchoolStudentForSagaEntity(sdcSchoolCollectionEntityOrig);
 
         sdcSchoolCollectionStudentEntity.setEnrolledGradeCode("08");
@@ -341,7 +342,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         var oldCollection = createMockCollectionEntity();
         var oldSnapDate = LocalDate.of(LocalDateTime.now().minusYears(1).getYear(), Month.SEPTEMBER, 29);
         oldCollection.setSnapshotDate(oldSnapDate);
-        var oldSdcCollection = createMockSdcSchoolCollectionEntity(oldCollection, null);
+        var oldSdcCollection = createMockSdcSchoolCollectionEntity(oldCollection, sdcSchoolCollectionEntityOrig.getSchoolID());
         collectionRepository.save(oldCollection);
         var oldDistrictColl = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(oldCollection, districtID));
         oldSdcCollection.setSdcDistrictCollectionID(oldDistrictColl.getSdcDistrictCollectionID());
@@ -358,6 +359,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         penMatchResult.getMatchingRecords().get(0).setStudentID(oneYearAgoCollectionStudent.getAssignedStudentId().toString());
         when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         when(this.restUtils.getMergedStudentIds(any(), any())).thenReturn(List.of(studentMerge));
+        when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(this.studentData.getSchool()));
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then
@@ -390,6 +392,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
 
         this.studentData.getSchool().setSchoolId(sdcSchoolCollectionEntityOrig.getSchoolID().toString());
         this.studentData.getSchool().setDistrictId(String.valueOf(districtID));
+        this.studentData.getSchool().setIndependentAuthorityId(null);
         SdcSchoolCollectionStudentEntity sdcSchoolCollectionStudentEntity = createMockSchoolStudentForSagaEntity(sdcSchoolCollectionEntityOrig);
 
         sdcSchoolCollectionStudentEntity.setEnrolledGradeCode("08");
@@ -400,7 +403,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         var oldCollection = createMockCollectionEntity();
         var oldSnapDate = LocalDate.of(LocalDateTime.now().minusYears(1).getYear(), Month.SEPTEMBER, 29);
         oldCollection.setSnapshotDate(oldSnapDate);
-        var oldSdcCollection = createMockSdcSchoolCollectionEntity(oldCollection, null);
+        var oldSdcCollection = createMockSdcSchoolCollectionEntity(oldCollection, sdcSchoolCollectionEntityOrig.getSchoolID());
         collectionRepository.save(oldCollection);
         var oldDistrictColl = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(oldCollection, districtID));
         oldSdcCollection.setSdcDistrictCollectionID(oldDistrictColl.getSdcDistrictCollectionID());
@@ -420,6 +423,7 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         penMatchResult.getMatchingRecords().get(0).setStudentID(oneYearAgoCollectionStudent.getAssignedStudentId().toString());
         when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         when(this.restUtils.getMergedStudentIds(any(), any())).thenReturn(List.of(studentMerge));
+        when(restUtils.getAllSchoolTombstones()).thenReturn(List.of(this.studentData.getSchool()));
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
 
         // Then

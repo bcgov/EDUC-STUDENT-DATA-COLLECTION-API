@@ -31,10 +31,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.FileInputStream;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.URL.BASE_URL;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -275,6 +272,9 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
     assertThat(fileContents).isNotEmpty();
     val body = SdcFileUpload.builder().fileContents(fileContents).createUser("ABC").fileName("SampleUpload.std").build();
+
+    when(this.restUtils.getAllSchoolTombstones()).thenReturn(List.of(school));
+
     this.mockMvc.perform(post(BASE_URL + "/" + sdcSchoolCollection.getSdcSchoolCollectionID().toString() + "/file")
             .with(jwt().jwt(jwt -> jwt.claim("scope", "WRITE_SDC_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString())
