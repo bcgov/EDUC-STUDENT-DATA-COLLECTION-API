@@ -1,5 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.calculator;
 
+import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
@@ -791,11 +792,25 @@ class FteCalculatorUtilsTest {
     @Test
     void studentPreviouslyReportedInIndependentAuthority_SchoolIsNull_ReturnsFalse() {
         // Given
+        UUID schoolId = UUID.randomUUID();
+        final SchoolTombstone schoolTombstone = new SchoolTombstone();
+        schoolTombstone.setSchoolId(schoolId.toString());
+        schoolTombstone.setDistrictId(UUID.randomUUID().toString());
+        schoolTombstone.setIndependentAuthorityId(UUID.randomUUID().toString());
+        schoolTombstone.setDisplayName("Marco's school");
+        schoolTombstone.setMincode("03636018");
+        schoolTombstone.setSchoolNumber("36018");
+        schoolTombstone.setOpenedDate("1964-09-01T00:00:00");
+        schoolTombstone.setSchoolCategoryCode("PUBLIC");
+        schoolTombstone.setSchoolReportingRequirementCode("REGULAR");
+        schoolTombstone.setFacilityTypeCode("STANDARD");
+
         StudentRuleData sdcStudentSagaData = new StudentRuleData();
+        sdcStudentSagaData.setSchool(schoolTombstone);
         SdcSchoolCollectionStudentEntity student = new SdcSchoolCollectionStudentEntity();
         CollectionEntity collection = createMockCollectionEntity();
         collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
-        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, null);
+        SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, schoolId);
         student.setSdcSchoolCollection(sdcSchoolCollectionEntity);
         student.setEnrolledGradeCode(SchoolGradeCodes.GRADE09.getCode());
         student.setCreateDate(LocalDateTime.now());
@@ -803,7 +818,7 @@ class FteCalculatorUtilsTest {
         sdcStudentSagaData.setSdcSchoolCollectionStudentEntity(student);
         sdcStudentSagaData.setHistoricStudentIds(List.of(UUID.fromString(getStudentMergeResult().getStudentID()), student.getAssignedStudentId()));
 
-        when(restUtils.getSchoolIDsByIndependentAuthorityID(anyString())).thenReturn(Optional.of(Collections.singletonList(UUID.randomUUID())));
+        when(restUtils.getSchoolIDsByIndependentAuthorityID(anyString())).thenReturn(Optional.of(List.of(schoolId)));
         when(sdcSchoolCollectionRepository.findSeptemberCollectionsForSchoolsForFiscalYearToCurrentCollection(anyList(), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
         when(sdcSchoolCollectionRepository.findFebruaryCollectionsForSchoolsForFiscalYearToCurrentCollection(anyList(), any(LocalDate.class), any(LocalDate.class))).thenReturn(Collections.emptyList());
         when(sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInExcludingHomeschool(anyList(), anyList())).thenReturn(1L);
