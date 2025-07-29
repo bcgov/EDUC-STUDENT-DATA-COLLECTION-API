@@ -213,8 +213,12 @@ public class ValidationRulesService {
 
      public List<SdcSchoolCollectionStudentEntity> getStudentInHistoricalCollectionWithInSameDistrict(StudentRuleData studentRuleData, String noOfCollectionsForLookup) {
         setupMergedStudentIdValues(studentRuleData);
-        var collection = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity();
-        return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameDistrict(UUID.fromString(studentRuleData.getSchool().getDistrictId()), studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup, collection.getCollectionID(), collection.getSnapshotDate());
+         List<SchoolTombstone> allSchools = this.restUtils.getAllSchoolTombstones();
+         List<UUID> publicSchoolIDsWithSameDistrictID = allSchools.stream()
+                 .filter(school -> school.getIndependentAuthorityId() == null && school.getDistrictId().equals(studentRuleData.getSchool().getDistrictId()))
+                 .map(school -> UUID.fromString(school.getSchoolId()))
+                 .toList();
+         return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameSchool(publicSchoolIDsWithSameDistrictID, studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
     }
 
     public List<SdcSchoolCollectionStudentEntity> getStudentInHistoricalCollectionWithInSameAuthority(StudentRuleData studentRuleData, String noOfCollectionsForLookup) {
@@ -224,7 +228,7 @@ public class ValidationRulesService {
                 .filter(school -> school.getIndependentAuthorityId() != null && school.getIndependentAuthorityId().equals(studentRuleData.getSchool().getIndependentAuthorityId()))
                 .map(school -> UUID.fromString(school.getSchoolId()))
                 .toList();
-        return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameAuthority(independentSchoolIDsWithSameAuthorityID, studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
+        return sdcSchoolStudentRepository.findStudentInCurrentFiscalWithInSameSchool(independentSchoolIDsWithSameAuthorityID, studentRuleData.getHistoricStudentIds(), noOfCollectionsForLookup);
     }
 
     public List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscal(StudentRuleData studentRuleData, String noOfCollectionsForLookup) {

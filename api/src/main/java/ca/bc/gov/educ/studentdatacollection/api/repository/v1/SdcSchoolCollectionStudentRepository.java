@@ -15,7 +15,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Repository
@@ -1135,23 +1134,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
        AND C.collectionID IN
        (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
        """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalWithInSameAuthority(List<UUID> schoolIDs, List<UUID> assignedStudentIDs, String noOfCollections);
-
-  @Query(value="""
-       SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS, SdcDistrictCollectionEntity SDC
-       WHERE SDC.districtID = :districtID
-       AND C.collectionID = SDC.collectionEntity.collectionID
-       AND C.collectionID = SSC.collectionEntity.collectionID
-       AND SDC.sdcDistrictCollectionID = SSC.sdcDistrictCollectionID
-       AND SSC.sdcSchoolCollectionID = SSCS.sdcSchoolCollection.sdcSchoolCollectionID
-       AND SSCS.assignedStudentId in :assignedStudentIDs
-       AND C.collectionID != :collectionID
-       AND SSCS.fte > 0
-       AND SSCS.sdcSchoolCollectionStudentStatusCode != 'DELETED'
-       AND C.collectionID IN
-       (SELECT CE.collectionID FROM CollectionEntity CE WHERE CE.collectionStatusCode = 'COMPLETED' AND CE.snapshotDate < :snapshotDate ORDER BY CE.snapshotDate DESC LIMIT :noOfCollections)
-       """)
-  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalWithInSameDistrict(UUID districtID, List<UUID> assignedStudentIDs, String noOfCollections, UUID collectionID, LocalDate snapshotDate);
+  List<SdcSchoolCollectionStudentEntity> findStudentInCurrentFiscalWithInSameSchool(List<UUID> schoolIDs, List<UUID> assignedStudentIDs, String noOfCollections);
 
   @Query(value="""
        SELECT SSCS FROM SdcSchoolCollectionEntity SSC, CollectionEntity C, SdcSchoolCollectionStudentEntity SSCS
