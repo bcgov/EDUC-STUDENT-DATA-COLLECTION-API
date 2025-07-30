@@ -35,26 +35,29 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
         if (isJulyCollection && !isFacilityTypeSummerSchool) {
             FteCalculationResult fteCalculationResult = new FteCalculationResult();
 
-            // v93
-            var includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(studentData);
-            // The student was included in any collection in this school year for the district with a non-zero FTE
-            // and was reported in any school with a type different than Online.
-            if (includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline) {
-                log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; The district has already received funding for the student this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-                fteCalculationResult.setFte(BigDecimal.ZERO);
-                fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING.getCode());
-                return fteCalculationResult;
-            }
+            if (studentData.getSchool().getIndependentAuthorityId() == null)
+            {
+                // v93
+                var includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline(studentData);
+                // The student was included in any collection in this school year for the district with a non-zero FTE
+                // and was reported in any school with a type different than Online.
+                if (includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeNotOnline) {
+                    log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; The district has already received funding for the student this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+                    fteCalculationResult.setFte(BigDecimal.ZERO);
+                    fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING.getCode());
+                    return fteCalculationResult;
+                }
 
-            // v93
-            var includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9 = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData);
-            // The student was included in any collection in this school year for the district with a non-zero FTE
-            // and was reported in an Online school in grade K to 9.
-            if (includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9) {
-                log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; The district has already received funding for the student this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-                fteCalculationResult.setFte(BigDecimal.ZERO);
-                fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING.getCode());
-                return fteCalculationResult;
+                // v93
+                var includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9 = fteCalculatorUtils.includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData);
+                // The student was included in any collection in this school year for the district with a non-zero FTE
+                // and was reported in an Online school in grade K to 9.
+                if (includedInCollectionThisSchoolYearForDistrictWithNonZeroFteWithSchoolTypeOnlineInGradeKto9) {
+                    log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; The district has already received funding for the student this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+                    fteCalculationResult.setFte(BigDecimal.ZERO);
+                    fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.DISTRICT_DUPLICATE_FUNDING.getCode());
+                    return fteCalculationResult;
+                }
             }
 
             // v99
@@ -79,26 +82,28 @@ public class CollectionAndFacilityTypeCalculator implements FteCalculator {
                 return fteCalculationResult;
             }
 
-            // v103
-            var includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline = fteCalculatorUtils.includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline(studentData);
-            // The student was included in any collection in this school year for the auth with a non-zero FTE
-            // and was reported in any school with a type different than Online.
-            if (includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline) {
-                log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; The authority has already received funding for the student this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-                fteCalculationResult.setFte(BigDecimal.ZERO);
-                fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.IND_AUTH_DUPLICATE_FUNDING.getCode());
-                return fteCalculationResult;
-            }
+            if (studentData.getSchool().getIndependentAuthorityId() != null) {
+                // v103
+                var includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline = fteCalculatorUtils.includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline(studentData);
+                // The student was included in any collection in this school year for the auth with a non-zero FTE
+                // and was reported in any school with a type different than Online.
+                if (includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeNotOnline) {
+                    log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; The authority has already received funding for the student this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+                    fteCalculationResult.setFte(BigDecimal.ZERO);
+                    fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.IND_AUTH_DUPLICATE_FUNDING.getCode());
+                    return fteCalculationResult;
+                }
 
-            // v103
-            var includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9 = fteCalculatorUtils.includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData);
-            // The student was included in any collection in this school year for the auth with a non-zero FTE
-            // and was reported in an Online school in grade K to 9.
-            if (includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9) {
-                log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; The authority has already received funding for the student this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
-                fteCalculationResult.setFte(BigDecimal.ZERO);
-                fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.IND_AUTH_DUPLICATE_FUNDING.getCode());
-                return fteCalculationResult;
+                // v103
+                var includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9 = fteCalculatorUtils.includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9(studentData);
+                // The student was included in any collection in this school year for the auth with a non-zero FTE
+                // and was reported in an Online school in grade K to 9.
+                if (includedInCollectionThisSchoolYearForAuthWithNonZeroFteWithSchoolTypeOnlineInGradeKto9) {
+                    log.debug("CollectionAndFacilityTypeCalculator: FTE Zero; The authority has already received funding for the student this year. :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
+                    fteCalculationResult.setFte(BigDecimal.ZERO);
+                    fteCalculationResult.setFteZeroReason(ZeroFteReasonCodes.IND_AUTH_DUPLICATE_FUNDING.getCode());
+                    return fteCalculationResult;
+                }
             }
 
             log.debug("CollectionAndFacilityTypeCalculator: No FTE result, moving to next calculation for student :: " + studentData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());

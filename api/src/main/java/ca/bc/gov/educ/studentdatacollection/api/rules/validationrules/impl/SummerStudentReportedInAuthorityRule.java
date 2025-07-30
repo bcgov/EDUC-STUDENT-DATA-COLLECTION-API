@@ -57,7 +57,7 @@ public class SummerStudentReportedInAuthorityRule implements ValidationBaseRule 
         log.debug("In executeValidation of SummerStudentReportedInAuthorityRule-V93 for sdcSchoolCollectionStudentID ::" + studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollectionStudentID());
         final List<SdcSchoolCollectionStudentValidationIssue> errors = new ArrayList<>();
         validationRulesService.setupPENMatchAndEllAndGraduateValues(studentRuleData);
-        if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null) {
+        if (studentRuleData.getSdcSchoolCollectionStudentEntity().getAssignedStudentId() != null && studentRuleData.getSchool().getIndependentAuthorityId() != null) {
             var historicalStudentCollection = validationRulesService.getStudentInHistoricalCollectionWithInSameAuthority(studentRuleData, "3");
             for (SdcSchoolCollectionStudentEntity studentEntity : historicalStudentCollection) {
                 Optional<SchoolTombstone> school = restUtils.getSchoolBySchoolID(studentEntity.getSdcSchoolCollection().getSchoolID().toString());
