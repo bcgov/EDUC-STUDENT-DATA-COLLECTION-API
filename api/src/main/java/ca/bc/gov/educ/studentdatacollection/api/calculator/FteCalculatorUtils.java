@@ -133,16 +133,19 @@ public class FteCalculatorUtils {
 
         long countAllByAssignedStudentIdAndSdcSchoolCollectionSdcSchoolCollectionIDIn = 0;
 
-        var schoolIDs = restUtils.getSchoolIDsByIndependentAuthorityID(school.getIndependentAuthorityId());
+        Optional<List<UUID>> schoolIDs = Optional.empty();
+        if (school != null && StringUtils.isNotBlank(school.getIndependentAuthorityId())) {
+            schoolIDs = restUtils.getSchoolIDsByIndependentAuthorityID(school.getIndependentAuthorityId());
+        }
 
-        if(isSpringCollection(studentRuleData) && isIndependentOnlineSchool && isStudentInDistrictFundedGrade && (StringUtils.isNotBlank(school.getIndependentAuthorityId())) && schoolIDs.isPresent()) {
+        if(isSpringCollection(studentRuleData) && isIndependentOnlineSchool && isStudentInDistrictFundedGrade && schoolIDs.isPresent()) {
             var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
             var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
             var previousCollections = sdcSchoolCollectionRepository.findSeptemberCollectionsForSchoolsForFiscalYearToCurrentCollection(schoolIDs.get(), fiscalSnapshotDate, currentSnapshotDate);
             countAllByAssignedStudentIdAndSdcSchoolCollectionSdcSchoolCollectionIDIn += sdcSchoolCollectionStudentRepository.countAllByAssignedStudentIdInAndSdcSchoolCollection_SdcSchoolCollectionIDInExcludingHomeschool(studentRuleData.getHistoricStudentIds(), previousCollections.stream().map(SdcSchoolCollectionEntity::getSdcSchoolCollectionID).toList());
         }
 
-        if(isMayCollection(studentRuleData) && isIndependentOnlineSchool && isStudentInDistrictFundedGrade && (StringUtils.isNotBlank(school.getIndependentAuthorityId())) && schoolIDs.isPresent()) {
+        if(isMayCollection(studentRuleData) && isIndependentOnlineSchool && isStudentInDistrictFundedGrade && schoolIDs.isPresent()) {
             var currentSnapshotDate = studentRuleData.getSdcSchoolCollectionStudentEntity().getSdcSchoolCollection().getCollectionEntity().getSnapshotDate();
             var fiscalSnapshotDate = getFiscalDateFromCurrentSnapshot(currentSnapshotDate);
             var previousCollections = sdcSchoolCollectionRepository.findFebruaryCollectionsForSchoolsForFiscalYearToCurrentCollection(schoolIDs.get(), fiscalSnapshotDate, currentSnapshotDate);
@@ -172,9 +175,11 @@ public class FteCalculatorUtils {
             List<SdcSchoolCollectionEntity> previousCollections = null;
 
             if (SchoolCategoryCodes.INDEPENDENTS.contains(studentRuleData.getSchool().getSchoolCategoryCode())) {
-                var schoolIds = restUtils.getSchoolIDsByIndependentAuthorityID(studentRuleData.getSchool().getIndependentAuthorityId());
-                if (schoolIds.isPresent()) {
-                    previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(schoolIds.get(), fiscalSnapshotDate, currentSnapshotDate);
+                if (StringUtils.isNotBlank(studentRuleData.getSchool().getIndependentAuthorityId())) {
+                    var schoolIds = restUtils.getSchoolIDsByIndependentAuthorityID(studentRuleData.getSchool().getIndependentAuthorityId());
+                    if (schoolIds.isPresent()) {
+                        previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForSchoolsForFiscalYearToCurrentCollection(schoolIds.get(), fiscalSnapshotDate, currentSnapshotDate);
+                    }
                 }
             } else {
                 previousCollections = sdcSchoolCollectionRepository.findAllCollectionsForDistrictForFiscalYearToCurrentCollection(UUID.fromString(studentRuleData.getSchool().getDistrictId()), fiscalSnapshotDate, currentSnapshotDate);
