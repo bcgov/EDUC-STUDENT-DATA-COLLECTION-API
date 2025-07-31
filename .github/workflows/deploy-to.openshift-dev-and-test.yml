@@ -270,10 +270,10 @@ jobs:
             -p APP_NAME=${{ env.APP_NAME }} \
             -p REPO_NAME=${{ env.REPO_NAME }} \
             -p BRANCH=${{ env.BRANCH }} \
-            -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE_DEV }} \
+            -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE_TEST }} \
             -p TAG=${{ env.TAG }} \
-            -p MIN_REPLICAS=${{ env.MIN_REPLICAS_DEV }} \
-            -p MAX_REPLICAS=${{ env.MAX_REPLICAS_DEV }} \
+            -p MIN_REPLICAS=${{ env.MIN_REPLICAS_TEST }} \
+            -p MAX_REPLICAS=${{ env.MAX_REPLICAS_TEST }} \
             -p MIN_CPU=${{ env.MIN_CPU }} \
             -p MAX_CPU=${{ env.MAX_CPU }} \
             -p MIN_MEM=${{ env.MIN_MEM }} \
