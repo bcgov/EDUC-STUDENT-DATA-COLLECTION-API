@@ -69,8 +69,6 @@ objects:
           labels:
             app: "${APP_NAME}-${BRANCH}"
         spec:
-          imagePullSecrets:
-            - name: artifactory-creds
           containers:
             - name: "${APP_NAME}-${BRANCH}"
               image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}-${BRANCH}:${TAG}
@@ -78,6 +76,9 @@ objects:
               ports:
                 - containerPort: ${{CONTAINER_PORT}}
                   protocol: TCP
+              envFrom:
+                - configMapRef:
+                    name: "${APP_NAME}-config-map"
               resources:
                 requests:
                   cpu: "${MIN_CPU}"
