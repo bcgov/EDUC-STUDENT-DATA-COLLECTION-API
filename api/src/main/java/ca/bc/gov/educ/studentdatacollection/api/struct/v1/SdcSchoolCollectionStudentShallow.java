@@ -59,6 +59,8 @@ public class SdcSchoolCollectionStudentShallow implements Serializable {
 
   private String enrolledGradeCode;
 
+  private String enrolledProgramCode;
+
   private String schoolID;
 
   private String bandCode;
