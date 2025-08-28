@@ -79,6 +79,9 @@ public class SdcSchoolCollectionStudentPaginationShallowEntity {
   @Column(name = "ENROLLED_GRADE_CODE")
   private String enrolledGradeCode;
 
+  @Column(name = "ENROLLED_PROGRAM_CODE")
+  private String enrolledProgramCode;
+
   @Column(name = "BAND_CODE")
   private String bandCode;
 
