@@ -55,7 +55,7 @@ public class YearsInEllRule implements ProgramEligibilityBaseRule {
 
     var totalYearsInEll = student.getYearsInEll() != null ? student.getYearsInEll(): 0;
 
-    if (errors.isEmpty() && (Boolean.FALSE.equals(student.getIsSchoolAged()) || totalYearsInEll > 5)) {
+    if (errors.isEmpty() && (Boolean.FALSE.equals(student.getIsSchoolAged()) || totalYearsInEll >= 5)) {
       errors.add(ProgramEligibilityIssueCode.YEARS_IN_ELL);
     } else if(errors.isEmpty() && SchoolCategoryCodes.INDEPENDENTS.contains(studentRuleData.getSchool().getSchoolCategoryCode())) {
       errors.add(ProgramEligibilityIssueCode.ELL_INDY_SCHOOL);
