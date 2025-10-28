@@ -58,7 +58,7 @@ public class SdcDuplicateResolutionService {
       }
     }
 
-    List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcDuplicatesService.findAllInProvinceDuplicateStudentsInCollection(collectionID);
+    List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInCollection(collectionID);
     List<SdcDuplicateEntity> finalDuplicatesSet = sdcDuplicatesService.generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
 
     List<SdcDuplicateEntity> nonAllowableDupes = finalDuplicatesSet.stream().filter(duplicate ->
