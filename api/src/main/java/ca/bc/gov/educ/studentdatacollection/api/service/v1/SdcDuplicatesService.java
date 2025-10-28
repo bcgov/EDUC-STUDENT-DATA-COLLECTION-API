@@ -40,6 +40,7 @@ public class SdcDuplicatesService {
 
   private final SdcDuplicateRepository sdcDuplicateRepository;
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
+  private final SdcSchoolCollectionStudentLightRepository sdcSchoolCollectionStudentLightRepository;
   private final CollectionRepository collectionRepository;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
@@ -65,10 +66,14 @@ public class SdcDuplicatesService {
     return sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsInSdcSchoolCollection(sdcSchoolCollectionID);
   }
 
-  public List<SdcDuplicateEntity> getAllProvincialDuplicatesByCollectionID(UUID collectionID) {
-    List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInCollection(collectionID);
+  public List<SdcSchoolCollectionStudentLightEntity> findAllInProvinceDuplicateStudentsInCollection(UUID collectionID) {
+      List<UUID> ids = sdcSchoolCollectionStudentRepository.findDuplicateLightIds(collectionID);
+      return ids.isEmpty() ? List.of() : sdcSchoolCollectionStudentLightRepository.findAllById(ids);
+  }
 
-    return generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
+  public List<SdcDuplicateEntity> getAllProvincialDuplicatesByCollectionID(UUID collectionID) {
+      List<SdcSchoolCollectionStudentLightEntity> provinceDupes = findAllInProvinceDuplicateStudentsInCollection(collectionID);
+      return generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
   }
 
   public List<SdcDuplicateEntity> getAllProvincialDuplicatesBySdcDistrictCollectionID(UUID sdcDistrictCollectionID) {

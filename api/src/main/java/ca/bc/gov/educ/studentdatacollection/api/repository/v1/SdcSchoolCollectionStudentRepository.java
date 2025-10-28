@@ -205,6 +205,29 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     """)
   List<SdcSchoolCollectionStudentLightEntity> findAllInProvinceDuplicateStudentsInCollection(UUID collectionID);
 
+  @Query(value = """
+      WITH sc_ids AS (
+        SELECT sc.SDC_SCHOOL_COLLECTION_ID
+        FROM SDC_SCHOOL_COLLECTION sc
+        WHERE sc.COLLECTION_ID = :collectionID
+      ),
+      keys AS (
+        SELECT s.ASSIGNED_STUDENT_ID
+        FROM SDC_SCHOOL_COLLECTION_STUDENT s
+        WHERE s.SDC_SCHOOL_COLLECTION_ID IN (SELECT SDC_SCHOOL_COLLECTION_ID FROM sc_ids)
+          AND s.ASSIGNED_STUDENT_ID IS NOT NULL
+          AND s.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE <> 'DELETED'
+        GROUP BY s.ASSIGNED_STUDENT_ID
+        HAVING COUNT(*) > 1
+      )
+      SELECT s.SDC_SCHOOL_COLLECTION_STUDENT_ID
+      FROM SDC_SCHOOL_COLLECTION_STUDENT s
+      WHERE s.SDC_SCHOOL_COLLECTION_ID IN (SELECT SDC_SCHOOL_COLLECTION_ID FROM sc_ids)
+        AND s.ASSIGNED_STUDENT_ID IN (SELECT ASSIGNED_STUDENT_ID FROM keys)
+        AND s.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE <> 'DELETED'
+      """, nativeQuery = true)
+  List<UUID> findDuplicateLightIds(UUID collectionID);
+
   long countBySdcSchoolCollectionStudentStatusCodeAndSdcSchoolCollection_SdcSchoolCollectionID(String sdcSchoolCollectionStudentStatusCode, UUID sdcSchoolCollectionID);
 
   @Query(value = """
