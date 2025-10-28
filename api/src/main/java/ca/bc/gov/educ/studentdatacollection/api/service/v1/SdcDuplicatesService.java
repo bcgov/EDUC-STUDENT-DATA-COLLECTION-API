@@ -46,7 +46,6 @@ public class SdcDuplicatesService {
   private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private final ValidationRulesService validationRulesService;
   private final ScheduleHandlerService scheduleHandlerService;
-  private final SdcDuplicatesService sdcDuplicatesService;
   private final SdcSchoolCollectionHistoryRepository sdcSchoolHistoryRepository;
   private final SdcSchoolCollectionHistoryService sdcSchoolHistoryService;
   private static final SdcSchoolCollectionStudentMapper sdcSchoolCollectionStudentMapper = SdcSchoolCollectionStudentMapper.mapper;
@@ -200,7 +199,7 @@ public class SdcDuplicatesService {
       }
     }
 
-    List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcDuplicatesService.findAllInProvinceDuplicateStudentsInCollection(collectionID);
+    List<SdcSchoolCollectionStudentLightEntity> provinceDupes = findAllInProvinceDuplicateStudentsInCollection(collectionID);
 
     List<SdcDuplicateEntity> finalDuplicatesSet =  generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
     sdcDuplicateRepository.saveAll(finalDuplicatesSet);
