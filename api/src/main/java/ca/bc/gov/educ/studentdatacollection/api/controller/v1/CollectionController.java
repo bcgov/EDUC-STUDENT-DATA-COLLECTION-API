@@ -157,11 +157,6 @@ public class CollectionController implements CollectionEndpoint {
   }
 
   @Override
-  public List<SdcDuplicate> getProvinceDuplicates(UUID collectionID) {
-    return this.sdcDuplicatesService.getAllProvincialDuplicatesByCollectionID(collectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
-  }
-
-  @Override
   public ResponseEntity<String> closeCollection(CollectionSagaData collectionSagaData) throws JsonProcessingException {
     final var sagaInProgress = this.sagaService.findByCollectionIDAndSagaNameAndStatusNot(UUID.fromString(collectionSagaData.getExistingCollectionID()), SagaEnum.CLOSE_COLLECTION_SAGA.toString(), SagaStatusEnum.COMPLETED.toString());
     if (sagaInProgress.isPresent()) {
