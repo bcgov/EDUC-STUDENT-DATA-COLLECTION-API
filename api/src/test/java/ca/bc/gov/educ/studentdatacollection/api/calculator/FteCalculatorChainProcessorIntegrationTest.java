@@ -471,6 +471,14 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         sdcSchoolCollectionStudentRepository.save(oneYearAgoCollectionStudent);
 
         when(restUtils.getSchoolIDsByIndependentAuthorityID(anyString())).thenReturn(Optional.of(Collections.singletonList(sdcSchoolCollection.getSchoolID())));
+
+        // Mock getAllSchoolTombstones to return schools with proper districtId
+        SchoolTombstone mockSchool = new SchoolTombstone();
+        mockSchool.setSchoolId(sdcSchoolCollection.getSchoolID().toString());
+        mockSchool.setDistrictId(this.studentData.getSchool().getDistrictId());
+        mockSchool.setIndependentAuthorityId(null);
+        when(restUtils.getAllSchoolTombstones()).thenReturn(Collections.singletonList(mockSchool));
+
         PenMatchResult penMatchResult = getPenMatchResult();
         penMatchResult.getMatchingRecords().get(0).setMatchingPEN(oneYearAgoCollectionStudent.getAssignedPen());
         penMatchResult.getMatchingRecords().get(0).setStudentID(oneYearAgoCollectionStudent.getAssignedStudentId().toString());
@@ -599,6 +607,17 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSdcSchoolCollectionStudentEntity().setIsGraduated(false);
         this.studentData.getSchool().setFacilityTypeCode("ALT_PROGS");
 
+        // Set districtId
+        String districtId = UUID.randomUUID().toString();
+        this.studentData.getSchool().setDistrictId(districtId);
+
+        // Mock getAllSchoolTombstones to return schools with proper districtId
+        SchoolTombstone mockSchool = new SchoolTombstone();
+        mockSchool.setSchoolId(sdcSchoolCollectionEntity.getSchoolID().toString());
+        mockSchool.setDistrictId(districtId);
+        mockSchool.setIndependentAuthorityId(null);
+        when(restUtils.getAllSchoolTombstones()).thenReturn(Collections.singletonList(mockSchool));
+
         PenMatchResult penMatchResult = getPenMatchResult();
         when(this.restUtils.getPenMatchResult(any(),any(), any())).thenReturn(penMatchResult);
         FteCalculationResult result = fteCalculatorChainProcessor.processFteCalculator(studentData);
@@ -655,6 +674,17 @@ class FteCalculatorChainProcessorIntegrationTest extends BaseStudentDataCollecti
         this.studentData.getSdcSchoolCollectionStudentEntity().setSdcSchoolCollection(sdcSchoolCollectionEntity);
         this.studentData.getSdcSchoolCollectionStudentEntity().setIsGraduated(true);
         this.studentData.getSdcSchoolCollectionStudentEntity().setNumberOfCourses("1100");
+
+        // Set districtId
+        String districtId = UUID.randomUUID().toString();
+        this.studentData.getSchool().setDistrictId(districtId);
+
+        // Mock getAllSchoolTombstones to return schools with proper districtId
+        SchoolTombstone mockSchool = new SchoolTombstone();
+        mockSchool.setSchoolId(sdcSchoolCollectionEntity.getSchoolID().toString());
+        mockSchool.setDistrictId(districtId);
+        mockSchool.setIndependentAuthorityId(null);
+        when(restUtils.getAllSchoolTombstones()).thenReturn(Collections.singletonList(mockSchool));
 
         // When
         PenMatchResult penMatchResult = getPenMatchResult();
