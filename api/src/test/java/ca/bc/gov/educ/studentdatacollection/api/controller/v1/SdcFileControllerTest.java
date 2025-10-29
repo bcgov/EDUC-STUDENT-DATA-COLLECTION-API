@@ -262,7 +262,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
     school.setMincode("00603007");
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    when(this.restUtils.getSchoolBySchoolID(school.getSchoolId())).thenReturn(Optional.of(school));
     when(this.restUtils.getSchoolByMincode("00603007")).thenReturn(Optional.of(school));
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
