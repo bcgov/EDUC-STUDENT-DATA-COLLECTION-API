@@ -187,6 +187,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     """)
   List<SdcSchoolCollectionStudentLightEntity> findAllInProvinceDuplicateStudentsInSdcDistrictCollection(UUID collectionID, UUID sdcDistrictCollectionID);
 
+  // leaving in codebase as original prov dupe get, replaced by native query below for speed.
   @Query(value = """  
     SELECT stud
     FROM SdcSchoolCollectionStudentLightEntity stud, SdcSchoolCollectionEntity school
