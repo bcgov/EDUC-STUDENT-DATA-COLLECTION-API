@@ -526,7 +526,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     var savedSeptColl = collectionRepository.save(collectionSept);
 
     SdcDistrictCollectionEntity sdcMockDistrictSept = createMockSdcDistrictCollectionEntity(savedSeptColl, null);
-    sdcDistrictCollectionRepository.save(sdcMockDistrictSept).getSdcDistrictCollectionID();
+    sdcDistrictCollectionRepository.save(sdcMockDistrictSept);
 
     school1.setDistrictId(sdcMockDistrictSept.getDistrictID().toString());
     SdcSchoolCollectionEntity sdcSchoolCollectionEntitySept = createMockSdcSchoolCollectionEntity(savedSeptColl, UUID.fromString(school1.getSchoolId()));
@@ -550,6 +550,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection.setSnapshotDate(LocalDate.now());
     collection = collectionRepository.save(collection);
 
     SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);

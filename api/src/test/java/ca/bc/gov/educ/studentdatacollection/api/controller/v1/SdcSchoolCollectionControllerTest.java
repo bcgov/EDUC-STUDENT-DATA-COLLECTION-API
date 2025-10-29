@@ -681,7 +681,8 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     CollectionEntity collection = createMockCollectionEntity();
     collection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
     collection.setCloseDate(LocalDateTime.now().plusDays(2));
-    collectionRepository.save(collection);
+    collection.setSnapshotDate(LocalDate.now());
+    collection = collectionRepository.save(collection);
 
     District district2 = createMockDistrict();
 
@@ -696,6 +697,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
     sdcMockSchoolCollection2.setSdcDistrictCollectionID(sdcMockDistrictCollection2.getSdcDistrictCollectionID());
     sdcMockSchoolCollection2.setSdcSchoolCollectionStatusCode(SdcSchoolCollectionStatus.SUBMITTED.getCode());
     var savedColl = sdcSchoolCollectionRepository.save(sdcMockSchoolCollection2);
+    savedColl = sdcSchoolCollectionRepository.findById(savedColl.getSdcSchoolCollectionID()).orElseThrow();
 
     var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(savedOldColl);
     var sdcSchoolCollectionStudent2 = createMockSchoolStudentEntity(savedOldColl);
