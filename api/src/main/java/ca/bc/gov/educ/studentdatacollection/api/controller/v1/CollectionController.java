@@ -158,7 +158,7 @@ public class CollectionController implements CollectionEndpoint {
 
   @Override
   public List<SdcDuplicate> getProvinceDuplicates(UUID collectionID) {
-    return this.sdcDuplicatesService.getAllProvincialDuplicatesByCollectionID(collectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
+      return this.sdcDuplicatesService.getAllProvincialDuplicatesByCollectionID(collectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
   }
 
   @Override
