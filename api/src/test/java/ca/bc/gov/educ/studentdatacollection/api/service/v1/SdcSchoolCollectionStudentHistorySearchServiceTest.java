@@ -2,7 +2,6 @@ package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.filter.FilterOperation;
-import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryEntity;
@@ -293,7 +292,7 @@ class SdcSchoolCollectionStudentHistorySearchServiceTest extends BaseStudentData
     }
 
     @Test
-    void testSetSpecificationAndSortCriteria_WithEmptyCriteria_ShouldReturnNullSpecification() throws Exception {
+    void testSetSpecificationAndSortCriteria_WithEmptyCriteria_ShouldReturnNullSpecification() {
         // Given
         List<Sort.Order> sorts = new ArrayList<>();
 
