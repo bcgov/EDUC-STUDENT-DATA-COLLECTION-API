@@ -34,6 +34,8 @@ public interface SdcSchoolCollectionStudentMapper {
 
   SdcSchoolCollectionStudentHistory toSdcSchoolStudentHistory(SdcSchoolCollectionStudentHistoryEntity sdcSchoolStudentEntity);
 
+  SdcSchoolCollectionStudentHistory toSdcSchoolStudentHistory(SdcSchoolCollectionStudentHistoryPaginationEntity sdcSchoolStudentEntity);
+
   @Mapping(target = "sdcSchoolCollectionID", source = "sdcSchoolCollection.sdcSchoolCollectionID")
   @Mapping(target = "sdcDistrictCollectionID", source = "sdcSchoolCollection.sdcDistrictCollectionID")
   @Mapping(target = "schoolID", source = "sdcSchoolCollection.schoolID")
