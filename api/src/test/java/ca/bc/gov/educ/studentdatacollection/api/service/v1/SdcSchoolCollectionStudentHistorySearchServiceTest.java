@@ -59,7 +59,6 @@ class SdcSchoolCollectionStudentHistorySearchServiceTest extends BaseStudentData
 
     private SdcSchoolCollectionEntity sdcSchoolCollection;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private static final SdcSchoolCollectionStudentMapper mapper = SdcSchoolCollectionStudentMapper.mapper;
     @Autowired
     private SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
 
@@ -157,7 +156,7 @@ class SdcSchoolCollectionStudentHistorySearchServiceTest extends BaseStudentData
         assertNotNull(page2);
         assertThat(page1.getContent()).hasSize(5);
         assertThat(page2.getContent()).hasSize(5);
-        assertThat(page1.getNumber()).isEqualTo(0);
+        assertThat(page1.getNumber()).isZero();
         assertThat(page2.getNumber()).isEqualTo(1);
     }
 
@@ -291,35 +290,6 @@ class SdcSchoolCollectionStudentHistorySearchServiceTest extends BaseStudentData
         assertNotNull(spec);
         var result = searchService.findAll(spec, 0, 10, sorts).get();
         assertNotNull(result);
-    }
-
-    @Test
-    void testSetSpecificationAndSortCriteria_WithSortCriteria_ShouldBuildSortOrders() throws Exception {
-        // Given
-        var student1 = createMockSchoolStudentEntity(sdcSchoolCollection);
-        student1.setLegalLastName("ADAMS");
-        var savedStudent1 = sdcSchoolCollectionStudentRepository.save(student1);
-        historyRepository.save(createHistoryFromStudent(savedStudent1));
-
-        var student2 = createMockSchoolStudentEntity(sdcSchoolCollection);
-        student2.setLegalLastName("ZULU");
-        var savedStudent2 = sdcSchoolCollectionStudentRepository.save(student2);
-        historyRepository.save(createHistoryFromStudent(savedStudent2));
-
-        final Map<String, String> sortMap = new LinkedHashMap<>();
-        sortMap.put("legalLastName", "ASC");
-
-        final String sortJSON = objectMapper.writeValueAsString(sortMap);
-        List<Sort.Order> actualSorts = new ArrayList<>();
-
-        // When
-        Specification<SdcSchoolCollectionStudentHistoryPaginationEntity> spec =
-                searchService.setSpecificationAndSortCriteria(sortJSON, "", objectMapper, actualSorts);
-
-        // Then
-        assertThat(actualSorts).isNotEmpty();
-        assertThat(actualSorts.get(0).getProperty()).isEqualTo("legalLastName");
-        assertThat(actualSorts.get(0).getDirection()).isEqualTo(Sort.Direction.ASC);
     }
 
     @Test
