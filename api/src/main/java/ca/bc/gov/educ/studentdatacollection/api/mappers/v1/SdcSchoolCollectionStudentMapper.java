@@ -6,6 +6,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionSLDHistoryStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHistory;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentHistoryPagination;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudentShallow;
 import org.mapstruct.DecoratedWith;
 import org.mapstruct.Mapper;
@@ -34,7 +35,11 @@ public interface SdcSchoolCollectionStudentMapper {
 
   SdcSchoolCollectionStudentHistory toSdcSchoolStudentHistory(SdcSchoolCollectionStudentHistoryEntity sdcSchoolStudentEntity);
 
-  SdcSchoolCollectionStudentHistory toSdcSchoolStudentHistory(SdcSchoolCollectionStudentHistoryPaginationEntity sdcSchoolStudentEntity);
+  @Mapping(target = "sdcSchoolCollectionID", source = "sdcSchoolCollectionEntity.sdcSchoolCollectionID")
+  @Mapping(target = "sdcDistrictCollectionID", source = "sdcSchoolCollectionEntity.sdcDistrictCollectionID")
+  @Mapping(target = "schoolID", source = "sdcSchoolCollectionEntity.schoolID")
+  @Mapping(target = "snapshotDate", source = "sdcSchoolCollectionEntity.collectionEntity.snapshotDate")
+  SdcSchoolCollectionStudentHistoryPagination toSdcSchoolStudentHistoryPagination(SdcSchoolCollectionStudentHistoryPaginationEntity sdcSchoolStudentEntity);
 
   @Mapping(target = "sdcSchoolCollectionID", source = "sdcSchoolCollection.sdcSchoolCollectionID")
   @Mapping(target = "sdcDistrictCollectionID", source = "sdcSchoolCollection.sdcDistrictCollectionID")
