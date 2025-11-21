@@ -70,11 +70,14 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
   SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   @Autowired
   SdcDuplicateRepository sdcDuplicateRepository;
+  @Autowired
+  SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
   protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
   @AfterEach
   public void after() {
     this.sdcDuplicateRepository.deleteAll();
+    this.sdcSchoolCollectionStudentHistoryRepository.deleteAll();
     this.sdcSchoolCollectionStudentRepository.deleteAll();
     this.sdcSchoolCollectionRepository.deleteAll();
     this.sdcDistrictCollectionRepository.deleteAll();

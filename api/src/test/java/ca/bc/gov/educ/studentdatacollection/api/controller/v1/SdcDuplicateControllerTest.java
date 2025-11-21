@@ -75,12 +75,16 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
   @Autowired
   RestUtils restUtils;
 
+  @Autowired
+  SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
+
   @AfterEach
   public void after() {
     this.sdcDuplicateRepository.deleteAll();
-    this.collectionRepository.deleteAll();
+    this.sdcSchoolCollectionStudentHistoryRepository.deleteAll();
     this.sdcSchoolCollectionStudentRepository.deleteAll();
     this.sdcSchoolCollectionRepository.deleteAll();
+    this.collectionRepository.deleteAll();
   }
 
   @Test
