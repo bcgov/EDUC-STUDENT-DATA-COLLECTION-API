@@ -24,6 +24,7 @@ public final class URL {
   public static final String PAGINATED = "/paginated";
   public static final String PAGINATED_SHALLOW = "/paginated-shallow";
   public static final String PAGINATED_SLD_HISTORY = "/paginated-sld-history";
+  public static final String PAGINATED_STUDENT_HISTORY = "/paginated-student-history";
   public static final String PAGINATED_SLICE = "/paginated-slice";
   public static final String SPED_CODES="/specialEducation-codes";
   public static final String GENDER_CODES="/gender-codes";

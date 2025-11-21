@@ -5,13 +5,11 @@ import ca.bc.gov.educ.studentdatacollection.api.endpoint.v1.SdcSchoolCollectionS
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterException;
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentHistoryPaginationEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentPaginationShallowEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentHeadcountService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentService;
-import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentShallowSearchService;
+import ca.bc.gov.educ.studentdatacollection.api.service.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.JsonUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
@@ -39,6 +37,8 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
 
     private final SdcSchoolCollectionStudentSearchService sdcSchoolCollectionStudentSearchService;
+
+    private final SdcSchoolCollectionStudentHistorySearchService sdcSchoolCollectionStudentHistorySearchService;
 
     private final SdcSchoolCollectionStudentShallowSearchService sdcSchoolCollectionStudentShallowSearchService;
 
@@ -103,6 +103,21 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
         return this.sdcSchoolCollectionStudentSearchService
                 .findAll(studentSpecs, pageNumber, pageSize, sorts)
                 .thenApplyAsync(sdcSchoolStudentEntities -> sdcSchoolStudentEntities.map(mapper::toSdcSchoolCollectionSLDHistoryStudent));
+    }
+
+    @Override
+    public CompletableFuture<Page<SdcSchoolCollectionStudentHistory>> findAllStudentHistory(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
+        final List<Sort.Order> sorts = new ArrayList<>();
+        Specification<SdcSchoolCollectionStudentHistoryPaginationEntity> studentSpecs = sdcSchoolCollectionStudentHistorySearchService
+                .setSpecificationAndSortCriteria(
+                        sortCriteriaJson,
+                        searchCriteriaListJson,
+                        JsonUtil.mapper,
+                        sorts
+                );
+        return this.sdcSchoolCollectionStudentHistorySearchService
+                .findAll(studentSpecs, pageNumber, pageSize, sorts)
+                .thenApplyAsync(sdcSchoolStudentHistoryEntities -> sdcSchoolStudentHistoryEntities.map(mapper::toSdcSchoolStudentHistory));
     }
 
     @Override
