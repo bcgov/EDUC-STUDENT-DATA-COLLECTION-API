@@ -106,7 +106,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
     }
 
     @Override
-    public CompletableFuture<Page<SdcSchoolCollectionStudentHistory>> findAllStudentHistory(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
+    public CompletableFuture<Page<SdcSchoolCollectionStudentHistoryPagination>> findAllStudentHistory(Integer pageNumber, Integer pageSize, String sortCriteriaJson, String searchCriteriaListJson) {
         final List<Sort.Order> sorts = new ArrayList<>();
         Specification<SdcSchoolCollectionStudentHistoryPaginationEntity> studentSpecs = sdcSchoolCollectionStudentHistorySearchService
                 .setSpecificationAndSortCriteria(
@@ -117,7 +117,7 @@ public class SdcSchoolCollectionStudentController implements SdcSchoolCollection
                 );
         return this.sdcSchoolCollectionStudentHistorySearchService
                 .findAll(studentSpecs, pageNumber, pageSize, sorts)
-                .thenApplyAsync(sdcSchoolStudentHistoryEntities -> sdcSchoolStudentHistoryEntities.map(mapper::toSdcSchoolStudentHistory));
+                .thenApplyAsync(sdcSchoolStudentHistoryEntities -> sdcSchoolStudentHistoryEntities.map(mapper::toSdcSchoolStudentHistoryPagination));
     }
 
     @Override

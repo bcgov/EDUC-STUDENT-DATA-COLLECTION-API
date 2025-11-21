@@ -59,11 +59,11 @@ public interface SdcSchoolCollectionStudentEndpoint {
                                                               @RequestParam(name = "sort", defaultValue = "") String sortCriteriaJson,
                                                               @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson);
 
-    @GetMapping(URL.PAGINATED_STUDENT_HISTORY)
-    @PreAuthorize("hasAuthority('SCOPE_READ_SDC_SCHOOL_COLLECTION_STUDENT')")
-    @Transactional(readOnly = true)
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
-    CompletableFuture<Page<SdcSchoolCollectionStudentHistory>> findAllStudentHistory(@RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber,
+  @GetMapping(URL.PAGINATED_STUDENT_HISTORY)
+  @PreAuthorize("hasAuthority('SCOPE_READ_SDC_SCHOOL_COLLECTION_STUDENT')")
+  @Transactional(readOnly = true)
+  @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
+  CompletableFuture<Page<SdcSchoolCollectionStudentHistoryPagination>> findAllStudentHistory(@RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber,
                                                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                                                     @RequestParam(name = "sort", defaultValue = "") String sortCriteriaJson,
                                                                                     @RequestParam(name = "searchCriteriaList", required = false) String searchCriteriaListJson);

@@ -22,6 +22,8 @@ public class StudentDataCollectionTestUtils {
   @Autowired
   SdcSchoolCollectionHistoryRepository sdcSchoolHistoryRepository;
   @Autowired
+  SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
+  @Autowired
   SdcDuplicateRepository sdcDuplicateRepository;
   @Autowired
   EnrolledProgramCodeRepository enrolledProgramCodeRepository;
@@ -52,6 +54,7 @@ public class StudentDataCollectionTestUtils {
     sagaRepository.deleteAll();
 
     sdcDuplicateRepository.deleteAll();
+    sdcSchoolCollectionStudentHistoryRepository.deleteAll();
     sdcSchoolHistoryRepository.deleteAll();
     sdcSchoolRepository.deleteAll();
     collectionRepository.deleteAll();
