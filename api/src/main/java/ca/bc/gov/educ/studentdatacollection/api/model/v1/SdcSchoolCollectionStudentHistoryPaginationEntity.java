@@ -36,7 +36,7 @@ public class SdcSchoolCollectionStudentHistoryPaginationEntity {
     private UUID sdcSchoolCollectionStudentID;
 
     @Basic
-    @Column(name = "SDC_SCHOOL_COLLECTION_ID", columnDefinition = "BINARY(16)", updatable = false)
+    @Column(name = "SDC_SCHOOL_COLLECTION_ID", columnDefinition = "BINARY(16)", insertable = false, updatable = false)
     private UUID sdcSchoolCollectionID;
 
     @ManyToOne(targetEntity = SdcSchoolCollectionEntity.class, fetch = FetchType.EAGER)
