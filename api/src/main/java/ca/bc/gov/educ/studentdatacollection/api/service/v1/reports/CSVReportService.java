@@ -1041,6 +1041,12 @@ public class CSVReportService {
                 .build();
 
         var districtCollections = sdcDistrictCollectionRepository.findAllByCollectionEntityCollectionID(collectionID);
+        List<UUID> includeSchoolForEnrolledHeadcountsAndFteReport = restUtils.getAllSchoolTombstones().stream()
+                .filter(this::shouldIncludeSchoolForEnrolledHeadcountsAndFteReport)
+                .map(SchoolTombstone::getSchoolId)
+                .filter(Objects::nonNull)
+                .map(UUID::fromString)
+                .toList();
 
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -1057,8 +1063,8 @@ public class CSVReportService {
                 SdcDistrictCollectionEntity septCollection = sdcDistrictCollectionRepository.findLastSdcDistrictCollectionByCollectionTypeBefore(CollectionTypeCodes.SEPTEMBER.getTypeCode(), districtID, febCollection.getCollectionEntity().getSnapshotDate())
                         .orElseThrow(() -> new RuntimeException("No previous September sdc district collection found relative to the February collection."));
 
-                var febCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsSimpleBySdcDistrictCollectionId(febCollection.getSdcDistrictCollectionID());
-                var septCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsSimpleBySdcDistrictCollectionId(septCollection.getSdcDistrictCollectionID());
+                var febCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleBySdcDistrictCollectionId(febCollection.getSdcDistrictCollectionID(), includeSchoolForEnrolledHeadcountsAndFteReport);
+                var septCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleBySdcDistrictCollectionId(septCollection.getSdcDistrictCollectionID(), includeSchoolForEnrolledHeadcountsAndFteReport);
 
                 var district = restUtils.getDistrictByDistrictID(districtID.toString()).orElseThrow(() -> new EntityNotFoundException(District.class, DISTRICT_ID, districtID.toString()));
 

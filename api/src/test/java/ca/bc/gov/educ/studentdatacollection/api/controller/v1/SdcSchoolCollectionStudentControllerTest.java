@@ -2806,6 +2806,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
 
         when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
         when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
+        when(this.restUtils.getAllSchoolTombstones()).thenReturn(Arrays.asList(school1, school2));
 
         var schoolEntityFeb = createMockSdcSchoolCollectionEntity(febCollection, UUID.fromString(school1.getSchoolId()));
         schoolEntityFeb.setSdcDistrictCollectionID(febDistrictCollection.getSdcDistrictCollectionID());
