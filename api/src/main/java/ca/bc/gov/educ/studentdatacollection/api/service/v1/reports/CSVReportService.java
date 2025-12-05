@@ -671,13 +671,14 @@ public class CSVReportService {
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.DISTRICT_NUMBER.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.SCHOOL_NUMBER.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.SCHOOL_NAME.getCode(),
+                        // Funding Groups
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_P.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_E.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_J.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_S.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_K9.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_1012.getCode(),
                         // Core French
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_P_CF.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_E_CF.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_J_CF.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_S_CF.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_K9_CF.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_1012_CF.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_CF.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_CF.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_CF.getCode(),
@@ -697,12 +698,6 @@ public class CSVReportService {
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_CF.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_CF.getCode(),
                         // Programme Francophone
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_P_PF.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_E_PF.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_J_PF.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_S_PF.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_K9_PF.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_1012_PF.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_PF.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_PF.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_PF.getCode(),
@@ -722,12 +717,6 @@ public class CSVReportService {
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_PF.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_PF.getCode(),
                         // Early French Immersion
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_P_EFI.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_E_EFI.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_J_EFI.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_S_EFI.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_K9_EFI.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_1012_EFI.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_EFI.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_EFI.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_EFI.getCode(),
@@ -747,12 +736,6 @@ public class CSVReportService {
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_EFI.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_EFI.getCode(),
                         // Late French Immersion
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_P_LFI.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_E_LFI.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_J_LFI.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_S_LFI.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_K9_LFI.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_1012_LFI.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_LFI.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_LFI.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_LFI.getCode(),
@@ -772,12 +755,6 @@ public class CSVReportService {
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_LFI.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_LFI.getCode(),
                         // English Language Learning
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_P_ELL.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_E_ELL.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_J_ELL.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_S_ELL.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_K9_ELL.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_1012_ELL.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_ELL.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_ELL.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_ELL.getCode(),
@@ -797,12 +774,6 @@ public class CSVReportService {
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_ELL.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_ELL.getCode(),
                         // Indigenous Language and Culture
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_P_ALC.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_E_ALC.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_J_ALC.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_S_ALC.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_K9_ALC.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_1012_ALC.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_ALC.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_ALC.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_ALC.getCode(),
@@ -822,12 +793,6 @@ public class CSVReportService {
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_ALC.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_ALC.getCode(),
                         // Indigenous Support Services
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_P_ASS.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_E_ASS.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_J_ASS.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_S_ASS.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_K9_ASS.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_1012_ASS.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_ASS.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_ASS.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_ASS.getCode(),
@@ -847,12 +812,6 @@ public class CSVReportService {
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_ASS.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_ASS.getCode(),
                         // Other Approved Indigenous Programs
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_P_OAAP.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_E_OAAP.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_J_OAAP.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_S_OAAP.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_K9_OAAP.getCode(),
-                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_DL_1012_OAAP.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_OAAP.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_OAAP.getCode(),
                         IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_OAAP.getCode(),
@@ -1244,35 +1203,21 @@ public class CSVReportService {
         Optional<District> districtOpt = restUtils.getDistrictByDistrictID(school.getDistrictId());
         String districtNumber = districtOpt.isPresent() ? districtOpt.get().getDistrictNumber() : "";
 
+        List<IndependentSchoolFundingGroup> indyFundingGroups = restUtils.getSchoolFundingGroupsBySchoolID(school.getSchoolId());
+        log.debug("School funding groups for school ID {}: {}", school.getSchoolId(), indyFundingGroups);
+
         return new ArrayList<>(Arrays.asList(
                 districtNumber,
                 school.getSchoolNumber(),
                 school.getDisplayName(),
+                // Funding Groups
+                TransformUtil.getFundingGroupForGradesK3(indyFundingGroups),
+                TransformUtil.getFundingGroupForGrades47(indyFundingGroups),
+                TransformUtil.getFundingGroupForGrades810(indyFundingGroups),
+                TransformUtil.getFundingGroupForGrades1112(indyFundingGroups),
+                TransformUtil.getFundingGroupForDLGradesK9EU(indyFundingGroups, school.getFacilityTypeCode()),
+                TransformUtil.getFundingGroupForDLGrades1012(indyFundingGroups, school.getFacilityTypeCode()),
                 // Core French (08)
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getKindHCountCF(),
-                        indySchoolHeadcountResult.getKindFCountCF(),
-                        indySchoolHeadcountResult.getGrade1CountCF(),
-                        indySchoolHeadcountResult.getGrade2CountCF(),
-                        indySchoolHeadcountResult.getGrade3CountCF())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade4CountCF(),
-                        indySchoolHeadcountResult.getGrade5CountCF(),
-                        indySchoolHeadcountResult.getGrade6CountCF(),
-                        indySchoolHeadcountResult.getGrade7CountCF())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade8CountCF(),
-                        indySchoolHeadcountResult.getGrade9CountCF(),
-                        indySchoolHeadcountResult.getGrade10CountCF())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade11CountCF(),
-                        indySchoolHeadcountResult.getGrade12CountCF())
-                ),
-                "", // 9 - Funding Group 9 todo
-                "", // 12 - Funding Group 12 todo
                 indySchoolHeadcountResult.getKindHCountCF(),
                 indySchoolHeadcountResult.getKindFCountCF(),
                 indySchoolHeadcountResult.getGrade1CountCF(),
@@ -1292,30 +1237,6 @@ public class CSVReportService {
                 indySchoolHeadcountResult.getGradeGACountCF(),
                 TransformUtil.getTotalHeadcountCF(indySchoolHeadcountResult),
                 // Programme Francophone (05)
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getKindHCountPF(),
-                        indySchoolHeadcountResult.getKindFCountPF(),
-                        indySchoolHeadcountResult.getGrade1CountPF(),
-                        indySchoolHeadcountResult.getGrade2CountPF(),
-                        indySchoolHeadcountResult.getGrade3CountPF())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade4CountPF(),
-                        indySchoolHeadcountResult.getGrade5CountPF(),
-                        indySchoolHeadcountResult.getGrade6CountPF(),
-                        indySchoolHeadcountResult.getGrade7CountPF())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade8CountPF(),
-                        indySchoolHeadcountResult.getGrade9CountPF(),
-                        indySchoolHeadcountResult.getGrade10CountPF())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade11CountPF(),
-                        indySchoolHeadcountResult.getGrade12CountPF())
-                ),
-                "", // 9 - Funding Group 9 todo
-                "", // 12 - Funding Group 12 todo
                 indySchoolHeadcountResult.getKindHCountPF(),
                 indySchoolHeadcountResult.getKindFCountPF(),
                 indySchoolHeadcountResult.getGrade1CountPF(),
@@ -1335,30 +1256,6 @@ public class CSVReportService {
                 indySchoolHeadcountResult.getGradeGACountPF(),
                 TransformUtil.getTotalHeadcountPF(indySchoolHeadcountResult),
                 // Early French Immersion (11)
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getKindHCountEFI(),
-                        indySchoolHeadcountResult.getKindFCountEFI(),
-                        indySchoolHeadcountResult.getGrade1CountEFI(),
-                        indySchoolHeadcountResult.getGrade2CountEFI(),
-                        indySchoolHeadcountResult.getGrade3CountEFI())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade4CountEFI(),
-                        indySchoolHeadcountResult.getGrade5CountEFI(),
-                        indySchoolHeadcountResult.getGrade6CountEFI(),
-                        indySchoolHeadcountResult.getGrade7CountEFI())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade8CountEFI(),
-                        indySchoolHeadcountResult.getGrade9CountEFI(),
-                        indySchoolHeadcountResult.getGrade10CountEFI())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade11CountEFI(),
-                        indySchoolHeadcountResult.getGrade12CountEFI())
-                ),
-                "", // 9 - Funding Group 9 todo
-                "", // 12 - Funding Group 12 todo
                 indySchoolHeadcountResult.getKindHCountEFI(),
                 indySchoolHeadcountResult.getKindFCountEFI(),
                 indySchoolHeadcountResult.getGrade1CountEFI(),
@@ -1378,30 +1275,6 @@ public class CSVReportService {
                 indySchoolHeadcountResult.getGradeGACountEFI(),
                 TransformUtil.getTotalHeadcountEFI(indySchoolHeadcountResult),
                 // Late French Immersion (14)
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getKindHCountLFI(),
-                        indySchoolHeadcountResult.getKindFCountLFI(),
-                        indySchoolHeadcountResult.getGrade1CountLFI(),
-                        indySchoolHeadcountResult.getGrade2CountLFI(),
-                        indySchoolHeadcountResult.getGrade3CountLFI())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade4CountLFI(),
-                        indySchoolHeadcountResult.getGrade5CountLFI(),
-                        indySchoolHeadcountResult.getGrade6CountLFI(),
-                        indySchoolHeadcountResult.getGrade7CountLFI())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade8CountLFI(),
-                        indySchoolHeadcountResult.getGrade9CountLFI(),
-                        indySchoolHeadcountResult.getGrade10CountLFI())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade11CountLFI(),
-                        indySchoolHeadcountResult.getGrade12CountLFI())
-                ),
-                "", // 9 - Funding Group 9 todo
-                "", // 12 - Funding Group 12 todo
                 indySchoolHeadcountResult.getKindHCountLFI(),
                 indySchoolHeadcountResult.getKindFCountLFI(),
                 indySchoolHeadcountResult.getGrade1CountLFI(),
@@ -1421,30 +1294,6 @@ public class CSVReportService {
                 indySchoolHeadcountResult.getGradeGACountLFI(),
                 TransformUtil.getTotalHeadcountLFI(indySchoolHeadcountResult),
                 // English Language Learning (17)
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getKindHCountELL(),
-                        indySchoolHeadcountResult.getKindFCountELL(),
-                        indySchoolHeadcountResult.getGrade1CountELL(),
-                        indySchoolHeadcountResult.getGrade2CountELL(),
-                        indySchoolHeadcountResult.getGrade3CountELL())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade4CountELL(),
-                        indySchoolHeadcountResult.getGrade5CountELL(),
-                        indySchoolHeadcountResult.getGrade6CountELL(),
-                        indySchoolHeadcountResult.getGrade7CountELL())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade8CountELL(),
-                        indySchoolHeadcountResult.getGrade9CountELL(),
-                        indySchoolHeadcountResult.getGrade10CountELL())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade11CountELL(),
-                        indySchoolHeadcountResult.getGrade12CountELL())
-                ),
-                "", // 9 - Funding Group 9 todo
-                "", // 12 - Funding Group 12 todo
                 indySchoolHeadcountResult.getKindHCountELL(),
                 indySchoolHeadcountResult.getKindFCountELL(),
                 indySchoolHeadcountResult.getGrade1CountELL(),
@@ -1464,30 +1313,6 @@ public class CSVReportService {
                 indySchoolHeadcountResult.getGradeGACountELL(),
                 TransformUtil.getTotalHeadcountELL(indySchoolHeadcountResult),
                 // Indigenous Language and Culture (29)
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getKindHCountALC(),
-                        indySchoolHeadcountResult.getKindFCountALC(),
-                        indySchoolHeadcountResult.getGrade1CountALC(),
-                        indySchoolHeadcountResult.getGrade2CountALC(),
-                        indySchoolHeadcountResult.getGrade3CountALC())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade4CountALC(),
-                        indySchoolHeadcountResult.getGrade5CountALC(),
-                        indySchoolHeadcountResult.getGrade6CountALC(),
-                        indySchoolHeadcountResult.getGrade7CountALC())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade8CountALC(),
-                        indySchoolHeadcountResult.getGrade9CountALC(),
-                        indySchoolHeadcountResult.getGrade10CountALC())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade11CountALC(),
-                        indySchoolHeadcountResult.getGrade12CountALC())
-                ),
-                "", // 9 - Funding Group 9 todo
-                "", // 12 - Funding Group 12 todo
                 indySchoolHeadcountResult.getKindHCountALC(),
                 indySchoolHeadcountResult.getKindFCountALC(),
                 indySchoolHeadcountResult.getGrade1CountALC(),
@@ -1507,30 +1332,6 @@ public class CSVReportService {
                 indySchoolHeadcountResult.getGradeGACountALC(),
                 TransformUtil.getTotalHeadcountALC(indySchoolHeadcountResult),
                 // Indigenous Support Services (33)
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getKindHCountASS(),
-                        indySchoolHeadcountResult.getKindFCountASS(),
-                        indySchoolHeadcountResult.getGrade1CountASS(),
-                        indySchoolHeadcountResult.getGrade2CountASS(),
-                        indySchoolHeadcountResult.getGrade3CountASS())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade4CountASS(),
-                        indySchoolHeadcountResult.getGrade5CountASS(),
-                        indySchoolHeadcountResult.getGrade6CountASS(),
-                        indySchoolHeadcountResult.getGrade7CountASS())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade8CountASS(),
-                        indySchoolHeadcountResult.getGrade9CountASS(),
-                        indySchoolHeadcountResult.getGrade10CountASS())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade11CountASS(),
-                        indySchoolHeadcountResult.getGrade12CountASS())
-                ),
-                "", // 9 - Funding Group 9 todo
-                "", // 12 - Funding Group 12 todo
                 indySchoolHeadcountResult.getKindHCountASS(),
                 indySchoolHeadcountResult.getKindFCountASS(),
                 indySchoolHeadcountResult.getGrade1CountASS(),
@@ -1550,30 +1351,6 @@ public class CSVReportService {
                 indySchoolHeadcountResult.getGradeGACountASS(),
                 TransformUtil.getTotalHeadcountASS(indySchoolHeadcountResult),
                 // Other Approved Indigenous Programs (36)
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getKindHCountOAAP(),
-                        indySchoolHeadcountResult.getKindFCountOAAP(),
-                        indySchoolHeadcountResult.getGrade1CountOAAP(),
-                        indySchoolHeadcountResult.getGrade2CountOAAP(),
-                        indySchoolHeadcountResult.getGrade3CountOAAP())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade4CountOAAP(),
-                        indySchoolHeadcountResult.getGrade5CountOAAP(),
-                        indySchoolHeadcountResult.getGrade6CountOAAP(),
-                        indySchoolHeadcountResult.getGrade7CountOAAP())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade8CountOAAP(),
-                        indySchoolHeadcountResult.getGrade9CountOAAP(),
-                        indySchoolHeadcountResult.getGrade10CountOAAP())
-                ),
-                TransformUtil.getFundingForGradeCounts(List.of(
-                        indySchoolHeadcountResult.getGrade11CountOAAP(),
-                        indySchoolHeadcountResult.getGrade12CountOAAP())
-                ),
-                "", // 9 - Funding Group 9 todo
-                "", // 12 - Funding Group 12 todo
                 indySchoolHeadcountResult.getKindHCountOAAP(),
                 indySchoolHeadcountResult.getKindFCountOAAP(),
                 indySchoolHeadcountResult.getGrade1CountOAAP(),
