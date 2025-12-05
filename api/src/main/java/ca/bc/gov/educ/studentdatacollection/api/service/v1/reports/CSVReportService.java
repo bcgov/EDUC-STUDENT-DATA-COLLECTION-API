@@ -44,7 +44,6 @@ import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryrepo
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.SCHOOL_NAME;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySpecialEducationFundingHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.SchoolEnrolmentHeader.*;
-import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.*;
 import static ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -663,8 +662,8 @@ public class CSVReportService {
 
     // Independent School Headcount Enrolment by Funding Group and School and Grade report (I1005)
     public DownloadableReportResponse generateIndySchoolGradeFundingGroupEnrolledProgramHeadcounts(UUID collectionID) {
+        collectionRepository.findById(collectionID).orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString()));
         List<IndySchoolGradeFundingGroupHeadcountResult> results = sdcSchoolCollectionStudentRepository.getIndySchoolGradeFundingGroupHeadcountsByCollectionId(collectionID);
-        CollectionEntity collectionEntity = collectionRepository.findById(collectionID).orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString()));
 
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
                 .setHeader(
