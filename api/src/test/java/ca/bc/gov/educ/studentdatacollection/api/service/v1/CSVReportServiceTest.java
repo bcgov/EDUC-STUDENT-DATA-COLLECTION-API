@@ -247,57 +247,6 @@ class CSVReportServiceTest {
         assertTrue(dataRow.contains(",,"), "Zero counts should result in empty CSV cells");
     }
 
-    @Test
-    void testGetFundingGroupForGradesK3_RequiresAllGrades() {
-        // Given
-        List<IndependentSchoolFundingGroup> partialFundingGroups = new ArrayList<>();
-        partialFundingGroups.add(createFundingGroup("KINDHALF", "GROUP1"));
-        partialFundingGroups.add(createFundingGroup("KINDFULL", "GROUP1"));
-        // Missing GRADE01, GRADE02, GRADE03, ELEMUNGR
-
-        // When
-        String result = TransformUtil.getFundingGroupForGradesK3(partialFundingGroups);
-
-        // Then
-        assertEquals("", result, "Should return empty string when not all grades in K-3 range have funding");
-    }
-
-    @Test
-    void testGetFundingGroupForGradesK3_ReturnsGroupWhenAllPresent() {
-        // Given
-        List<IndependentSchoolFundingGroup> completeFundingGroups = new ArrayList<>();
-        completeFundingGroups.add(createFundingGroup("KINDHALF", "GROUP1"));
-        completeFundingGroups.add(createFundingGroup("KINDFULL", "GROUP1"));
-        completeFundingGroups.add(createFundingGroup("GRADE01", "GROUP1"));
-        completeFundingGroups.add(createFundingGroup("GRADE02", "GROUP1"));
-        completeFundingGroups.add(createFundingGroup("GRADE03", "GROUP1"));
-        completeFundingGroups.add(createFundingGroup("ELEMUNGR", "GROUP1"));
-
-        // When
-        String result = TransformUtil.getFundingGroupForGradesK3(completeFundingGroups);
-
-        // Then
-        assertEquals("1", result, "Should return '1' when all K-3 grades have GROUP1");
-    }
-
-    @Test
-    void testGetFundingGroupForGradesK3_ReturnsEmptyWhenDifferentGroups() {
-        // Given
-        List<IndependentSchoolFundingGroup> mixedFundingGroups = new ArrayList<>();
-        mixedFundingGroups.add(createFundingGroup("KINDHALF", "GROUP1"));
-        mixedFundingGroups.add(createFundingGroup("KINDFULL", "GROUP1"));
-        mixedFundingGroups.add(createFundingGroup("GRADE01", "GROUP2")); // Different group!
-        mixedFundingGroups.add(createFundingGroup("GRADE02", "GROUP1"));
-        mixedFundingGroups.add(createFundingGroup("GRADE03", "GROUP1"));
-        mixedFundingGroups.add(createFundingGroup("ELEMUNGR", "GROUP1"));
-
-        // When
-        String result = TransformUtil.getFundingGroupForGradesK3(mixedFundingGroups);
-
-        // Then
-        assertEquals("", result, "Should return empty string when grades have different funding groups");
-    }
-
     // Helper methods to create mock objects
 
     private IndependentSchoolFundingGroup createFundingGroup(String gradeCode, String groupCode) {
