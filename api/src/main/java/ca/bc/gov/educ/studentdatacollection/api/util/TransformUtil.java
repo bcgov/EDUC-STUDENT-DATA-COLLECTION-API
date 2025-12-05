@@ -8,6 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.School;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolGrade;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolGradeFundingGroupHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySpecialEdAdultHeadcountResult;
 import lombok.extern.slf4j.Slf4j;
@@ -170,6 +171,197 @@ public class TransformUtil {
     total +=  Integer.parseInt(result.getGradeHSCount());
 
     return Integer.toString(total);
+  }
+
+  // Core French (08)
+  public static String getTotalHeadcountCF(IndySchoolGradeFundingGroupHeadcountResult result){
+    int total = 0;
+    total +=  Integer.parseInt(result.getKindHCountCF());
+    total +=  Integer.parseInt(result.getKindFCountCF());
+    total +=  Integer.parseInt(result.getGrade1CountCF());
+    total +=  Integer.parseInt(result.getGrade2CountCF());
+    total +=  Integer.parseInt(result.getGrade3CountCF());
+    total +=  Integer.parseInt(result.getGrade4CountCF());
+    total +=  Integer.parseInt(result.getGrade5CountCF());
+    total +=  Integer.parseInt(result.getGrade6CountCF());
+    total +=  Integer.parseInt(result.getGrade7CountCF());
+    total +=  Integer.parseInt(result.getGradeEUCountCF());
+    total +=  Integer.parseInt(result.getGrade8CountCF());
+    total +=  Integer.parseInt(result.getGrade9CountCF());
+    total +=  Integer.parseInt(result.getGrade10CountCF());
+    total +=  Integer.parseInt(result.getGrade11CountCF());
+    total +=  Integer.parseInt(result.getGrade12CountCF());
+    total +=  Integer.parseInt(result.getGradeSUCountCF());
+    total +=  Integer.parseInt(result.getGradeGACountCF());
+    return Integer.toString(total);
+  }
+
+  // Programme Francophone (05)
+  public static String getTotalHeadcountPF(IndySchoolGradeFundingGroupHeadcountResult result){
+    int total = 0;
+    total +=  Integer.parseInt(result.getKindHCountPF());
+    total +=  Integer.parseInt(result.getKindFCountPF());
+    total +=  Integer.parseInt(result.getGrade1CountPF());
+    total +=  Integer.parseInt(result.getGrade2CountPF());
+    total +=  Integer.parseInt(result.getGrade3CountPF());
+    total +=  Integer.parseInt(result.getGrade4CountPF());
+    total +=  Integer.parseInt(result.getGrade5CountPF());
+    total +=  Integer.parseInt(result.getGrade6CountPF());
+    total +=  Integer.parseInt(result.getGrade7CountPF());
+    total +=  Integer.parseInt(result.getGradeEUCountPF());
+    total +=  Integer.parseInt(result.getGrade8CountPF());
+    total +=  Integer.parseInt(result.getGrade9CountPF());
+    total +=  Integer.parseInt(result.getGrade10CountPF());
+    total +=  Integer.parseInt(result.getGrade11CountPF());
+    total +=  Integer.parseInt(result.getGrade12CountPF());
+    total +=  Integer.parseInt(result.getGradeSUCountPF());
+    total +=  Integer.parseInt(result.getGradeGACountPF());
+    return Integer.toString(total);
+  }
+
+  // Early French Immersion (11)
+  public static String getTotalHeadcountEFI(IndySchoolGradeFundingGroupHeadcountResult result){
+    int total = 0;
+    total +=  Integer.parseInt(result.getKindHCountEFI());
+    total +=  Integer.parseInt(result.getKindFCountEFI());
+    total +=  Integer.parseInt(result.getGrade1CountEFI());
+    total +=  Integer.parseInt(result.getGrade2CountEFI());
+    total +=  Integer.parseInt(result.getGrade3CountEFI());
+    total +=  Integer.parseInt(result.getGrade4CountEFI());
+    total +=  Integer.parseInt(result.getGrade5CountEFI());
+    total +=  Integer.parseInt(result.getGrade6CountEFI());
+    total +=  Integer.parseInt(result.getGrade7CountEFI());
+    total +=  Integer.parseInt(result.getGradeEUCountEFI());
+    total +=  Integer.parseInt(result.getGrade8CountEFI());
+    total +=  Integer.parseInt(result.getGrade9CountEFI());
+    total +=  Integer.parseInt(result.getGrade10CountEFI());
+    total +=  Integer.parseInt(result.getGrade11CountEFI());
+    total +=  Integer.parseInt(result.getGrade12CountEFI());
+    total +=  Integer.parseInt(result.getGradeSUCountEFI());
+    total +=  Integer.parseInt(result.getGradeGACountEFI());
+    return Integer.toString(total);
+  }
+
+  // Late French Immersion (14)
+  public static String getTotalHeadcountLFI(IndySchoolGradeFundingGroupHeadcountResult result){
+    int total = 0;
+    total +=  Integer.parseInt(result.getKindHCountLFI());
+    total +=  Integer.parseInt(result.getKindFCountLFI());
+    total +=  Integer.parseInt(result.getGrade1CountLFI());
+    total +=  Integer.parseInt(result.getGrade2CountLFI());
+    total +=  Integer.parseInt(result.getGrade3CountLFI());
+    total +=  Integer.parseInt(result.getGrade4CountLFI());
+    total +=  Integer.parseInt(result.getGrade5CountLFI());
+    total +=  Integer.parseInt(result.getGrade6CountLFI());
+    total +=  Integer.parseInt(result.getGrade7CountLFI());
+    total +=  Integer.parseInt(result.getGradeEUCountLFI());
+    total +=  Integer.parseInt(result.getGrade8CountLFI());
+    total +=  Integer.parseInt(result.getGrade9CountLFI());
+    total +=  Integer.parseInt(result.getGrade10CountLFI());
+    total +=  Integer.parseInt(result.getGrade11CountLFI());
+    total +=  Integer.parseInt(result.getGrade12CountLFI());
+    total +=  Integer.parseInt(result.getGradeSUCountLFI());
+    total +=  Integer.parseInt(result.getGradeGACountLFI());
+    return Integer.toString(total);
+  }
+
+  // English Language Learning (17)
+  public static String getTotalHeadcountELL(IndySchoolGradeFundingGroupHeadcountResult result){
+    int total = 0;
+    total +=  Integer.parseInt(result.getKindHCountELL());
+    total +=  Integer.parseInt(result.getKindFCountELL());
+    total +=  Integer.parseInt(result.getGrade1CountELL());
+    total +=  Integer.parseInt(result.getGrade2CountELL());
+    total +=  Integer.parseInt(result.getGrade3CountELL());
+    total +=  Integer.parseInt(result.getGrade4CountELL());
+    total +=  Integer.parseInt(result.getGrade5CountELL());
+    total +=  Integer.parseInt(result.getGrade6CountELL());
+    total +=  Integer.parseInt(result.getGrade7CountELL());
+    total +=  Integer.parseInt(result.getGradeEUCountELL());
+    total +=  Integer.parseInt(result.getGrade8CountELL());
+    total +=  Integer.parseInt(result.getGrade9CountELL());
+    total +=  Integer.parseInt(result.getGrade10CountELL());
+    total +=  Integer.parseInt(result.getGrade11CountELL());
+    total +=  Integer.parseInt(result.getGrade12CountELL());
+    total +=  Integer.parseInt(result.getGradeSUCountELL());
+    total +=  Integer.parseInt(result.getGradeGACountELL());
+    return Integer.toString(total);
+  }
+
+  // Indigenous Language and Culture (29)
+  public static String getTotalHeadcountALC(IndySchoolGradeFundingGroupHeadcountResult result){
+    int total = 0;
+    total +=  Integer.parseInt(result.getKindHCountALC());
+    total +=  Integer.parseInt(result.getKindFCountALC());
+    total +=  Integer.parseInt(result.getGrade1CountALC());
+    total +=  Integer.parseInt(result.getGrade2CountALC());
+    total +=  Integer.parseInt(result.getGrade3CountALC());
+    total +=  Integer.parseInt(result.getGrade4CountALC());
+    total +=  Integer.parseInt(result.getGrade5CountALC());
+    total +=  Integer.parseInt(result.getGrade6CountALC());
+    total +=  Integer.parseInt(result.getGrade7CountALC());
+    total +=  Integer.parseInt(result.getGradeEUCountALC());
+    total +=  Integer.parseInt(result.getGrade8CountALC());
+    total +=  Integer.parseInt(result.getGrade9CountALC());
+    total +=  Integer.parseInt(result.getGrade10CountALC());
+    total +=  Integer.parseInt(result.getGrade11CountALC());
+    total +=  Integer.parseInt(result.getGrade12CountALC());
+    total +=  Integer.parseInt(result.getGradeSUCountALC());
+    total +=  Integer.parseInt(result.getGradeGACountALC());
+    return Integer.toString(total);
+  }
+
+  // Indigenous Support Services (33)
+  public static String getTotalHeadcountASS(IndySchoolGradeFundingGroupHeadcountResult result){
+    int total = 0;
+    total +=  Integer.parseInt(result.getKindHCountASS());
+    total +=  Integer.parseInt(result.getKindFCountASS());
+    total +=  Integer.parseInt(result.getGrade1CountASS());
+    total +=  Integer.parseInt(result.getGrade2CountASS());
+    total +=  Integer.parseInt(result.getGrade3CountASS());
+    total +=  Integer.parseInt(result.getGrade4CountASS());
+    total +=  Integer.parseInt(result.getGrade5CountASS());
+    total +=  Integer.parseInt(result.getGrade6CountASS());
+    total +=  Integer.parseInt(result.getGrade7CountASS());
+    total +=  Integer.parseInt(result.getGradeEUCountASS());
+    total +=  Integer.parseInt(result.getGrade8CountASS());
+    total +=  Integer.parseInt(result.getGrade9CountASS());
+    total +=  Integer.parseInt(result.getGrade10CountASS());
+    total +=  Integer.parseInt(result.getGrade11CountASS());
+    total +=  Integer.parseInt(result.getGrade12CountASS());
+    total +=  Integer.parseInt(result.getGradeSUCountASS());
+    total +=  Integer.parseInt(result.getGradeGACountASS());
+    return Integer.toString(total);
+  }
+
+  // Other Approved Indigenous Programs (36)
+  public static String getTotalHeadcountOAAP(IndySchoolGradeFundingGroupHeadcountResult result){
+    int total = 0;
+    total +=  Integer.parseInt(result.getKindHCountOAAP());
+    total +=  Integer.parseInt(result.getKindFCountOAAP());
+    total +=  Integer.parseInt(result.getGrade1CountOAAP());
+    total +=  Integer.parseInt(result.getGrade2CountOAAP());
+    total +=  Integer.parseInt(result.getGrade3CountOAAP());
+    total +=  Integer.parseInt(result.getGrade4CountOAAP());
+    total +=  Integer.parseInt(result.getGrade5CountOAAP());
+    total +=  Integer.parseInt(result.getGrade6CountOAAP());
+    total +=  Integer.parseInt(result.getGrade7CountOAAP());
+    total +=  Integer.parseInt(result.getGradeEUCountOAAP());
+    total +=  Integer.parseInt(result.getGrade8CountOAAP());
+    total +=  Integer.parseInt(result.getGrade9CountOAAP());
+    total +=  Integer.parseInt(result.getGrade10CountOAAP());
+    total +=  Integer.parseInt(result.getGrade11CountOAAP());
+    total +=  Integer.parseInt(result.getGrade12CountOAAP());
+    total +=  Integer.parseInt(result.getGradeSUCountOAAP());
+    total +=  Integer.parseInt(result.getGradeGACountOAAP());
+    return Integer.toString(total);
+  }
+
+  public static String getFundingForGradeCounts(List<String> results) {
+    for(String result: results){
+      if (Integer.parseInt(result) > 0) return "1";
+    }
+    return "";
   }
 
   public static String getTotalHeadcount(IndySpecialEdAdultHeadcountResult result){
