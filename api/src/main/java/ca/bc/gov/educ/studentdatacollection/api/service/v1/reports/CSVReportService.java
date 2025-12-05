@@ -852,7 +852,7 @@ public class CSVReportService {
                 if(schoolOpt.isPresent()) {
                     var school = schoolOpt.get();
                     if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
-                        List<String> csvRowData = prepareIndySchoolGradeFundingGroupDataForCsv(result, school, collectionEntity);
+                        List<String> csvRowData = prepareIndySchoolGradeFundingGroupDataForCsv(result, school);
                         csvPrinter.printRecord(csvRowData);
                     }
                 }
@@ -1209,7 +1209,7 @@ public class CSVReportService {
         return csvRowData;
     }
 
-    private List<String> prepareIndySchoolGradeFundingGroupDataForCsv(IndySchoolGradeFundingGroupHeadcountResult indySchoolHeadcountResult, SchoolTombstone school, CollectionEntity collection) {
+    private List<String> prepareIndySchoolGradeFundingGroupDataForCsv(IndySchoolGradeFundingGroupHeadcountResult indySchoolHeadcountResult, SchoolTombstone school) {
         Optional<District> districtOpt = restUtils.getDistrictByDistrictID(school.getDistrictId());
         String districtNumber = districtOpt.isPresent() ? districtOpt.get().getDistrictNumber() : "";
 
