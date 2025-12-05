@@ -467,13 +467,24 @@ public class TransformUtil {
     return value + "*";
   }
 
+  public static String emptyIfZero(String value) {
+    return "0".equals(value) ? "" : value;
+  }
+
   public static String getFundingGroupForGrade(List<IndependentSchoolFundingGroup> schoolFundingGroups, String gradeCode) {
-    return schoolFundingGroups
+    if (schoolFundingGroups == null || schoolFundingGroups.isEmpty()) {
+      return "";
+    }
+
+    String groupCode = schoolFundingGroups
             .stream()
             .filter(group -> gradeCode.equals(group.getSchoolGradeCode()))
             .map(IndependentSchoolFundingGroup::getSchoolFundingGroupCode)
             .findFirst()
             .orElse(null);
+
+    // Return just the number after "GROUP"
+    return groupCode != null && groupCode.startsWith("GROUP") ? groupCode.substring(5) : "";
   }
 
   public static String getFundingGroupSnapshotForGrade(List<IndependentSchoolFundingGroupSnapshotEntity> schoolFundingGroups, String gradeCode) {
