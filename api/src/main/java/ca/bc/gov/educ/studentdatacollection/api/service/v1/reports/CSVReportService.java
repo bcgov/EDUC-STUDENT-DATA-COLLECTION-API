@@ -660,6 +660,214 @@ public class CSVReportService {
         return csvRowData;
     }
 
+    // Independent School Headcount Enrolment by Funding Group and School and Grade report (I1005)
+    public DownloadableReportResponse generateIndySchoolGradeFundingGroupEnrolledProgramHeadcounts(UUID collectionID) {
+        collectionRepository.findById(collectionID).orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString()));
+        List<IndySchoolGradeFundingGroupHeadcountResult> results = sdcSchoolCollectionStudentRepository.getIndySchoolGradeFundingGroupHeadcountsByCollectionId(collectionID);
+
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.DISTRICT_NUMBER.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.SCHOOL_NUMBER.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.SCHOOL_NAME.getCode(),
+                        // Funding Groups
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_KH.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_KF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_01.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_02.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_03.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_04.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_05.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_06.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_07.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_EU.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_08.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_09.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_10.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_11.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_12.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.FUNDING_GROUP_SU.getCode(),
+                        // Core French
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_02_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_03_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_04_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_05_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_06_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_07_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_EU_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_08_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_09_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_10_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_11_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_12_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_SU_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_CF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_CF.getCode(),
+                        // Programme Francophone
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_02_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_03_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_04_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_05_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_06_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_07_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_EU_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_08_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_09_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_10_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_11_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_12_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_SU_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_PF.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_PF.getCode(),
+                        // Early French Immersion
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_02_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_03_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_04_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_05_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_06_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_07_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_EU_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_08_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_09_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_10_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_11_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_12_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_SU_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_EFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_EFI.getCode(),
+                        // Late French Immersion
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_02_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_03_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_04_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_05_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_06_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_07_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_EU_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_08_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_09_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_10_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_11_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_12_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_SU_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_LFI.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_LFI.getCode(),
+                        // English Language Learning
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_02_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_03_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_04_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_05_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_06_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_07_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_EU_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_08_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_09_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_10_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_11_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_12_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_SU_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_ELL.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_ELL.getCode(),
+                        // Indigenous Language and Culture
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_02_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_03_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_04_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_05_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_06_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_07_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_EU_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_08_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_09_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_10_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_11_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_12_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_SU_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_ALC.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_ALC.getCode(),
+                        // Indigenous Support Services
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_02_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_03_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_04_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_05_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_06_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_07_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_EU_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_08_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_09_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_10_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_11_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_12_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_SU_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_ASS.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_ASS.getCode(),
+                        // Other Approved Indigenous Programs
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_HT_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.KIND_FT_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_01_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_02_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_03_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_04_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_05_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_06_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_07_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_EU_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_08_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_09_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_10_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_11_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_12_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_SU_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.GRADE_GA_OAAP.getCode(),
+                        IndySchoolGradeEnrolmentFundingGroupHeadcountHeader.TOTAL_OAAP.getCode()
+                )
+                .build();
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (IndySchoolGradeFundingGroupHeadcountResult result : results) {
+                var schoolOpt = restUtils.getSchoolBySchoolID(result.getSchoolID());
+                if(schoolOpt.isPresent()) {
+                    var school = schoolOpt.get();
+                    if (SchoolCategoryCodes.INDEPENDENTS.contains(school.getSchoolCategoryCode())) {
+                        List<String> csvRowData = prepareIndySchoolGradeFundingGroupDataForCsv(result, school);
+                        csvPrinter.printRecord(csvRowData);
+                    }
+                }
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(INDY_SCHOOL_GRADE_FUNDING_GROUP_ENROLLED_PROGRAMS_HEADCOUNTS.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
     // Offshore School Enrolment Headcounts report
     public DownloadableReportResponse generateOffshoreSchoolsHeadcounts(UUID collectionID) {
         List<IndySchoolHeadcountResult> results = sdcSchoolCollectionStudentRepository.getAllIndyEnrollmentHeadcountsByCollectionId(collectionID);
@@ -998,6 +1206,189 @@ public class CSVReportService {
         ));
 
         return csvRowData;
+    }
+
+    private List<String> prepareIndySchoolGradeFundingGroupDataForCsv(IndySchoolGradeFundingGroupHeadcountResult indySchoolHeadcountResult, SchoolTombstone school) {
+        Optional<District> districtOpt = restUtils.getDistrictByDistrictID(school.getDistrictId());
+        String districtNumber = districtOpt.isPresent() ? districtOpt.get().getDistrictNumber() : "";
+
+        List<IndependentSchoolFundingGroup> indyFundingGroups = restUtils.getSchoolFundingGroupsBySchoolID(school.getSchoolId());
+        log.debug("School funding groups for school ID {}: {}", school.getSchoolId(), indyFundingGroups);
+
+        return new ArrayList<>(Arrays.asList(
+                districtNumber,
+                school.getSchoolNumber(),
+                school.getDisplayName(),
+                // Individual Grade Funding Groups
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "KINDHALF"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "KINDFULL"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "GRADE01"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "GRADE02"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "GRADE03"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "GRADE04"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "GRADE05"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "GRADE06"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "GRADE07"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "ELEMUNGR"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "GRADE08"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "GRADE09"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "GRADE10"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "GRADE11"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "GRADE12"),
+                TransformUtil.getFundingGroupForGrade(indyFundingGroups, "SECUNGR"),
+                // Core French (08)
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindHCountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindFCountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade1CountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade2CountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade3CountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade4CountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade5CountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade6CountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade7CountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade8CountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade9CountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade10CountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade11CountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade12CountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeEUCountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeSUCountCF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeGACountCF()),
+                TransformUtil.emptyIfZero(TransformUtil.getTotalHeadcountCF(indySchoolHeadcountResult)),
+                // Programme Francophone (05)
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindHCountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindFCountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade1CountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade2CountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade3CountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade4CountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade5CountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade6CountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade7CountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade8CountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade9CountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade10CountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade11CountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade12CountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeEUCountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeSUCountPF()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeGACountPF()),
+                TransformUtil.emptyIfZero(TransformUtil.getTotalHeadcountPF(indySchoolHeadcountResult)),
+                // Early French Immersion (11)
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindHCountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindFCountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade1CountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade2CountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade3CountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade4CountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade5CountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade6CountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade7CountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade8CountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade9CountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade10CountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade11CountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade12CountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeEUCountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeSUCountEFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeGACountEFI()),
+                TransformUtil.emptyIfZero(TransformUtil.getTotalHeadcountEFI(indySchoolHeadcountResult)),
+                // Late French Immersion (14)
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindHCountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindFCountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade1CountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade2CountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade3CountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade4CountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade5CountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade6CountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade7CountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade8CountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade9CountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade10CountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade11CountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade12CountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeEUCountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeSUCountLFI()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeGACountLFI()),
+                TransformUtil.emptyIfZero(TransformUtil.getTotalHeadcountLFI(indySchoolHeadcountResult)),
+                // English Language Learning (17)
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindHCountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindFCountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade1CountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade2CountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade3CountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade4CountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade5CountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade6CountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade7CountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade8CountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade9CountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade10CountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade11CountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade12CountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeEUCountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeSUCountELL()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeGACountELL()),
+                TransformUtil.emptyIfZero(TransformUtil.getTotalHeadcountELL(indySchoolHeadcountResult)),
+                // Indigenous Language and Culture (29)
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindHCountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindFCountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade1CountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade2CountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade3CountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade4CountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade5CountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade6CountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade7CountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade8CountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade9CountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade10CountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade11CountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade12CountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeEUCountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeSUCountALC()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeGACountALC()),
+                TransformUtil.emptyIfZero(TransformUtil.getTotalHeadcountALC(indySchoolHeadcountResult)),
+                // Indigenous Support Services (33)
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindHCountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindFCountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade1CountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade2CountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade3CountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade4CountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade5CountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade6CountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade7CountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade8CountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade9CountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade10CountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade11CountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade12CountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeEUCountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeSUCountASS()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeGACountASS()),
+                TransformUtil.emptyIfZero(TransformUtil.getTotalHeadcountASS(indySchoolHeadcountResult)),
+                // Other Approved Indigenous Programs (36)
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindHCountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getKindFCountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade1CountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade2CountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade3CountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade4CountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade5CountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade6CountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade7CountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade8CountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade9CountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade10CountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade11CountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGrade12CountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeEUCountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeSUCountOAAP()),
+                TransformUtil.emptyIfZero(indySchoolHeadcountResult.getGradeGACountOAAP()),
+                TransformUtil.emptyIfZero(TransformUtil.getTotalHeadcountOAAP(indySchoolHeadcountResult))
+        ));
     }
 
     private List<String> prepareFsaDataForCsv(SdcSchoolCollectionStudentFsaReportEntity student, String studentGrade, SchoolTombstone school) {
