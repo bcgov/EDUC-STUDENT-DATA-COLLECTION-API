@@ -83,6 +83,7 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
             case POSTED_DUPLICATES -> ministryReportsService.generatePostedDuplicatesReport(collectionID);
             case ISFS_PRELIMINARY_REPORT -> ministryReportsService.generateISFSReport(collectionID);
             case INDY_SCHOOL_GRADE_FUNDING_GROUP_ENROLLED_PROGRAMS_HEADCOUNTS -> ministryReportsService.generateIndySchoolGradeFundingGroupEnrolledProgramHeadcounts(collectionID);
+            case ELL_STUDENTS_FALL_CSV -> ministryReportsService.generateEllStudentsFallCsv(collectionID);
             default -> new DownloadableReportResponse();
         };
     }
