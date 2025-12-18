@@ -910,6 +910,59 @@ public class CSVReportService {
         }
     }
 
+    public DownloadableReportResponse generateEllStudentsFallCsv(UUID collectionID) {
+        var currentCollectionOpt = collectionRepository.findById(collectionID);
+        if (currentCollectionOpt.isEmpty()) {
+            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+        }
+
+        CollectionEntity currentCollection = currentCollectionOpt.get();
+        CollectionEntity fallCollection;
+
+        if (CollectionTypeCodes.SEPTEMBER.getTypeCode().equals(currentCollection.getCollectionTypeCode())) {
+            fallCollection = currentCollection;
+            log.debug("Current collection is September collection for collectionID {}: {}", collectionID, fallCollection);
+        } else {
+            var previousSeptCollectionOpt = collectionRepository.findPreviousSeptemberCollection(currentCollection.getSnapshotDate());
+            log.debug("Previous September collection for collectionID {}: {}", collectionID, previousSeptCollectionOpt);
+            if (previousSeptCollectionOpt.isEmpty()) {
+                throw new EntityNotFoundException(CollectionEntity.class, "Previous September collection not found for collectionID", collectionID.toString());
+            }
+            fallCollection = previousSeptCollectionOpt.get();
+        }
+
+        List<EllStudentResult> results = sdcSchoolCollectionStudentRepository.getEllStudentsByFallCollectionId(fallCollection.getCollectionID());
+
+        log.debug("Fall collection snapshot date: {}, results size: {}", fallCollection.getSnapshotDate(), results.size());
+
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader("PEN", "Years_Of_ELL", "Legal_Last_Name")
+                .build();
+
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
+            CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat);
+
+            for (EllStudentResult student : results) {
+                csvPrinter.printRecord(
+                        student.getStudentPen(),
+                        student.getYearsInEll(),
+                        student.getLegalLastName()
+                );
+            }
+            csvPrinter.flush();
+
+            var downloadableReport = new DownloadableReportResponse();
+            downloadableReport.setReportType(ELL_STUDENTS_FALL_CSV.getCode());
+            downloadableReport.setDocumentData(Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray()));
+
+            return downloadableReport;
+        } catch (IOException e) {
+            throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
     private Map<String, SpecialEdHeadcountResult> getLastSeptCollectionSchoolMap(CollectionEntity collection){
         var lastSeptCollectionOpt = sdcSchoolCollectionRepository.findLastCollectionByType(CollectionTypeCodes.SEPTEMBER.getTypeCode(), collection.getCollectionID(), collection.getSnapshotDate());
         if(lastSeptCollectionOpt.isEmpty()) {

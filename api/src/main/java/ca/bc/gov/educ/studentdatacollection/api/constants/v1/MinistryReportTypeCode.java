@@ -24,7 +24,8 @@ public enum MinistryReportTypeCode {
     NON_GRADUATED_ADULT_INDY_FUNDING_REPORT("non-graduated-adult-indy-funding-report"),
     REFUGEE_ENROLMENT_HEADCOUNTS_AND_FTE_REPORT("refugee-enrolment-fte-headcounts"),
     ISFS_PRELIMINARY_REPORT("isfs-prelim-report"),
-    INDY_SCHOOL_GRADE_FUNDING_GROUP_ENROLLED_PROGRAMS_HEADCOUNTS("indy-school-grade-funding-group-enrolled-programs-headcounts")
+    INDY_SCHOOL_GRADE_FUNDING_GROUP_ENROLLED_PROGRAMS_HEADCOUNTS("indy-school-grade-funding-group-enrolled-programs-headcounts"),
+    ELL_STUDENTS_FALL_CSV("ell-students-fall-csv")
     ;
 
     private final String code;

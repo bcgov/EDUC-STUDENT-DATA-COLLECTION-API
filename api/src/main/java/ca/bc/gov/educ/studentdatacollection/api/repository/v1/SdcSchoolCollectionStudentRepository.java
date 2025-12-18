@@ -2607,4 +2607,14 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   AND sscs.sdcSchoolCollection.schoolID IN (:schoolIDs)
   GROUP BY sscs.sdcSchoolCollection.schoolID""")
   List<StudentGradeEnrolmentCount> getEnrolmentCountInCollectionByGrade(UUID collectionID, String enrolledGrade, List<UUID> schoolIDs);
+
+  @Query(value = """
+  SELECT sscs.studentPen as studentPen,
+         sscs.yearsInEll as yearsInEll,
+         sscs.legalLastName as legalLastName
+  FROM SdcSchoolCollectionStudentEntity sscs
+  WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
+  AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :fallCollectionID
+  AND sscs.yearsInEll > 0""")
+  List<EllStudentResult> getEllStudentsByFallCollectionId(@Param("fallCollectionID") UUID fallCollectionID);
 }
