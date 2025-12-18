@@ -1615,4 +1615,94 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/fsa-registration-report").with(mockAuthority))
             .andDo(print()).andExpect(status().isBadRequest());
   }
+
+  @Test
+  void testGetEllStudentsFallCsvReport_WithSeptemberCollection_ShouldReturnCsvData() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    var school = this.createMockSchoolDetail();
+    when(this.restUtils.getAllSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setSnapshotDate(LocalDate.of(2023, 9, 29));
+    collection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+    collection = collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
+    var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
+
+    SchoolTombstone school1 = createMockSchool();
+    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
+
+    var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    sdcSchoolCollectionStudent1.setYearsInEll(3);
+    sdcSchoolCollectionStudent1.setLegalLastName("TestStudent");
+    sdcSchoolCollectionStudentRepository.save(sdcSchoolCollectionStudent1);
+
+    var resultActions = this.mockMvc.perform(
+                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/ell-students-fall-csv/download").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
+
+    val response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
+    });
+
+    assertThat(response).isNotNull();
+    assertThat(response.getReportType()).isEqualTo("ell-students-fall-csv");
+    assertThat(response.getDocumentData()).isNotNull();
+
+    String csvContent = new String(Base64.getDecoder().decode(response.getDocumentData()));
+    assertThat(csvContent).contains("PEN");
+    assertThat(csvContent).contains("Years_Of_ELL");
+    assertThat(csvContent).contains("Legal_Last_Name");
+  }
+
+  @Test
+  void testGetEllStudentsFallCsvReport_WithFebruaryCollection_ShouldFindPreviousSeptember() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    var school = this.createMockSchoolDetail();
+    when(this.restUtils.getAllSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+
+    // Create a previous September collection
+    CollectionEntity septCollection = createMockCollectionEntity();
+    septCollection.setSnapshotDate(LocalDate.of(2023, 9, 29));
+    septCollection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+    septCollection = collectionRepository.save(septCollection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(septCollection, null);
+    var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
+
+    SchoolTombstone school1 = createMockSchool();
+    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity1 = createMockSdcSchoolCollectionEntity(septCollection, UUID.fromString(school1.getSchoolId()));
+    sdcSchoolCollectionEntity1.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity1);
+
+    var sdcSchoolCollectionStudent1 = createMockSchoolStudentEntity(sdcSchoolCollectionEntity1);
+    sdcSchoolCollectionStudent1.setYearsInEll(2);
+    sdcSchoolCollectionStudent1.setLegalLastName("PreviousStudent");
+    sdcSchoolCollectionStudentRepository.save(sdcSchoolCollectionStudent1);
+
+    // Create current February collection
+    CollectionEntity febCollection = createMockCollectionEntity();
+    febCollection.setSnapshotDate(LocalDate.of(2024, 2, 15));
+    febCollection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+    febCollection = collectionRepository.save(febCollection);
+
+    var resultActions = this.mockMvc.perform(
+                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + febCollection.getCollectionID() + "/ell-students-fall-csv/download").with(mockAuthority))
+            .andDo(print()).andExpect(status().isOk());
+
+    val response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
+    });
+
+    assertThat(response).isNotNull();
+    assertThat(response.getReportType()).isEqualTo("ell-students-fall-csv");
+    assertThat(response.getDocumentData()).isNotNull();
+  }
 }

@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.CSVReportServ
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.IndependentSchoolFundingGroup;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EllStudentResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolGradeFundingGroupHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
@@ -19,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -574,6 +576,121 @@ class CSVReportServiceTest {
             @Override public String getGradeEUCountOAAP() { return "0"; }
             @Override public String getGradeSUCountOAAP() { return "0"; }
             @Override public String getGradeGACountOAAP() { return "0"; }
+        };
+    }
+
+    @Test
+    void testGenerateEllStudentsFallCsv_WithSeptemberCollection_UsesCurrentCollection() {
+        // Given
+        UUID collectionId = UUID.randomUUID();
+        LocalDate septemberDate = LocalDate.of(2023, 9, 29);
+        CollectionEntity collection = new CollectionEntity();
+        collection.setCollectionID(collectionId);
+        collection.setSnapshotDate(septemberDate);
+        collection.setCollectionTypeCode("SEPTEMBER");
+
+        List<EllStudentResult> mockStudents = List.of(
+                createMockEllStudent("123456789", "5", "Smith"),
+                createMockEllStudent("987654321", "3", "Johnson")
+        );
+
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));
+        when(sdcSchoolCollectionStudentRepository.getEllStudentsByFallCollectionId(collectionId))
+                .thenReturn(mockStudents);
+
+        // When
+        DownloadableReportResponse response = csvReportService.generateEllStudentsFallCsv(collectionId);
+
+        // Then
+        assertNotNull(response);
+        assertEquals("ell-students-fall-csv", response.getReportType());
+        String csvContent = new String(Base64.getDecoder().decode(response.getDocumentData()), StandardCharsets.UTF_8);
+        assertTrue(csvContent.contains("PEN"));
+        assertTrue(csvContent.contains("Years_Of_ELL"));
+        assertTrue(csvContent.contains("Legal_Last_Name"));
+        assertTrue(csvContent.contains("123456789"));
+        assertTrue(csvContent.contains("987654321"));
+    }
+
+    @Test
+    void testGenerateEllStudentsFallCsv_WithNonSeptemberCollection_FindsPreviousSeptember() {
+        // Given
+        UUID currentCollectionId = UUID.randomUUID();
+        UUID previousSeptCollectionId = UUID.randomUUID();
+        LocalDate februaryDate = LocalDate.of(2024, 2, 15);
+        LocalDate previousSeptDate = LocalDate.of(2023, 9, 29);
+
+        CollectionEntity currentCollection = new CollectionEntity();
+        currentCollection.setCollectionID(currentCollectionId);
+        currentCollection.setSnapshotDate(februaryDate);
+        currentCollection.setCollectionTypeCode("FEBRUARY");
+
+        CollectionEntity previousSeptCollection = new CollectionEntity();
+        previousSeptCollection.setCollectionID(previousSeptCollectionId);
+        previousSeptCollection.setSnapshotDate(previousSeptDate);
+        previousSeptCollection.setCollectionTypeCode("SEPTEMBER");
+
+        List<EllStudentResult> mockStudents = List.of(
+                createMockEllStudent("111222333", "2", "Brown")
+        );
+
+        when(collectionRepository.findById(currentCollectionId)).thenReturn(Optional.of(currentCollection));
+        when(collectionRepository.findPreviousSeptemberCollection(februaryDate))
+                .thenReturn(Optional.of(previousSeptCollection));
+        when(sdcSchoolCollectionStudentRepository.getEllStudentsByFallCollectionId(previousSeptCollectionId))
+                .thenReturn(mockStudents);
+
+        // When
+        DownloadableReportResponse response = csvReportService.generateEllStudentsFallCsv(currentCollectionId);
+
+        // Then
+        assertNotNull(response);
+        String csvContent = new String(Base64.getDecoder().decode(response.getDocumentData()), StandardCharsets.UTF_8);
+        assertTrue(csvContent.contains("111222333"));
+        assertTrue(csvContent.contains("Brown"));
+    }
+
+    @Test
+    void testGenerateEllStudentsFallCsv_WithEmptyResults_GeneratesEmptyReport() {
+        // Given
+        UUID collectionId = UUID.randomUUID();
+        LocalDate septemberDate = LocalDate.of(2023, 9, 29);
+        CollectionEntity collection = new CollectionEntity();
+        collection.setCollectionID(collectionId);
+        collection.setSnapshotDate(septemberDate);
+        collection.setCollectionTypeCode("SEPTEMBER");
+
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));
+        when(sdcSchoolCollectionStudentRepository.getEllStudentsByFallCollectionId(collectionId))
+                .thenReturn(Collections.emptyList());
+
+        // When
+        DownloadableReportResponse response = csvReportService.generateEllStudentsFallCsv(collectionId);
+
+        // Then
+        assertNotNull(response);
+        String csvContent = new String(Base64.getDecoder().decode(response.getDocumentData()), StandardCharsets.UTF_8);
+        String[] lines = csvContent.split("\n");
+        assertEquals(1, lines.length, "Should only have header row");
+        assertTrue(lines[0].contains("PEN"));
+    }
+
+    private EllStudentResult createMockEllStudent(String pen, String yearsInEll, String lastName) {
+        return new EllStudentResult() {
+            @Override
+            public String getStudentPen() {
+                return pen;
+            }
+
+            @Override
+            public String getYearsInEll() {
+                return yearsInEll;
+            }
+
+            @Override
+            public String getLegalLastName() {
+                return lastName;
+            }
         };
     }
 }
