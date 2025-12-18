@@ -1668,7 +1668,6 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     var school = this.createMockSchoolDetail();
     when(this.restUtils.getAllSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
 
-    // Create a previous September collection
     CollectionEntity septCollection = createMockCollectionEntity();
     septCollection.setSnapshotDate(LocalDate.of(2023, 9, 29));
     septCollection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
@@ -1688,7 +1687,6 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     sdcSchoolCollectionStudent1.setLegalLastName("PreviousStudent");
     sdcSchoolCollectionStudentRepository.save(sdcSchoolCollectionStudent1);
 
-    // Create current February collection
     CollectionEntity febCollection = createMockCollectionEntity();
     febCollection.setSnapshotDate(LocalDate.of(2024, 2, 15));
     febCollection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
