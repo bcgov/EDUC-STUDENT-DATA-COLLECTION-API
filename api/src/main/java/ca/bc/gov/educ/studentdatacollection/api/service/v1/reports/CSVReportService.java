@@ -1507,8 +1507,9 @@ public class CSVReportService {
                 SdcDistrictCollectionEntity septCollection = sdcDistrictCollectionRepository.findLastSdcDistrictCollectionByCollectionTypeBefore(CollectionTypeCodes.SEPTEMBER.getTypeCode(), districtID, febCollection.getCollectionEntity().getSnapshotDate())
                         .orElseThrow(() -> new RuntimeException("No previous September sdc district collection found relative to the February collection."));
 
-                var febCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleBySdcDistrictCollectionId(febCollection.getSdcDistrictCollectionID(), includeSchoolForEnrolledHeadcountsAndFteReport);
-                var septCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleBySdcDistrictCollectionId(septCollection.getSdcDistrictCollectionID(), includeSchoolForEnrolledHeadcountsAndFteReport);
+                // February uses all students (no FTE filter), September uses only students with FTE > 0
+                var febCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleForFebBySdcDistrictCollectionId(febCollection.getSdcDistrictCollectionID(), includeSchoolForEnrolledHeadcountsAndFteReport);
+                var septCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleForSeptBySdcDistrictCollectionId(septCollection.getSdcDistrictCollectionID(), includeSchoolForEnrolledHeadcountsAndFteReport);
 
                 var district = restUtils.getDistrictByDistrictID(districtID.toString()).orElseThrow(() -> new EntityNotFoundException(District.class, DISTRICT_ID, districtID.toString()));
 

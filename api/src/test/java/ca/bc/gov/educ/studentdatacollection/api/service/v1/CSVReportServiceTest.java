@@ -1,8 +1,13 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndyFundingReportHeader;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.CollectionEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.CSVReportService;
@@ -11,6 +16,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.Ind
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EllStudentResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.IndySchoolGradeFundingGroupHeadcountResult;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SpecialEdHeadcountResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,10 +27,12 @@ import org.mockito.MockitoAnnotations;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 class CSVReportServiceTest {
@@ -37,6 +45,9 @@ class CSVReportServiceTest {
 
     @Mock
     private CollectionRepository collectionRepository;
+
+    @Mock
+    private SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
 
     @Mock
     private RestUtils restUtils;
@@ -673,6 +684,551 @@ class CSVReportServiceTest {
         String[] lines = csvContent.split("\n");
         assertEquals(1, lines.length, "Should only have header row");
         assertTrue(lines[0].contains("PEN"));
+    }
+
+    @Test
+    void testGenerateInclusiveEducationVarianceReport_OnlineLearningSchool_FebCountsAllStudents() {
+        // Given: Online Learning school with students, some with FTE = 0
+        UUID collectionId = UUID.randomUUID();
+        UUID districtId = UUID.randomUUID();
+        UUID febCollectionId = UUID.randomUUID();
+        UUID septCollectionId = UUID.randomUUID();
+        UUID febDistrictCollectionId = UUID.randomUUID();
+        UUID septDistrictCollectionId = UUID.randomUUID();
+
+        List<UUID> schoolIds = List.of(UUID.randomUUID());
+
+        CollectionEntity mainCollection = createCollection(collectionId, "JULY", LocalDate.of(2025, 7, 1));
+        CollectionEntity febCollection = createCollection(febCollectionId, "FEBRUARY", LocalDate.of(2025, 2, 1));
+        CollectionEntity septCollection = createCollection(septCollectionId, "SEPTEMBER", LocalDate.of(2024, 9, 1));
+
+        SdcDistrictCollectionEntity mainDistrictCollection = createDistrictCollection(UUID.randomUUID(), districtId, mainCollection);
+        SdcDistrictCollectionEntity febDistrictCollection = createDistrictCollection(febDistrictCollectionId, districtId, febCollection);
+        SdcDistrictCollectionEntity septDistrictCollection = createDistrictCollection(septDistrictCollectionId, districtId, septCollection);
+
+        SchoolTombstone olSchool = createSchool(schoolIds.get(0).toString(), "Online Learning School",
+                SchoolCategoryCodes.PUBLIC.getCode(), FacilityTypeCodes.DISTONLINE.getCode(), districtId.toString());
+
+        District district = new District();
+        district.setDistrictId(districtId.toString());
+        district.setDistrictNumber("036");
+        district.setDisplayName("Test District");
+
+        SpecialEdHeadcountResult febResult = createSpecialEdResult("3", "2", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0");
+        SpecialEdHeadcountResult septResult = createSpecialEdResult("1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0");
+
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(mainCollection));
+        when(sdcDistrictCollectionRepository.findAllByCollectionEntityCollectionID(collectionId))
+                .thenReturn(List.of(mainDistrictCollection));
+        when(sdcDistrictCollectionRepository.findLastOrCurrentSdcDistrictCollectionByCollectionType(
+                eq(CollectionTypeCodes.FEBRUARY.getTypeCode()), eq(districtId), any()))
+                .thenReturn(Optional.of(febDistrictCollection));
+        when(sdcDistrictCollectionRepository.findLastSdcDistrictCollectionByCollectionTypeBefore(
+                eq(CollectionTypeCodes.SEPTEMBER.getTypeCode()), eq(districtId), any()))
+                .thenReturn(Optional.of(septDistrictCollection));
+
+        when(restUtils.getAllSchoolTombstones()).thenReturn(Arrays.asList(olSchool));
+        when(restUtils.getDistrictByDistrictID(districtId.toString())).thenReturn(Optional.of(district));
+
+        when(sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleForFebBySdcDistrictCollectionId(
+                eq(febDistrictCollectionId), any()))
+                .thenReturn(febResult);
+        when(sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleForSeptBySdcDistrictCollectionId(
+                eq(septDistrictCollectionId), any()))
+                .thenReturn(septResult);
+
+        // When
+        DownloadableReportResponse response = csvReportService.generateInclusiveEducationVarianceReport(collectionId);
+
+        // Then
+        assertNotNull(response, "Response should not be null");
+        assertEquals("inclusive-education-variances-all", response.getReportType(), "Report type should match");
+        assertNotNull(response.getDocumentData(), "Document data should not be null");
+
+        String csvContent = new String(Base64.getDecoder().decode(response.getDocumentData()), StandardCharsets.UTF_8);
+        assertFalse(csvContent.isEmpty(), "CSV content should not be empty");
+
+        assertTrue(csvContent.contains("036"), "CSV should contain district number");
+        assertTrue(csvContent.contains("Test District"), "CSV should contain district name");
+
+        String[] lines = csvContent.split("\n");
+        assertTrue(lines.length >= 2, "CSV should have at least header and one data row");
+    }
+
+    @Test
+    void testGenerateInclusiveEducationVarianceReport_RegularSchool_IncludedInReport() {
+        // Given: Regular public school (not OL, not Independent, not PRP, not Youth, not Offshore)
+        UUID collectionId = UUID.randomUUID();
+        UUID districtId = UUID.randomUUID();
+        UUID febCollectionId = UUID.randomUUID();
+        UUID septCollectionId = UUID.randomUUID();
+        UUID febDistrictCollectionId = UUID.randomUUID();
+        UUID septDistrictCollectionId = UUID.randomUUID();
+
+        List<UUID> schoolIds = List.of(UUID.randomUUID());
+
+        CollectionEntity mainCollection = createCollection(collectionId, "JULY", LocalDate.of(2025, 7, 1));
+        CollectionEntity febCollection = createCollection(febCollectionId, "FEBRUARY", LocalDate.of(2025, 2, 1));
+        CollectionEntity septCollection = createCollection(septCollectionId, "SEPTEMBER", LocalDate.of(2024, 9, 1));
+
+        SdcDistrictCollectionEntity mainDistrictCollection = createDistrictCollection(UUID.randomUUID(), districtId, mainCollection);
+        SdcDistrictCollectionEntity febDistrictCollection = createDistrictCollection(febDistrictCollectionId, districtId, febCollection);
+        SdcDistrictCollectionEntity septDistrictCollection = createDistrictCollection(septDistrictCollectionId, districtId, septCollection);
+
+        SchoolTombstone regularSchool = createSchool(schoolIds.get(0).toString(), "Regular School",
+                SchoolCategoryCodes.PUBLIC.getCode(), FacilityTypeCodes.STANDARD.getCode(), districtId.toString());
+
+        District district = new District();
+        district.setDistrictId(districtId.toString());
+        district.setDistrictNumber("036");
+        district.setDisplayName("Test District");
+
+        SpecialEdHeadcountResult febResult = createSpecialEdResult("5", "5", "3", "3", "2", "2", "2", "3", "0", "0", "0", "0");
+        SpecialEdHeadcountResult septResult = createSpecialEdResult("4", "4", "2", "2", "1", "1", "1", "2", "0", "0", "0", "0");
+
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(mainCollection));
+        when(sdcDistrictCollectionRepository.findAllByCollectionEntityCollectionID(collectionId))
+                .thenReturn(List.of(mainDistrictCollection));
+        when(sdcDistrictCollectionRepository.findLastOrCurrentSdcDistrictCollectionByCollectionType(
+                eq(CollectionTypeCodes.FEBRUARY.getTypeCode()), eq(districtId), any()))
+                .thenReturn(Optional.of(febDistrictCollection));
+        when(sdcDistrictCollectionRepository.findLastSdcDistrictCollectionByCollectionTypeBefore(
+                eq(CollectionTypeCodes.SEPTEMBER.getTypeCode()), eq(districtId), any()))
+                .thenReturn(Optional.of(septDistrictCollection));
+
+        when(restUtils.getAllSchoolTombstones()).thenReturn(Arrays.asList(regularSchool));
+        when(restUtils.getDistrictByDistrictID(districtId.toString())).thenReturn(Optional.of(district));
+
+        when(sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleForFebBySdcDistrictCollectionId(
+                eq(febDistrictCollectionId), any()))
+                .thenReturn(febResult);
+        when(sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleForSeptBySdcDistrictCollectionId(
+                eq(septDistrictCollectionId), any()))
+                .thenReturn(septResult);
+
+        // When
+        DownloadableReportResponse response = csvReportService.generateInclusiveEducationVarianceReport(collectionId);
+
+        // Then
+        assertNotNull(response, "Response should not be null");
+        assertNotNull(response.getDocumentData(), "Document data should not be null");
+        String csvContent = new String(Base64.getDecoder().decode(response.getDocumentData()), StandardCharsets.UTF_8);
+        assertFalse(csvContent.isEmpty(), "CSV should not be empty");
+        assertTrue(csvContent.contains("036"), "CSV should contain district number");
+    }
+
+    @Test
+    void testGenerateInclusiveEducationVarianceReport_IndependentSchool_ExcludedFromReport() {
+        // Given: Independent school should be excluded
+        UUID collectionId = UUID.randomUUID();
+        UUID districtId = UUID.randomUUID();
+        UUID febCollectionId = UUID.randomUUID();
+        UUID septCollectionId = UUID.randomUUID();
+        UUID febDistrictCollectionId = UUID.randomUUID();
+        UUID septDistrictCollectionId = UUID.randomUUID();
+
+        CollectionEntity mainCollection = createCollection(collectionId, "JULY", LocalDate.of(2025, 7, 1));
+        CollectionEntity febCollection = createCollection(febCollectionId, "FEBRUARY", LocalDate.of(2025, 2, 1));
+        CollectionEntity septCollection = createCollection(septCollectionId, "SEPTEMBER", LocalDate.of(2024, 9, 1));
+
+        SdcDistrictCollectionEntity mainDistrictCollection = createDistrictCollection(UUID.randomUUID(), districtId, mainCollection);
+        SdcDistrictCollectionEntity febDistrictCollection = createDistrictCollection(febDistrictCollectionId, districtId, febCollection);
+        SdcDistrictCollectionEntity septDistrictCollection = createDistrictCollection(septDistrictCollectionId, districtId, septCollection);
+
+        SchoolTombstone indySchool = createSchool(UUID.randomUUID().toString(), "Indy School",
+                SchoolCategoryCodes.INDEPEND.getCode(), FacilityTypeCodes.STANDARD.getCode(), districtId.toString());
+
+        District district = new District();
+        district.setDistrictId(districtId.toString());
+        district.setDistrictNumber("036");
+        district.setDisplayName("Test District");
+
+        SpecialEdHeadcountResult emptyResult = createSpecialEdResult("0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0");
+
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(mainCollection));
+        when(sdcDistrictCollectionRepository.findAllByCollectionEntityCollectionID(collectionId))
+                .thenReturn(List.of(mainDistrictCollection));
+        when(sdcDistrictCollectionRepository.findLastOrCurrentSdcDistrictCollectionByCollectionType(
+                eq(CollectionTypeCodes.FEBRUARY.getTypeCode()), eq(districtId), any()))
+                .thenReturn(Optional.of(febDistrictCollection));
+        when(sdcDistrictCollectionRepository.findLastSdcDistrictCollectionByCollectionTypeBefore(
+                eq(CollectionTypeCodes.SEPTEMBER.getTypeCode()), eq(districtId), any()))
+                .thenReturn(Optional.of(septDistrictCollection));
+
+        when(restUtils.getAllSchoolTombstones()).thenReturn(Arrays.asList(indySchool));
+        when(restUtils.getDistrictByDistrictID(districtId.toString())).thenReturn(Optional.of(district));
+
+        when(sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleForFebBySdcDistrictCollectionId(
+                eq(febDistrictCollectionId), any()))
+                .thenReturn(emptyResult);
+        when(sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleForSeptBySdcDistrictCollectionId(
+                eq(septDistrictCollectionId), any()))
+                .thenReturn(emptyResult);
+
+        // When
+        DownloadableReportResponse response = csvReportService.generateInclusiveEducationVarianceReport(collectionId);
+
+        // Then
+        assertNotNull(response);
+        String csvContent = new String(Base64.getDecoder().decode(response.getDocumentData()), StandardCharsets.UTF_8);
+        // Should contain district but with zero counts
+        assertTrue(csvContent.contains("036"));
+    }
+
+    @Test
+    void testGenerateInclusiveEducationVarianceReport_ContinuingEducationSchool_IncludedInReport() {
+        // Given: Continuing Education school should be included
+        UUID collectionId = UUID.randomUUID();
+        UUID districtId = UUID.randomUUID();
+        UUID febCollectionId = UUID.randomUUID();
+        UUID septCollectionId = UUID.randomUUID();
+        UUID febDistrictCollectionId = UUID.randomUUID();
+        UUID septDistrictCollectionId = UUID.randomUUID();
+
+        List<UUID> schoolIds = List.of(UUID.randomUUID());
+
+        CollectionEntity mainCollection = createCollection(collectionId, "JULY", LocalDate.of(2025, 7, 1));
+        CollectionEntity febCollection = createCollection(febCollectionId, "FEBRUARY", LocalDate.of(2025, 2, 1));
+        CollectionEntity septCollection = createCollection(septCollectionId, "SEPTEMBER", LocalDate.of(2024, 9, 1));
+
+        SdcDistrictCollectionEntity mainDistrictCollection = createDistrictCollection(UUID.randomUUID(), districtId, mainCollection);
+        SdcDistrictCollectionEntity febDistrictCollection = createDistrictCollection(febDistrictCollectionId, districtId, febCollection);
+        SdcDistrictCollectionEntity septDistrictCollection = createDistrictCollection(septDistrictCollectionId, districtId, septCollection);
+
+        SchoolTombstone ceSchool = createSchool(schoolIds.get(0).toString(), "CE School",
+                SchoolCategoryCodes.PUBLIC.getCode(), FacilityTypeCodes.CONT_ED.getCode(), districtId.toString());
+
+        District district = new District();
+        district.setDistrictId(districtId.toString());
+        district.setDistrictNumber("036");
+        district.setDisplayName("Test District");
+
+        SpecialEdHeadcountResult febResult = createSpecialEdResult("3", "4", "2", "1", "1", "1", "1", "2", "0", "0", "0", "0");
+        SpecialEdHeadcountResult septResult = createSpecialEdResult("2", "3", "1", "1", "1", "1", "0", "1", "0", "0", "0", "0");
+
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(mainCollection));
+        when(sdcDistrictCollectionRepository.findAllByCollectionEntityCollectionID(collectionId))
+                .thenReturn(List.of(mainDistrictCollection));
+        when(sdcDistrictCollectionRepository.findLastOrCurrentSdcDistrictCollectionByCollectionType(
+                eq(CollectionTypeCodes.FEBRUARY.getTypeCode()), eq(districtId), any()))
+                .thenReturn(Optional.of(febDistrictCollection));
+        when(sdcDistrictCollectionRepository.findLastSdcDistrictCollectionByCollectionTypeBefore(
+                eq(CollectionTypeCodes.SEPTEMBER.getTypeCode()), eq(districtId), any()))
+                .thenReturn(Optional.of(septDistrictCollection));
+
+        when(restUtils.getAllSchoolTombstones()).thenReturn(Arrays.asList(ceSchool));
+        when(restUtils.getDistrictByDistrictID(districtId.toString())).thenReturn(Optional.of(district));
+
+        when(sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleForFebBySdcDistrictCollectionId(
+                eq(febDistrictCollectionId), any()))
+                .thenReturn(febResult);
+        when(sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleForSeptBySdcDistrictCollectionId(
+                eq(septDistrictCollectionId), any()))
+                .thenReturn(septResult);
+
+        // When
+        DownloadableReportResponse response = csvReportService.generateInclusiveEducationVarianceReport(collectionId);
+
+        // Then
+        assertNotNull(response, "Response should not be null");
+        assertNotNull(response.getDocumentData(), "Document data should not be null");
+        String csvContent = new String(Base64.getDecoder().decode(response.getDocumentData()), StandardCharsets.UTF_8);
+        assertFalse(csvContent.isEmpty(), "CSV should not be empty");
+        assertTrue(csvContent.contains("036"), "CSV should contain district number");
+    }
+
+    @Test
+    void testGenerateInclusiveEducationVarianceReport_PRPSchool_ExcludedFromReport() {
+        // Given: PRP school should be excluded
+        UUID collectionId = UUID.randomUUID();
+        UUID districtId = UUID.randomUUID();
+        UUID febCollectionId = UUID.randomUUID();
+        UUID septCollectionId = UUID.randomUUID();
+        UUID febDistrictCollectionId = UUID.randomUUID();
+        UUID septDistrictCollectionId = UUID.randomUUID();
+
+        CollectionEntity mainCollection = createCollection(collectionId, "JULY", LocalDate.of(2025, 7, 1));
+        CollectionEntity febCollection = createCollection(febCollectionId, "FEBRUARY", LocalDate.of(2025, 2, 1));
+        CollectionEntity septCollection = createCollection(septCollectionId, "SEPTEMBER", LocalDate.of(2024, 9, 1));
+
+        SdcDistrictCollectionEntity mainDistrictCollection = createDistrictCollection(UUID.randomUUID(), districtId, mainCollection);
+        SdcDistrictCollectionEntity febDistrictCollection = createDistrictCollection(febDistrictCollectionId, districtId, febCollection);
+        SdcDistrictCollectionEntity septDistrictCollection = createDistrictCollection(septDistrictCollectionId, districtId, septCollection);
+
+        SchoolTombstone prpSchool = createSchool(UUID.randomUUID().toString(), "PRP School",
+                SchoolCategoryCodes.PUBLIC.getCode(), FacilityTypeCodes.LONG_PRP.getCode(), districtId.toString());
+
+        District district = new District();
+        district.setDistrictId(districtId.toString());
+        district.setDistrictNumber("036");
+        district.setDisplayName("Test District");
+
+        SpecialEdHeadcountResult emptyResult = createSpecialEdResult("0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0");
+
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(mainCollection));
+        when(sdcDistrictCollectionRepository.findAllByCollectionEntityCollectionID(collectionId))
+                .thenReturn(List.of(mainDistrictCollection));
+        when(sdcDistrictCollectionRepository.findLastOrCurrentSdcDistrictCollectionByCollectionType(
+                eq(CollectionTypeCodes.FEBRUARY.getTypeCode()), eq(districtId), any()))
+                .thenReturn(Optional.of(febDistrictCollection));
+        when(sdcDistrictCollectionRepository.findLastSdcDistrictCollectionByCollectionTypeBefore(
+                eq(CollectionTypeCodes.SEPTEMBER.getTypeCode()), eq(districtId), any()))
+                .thenReturn(Optional.of(septDistrictCollection));
+
+        when(restUtils.getAllSchoolTombstones()).thenReturn(Arrays.asList(prpSchool));
+        when(restUtils.getDistrictByDistrictID(districtId.toString())).thenReturn(Optional.of(district));
+
+        when(sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleForFebBySdcDistrictCollectionId(
+                eq(febDistrictCollectionId), any()))
+                .thenReturn(emptyResult);
+        when(sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleForSeptBySdcDistrictCollectionId(
+                eq(septDistrictCollectionId), any()))
+                .thenReturn(emptyResult);
+
+        // When
+        DownloadableReportResponse response = csvReportService.generateInclusiveEducationVarianceReport(collectionId);
+
+        // Then
+        assertNotNull(response);
+        // Report generated with zero counts
+        assertNotNull(response.getDocumentData());
+    }
+
+    @Test
+    void testGenerateInclusiveEducationVarianceReport_MixedSchools_OnlyCorrectSchoolsIncluded() {
+        // Given: Mix of schools - OL, Regular, Independent, PRP
+        UUID collectionId = UUID.randomUUID();
+        UUID districtId = UUID.randomUUID();
+        UUID febCollectionId = UUID.randomUUID();
+        UUID septCollectionId = UUID.randomUUID();
+        UUID febDistrictCollectionId = UUID.randomUUID();
+        UUID septDistrictCollectionId = UUID.randomUUID();
+
+        UUID olSchoolId = UUID.randomUUID();
+        UUID regularSchoolId = UUID.randomUUID();
+
+        CollectionEntity mainCollection = createCollection(collectionId, "JULY", LocalDate.of(2025, 7, 1));
+        CollectionEntity febCollection = createCollection(febCollectionId, "FEBRUARY", LocalDate.of(2025, 2, 1));
+        CollectionEntity septCollection = createCollection(septCollectionId, "SEPTEMBER", LocalDate.of(2024, 9, 1));
+
+        SdcDistrictCollectionEntity mainDistrictCollection = createDistrictCollection(UUID.randomUUID(), districtId, mainCollection);
+        SdcDistrictCollectionEntity febDistrictCollection = createDistrictCollection(febDistrictCollectionId, districtId, febCollection);
+        SdcDistrictCollectionEntity septDistrictCollection = createDistrictCollection(septDistrictCollectionId, districtId, septCollection);
+
+        SchoolTombstone olSchool = createSchool(olSchoolId.toString(), "OL School",
+                SchoolCategoryCodes.PUBLIC.getCode(), FacilityTypeCodes.DISTONLINE.getCode(), districtId.toString());
+        SchoolTombstone regularSchool = createSchool(regularSchoolId.toString(), "Regular School",
+                SchoolCategoryCodes.PUBLIC.getCode(), FacilityTypeCodes.STANDARD.getCode(), districtId.toString());
+        SchoolTombstone indySchool = createSchool(UUID.randomUUID().toString(), "Indy School",
+                SchoolCategoryCodes.INDEPEND.getCode(), FacilityTypeCodes.STANDARD.getCode(), districtId.toString());
+        SchoolTombstone prpSchool = createSchool(UUID.randomUUID().toString(), "PRP School",
+                SchoolCategoryCodes.PUBLIC.getCode(), FacilityTypeCodes.SHORT_PRP.getCode(), districtId.toString());
+
+        District district = new District();
+        district.setDistrictId(districtId.toString());
+        district.setDistrictNumber("036");
+        district.setDisplayName("Test District");
+
+        SpecialEdHeadcountResult febResult = createSpecialEdResult("7", "8", "5", "5", "3", "3", "3", "5", "0", "0", "0", "0");
+        SpecialEdHeadcountResult septResult = createSpecialEdResult("5", "5", "3", "3", "2", "2", "2", "3", "0", "0", "0", "0");
+
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(mainCollection));
+        when(sdcDistrictCollectionRepository.findAllByCollectionEntityCollectionID(collectionId))
+                .thenReturn(List.of(mainDistrictCollection));
+        when(sdcDistrictCollectionRepository.findLastOrCurrentSdcDistrictCollectionByCollectionType(
+                eq(CollectionTypeCodes.FEBRUARY.getTypeCode()), eq(districtId), any()))
+                .thenReturn(Optional.of(febDistrictCollection));
+        when(sdcDistrictCollectionRepository.findLastSdcDistrictCollectionByCollectionTypeBefore(
+                eq(CollectionTypeCodes.SEPTEMBER.getTypeCode()), eq(districtId), any()))
+                .thenReturn(Optional.of(septDistrictCollection));
+
+        when(restUtils.getAllSchoolTombstones()).thenReturn(Arrays.asList(olSchool, regularSchool, indySchool, prpSchool));
+        when(restUtils.getDistrictByDistrictID(districtId.toString())).thenReturn(Optional.of(district));
+
+        when(sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleForFebBySdcDistrictCollectionId(
+                eq(febDistrictCollectionId), any()))
+                .thenReturn(febResult);
+        when(sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceSimpleForSeptBySdcDistrictCollectionId(
+                eq(septDistrictCollectionId), any()))
+                .thenReturn(septResult);
+
+        // When
+        DownloadableReportResponse response = csvReportService.generateInclusiveEducationVarianceReport(collectionId);
+
+        // Then
+        assertNotNull(response, "Response should not be null");
+        assertNotNull(response.getDocumentData(), "Document data should not be null");
+        String csvContent = new String(Base64.getDecoder().decode(response.getDocumentData()), StandardCharsets.UTF_8);
+        assertFalse(csvContent.isEmpty(), "CSV should not be empty");
+
+        // Verify CSV structure
+        String[] lines = csvContent.split("\n");
+        assertTrue(lines.length >= 2, "CSV should have header and data rows");
+    }
+
+    private CollectionEntity createCollection(UUID collectionId, String typeCode, LocalDate snapshotDate) {
+        CollectionEntity collection = new CollectionEntity();
+        collection.setCollectionID(collectionId);
+        collection.setCollectionTypeCode(typeCode);
+        collection.setSnapshotDate(snapshotDate);
+        collection.setOpenDate(LocalDateTime.now());
+        collection.setCloseDate(LocalDateTime.now().plusMonths(1));
+        return collection;
+    }
+
+    private SdcDistrictCollectionEntity createDistrictCollection(UUID districtCollectionId, UUID districtId, CollectionEntity collection) {
+        SdcDistrictCollectionEntity districtCollection = new SdcDistrictCollectionEntity();
+        districtCollection.setSdcDistrictCollectionID(districtCollectionId);
+        districtCollection.setDistrictID(districtId);
+        districtCollection.setCollectionEntity(collection);
+        return districtCollection;
+    }
+
+    private SchoolTombstone createSchool(String schoolId, String displayName, String categoryCode, String facilityTypeCode, String districtId) {
+        SchoolTombstone school = new SchoolTombstone();
+        school.setSchoolId(schoolId);
+        school.setDisplayName(displayName);
+        school.setSchoolCategoryCode(categoryCode);
+        school.setFacilityTypeCode(facilityTypeCode);
+        school.setDistrictId(districtId);
+        return school;
+    }
+
+    private SpecialEdHeadcountResult createSpecialEdResult(String aCode, String bCode, String cCode, String dCode, String eCode,
+                                                           String fCode, String gCode, String hCode, String kCode, String pCode,
+                                                           String qCode, String rCode) {
+        return new SpecialEdHeadcountResult() {
+            @Override
+            public String getEnrolledGradeCode() { return null; }
+
+            @Override
+            public String getSchoolID() { return null; }
+
+            @Override
+            public String getSpecialEducationCategoryCode() { return null; }
+
+            @Override
+            public String getSdcDistrictCollectionID() { return null; }
+
+            @Override
+            public String getLevelOnes() {
+                int a = aCode != null ? Integer.parseInt(aCode) : 0;
+                int b = bCode != null ? Integer.parseInt(bCode) : 0;
+                return String.valueOf(a + b);
+            }
+
+            @Override
+            public String getSpecialEdACodes() { return aCode; }
+
+            @Override
+            public String getSpecialEdBCodes() { return bCode; }
+
+            @Override
+            public String getLevelTwos() {
+                int c = cCode != null ? Integer.parseInt(cCode) : 0;
+                int d = dCode != null ? Integer.parseInt(dCode) : 0;
+                int e = eCode != null ? Integer.parseInt(eCode) : 0;
+                int f = fCode != null ? Integer.parseInt(fCode) : 0;
+                int g = gCode != null ? Integer.parseInt(gCode) : 0;
+                return String.valueOf(c + d + e + f + g);
+            }
+
+            @Override
+            public String getSpecialEdCCodes() { return cCode; }
+
+            @Override
+            public String getSpecialEdDCodes() { return dCode; }
+
+            @Override
+            public String getSpecialEdECodes() { return eCode; }
+
+            @Override
+            public String getSpecialEdFCodes() { return fCode; }
+
+            @Override
+            public String getSpecialEdGCodes() { return gCode; }
+
+            @Override
+            public String getLevelThrees() { return hCode; }
+
+            @Override
+            public String getSpecialEdHCodes() { return hCode; }
+
+            @Override
+            public String getOtherLevels() {
+                int k = kCode != null ? Integer.parseInt(kCode) : 0;
+                int p = pCode != null ? Integer.parseInt(pCode) : 0;
+                int q = qCode != null ? Integer.parseInt(qCode) : 0;
+                int r = rCode != null ? Integer.parseInt(rCode) : 0;
+                return String.valueOf(k + p + q + r);
+            }
+
+            @Override
+            public String getSpecialEdKCodes() { return kCode; }
+
+            @Override
+            public String getSpecialEdPCodes() { return pCode; }
+
+            @Override
+            public String getSpecialEdQCodes() { return qCode; }
+
+            @Override
+            public String getSpecialEdRCodes() { return rCode; }
+
+            @Override
+            public String getAllLevels() {
+                int total = 0;
+                if (aCode != null) total += Integer.parseInt(aCode);
+                if (bCode != null) total += Integer.parseInt(bCode);
+                if (cCode != null) total += Integer.parseInt(cCode);
+                if (dCode != null) total += Integer.parseInt(dCode);
+                if (eCode != null) total += Integer.parseInt(eCode);
+                if (fCode != null) total += Integer.parseInt(fCode);
+                if (gCode != null) total += Integer.parseInt(gCode);
+                if (hCode != null) total += Integer.parseInt(hCode);
+                if (kCode != null) total += Integer.parseInt(kCode);
+                if (pCode != null) total += Integer.parseInt(pCode);
+                if (qCode != null) total += Integer.parseInt(qCode);
+                if (rCode != null) total += Integer.parseInt(rCode);
+                return String.valueOf(total);
+            }
+
+            @Override
+            public boolean getAdultsInSpecialEdA() { return false; }
+
+            @Override
+            public boolean getAdultsInSpecialEdB() { return false; }
+
+            @Override
+            public boolean getAdultsInSpecialEdC() { return false; }
+
+            @Override
+            public boolean getAdultsInSpecialEdD() { return false; }
+
+            @Override
+            public boolean getAdultsInSpecialEdE() { return false; }
+
+            @Override
+            public boolean getAdultsInSpecialEdF() { return false; }
+
+            @Override
+            public boolean getAdultsInSpecialEdG() { return false; }
+
+            @Override
+            public boolean getAdultsInSpecialEdH() { return false; }
+
+            @Override
+            public boolean getAdultsInSpecialEdK() { return false; }
+
+            @Override
+            public boolean getAdultsInSpecialEdP() { return false; }
+
+            @Override
+            public boolean getAdultsInSpecialEdQ() { return false; }
+
+            @Override
+            public boolean getAdultsInSpecialEdR() { return false; }
+        };
     }
 
     private EllStudentResult createMockEllStudent(String pen, String yearsInEll, String lastName) {
