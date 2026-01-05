@@ -108,8 +108,9 @@ public class SdcDistrictCollectionHeadcountService {
             .map(UUID::fromString)
             .toList();
 
-    List<SpecialEdHeadcountResult> febCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceBySdcDistrictCollectionId(febCollection.getSdcDistrictCollectionID(), includeSchoolForEnrolledHeadcountsAndFteReport);
-    List<SpecialEdHeadcountResult> septCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceBySdcDistrictCollectionId(septCollection.getSdcDistrictCollectionID(), includeSchoolForEnrolledHeadcountsAndFteReport);
+    // February uses all students (no FTE filter), September uses only students with FTE > 0
+    List<SpecialEdHeadcountResult> febCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceForFebBySdcDistrictCollectionId(febCollection.getSdcDistrictCollectionID(), includeSchoolForEnrolledHeadcountsAndFteReport);
+    List<SpecialEdHeadcountResult> septCollectionRawData = sdcSchoolCollectionStudentRepository.getSpecialEdHeadcountsVarianceForSeptBySdcDistrictCollectionId(septCollection.getSdcDistrictCollectionID(), includeSchoolForEnrolledHeadcountsAndFteReport);
 
     HeadcountResultsTable collectionData = specialEdHeadcountHelper.convertHeadcountResultsToSpecialEdVarianceReport(febCollectionRawData, septCollectionRawData, febCollection, septCollection);
 
