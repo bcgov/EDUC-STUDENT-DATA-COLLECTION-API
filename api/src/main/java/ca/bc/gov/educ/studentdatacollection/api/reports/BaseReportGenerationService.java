@@ -1,6 +1,5 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
 
-import ca.bc.gov.educ.studentdatacollection.api.constants.v1.FacilityTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -125,7 +124,7 @@ public abstract class BaseReportGenerationService<T> {
 
     reportNode.setReportGeneratedDate("Report Generated: " + LocalDate.now().format(formatter));
     reportNode.setDistrictNumberAndName(district.getDistrictNumber() + " - " + district.getDisplayName());
-    reportNode.setCollectionNameAndYear(StringUtils.capitalize(sdcSchoolCollection.getCollectionEntity().getCollectionTypeCode().toLowerCase()) + " " + sdcSchoolCollection.getCollectionEntity().getOpenDate().getYear() + " Collection");
+    reportNode.setCollectionNameAndYear(StringUtils.capitalize(sdcSchoolCollection.getCollectionEntity().getCollectionTypeCode().toLowerCase()) + " " + sdcSchoolCollection.getCollectionEntity().getSnapshotDate().getYear() + " Collection");
     reportNode.setSchoolMincodeAndName(school.getMincode() + " - " + school.getDisplayName());
 
     if(isIndependentSchool(school)){
@@ -143,7 +142,7 @@ public abstract class BaseReportGenerationService<T> {
 
     reportNode.setReportGeneratedDate("Report Generated: " + LocalDate.now().format(formatter));
     reportNode.setDistrictNumberAndName(district.get().getDistrictNumber() + " - " + district.get().getDisplayName());
-    reportNode.setCollectionNameAndYear(StringUtils.capitalize(sdcDistrictCollection.getCollectionEntity().getCollectionTypeCode().toLowerCase()) + " " + sdcDistrictCollection.getCollectionEntity().getOpenDate().getYear() + " Collection");
+    reportNode.setCollectionNameAndYear(StringUtils.capitalize(sdcDistrictCollection.getCollectionEntity().getCollectionTypeCode().toLowerCase()) + " " + sdcDistrictCollection.getCollectionEntity().getSnapshotDate().getYear() + " Collection");
     reportNode.setShowKH(FALSE);
   }
 
