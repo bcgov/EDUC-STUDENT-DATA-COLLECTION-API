@@ -31,7 +31,7 @@ public enum ProgramEligibilityIssueCode {
   FEB_ONLINE_WITH_HISTORICAL_FUNDING("FEBSPEDERR", "Student has no new courses and is not continuing their educational program for this school year.", ProgramEligibilityTypeCode.SPED),
   INDP_FIRST_NATION_SPED("FUND20SPED", "Students reported by Independent School with Funding code 20 are not eligible for Inclusive Education funding.", ProgramEligibilityTypeCode.SPED),
   INDIGENOUS_ADULT("ISADULTAGE", "Student must be school-aged and self-identify as having Indigenous Ancestry to be eligible for funding for Indigenous Support Programs.", ProgramEligibilityTypeCode.IND_SUPPORT),
-  YEARS_IN_ELL("ELL5ORLESS", "Student must be school-aged and have been reported in ELL for 5 years or less.", ProgramEligibilityTypeCode.ELL),
+  YEARS_IN_ELL("ELL5ORLESS", "The student must be school-aged and have received less than 5 years of ELL funding", ProgramEligibilityTypeCode.ELL),
   NOT_ENROLLED_ELL("NTENRELL", "The student is not enrolled in the ELL program.", ProgramEligibilityTypeCode.ELL),
   NO_INDIGENOUS_ANCESTRY("NOANCESTRY", "Student must be school-aged and self-identify as having Indigenous Ancestry to be eligible for funding for Indigenous Support Programs.", ProgramEligibilityTypeCode.IND_SUPPORT),
   ELL_INDY_SCHOOL("ELLINDYERR", "Students reported by Independent Schools are not eligible for English Language Learning funding.", ProgramEligibilityTypeCode.ELL),
