@@ -343,6 +343,7 @@ public class RestUtils {
     try {
       val penMatchRequest = PenMatchSagaMapper.mapper.toPenMatchStudent(sdcSchoolStudent, mincode);
       penMatchRequest.setDob(StringUtils.replace(penMatchRequest.getDob(), "-", "")); // pen-match api expects yyyymmdd
+      if (StringUtils.isBlank(penMatchRequest.getGivenName())) penMatchRequest.setGivenName(null); // pen-match api expects null not blank for given name (don't remove will throw)
       val penMatchRequestJson = JsonUtil.mapper.writeValueAsString(penMatchRequest);
       final TypeReference<Event> refEventResponse = new TypeReference<>() {
       };
