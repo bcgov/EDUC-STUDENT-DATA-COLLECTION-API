@@ -196,6 +196,7 @@ public class AllReportsService {
         response.setContentType("application/x-ndjson;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Cache-Control", "no-cache");
+        response.setHeader("X-Accel-Buffering", "no");
 
         AtomicInteger schoolCount = new AtomicInteger(0);
         AtomicInteger reportCount = new AtomicInteger(0);

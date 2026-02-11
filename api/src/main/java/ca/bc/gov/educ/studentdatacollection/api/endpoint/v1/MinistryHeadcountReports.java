@@ -44,7 +44,7 @@ public interface MinistryHeadcountReports {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
     void generateAllDistrictReportsForCollection(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID);
 
-    @PostMapping("/allReports/{sdcDistrictCollectionID}/streamChunked")
+    @GetMapping("/allReports/{sdcDistrictCollectionID}/streamChunked")
     @PreAuthorize("hasAuthority('SCOPE_READ_SDC_COLLECTION')")
     @Transactional(readOnly = true)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
