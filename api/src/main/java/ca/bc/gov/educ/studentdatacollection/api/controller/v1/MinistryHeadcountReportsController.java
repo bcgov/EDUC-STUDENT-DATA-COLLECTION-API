@@ -9,10 +9,12 @@ import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.CSVReportServ
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.reports.MinistryHeadcountService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.SimpleHeadcountResultsTable;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableReportResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
@@ -91,5 +93,10 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
     @Override
     public void generateAllDistrictReportsForCollection(UUID sdcDistrictCollectionID) {
         allReportsService.generateAllDistrictReportsOnDisk(sdcDistrictCollectionID);
+    }
+
+    @Override
+    public void generateAllDistrictReportsStreamChunked(UUID sdcDistrictCollectionID, HttpServletResponse response) throws IOException {
+        allReportsService.generateAllDistrictReportsStreamChunked(sdcDistrictCollectionID, response);
     }
 }

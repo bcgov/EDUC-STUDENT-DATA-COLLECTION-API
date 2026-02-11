@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCollectionEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionEntity> {
+public interface SdcSchoolCollectionRepository extends JpaRepository<SdcSchoolCollectionEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionEntity>, SdcSchoolCollectionRepositoryCustom {
 
     @Query(value="""
             SELECT SSC FROM SdcSchoolCollectionEntity SSC, CollectionEntity C WHERE SSC.schoolID=:schoolID 
