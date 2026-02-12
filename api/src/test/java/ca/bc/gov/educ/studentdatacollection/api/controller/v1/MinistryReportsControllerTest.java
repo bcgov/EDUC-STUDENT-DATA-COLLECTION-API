@@ -48,6 +48,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 @SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
 @ActiveProfiles("test")
@@ -1702,5 +1703,64 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     assertThat(response).isNotNull();
     assertThat(response.getReportType()).isEqualTo("ell-students-fall-csv");
     assertThat(response.getDocumentData()).isNotNull();
+  }
+
+  @Test
+  void testGenerateAllDistrictReportsStreamChunked_WithValidDistrictCollection_ShouldReturnNDJSONStream() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    var district = createMockDistrict();
+    when(this.restUtils.getDistrictByDistrictID(any())).thenReturn(Optional.of(district));
+    when(this.restUtils.getSchoolBySchoolID(any())).thenReturn(Optional.of(createMockSchool()));
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection = collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcDistrictCollection = createMockSdcDistrictCollectionEntity(collection, null);
+    var districtCollectionID = sdcDistrictCollectionRepository.save(sdcDistrictCollection).getSdcDistrictCollectionID();
+
+    SchoolTombstone school1 = createMockSchool();
+    school1.setDistrictId(sdcDistrictCollection.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    sdcSchoolCollection.setSdcDistrictCollectionID(districtCollectionID);
+    sdcSchoolCollectionRepository.save(sdcSchoolCollection);
+
+    var resultActions = this.mockMvc.perform(
+                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/allReports/" + districtCollectionID + "/streamChunked")
+                            .with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(header().string("Content-Type", "application/x-ndjson;charset=UTF-8"));
+
+    String response = resultActions.andReturn().getResponse().getContentAsString();
+    assertThat(response).isNotEmpty();
+    assertThat(response).contains("\"type\":\"start\"");
+    assertThat(response).contains("\"districtNumber\"");
+  }
+
+  @Test
+  void testGenerateAllDistrictReportsStreamChunked_WithInvalidDistrictCollection_ShouldReturn404() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    UUID invalidDistrictCollectionID = UUID.randomUUID();
+
+    this.mockMvc.perform(
+                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/allReports/" + invalidDistrictCollectionID + "/streamChunked")
+                            .with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void testGenerateAllDistrictReportsStreamChunked_WithoutAuthorization_ShouldReturn403() throws Exception {
+    UUID districtCollectionID = UUID.randomUUID();
+
+    this.mockMvc.perform(
+                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/allReports/" + districtCollectionID + "/streamChunked"))
+            .andDo(print())
+            .andExpect(status().isUnauthorized());
   }
 }
