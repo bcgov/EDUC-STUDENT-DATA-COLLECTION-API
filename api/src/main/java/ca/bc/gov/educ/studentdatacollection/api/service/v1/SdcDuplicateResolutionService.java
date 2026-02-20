@@ -6,12 +6,14 @@ import ca.bc.gov.educ.studentdatacollection.api.exception.InvalidParameterExcept
 import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionStudentMapper;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.CollectionRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDistrictCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcDuplicateRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.District;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.EdxUser;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SoftDeleteRecordSet;
 import ca.bc.gov.educ.studentdatacollection.api.util.RequestUtil;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -32,17 +35,20 @@ public class SdcDuplicateResolutionService {
   private final SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
   private final CollectionRepository collectionRepository;
   private final SdcSchoolCollectionRepository sdcSchoolCollectionRepository;
+  private final SdcDistrictCollectionRepository sdcDistrictCollectionRepository;
   private final ValidationRulesService validationRulesService;
   private final DuplicateClassNumberGenerationService duplicateClassNumberGenerationService;
   private final SdcSchoolCollectionStudentService sdcSchoolCollectionStudentService;
   private final SdcSchoolCollectionService sdcSchoolCollectionService;
   private final SdcSchoolCollectionStudentStorageService sdcSchoolCollectionStudentStorageService;
   private final SdcDuplicatesService sdcDuplicatesService;
+  private final ScheduleHandlerService scheduleHandlerService;
   private static final SdcSchoolCollectionStudentMapper sdcSchoolCollectionStudentMapper = SdcSchoolCollectionStudentMapper.mapper;
   private final RestUtils restUtils;
   private static final String SDC_DUPLICATE_ID_KEY = "sdcDuplicateID";
   private static final String COLLECTION_ID_NOT_ACTIVE_MSG = "Provided collectionID does not match currently active collectionID.";
   private static final List<String> independentSchoolCategoryCodes = Arrays.asList(SchoolCategoryCodes.INDEPEND.getCode(), SchoolCategoryCodes.INDP_FNS.getCode(), SchoolCategoryCodes.OFFSHORE.getCode());
+  private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void resolveRemainingDuplicates(UUID collectionID){
@@ -77,6 +83,26 @@ public class SdcDuplicateResolutionService {
 
     List<SdcSchoolCollectionEntity> schoolCollections = sdcSchoolCollectionRepository.findUncompletedSchoolCollections(collectionID);
     sdcSchoolCollectionService.updateSchoolCollectionStatuses(schoolCollections, SdcSchoolCollectionStatus.COMPLETED.getCode());
+
+    if (collection != null && collection.getSignOffDueDate() != null) {
+      sendDistrictSignoffNotificationEmails(collectionID, formatter.format(collection.getSignOffDueDate()));
+    }
+  }
+
+  private void sendDistrictSignoffNotificationEmails(UUID collectionID, String signOffDueDate) {
+    List<SdcDistrictCollectionEntity> incompleteDistrictCollections = sdcDistrictCollectionRepository.findAllIncompleteDistrictCollections(collectionID);
+    Map<UUID, Set<String>> districtCollectionEmailMap = new HashMap<>();
+    for (SdcDistrictCollectionEntity districtCollection : incompleteDistrictCollections) {
+      UUID districtID = districtCollection.getDistrictID();
+      List<EdxUser> districtEdxUsers = restUtils.getEdxUsersForDistrict(districtID);
+      Set<String> emails = sdcDuplicatesService.pluckEmailAddressesFromDistrict(districtEdxUsers);
+      if (!emails.isEmpty()) {
+        districtCollectionEmailMap.put(districtCollection.getSdcDistrictCollectionID(), emails);
+      }
+    }
+    if (!districtCollectionEmailMap.isEmpty()) {
+      scheduleHandlerService.createAndStartDistrictSignoffNotificationEmailSagas(districtCollectionEmailMap, signOffDueDate);
+    }
   }
 
   private void resolveEnrolmentDuplicates(List<SdcDuplicateEntity> unresolvedDupes){
