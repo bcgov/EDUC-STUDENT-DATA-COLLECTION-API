@@ -330,12 +330,21 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
         FROM SdcSchoolCollectionStudentLightEntity stud
         JOIN SdcSchoolCollectionEntity school
             ON school.sdcSchoolCollectionID = stud.sdcSchoolCollectionEntity.sdcSchoolCollectionID
-        JOIN SdcDistrictCollectionEntity sdcDist
-            ON sdcDist.sdcDistrictCollectionID = school.sdcDistrictCollectionID
         WHERE school.collectionEntity.collectionID = :collectionID
-        AND sdcDist.sdcDistrictCollectionID = :sdcDistrictCollectionID
         AND stud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
         AND stud.assignedStudentId IS NOT NULL
+        AND stud.assignedStudentId IN (
+            SELECT innerStud.assignedStudentId
+            FROM SdcSchoolCollectionStudentLightEntity innerStud
+            JOIN SdcSchoolCollectionEntity sdcSchool
+                ON sdcSchool.sdcSchoolCollectionID = innerStud.sdcSchoolCollectionEntity.sdcSchoolCollectionID
+            JOIN SdcDistrictCollectionEntity sdcDist
+                ON sdcDist.sdcDistrictCollectionID = sdcSchool.sdcDistrictCollectionID
+            WHERE sdcSchool.collectionEntity.collectionID = :collectionID
+            AND sdcDist.sdcDistrictCollectionID = :sdcDistrictCollectionID
+            AND innerStud.sdcSchoolCollectionStudentStatusCode != 'DELETED'
+            AND innerStud.assignedStudentId IS NOT NULL
+        )
         GROUP BY stud.assignedStudentId
         HAVING COUNT(stud.assignedStudentId) > 1
     )
