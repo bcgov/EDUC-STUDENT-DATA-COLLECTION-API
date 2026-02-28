@@ -804,6 +804,13 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     when(this.restUtils.getDistrictByDistrictID(String.valueOf(mockDistrict2.getDistrictId()))).thenReturn(Optional.of(mockDistrict2));
     when(this.restUtils.getDistrictByDistrictID(String.valueOf(mockDistrict3.getDistrictId()))).thenReturn(Optional.of(mockDistrict3));
 
+    var districtUser1 = createMockEdxUser(List.of(), List.of("DISTRICT_SDC"), null, UUID.fromString(mockDistrict.getDistrictId()));
+    var districtUser2 = createMockEdxUser(List.of(), List.of("DISTRICT_SDC"), null, UUID.fromString(mockDistrict2.getDistrictId()));
+    var districtUser3 = createMockEdxUser(List.of(), List.of("DISTRICT_SDC"), null, UUID.fromString(mockDistrict3.getDistrictId()));
+    when(this.restUtils.getEdxUsersForDistrict(UUID.fromString(mockDistrict.getDistrictId()))).thenReturn(List.of(districtUser1));
+    when(this.restUtils.getEdxUsersForDistrict(UUID.fromString(mockDistrict2.getDistrictId()))).thenReturn(List.of(districtUser2));
+    when(this.restUtils.getEdxUsersForDistrict(UUID.fromString(mockDistrict3.getDistrictId()))).thenReturn(List.of(districtUser3));
+
     this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/resolve-duplicates")
             .with(mockAuthority)
             .header("correlationID", UUID.randomUUID().toString())

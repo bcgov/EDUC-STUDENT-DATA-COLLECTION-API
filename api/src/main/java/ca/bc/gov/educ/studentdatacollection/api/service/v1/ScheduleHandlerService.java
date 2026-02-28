@@ -1,7 +1,6 @@
 package ca.bc.gov.educ.studentdatacollection.api.service.v1;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.SagaEnum;
-import ca.bc.gov.educ.studentdatacollection.api.constants.SagaStatusEnum;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolCollectionStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
@@ -10,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEnti
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.email.IndySchoolNoActivityEmailOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.email.IndySchoolNotSubmittedEmailOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.orchestrator.email.ProvincialDupliatesEmailOrchestrator;
+import ca.bc.gov.educ.studentdatacollection.api.orchestrator.email.DistrictSignoffNotificationEmailOrchestrator;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.properties.EmailProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SagaRepository;
@@ -44,14 +44,16 @@ public class ScheduleHandlerService {
   private final IndySchoolNoActivityEmailOrchestrator indySchoolNoActivityEmailOrchestrator;
   private final IndySchoolNotSubmittedEmailOrchestrator indySchoolNotSubmittedEmailOrchestrator;
   private final ProvincialDupliatesEmailOrchestrator provincialDupliatesEmailOrchestrator;
+  private final DistrictSignoffNotificationEmailOrchestrator districtSignoffNotificationEmailOrchestrator;
   private final EmailProperties emailProperties;
 
-  public ScheduleHandlerService(final SagaRepository sagaRepository, RestUtils restUtils, IndySchoolNoActivityEmailOrchestrator indySchoolNoActivityEmailOrchestrator, IndySchoolNotSubmittedEmailOrchestrator indySchoolNotSubmittedEmailOrchestrator, ProvincialDupliatesEmailOrchestrator provincialDupliatesEmailOrchestrator, EmailProperties emailProperties) {
+  public ScheduleHandlerService(final SagaRepository sagaRepository, RestUtils restUtils, IndySchoolNoActivityEmailOrchestrator indySchoolNoActivityEmailOrchestrator, IndySchoolNotSubmittedEmailOrchestrator indySchoolNotSubmittedEmailOrchestrator, ProvincialDupliatesEmailOrchestrator provincialDupliatesEmailOrchestrator, DistrictSignoffNotificationEmailOrchestrator districtSignoffNotificationEmailOrchestrator, EmailProperties emailProperties) {
     this.sagaRepository = sagaRepository;
     this.restUtils = restUtils;
     this.indySchoolNoActivityEmailOrchestrator = indySchoolNoActivityEmailOrchestrator;
     this.indySchoolNotSubmittedEmailOrchestrator = indySchoolNotSubmittedEmailOrchestrator;
     this.provincialDupliatesEmailOrchestrator = provincialDupliatesEmailOrchestrator;
+    this.districtSignoffNotificationEmailOrchestrator = districtSignoffNotificationEmailOrchestrator;
     this.emailProperties = emailProperties;
   }
 
@@ -134,6 +136,42 @@ public class ScheduleHandlerService {
   public void startCreatedEmailSagas(List<SdcSagaEntity> savedSagas){
     log.info("Starting provincialDupliatesEmailOrchestrator saga with the following payloads :: {}", savedSagas);
     savedSagas.forEach(this.provincialDupliatesEmailOrchestrator::startSaga);
+  }
+
+  @Transactional
+  public List<SdcSagaEntity> createAndStartDistrictSignoffNotificationEmailSagas(Map<UUID, Set<String>> districtCollectionEmailMap, String signOffDueDate) {
+    List<SdcSagaEntity> sagaEntities = new ArrayList<>();
+    for (Map.Entry<UUID, Set<String>> entry : districtCollectionEmailMap.entrySet()) {
+      if (entry.getValue().isEmpty()) {
+        continue;
+      }
+      var emailFields = new HashMap<String, String>();
+      emailFields.put("signOffDueDate", signOffDueDate);
+
+      var emailSagaData = createProvincialDuplicateEmailSagaData(
+              emailProperties.getSchoolNotificationEmailFrom(),
+              entry.getValue(),
+              emailProperties.getEmailSubjectDistrictSignoffNotification(),
+              "collection.district.signoff.notification",
+              emailFields);
+
+      String payload;
+      try {
+        payload = JsonUtil.getJsonStringFromObject(emailSagaData);
+      } catch (JsonProcessingException e) {
+        throw new StudentDataCollectionAPIRuntimeException("Exception occurred processing emailSagaData: " + e.getMessage());
+      }
+
+      final var saga = createSagaEntity(entry.getKey(), payload, SagaEnum.DISTRICT_SIGNOFF_NOTIFICATION_EMAIL_SAGA);
+      sagaEntities.add(saga);
+    }
+    if (!sagaEntities.isEmpty()) {
+      var savedSagas = this.districtSignoffNotificationEmailOrchestrator.createSagas(sagaEntities);
+      log.info("Starting districtSignoffNotificationEmailOrchestrator sagas for {} districts", savedSagas.size());
+      savedSagas.forEach(this.districtSignoffNotificationEmailOrchestrator::startSaga);
+      return savedSagas;
+    }
+    return new ArrayList<>();
   }
 
   private EmailSagaData createEmailSagaData(String fromEmail, List<String> principals, String subject, String templateName, HashMap<String,String> emailFields){
