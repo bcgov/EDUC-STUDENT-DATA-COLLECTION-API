@@ -78,8 +78,12 @@ public class SdcDuplicatesService {
 
   public List<SdcDuplicateEntity> getAllProvincialDuplicatesBySdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
     var districtCollection = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID).orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionEntity", sdcDistrictCollectionID.toString()));
-    List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInSdcDistrictCollection(districtCollection.getCollectionEntity().getCollectionID(), sdcDistrictCollectionID);
+    List<UUID> ids = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentIdsInSdcDistrictCollection(districtCollection.getCollectionEntity().getCollectionID(), sdcDistrictCollectionID);
 
+    List<SdcSchoolCollectionStudentLightEntity> provinceDupes = ids.isEmpty()
+            ? List.of()
+            : sdcSchoolCollectionStudentLightRepository.findAllById(ids);
+    
     var dupes = generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
 
     var finalSet = new HashSet<SdcDuplicateEntity>();
