@@ -37,13 +37,14 @@ public interface SdcDistrictCollectionRepository extends JpaRepository<SdcDistri
               s.sdcDistrictCollectionID as sdcDistrictCollectionID,
               s.districtID as districtID,
               s.sdcDistrictCollectionStatusCode as sdcDistrictCollectionStatusCode,
-              COUNT(DISTINCT CASE WHEN sc.sdcSchoolCollectionStatusCode = 'SUBMITTED' OR sc.sdcSchoolCollectionStatusCode = 'P_DUP_POST' OR sc.sdcSchoolCollectionStatusCode = 'COMPLETED' THEN sc.sdcSchoolCollectionID END) as submittedSchools,
+              COUNT(DISTINCT CASE WHEN sc.sdcSchoolCollectionStatusCode IN ('SUBMITTED', 'P_DUP_POST', 'COMPLETED') THEN sc.sdcSchoolCollectionID END) as submittedSchools,
               COUNT(DISTINCT sc.sdcSchoolCollectionID) as totalSchools
           FROM SdcDistrictCollectionEntity s
-               LEFT JOIN SdcSchoolCollectionEntity sc ON s.sdcDistrictCollectionID = sc.sdcDistrictCollectionID
-          WHERE (sc.sdcSchoolCollectionStatusCode IS NULL OR sc.sdcSchoolCollectionStatusCode != 'DELETED')
-            AND s.collectionEntity.collectionID = :collectionID
-          GROUP BY s.sdcDistrictCollectionID
+          LEFT JOIN SdcSchoolCollectionEntity sc
+              ON s.sdcDistrictCollectionID = sc.sdcDistrictCollectionID
+              AND sc.sdcSchoolCollectionStatusCode <> 'DELETED'
+          WHERE s.collectionEntity.collectionID = :collectionID
+          GROUP BY s.sdcDistrictCollectionID, s.districtID, s.sdcDistrictCollectionStatusCode
           """)
   List<MonitorSdcDistrictCollectionQueryResponse> findAllSdcDistrictCollectionMonitoringByCollectionID(UUID collectionID);
 
