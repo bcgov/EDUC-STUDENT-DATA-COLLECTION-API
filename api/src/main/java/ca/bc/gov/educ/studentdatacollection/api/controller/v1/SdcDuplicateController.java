@@ -63,7 +63,11 @@ public class SdcDuplicateController implements SdcDuplicateEndpoint {
 
   @Override
   public List<SdcDuplicate> getSchoolCollectionProvincialDuplicates(UUID sdcSchoolCollectionID) {
-    return this.sdcDuplicatesService.getAllProvincialDuplicatesBySdcSchoolCollectionID(sdcSchoolCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
+    long startTime = System.currentTimeMillis();
+    log.info("getSchoolCollectionProvincialDuplicates: Received request for sdcSchoolCollectionID :: {}", sdcSchoolCollectionID);
+    List<SdcDuplicate> result = this.sdcDuplicatesService.getAllProvincialDuplicatesBySdcSchoolCollectionID(sdcSchoolCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
+    log.info("getSchoolCollectionProvincialDuplicates: Completed in {} ms for sdcSchoolCollectionID :: {}. Returned {} duplicates", System.currentTimeMillis() - startTime, sdcSchoolCollectionID, result.size());
+    return result;
   }
 
   @Override

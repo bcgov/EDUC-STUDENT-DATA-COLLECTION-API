@@ -18,6 +18,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 @Service
+@Slf4j
 public class CollectionService {
 
   @Getter(AccessLevel.PRIVATE)
@@ -209,9 +211,14 @@ public class CollectionService {
   }
 
   public List<String> findDuplicatesInCollection(UUID collectionID, List<String> matchedAssignedIDs) {
+    long startTime = System.currentTimeMillis();
+    log.info("CollectionService::findDuplicatesInCollection: Starting for collectionID :: {} with {} assignedIDs", collectionID, matchedAssignedIDs.size());
     List<UUID> matchedAssignedUUIDs = matchedAssignedIDs.stream().map(UUID::fromString).toList();
     List<SdcSchoolCollectionStudentEntity> duplicateStudents = sdcSchoolCollectionStudentRepository.findAllDuplicateStudentsByCollectionID(collectionID, matchedAssignedUUIDs);
-    return duplicateStudents.stream().map(s -> s.getAssignedStudentId().toString()).toList();
+    log.info("CollectionService::findDuplicatesInCollection: DB query took {} ms, found {} duplicate students for collectionID :: {}", System.currentTimeMillis() - startTime, duplicateStudents.size(), collectionID);
+    List<String> result = duplicateStudents.stream().map(s -> s.getAssignedStudentId().toString()).toList();
+    log.info("CollectionService::findDuplicatesInCollection: Completed in {} ms for collectionID :: {}", System.currentTimeMillis() - startTime, collectionID);
+    return result;
   }
 
   public List<SdcSchoolCollectionEntity> getSchoolCollectionsInCollection(UUID collectionID){

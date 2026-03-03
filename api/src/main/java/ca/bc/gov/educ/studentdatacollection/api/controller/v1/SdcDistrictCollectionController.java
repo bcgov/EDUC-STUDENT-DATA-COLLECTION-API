@@ -20,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
+@Slf4j
 public class SdcDistrictCollectionController implements SdcDistrictCollectionEndpoint {
 
   private static final SdcDistrictCollectionMapper mapper = SdcDistrictCollectionMapper.mapper;
@@ -57,7 +59,11 @@ public class SdcDistrictCollectionController implements SdcDistrictCollectionEnd
 
   @Override
   public List<SdcDuplicate> getDistrictCollectionProvincialDuplicates(UUID sdcDistrictCollectionID) {
-    return this.sdcDuplicatesService.getAllProvincialDuplicatesBySdcDistrictCollectionID(sdcDistrictCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
+    long startTime = System.currentTimeMillis();
+    log.info("getDistrictCollectionProvincialDuplicates: Received request for sdcDistrictCollectionID :: {}", sdcDistrictCollectionID);
+    List<SdcDuplicate> result = this.sdcDuplicatesService.getAllProvincialDuplicatesBySdcDistrictCollectionID(sdcDistrictCollectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
+    log.info("getDistrictCollectionProvincialDuplicates: Completed in {} ms for sdcDistrictCollectionID :: {}. Returned {} duplicates", System.currentTimeMillis() - startTime, sdcDistrictCollectionID, result.size());
+    return result;
   }
 
   @Override

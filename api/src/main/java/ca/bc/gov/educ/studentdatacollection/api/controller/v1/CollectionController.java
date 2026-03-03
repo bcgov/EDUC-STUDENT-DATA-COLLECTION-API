@@ -131,7 +131,11 @@ public class CollectionController implements CollectionEndpoint {
 
   @Override
   public List<String> findDuplicatesInCollection(UUID collectionID, List<String> matchedAssignedIDs) {
-    return this.collectionService.findDuplicatesInCollection(collectionID, matchedAssignedIDs);
+    long startTime = System.currentTimeMillis();
+    log.info("CollectionController::findDuplicatesInCollection: Received request for collectionID :: {} with {} assignedIDs", collectionID, matchedAssignedIDs.size());
+    List<String> result = this.collectionService.findDuplicatesInCollection(collectionID, matchedAssignedIDs);
+    log.info("CollectionController::findDuplicatesInCollection: Completed in {} ms for collectionID :: {}. Returned {} duplicates", System.currentTimeMillis() - startTime, collectionID, result.size());
+    return result;
   }
 
   private void validatePayload(Supplier<List<FieldError>> validator) {

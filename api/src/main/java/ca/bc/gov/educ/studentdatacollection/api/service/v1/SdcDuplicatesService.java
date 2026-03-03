@@ -77,14 +77,26 @@ public class SdcDuplicatesService {
   }
 
   public List<SdcDuplicateEntity> getAllProvincialDuplicatesBySdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
+    long startTime = System.currentTimeMillis();
+    log.info("getAllProvincialDuplicatesBySdcDistrictCollectionID: Starting provincial duplicates retrieval for sdcDistrictCollectionID :: {}", sdcDistrictCollectionID);
     var districtCollection = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID).orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionEntity", sdcDistrictCollectionID.toString()));
-    List<UUID> ids = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentIdsInSdcDistrictCollection(districtCollection.getCollectionEntity().getCollectionID(), sdcDistrictCollectionID);
 
-    List<SdcSchoolCollectionStudentLightEntity> provinceDupes = ids.isEmpty()
-            ? List.of()
-            : sdcSchoolCollectionStudentLightRepository.findAllById(ids);
-    
+    long idQueryStart = System.currentTimeMillis();
+    List<UUID> ids = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentIdsInSdcDistrictCollection(districtCollection.getCollectionEntity().getCollectionID(), sdcDistrictCollectionID);
+    log.info("getAllProvincialDuplicatesBySdcDistrictCollectionID: DB query findAllInProvinceDuplicateStudentIdsInSdcDistrictCollection took {} ms, found {} IDs for sdcDistrictCollectionID :: {}", System.currentTimeMillis() - idQueryStart, ids.size(), sdcDistrictCollectionID);
+
+    List<SdcSchoolCollectionStudentLightEntity> provinceDupes;
+    if (ids.isEmpty()) {
+      provinceDupes = List.of();
+    } else {
+      long entityQueryStart = System.currentTimeMillis();
+      provinceDupes = sdcSchoolCollectionStudentLightRepository.findAllById(ids);
+      log.info("getAllProvincialDuplicatesBySdcDistrictCollectionID: DB query findAllById took {} ms, fetched {} light entities for sdcDistrictCollectionID :: {}", System.currentTimeMillis() - entityQueryStart, provinceDupes.size(), sdcDistrictCollectionID);
+    }
+
+    long generateStart = System.currentTimeMillis();
     var dupes = generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
+    log.info("getAllProvincialDuplicatesBySdcDistrictCollectionID: generateFinalDuplicatesSet took {} ms, produced {} duplicates for sdcDistrictCollectionID :: {}", System.currentTimeMillis() - generateStart, dupes.size(), sdcDistrictCollectionID);
 
     var finalSet = new HashSet<SdcDuplicateEntity>();
     dupes.forEach(dupe -> {
@@ -95,14 +107,22 @@ public class SdcDuplicatesService {
       });
     });
 
+    log.info("getAllProvincialDuplicatesBySdcDistrictCollectionID: Completed in {} ms for sdcDistrictCollectionID :: {}. Total duplicates found :: {}", System.currentTimeMillis() - startTime, sdcDistrictCollectionID, finalSet.size());
     return finalSet.stream().toList();
   }
 
   public List<SdcDuplicateEntity> getAllProvincialDuplicatesBySdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
+    long startTime = System.currentTimeMillis();
+    log.info("getAllProvincialDuplicatesBySdcSchoolCollectionID: Starting provincial duplicates retrieval for sdcSchoolCollectionID :: {}", sdcSchoolCollectionID);
     var schoolCollection = sdcSchoolCollectionRepository.findById(sdcSchoolCollectionID).orElseThrow(() -> new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionEntity", sdcSchoolCollectionID.toString()));
-    List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInSdcSchoolCollection(schoolCollection.getCollectionEntity().getCollectionID(), sdcSchoolCollectionID);
 
+    long dbQueryStart = System.currentTimeMillis();
+    List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentsInSdcSchoolCollection(schoolCollection.getCollectionEntity().getCollectionID(), sdcSchoolCollectionID);
+    log.info("getAllProvincialDuplicatesBySdcSchoolCollectionID: DB query findAllInProvinceDuplicateStudentsInSdcSchoolCollection took {} ms, found {} students for sdcSchoolCollectionID :: {}", System.currentTimeMillis() - dbQueryStart, provinceDupes.size(), sdcSchoolCollectionID);
+
+    long generateStart = System.currentTimeMillis();
     var dupes = generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
+    log.info("getAllProvincialDuplicatesBySdcSchoolCollectionID: generateFinalDuplicatesSet took {} ms, produced {} duplicates for sdcSchoolCollectionID :: {}", System.currentTimeMillis() - generateStart, dupes.size(), sdcSchoolCollectionID);
 
     var finalSet = new HashSet<SdcDuplicateEntity>();
     dupes.forEach(dupe -> {
@@ -113,6 +133,7 @@ public class SdcDuplicatesService {
       });
     });
 
+    log.info("getAllProvincialDuplicatesBySdcSchoolCollectionID: Completed in {} ms for sdcSchoolCollectionID :: {}. Total duplicates found :: {}", System.currentTimeMillis() - startTime, sdcSchoolCollectionID, finalSet.size());
     return finalSet.stream().toList();
   }
 
@@ -205,7 +226,7 @@ public class SdcDuplicatesService {
 
     List<SdcSchoolCollectionStudentLightEntity> provinceDupes = findAllInProvinceDuplicateStudentsInCollection(collectionID);
 
-    List<SdcDuplicateEntity> finalDuplicatesSet =  generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
+    List<SdcDuplicateEntity> finalDuplicatesSet = generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
     sdcDuplicateRepository.saveAll(finalDuplicatesSet);
 
     this.collectionRepository.updateCollectionStatus(collectionID, String.valueOf(CollectionStatus.PROVDUPES));
@@ -244,12 +265,17 @@ public class SdcDuplicatesService {
   }
 
   public List<SdcDuplicateEntity> generateFinalDuplicatesSet(List<SdcSchoolCollectionStudentLightEntity> duplicateStudentEntities, DuplicateLevelCode duplicateLevelCode) {
+    long startTime = System.currentTimeMillis();
+    log.info("generateFinalDuplicatesSet: Starting with {} students at level :: {}", duplicateStudentEntities.size(), duplicateLevelCode);
     HashMap<UUID, List<SdcSchoolCollectionStudentLightEntity>> groupedDups = new HashMap<>();
 
     for (SdcSchoolCollectionStudentLightEntity student : duplicateStudentEntities) {
       groupedDups.computeIfAbsent(student.getAssignedStudentId(), k -> new ArrayList<>()).add(student);
     }
+    log.info("generateFinalDuplicatesSet: Grouped into {} unique assigned student IDs in {} ms", groupedDups.size(), System.currentTimeMillis() - startTime);
+
     List<SdcDuplicateEntity> finalDuplicatesSet = new ArrayList<>();
+    int pairsChecked = 0;
 
     for (List<SdcSchoolCollectionStudentLightEntity> group : groupedDups.values()) {
       for (int i = 0; i < group.size(); i++) {
@@ -258,10 +284,12 @@ public class SdcDuplicatesService {
           SdcSchoolCollectionStudentLightEntity entity2 = group.get(j);
           List<SdcDuplicateEntity> duplicateRecords = runDuplicatesCheck(duplicateLevelCode, entity1, entity2);
           finalDuplicatesSet.addAll(duplicateRecords);
+          pairsChecked++;
         }
       }
     }
 
+    log.info("generateFinalDuplicatesSet: Completed in {} ms. Checked {} pairs, generated {} duplicate records at level :: {}", System.currentTimeMillis() - startTime, pairsChecked, finalDuplicatesSet.size(), duplicateLevelCode);
     return finalDuplicatesSet;
   }
 
@@ -346,6 +374,7 @@ public class SdcDuplicatesService {
   }
 
   public List<SdcDuplicateEntity> runDuplicatesCheck(DuplicateLevelCode level, SdcSchoolCollectionStudentLightEntity entity1, SdcSchoolCollectionStudentLightEntity entity2){
+    long startTime = System.currentTimeMillis();
     List<SdcDuplicateEntity> dups = new ArrayList<>();
     SchoolTombstone schoolTombstone1 = restUtils.getSchoolBySchoolID(entity1.getSdcSchoolCollectionEntitySchoolID().toString()).orElseThrow(() ->
             new StudentDataCollectionAPIRuntimeException("School provided by ID " + entity1.getSdcSchoolCollectionEntitySchoolID() + "was not found - this is not expected"));
@@ -427,10 +456,13 @@ public class SdcDuplicatesService {
       }
     }
 
+    log.debug("runDuplicatesCheck: Completed in {} ms for assignedStudentId :: {}. Found {} duplicates at level :: {}", System.currentTimeMillis() - startTime, entity1.getAssignedStudentId(), dups.size(), level);
     return dups;
   }
 
   private List<SdcDuplicateEntity> generateProgramDuplicates(List<SdcDuplicateEntity> newDuplicates, SdcSchoolCollectionStudentLightEntity student1, SdcSchoolCollectionStudentLightEntity student2, DuplicateLevelCode level) {
+    long startTime = System.currentTimeMillis();
+    int initialSize = newDuplicates.size();
     List<String> student1Programs = validationRulesService.splitEnrolledProgramsString(student1.getEnrolledProgramCodes());
     List<String> student2Programs = validationRulesService.splitEnrolledProgramsString(student2.getEnrolledProgramCodes());
 
@@ -461,6 +493,7 @@ public class SdcDuplicatesService {
       newDuplicates.add(generateDuplicateEntity(level, student1, student2, DuplicateTypeCode.PROGRAM, DuplicateSeverityCode.NON_ALLOWABLE, ProgramDuplicateTypeCode.CAREER, null));
     }
 
+    log.debug("generateProgramDuplicates: Completed in {} ms for assignedStudentId :: {}. Added {} program duplicates at level :: {}", System.currentTimeMillis() - startTime, student1.getAssignedStudentId(), newDuplicates.size() - initialSize, level);
     return newDuplicates;
   }
 
