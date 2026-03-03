@@ -318,34 +318,39 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<SdcSchoolCollectionStudentLightEntity> findAllInProvinceDuplicateStudentsInSdcSchoolCollection(UUID collectionID, UUID sdcSchoolCollectionID);
 
   @Query(value = """
-    WITH province_dupes AS MATERIALIZED (
-        SELECT s.assigned_student_id
-        FROM sdc_school_collection_student s
-        JOIN sdc_school_collection sc ON sc.sdc_school_collection_id = s.sdc_school_collection_id
-        WHERE sc.collection_id = :collectionID
-        AND s.sdc_school_collection_student_status_code != 'DELETED'
-        AND s.assigned_student_id IS NOT NULL
-        GROUP BY s.assigned_student_id
+      WITH all_school_collections_in_collection AS (
+        SELECT sc.SDC_SCHOOL_COLLECTION_ID
+        FROM SDC_SCHOOL_COLLECTION sc
+        WHERE sc.COLLECTION_ID = :collectionID
+      ),
+      school_collections_in_district AS (
+        SELECT sc.SDC_SCHOOL_COLLECTION_ID
+        FROM SDC_SCHOOL_COLLECTION sc
+        WHERE sc.COLLECTION_ID = :collectionID
+          AND sc.SDC_DISTRICT_COLLECTION_ID = :sdcDistrictCollectionID
+      ),
+      province_wide_duplicate_assigned_ids AS (
+        SELECT s.ASSIGNED_STUDENT_ID
+        FROM SDC_SCHOOL_COLLECTION_STUDENT s
+        WHERE s.SDC_SCHOOL_COLLECTION_ID IN (SELECT SDC_SCHOOL_COLLECTION_ID FROM all_school_collections_in_collection)
+          AND s.ASSIGNED_STUDENT_ID IS NOT NULL
+          AND s.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE <> 'DELETED'
+        GROUP BY s.ASSIGNED_STUDENT_ID
         HAVING COUNT(*) > 1
-    ),
-    district_dupes AS MATERIALIZED (
-        SELECT DISTINCT s.assigned_student_id
-        FROM sdc_school_collection_student s
-        JOIN sdc_school_collection sc ON sc.sdc_school_collection_id = s.sdc_school_collection_id
-        WHERE sc.collection_id = :collectionID
-        AND sc.sdc_district_collection_id = :sdcDistrictCollectionID
-        AND s.sdc_school_collection_student_status_code != 'DELETED'
-        AND s.assigned_student_id IS NOT NULL
-        AND s.assigned_student_id IN (SELECT assigned_student_id FROM province_dupes)
-    )
-    SELECT s.sdc_school_collection_student_id
-    FROM sdc_school_collection_student s
-    JOIN sdc_school_collection sc ON sc.sdc_school_collection_id = s.sdc_school_collection_id
-    WHERE sc.collection_id = :collectionID
-    AND s.sdc_school_collection_student_status_code != 'DELETED'
-    AND s.assigned_student_id IS NOT NULL
-    AND s.assigned_student_id IN (SELECT assigned_student_id FROM district_dupes)
-    """, nativeQuery = true)
+      ),
+      district_relevant_duplicate_assigned_ids AS (
+        SELECT DISTINCT s.ASSIGNED_STUDENT_ID
+        FROM SDC_SCHOOL_COLLECTION_STUDENT s
+        WHERE s.SDC_SCHOOL_COLLECTION_ID IN (SELECT SDC_SCHOOL_COLLECTION_ID FROM school_collections_in_district)
+          AND s.ASSIGNED_STUDENT_ID IN (SELECT ASSIGNED_STUDENT_ID FROM province_wide_duplicate_assigned_ids)
+          AND s.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE <> 'DELETED'
+      )
+      SELECT s.SDC_SCHOOL_COLLECTION_STUDENT_ID
+      FROM SDC_SCHOOL_COLLECTION_STUDENT s
+      WHERE s.SDC_SCHOOL_COLLECTION_ID IN (SELECT SDC_SCHOOL_COLLECTION_ID FROM all_school_collections_in_collection)
+        AND s.ASSIGNED_STUDENT_ID IN (SELECT ASSIGNED_STUDENT_ID FROM district_relevant_duplicate_assigned_ids)
+        AND s.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE <> 'DELETED'
+      """, nativeQuery = true)
   List<UUID> findAllInProvinceDuplicateStudentIdsInSdcDistrictCollection(
           UUID collectionID,
           UUID sdcDistrictCollectionID
