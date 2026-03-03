@@ -318,25 +318,25 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<SdcSchoolCollectionStudentLightEntity> findAllInProvinceDuplicateStudentsInSdcSchoolCollection(UUID collectionID, UUID sdcSchoolCollectionID);
 
   @Query(value = """
-    WITH district_students AS MATERIALIZED (
+    WITH province_dupes AS MATERIALIZED (
         SELECT s.assigned_student_id
+        FROM sdc_school_collection_student s
+        JOIN sdc_school_collection sc ON sc.sdc_school_collection_id = s.sdc_school_collection_id
+        WHERE sc.collection_id = :collectionID
+        AND s.sdc_school_collection_student_status_code != 'DELETED'
+        AND s.assigned_student_id IS NOT NULL
+        GROUP BY s.assigned_student_id
+        HAVING COUNT(*) > 1
+    ),
+    district_dupes AS MATERIALIZED (
+        SELECT DISTINCT s.assigned_student_id
         FROM sdc_school_collection_student s
         JOIN sdc_school_collection sc ON sc.sdc_school_collection_id = s.sdc_school_collection_id
         WHERE sc.collection_id = :collectionID
         AND sc.sdc_district_collection_id = :sdcDistrictCollectionID
         AND s.sdc_school_collection_student_status_code != 'DELETED'
         AND s.assigned_student_id IS NOT NULL
-    ),
-    province_dupes AS MATERIALIZED (
-        SELECT s.assigned_student_id
-        FROM sdc_school_collection_student s
-        JOIN sdc_school_collection sc ON sc.sdc_school_collection_id = s.sdc_school_collection_id
-        WHERE sc.collection_id = :collectionID
-        AND s.sdc_school_collection_student_status_code != 'DELETED'
-        AND s.assigned_student_id IS NOT NULL
-        AND s.assigned_student_id IN (SELECT assigned_student_id FROM district_students)
-        GROUP BY s.assigned_student_id
-        HAVING COUNT(*) > 1
+        AND s.assigned_student_id IN (SELECT assigned_student_id FROM province_dupes)
     )
     SELECT s.sdc_school_collection_student_id
     FROM sdc_school_collection_student s
@@ -344,7 +344,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
     WHERE sc.collection_id = :collectionID
     AND s.sdc_school_collection_student_status_code != 'DELETED'
     AND s.assigned_student_id IS NOT NULL
-    AND s.assigned_student_id IN (SELECT assigned_student_id FROM province_dupes)
+    AND s.assigned_student_id IN (SELECT assigned_student_id FROM district_dupes)
     """, nativeQuery = true)
   List<UUID> findAllInProvinceDuplicateStudentIdsInSdcDistrictCollection(
           UUID collectionID,
