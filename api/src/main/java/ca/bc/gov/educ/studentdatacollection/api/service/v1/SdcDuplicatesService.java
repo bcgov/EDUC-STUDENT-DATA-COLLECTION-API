@@ -80,24 +80,29 @@ public class SdcDuplicatesService {
     long startTime = System.currentTimeMillis();
     log.info("getAllProvincialDuplicatesBySdcDistrictCollectionID: Starting provincial duplicates retrieval for sdcDistrictCollectionID :: {}", sdcDistrictCollectionID);
     var districtCollection = sdcDistrictCollectionRepository.findById(sdcDistrictCollectionID).orElseThrow(() -> new EntityNotFoundException(SdcDistrictCollectionEntity.class, "sdcDistrictCollectionEntity", sdcDistrictCollectionID.toString()));
+    UUID collectionID = districtCollection.getCollectionEntity().getCollectionID();
 
+    // Get district-scoped provincial duplicate student IDs
     long idQueryStart = System.currentTimeMillis();
-    List<UUID> ids = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentIdsInSdcDistrictCollection(districtCollection.getCollectionEntity().getCollectionID(), sdcDistrictCollectionID);
-    log.info("getAllProvincialDuplicatesBySdcDistrictCollectionID: DB query findAllInProvinceDuplicateStudentIdsInSdcDistrictCollection took {} ms, found {} IDs for sdcDistrictCollectionID :: {}", System.currentTimeMillis() - idQueryStart, ids.size(), sdcDistrictCollectionID);
+    List<UUID> districtProvinceDupeIds = sdcSchoolCollectionStudentRepository.findAllInProvinceDuplicateStudentIdsInSdcDistrictCollection(collectionID, sdcDistrictCollectionID);
+    log.info("getAllProvincialDuplicatesBySdcDistrictCollectionID: DB query findAllInProvinceDuplicateStudentIdsInSdcDistrictCollection took {} ms, found {} IDs for sdcDistrictCollectionID :: {}", System.currentTimeMillis() - idQueryStart, districtProvinceDupeIds.size(), sdcDistrictCollectionID);
 
-    List<SdcSchoolCollectionStudentLightEntity> provinceDupes;
-    if (ids.isEmpty()) {
-      provinceDupes = List.of();
-    } else {
-      long entityQueryStart = System.currentTimeMillis();
-      provinceDupes = sdcSchoolCollectionStudentLightRepository.findAllById(ids);
-      log.info("getAllProvincialDuplicatesBySdcDistrictCollectionID: DB query findAllById took {} ms, fetched {} light entities for sdcDistrictCollectionID :: {}", System.currentTimeMillis() - entityQueryStart, provinceDupes.size(), sdcDistrictCollectionID);
+    if (districtProvinceDupeIds.isEmpty()) {
+      log.info("getAllProvincialDuplicatesBySdcDistrictCollectionID: Completed in {} ms for sdcDistrictCollectionID :: {}. Total duplicates found :: 0", System.currentTimeMillis() - startTime, sdcDistrictCollectionID);
+      return List.of();
     }
 
+    // Fetch  the district-relevant light entities
+    long entityQueryStart = System.currentTimeMillis();
+    List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcSchoolCollectionStudentLightRepository.findAllById(districtProvinceDupeIds);
+    log.info("getAllProvincialDuplicatesBySdcDistrictCollectionID: DB query findAllById took {} ms, fetched {} light entities for sdcDistrictCollectionID :: {}", System.currentTimeMillis() - entityQueryStart, provinceDupes.size(), sdcDistrictCollectionID);
+
+    // Generate duplicate entities from the scoped set
     long generateStart = System.currentTimeMillis();
     var dupes = generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
     log.info("getAllProvincialDuplicatesBySdcDistrictCollectionID: generateFinalDuplicatesSet took {} ms, produced {} duplicates for sdcDistrictCollectionID :: {}", System.currentTimeMillis() - generateStart, dupes.size(), sdcDistrictCollectionID);
 
+    // Keep only duplicates where at least one student belongs to this district
     var finalSet = new HashSet<SdcDuplicateEntity>();
     dupes.forEach(dupe -> {
       dupe.getSdcDuplicateStudentEntities().forEach(stud -> {
