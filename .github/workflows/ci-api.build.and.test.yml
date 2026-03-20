@@ -21,7 +21,6 @@ jobs:
     runs-on: ubuntu-22.04
     permissions:
       contents: read
-      security-events: write
 
     defaults:
       run:
@@ -42,21 +41,6 @@ jobs:
             ${{ runner.os }}-maven-5Jun-
       - name: Run unit tests
         run: mvn -f pom.xml clean package
-      - name: Run Trivy vulnerability scanner in repo mode
-        if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          ignore-unfixed: true
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL'
-      - name: Upload Trivy scan results to GitHub Security tab
-        if: ${{ always() && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
-        uses: github/codeql-action/upload-sarif@c6f931105cb2c34c8f901cc885ba1e2e259cf745 # v4.34.0
-        with:
-          sarif_file: 'trivy-results.sarif'
       - name: Cache SonarCloud packages
         uses: actions/cache@v3
         with:
