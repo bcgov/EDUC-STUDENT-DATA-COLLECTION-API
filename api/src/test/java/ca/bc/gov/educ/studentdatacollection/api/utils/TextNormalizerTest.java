@@ -10,10 +10,21 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TextNormalizerTest {
+    static class SchoolNameList extends ArrayList<String> {}
+    static class BandNameMap extends HashMap<String, String> {}
+    static class SchoolNodeSet extends HashSet<HeadcountChildNode> {}
+
+    static class SchoolBatch {
+        String[] names;
+        SchoolBatch(String... names) { this.names = names; }
+    }
 
     private static String toNFD(String s) {
         return Normalizer.normalize(s, Normalizer.Form.NFD);
@@ -164,5 +175,54 @@ class TextNormalizerTest {
         TextNormalizer.normalizeObject(a);
 
         assertIsNFC(a.getReport().getDistrictNumberAndName());
+    }
+
+    @Test
+    void normalizeObject_stringArrayField_elementsNormalized() {
+        SchoolBatch batch = new SchoolBatch(
+                toNFD("04802060 - E\u0301cole Francophone"),
+                toNFD("Sto:lo\u0301 Community School"),
+                "Already NFC School");
+
+        TextNormalizer.normalizeObject(batch);
+
+        for (String name : batch.names) {
+            assertIsNFC(name);
+        }
+    }
+
+    @Test
+    void normalizeObject_customListOfSchoolNames_elementsNormalized() {
+        SchoolNameList list = new SchoolNameList();
+        list.add(toNFD("Gwa\u0301sala School"));
+        list.add(toNFD("E\u0301cole Secondaire"));
+        list.add("Already NFC");
+
+        TextNormalizer.normalizeObject(list);
+
+        list.forEach(name -> assertIsNFC(name));
+    }
+
+    @Test
+    void normalizeObject_customSetOfChildNodes_pojoElementsNormalized() {
+        HeadcountChildNode node = new HeadcountChildNode(
+                toNFD("q\u0313ay\u0301 First Nations"), "true", "00");
+        SchoolNodeSet set = new SchoolNodeSet();
+        set.add(node);
+
+        TextNormalizer.normalizeObject(set);
+
+        assertIsNFC(node.getTypeOfProgram());
+    }
+
+    @Test
+    void normalizeObject_customMapOfBandNames_valuesNormalized() {
+        BandNameMap map = new BandNameMap();
+        map.put("0610", toNFD("Ktunaxa Nation - q\u0313ay\u0301"));
+        map.put("0620", "Already NFC Band");
+
+        TextNormalizer.normalizeObject(map);
+
+        map.values().forEach(v -> assertIsNFC(v));
     }
 }
