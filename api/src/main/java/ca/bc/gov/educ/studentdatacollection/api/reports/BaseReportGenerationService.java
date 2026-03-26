@@ -3,6 +3,7 @@ package ca.bc.gov.educ.studentdatacollection.api.reports;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolCategoryCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.util.TextNormalizer;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionRepository;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -52,7 +54,7 @@ public abstract class BaseReportGenerationService<T> {
   protected DownloadableReportResponse generateJasperReport(String reportJSON, JasperReport jasperReport, String schoolReportTypeCode){
     try{
       var params = getJasperParams();
-      InputStream targetStream = new ByteArrayInputStream(reportJSON.getBytes());
+      InputStream targetStream = new ByteArrayInputStream(reportJSON.getBytes(StandardCharsets.UTF_8));
       params.put(JsonQueryExecuterFactory.JSON_INPUT_STREAM, targetStream);
 
       JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, params);
@@ -81,6 +83,7 @@ public abstract class BaseReportGenerationService<T> {
 
     reportNode.setPrograms(nodeMap.values().stream().sorted(Comparator.comparing(o -> Integer.parseInt(o.getSequence()))).toList());
     mainNode.setReport(reportNode);
+    TextNormalizer.normalizeObject(mainNode);
     return objectWriter.writeValueAsString(mainNode);
   }
 
@@ -95,6 +98,7 @@ public abstract class BaseReportGenerationService<T> {
 
     reportNode.setPrograms(nodeMap.values().stream().sorted(Comparator.comparing(o -> Integer.parseInt(o.getSequence()))).toList());
     mainNode.setReport(reportNode);
+    TextNormalizer.normalizeObject(mainNode);
     return objectWriter.writeValueAsString(mainNode);
   }
 
