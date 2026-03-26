@@ -26,6 +26,19 @@ class TextNormalizerTest {
         SchoolBatch(String... names) { this.names = names; }
     }
 
+    static class SchoolReportMap extends HashMap<String, HeadcountReportNode> {}
+
+    static class ReportBatch {
+        HeadcountReportNode[] nodes;
+        ReportBatch(HeadcountReportNode... nodes) { this.nodes = nodes; }
+    }
+
+    static class SelfRefNode {
+        String name;
+        SelfRefNode self;
+        SelfRefNode(String name) { this.name = name; this.self = this; }
+    }
+
     private static String toNFD(String s) {
         return Normalizer.normalize(s, Normalizer.Form.NFD);
     }
@@ -224,5 +237,49 @@ class TextNormalizerTest {
         TextNormalizer.normalizeObject(map);
 
         map.values().forEach(v -> assertIsNFC(v));
+    }
+
+    @Test
+    void normalizeObject_mapWithNfdKey_keyReplacedWithNfc() {
+        BandNameMap map = new BandNameMap();
+        String nfdKey = "e\u0301cole";          // 'e' + U+0301 combining acute (NFD)
+        map.put(nfdKey, "Some School");
+
+        TextNormalizer.normalizeObject(map);
+
+        assertThat(map).containsKey("\u00E9cole");   // U+00E9 = precomposed é (NFC)
+        assertThat(map).doesNotContainKey(nfdKey);
+    }
+
+    @Test
+    void normalizeObject_mapWithPojoValues_pojoFieldsNormalized() {
+        HeadcountReportNode node = new HeadcountReportNode();
+        node.setSchoolMincodeAndName(toNFD("E\u0301cole Secondaire"));
+        SchoolReportMap map = new SchoolReportMap();
+        map.put("school1", node);
+
+        TextNormalizer.normalizeObject(map);
+
+        assertIsNFC(map.get("school1").getSchoolMincodeAndName());
+    }
+
+    @Test
+    void normalizeObject_arrayOfPojos_elementsNormalized() {
+        HeadcountReportNode node = new HeadcountReportNode();
+        node.setSchoolMincodeAndName(toNFD("E\u0301cole Secondaire"));
+        ReportBatch batch = new ReportBatch(node);
+
+        TextNormalizer.normalizeObject(batch);
+
+        assertIsNFC(batch.nodes[0].getSchoolMincodeAndName());
+    }
+
+    @Test
+    void normalizeObject_trueCyclicReference_doesNotThrow() {
+        SelfRefNode node = new SelfRefNode(toNFD("E\u0301cole"));
+
+        TextNormalizer.normalizeObject(node);
+
+        assertIsNFC(node.name);
     }
 }
