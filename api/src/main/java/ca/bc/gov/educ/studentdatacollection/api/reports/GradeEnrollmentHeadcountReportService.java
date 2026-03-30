@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
+import ca.bc.gov.educ.studentdatacollection.api.util.TextNormalizer;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
@@ -106,6 +107,7 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
 
     reportNode.setPrograms(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
     mainNode.setReport(reportNode);
+    TextNormalizer.normalizeObject(mainNode);
     return objectWriter.writeValueAsString(mainNode);
   }
 
@@ -124,6 +126,7 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
 
     reportNode.setPrograms(nodeMap.values().stream().sorted((o1, o2)->o1.getSequence().compareTo(o2.getSequence())).toList());
     mainNode.setReport(reportNode);
+    TextNormalizer.normalizeObject(mainNode);
     return objectWriter.writeValueAsString(mainNode);
   }
 
