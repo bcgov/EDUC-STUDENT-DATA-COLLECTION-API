@@ -460,6 +460,20 @@ public abstract class BaseStudentDataCollectionAPITest {
   }
 
   @SneakyThrows
+  protected SdcSagaEntity createMockDistrictSignoffNotificationEmailSaga(final EmailSagaData emailSagaData) {
+    return SdcSagaEntity.builder()
+            .updateDate(LocalDateTime.now().minusMinutes(15))
+            .createUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+            .updateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API)
+            .createDate(LocalDateTime.now().minusMinutes(15))
+            .sagaName(SagaEnum.DISTRICT_SIGNOFF_NOTIFICATION_EMAIL_SAGA.toString())
+            .status(SagaStatusEnum.IN_PROGRESS.toString())
+            .sagaState(EventType.INITIATED.toString())
+            .payload(JsonUtil.getJsonStringFromObject(emailSagaData))
+            .build();
+  }
+
+  @SneakyThrows
   protected SdcSagaEntity createMockCloseCollectionSaga(final CollectionSagaData sagaData) {
     return SdcSagaEntity.builder()
             .updateDate(LocalDateTime.now().minusMinutes(15))

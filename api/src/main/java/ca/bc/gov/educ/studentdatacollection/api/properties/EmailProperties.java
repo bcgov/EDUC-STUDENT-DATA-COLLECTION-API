@@ -26,6 +26,9 @@ public class EmailProperties {
   @Value("${email.closure.notification.to}")
   private String closureNotificationTo;
 
+  @Value("${email.subject.collection.district.signoff.notification}")
+  private String emailSubjectDistrictSignoffNotification;
+
 }
 
 
