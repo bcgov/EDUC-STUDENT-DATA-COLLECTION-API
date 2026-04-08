@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.util;
 
 
+import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import java.lang.reflect.Field;
 import java.text.Normalizer;
 import java.util.*;
@@ -36,7 +37,7 @@ public class TextNormalizer {
         try {
             normalizeRecursive(obj, new HashSet<>());
         } catch (Exception e) {
-            throw new RuntimeException("Failed to normalize object", e);
+            throw new StudentDataCollectionAPIRuntimeException("Failed to normalize object: " + e);
         }
 
         return obj;
