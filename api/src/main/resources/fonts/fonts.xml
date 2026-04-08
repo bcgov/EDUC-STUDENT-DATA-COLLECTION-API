@@ -5,7 +5,7 @@
 		<bold><![CDATA[fonts/BCSans/2023_01_01_BCSans-Bold_2f.ttf]]></bold>
 		<italic><![CDATA[fonts/BCSans/2023_01_01_BCSans-Italic_2f.ttf]]></italic>
 		<boldItalic><![CDATA[fonts/BCSans/2023_01_01_BCSans-Italic_2f.ttf]]></boldItalic>
-		<pdfEncoding><![CDATA[Cp1252]]></pdfEncoding>
+		<pdfEncoding><![CDATA[Identity-H]]></pdfEncoding>
 		<pdfEmbedded><![CDATA[true]]></pdfEmbedded>
 		<exportFonts/>
 	</fontFamily>
