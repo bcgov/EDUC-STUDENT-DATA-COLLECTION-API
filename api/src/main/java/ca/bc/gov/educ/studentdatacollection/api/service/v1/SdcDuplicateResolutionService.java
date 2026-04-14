@@ -52,56 +52,99 @@ public class SdcDuplicateResolutionService {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void resolveRemainingDuplicates(UUID collectionID){
+    log.info("[RESOLVE-REMAINING-DUPES] resolveRemainingDuplicates called for collectionID :: {}", collectionID);
     Optional<CollectionEntity> activeCollection = collectionRepository.findActiveCollection();
 
     if(activeCollection.isPresent()){
+      log.info("[RESOLVE-REMAINING-DUPES] Active collection found :: {}, status :: {}", activeCollection.get().getCollectionID(), activeCollection.get().getCollectionStatusCode());
       if(!activeCollection.get().getCollectionID().equals(collectionID)) {
+        log.warn("[RESOLVE-REMAINING-DUPES] collectionID mismatch — active :: {}, provided :: {}", activeCollection.get().getCollectionID(), collectionID);
         throw new InvalidParameterException(COLLECTION_ID_NOT_ACTIVE_MSG);
       }else if(activeCollection.get().getCollectionStatusCode().equals(CollectionStatus.INPROGRESS.getCode())){
+        log.warn("[RESOLVE-REMAINING-DUPES] Collection status is INPROGRESS — provincial duplicates not yet run, throwing");
         throw new InvalidParameterException("Provided collectionID has not yet run provincial duplicates.");
       }else if(activeCollection.get().getCollectionStatusCode().equals(CollectionStatus.DUPES_RES.getCode())){
+        log.warn("[RESOLVE-REMAINING-DUPES] Collection status is already DUPES_RES — throwing");
         throw new InvalidParameterException("Provided collectionID has already resolved all duplicates.");
       }
+    } else {
+      log.warn("[RESOLVE-REMAINING-DUPES] No active collection found!");
     }
 
     List<SdcSchoolCollectionStudentLightEntity> provinceDupes = sdcDuplicatesService.findAllInProvinceDuplicateStudentsInCollection(collectionID);
+    log.info("[RESOLVE-REMAINING-DUPES] Found {} province duplicate students for collectionID :: {}", provinceDupes.size(), collectionID);
     List<SdcDuplicateEntity> finalDuplicatesSet = sdcDuplicatesService.generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
+    log.info("[RESOLVE-REMAINING-DUPES] Generated {} final duplicate entities", finalDuplicatesSet.size());
 
     List<SdcDuplicateEntity> nonAllowableDupes = finalDuplicatesSet.stream().filter(duplicate ->
             (duplicate.getDuplicateSeverityCode().equals(DuplicateSeverityCode.NON_ALLOWABLE.getCode()) &&
                     duplicate.getDuplicateTypeCode().equals(DuplicateTypeCode.ENROLLMENT.getCode()))).toList();
+    log.info("[RESOLVE-REMAINING-DUPES] Resolving {} non-allowable enrollment duplicates", nonAllowableDupes.size());
     resolveEnrolmentDuplicates(nonAllowableDupes);
+    log.info("[RESOLVE-REMAINING-DUPES] Enrollment duplicates resolved");
+
     List<SdcDuplicateEntity> programDupes = finalDuplicatesSet.stream().filter(duplicate ->
             duplicate.getDuplicateTypeCode().equals(DuplicateTypeCode.PROGRAM.getCode())).toList();
+    log.info("[RESOLVE-REMAINING-DUPES] Resolving {} program duplicates", programDupes.size());
     resolveProgramDuplicates(programDupes);
+    log.info("[RESOLVE-REMAINING-DUPES] Program duplicates resolved");
 
     CollectionEntity collection = collectionRepository.findById(collectionID).orElse(null);
     if (collection != null) {
+      log.info("[RESOLVE-REMAINING-DUPES] Updating collection status to DUPES_RES");
       collection.setCollectionStatusCode(String.valueOf(CollectionStatus.DUPES_RES.getCode()));
       collectionRepository.save(collection);
+      log.info("[RESOLVE-REMAINING-DUPES] Collection status saved");
+    } else {
+      log.warn("[RESOLVE-REMAINING-DUPES] Collection not found by ID :: {} — cannot update status or send emails!", collectionID);
     }
 
     List<SdcSchoolCollectionEntity> schoolCollections = sdcSchoolCollectionRepository.findUncompletedSchoolCollections(collectionID);
+    log.info("[RESOLVE-REMAINING-DUPES] Updating {} uncompleted school collections to COMPLETED", schoolCollections.size());
     sdcSchoolCollectionService.updateSchoolCollectionStatuses(schoolCollections, SdcSchoolCollectionStatus.COMPLETED.getCode());
+    log.info("[RESOLVE-REMAINING-DUPES] School collections updated");
 
     if (collection != null && collection.getSignOffDueDate() != null) {
+      log.info("[RESOLVE-REMAINING-DUPES] signOffDueDate :: {} — calling sendDistrictSignoffNotificationEmails", collection.getSignOffDueDate());
       sendDistrictSignoffNotificationEmails(collectionID, formatter.format(collection.getSignOffDueDate()));
+      log.info("[RESOLVE-REMAINING-DUPES] sendDistrictSignoffNotificationEmails returned — done");
+    } else if (collection == null) {
+      log.warn("[RESOLVE-REMAINING-DUPES] collection is null — skipping district signoff emails");
+    } else {
+      log.warn("[RESOLVE-REMAINING-DUPES] collection.getSignOffDueDate() is null — skipping district signoff emails");
     }
   }
 
   private void sendDistrictSignoffNotificationEmails(UUID collectionID, String signOffDueDate) {
+    log.info("[DISTRICT-SIGNOFF] sendDistrictSignoffNotificationEmails called — collectionID :: {}, signOffDueDate :: {}", collectionID, signOffDueDate);
     List<SdcDistrictCollectionEntity> incompleteDistrictCollections = sdcDistrictCollectionRepository.findAllIncompleteDistrictCollections(collectionID);
+    log.info("[DISTRICT-SIGNOFF] Found {} incomplete district collections", incompleteDistrictCollections.size());
+    if (incompleteDistrictCollections.isEmpty()) {
+      log.warn("[DISTRICT-SIGNOFF] No incomplete district collections — no emails will be sent!");
+    }
     Map<UUID, Set<String>> districtCollectionEmailMap = new HashMap<>();
     for (SdcDistrictCollectionEntity districtCollection : incompleteDistrictCollections) {
       UUID districtID = districtCollection.getDistrictID();
+      UUID districtCollectionID = districtCollection.getSdcDistrictCollectionID();
+      log.info("[DISTRICT-SIGNOFF] Processing districtCollectionID :: {}, districtID :: {}, status :: {}", districtCollectionID, districtID, districtCollection.getSdcDistrictCollectionStatusCode());
       List<EdxUser> districtEdxUsers = restUtils.getEdxUsersForDistrict(districtID);
+      log.info("[DISTRICT-SIGNOFF] Found {} EDX users for districtID :: {}", districtEdxUsers.size(), districtID);
       Set<String> emails = sdcDuplicatesService.pluckEmailAddressesFromDistrict(districtEdxUsers);
+      log.info("[DISTRICT-SIGNOFF] Plucked {} DISTRICT_SDC emails for districtID :: {} :: {}", emails.size(), districtID, emails);
       if (!emails.isEmpty()) {
+        log.info("[DISTRICT-SIGNOFF] Adding districtCollectionID :: {} to email map", districtCollectionID);
         districtCollectionEmailMap.put(districtCollection.getSdcDistrictCollectionID(), emails);
+      } else {
+        log.warn("[DISTRICT-SIGNOFF] No DISTRICT_SDC emails for districtID :: {} — skipping", districtID);
       }
     }
+    log.info("[DISTRICT-SIGNOFF] districtCollectionEmailMap size :: {}", districtCollectionEmailMap.size());
     if (!districtCollectionEmailMap.isEmpty()) {
+      log.info("[DISTRICT-SIGNOFF] Calling createAndStartDistrictSignoffNotificationEmailSagas");
       scheduleHandlerService.createAndStartDistrictSignoffNotificationEmailSagas(districtCollectionEmailMap, signOffDueDate);
+      log.info("[DISTRICT-SIGNOFF] createAndStartDistrictSignoffNotificationEmailSagas returned");
+    } else {
+      log.warn("[DISTRICT-SIGNOFF] districtCollectionEmailMap is empty — no sagas will be created!");
     }
   }
 
