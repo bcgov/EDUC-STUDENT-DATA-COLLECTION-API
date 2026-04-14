@@ -18,8 +18,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStat
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.SchoolTombstone;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchRecord;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SdcSchoolCollectionStudent;
-import ca.bc.gov.educ.studentdatacollection.api.struct.v1.SoftDeleteRecordSet;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.*;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -508,6 +508,131 @@ class SdcDuplicateServiceTest extends BaseStudentDataCollectionAPITest {
 
     var updatedStudentEntity = sdcSchoolCollectionStudentRepository.findById(mockStudentEntity.getSdcSchoolCollectionStudentID());
     assertThat(updatedStudentEntity.get().getSdcSchoolCollectionStudentStatusCode()).isEqualTo(SdcSchoolStudentStatus.DELETED.toString());
+  }
+
+  // ---- pluckEmailAddressesFromDistrict tests ----
+
+  @Test
+  void testPluckEmailAddressesFromDistrict_userHasDistrictSDCAtTargetDistrict_shouldReturnEmail() {
+    UUID targetDistrict = UUID.randomUUID();
+    EdxUser user = createMockEdxUser(List.of(), List.of("DISTRICT_SDC"), null, targetDistrict);
+    user.setEmail("test@gov.bc.ca");
+
+    Set<String> emails = sdcDuplicateService.pluckEmailAddressesFromDistrict(List.of(user), targetDistrict);
+
+    assertThat(emails).containsExactly("test@gov.bc.ca");
+  }
+
+  @Test
+  void testPluckEmailAddressesFromDistrict_userHasDistrictSDCAtOtherDistrictOnly_shouldNotReturnEmail() {
+    UUID targetDistrict = UUID.randomUUID();
+    UUID otherDistrict = UUID.randomUUID();
+
+    // User is in the edxDistrictUserMap for targetDistrict (e.g. via EDX_DISTRICT_ADMIN),
+    // but only has DISTRICT_SDC at otherDistrict — the old bug would include them
+    EdxUser user = createMockEdxUserWithMultipleDistricts(
+        "wronguser@gov.bc.ca",
+        Map.of(
+            targetDistrict, List.of("EDX_DISTRICT_ADMIN"),
+            otherDistrict, List.of("DISTRICT_SDC")
+        )
+    );
+
+    Set<String> emails = sdcDuplicateService.pluckEmailAddressesFromDistrict(List.of(user), targetDistrict);
+
+    assertThat(emails).isEmpty();
+  }
+
+  @Test
+  void testPluckEmailAddressesFromDistrict_userHasNonSDCRolesAtTargetDistrict_shouldNotReturnEmail() {
+    UUID targetDistrict = UUID.randomUUID();
+    EdxUser user = createMockEdxUser(List.of(), List.of("EDX_DISTRICT_ADMIN", "SECURE_EXCHANGE_DISTRICT"), null, targetDistrict);
+    user.setEmail("admin@gov.bc.ca");
+
+    Set<String> emails = sdcDuplicateService.pluckEmailAddressesFromDistrict(List.of(user), targetDistrict);
+
+    assertThat(emails).isEmpty();
+  }
+
+  @Test
+  void testPluckEmailAddressesFromDistrict_userHasDistrictSDCAtBothTargetAndOtherDistrict_shouldReturnEmailOnce() {
+    UUID targetDistrict = UUID.randomUUID();
+    UUID otherDistrict = UUID.randomUUID();
+
+    EdxUser user = createMockEdxUserWithMultipleDistricts(
+        "multi@gov.bc.ca",
+        Map.of(
+            targetDistrict, List.of("DISTRICT_SDC", "EDX_DISTRICT_ADMIN"),
+            otherDistrict, List.of("DISTRICT_SDC")
+        )
+    );
+
+    Set<String> emails = sdcDuplicateService.pluckEmailAddressesFromDistrict(List.of(user), targetDistrict);
+
+    assertThat(emails).containsExactly("multi@gov.bc.ca");
+  }
+
+  @Test
+  void testPluckEmailAddressesFromDistrict_emptyUserList_shouldReturnEmptySet() {
+    Set<String> emails = sdcDuplicateService.pluckEmailAddressesFromDistrict(List.of(), UUID.randomUUID());
+    assertThat(emails).isEmpty();
+  }
+
+  @Test
+  void testPluckEmailAddressesFromDistrict_multipleUsers_onlySDCUsersAtTargetDistrictIncluded() {
+    UUID targetDistrict = UUID.randomUUID();
+    UUID otherDistrict = UUID.randomUUID();
+
+    EdxUser sdcUser = createMockEdxUser(List.of(), List.of("DISTRICT_SDC"), null, targetDistrict);
+    sdcUser.setEmail("sdc@gov.bc.ca");
+
+    EdxUser adminUser = createMockEdxUser(List.of(), List.of("EDX_DISTRICT_ADMIN"), null, targetDistrict);
+    adminUser.setEmail("admin@gov.bc.ca");
+
+    // This user has DISTRICT_SDC but only at the other district
+    EdxUser wrongDistrictUser = createMockEdxUserWithMultipleDistricts(
+        "wrong@gov.bc.ca",
+        Map.of(
+            targetDistrict, List.of("EDX_DISTRICT_ADMIN"),
+            otherDistrict, List.of("DISTRICT_SDC")
+        )
+    );
+
+    Set<String> emails = sdcDuplicateService.pluckEmailAddressesFromDistrict(
+        List.of(sdcUser, adminUser, wrongDistrictUser), targetDistrict);
+
+    assertThat(emails).containsExactly("sdc@gov.bc.ca");
+  }
+
+  private EdxUser createMockEdxUserWithMultipleDistricts(String email, Map<UUID, List<String>> districtRolesMap) {
+    EdxUser user = new EdxUser();
+    user.setEdxUserID(UUID.randomUUID().toString());
+    user.setEmail(email);
+    user.setEdxUserSchools(new ArrayList<>());
+
+    List<EdxUserDistrict> districts = new ArrayList<>();
+    districtRolesMap.forEach((districtID, roles) -> {
+      EdxUserDistrict edxUserDistrict =
+          new EdxUserDistrict();
+      edxUserDistrict.setEdxUserID(user.getEdxUserID());
+      edxUserDistrict.setDistrictID(districtID);
+      edxUserDistrict.setEdxUserDistrictID(UUID.randomUUID().toString());
+
+      List<EdxUserDistrictRole> districtRoles = new ArrayList<>();
+      roles.forEach(roleCode -> {
+        EdxUserDistrictRole role =
+            new EdxUserDistrictRole();
+        role.setEdxRoleCode(roleCode);
+        role.setEdxUserDistrictID(edxUserDistrict.getEdxUserDistrictID());
+        role.setEdxUserDistrictRoleID(UUID.randomUUID().toString());
+        districtRoles.add(role);
+      });
+      edxUserDistrict.setEdxUserDistrictRoles(districtRoles);
+      districts.add(edxUserDistrict);
+    });
+
+    user.setEdxUserDistricts(districts);
+    return user;
   }
 
 //  @Test

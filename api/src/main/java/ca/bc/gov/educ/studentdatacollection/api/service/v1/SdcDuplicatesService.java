@@ -326,7 +326,7 @@ public class SdcDuplicatesService {
         if(!SchoolCategoryCodes.INDEPENDENTS_AND_OFFSHORE.contains(school.getSchoolCategoryCode())) {
           UUID districtID = UUID.fromString(school.getDistrictId());
           List<EdxUser> districtEdxUsers = restUtils.getEdxUsersForDistrict(districtID);
-          emails.addAll(pluckEmailAddressesFromDistrict(districtEdxUsers));
+          emails.addAll(pluckEmailAddressesFromDistrict(districtEdxUsers, districtID));
         }
 
         SdcSchoolCollection1701Users schoolAndDistrictUsers = new SdcSchoolCollection1701Users();
@@ -366,19 +366,23 @@ public class SdcDuplicatesService {
     return emailSet;
   }
 
-  public Set<String> pluckEmailAddressesFromDistrict(List<EdxUser> edxUsers){
+  public Set<String> pluckEmailAddressesFromDistrict(List<EdxUser> edxUsers, UUID districtID){
     final Set<String> emailSet = new HashSet<>();
-    log.info("[pluckEmailAddressesFromDistrict] pluckEmailAddressesFromDistrict called with {} EDX users", edxUsers.size());
+    log.info("[pluckEmailAddressesFromDistrict] called with {} EDX users for districtID :: {}", edxUsers.size(), districtID);
     edxUsers.forEach(user ->
-      user.getEdxUserDistricts().forEach(district ->
-        district.getEdxUserDistrictRoles().forEach(role -> {
-          log.info("[pluckEmailAddressesFromDistrict] Checking user :: {} (email :: {}), districtID :: {}, role :: {}", user.getEdxUserID(), user.getEmail(), district.getDistrictID(), role.getEdxRoleCode());
-          if (Objects.equals(role.getEdxRoleCode(), "DISTRICT_SDC")) {
-            log.info("[pluckEmailAddressesFromDistrict] DISTRICT_SDC matched — adding email :: {} for districtID :: {}", user.getEmail(), district.getDistrictID());
-            emailSet.add(user.getEmail());
-          }
-    })));
-    log.info("[pluckEmailAddressesFromDistrict] pluckEmailAddressesFromDistrict returning {} emails :: {}", emailSet.size(), emailSet);
+      user.getEdxUserDistricts().stream()
+        .filter(district -> district.getDistrictID() != null && district.getDistrictID().equals(districtID))
+        .forEach(district ->
+          district.getEdxUserDistrictRoles().forEach(role -> {
+            log.debug("[pluckEmailAddressesFromDistrict] Checking user :: {} (email :: {}), districtID :: {}, role :: {}", user.getEdxUserID(), user.getEmail(), district.getDistrictID(), role.getEdxRoleCode());
+            if (Objects.equals(role.getEdxRoleCode(), "DISTRICT_SDC")) {
+              log.debug("[pluckEmailAddressesFromDistrict] DISTRICT_SDC matched — adding email :: {} for districtID :: {}", user.getEmail(), district.getDistrictID());
+              emailSet.add(user.getEmail());
+            }
+          })
+        )
+    );
+    log.debug("[pluckEmailAddressesFromDistrict] returning {} emails for districtID :: {} :: {}", emailSet.size(), districtID, emailSet);
     return emailSet;
   }
 

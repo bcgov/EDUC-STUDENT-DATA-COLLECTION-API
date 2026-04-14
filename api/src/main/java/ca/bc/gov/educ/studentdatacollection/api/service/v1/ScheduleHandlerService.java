@@ -141,11 +141,11 @@ public class ScheduleHandlerService {
   @Transactional
   public List<SdcSagaEntity> createAndStartDistrictSignoffNotificationEmailSagas(Map<UUID, Set<String>> districtCollectionEmailMap, String signOffDueDate) {
     log.info("[DISTRICT-SIGNOFF] createAndStartDistrictSignoffNotificationEmailSagas called with {} entries, signOffDueDate :: {}", districtCollectionEmailMap.size(), signOffDueDate);
-    log.info("[DISTRICT-SIGNOFF] fromEmail :: {}", emailProperties.getSchoolNotificationEmailFrom());
-    log.info("[DISTRICT-SIGNOFF] emailSubject :: {}", emailProperties.getEmailSubjectDistrictSignoffNotification());
+    log.debug("[DISTRICT-SIGNOFF] fromEmail :: {}", emailProperties.getSchoolNotificationEmailFrom());
+    log.debug("[DISTRICT-SIGNOFF] emailSubject :: {}", emailProperties.getEmailSubjectDistrictSignoffNotification());
     List<SdcSagaEntity> sagaEntities = new ArrayList<>();
     for (Map.Entry<UUID, Set<String>> entry : districtCollectionEmailMap.entrySet()) {
-      log.info("[DISTRICT-SIGNOFF] Building saga for districtCollectionID :: {}, emails :: {}", entry.getKey(), entry.getValue());
+      log.debug("[DISTRICT-SIGNOFF] Building saga for districtCollectionID :: {}, emails :: {}", entry.getKey(), entry.getValue());
       if (entry.getValue().isEmpty()) {
         log.warn("[DISTRICT-SIGNOFF] Email set is empty for districtCollectionID :: {} — skipping", entry.getKey());
         continue;
@@ -163,22 +163,26 @@ public class ScheduleHandlerService {
       String payload;
       try {
         payload = JsonUtil.getJsonStringFromObject(emailSagaData);
-        log.info("[DISTRICT-SIGNOFF] Payload for districtCollectionID :: {} :: {}", entry.getKey(), payload);
+        log.debug("[DISTRICT-SIGNOFF] Payload for districtCollectionID :: {} :: {}", entry.getKey(), payload);
       } catch (JsonProcessingException e) {
         log.error("[DISTRICT-SIGNOFF] Failed to serialize emailSagaData for districtCollectionID :: {} :: {}", entry.getKey(), e.getMessage());
         throw new StudentDataCollectionAPIRuntimeException("Exception occurred processing emailSagaData: " + e.getMessage());
       }
 
       final var saga = createSagaEntity(entry.getKey(), payload, SagaEnum.DISTRICT_SIGNOFF_NOTIFICATION_EMAIL_SAGA);
-      log.info("[DISTRICT-SIGNOFF] Saga entity built for districtCollectionID :: {}", entry.getKey());
+      log.debug("[DISTRICT-SIGNOFF] Saga entity built for districtCollectionID :: {}", entry.getKey());
       sagaEntities.add(saga);
     }
     log.info("[DISTRICT-SIGNOFF] Total saga entities built :: {}", sagaEntities.size());
     if (!sagaEntities.isEmpty()) {
       log.info("[DISTRICT-SIGNOFF] Calling districtSignoffNotificationEmailOrchestrator.createSagas");
       var savedSagas = this.districtSignoffNotificationEmailOrchestrator.createSagas(sagaEntities);
-      log.info("Starting districtSignoffNotificationEmailOrchestrator sagas for {} districts", savedSagas.size());
-      savedSagas.forEach(this.districtSignoffNotificationEmailOrchestrator::startSaga);
+      log.info("[DISTRICT-SIGNOFF] createSagas returned {} saved sagas — starting each one", savedSagas.size());
+      savedSagas.forEach(saga -> {
+        log.debug("[DISTRICT-SIGNOFF] Starting saga :: sagaId :: {}, districtCollectionID :: {}", saga.getSagaId(), saga.getSdcSchoolCollectionID());
+        this.districtSignoffNotificationEmailOrchestrator.startSaga(saga);
+      });
+      log.info("[DISTRICT-SIGNOFF] All sagas started");
       return savedSagas;
     }
     log.warn("[DISTRICT-SIGNOFF] sagaEntities is empty — no sagas created or started!");
