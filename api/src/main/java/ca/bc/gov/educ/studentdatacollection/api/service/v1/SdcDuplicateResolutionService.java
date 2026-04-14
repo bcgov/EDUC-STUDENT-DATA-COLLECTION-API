@@ -126,13 +126,13 @@ public class SdcDuplicateResolutionService {
     for (SdcDistrictCollectionEntity districtCollection : incompleteDistrictCollections) {
       UUID districtID = districtCollection.getDistrictID();
       UUID districtCollectionID = districtCollection.getSdcDistrictCollectionID();
-      log.info("[DISTRICT-SIGNOFF] Processing districtCollectionID :: {}, districtID :: {}, status :: {}", districtCollectionID, districtID, districtCollection.getSdcDistrictCollectionStatusCode());
+      log.debug("[DISTRICT-SIGNOFF] Processing districtCollectionID :: {}, districtID :: {}, status :: {}", districtCollectionID, districtID, districtCollection.getSdcDistrictCollectionStatusCode());
       List<EdxUser> districtEdxUsers = restUtils.getEdxUsersForDistrict(districtID);
-      log.info("[DISTRICT-SIGNOFF] Found {} EDX users for districtID :: {}", districtEdxUsers.size(), districtID);
-      Set<String> emails = sdcDuplicatesService.pluckEmailAddressesFromDistrict(districtEdxUsers);
-      log.info("[DISTRICT-SIGNOFF] Plucked {} DISTRICT_SDC emails for districtID :: {} :: {}", emails.size(), districtID, emails);
+      log.debug("[DISTRICT-SIGNOFF] Found {} EDX users for districtID :: {}", districtEdxUsers.size(), districtID);
+      Set<String> emails = sdcDuplicatesService.pluckEmailAddressesFromDistrict(districtEdxUsers, districtID);
+      log.debug("[DISTRICT-SIGNOFF] Plucked {} DISTRICT_SDC emails for districtID :: {} :: {}", emails.size(), districtID, emails);
       if (!emails.isEmpty()) {
-        log.info("[DISTRICT-SIGNOFF] Adding districtCollectionID :: {} to email map", districtCollectionID);
+        log.debug("[DISTRICT-SIGNOFF] Adding districtCollectionID :: {} to email map", districtCollectionID);
         districtCollectionEmailMap.put(districtCollection.getSdcDistrictCollectionID(), emails);
       } else {
         log.warn("[DISTRICT-SIGNOFF] No DISTRICT_SDC emails for districtID :: {} — skipping", districtID);
