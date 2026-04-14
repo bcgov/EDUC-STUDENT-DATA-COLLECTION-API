@@ -368,13 +368,17 @@ public class SdcDuplicatesService {
 
   public Set<String> pluckEmailAddressesFromDistrict(List<EdxUser> edxUsers){
     final Set<String> emailSet = new HashSet<>();
+    log.info("[pluckEmailAddressesFromDistrict] pluckEmailAddressesFromDistrict called with {} EDX users", edxUsers.size());
     edxUsers.forEach(user ->
       user.getEdxUserDistricts().forEach(district ->
         district.getEdxUserDistrictRoles().forEach(role -> {
+          log.info("[pluckEmailAddressesFromDistrict] Checking user :: {} (email :: {}), districtID :: {}, role :: {}", user.getEdxUserID(), user.getEmail(), district.getDistrictID(), role.getEdxRoleCode());
           if (Objects.equals(role.getEdxRoleCode(), "DISTRICT_SDC")) {
+            log.info("[pluckEmailAddressesFromDistrict] DISTRICT_SDC matched — adding email :: {} for districtID :: {}", user.getEmail(), district.getDistrictID());
             emailSet.add(user.getEmail());
           }
     })));
+    log.info("[pluckEmailAddressesFromDistrict] pluckEmailAddressesFromDistrict returning {} emails :: {}", emailSet.size(), emailSet);
     return emailSet;
   }
 
