@@ -624,6 +624,65 @@ class CSVReportServiceTest {
     }
 
     @Test
+    void testGenerateEllStudentsFallCsv_WithIncrementedYearsInEll_UsesCurrentEllRecordValue() {
+        UUID collectionId = UUID.randomUUID();
+        LocalDate septemberDate = LocalDate.of(2023, 9, 29);
+        CollectionEntity collection = new CollectionEntity();
+        collection.setCollectionID(collectionId);
+        collection.setSnapshotDate(septemberDate);
+        collection.setCollectionTypeCode("SEPTEMBER");
+
+        List<EllStudentResult> mockStudentsWithIncrementedEll = List.of(
+                createMockEllStudent("123456789", "6", "Smith"),
+                createMockEllStudent("987654321", "4", "Johnson")
+        );
+
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));
+        when(sdcSchoolCollectionStudentRepository.getEllStudentsByFallCollectionId(collectionId))
+                .thenReturn(mockStudentsWithIncrementedEll);
+
+        // When
+        DownloadableReportResponse response = csvReportService.generateEllStudentsFallCsv(collectionId);
+
+        // Then
+        assertNotNull(response);
+        String csvContent = new String(Base64.getDecoder().decode(response.getDocumentData()), StandardCharsets.UTF_8);
+
+        assertTrue(csvContent.contains("6"), "Should contain incremented yearsInEll value of 6 for Smith");
+        assertTrue(csvContent.contains("4"), "Should contain incremented yearsInEll value of 4 for Johnson");
+        assertTrue(csvContent.contains("123456789"));
+        assertTrue(csvContent.contains("987654321"));
+    }
+
+    @Test
+    void testGenerateEllStudentsFallCsv_WhenNoCurrentEllRecord_FallsBackToSnapshotValue() {
+        UUID collectionId = UUID.randomUUID();
+        LocalDate septemberDate = LocalDate.of(2023, 9, 29);
+        CollectionEntity collection = new CollectionEntity();
+        collection.setCollectionID(collectionId);
+        collection.setSnapshotDate(septemberDate);
+        collection.setCollectionTypeCode("SEPTEMBER");
+
+        List<EllStudentResult> mockStudentsWithSnapshotFallback = List.of(
+                createMockEllStudent("555666777", "2", "Williams")
+        );
+
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));
+        when(sdcSchoolCollectionStudentRepository.getEllStudentsByFallCollectionId(collectionId))
+                .thenReturn(mockStudentsWithSnapshotFallback);
+
+        // When
+        DownloadableReportResponse response = csvReportService.generateEllStudentsFallCsv(collectionId);
+
+        // Then
+        assertNotNull(response);
+        String csvContent = new String(Base64.getDecoder().decode(response.getDocumentData()), StandardCharsets.UTF_8);
+        assertTrue(csvContent.contains("555666777"));
+        assertTrue(csvContent.contains("2"), "Should contain the snapshotted yearsInEll fallback value");
+        assertTrue(csvContent.contains("Williams"));
+    }
+
+    @Test
     void testGenerateEllStudentsFallCsv_WithNonSeptemberCollection_FindsPreviousSeptember() {
         // Given
         UUID currentCollectionId = UUID.randomUUID();

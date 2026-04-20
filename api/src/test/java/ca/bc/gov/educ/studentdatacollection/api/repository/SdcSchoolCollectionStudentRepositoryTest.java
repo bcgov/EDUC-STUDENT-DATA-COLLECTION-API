@@ -5,8 +5,11 @@ import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplicat
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcStudentEllEntity;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentEnrolledProgramRepository;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectionStudentRepository;
+import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepository;
+import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EllStudentResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +36,8 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
     private SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository;
     @Autowired
     private SdcSchoolCollectionStudentEnrolledProgramRepository enrolledProgramRepository;
+    @Autowired
+    private SdcStudentEllRepository sdcStudentEllRepository;
     private UUID schoolCollectionId;
 
     @BeforeEach
@@ -463,6 +468,142 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         var headcounts = sdcSchoolCollectionStudentRepository.getIndigenousHeadcountsBySdcSchoolCollectionId(schoolCollectionId);
         //then only non error student in headcounts
         assertEquals("1", headcounts.get(0).getAllSupportProgramTotal());
+    }
+
+    @Test
+    void testGetEllStudentsByFallCollectionId_givenStudentsWithCurrentEllRecord_shouldReturnCurrentYearsInEll() {
+        var collection = createMockCollectionEntity();
+        collectionRepository.save(collection);
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
+        sdcSchoolCollectionRepository.save(schoolCollection);
+
+        var students = getSdcStudentEntities(schoolCollection, 2);
+        students.get(0).setYearsInEll(4);
+        students.get(0).setAssignedStudentId(UUID.randomUUID());
+        students.get(0).setStudentPen("111222333");
+        students.get(0).setLegalLastName("Smith");
+        students.get(1).setYearsInEll(2);
+        students.get(1).setAssignedStudentId(UUID.randomUUID());
+        students.get(1).setStudentPen("444555666");
+        students.get(1).setLegalLastName("Jones");
+        sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        SdcStudentEllEntity ellRecord0 = createMockStudentEllEntity(students.get(0));
+        ellRecord0.setYearsInEll(5);
+        sdcStudentEllRepository.save(ellRecord0);
+
+        SdcStudentEllEntity ellRecord1 = createMockStudentEllEntity(students.get(1));
+        ellRecord1.setYearsInEll(3);
+        sdcStudentEllRepository.save(ellRecord1);
+
+        List<EllStudentResult> results = sdcSchoolCollectionStudentRepository
+                .getEllStudentsByFallCollectionId(collection.getCollectionID());
+
+        assertEquals(2, results.size());
+        var smithResult = results.stream().filter(r -> "111222333".equals(r.getStudentPen())).findFirst().orElseThrow();
+        var jonesResult = results.stream().filter(r -> "444555666".equals(r.getStudentPen())).findFirst().orElseThrow();
+
+        assertEquals("5", smithResult.getYearsInEll());
+        assertEquals("3", jonesResult.getYearsInEll());
+        assertEquals("Smith", smithResult.getLegalLastName());
+        assertEquals("Jones", jonesResult.getLegalLastName());
+    }
+
+    @Test
+    void testGetEllStudentsByFallCollectionId_givenStudentWithNoCurrentEllRecord_shouldFallBackToSnapshotYearsInEll() {
+        var collection = createMockCollectionEntity();
+        collectionRepository.save(collection);
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
+        sdcSchoolCollectionRepository.save(schoolCollection);
+
+        var students = getSdcStudentEntities(schoolCollection, 1);
+        students.get(0).setYearsInEll(3);
+        students.get(0).setAssignedStudentId(UUID.randomUUID());
+        students.get(0).setStudentPen("777888999");
+        students.get(0).setLegalLastName("Williams");
+        sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        List<EllStudentResult> results = sdcSchoolCollectionStudentRepository
+                .getEllStudentsByFallCollectionId(collection.getCollectionID());
+
+        assertEquals(1, results.size());
+        assertEquals("3", results.get(0).getYearsInEll());
+        assertEquals("777888999", results.get(0).getStudentPen());
+    }
+
+    @Test
+    void testGetEllStudentsByFallCollectionId_givenMixedStudents_shouldReturnCurrentEllWhereAvailableAndFallbackOtherwise() {
+        var collection = createMockCollectionEntity();
+        collectionRepository.save(collection);
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
+        sdcSchoolCollectionRepository.save(schoolCollection);
+
+        var students = getSdcStudentEntities(schoolCollection, 2);
+        students.get(0).setYearsInEll(5);
+        students.get(0).setAssignedStudentId(UUID.randomUUID());
+        students.get(0).setStudentPen("111000111");
+        students.get(0).setLegalLastName("WithEll");
+        students.get(1).setYearsInEll(2);
+        students.get(1).setAssignedStudentId(UUID.randomUUID());
+        students.get(1).setStudentPen("222000222");
+        students.get(1).setLegalLastName("NoEll");
+        sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        SdcStudentEllEntity ellRecord = createMockStudentEllEntity(students.get(0));
+        ellRecord.setYearsInEll(6);
+        sdcStudentEllRepository.save(ellRecord);
+
+        List<EllStudentResult> results = sdcSchoolCollectionStudentRepository
+                .getEllStudentsByFallCollectionId(collection.getCollectionID());
+
+        assertEquals(2, results.size());
+        var withEllResult = results.stream().filter(r -> "111000111".equals(r.getStudentPen())).findFirst().orElseThrow();
+        var noEllResult = results.stream().filter(r -> "222000222".equals(r.getStudentPen())).findFirst().orElseThrow();
+
+        assertEquals("6", withEllResult.getYearsInEll());
+        assertEquals("2", noEllResult.getYearsInEll());
+    }
+
+    @Test
+    void testGetEllStudentsByFallCollectionId_givenStudentWithZeroYearsInEll_shouldNotBeReturned() {
+        var collection = createMockCollectionEntity();
+        collectionRepository.save(collection);
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
+        sdcSchoolCollectionRepository.save(schoolCollection);
+
+        var students = getSdcStudentEntities(schoolCollection, 2);
+        students.get(0).setYearsInEll(0);
+        students.get(0).setAssignedStudentId(UUID.randomUUID());
+        students.get(1).setYearsInEll(1);
+        students.get(1).setAssignedStudentId(UUID.randomUUID());
+        sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        List<EllStudentResult> results = sdcSchoolCollectionStudentRepository
+                .getEllStudentsByFallCollectionId(collection.getCollectionID());
+
+        assertEquals(1, results.size());
+        assertEquals("1", results.get(0).getYearsInEll());
+    }
+
+    @Test
+    void testGetEllStudentsByFallCollectionId_givenErrorStatusStudent_shouldNotBeReturned() {
+        var collection = createMockCollectionEntity();
+        collectionRepository.save(collection);
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
+        sdcSchoolCollectionRepository.save(schoolCollection);
+
+        var students = getSdcStudentEntities(schoolCollection, 2);
+        students.get(0).setYearsInEll(3);
+        students.get(0).setAssignedStudentId(UUID.randomUUID());
+        students.get(0).setSdcSchoolCollectionStudentStatusCode("ERROR");
+        students.get(1).setYearsInEll(3);
+        students.get(1).setAssignedStudentId(UUID.randomUUID());
+        sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        List<EllStudentResult> results = sdcSchoolCollectionStudentRepository
+                .getEllStudentsByFallCollectionId(collection.getCollectionID());
+
+        assertEquals(1, results.size());
     }
 
     private List<SdcSchoolCollectionStudentEntity> getSdcStudentEntities(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, int numStudents) {
