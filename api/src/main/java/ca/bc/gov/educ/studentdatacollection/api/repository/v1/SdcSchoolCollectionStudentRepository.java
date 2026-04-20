@@ -2703,9 +2703,10 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
 
   @Query(value = """
   SELECT sscs.studentPen as studentPen,
-         sscs.yearsInEll as yearsInEll,
+         COALESCE(ell.yearsInEll, sscs.yearsInEll) as yearsInEll,
          sscs.legalLastName as legalLastName
   FROM SdcSchoolCollectionStudentEntity sscs
+  LEFT JOIN SdcStudentEllEntity ell ON ell.studentID = sscs.assignedStudentId
   WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
   AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :fallCollectionID
   AND sscs.yearsInEll > 0""")
