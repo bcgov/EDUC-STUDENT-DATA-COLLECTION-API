@@ -49,4 +49,10 @@ public interface MinistryHeadcountReports {
     @Transactional(readOnly = true)
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
     void generateAllDistrictReportsStreamChunked(@PathVariable("sdcDistrictCollectionID") UUID sdcDistrictCollectionID, HttpServletResponse response) throws IOException;
+
+    @GetMapping("/{collectionID}/{type}/stream")
+    @PreAuthorize("hasAuthority('SCOPE_READ_SDC_MINISTRY_REPORTS')")
+    @Transactional(readOnly = true)
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "OK"), @ApiResponse(responseCode = "404", description = "NOT FOUND"), @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR.")})
+    void streamMinistryReport(@PathVariable UUID collectionID, @PathVariable(name = "type") String type, HttpServletResponse response) throws IOException;
 }

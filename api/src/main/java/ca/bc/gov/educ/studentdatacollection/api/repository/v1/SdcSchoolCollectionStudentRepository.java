@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Repository
 public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcSchoolCollectionStudentEntity, UUID>, JpaSpecificationExecutor<SdcSchoolCollectionStudentEntity> {
@@ -2702,14 +2703,24 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   List<StudentGradeEnrolmentCount> getEnrolmentCountInCollectionByGrade(UUID collectionID, String enrolledGrade, List<UUID> schoolIDs);
 
   @Query(value = """
-  SELECT sscs.STUDENT_PEN as studentPen,
-         COALESCE(ell.YEARS_IN_ELL, sscs.YEARS_IN_ELL) as yearsInEll,
-         sscs.LEGAL_LAST_NAME as legalLastName
-  FROM SDC_SCHOOL_COLLECTION_STUDENT sscs
-  JOIN SDC_SCHOOL_COLLECTION sc ON sc.SDC_SCHOOL_COLLECTION_ID = sscs.SDC_SCHOOL_COLLECTION_ID
-  LEFT JOIN SDC_STUDENT_ELL ell ON ell.STUDENT_ID = sscs.ASSIGNED_STUDENT_ID
-  WHERE sscs.SDC_SCHOOL_COLLECTION_STUDENT_STATUS_CODE NOT IN ('ERROR', 'DELETED')
-  AND sc.COLLECTION_ID = :fallCollectionID
-  AND sscs.YEARS_IN_ELL > 0""", nativeQuery = true)
+  SELECT sscs.studentPen as studentPen,
+         COALESCE(ell.yearsInEll, sscs.yearsInEll) as yearsInEll,
+         sscs.legalLastName as legalLastName
+  FROM SdcSchoolCollectionStudentEntity sscs
+  LEFT JOIN SdcStudentEllEntity ell ON ell.studentID = sscs.assignedStudentId
+  WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
+  AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :fallCollectionID
+  AND sscs.yearsInEll > 0""")
   List<EllStudentResult> getEllStudentsByFallCollectionId(@Param("fallCollectionID") UUID fallCollectionID);
+
+  @Query(value = """
+  SELECT sscs.studentPen as studentPen,
+         COALESCE(ell.yearsInEll, sscs.yearsInEll) as yearsInEll,
+         sscs.legalLastName as legalLastName
+  FROM SdcSchoolCollectionStudentEntity sscs
+  LEFT JOIN SdcStudentEllEntity ell ON ell.studentID = sscs.assignedStudentId
+  WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
+  AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :fallCollectionID
+  AND sscs.yearsInEll > 0""")
+  Stream<EllStudentResult> streamEllStudentsByFallCollectionId(@Param("fallCollectionID") UUID fallCollectionID);
 }

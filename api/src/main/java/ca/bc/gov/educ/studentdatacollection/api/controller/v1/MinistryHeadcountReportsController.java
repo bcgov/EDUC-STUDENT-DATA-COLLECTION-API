@@ -99,4 +99,19 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
     public void generateAllDistrictReportsStreamChunked(UUID sdcDistrictCollectionID, HttpServletResponse response) throws IOException {
         allReportsService.generateAllDistrictReportsStreamChunked(sdcDistrictCollectionID, response);
     }
+
+    @Override
+    public void streamMinistryReport(UUID collectionID, String type, HttpServletResponse response) throws IOException {
+        Optional<MinistryReportTypeCode> code = MinistryReportTypeCode.findByValue(type);
+
+        if (code.isEmpty()) {
+            ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid report type code.").status(BAD_REQUEST).build();
+            throw new InvalidPayloadException(error);
+        }
+
+        switch (code.get()) {
+            case ELL_STUDENTS_FALL_CSV -> ministryReportsService.generateEllStudentsFallCsvStream(collectionID, response);
+            default -> response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Streaming not supported for report type: " + type);
+        }
+    }
 }
