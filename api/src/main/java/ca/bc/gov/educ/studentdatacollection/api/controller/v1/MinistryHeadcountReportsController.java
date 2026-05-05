@@ -27,6 +27,8 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @RequiredArgsConstructor
 public class MinistryHeadcountReportsController implements MinistryHeadcountReports {
 
+    private static final String INVALID_REPORT_TYPE_MSG = "Payload contains invalid report type code.";
+
     private final MinistryHeadcountService ministryHeadcountService;
     private final CSVReportService ministryReportsService;
     private final AllReportsService allReportsService;
@@ -36,7 +38,7 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
         Optional<MinistryReportTypeCode> code = MinistryReportTypeCode.findByValue(type);
 
         if(code.isEmpty()){
-            ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid report type code.").status(BAD_REQUEST).build();
+            ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_REPORT_TYPE_MSG).status(BAD_REQUEST).build();
             throw new InvalidPayloadException(error);
         }
 
@@ -62,7 +64,7 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
         Optional<MinistryReportTypeCode> code = MinistryReportTypeCode.findByValue(type);
 
         if(code.isEmpty()){
-            ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message("Payload contains invalid report type code.").status(BAD_REQUEST).build();
+            ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_REPORT_TYPE_MSG).status(BAD_REQUEST).build();
             throw new InvalidPayloadException(error);
         }
 
@@ -98,5 +100,20 @@ public class MinistryHeadcountReportsController implements MinistryHeadcountRepo
     @Override
     public void generateAllDistrictReportsStreamChunked(UUID sdcDistrictCollectionID, HttpServletResponse response) throws IOException {
         allReportsService.generateAllDistrictReportsStreamChunked(sdcDistrictCollectionID, response);
+    }
+
+    @Override
+    public void streamMinistryReport(UUID collectionID, String type, HttpServletResponse response) throws IOException {
+        Optional<MinistryReportTypeCode> code = MinistryReportTypeCode.findByValue(type);
+
+        if (code.isEmpty()) {
+            ApiError error = ApiError.builder().timestamp(LocalDateTime.now()).message(INVALID_REPORT_TYPE_MSG).status(BAD_REQUEST).build();
+            throw new InvalidPayloadException(error);
+        }
+
+        switch (code.get()) {
+            case ELL_STUDENTS_FALL_CSV -> ministryReportsService.generateEllStudentsFallCsvStream(collectionID, response);
+            default -> response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Streaming not supported for report type: " + type);
+        }
     }
 }

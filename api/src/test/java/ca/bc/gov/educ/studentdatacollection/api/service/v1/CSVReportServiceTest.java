@@ -1290,6 +1290,111 @@ class CSVReportServiceTest {
         };
     }
 
+    @Test
+    void generateEllStudentsFallCsvStream_WithSeptemberCollection_StreamsCsvToResponse() throws Exception {
+        UUID collectionId = UUID.randomUUID();
+        CollectionEntity collection = new CollectionEntity();
+        collection.setCollectionID(collectionId);
+        collection.setSnapshotDate(LocalDate.of(2023, 9, 29));
+        collection.setCollectionTypeCode("SEPTEMBER");
+
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));
+        when(sdcSchoolCollectionStudentRepository.streamEllStudentsByFallCollectionId(collectionId))
+                .thenReturn(java.util.stream.Stream.of(
+                        createMockEllStudent("123456789", "5", "Smith"),
+                        createMockEllStudent("987654321", "3", "Johnson")
+                ));
+
+        org.springframework.mock.web.MockHttpServletResponse response = new org.springframework.mock.web.MockHttpServletResponse();
+        csvReportService.generateEllStudentsFallCsvStream(collectionId, response);
+
+        String csvContent = response.getContentAsString();
+        assertEquals("text/csv;charset=UTF-8", response.getContentType());
+        assertTrue(csvContent.contains("PEN,Years_Of_ELL,Legal_Last_Name"));
+        assertTrue(csvContent.contains("123456789"));
+        assertTrue(csvContent.contains("987654321"));
+        assertTrue(csvContent.contains("Smith"));
+        assertTrue(csvContent.contains("Johnson"));
+    }
+
+    @Test
+    void generateEllStudentsFallCsvStream_WithNonSeptemberCollection_FindsPreviousSeptemberAndStreams() throws Exception {
+        UUID currentCollectionId = UUID.randomUUID();
+        UUID previousSeptCollectionId = UUID.randomUUID();
+        LocalDate februaryDate = LocalDate.of(2024, 2, 15);
+
+        CollectionEntity currentCollection = new CollectionEntity();
+        currentCollection.setCollectionID(currentCollectionId);
+        currentCollection.setSnapshotDate(februaryDate);
+        currentCollection.setCollectionTypeCode("FEBRUARY");
+
+        CollectionEntity previousSeptCollection = new CollectionEntity();
+        previousSeptCollection.setCollectionID(previousSeptCollectionId);
+        previousSeptCollection.setSnapshotDate(LocalDate.of(2023, 9, 29));
+        previousSeptCollection.setCollectionTypeCode("SEPTEMBER");
+
+        when(collectionRepository.findById(currentCollectionId)).thenReturn(Optional.of(currentCollection));
+        when(collectionRepository.findPreviousSeptemberCollection(februaryDate)).thenReturn(Optional.of(previousSeptCollection));
+        when(sdcSchoolCollectionStudentRepository.streamEllStudentsByFallCollectionId(previousSeptCollectionId))
+                .thenReturn(java.util.stream.Stream.of(createMockEllStudent("111222333", "2", "Brown")));
+
+        org.springframework.mock.web.MockHttpServletResponse response = new org.springframework.mock.web.MockHttpServletResponse();
+        csvReportService.generateEllStudentsFallCsvStream(currentCollectionId, response);
+
+        String csvContent = response.getContentAsString();
+        assertTrue(csvContent.contains("111222333"));
+        assertTrue(csvContent.contains("Brown"));
+    }
+
+    @Test
+    void generateEllStudentsFallCsvStream_WithEmptyResults_StreamsOnlyHeader() throws Exception {
+        UUID collectionId = UUID.randomUUID();
+        CollectionEntity collection = new CollectionEntity();
+        collection.setCollectionID(collectionId);
+        collection.setSnapshotDate(LocalDate.of(2023, 9, 29));
+        collection.setCollectionTypeCode("SEPTEMBER");
+
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));
+        when(sdcSchoolCollectionStudentRepository.streamEllStudentsByFallCollectionId(collectionId))
+                .thenReturn(java.util.stream.Stream.empty());
+
+        org.springframework.mock.web.MockHttpServletResponse response = new org.springframework.mock.web.MockHttpServletResponse();
+        csvReportService.generateEllStudentsFallCsvStream(collectionId, response);
+
+        String csvContent = response.getContentAsString();
+        String[] lines = csvContent.trim().split("\n");
+        assertEquals(1, lines.length);
+        assertTrue(lines[0].contains("PEN,Years_Of_ELL,Legal_Last_Name"));
+    }
+
+    @Test
+    void generateEllStudentsFallCsvStream_WithCollectionNotFound_ThrowsEntityNotFoundException() {
+        UUID collectionId = UUID.randomUUID();
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.empty());
+
+        org.springframework.mock.web.MockHttpServletResponse response = new org.springframework.mock.web.MockHttpServletResponse();
+        assertThrows(Exception.class, () -> csvReportService.generateEllStudentsFallCsvStream(collectionId, response));
+    }
+
+    @Test
+    void generateEllStudentsFallCsvStream_LastNameWithComma_IsProperlyQuoted() throws Exception {
+        UUID collectionId = UUID.randomUUID();
+        CollectionEntity collection = new CollectionEntity();
+        collection.setCollectionID(collectionId);
+        collection.setSnapshotDate(LocalDate.of(2023, 9, 29));
+        collection.setCollectionTypeCode("SEPTEMBER");
+
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));
+        when(sdcSchoolCollectionStudentRepository.streamEllStudentsByFallCollectionId(collectionId))
+                .thenReturn(java.util.stream.Stream.of(createMockEllStudent("123456789", "3", "Smith, Jr")));
+
+        org.springframework.mock.web.MockHttpServletResponse response = new org.springframework.mock.web.MockHttpServletResponse();
+        csvReportService.generateEllStudentsFallCsvStream(collectionId, response);
+
+        String csvContent = response.getContentAsString();
+        assertTrue(csvContent.contains("\"Smith, Jr\""));
+    }
+
     private EllStudentResult createMockEllStudent(String pen, String yearsInEll, String lastName) {
         return new EllStudentResult() {
             @Override

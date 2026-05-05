@@ -1763,4 +1763,102 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
             .andDo(print())
             .andExpect(status().isUnauthorized());
   }
+
+  @Test
+  void testStreamMinistryReport_WithInvalidType_ShouldReturnBadRequest() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    this.mockMvc.perform(
+                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + UUID.randomUUID() + "/invalid-type/stream")
+                            .with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testStreamMinistryReport_WithoutAuthorization_ShouldReturnUnauthorized() throws Exception {
+    this.mockMvc.perform(
+                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + UUID.randomUUID() + "/ell-students-fall-csv/stream"))
+            .andDo(print())
+            .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void testStreamEllStudentsFallCsv_WithSeptemberCollection_ShouldStreamCsv() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    when(this.restUtils.getAllSchoolBySchoolID(anyString())).thenReturn(Optional.of(this.createMockSchoolDetail()));
+
+    CollectionEntity collection = createMockCollectionEntity();
+    collection.setSnapshotDate(LocalDate.of(2023, 9, 29));
+    collection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+    collection.setCloseDate(LocalDateTime.now().plusDays(2));
+    collection = collectionRepository.save(collection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(collection, null);
+    var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
+
+    SchoolTombstone school1 = createMockSchool();
+    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school1.getSchoolId()));
+    sdcSchoolCollectionEntity.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
+
+    var student = createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+    student.setYearsInEll(3);
+    student.setLegalLastName("StreamedStudent");
+    sdcSchoolCollectionStudentRepository.save(student);
+
+    var resultActions = this.mockMvc.perform(
+                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/ell-students-fall-csv/stream")
+                            .with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isOk());
+
+    String response = resultActions.andReturn().getResponse().getContentAsString();
+    assertThat(response).contains("PEN,Years_Of_ELL,Legal_Last_Name");
+  }
+
+  @Test
+  void testStreamEllStudentsFallCsv_WithFebruaryCollection_ShouldFindPreviousSeptemberAndStream() throws Exception {
+    final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
+    final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
+
+    when(this.restUtils.getAllSchoolBySchoolID(anyString())).thenReturn(Optional.of(this.createMockSchoolDetail()));
+
+    CollectionEntity septCollection = createMockCollectionEntity();
+    septCollection.setSnapshotDate(LocalDate.of(2023, 9, 29));
+    septCollection.setCollectionTypeCode(CollectionTypeCodes.SEPTEMBER.getTypeCode());
+    septCollection = collectionRepository.save(septCollection);
+
+    SdcDistrictCollectionEntity sdcMockDistrict = createMockSdcDistrictCollectionEntity(septCollection, null);
+    var sdcDistrictCollectionID = sdcDistrictCollectionRepository.save(sdcMockDistrict).getSdcDistrictCollectionID();
+
+    SchoolTombstone school1 = createMockSchool();
+    school1.setDistrictId(sdcMockDistrict.getDistrictID().toString());
+    SdcSchoolCollectionEntity sdcSchoolCollectionEntity = createMockSdcSchoolCollectionEntity(septCollection, UUID.fromString(school1.getSchoolId()));
+    sdcSchoolCollectionEntity.setSdcDistrictCollectionID(sdcDistrictCollectionID);
+    sdcSchoolCollectionRepository.save(sdcSchoolCollectionEntity);
+
+    var student = createMockSchoolStudentEntity(sdcSchoolCollectionEntity);
+    student.setYearsInEll(2);
+    student.setLegalLastName("SeptStudent");
+    sdcSchoolCollectionStudentRepository.save(student);
+
+    CollectionEntity febCollection = createMockCollectionEntity();
+    febCollection.setSnapshotDate(LocalDate.of(2024, 2, 15));
+    febCollection.setCollectionTypeCode(CollectionTypeCodes.FEBRUARY.getTypeCode());
+    febCollection = collectionRepository.save(febCollection);
+
+    var resultActions = this.mockMvc.perform(
+                    get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + febCollection.getCollectionID() + "/ell-students-fall-csv/stream")
+                            .with(mockAuthority))
+            .andDo(print())
+            .andExpect(status().isOk());
+
+    String response = resultActions.andReturn().getResponse().getContentAsString();
+    assertThat(response).contains("PEN,Years_Of_ELL,Legal_Last_Name");
+  }
 }

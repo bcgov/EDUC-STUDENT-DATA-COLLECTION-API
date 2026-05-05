@@ -20,6 +20,7 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.DownloadableRe
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.reports.SpedFundingReportTotals;
 import ca.bc.gov.educ.studentdatacollection.api.util.LocalDateTimeUtil;
 import ca.bc.gov.educ.studentdatacollection.api.util.TransformUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -28,15 +29,18 @@ import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.MinistryReportTypeCode.*;
 import static ca.bc.gov.educ.studentdatacollection.api.constants.v1.ministryreports.IndySchoolEnrolmentHeadcountHeader.*;
@@ -960,6 +964,48 @@ public class CSVReportService {
             return downloadableReport;
         } catch (IOException e) {
             throw new StudentDataCollectionAPIRuntimeException(e);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void generateEllStudentsFallCsvStream(UUID collectionID, HttpServletResponse response) throws IOException {
+        var currentCollectionOpt = collectionRepository.findById(collectionID);
+        if (currentCollectionOpt.isEmpty()) {
+            throw new EntityNotFoundException(CollectionEntity.class, COLLECTION_ID, collectionID.toString());
+        }
+
+        CollectionEntity currentCollection = currentCollectionOpt.get();
+        CollectionEntity fallCollection;
+
+        if (CollectionTypeCodes.SEPTEMBER.getTypeCode().equals(currentCollection.getCollectionTypeCode())) {
+            fallCollection = currentCollection;
+        } else {
+            var previousSeptCollectionOpt = collectionRepository.findPreviousSeptemberCollection(currentCollection.getSnapshotDate());
+            if (previousSeptCollectionOpt.isEmpty()) {
+                throw new EntityNotFoundException(CollectionEntity.class, "Previous September collection not found for collectionID", collectionID.toString());
+            }
+            fallCollection = previousSeptCollectionOpt.get();
+        }
+
+        response.setContentType("text/csv;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\"ell-students-fall.csv\"");
+        response.setHeader("Cache-Control", "no-cache");
+
+        try (PrintWriter writer = response.getWriter();
+             Stream<EllStudentResult> studentStream = sdcSchoolCollectionStudentRepository.streamEllStudentsByFallCollectionId(fallCollection.getCollectionID())) {
+
+            writer.println("PEN,Years_Of_ELL,Legal_Last_Name");
+            writer.flush();
+
+            studentStream.forEach(student -> {
+                String pen = student.getStudentPen() != null ? student.getStudentPen() : "";
+                String years = student.getYearsInEll() != null ? student.getYearsInEll() : "";
+                String lastName = student.getLegalLastName() != null ? student.getLegalLastName().replace("\"", "\"\"") : "";
+                writer.println(pen + "," + years + ",\"" + lastName + "\"");
+            });
+
+            writer.flush();
         }
     }
 
