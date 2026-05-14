@@ -2710,7 +2710,7 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   LEFT JOIN SdcStudentEllEntity ell ON ell.studentID = sscs.assignedStudentId
   WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
   AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :fallCollectionID
-  AND sscs.yearsInEll > 0""")
+  AND COALESCE(ell.yearsInEll, sscs.yearsInEll) > 0""")
   List<EllStudentResult> getEllStudentsByFallCollectionId(@Param("fallCollectionID") UUID fallCollectionID);
 
   @Query(value = """
@@ -2721,6 +2721,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   LEFT JOIN SdcStudentEllEntity ell ON ell.studentID = sscs.assignedStudentId
   WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
   AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :fallCollectionID
-  AND sscs.yearsInEll > 0""")
+  AND COALESCE(ell.yearsInEll, sscs.yearsInEll) > 0""")
   Stream<EllStudentResult> streamEllStudentsByFallCollectionId(@Param("fallCollectionID") UUID fallCollectionID);
 }
