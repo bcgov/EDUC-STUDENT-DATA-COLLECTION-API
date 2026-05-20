@@ -1318,6 +1318,30 @@ class CSVReportServiceTest {
     }
 
     @Test
+    void generateEllStudentsFallCsvStream_FlushesHeaderBeforeOpeningStudentStream() throws Exception {
+        UUID collectionId = UUID.randomUUID();
+        CollectionEntity collection = new CollectionEntity();
+        collection.setCollectionID(collectionId);
+        collection.setSnapshotDate(LocalDate.of(2023, 9, 29));
+        collection.setCollectionTypeCode("SEPTEMBER");
+
+        when(collectionRepository.findById(collectionId)).thenReturn(Optional.of(collection));
+
+        HeaderFlushTrackingResponse response = new HeaderFlushTrackingResponse();
+        when(sdcSchoolCollectionStudentRepository.streamEllStudentsByFallCollectionId(collectionId))
+                .thenAnswer(invocation -> {
+                    assertTrue(response.hasFlushedContent(), "CSV header should be flushed before opening the student stream");
+                    return java.util.stream.Stream.of(createMockEllStudent("123456789", "5", "Smith"));
+                });
+
+        csvReportService.generateEllStudentsFallCsvStream(collectionId, response);
+
+        String csvContent = response.getContentAsString();
+        assertTrue(csvContent.contains("PEN,Years_Of_ELL,Legal_Last_Name"));
+        assertTrue(csvContent.contains("123456789"));
+    }
+
+    @Test
     void generateEllStudentsFallCsvStream_WithNonSeptemberCollection_FindsPreviousSeptemberAndStreams() throws Exception {
         UUID currentCollectionId = UUID.randomUUID();
         UUID previousSeptCollectionId = UUID.randomUUID();
@@ -1412,5 +1436,21 @@ class CSVReportServiceTest {
                 return lastName;
             }
         };
+    }
+
+    private static class HeaderFlushTrackingResponse extends org.springframework.mock.web.MockHttpServletResponse {
+        private boolean flushedContent;
+
+        @Override
+        public void flushBuffer() {
+            if (getContentAsByteArray().length > 0) {
+                flushedContent = true;
+            }
+            super.flushBuffer();
+        }
+
+        boolean hasFlushedContent() {
+            return flushedContent;
+        }
     }
 }

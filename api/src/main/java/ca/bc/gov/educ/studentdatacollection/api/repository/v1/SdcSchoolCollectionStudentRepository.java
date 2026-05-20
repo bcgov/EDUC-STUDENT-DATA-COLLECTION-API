@@ -6,10 +6,12 @@ import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ICountValidationIssues
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.ProgressCountsForDistrict;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.StudentGradeEnrolmentCount;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.*;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -2722,5 +2724,6 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
   WHERE sscs.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')
   AND sscs.sdcSchoolCollection.collectionEntity.collectionID = :fallCollectionID
   AND COALESCE(ell.yearsInEll, sscs.yearsInEll) > 0""")
+  @QueryHints(@QueryHint(name = "org.hibernate.fetchSize", value = "100"))
   Stream<EllStudentResult> streamEllStudentsByFallCollectionId(@Param("fallCollectionID") UUID fallCollectionID);
 }

@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -68,6 +67,7 @@ public class CSVReportService {
     private final ValidationRulesService validationService;
     private static final String COLLECTION_ID = "collectionID";
     private static final String SCHOOL_ID = "schoolID";
+    private static final int CSV_STREAM_FLUSH_INTERVAL = 100;
     private static final String DISTRICT_ID = "districtID";
     private static final String INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and SEPT collections";
     private static final String HEADCOUNTS_INVALID_COLLECTION_TYPE = "Invalid collectionType. Report can only be generated for FEB and MAY collections";
@@ -992,20 +992,38 @@ public class CSVReportService {
         response.setHeader("Content-Disposition", "attachment; filename=\"ell-students-fall.csv\"");
         response.setHeader("Cache-Control", "no-cache");
 
-        try (PrintWriter writer = response.getWriter();
-             Stream<EllStudentResult> studentStream = sdcSchoolCollectionStudentRepository.streamEllStudentsByFallCollectionId(fallCollection.getCollectionID())) {
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader("PEN", "Years_Of_ELL", "Legal_Last_Name")
+                .build();
 
-            writer.println("PEN,Years_Of_ELL,Legal_Last_Name");
-            writer.flush();
+        try (var writer = response.getWriter();
+             CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
+            csvPrinter.flush();
+            response.flushBuffer();
 
-            studentStream.forEach(student -> {
-                String pen = student.getStudentPen() != null ? student.getStudentPen() : "";
-                String years = student.getYearsInEll() != null ? student.getYearsInEll() : "";
-                String lastName = student.getLegalLastName() != null ? student.getLegalLastName().replace("\"", "\"\"") : "";
-                writer.println(pen + "," + years + ",\"" + lastName + "\"");
-            });
+            try (Stream<EllStudentResult> studentStream = sdcSchoolCollectionStudentRepository.streamEllStudentsByFallCollectionId(fallCollection.getCollectionID())) {
+                Iterator<EllStudentResult> students = studentStream.iterator();
+                int rowsSinceFlush = 0;
 
-            writer.flush();
+                while (students.hasNext()) {
+                    EllStudentResult student = students.next();
+                    csvPrinter.printRecord(
+                            student.getStudentPen(),
+                            student.getYearsInEll(),
+                            student.getLegalLastName()
+                    );
+
+                    rowsSinceFlush++;
+                    if (rowsSinceFlush >= CSV_STREAM_FLUSH_INTERVAL) {
+                        csvPrinter.flush();
+                        response.flushBuffer();
+                        rowsSinceFlush = 0;
+                    }
+                }
+            }
+
+            csvPrinter.flush();
+            response.flushBuffer();
         }
     }
 
